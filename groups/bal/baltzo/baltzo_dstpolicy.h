@@ -95,11 +95,14 @@ struct DstPolicy {
   public:
     // TYPES
     enum Enum {
+//ARB:ENUM 98
         BALTZO_DST,         // Local time is interpreted as daylight-saving
                             // time.
 
+//ARB:ENUM 101
         BALTZO_STANDARD,    // Local time is interpreted as standard time.
 
+//ARB:ENUM 103
         BALTZO_UNSPECIFIED  // Local time is interpreted as either
                             // daylight-saving time or standard time (as
                             // appropriate).

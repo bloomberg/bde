@@ -328,6 +328,7 @@ namespace bdlat_EnumFunctions {
         // documentation for further information.
 
         enum {
+//ARB:ENUM 331
             VALUE = bslalg::HasTrait<TYPE,
                                     bdlat_TypeTraitBasicEnumeration>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

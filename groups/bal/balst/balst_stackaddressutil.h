@@ -267,6 +267,7 @@ struct StackAddressUtil {
 #endif
 
 #if !defined(BDE_OMIT_INTERNAL_DEPRECATED)
+//ARB:ENUM 270
     enum { BAESU_IGNORE_FRAMES = k_IGNORE_FRAMES };
 #endif
 

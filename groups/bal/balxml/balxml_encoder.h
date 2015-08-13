@@ -1112,6 +1112,7 @@ Encoder_EncodeObject::executeImp(const TYPE&            object,
                                         int                    formattingMode,
                                         bdeat_TypeCategory::NullableValue)
 {
+//ARB:ENUM 1115
     enum { BAEXML_SUCCESS = 0 };
 
     if (bdeat_NullableValueFunctions::isNull(object)) {
@@ -1162,6 +1163,7 @@ int Encoder_EncodeObject::executeImp(
                                          int                    formattingMode,
                                          ANY_CATEGORY)
 {
+//ARB:ENUM 1165
     enum { BAEXML_FAILURE = -1 };
 
     bool isUntagged = formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED;
@@ -1227,6 +1229,7 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
                                          const bslstl::StringRef& tag,
                                          int                    formattingMode)
 {
+//ARB:ENUM 1230
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     const int size = (int)bdeat_ArrayFunctions::size(object);
@@ -1296,6 +1299,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
                                            bdeat_TypeCategory::Sequence)
 {
+//ARB:ENUM 1299
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
@@ -1336,6 +1340,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
                                            bdeat_TypeCategory::Choice)
 {
+//ARB:ENUM 1339
     enum { BAEXML_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
@@ -1431,6 +1436,7 @@ int Encoder_SequenceFirstPass::addAttributeImp(
                                          int                    formattingMode,
                                          bdeat_TypeCategory::NullableValue)
 {
+//ARB:ENUM 1434
     enum { BAEXML_SUCCESS = 0 };
 
     if (bdeat_NullableValueFunctions::isNull(object)) {
@@ -1514,6 +1520,7 @@ template <typename TYPE, typename INFO_TYPE>
 int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
                                                  const INFO_TYPE& info)
 {
+//ARB:ENUM 1517
     enum { BAEXML_SUCCESS = 0 };
 
     int  formattingMode  = info.formattingMode();
@@ -1574,6 +1581,7 @@ template <typename TYPE, typename INFO_TYPE>
 int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
                                                   const INFO_TYPE& info)
 {
+//ARB:ENUM 1577
     enum { BAEXML_SUCCESS = 0 };
 
     int formattingMode = info.formattingMode();

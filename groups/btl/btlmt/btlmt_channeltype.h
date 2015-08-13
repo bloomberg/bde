@@ -63,9 +63,13 @@ struct ChannelType {
   public:
     // TYPES
     enum Value {
+//ARB:ENUM 66
         BTEMT_LISTENING_CHANNEL = 1,
+//ARB:ENUM 67
         BTEMT_ACCEPTED_CHANNEL,
+//ARB:ENUM 68
         BTEMT_CONNECTING_CHANNEL,
+//ARB:ENUM 69
         BTEMT_CONNECTED_CHANNEL,
         BTEMT_IMPORTED_CHANNEL
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -77,6 +81,7 @@ struct ChannelType {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+//ARB:ENUM 80
     enum { BTEMT_LENGTH = BTEMT_IMPORTED_CHANNEL };
         // Define 'LENGTH' to be the number of consecutively valued enumerators
         // in the range '[ LISTENING_CHANNEL .. IMPORTED_CHANNEL ]'.

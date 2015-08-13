@@ -243,6 +243,7 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(0 < dataLength);
 
+//ARB:ENUM 246
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
@@ -289,6 +290,7 @@ int ListParser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
+//ARB:ENUM 292
     enum { BAEXML_SUCCESS = 0 };
 
     d_characters.clear();
@@ -304,6 +306,7 @@ int ListParser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
+//ARB:ENUM 307
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     if (!d_characters.empty()) {
@@ -325,6 +328,7 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
+//ARB:ENUM 328
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     while (begin != end) {

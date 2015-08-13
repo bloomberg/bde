@@ -366,9 +366,11 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // DEPRECATED: The enumerated hints are not supported and will be
         // ignored by this component.
 
+//ARB:ENUM 369
         BTEMT_NO_HINT,                 // The (de)registrations will likely be
                                        // frequent.
 
+//ARB:ENUM 372
         BTEMT_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
                                        // infrequent.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -385,7 +387,9 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
   private:
     // PRIVATE TYPES
     enum State {
+//ARB:ENUM 388
         BTEMT_ENABLED  = 0,  // dispatching thread is running
+//ARB:ENUM 389
         BTEMT_DISABLED = 1   // dispatching thread is not running
     };
 

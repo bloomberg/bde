@@ -324,6 +324,7 @@ class StrTokenRefIter {
     // 'bslstl::StringRef'.
 
     // PRIVATE TYPES
+//ARB:ENUM 327
     enum { BDEUT_TABLE_SIZE = 256 };
 
     // DATA

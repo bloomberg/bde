@@ -442,6 +442,7 @@ class MultipriorityThreadPool {
         // pointer passed as arguments when creating a thread.
 
     enum {
+//ARB:ENUM 445
         BCEP_MAX_NUM_PRIORITIES = sizeof(int) * CHAR_BIT  // bits per 'int'
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , MAX_NUM_PRIORITIES = BCEP_MAX_NUM_PRIORITIES

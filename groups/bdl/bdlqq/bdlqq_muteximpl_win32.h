@@ -113,6 +113,7 @@ class MutexImpl<Platform::Win32Threads> {
         // operation spins this many iterations (on, presumably, some atomic
         // integer) before sleeping on the underlying primitive.
 
+//ARB:ENUM 116
         BCEMT_SPIN_COUNT = 30
     };
 

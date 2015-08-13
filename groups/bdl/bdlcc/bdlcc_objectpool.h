@@ -1505,6 +1505,7 @@ bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
 {
     enum {
         k_NUM_OBJECTS_PER_FRAME =
+//ARB:ENUM 1508
            bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::k_NUM_OBJECTS_PER_FRAME
     };
     if (d_head_p) {

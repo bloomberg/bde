@@ -2186,6 +2186,7 @@ Decoder_ChoiceContext<TYPE>::Decoder_ChoiceContext(
 template <typename TYPE>
 int Decoder_ChoiceContext<TYPE>::startElement(Decoder *)
 {
+//ARB:ENUM 2189
     enum { BAEXML_SUCCESS = 0 };
 
     d_isSelectionNameKnown = false;  // no selection seen yet
@@ -2196,6 +2197,7 @@ int Decoder_ChoiceContext<TYPE>::startElement(Decoder *)
 template <typename TYPE>
 int Decoder_ChoiceContext<TYPE>::endElement(Decoder *decoder)
 {
+//ARB:ENUM 2199
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     if (!d_isSelectionNameKnown) {
@@ -2214,6 +2216,7 @@ int Decoder_ChoiceContext<TYPE>::addCharacters(const char *chars,
                                                    unsigned int length,
                                                    Decoder *decoder)
 {
+//ARB:ENUM 2217
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(0 != length);
@@ -2243,6 +2246,7 @@ int Decoder_ChoiceContext<TYPE>::parseAttribute(const char     *,
                                                        bsl::size_t     ,
                                                        Decoder *)
 {
+//ARB:ENUM 2246
     enum { BAEXML_ATTRIBUTE_IGNORED = 0 };
 
     return BAEXML_ATTRIBUTE_IGNORED;
@@ -2253,6 +2257,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
+//ARB:ENUM 2256
     enum { BAEXML_FAILURE = -1 };
 
     const int lenName = static_cast<int>(bsl::strlen(elementName));
@@ -2385,6 +2390,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseAttribute(
                                                       bsl::size_t     ,
                                                       Decoder *)
 {
+//ARB:ENUM 2388
     enum { BAEXML_ATTRIBUTE_IGNORED = 0 };
 
     return BAEXML_ATTRIBUTE_IGNORED;
@@ -2395,6 +2401,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
+//ARB:ENUM 2398
     enum { BAEXML_FAILURE = -1 };
 
     BALXML_DECODER_LOG_ERROR(decoder)
@@ -2450,6 +2457,7 @@ int Decoder_SequenceContext<TYPE>::startElement(
 template <typename TYPE>
 int Decoder_SequenceContext<TYPE>::endElement(Decoder *)
 {
+//ARB:ENUM 2453
     enum { BAEXML_SUCCESS = 0 };
 
     return BAEXML_SUCCESS;
@@ -2461,6 +2469,7 @@ int Decoder_SequenceContext<TYPE>::addCharacters(
                                                        unsigned int    length,
                                                        Decoder *decoder)
 {
+//ARB:ENUM 2464
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(0 != length);
@@ -2501,6 +2510,7 @@ int Decoder_SequenceContext<TYPE>::parseAttribute(
                                                       bsl::size_t     lenValue,
                                                       Decoder *decoder)
 {
+//ARB:ENUM 2504
     enum { BAEXML_SUCCESS = 0, ATTRIBUTE_IGNORED = 0, BAEXML_FAILURE = -1 };
 
     const int lenName = static_cast<int>(bsl::strlen(name));
@@ -2525,6 +2535,7 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
+//ARB:ENUM 2528
     enum { BAEXML_FAILURE = -1 };
 
     const int lenName = static_cast<int>(bsl::strlen(elementName));
@@ -2569,6 +2580,7 @@ Decoder_SimpleContext<TYPE>::Decoder_SimpleContext(
 template <typename TYPE>
 int Decoder_SimpleContext<TYPE>::startElement(Decoder *)
 {
+//ARB:ENUM 2572
     enum { BAEXML_SUCCESS = 0 };
 
     //d_chars.clear();
@@ -2579,6 +2591,7 @@ int Decoder_SimpleContext<TYPE>::startElement(Decoder *)
 template <typename TYPE>
 int Decoder_SimpleContext<TYPE>::endElement(Decoder *)
 {
+//ARB:ENUM 2582
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     return BAEXML_SUCCESS;
@@ -2589,6 +2602,7 @@ int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
                                                       unsigned int    length,
                                                       Decoder *decoder)
 {
+//ARB:ENUM 2592
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     const char *begin = chars;
@@ -2621,6 +2635,7 @@ int Decoder_SimpleContext<TYPE>::parseAttribute(
                                                       bsl::size_t     ,
                                                       Decoder *)
 {
+//ARB:ENUM 2624
     enum { ATTRIBUTE_IGNORED = 0 };
 
     return ATTRIBUTE_IGNORED;
@@ -2631,6 +2646,7 @@ int Decoder_SimpleContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
+//ARB:ENUM 2634
     enum { BAEXML_FAILURE = -1 };
 
     BALXML_DECODER_LOG_ERROR(decoder)
@@ -2672,6 +2688,7 @@ template <typename TYPE>
 int Decoder_CustomizedContext<TYPE>::endElement(
                                           Decoder *decoder)
 {
+//ARB:ENUM 2675
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
     int rc = d_baseContext.endElement(decoder);
     if (rc == BAEXML_SUCCESS
@@ -2728,6 +2745,7 @@ template <typename TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::startElement(Decoder *)
 {
+//ARB:ENUM 2731
     enum { BAEXML_SUCCESS = 0 };
 
     d_object_p->clear();
@@ -2739,6 +2757,7 @@ template <typename TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::endElement(Decoder *)
 {
+//ARB:ENUM 2742
     enum { BAEXML_SUCCESS = 0 };
 
     return BAEXML_SUCCESS;
@@ -2750,6 +2769,7 @@ int Decoder_UTF8Context<TYPE>::addCharacters(const char *chars,
                                           unsigned int length,
                                           Decoder *)
 {
+//ARB:ENUM 2753
     enum { BAEXML_SUCCESS = 0 };
 
     d_object_p->insert(d_object_p->end(), chars, chars + length);
@@ -2764,6 +2784,7 @@ int Decoder_UTF8Context<TYPE>::parseAttribute(const char     *,
                                                      bsl::size_t     ,
                                                      Decoder *)
 {
+//ARB:ENUM 2767
     enum { BAEXML_ATTRIBUTE_IGNORED = 0 };
 
     return BAEXML_ATTRIBUTE_IGNORED;
@@ -2774,6 +2795,7 @@ int Decoder_UTF8Context<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
+//ARB:ENUM 2777
     enum { BAEXML_FAILURE = -1 };
 
     BALXML_DECODER_LOG_ERROR(decoder)
@@ -2802,6 +2824,7 @@ template <typename TYPE, typename INFO_TYPE>
 int Decoder_PrepareSequenceContext::operator()(const TYPE&,
                                                       const INFO_TYPE& info)
 {
+//ARB:ENUM 2805
     enum { BAEXML_SUCCESS = 0 };
 
     if (info.formattingMode() & bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT) {
@@ -2839,6 +2862,7 @@ int Decoder_ParseSequenceSimpleContent::operator()(
     BSLS_ASSERT_SAFE(info.formattingMode()
                                  & bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT);
 
+//ARB:ENUM 2842
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     const char *begin = d_chars_p;
@@ -2870,6 +2894,7 @@ int Decoder_ParseSequenceSimpleContent::operator()(
                                                       bsl::string      *object,
                                                       const INFO_TYPE&  info)
 {
+//ARB:ENUM 2873
     enum { BAEXML_SUCCESS = 0 };
 
     BSLS_ASSERT_SAFE(info.formattingMode()
@@ -2913,6 +2938,7 @@ int Decoder_ParseSequenceSubElement::execute(TYPE *object,
                                                     int   ,
                                                     int   formattingMode)
 {
+//ARB:ENUM 2916
     enum { BAEXML_FAILURE = -1 };
     Decoder_ParseObject parseObject(d_decoder,
                                            d_elementName_p,
@@ -2955,6 +2981,7 @@ template <typename TYPE, typename ANY_CATEGORY>
 int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
                                            ANY_CATEGORY)
 {
+//ARB:ENUM 2958
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = - 1 };
 
     bool isAttribute = formattingMode
@@ -3073,6 +3100,7 @@ template <typename TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                            bdeat_TypeCategory::Sequence)
 {
+//ARB:ENUM 3076
     enum { BAEXML_FAILURE = -1 };
 
     if (formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED) {
@@ -3107,6 +3135,7 @@ template <typename TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdeat_TypeCategory::Choice)
 {
+//ARB:ENUM 3110
     enum { BAEXML_FAILURE = -1 };
 
     bool isUntagged = formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED;
@@ -3152,6 +3181,7 @@ template <typename TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdeat_TypeCategory::NullableValue)
 {
+//ARB:ENUM 3155
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     if (bdeat_NullableValueFunctions::isNull(*object)) {

@@ -538,6 +538,7 @@ namespace bdlat_CustomizedTypeFunctions {
         // documentation for further information.
 
         enum {
+//ARB:ENUM 541
             VALUE = bslalg::HasTrait<TYPE,
                                     bdlat_TypeTraitBasicCustomizedType>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

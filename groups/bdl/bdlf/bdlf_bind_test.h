@@ -320,6 +320,7 @@ struct Bind_TestSlotsBase {
 
     // ENUMERATIONS
     enum {
+//ARB:ENUM 323
         NUM_SLOTS = 15
     };
 
@@ -454,6 +455,7 @@ class Bind_TestTypeNoAlloc {
         // Type returned by the function operator and test methods.
 
     enum {
+//ARB:ENUM 457
         N1 = -1   // default value for all private data
     };
 
@@ -827,6 +829,7 @@ class Bind_TestTypeAlloc {
         // Argument types for shortcut.
 
     enum {
+//ARB:ENUM 830
         N1 = -1   // default value for all private data
     };
 

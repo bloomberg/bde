@@ -127,40 +127,69 @@ class EncoderOptions {
   public:
     // TYPES
     enum {
+//ARB:ENUM 130
         ATTRIBUTE_ID_OBJECT_NAMESPACE            = 0
+//ARB:ENUM 131
       , ATTRIBUTE_ID_SCHEMA_LOCATION             = 1
+//ARB:ENUM 132
       , ATTRIBUTE_ID_TAG                         = 2
+//ARB:ENUM 133
       , ATTRIBUTE_ID_FORMATTING_MODE             = 3
+//ARB:ENUM 134
       , ATTRIBUTE_ID_INITIAL_INDENT_LEVEL        = 4
+//ARB:ENUM 135
       , ATTRIBUTE_ID_SPACES_PER_LEVEL            = 5
+//ARB:ENUM 136
       , ATTRIBUTE_ID_WRAP_COLUMN                 = 6
+//ARB:ENUM 137
       , ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS    = 7
+//ARB:ENUM 138
       , ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS = 8
+//ARB:ENUM 139
       , ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS   = 9
+//ARB:ENUM 140
       , ATTRIBUTE_ID_ENCODING_STYLE              = 10
+//ARB:ENUM 141
       , ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS    = 11
+//ARB:ENUM 142
       , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER         = 12
+//ARB:ENUM 143
       , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS          = 13
     };
 
     enum {
+//ARB:ENUM 147
         NUM_ATTRIBUTES = 14
     };
 
     enum {
+//ARB:ENUM 151
         ATTRIBUTE_INDEX_OBJECT_NAMESPACE            = 0
+//ARB:ENUM 152
       , ATTRIBUTE_INDEX_SCHEMA_LOCATION             = 1
+//ARB:ENUM 153
       , ATTRIBUTE_INDEX_TAG                         = 2
+//ARB:ENUM 154
       , ATTRIBUTE_INDEX_FORMATTING_MODE             = 3
+//ARB:ENUM 155
       , ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL        = 4
+//ARB:ENUM 156
       , ATTRIBUTE_INDEX_SPACES_PER_LEVEL            = 5
+//ARB:ENUM 157
       , ATTRIBUTE_INDEX_WRAP_COLUMN                 = 6
+//ARB:ENUM 158
       , ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS    = 7
+//ARB:ENUM 159
       , ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS = 8
+//ARB:ENUM 160
       , ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS   = 9
+//ARB:ENUM 161
       , ATTRIBUTE_INDEX_ENCODING_STYLE              = 10
+//ARB:ENUM 162
       , ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS    = 11
+//ARB:ENUM 163
       , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER         = 12
+//ARB:ENUM 164
       , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS          = 13
     };
 
@@ -527,6 +556,7 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
+//ARB:ENUM 530
     enum { NOT_FOUND = -1 };
 
     switch (id) {
@@ -583,6 +613,7 @@ int EncoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
+//ARB:ENUM 586
     enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
@@ -760,6 +791,7 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
+//ARB:ENUM 763
     enum { NOT_FOUND = -1 };
 
     switch (id) {
@@ -816,6 +848,7 @@ int EncoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
+//ARB:ENUM 819
     enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =

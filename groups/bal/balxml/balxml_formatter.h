@@ -276,15 +276,19 @@ class Formatter {
         // This describes options available when outputting textual data
         // of an element between its pair of opening and closing tags.
 
+//ARB:ENUM 279
         BAEXML_PRESERVE_WHITESPACE,  // data is output as is
 
+//ARB:ENUM 281
         BAEXML_WORDWRAP,             // data may be wrapped if output otherwise
                                      // exceeds the wrap column
 
+//ARB:ENUM 284
         BAEXML_WORDWRAP_INDENT,      // in addition to allowing wrapping,
                                      // indent properly before continuing to
                                      // output on the next line after wrapping
 
+//ARB:ENUM 288
         BAEXML_NEWLINE_INDENT        // in addition to allowing wrapping and
                                      // indentation, the tags do not share
                                      // their respective lines with data
@@ -307,9 +311,13 @@ class Formatter {
     typedef bsls::Types::Int64 Int64;
 
     enum State {
+//ARB:ENUM 310
         BAEXML_AT_START,
+//ARB:ENUM 311
         BAEXML_AFTER_START_NO_TAG,
+//ARB:ENUM 312
         BAEXML_IN_TAG,
+//ARB:ENUM 313
         BAEXML_BETWEEN_TAGS,
         BAEXML_AT_END
     };
@@ -324,6 +332,7 @@ class Formatter {
         // Use a fixed-length string to validate close tag against open tag.
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
+//ARB:ENUM 327
         enum { BAEXML_TRUNCATED_TAG_LEN = 15 };
         unsigned char d_tagLen;  // actual tag length, up to 255
         char          d_tag[BAEXML_TRUNCATED_TAG_LEN]; // truncated tag

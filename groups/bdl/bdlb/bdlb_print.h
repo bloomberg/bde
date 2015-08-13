@@ -275,6 +275,7 @@ bsl::ostream& Print::singleLineHexDump(bsl::ostream&  stream,
                                             INPUT_ITERATOR begin,
                                             INPUT_ITERATOR end)
 {
+//ARB:ENUM 278
     enum { BDEU_LOCAL_BUF_SIZE = 512 };
     static const char HEX[] = "0123456789ABCDEF";
 

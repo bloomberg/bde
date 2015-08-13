@@ -168,13 +168,21 @@ class Tokenizer {
     enum TokenType {
         // This 'enum' lists all the possible token types.
 
+//ARB:ENUM 171
         BAEJSN_BEGIN = 1,                  // starting token
+//ARB:ENUM 172
         BAEJSN_ELEMENT_NAME,               // element name
+//ARB:ENUM 173
         BAEJSN_START_OBJECT,               // start of an object ('{')
+//ARB:ENUM 174
         BAEJSN_END_OBJECT,                 // end of an object   ('}')
+//ARB:ENUM 175
         BAEJSN_START_ARRAY,                // start of an array  ('[')
+//ARB:ENUM 176
         BAEJSN_END_ARRAY,                  // end of an array    (']')
+//ARB:ENUM 177
         BAEJSN_ELEMENT_VALUE,              // element value of a simple type
+//ARB:ENUM 178
         BAEJSN_ERROR                       // error token
     };
 
@@ -184,14 +192,18 @@ class Tokenizer {
         // This 'enum' lists the possible contexts that the tokenizer can be
         // in.
 
+//ARB:ENUM 187
         BAEJSN_OBJECT_CONTEXT = 1,         // object context
+//ARB:ENUM 188
         BAEJSN_ARRAY_CONTEXT               // array context
     };
 
     // Intermediate data buffer used for reading data from the stream.
 
     enum {
+//ARB:ENUM 194
         BAEJSN_BUFSIZE = 1024 * 8,
+//ARB:ENUM 195
         BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE - 1
     };
 

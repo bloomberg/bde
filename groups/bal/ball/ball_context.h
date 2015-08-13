@@ -267,6 +267,7 @@ class Context {
                                                    // sequence
 
     // PRIVATE TYPES
+//ARB:ENUM 270
     enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };
 
     // FRIENDS

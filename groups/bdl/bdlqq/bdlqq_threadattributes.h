@@ -277,7 +277,9 @@ class ThreadAttributes {
         // This enumeration provides two values used to distinguish among a
         // joinable thread and a non-joinable (detached) thread.
 
+//ARB:ENUM 280
         BCEMT_CREATE_JOINABLE = 0,  // create a joinable thread
+//ARB:ENUM 281
         BCEMT_CREATE_DETACHED = 1   // create a non-joinable thread
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -290,13 +292,17 @@ class ThreadAttributes {
         // This enumeration provides values used to distinguish between
         // different thread scheduling policies.
 
+//ARB:ENUM 293
         BCEMT_SCHED_OTHER   = 0,  // unspecified, OS-dependent scheduling
                                   // policy
 
+//ARB:ENUM 296
         BCEMT_SCHED_FIFO    = 1,  // first-in-first-out scheduling policy
 
+//ARB:ENUM 298
         BCEMT_SCHED_RR      = 2,  // round-robin scheduling policy
 
+//ARB:ENUM 300
         BCEMT_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
                                   // equivalent to 'BCEMT_SCHED_OTHER'
     };
@@ -308,11 +314,16 @@ class ThreadAttributes {
         // These attributes are initialized to these values when a thread
         // attributes object is default constructed.
 
+//ARB:ENUM 311
         BCEMT_UNSET_STACK_SIZE = -1,
+//ARB:ENUM 312
         BCEMT_UNSET_GUARD_SIZE = -1,
+//ARB:ENUM 313
         BCEMT_UNSET_PRIORITY   = INT_MIN,
 
+//ARB:ENUM 315
         BCEMT_SCHED_MIN        = BCEMT_SCHED_OTHER,
+//ARB:ENUM 316
         BCEMT_SCHED_MAX        = BCEMT_SCHED_DEFAULT
     };
 

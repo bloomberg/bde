@@ -299,6 +299,7 @@ int ParserUtil::getDateAndTimeValue(TYPE              *value,
                                            bslstl::StringRef  data,
                                            int                maxLength)
 {
+//ARB:ENUM 302
     enum { BAEJSN_STRING_LENGTH_WITH_QUOTES = 2 };
 
     if (data.length()  < BAEJSN_STRING_LENGTH_WITH_QUOTES

@@ -244,12 +244,19 @@ struct Iso8601Util {
     // TYPES
     enum {
         // Fixed lengths for iso8601-formatted date and time values:
+//ARB:ENUM 247
         BDEPU_DATE_STRLEN         = 10,
+//ARB:ENUM 248
         BDEPU_DATETIME_STRLEN     = 23,
+//ARB:ENUM 249
         BDEPU_DATETIMETZ_STRLEN   = 29,
+//ARB:ENUM 250
         BDEPU_DATETZ_STRLEN       = 16,
+//ARB:ENUM 251
         BDEPU_TIME_STRLEN         = 12,
+//ARB:ENUM 252
         BDEPU_TIMETZ_STRLEN       = 18,
+//ARB:ENUM 253
         BDEPU_MAX_DATETIME_STRLEN = BDEPU_DATETIMETZ_STRLEN
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

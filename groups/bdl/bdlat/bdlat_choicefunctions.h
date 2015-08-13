@@ -497,6 +497,7 @@ namespace bdlat_ChoiceFunctions {
 
     // CONSTANTS
     enum {
+//ARB:ENUM 500
         BDLAT_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -528,6 +529,7 @@ namespace bdlat_ChoiceFunctions {
         // for further information.
 
         enum {
+//ARB:ENUM 531
             VALUE = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isChoiceMetaFunction(

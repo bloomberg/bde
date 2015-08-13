@@ -335,6 +335,7 @@ namespace bdlat_ArrayFunctions {
         // documentation for further information.
 
         enum {
+//ARB:ENUM 338
             VALUE = 0
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isArrayMetaFunction(

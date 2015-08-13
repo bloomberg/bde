@@ -257,8 +257,11 @@ class ReaderWriterLock {
 
     // PRIVATE TYPES
     enum SignalState{
+//ARB:ENUM 260
         BCEMT_NOT_SIGNALED     = 0,
+//ARB:ENUM 261
         BCEMT_WRITE_SIGNALED   = 1,
+//ARB:ENUM 262
         BCEMT_UPGRADE_SIGNALED = 2
     };
 

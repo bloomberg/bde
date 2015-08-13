@@ -364,8 +364,11 @@ class MultiQueueThreadPool_Queue {
     enum {
         // Queue states.
 
+//ARB:ENUM 367
         BCEP_ENQUEUEING_ENABLED,     // enqueueing is enabled
+//ARB:ENUM 368
         BCEP_ENQUEUEING_DISABLED,    // enqueueing is disabled
+//ARB:ENUM 369
         BCEP_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
     };
 
@@ -520,7 +523,9 @@ class MultiQueueThreadPool {
   private:
     // TYPES
     enum {
+//ARB:ENUM 523
         BCEP_ENQUEUE_FRONT,    // enqueue new job at front of queue
+//ARB:ENUM 524
         BCEP_ENQUEUE_BACK      // enqueue new job at back of queue
     };
 

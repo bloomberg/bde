@@ -317,9 +317,13 @@ class MiniReader :  public Reader {
   private:
     // PRIVATE TYPES
     enum {
+//ARB:ENUM 320
         BAEXML_MIN_BUFSIZE     = 1024,        // MIN - 1 KB
+//ARB:ENUM 321
         BAEXML_MAX_BUFSIZE     = 1024 * 128,  // MAX - 128 KB
+//ARB:ENUM 322
         BAEXML_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
+//ARB:ENUM 323
         BAEXML_DEFAULT_DEPTH   = 20           // Average expected deep
     };                                        // to minimize allocations
 
@@ -331,7 +335,9 @@ class MiniReader :  public Reader {
     struct Node
     {
         enum {
+//ARB:ENUM 334
             BAEXML_NODE_NO_FLAGS = 0x0000,
+//ARB:ENUM 335
             BAEXML_NODE_EMPTY    = 0x0001
         };
 

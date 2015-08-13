@@ -399,7 +399,9 @@ class CategoryHolder {
   public:
     // PUBLIC TYPES
     enum {
+//ARB:ENUM 402
         BAEL_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
+//ARB:ENUM 403
         BAEL_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , UNINITIALIZED_CATEGORY = BAEL_UNINITIALIZED_CATEGORY

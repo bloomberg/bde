@@ -313,7 +313,9 @@ class LoggerManagerConfiguration {
         // will be published to the underlying observer in the case of
         // Trigger and Trigger-All events.
 
+//ARB:ENUM 316
         BAEL_FIFO,  // oldest logged messages are published first
+//ARB:ENUM 317
         BAEL_LIFO   // newest logged messages are published first
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -331,8 +333,10 @@ class LoggerManagerConfiguration {
         // records logged due to a Trigger or Trigger-All event.  The default
         // value of this attribute is 'BAEL_BEGIN_END_MARKERS'.
 
+//ARB:ENUM 334
         BAEL_NO_MARKERS,        // don't print any markers
 
+//ARB:ENUM 336
         BAEL_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
                                 // "END RECORD DUMP" markers (default)
 

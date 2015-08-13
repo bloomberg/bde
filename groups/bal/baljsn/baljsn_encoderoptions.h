@@ -126,7 +126,9 @@ class EncoderOptions {
     enum EncodingStyle {
         // This 'enum' provides enumerators to specify the encoding styles.
 
+//ARB:ENUM 129
         BAEJSN_COMPACT = 0,  // compact encoding without any whitespace
+//ARB:ENUM 130
         BAEJSN_PRETTY        // pretty encoding with appropriate indentation
     };
 

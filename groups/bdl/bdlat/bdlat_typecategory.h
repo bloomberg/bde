@@ -447,6 +447,7 @@ struct bdlat_TypeCategoryDeclareDynamic {
     // 'manipulate*' and 'access*' functions, the dynamic object should expose
     // its real type.
 
+//ARB:ENUM 450
     enum { VALUE = 0 };
 };
 
@@ -466,13 +467,21 @@ struct bdlat_TypeCategory {
 
     // ENUMERATIONS
     enum Value {
+//ARB:ENUM 469
         BDLAT_DYNAMIC_CATEGORY         = 0,
+//ARB:ENUM 470
         BDLAT_ARRAY_CATEGORY           = 1,
+//ARB:ENUM 471
         BDLAT_CHOICE_CATEGORY          = 2,
+//ARB:ENUM 472
         BDLAT_CUSTOMIZED_TYPE_CATEGORY = 3,
+//ARB:ENUM 473
         BDLAT_ENUMERATION_CATEGORY     = 4,
+//ARB:ENUM 474
         BDLAT_NULLABLE_VALUE_CATEGORY  = 5,
+//ARB:ENUM 475
         BDLAT_SEQUENCE_CATEGORY        = 6,
+//ARB:ENUM 476
         BDLAT_SIMPLE_CATEGORY          = 7
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -506,7 +515,9 @@ struct bdlat_TypeCategory {
 
       private:
         enum {
+//ARB:ENUM 509
             BDLAT_IS_ARRAY = bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
+//ARB:ENUM 510
             BDLAT_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
             BDLAT_IS_CUSTOMIZED_TYPE
                 = bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
@@ -516,25 +527,36 @@ struct bdlat_TypeCategory {
                   = bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
             BDLAT_IS_SEQUENCE
                             = bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+//ARB:ENUM 519
             BDLAT_NUM_CATEGORIES = BDLAT_IS_ARRAY
                                  + BDLAT_IS_CHOICE
                                  + BDLAT_IS_CUSTOMIZED_TYPE
                                  + BDLAT_IS_ENUMERATION
                                  + BDLAT_IS_NULLABLE_VALUE
+//ARB:ENUM 524
                                  + BDLAT_IS_SEQUENCE,
+//ARB:ENUM 525
             BDLAT_IS_DYNAMIC = BDLAT_NUM_CATEGORIES > 1
                                || bdlat_TypeCategoryDeclareDynamic<TYPE>::VALUE
         };
 
       public:
         enum {
+//ARB:ENUM 531
             BDLAT_SELECTION =
+//ARB:ENUM 532
                       BDLAT_IS_DYNAMIC         ? BDLAT_DYNAMIC_CATEGORY
+//ARB:ENUM 533
                     : BDLAT_IS_ARRAY           ? BDLAT_ARRAY_CATEGORY
+//ARB:ENUM 534
                     : BDLAT_IS_CHOICE          ? BDLAT_CHOICE_CATEGORY
+//ARB:ENUM 535
                     : BDLAT_IS_CUSTOMIZED_TYPE ? BDLAT_CUSTOMIZED_TYPE_CATEGORY
+//ARB:ENUM 536
                     : BDLAT_IS_ENUMERATION     ? BDLAT_ENUMERATION_CATEGORY
+//ARB:ENUM 537
                     : BDLAT_IS_NULLABLE_VALUE  ? BDLAT_NULLABLE_VALUE_CATEGORY
+//ARB:ENUM 538
                     : BDLAT_IS_SEQUENCE        ? BDLAT_SEQUENCE_CATEGORY
                     : BDLAT_SIMPLE_CATEGORY
 
@@ -1204,6 +1226,7 @@ bdlat_TypeCategory::Value
 bdlat_TypeCategoryFunctions::bdlat_typeCategorySelect(const TYPE& object)
 {
     enum {
+//ARB:ENUM 1207
         BDLAT_SELECTION = bdlat_TypeCategory::Select<TYPE>::BDLAT_SELECTION
     };
 

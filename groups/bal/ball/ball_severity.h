@@ -130,13 +130,21 @@ struct Severity {
 
   public:
     enum Level {
+//ARB:ENUM 133
         BAEL_OFF   =   0,  // disable generation of corresponding message
+//ARB:ENUM 134
         BAEL_FATAL =  32,  // a condition that will (likely) cause a *crash*
+//ARB:ENUM 135
         BAEL_ERROR =  64,  // a condition that *will* cause incorrect behavior
+//ARB:ENUM 136
         BAEL_WARN  =  96,  // a *potentially* problematic condition
+//ARB:ENUM 137
         BAEL_INFO  = 128,  // data about the running process
+//ARB:ENUM 138
         BAEL_DEBUG = 160,  // information useful while debugging
+//ARB:ENUM 139
         BAEL_TRACE = 192,  // execution trace data
+//ARB:ENUM 140
         BAEL_NONE  = 224   // !DEPRECATED! Do not use
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -151,6 +159,7 @@ struct Severity {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+//ARB:ENUM 154
     enum { BAEL_LENGTH = 8 };
         // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'
         // enumeration.

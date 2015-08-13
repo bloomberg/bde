@@ -691,6 +691,7 @@ int Decoder::decodeImp(TYPE *value,
                               int,
                               bdeat_TypeCategory::Enumeration)
 {
+//ARB:ENUM 694
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
     if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
@@ -857,6 +858,7 @@ int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdeat_TypeCategory::NullableValue)
 {
+//ARB:ENUM 860
     enum { BAEJSN_NULL_VALUE_LENGTH = 4 };
 
     if (Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {

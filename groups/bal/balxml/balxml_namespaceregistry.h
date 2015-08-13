@@ -164,16 +164,25 @@ class NamespaceRegistry {
     // PUBLIC TYPES
     enum {
         // Preregistered namespace IDs.
+//ARB:ENUM 167
         BAEXML_NO_NAMESPACE = -1,    // (empty URI string)
 
+//ARB:ENUM 169
         BAEXML_PREDEF_MIN = 0x40000000,
 
+//ARB:ENUM 171
         BAEXML_XML = BAEXML_PREDEF_MIN, // http://www.w3.org/XML/1998/namespace
+//ARB:ENUM 172
         BAEXML_XMLNS,              // http://www.w3.org/2000/xmlns/
+//ARB:ENUM 173
         BAEXML_XMLSCHEMA,          // http://www.w3.org/2001/XMLSchema
+//ARB:ENUM 174
         BAEXML_XMLSCHEMA_INSTANCE, // http://www.w3.org/2001/XMLSchema-instance
+//ARB:ENUM 175
         BAEXML_WSDL,               // http://schemas.xmlsoap.org/wsdl/
+//ARB:ENUM 176
         BAEXML_WSDL_SOAP,          // http://schemas.xmlsoap.org/wsdl/soap/
+//ARB:ENUM 177
         BAEXML_BDEM,               // http://bloomberg.com/schemas/bdem
 
         BAEXML_PREDEF_MAX

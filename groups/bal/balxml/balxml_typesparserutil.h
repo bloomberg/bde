@@ -801,6 +801,7 @@ int TypesParserUtil::parse(TYPE       *result,
                                   int         inputLength,
                                   int         formattingMode)
 {
+//ARB:ENUM 804
     enum { BAEXML_FAILURE = - 1 };
 
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
@@ -946,6 +947,7 @@ int TypesParserUtil_Imp::parseBase64(TYPE       *result,
                                             int         inputLength,
                                             ANY_CATEGORY)
 {
+//ARB:ENUM 949
     enum { BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
@@ -969,6 +971,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
                                              int         inputLength,
                                              bdeat_TypeCategory::Enumeration)
 {
+//ARB:ENUM 972
     enum { BAEXML_FAILURE = -1 };
 
     int intValue;
@@ -989,6 +992,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
                                              bdeat_TypeCategory::CustomizedType
                                             )
 {
+//ARB:ENUM 992
     enum { BAEXML_FAILURE = -1 };
 
     typedef typename
@@ -1025,6 +1029,7 @@ int TypesParserUtil_Imp::parseDecimal(TYPE       *result,
                                              int         inputLength,
                                              ANY_CATEGORY)
 {
+//ARB:ENUM 1028
     enum { BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
@@ -1056,6 +1061,7 @@ int TypesParserUtil_Imp::parseDefault(TYPE       *result,
                                              bdeat_TypeCategory::CustomizedType
                                             )
 {
+//ARB:ENUM 1059
     enum { BAEXML_FAILURE = -1 };
 
     typedef typename
@@ -1092,6 +1098,7 @@ int TypesParserUtil_Imp::parseDefault(TYPE       *result,
                                              int         inputLength,
                                              ANY_CATEGORY)
 {
+//ARB:ENUM 1095
     enum { BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
@@ -1280,6 +1287,7 @@ int TypesParserUtil_Imp::parseHex(TYPE       *result,
                                          int         inputLength,
                                          ANY_CATEGORY)
 {
+//ARB:ENUM 1283
     enum { BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
@@ -1302,6 +1310,7 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
                                           int         inputLength,
                                           bdeat_TypeCategory::Array)
 {
+//ARB:ENUM 1305
     enum { BAEXML_FAILURE = -1 };
 
     typedef balxml::ListParser<TYPE> ListParser;
@@ -1341,6 +1350,7 @@ int TypesParserUtil_Imp::parseList(TYPE       *result,
                                           int         inputLength,
                                           ANY_CATEGORY)
 {
+//ARB:ENUM 1344
     enum { BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");
@@ -1371,6 +1381,7 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
                                           int         inputLength,
                                           bdeat_TypeCategory::CustomizedType)
 {
+//ARB:ENUM 1374
     enum { BAEXML_FAILURE = -1 };
 
     typedef typename
@@ -1404,6 +1415,7 @@ int TypesParserUtil_Imp::parseText(TYPE       *result,
                                           int         inputLength,
                                           ANY_CATEGORY)
 {
+//ARB:ENUM 1407
     enum { BAEXML_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(!"Unsupported operation!");

@@ -229,6 +229,7 @@ int HexParser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
+//ARB:ENUM 232
     enum { BAEXML_SUCCESS = 0 };
 
     d_firstDigit = 0;
@@ -244,6 +245,7 @@ int HexParser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
+//ARB:ENUM 247
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     d_object_p = 0;
@@ -258,6 +260,7 @@ int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
+//ARB:ENUM 261
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     while (begin != end) {

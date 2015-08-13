@@ -580,14 +580,17 @@ inline
 const char *bdlat_TypeName_Imp::className(const TYPE *object)
 {
     enum {
+//ARB:ENUM 583
         HAS_CLASS_NAME =
              bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
            | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
            | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::VALUE,
 
+//ARB:ENUM 588
         IS_BASIC_ENUMERATION =
             bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE,
 
+//ARB:ENUM 591
         SELECTOR = (HAS_CLASS_NAME ? 0 : (IS_BASIC_ENUMERATION ? 1 : 2))
     };
 

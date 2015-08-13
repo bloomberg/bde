@@ -112,8 +112,11 @@ struct LocalTimeValidity {
   public:
     // TYPES
     enum Enum {
+//ARB:ENUM 115
         BALTZO_VALID_UNIQUE,     // Local time is *valid* and *unique*.
+//ARB:ENUM 116
         BALTZO_VALID_AMBIGUOUS,  // Local time is *valid*, but *ambiguous*.
+//ARB:ENUM 117
         BALTZO_INVALID           // Local time is *invalid*.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION

@@ -142,13 +142,21 @@ class QuotedPrintableDecoder {
     enum {
         // Symbolic state values.
 
+//ARB:ENUM 145
         BDEDE_ERROR_STATE        = -1, // input is irreparably invalid
+//ARB:ENUM 146
         BDEDE_INPUT_STATE        =  0, // general input state
+//ARB:ENUM 147
         BDEDE_SAW_EQUAL_STATE    =  1, // need two hexadecimal values or CR LF
+//ARB:ENUM 148
         BDEDE_SAW_WS_STATE       =  2, // saw a whitespace
+//ARB:ENUM 149
         BDEDE_NEED_HEX_STATE     =  3, // need one hexadecimal value
+//ARB:ENUM 150
         BDEDE_NEED_SOFT_LF_STATE =  4, // need soft new line
+//ARB:ENUM 151
         BDEDE_NEED_HARD_LF_STATE =  5, // need soft new line
+//ARB:ENUM 152
         BDEDE_DONE_STATE         =  6  // any additional input is an error
     };
 
@@ -161,47 +169,65 @@ class QuotedPrintableDecoder {
         // main decoding loop.
 
                        // Regular character - copy straight to output
+//ARB:ENUM 164
         BDEDE_RC_ = 0, // strict mode
+//ARB:ENUM 165
         BDEDE_RC,      // relaxed mode
 
                        // Hexadecimal digit - numeral only when preceded by
                        // '='; otherwise a regular character
+//ARB:ENUM 169
         BDEDE_HX_,     // strict mode
+//ARB:ENUM 170
         BDEDE_HX,      // relaxed mode
 
                        // '=' - wait for more input
+//ARB:ENUM 173
         BDEDE_EQ_,     // strict mode
+//ARB:ENUM 174
         BDEDE_EQ,      // relaxed mode
 
                        // Whitespace        - buffer; wait for more input
+//ARB:ENUM 177
         BDEDE_WS_,     // strict mode
+//ARB:ENUM 178
         BDEDE_WS,      // relaxed mode
 
                        // Carriage return
+//ARB:ENUM 181
         BDEDE_CR_,     // strict mode       - wait for further input
+//ARB:ENUM 182
         BDEDE_CR,      // relaxed mode      - wait for further input
 
                        // Line Feed Strict mode
                        // ------------
+//ARB:ENUM 186
         BDEDE_LC_,     // CRLF_MODE         - decode to "\r\n" if preceded by
                        // '\r'; report error otherwise
+//ARB:ENUM 188
         BDEDE_LL_,     // LF_MODE           - decode to '\n' if preceded by
                        // '\r' report error otherwise Relaxed mode
                        // ------------
+//ARB:ENUM 191
         BDEDE_LC,      // CRLF_MODE         - decode to "\r\n" if preceded by
                        // '\r'; ignore otherwise
+//ARB:ENUM 193
         BDEDE_LL,      // LF_MODE           - decode to "\n" if preceded by
                        // '\r'; ignore otherwise
 
                        // Unrecognized char - halt and report error
+//ARB:ENUM 197
         BDEDE_UC_,     // strict mode       - Ignore and halt decoding
+//ARB:ENUM 198
         BDEDE_UC       // relaxed mode      - Ignore but continue decoding
     };
 
     enum LineBreakMode {
         // Configuration governing how line breaks are decoded.
 
+//ARB:ENUM 204
         BDEDE_CRLF_MODE,       // "\r\n" are decoded to "\r\n".
+//ARB:ENUM 205
         BDEDE_LF_MODE          // "\r\n" are decoded to "\n".
     };
 

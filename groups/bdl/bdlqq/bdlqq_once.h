@@ -402,6 +402,7 @@ class Once {
     // have any explicitly-declared constructors or destructor.
 
     // PRIVATE TYPES
+//ARB:ENUM 405
     enum { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
 
   private:
@@ -483,6 +484,7 @@ class OnceGuard {
     // one-time code is being executed.
 
     // PRIVATE TYPES
+//ARB:ENUM 486
     enum State { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
 
     // DATA

@@ -34,6 +34,7 @@ namespace BloombergLP {
 namespace bdlf {
 template <int I>
 struct PlaceHolder {
+//ARB:ENUM 37
     enum { VALUE = I };
 };
 
