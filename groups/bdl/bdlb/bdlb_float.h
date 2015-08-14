@@ -197,16 +197,16 @@ struct Float {
         k_NEGATIVE           = 0x8000,  // Bit for negative floats
         k_SIGNALING          = 0x4000,  // Bit for signaling NaNs
 
-        k_POSITIVE_INFINITY  = BDES_INFINITE,
-        k_NEGATIVE_INFINITY  = BDES_INFINITE | BDES_NEGATIVE,
-        k_QNAN               = BDES_NAN,
-        k_SNAN               = BDES_NAN | BDES_SIGNALING,
-        k_POSITIVE_NORMAL    = BDES_NORMAL,
-        k_NEGATIVE_NORMAL    = BDES_NORMAL | BDES_NEGATIVE,
-        k_POSITIVE_SUBNORMAL = BDES_SUBNORMAL,
-        k_NEGATIVE_SUBNORMAL = BDES_SUBNORMAL | BDES_NEGATIVE,
-        k_POSITIVE_ZERO      = BDES_ZERO,
-        k_NEGATIVE_ZERO      = BDES_ZERO | BDES_NEGATIVE
+        k_POSITIVE_INFINITY  = k_INFINITE,
+        k_NEGATIVE_INFINITY  = k_INFINITE | k_NEGATIVE,
+        k_QNAN               = k_NAN,
+        k_SNAN               = k_NAN | k_SIGNALING,
+        k_POSITIVE_NORMAL    = k_NORMAL,
+        k_NEGATIVE_NORMAL    = k_NORMAL | k_NEGATIVE,
+        k_POSITIVE_SUBNORMAL = k_SUBNORMAL,
+        k_NEGATIVE_SUBNORMAL = k_SUBNORMAL | k_NEGATIVE,
+        k_POSITIVE_ZERO      = k_ZERO,
+        k_NEGATIVE_ZERO      = k_ZERO | k_NEGATIVE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDES_NEGATIVE = k_NEGATIVE
       , BDES_SIGNALING = k_SIGNALING

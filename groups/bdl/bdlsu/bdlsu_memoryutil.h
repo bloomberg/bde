@@ -77,12 +77,12 @@ struct MemoryUtil {
         k_ACCESS_READ          = 0x1,
         k_ACCESS_WRITE         = 0x2,
         k_ACCESS_EXECUTE       = 0x4,
-        k_ACCESS_READ_WRITE    = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE,
-        k_ACCESS_READ_EXECUTE  = BDESU_ACCESS_READ | BDESU_ACCESS_EXECUTE,
-        k_ACCESS_WRITE_EXECUTE = BDESU_ACCESS_WRITE | BDESU_ACCESS_EXECUTE,
+        k_ACCESS_READ_WRITE    = k_ACCESS_READ | k_ACCESS_WRITE,
+        k_ACCESS_READ_EXECUTE  = k_ACCESS_READ | k_ACCESS_EXECUTE,
+        k_ACCESS_WRITE_EXECUTE = k_ACCESS_WRITE | k_ACCESS_EXECUTE,
         k_ACCESS_READ_WRITE_EXECUTE
-                                   = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE
-                                   | BDESU_ACCESS_EXECUTE
+                                   = k_ACCESS_READ | k_ACCESS_WRITE
+                                   | k_ACCESS_EXECUTE
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDESU_ACCESS_NONE = k_ACCESS_NONE

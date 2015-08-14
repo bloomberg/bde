@@ -168,7 +168,7 @@ class NamespaceRegistry {
 
         e_PREDEF_MIN = 0x40000000,
 
-        e_XML = BAEXML_PREDEF_MIN, // http://www.w3.org/XML/1998/namespace
+        e_XML = e_PREDEF_MIN, // http://www.w3.org/XML/1998/namespace
         e_XMLNS,              // http://www.w3.org/2000/xmlns/
         e_XMLSCHEMA,          // http://www.w3.org/2001/XMLSchema
         e_XMLSCHEMA_INSTANCE, // http://www.w3.org/2001/XMLSchema-instance

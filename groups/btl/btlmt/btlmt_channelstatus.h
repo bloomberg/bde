@@ -187,7 +187,7 @@ struct ChannelStatus {
                                         // enqueued cache high-water mark
                                         // provided as a function argument.
 
-        e_UNKNOWN_ID         = -5,  // The write request failed because the
+        e_UNKNOWN_ID         = -5   // The write request failed because the
                                         // channel identified by an specified
                                         // id does not exist.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
