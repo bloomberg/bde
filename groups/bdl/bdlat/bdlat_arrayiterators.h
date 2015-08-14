@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide iterator support for bdlat_ArrayFunction-conformant types.
 //
 //@CLASSES:
-//   bdlat_ArrayIterators::BackInsertIterator
+//   bdlat_ArrayIterators::BackInsertIterator: class for appending to arrays
 //
 //@SEE_ALSO: bdlat_arrayfunctions
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component provides a namespace 'bdlat_ArrayIterators'
-// that contains definitions for the 'BackInsertIterator' class template and
-// the 'backInserter' convenience function.  Additional iterator types may be
-// added in the future.
+//@DESCRIPTION: This component provides a namespace 'bdlat_ArrayIterators' that
+// contains definitions for the 'bdlat_ArrayIterators::BackInsertIterator'
+// class template and the 'backInserter' convenience function.  Additional
+// iterator types may be added in the future.
 //
 // 'BackInsertIterator<ARRAY_TYPE>' is an iterator type which, when used in an
 // expression like "*i++ = v", appends the value 'v' to the end of the
@@ -175,8 +175,8 @@ class BackInsertIterator
     typedef typename bdlat_ArrayFunctions::ElementType<TYPE>::Type value_type;
 
   private:
-    // Random-access iterator for any type that meets the requirements of
-    // a bdlat array types.
+    // Random-access iterator for any type that meets the requirements of a
+    // 'bdlat' array type.
     TYPE* d_array;
 
     template <class ELEM_TYPE>
@@ -212,30 +212,29 @@ class BackInsertIterator
 
     template <class ELEM_TYPE>
     BackInsertIterator& operator=(const ELEM_TYPE& obj);
-        // Append the specified 'obj' to the end of the array manipulated
-        // by this iterator and return this iterator.
+        // Append the specified 'obj' to the end of the array manipulated by
+        // this iterator and return this iterator.
 
     BackInsertIterator& operator*();
-        // Do nothing and return a reference to this modifiable iterator.
-        // This function is used in generic algorithms that use the
-        // expression '*i++ = v' or '*++i = v'.
+        // Do nothing and return a reference to this modifiable iterator.  This
+        // function is used in generic algorithms that use the expression
+        // '*i++ = v' or '*++i = v'.
 
     BackInsertIterator& operator++();
-        // Do nothing and return a reference to this modifiable iterator.
-        // This function is used in generic algorithms that use the
-        // expression '*++i = v'
+        // Do nothing and return a reference to this modifiable iterator.  This
+        // function is used in generic algorithms that use the expression
+        // '*++i = v'
 
     BackInsertIterator operator++(int);
-        // Do nothing and return a copy of this iterator.  This function
-        // is used in generic algorithms that use the expression
-        // '*i++ = v'
+        // Do nothing and return a copy of this iterator.  This function is
+        // used in generic algorithms that use the expression '*i++ = v'
 };
 
 template <class TYPE>
 BackInsertIterator<TYPE> backInserter(TYPE *array);
-     // Return a 'BackInsertIterator' (of the appropriate type) to
-     // manipulate the specified 'array'.  Specializations of this
-     // function might return a different back-inserter type.
+    // Return a 'BackInsertIterator' (of the appropriate type) to manipulate
+    // the specified 'array'.  Specializations of this function might return a
+    // different back-inserter type.
 
 template <class TYPE, class ALLOC>
 typename bsl::back_insert_iterator<bsl::vector<TYPE, ALLOC> >
@@ -246,7 +245,7 @@ backInserter(bsl::vector<TYPE, ALLOC> *array);
 }  // close namespace bdlat_ArrayIterators
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                    // ------------------------------

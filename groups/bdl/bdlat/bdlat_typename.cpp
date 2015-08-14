@@ -28,7 +28,8 @@ const char bdlat_TypeName_Imp::BDLAT_NAME_STRING[]         = "string";
 const char bdlat_TypeName_Imp::BDLAT_NAME_DATE[]           = "bdlt::Date";
 const char bdlat_TypeName_Imp::BDLAT_NAME_DATE_TZ[]        = "bdlt::DateTz";
 const char bdlat_TypeName_Imp::BDLAT_NAME_DATETIME[]       = "bdlt::Datetime";
-const char bdlat_TypeName_Imp::BDLAT_NAME_DATETIME_TZ[]    = "bdlt::DatetimeTz";
+const char bdlat_TypeName_Imp::BDLAT_NAME_DATETIME_TZ[]    =
+                                                            "bdlt::DatetimeTz";
 const char bdlat_TypeName_Imp::BDLAT_NAME_TIME[]           = "bdlt::Time";
 const char bdlat_TypeName_Imp::BDLAT_NAME_TIME_TZ[]        = "bdlt::TimeTz";
 const char bdlat_TypeName_Imp::BDLAT_NAME_VECTOR_BEGIN[]   = "vector<";
@@ -58,12 +59,12 @@ const char bdlat_TypeName_Imp::BDLAT_XSDNAME_ANY_TYPE[]    = "anyType";
 const char*
 bdlat_TypeName_Imp::xsdName(const signed char *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_DEFAULT:
-      case FMode::BDLAT_DEC:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
+      case FMode::e_DEC:
         return BDLAT_XSDNAME_BYTE;                                    // RETURN
 
-      case FMode::BDLAT_TEXT:
+      case FMode::e_TEXT:
         return BDLAT_XSDNAME_STRING;  // UTF-8 character              // RETURN
 
       default:
@@ -76,12 +77,12 @@ bdlat_TypeName_Imp::xsdName(const signed char *, int format)
 const char*
 bdlat_TypeName_Imp::xsdName(const unsigned char *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_DEFAULT:
-      case FMode::BDLAT_DEC:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
+      case FMode::e_DEC:
         return BDLAT_XSDNAME_UNSIGNED_BYTE;                           // RETURN
 
-      case FMode::BDLAT_TEXT:
+      case FMode::e_TEXT:
         return BDLAT_XSDNAME_STRING;  // UTF-8 character              // RETURN
 
       default:
@@ -94,12 +95,12 @@ bdlat_TypeName_Imp::xsdName(const unsigned char *, int format)
 const char*
 bdlat_TypeName_Imp::xsdName(const short *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_DEFAULT:
-      case FMode::BDLAT_DEC:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
+      case FMode::e_DEC:
         return BDLAT_XSDNAME_SHORT;                                   // RETURN
 
-      case FMode::BDLAT_TEXT:
+      case FMode::e_TEXT:
         return BDLAT_XSDNAME_STRING;  // UTF-16 character             // RETURN
 
       default:
@@ -112,11 +113,11 @@ bdlat_TypeName_Imp::xsdName(const short *, int format)
 const char*
 bdlat_TypeName_Imp::xsdName(const float *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_DEFAULT:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
         return BDLAT_XSDNAME_FLOAT;
 
-      case FMode::BDLAT_DEC:
+      case FMode::e_DEC:
         return BDLAT_XSDNAME_DECIMAL;
 
       default:
@@ -129,11 +130,11 @@ bdlat_TypeName_Imp::xsdName(const float *, int format)
 const char*
 bdlat_TypeName_Imp::xsdName(const double *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_DEFAULT:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
         return BDLAT_XSDNAME_DOUBLE;
 
-      case FMode::BDLAT_DEC:
+      case FMode::e_DEC:
         return BDLAT_XSDNAME_DECIMAL;
 
       default:
@@ -146,15 +147,15 @@ bdlat_TypeName_Imp::xsdName(const double *, int format)
 const char*
 bdlat_TypeName_Imp::xsdName(const bsl::string *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_DEFAULT:
-      case FMode::BDLAT_TEXT:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
+      case FMode::e_TEXT:
         return BDLAT_XSDNAME_STRING;                                  // RETURN
 
-      case FMode::BDLAT_BASE64:
+      case FMode::e_BASE64:
         return BDLAT_XSDNAME_BASE64_BINARY;                           // RETURN
 
-      case FMode::BDLAT_HEX:
+      case FMode::e_HEX:
         return BDLAT_XSDNAME_HEX_BINARY;                              // RETURN
 
       default:
@@ -166,15 +167,15 @@ bdlat_TypeName_Imp::xsdName(const bsl::string *, int format)
 const char*
 bdlat_TypeName_Imp::xsdName(const bsl::vector<char> *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_DEFAULT:
-      case FMode::BDLAT_BASE64:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
+      case FMode::e_BASE64:
         return BDLAT_XSDNAME_BASE64_BINARY;                           // RETURN
 
-      case FMode::BDLAT_HEX:
+      case FMode::e_HEX:
         return BDLAT_XSDNAME_HEX_BINARY;                              // RETURN
 
-      case FMode::BDLAT_TEXT:
+      case FMode::e_TEXT:
         return BDLAT_XSDNAME_STRING;  // UTF-8 string                 // RETURN
 
       default:
@@ -186,8 +187,8 @@ bdlat_TypeName_Imp::xsdName(const bsl::vector<char> *, int format)
 const char*
 bdlat_TypeName_Imp::xsdName(const bsl::vector<short> *, int format)
 {
-    switch (format & FMode::BDLAT_TYPE_MASK) {
-      case FMode::BDLAT_TEXT:
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_TEXT:
         return BDLAT_XSDNAME_STRING;  // UTF-16 string
 
       default:

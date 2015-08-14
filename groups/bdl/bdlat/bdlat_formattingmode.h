@@ -31,11 +31,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  Formatting Mode         Description
 //  ---------------         -----------
-//  BDLAT_DEFAULT           Use a default formatting mode.
-//  BDLAT_DEC               Use the decimal format.
-//  BDLAT_HEX               Use the hexadecimal format.
-//  BDLAT_BASE64            Use the base64 format.
-//  BDLAT_TEXT              Use the text format.
+//  e_DEFAULT               Use a default formatting mode.
+//  e_DEC                   Use the decimal format.
+//  e_HEX                   Use the hexadecimal format.
+//  e_BASE64                Use the base64 format.
+//  e_TEXT                  Use the text format.
 //..
 //
 ///Formatting Flags
@@ -44,13 +44,13 @@ BSLS_IDENT("$Id: $")
 //..
 //  Formatting Mode         Description
 //  ---------------         -----------
-//  BDLAT_UNTAGGED          Use untagged formatting (for anonymous choices).
-//  BDLAT_ATTRIBUTE         Use attribute formatting (for XSD attributes).
-//  BDLAT_SIMPLE_CONTENT    Use simple content formatting (for XSD simple
+//  e_UNTAGGED              Use untagged formatting (for anonymous choices).
+//  e_ATTRIBUTE             Use attribute formatting (for XSD attributes).
+//  e_SIMPLE_CONTENT        Use simple content formatting (for XSD simple
 //                          content types).
-//  BDLAT_NILLABLE          Use nillable formatting (for XSD 'nillable'
+//  e_NILLABLE              Use nillable formatting (for XSD 'nillable'
 //                          option).
-//  BDLAT_LIST              Use the list format (this is used for arrays).
+//  e_LIST                  Use the list format (this is used for arrays).
 //..
 //
 ///Usage
@@ -75,61 +75,59 @@ struct bdlat_FormattingMode {
     // CONSTANTS
     enum {
         // bit-field: original type (i.e., schema type)
-        BDLAT_DEFAULT   = 0x0,  // default formatting mode
-        BDLAT_DEC       = 0x1,  // use decimal format
-        BDLAT_HEX       = 0x2,  // use hexadecimal format
-        BDLAT_BASE64    = 0x3,  // use base64 format
-        BDLAT_TEXT      = 0x4,  // use text format
-        BDLAT_TYPE_MASK = 0x7,  // mask for type bit-field
+        e_DEFAULT   = 0x0,  // default formatting mode
+        e_DEC       = 0x1,  // use decimal format
+        e_HEX       = 0x2,  // use hexadecimal format
+        e_BASE64    = 0x3,  // use base64 format
+        e_TEXT      = 0x4,  // use text format
+        e_TYPE_MASK = 0x7,  // mask for type bit-field
 
         // formatting flags
-        BDLAT_UNTAGGED       = 0x00010000,  // use untagged formatting
-        BDLAT_ATTRIBUTE      = 0x00020000,  // use attribute formatting
-        BDLAT_SIMPLE_CONTENT = 0x00040000,  // use simple content formatting
-        BDLAT_NILLABLE       = 0x00080000,  // use nillable formatting
-        BDLAT_LIST           = 0x00100000,  // use list format (for arrays)
-        BDLAT_FLAGS_MASK     = 0x001F0000   // mask for formatting flags
+        e_UNTAGGED       = 0x00010000,  // use untagged formatting
+        e_ATTRIBUTE      = 0x00020000,  // use attribute formatting
+        e_SIMPLE_CONTENT = 0x00040000,  // use simple content formatting
+        e_NILLABLE       = 0x00080000,  // use nillable formatting
+        e_LIST           = 0x00100000,  // use list format (for arrays)
+        e_FLAGS_MASK     = 0x001F0000   // mask for formatting flags
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , DEFAULT           = BDLAT_DEFAULT
-      , DEC               = BDLAT_DEC
-      , HEX               = BDLAT_HEX
-      , BASE64            = BDLAT_BASE64
-      , TEXT              = BDLAT_TEXT
-      , TYPE_MASK         = BDLAT_TYPE_MASK
-      , IS_UNTAGGED       = BDLAT_UNTAGGED
-      , IS_ATTRIBUTE      = BDLAT_ATTRIBUTE
-      , IS_SIMPLE_CONTENT = BDLAT_SIMPLE_CONTENT
-      , IS_NILLABLE       = BDLAT_NILLABLE
-      , IS_LIST           = BDLAT_LIST
-      , FLAGS_MASK        = BDLAT_FLAGS_MASK
+      , DEFAULT           = e_DEFAULT
+      , DEC               = e_DEC
+      , HEX               = e_HEX
+      , BASE64            = e_BASE64
+      , TEXT              = e_TEXT
+      , TYPE_MASK         = e_TYPE_MASK
+      , IS_UNTAGGED       = e_UNTAGGED
+      , IS_ATTRIBUTE      = e_ATTRIBUTE
+      , IS_SIMPLE_CONTENT = e_SIMPLE_CONTENT
+      , IS_NILLABLE       = e_NILLABLE
+      , IS_LIST           = e_LIST
+      , FLAGS_MASK        = e_FLAGS_MASK
 
-      , BDLAT_IS_UNTAGGED       = BDLAT_UNTAGGED
-      , BDLAT_IS_ATTRIBUTE      = BDLAT_ATTRIBUTE
-      , BDLAT_IS_SIMPLE_CONTENT = BDLAT_SIMPLE_CONTENT
-      , BDLAT_IS_NILLABLE       = BDLAT_NILLABLE
-      , BDLAT_IS_LIST           = BDLAT_LIST
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+      , e_IS_UNTAGGED       = e_UNTAGGED
+      , e_IS_ATTRIBUTE      = e_ATTRIBUTE
+      , e_IS_SIMPLE_CONTENT = e_SIMPLE_CONTENT
+      , e_IS_NILLABLE       = e_NILLABLE
+      , e_IS_LIST           = e_LIST
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      , BDEAT_DEFAULT   = BDLAT_DEFAULT
-      , BDEAT_DEC       = BDLAT_DEC
-      , BDEAT_HEX       = BDLAT_HEX
-      , BDEAT_BASE64    = BDLAT_BASE64
-      , BDEAT_TEXT      = BDLAT_TEXT
-      , BDEAT_TYPE_MASK = BDLAT_TYPE_MASK
-      , BDEAT_UNTAGGED       = BDLAT_UNTAGGED
-      , BDEAT_ATTRIBUTE      = BDLAT_ATTRIBUTE
-      , BDEAT_SIMPLE_CONTENT = BDLAT_SIMPLE_CONTENT
-      , BDEAT_NILLABLE       = BDLAT_NILLABLE
-      , BDEAT_LIST           = BDLAT_LIST
-      , BDEAT_FLAGS_MASK     = BDLAT_FLAGS_MASK
-      , BDEAT_IS_UNTAGGED       = BDLAT_UNTAGGED
-      , BDEAT_IS_ATTRIBUTE      = BDLAT_ATTRIBUTE
-      , BDEAT_IS_SIMPLE_CONTENT = BDLAT_SIMPLE_CONTENT
-      , BDEAT_IS_NILLABLE       = BDLAT_NILLABLE
-      , BDEAT_IS_LIST           = BDLAT_LIST
-#endif  // BDE_OPENSOURCE_PUBLICATION
+      , BDEAT_DEFAULT           = e_DEFAULT
+      , BDEAT_DEC               = e_DEC
+      , BDEAT_HEX               = e_HEX
+      , BDEAT_BASE64            = e_BASE64
+      , BDEAT_TEXT              = e_TEXT
+      , BDEAT_TYPE_MASK         = e_TYPE_MASK
+      , BDEAT_UNTAGGED          = e_UNTAGGED
+      , BDEAT_ATTRIBUTE         = e_ATTRIBUTE
+      , BDEAT_SIMPLE_CONTENT    = e_SIMPLE_CONTENT
+      , BDEAT_NILLABLE          = e_NILLABLE
+      , BDEAT_LIST              = e_LIST
+      , BDEAT_FLAGS_MASK        = e_FLAGS_MASK
+      , BDEAT_IS_UNTAGGED       = e_UNTAGGED
+      , BDEAT_IS_ATTRIBUTE      = e_ATTRIBUTE
+      , BDEAT_IS_SIMPLE_CONTENT = e_SIMPLE_CONTENT
+      , BDEAT_IS_NILLABLE       = e_NILLABLE
+      , BDEAT_IS_LIST           = e_LIST
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 };
 

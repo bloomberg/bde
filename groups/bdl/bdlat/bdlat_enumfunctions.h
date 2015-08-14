@@ -60,12 +60,13 @@ BSLS_IDENT("$Id: $")
 //     BLUE  = 3
 // };
 //..
-// We can now make 'MyEnum' expose "enumeration" behavior by implementing
-// all the necessary 'bdlat_enum*' functions for 'MyEnum' inside the 'mine
-// namespace'.  First we should forward declare all the functions that we
-// will implement inside the 'mine' namespace:
+// We can now make 'MyEnum' expose "enumeration" behavior by implementing all
+// the necessary 'bdlat_enum*' functions for 'MyEnum' inside the 'mine'
+// namespace.  First we should forward declare all the functions that we will
+// implement inside the 'mine' namespace:
 //..
 //      // MANIPULATORS
+//
 //      int bdlat_enumFromInt(MyEnum *result, int number);
 //          // Load into the specified 'result' the enumerator matching the
 //          // specified 'number'.  Return 0 on success, and a non-zero value
@@ -80,6 +81,7 @@ BSLS_IDENT("$Id: $")
 //          // 'string' and 'stringLength' do not match any enumerator.
 //
 //      // ACCESSORS
+//
 //      void bdlat_enumToInt(int *result, const MyEnum& value);
 //          // Return the integer representation exactly matching the
 //          // enumerator name corresponding to the specified enumeration
@@ -226,9 +228,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the 'bdlat' framework can be used for functionality other than
 // encoding/decoding into XML.  When 'mine::MyEnum' is plugged into the
-// framework, then it will be automatically usable within the framework.
-// For example, the following snippets of code will convert a string from a
-// stream and load it into a 'mine::MyEnum' object:
+// framework, then it will be automatically usable within the framework.  For
+// example, the following snippets of code will convert a string from a stream
+// and load it into a 'mine::MyEnum' object:
 //..
 //  template <typename TYPE>
 //  void readMyEnum(bsl::istream& stream, TYPE *object)
@@ -240,8 +242,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Now we have a generic function that takes an input stream and a 'Cusip'
-// object, and inputs its value.  We can use this generic function as
-// follows:
+// object, and inputs its value.  We can use this generic function as follows:
 //..
 //  void usageExample()
 //  {
@@ -270,6 +271,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_METAINT
@@ -364,6 +369,7 @@ namespace bdlat_EnumFunctions {
 
 #if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
+
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
     // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call

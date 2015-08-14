@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 // BDE_VERIFY pragma: -SLM01  // leaking macros is the whole point!
 
@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 #define bdeat_valueTypeAssign bdlat_valueTypeAssign
 #define bdeat_valueTypeReset bdlat_valueTypeReset
 
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #endif  // INCLUDED_BDLAT_BDEATOVERRIDES
 

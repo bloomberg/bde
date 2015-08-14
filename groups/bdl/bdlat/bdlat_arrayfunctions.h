@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //
 // This component specializes all of these functions for 'bsl::vector<TYPE>'.
 //
-// Custom types can be plugged into the bdlat framework.  This is done by
+// Custom types can be plugged into the 'bdlat' framework.  This is done by
 // overloading the 'bdlat_array*' functions inside the namespace of the plugged
 // in type.  For example, suppose there is a type called 'mine::MyArray'.  In
 // order to plug this type into the 'bdlat' framework as an "array", the
@@ -358,11 +358,11 @@ namespace bdlat_ArrayFunctions {
     template <class TYPE>
     void resize(TYPE *array, int newSize);
         // Set the size of the specified modifiable 'array' to the specified
-        // 'newSize'.  If newSize > size(array), then newSize - size(array)
-        // elements with default values are appended to 'array'.  If newSize <
-        // size(array), then the size(array) - newSize elements at the end of
-        // 'array' are destroyed.  The behavior is undefined unless
-        // '0 <= newSize'.
+        // 'newSize'.  If 'newSize > size(array)', then 'newSize - size(array)'
+        // elements with default values are appended to 'array'.  If
+        // 'newSize < size(array)', then the 'size(array) - newSize' elements
+        // at the end of 'array' are destroyed.  The behavior is undefined
+        // unless '0 <= newSize'.
 
     // ACCESSORS
     template <class TYPE, class ACCESSOR>
@@ -381,6 +381,7 @@ namespace bdlat_ArrayFunctions {
 
 
     // OVERLOADABLE FUNCTIONS
+
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
     // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
@@ -448,7 +449,7 @@ namespace bdlat_ArrayFunctions {
 }  // close namespace bdlat_ArrayFunctions
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                        // -------------------------

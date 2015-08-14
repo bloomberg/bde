@@ -39,6 +39,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
 #endif
@@ -65,8 +69,8 @@ struct bdlat_EnumeratorInfo {
     // PUBLIC DATA -- DO *NOT* REORDER
     int         d_value;         // value of enumerator
     const char *d_name_p;        // name of enumerator
-    int         d_nameLength;    // length of enumerator name
-                                 // (0-terminator not included)
+    int         d_nameLength;    // length of enumerator name (0-terminator not
+                                 // included)
     const char *d_annotation_p;  // enumerator annotation
 
     // TRAITS
@@ -76,6 +80,7 @@ struct bdlat_EnumeratorInfo {
                                    bsl::is_trivially_default_constructible);
 
     // CREATORS
+
     // The following methods are not defined by design:
     //..
     //   bdlat_EnumeratorInfo();
@@ -85,6 +90,7 @@ struct bdlat_EnumeratorInfo {
     // The corresponding methods supplied by the compiler are sufficient.
 
     // MANIPULATORS
+
     // The following method is not defined by design:
     //..
     //   bdlat_EnumeratorInfo& operator=(const bdlat_EnumeratorInfo& rhs);
@@ -123,6 +129,10 @@ struct bdlat_EnumeratorInfo {
         // Return the index of this enumerator info object.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // FREE OPERATORS
 inline
 bool operator==(const bdlat_EnumeratorInfo& lhs,
@@ -144,10 +154,6 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
                          const bdlat_EnumeratorInfo& enumeratorInfo);
     // Write the value of the specified 'enumeratorInfo' to the specified
     // 'stream'.
-
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
 
 // MANIPULATORS
 

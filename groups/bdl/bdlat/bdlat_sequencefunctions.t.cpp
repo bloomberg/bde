@@ -2,15 +2,22 @@
 
 #include <bdlat_sequencefunctions.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlat_attributeinfo.h>
+#include <bdlat_formattingmode.h>
 #include <bdlat_typetraits.h>
 
 #include <bslalg_typetraits.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
+
+#include <bdlb_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -32,61 +39,49 @@ using namespace bsl;  // automatically added by script
 // [ 2] INFO ACCESS TEST
 // [ 4] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -167,22 +162,21 @@ class Point {
     }
 
     Point(const Point& original)
-        // Create an instance having the value of the specified
-        // 'original' object.
+        // Create an instance having the value of the specified 'original'
+        // object.
     : d_x(original.d_x)
     , d_y(original.d_y)
     {
     }
 
     ~Point()
-       // Destroy this object.
+        // Destroy this object.
     {
     }
 
     // MANIPULATORS
     Point& operator=(const Point& rhs)
-        // Assign to this object the value of the specified 'rhs'
-        // object.
+        // Assign to this object the value of the specified 'rhs' object.
     {
         if (this != &rhs) {
             d_x = rhs.d_x;
@@ -192,7 +186,7 @@ class Point {
     }
 
     template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& m, const char *name, int nameLength)
+    int manipulateAttribute(MANIPULATOR&, const char *, int)
         // visit the modifiable attribute with a given name
     {
         globalFlag = 1;
@@ -200,7 +194,7 @@ class Point {
     }
 
     template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& m, int id)
+    int manipulateAttribute(MANIPULATOR&, int)
         // visit the modifiable attribute with a given id
     {
         globalFlag = 2;
@@ -208,7 +202,7 @@ class Point {
     }
 
     template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& m)
+    int manipulateAttributes(MANIPULATOR&)
         // visits modifiable attributes
     {
         globalFlag = 3;
@@ -216,20 +210,20 @@ class Point {
     }
 
     double& x()
-         // Return a reference to the modifiable x coordinate
+        // Return a reference to the modifiable x coordinate
     {
         return d_x;
     }
 
     double& y()
-         // Return a reference to the modifiable y coordinate
+        // Return a reference to the modifiable y coordinate
     {
         return d_y;
     }
 
     // ACCESSORS
     template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& a, const char *name, int nameLength) const
+    int accessAttribute(ACCESSOR&, const char *, int) const
         // visit the non-modifiable attribute with a given name
     {
         globalFlag = 4;
@@ -237,7 +231,7 @@ class Point {
     }
 
     template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& a, int id) const
+    int accessAttribute(ACCESSOR&, int) const
         // visit the non-modifiable attribute with a given id
     {
         globalFlag = 5;
@@ -245,7 +239,7 @@ class Point {
     }
 
     template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& a) const
+    int accessAttributes(ACCESSOR&) const
         // visits non-modifiable attributes
     {
         globalFlag = 6;
@@ -253,15 +247,16 @@ class Point {
     }
 
     double x() const
+        // Return the x coordinate
     {
         return d_x;
     }
-         // Return the x coordinate
+
     double y() const
+        // Return the y coordinate
     {
         return d_y;
     }
-         // Return the y coordinate
 };
 
 const char Point::CLASS_NAME[] = "Point";
@@ -322,11 +317,6 @@ const bdeat_AttributeInfo *Point::lookupAttributeInfo(int id)
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had a 'struct' that contains three members:
 //..
-#include <bdlat_sequencefunctions.h>
-#include <bdlat_formattingmode.h>
-#include <bdlat_attributeinfo.h>
-#include <bdlb_string.h>
-#include <bsl_string.h>
 
 namespace BloombergLP {
 
@@ -406,32 +396,32 @@ int mine::bdeat_sequenceManipulateAttribute(
     enum { NOT_FOUND = -1 };
 
     if (bdlb::String::areEqualCaseless("name",
-                                      attributeName,
-                                      attributeNameLength)) {
+                                       attributeName,
+                                       attributeNameLength)) {
         return bdeat_sequenceManipulateAttribute(
-                                            object,
-                                            manipulator,
-                                            MySequence::NAME_ATTRIBUTE_ID);
+                                                object,
+                                                manipulator,
+                                                MySequence::NAME_ATTRIBUTE_ID);
                                                                       // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("age",
-                                      attributeName,
-                                      attributeNameLength)) {
+                                       attributeName,
+                                       attributeNameLength)) {
         return bdeat_sequenceManipulateAttribute(
-                                             object,
-                                             manipulator,
-                                             MySequence::AGE_ATTRIBUTE_ID);
+                                                 object,
+                                                 manipulator,
+                                                 MySequence::AGE_ATTRIBUTE_ID);
                                                                       // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("salary",
-                                      attributeName,
-                                      attributeNameLength)) {
+                                       attributeName,
+                                       attributeNameLength)) {
         return bdeat_sequenceManipulateAttribute(
-                                          object,
-                                          manipulator,
-                                          MySequence::SALARY_ATTRIBUTE_ID);
+                                              object,
+                                              manipulator,
+                                              MySequence::SALARY_ATTRIBUTE_ID);
                                                                       // RETURN
     }
 
@@ -491,28 +481,26 @@ int mine::bdeat_sequenceManipulateAttributes(MySequence   *object,
 {
     int retVal;
 
-    retVal = bdeat_sequenceManipulateAttribute(
-                                            object,
-                                            manipulator,
-                                            MySequence::NAME_ATTRIBUTE_ID);
+    retVal = bdeat_sequenceManipulateAttribute(object,
+                                               manipulator,
+                                               MySequence::NAME_ATTRIBUTE_ID);
+
+    if (0 != retVal) {
+        return retVal;                                                // RETURN
+    }
+
+    retVal = bdeat_sequenceManipulateAttribute(object,
+                                               manipulator,
+                                               MySequence::AGE_ATTRIBUTE_ID);
 
     if (0 != retVal) {
         return retVal;                                                // RETURN
     }
 
     retVal = bdeat_sequenceManipulateAttribute(
-                                             object,
-                                             manipulator,
-                                             MySequence::AGE_ATTRIBUTE_ID);
-
-    if (0 != retVal) {
-        return retVal;                                                // RETURN
-    }
-
-    retVal = bdeat_sequenceManipulateAttribute(
-                                          object,
-                                          manipulator,
-                                          MySequence::SALARY_ATTRIBUTE_ID);
+                                              object,
+                                              manipulator,
+                                              MySequence::SALARY_ATTRIBUTE_ID);
 
     return retVal;
 }
@@ -520,27 +508,25 @@ int mine::bdeat_sequenceManipulateAttributes(MySequence   *object,
 // ACCESSORS
 
 template <class ACCESSOR>
-int mine::bdeat_sequenceAccessAttribute(
-                                    const MySequence&  object,
-                                    ACCESSOR&          accessor,
-                                    const char        *attributeName,
-                                    int                attributeNameLength)
+int mine::bdeat_sequenceAccessAttribute(const MySequence&  object,
+                                        ACCESSOR&          accessor,
+                                        const char        *attributeName,
+                                        int                attributeNameLength)
 {
     enum { NOT_FOUND = -1 };
 
     if (bdlb::String::areEqualCaseless("name",
-                                      attributeName,
-                                      attributeNameLength)) {
-        return bdeat_sequenceAccessAttribute(
-                                            object,
-                                            accessor,
-                                            MySequence::NAME_ATTRIBUTE_ID);
+                                       attributeName,
+                                       attributeNameLength)) {
+        return bdeat_sequenceAccessAttribute(object,
+                                             accessor,
+                                             MySequence::NAME_ATTRIBUTE_ID);
                                                                       // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("age",
-                                      attributeName,
-                                      attributeNameLength)) {
+                                       attributeName,
+                                       attributeNameLength)) {
         return bdeat_sequenceAccessAttribute(object,
                                              accessor,
                                              MySequence::AGE_ATTRIBUTE_ID);
@@ -548,12 +534,11 @@ int mine::bdeat_sequenceAccessAttribute(
     }
 
     if (bdlb::String::areEqualCaseless("salary",
-                                      attributeName,
-                                      attributeNameLength)) {
-        return bdeat_sequenceAccessAttribute(
-                                          object,
-                                          accessor,
-                                          MySequence::SALARY_ATTRIBUTE_ID);
+                                       attributeName,
+                                       attributeNameLength)) {
+        return bdeat_sequenceAccessAttribute(object,
+                                             accessor,
+                                             MySequence::SALARY_ATTRIBUTE_ID);
                                                                       // RETURN
     }
 
@@ -630,26 +615,25 @@ int mine::bdeat_sequenceAccessAttributes(const MySequence& object,
     }
 
     retVal = bdeat_sequenceAccessAttribute(object,
-                                          accessor,
-                                          MySequence::SALARY_ATTRIBUTE_ID);
+                                           accessor,
+                                           MySequence::SALARY_ATTRIBUTE_ID);
 
     return retVal;
 }
 
-bool mine::bdeat_sequenceHasAttribute(
-                                    const MySequence&  object,
-                                    const char        *attributeName,
-                                    int                attributeNameLength)
+bool mine::bdeat_sequenceHasAttribute(const MySequence&  object,
+                                      const char        *attributeName,
+                                      int                attributeNameLength)
 {
     return bdlb::String::areEqualCaseless("name",
-                                         attributeName,
-                                         attributeNameLength)
+                                          attributeName,
+                                          attributeNameLength)
         || bdlb::String::areEqualCaseless("age",
-                                         attributeName,
-                                         attributeNameLength)
+                                          attributeName,
+                                          attributeNameLength)
         || bdlb::String::areEqualCaseless("salary",
-                                         attributeName,
-                                         attributeNameLength);
+                                          attributeName,
+                                          attributeNameLength);
 }
 
 bool mine::bdeat_sequenceHasAttribute(const MySequence& object,
@@ -772,7 +756,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+//  int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
