@@ -246,8 +246,7 @@ class ChannelPoolConfiguration {
     // an object as both source and destination) is supported in all cases.
 
   private:
-//ARB:ENUM 249
-    enum { BTEMT_DEFAULT_THREAD_STACK_SIZE  = 1024 * 1024 };//ARB:ONELINE
+    enum { k_DEFAULT_THREAD_STACK_SIZE  = 1024 * 1024 };
 
     // Resource limits
     int                   d_maxConnections;    // maximum number of connections
@@ -1132,7 +1131,7 @@ STREAM& ChannelPoolConfiguration::bdexStreamIn(STREAM& stream,
                 d_minMessageSizeIn   = minMessageSizeIn;
                 d_typMessageSizeIn   = typMessageSizeIn;
                 d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = BTEMT_DEFAULT_THREAD_STACK_SIZE;
+                d_threadStackSize    = k_DEFAULT_THREAD_STACK_SIZE;
                 d_collectTimeMetrics = true;
 
             } break;
@@ -1242,7 +1241,7 @@ STREAM& ChannelPoolConfiguration::bdexStreamIn(STREAM& stream,
                 d_minMessageSizeIn   = minMessageSizeIn;
                 d_typMessageSizeIn   = typMessageSizeIn;
                 d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = BTEMT_DEFAULT_THREAD_STACK_SIZE;
+                d_threadStackSize    = k_DEFAULT_THREAD_STACK_SIZE;
                 d_collectTimeMetrics = true;
                 (void) threshold; // *DEPRECATED*  Ignored
 
@@ -1347,7 +1346,7 @@ STREAM& ChannelPoolConfiguration::bdexStreamIn(STREAM& stream,
                 d_minMessageSizeIn   = minMessageSizeIn;
                 d_typMessageSizeIn   = typMessageSizeIn;
                 d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = BTEMT_DEFAULT_THREAD_STACK_SIZE;
+                d_threadStackSize    = k_DEFAULT_THREAD_STACK_SIZE;
                 d_collectTimeMetrics = true;
                 (void) threshold; // *DEPRECATED*  Ignored
 
@@ -1458,8 +1457,8 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                       MANIPULATOR& manipulator,
                                                       int          id)
 {
-//ARB:ENUM 1431
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+//ARB:ENUM 1431 local
+    enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_CONNECTIONS: {
@@ -1545,8 +1544,8 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                      const char   *name,
                                                      int           nameLength)
 {
-//ARB:ENUM 1517
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+//ARB:ENUM 1517 local
+    enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
@@ -1842,8 +1841,8 @@ int
 ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
                                                                           const
 {
-//ARB:ENUM 1813
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+//ARB:ENUM 1813 local
+    enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_CONNECTIONS: {
@@ -1929,8 +1928,8 @@ int ChannelPoolConfiguration::accessAttribute(ACCESSOR&   accessor,
                                                     int         nameLength)
                                                                           const
 {
-//ARB:ENUM 1899
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+//ARB:ENUM 1899 local
+    enum { NOT_FOUND = -1 };
 
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);

@@ -312,14 +312,14 @@ class Formatter {
 
     enum State {
 //ARB:ENUM 310
-        BAEXML_AT_START,
+        e_AT_START,
 //ARB:ENUM 311
-        BAEXML_AFTER_START_NO_TAG,
+        e_AFTER_START_NO_TAG,
 //ARB:ENUM 312
-        BAEXML_IN_TAG,
+        e_IN_TAG,
 //ARB:ENUM 313
-        BAEXML_BETWEEN_TAGS,
-        BAEXML_AT_END
+        e_BETWEEN_TAGS,
+        e_AT_END
     };//ARB:IFNDEF
 
     class ElemContext;
@@ -333,9 +333,9 @@ class Formatter {
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
 //ARB:ENUM 327
-        enum { BAEXML_TRUNCATED_TAG_LEN = 15 };//ARB:ONELINE
+        enum { k_TRUNCATED_TAG_LEN = 15 };//ARB:ONELINE
         unsigned char d_tagLen;  // actual tag length, up to 255
-        char          d_tag[BAEXML_TRUNCATED_TAG_LEN]; // truncated tag
+        char          d_tag[k_TRUNCATED_TAG_LEN]; // truncated tag
 #endif
       public:
         ElemContext(const bslstl::StringRef& tag, WhitespaceType ws);
@@ -576,7 +576,7 @@ balxml::Formatter::ElemContext::ElemContext(const bslstl::StringRef& tag,
                                            WhitespaceType         ws)
 : d_ws(ws), d_tagLen(bsl::min(tag.length(), 255))
 {
-    int len = bsl::min(int(BAEXML_TRUNCATED_TAG_LEN), tag.length());
+    int len = bsl::min(int(k_TRUNCATED_TAG_LEN), tag.length());
     bsl::memcpy(d_tag, tag.data(), len);
 }
 #else
@@ -607,10 +607,10 @@ namespace balxml {
 inline
 void Formatter::closeTagIfOpen()
 {
-    if (BAEXML_IN_TAG == d_state) {
+    if (e_IN_TAG == d_state) {
         d_outputStream << '>';
         ++d_column;
-        d_state = BAEXML_BETWEEN_TAGS;
+        d_state = e_BETWEEN_TAGS;
     }
 }
 

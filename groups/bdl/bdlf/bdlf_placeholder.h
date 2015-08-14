@@ -34,8 +34,12 @@ namespace BloombergLP {
 namespace bdlf {
 template <int I>
 struct PlaceHolder {
-//ARB:ENUM 37
-    enum { VALUE = I };//ARB:ONELINE
+    enum { 
+        value = I 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , VALUE = value
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 };
 
 namespace PlaceHolders {

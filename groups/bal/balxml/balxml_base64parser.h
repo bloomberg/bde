@@ -198,15 +198,14 @@ int Base64Parser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-//ARB:ENUM 201
-    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     d_base64Decoder.resetState();
     d_object_p = object;
 
     bdeat_ValueTypeFunctions::reset(d_object_p);
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <typename TYPE>
@@ -214,22 +213,21 @@ int Base64Parser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-//ARB:ENUM 216
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     bsl::back_insert_iterator<TYPE> outputIterator(*d_object_p);
 
     int status = d_base64Decoder.endConvert(outputIterator);
 
     if (0 > status) {
-        return BAEXML_FAILURE;
+        return k_FAILURE;
     }
 
     BSLS_ASSERT_SAFE(0 == status);  // nothing should be retained by decoder
 
     d_object_p = 0;
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <typename TYPE>
@@ -239,20 +237,19 @@ int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-//ARB:ENUM 240
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     bsl::back_insert_iterator<TYPE> outputIterator(*d_object_p);
 
     int status = d_base64Decoder.convert(outputIterator, begin, end);
 
     if (0 > status) {
-        return BAEXML_FAILURE;
+        return k_FAILURE;
     }
 
     BSLS_ASSERT_SAFE(0 == status);  // nothing should be retained by decoder
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 }  // close package namespace

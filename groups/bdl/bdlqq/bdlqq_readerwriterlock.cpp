@@ -101,10 +101,10 @@ void bdlqq::ReaderWriterLock::lockReadReserveWrite()
 
     if (wait) {
         d_mutex.lock();
-        while (d_signalState != BCEMT_WRITE_SIGNALED) {
+        while (d_signalState != e_WRITE_SIGNALED) {
             d_writeCond.wait(&d_mutex);
         }
-        d_signalState = BCEMT_NOT_SIGNALED;
+        d_signalState = e_NOT_SIGNALED;
 
         newrwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
         do {
@@ -149,10 +149,10 @@ void bdlqq::ReaderWriterLock::lockWrite()
 
     if (wait) {
         d_mutex.lock();
-        while (d_signalState != BCEMT_WRITE_SIGNALED) {
+        while (d_signalState != e_WRITE_SIGNALED) {
             d_writeCond.wait(&d_mutex);
         }
-        d_signalState = BCEMT_NOT_SIGNALED;
+        d_signalState = e_NOT_SIGNALED;
         d_mutex.unlock();
     }
     d_owner = ThreadUtil::selfId();
@@ -262,21 +262,21 @@ int bdlqq::ReaderWriterLock::upgradeToWriteLock()
             // If we were the last reader and we could not transition
             // atomically, then there must be another trying
             // to upgrade atomically so signal it.
-            d_signalState = BCEMT_UPGRADE_SIGNALED;
+            d_signalState = e_UPGRADE_SIGNALED;
             d_upgradeCond.signal();
         }
 
         if (atomic) {
-            while (d_signalState != BCEMT_UPGRADE_SIGNALED) {
+            while (d_signalState != e_UPGRADE_SIGNALED) {
                 d_upgradeCond.wait(&d_mutex);
             }
-            d_signalState = BCEMT_NOT_SIGNALED;
+            d_signalState = e_NOT_SIGNALED;
         }
         else {
-            while (d_signalState != BCEMT_WRITE_SIGNALED) {
+            while (d_signalState != e_WRITE_SIGNALED) {
                 d_writeCond.wait(&d_mutex);
             }
-            d_signalState = BCEMT_NOT_SIGNALED;
+            d_signalState = e_NOT_SIGNALED;
         }
         d_mutex.unlock();
     }
@@ -336,10 +336,10 @@ int bdlqq::ReaderWriterLock::tryUpgradeToWriteLock()
                                                       newrwcount)) != rwcount);
     if (wait) {
         d_mutex.lock();
-        while (d_signalState != BCEMT_UPGRADE_SIGNALED) {
+        while (d_signalState != e_UPGRADE_SIGNALED) {
             d_upgradeCond.wait(&d_mutex);
         }
-        d_signalState = BCEMT_NOT_SIGNALED;
+        d_signalState = e_NOT_SIGNALED;
         d_mutex.unlock();
     }
 
@@ -403,14 +403,14 @@ void bdlqq::ReaderWriterLock::unlock()
         d_mutex.lock();
         switch(sigType) {
           case SIG_WRITE: {
-            d_signalState = BCEMT_WRITE_SIGNALED;
+            d_signalState = e_WRITE_SIGNALED;
             d_writeCond.signal();
           } break;
           case SIG_READ: {
             d_readCond.broadcast();
           } break;
           case SIG_UPGRADE: {
-            d_signalState = BCEMT_UPGRADE_SIGNALED;
+            d_signalState = e_UPGRADE_SIGNALED;
             d_upgradeCond.signal();
           } break;
         }

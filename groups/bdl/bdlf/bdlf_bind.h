@@ -3642,7 +3642,7 @@ class Bind_Impl {
 
     // PRIVATE TYPES
     typedef Bind_FuncTraits<RET,FUNC>                      Traits;
-    typedef bslmf::Tag<Traits::HAS_POINTER_SEMANTICS>      HasPointerSemantics;
+    typedef bslmf::Tag<Traits::k_HAS_POINTER_SEMANTICS>      HasPointerSemantics;
     typedef Bind_Invoker<typename Traits::ResultType,
                          LIST::LENGTH>                     Invoker;
     typedef typename Traits::Type                          FuncType;
@@ -4186,43 +4186,42 @@ class Bind_ImplExplicit {
     typedef typename Traits::Type                          FuncType;
     typedef Bind_Invoker<typename Traits::ResultType,
                          LIST::LENGTH>                     Invoker;
-    typedef bslmf::Tag<Traits::HAS_POINTER_SEMANTICS>      HasPointerSemantics;
+    typedef bslmf::Tag<Traits::k_HAS_POINTER_SEMANTICS>      HasPointerSemantics;
     typedef typename Traits::ArgumentList                  Args;
     typedef Bind_CalcParameterMask<LIST>                   ParamMask;
 
     enum {
-//ARB:ENUM 4194
-        OFFSET = (int)Traits::PARAM_OFFSET    // 1 for member functions, 0 else
-    };//ARB:IFNDEF
+        k_OFFSET = (int)Traits::k_PARAM_OFFSET  // 1 for member functions, 0 else
+    };
 
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX1, OFFSET>::Type   P1;
+              (int)ParamMask::k_PARAMINDEX1, k_OFFSET>::Type   P1;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX2, OFFSET>::Type   P2;
+              (int)ParamMask::k_PARAMINDEX2, k_OFFSET>::Type   P2;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX3, OFFSET>::Type   P3;
+              (int)ParamMask::k_PARAMINDEX3, k_OFFSET>::Type   P3;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX4, OFFSET>::Type   P4;
+              (int)ParamMask::k_PARAMINDEX4, k_OFFSET>::Type   P4;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX5, OFFSET>::Type   P5;
+              (int)ParamMask::k_PARAMINDEX5, k_OFFSET>::Type   P5;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX6, OFFSET>::Type   P6;
+              (int)ParamMask::k_PARAMINDEX6, k_OFFSET>::Type   P6;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX7, OFFSET>::Type   P7;
+              (int)ParamMask::k_PARAMINDEX7, k_OFFSET>::Type   P7;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX8, OFFSET>::Type   P8;
+              (int)ParamMask::k_PARAMINDEX8, k_OFFSET>::Type   P8;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX9, OFFSET>::Type   P9;
+              (int)ParamMask::k_PARAMINDEX9, k_OFFSET>::Type   P9;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX10, OFFSET>::Type  P10;
+              (int)ParamMask::k_PARAMINDEX10, k_OFFSET>::Type  P10;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX11, OFFSET>::Type  P11;
+              (int)ParamMask::k_PARAMINDEX11, k_OFFSET>::Type  P11;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX12, OFFSET>::Type  P12;
+              (int)ParamMask::k_PARAMINDEX12, k_OFFSET>::Type  P12;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX13, OFFSET>::Type  P13;
+              (int)ParamMask::k_PARAMINDEX13, k_OFFSET>::Type  P13;
     typedef typename Bind_MapParameter<FUNC, Args,
-              (int)ParamMask::PARAMINDEX14, OFFSET>::Type  P14;
+              (int)ParamMask::k_PARAMINDEX14, k_OFFSET>::Type  P14;
 
     // PRIVATE INSTANCE DATA
     bslalg::ConstructorProxy<typename Traits::WrapperType> d_func;
@@ -4489,13 +4488,12 @@ struct Bind_ImplSelector {
     //: 3 There are no ellipsis argument in the signature of the function.
 
     enum {
-//ARB:ENUM 4491
-        IS_EXPLICIT = (Bind_CalcParameterMask<LIST>::IS_EXPLICIT &&
-                       Bind_FuncTraits<RET,FUNC>::IS_EXPLICIT) ? 1 : 0
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT = (Bind_CalcParameterMask<LIST>::k_IS_EXPLICIT &&
+                       Bind_FuncTraits<RET,FUNC>::k_IS_EXPLICIT) ? 1 : 0
+    };
 
     typedef typename
-        bslmf::If<IS_EXPLICIT,
+        bslmf::If<k_IS_EXPLICIT,
                   Bind_ImplExplicit<RET,FUNC,LIST>,
                   Bind_Impl<RET,FUNC,LIST> >::Type Type;
 };
@@ -4519,9 +4517,8 @@ struct Bind_FuncTraitsHasNoEllipsis {
     // is not supported on sun studio 8.
 
     enum {
-//ARB:ENUM 4520
-        VALUE = 1
-    };//ARB:IFNDEF
+        k_VaL = 1
+    };
 };
 
 // PARTIAL SPECIALIZATIONS
@@ -4529,48 +4526,42 @@ template <class RET>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(...)> {
     // Specialization for function pointers that return 'RET' and accept one
     // argument which is an ellipsis.
-//ARB:ENUM 4529
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,...)> {
     // Specialization for function pointers that return 'RET' and accept one
     // argument and an ellipsis.
-//ARB:ENUM 4536
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,...)> {
     // Specialization for function pointers that return 'RET' and accept two
     // arguments and an ellipsis.
-//ARB:ENUM 4543
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,...)> {
     // Specialization for function pointers that return 'RET' and accept three
     // arguments and an ellipsis.
-//ARB:ENUM 4550
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,...)> {
     // Specialization for function pointers that return 'RET' and accept four
     // arguments and an ellipsis.
-//ARB:ENUM 4557
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,...)> {
     // Specialization for function pointers that return 'RET' and accept five
     // arguments and an ellipsis.
-//ARB:ENUM 4564
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4578,8 +4569,7 @@ template <class RET, class A1, class A2, class A3, class A4, class A5,
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,...)> {
     // Specialization for function pointers that return 'RET' and accept six
     // arguments and an ellipsis.
-//ARB:ENUM 4572
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4587,8 +4577,7 @@ template <class RET, class A1, class A2, class A3, class A4, class A5,
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6, A7,...)> {
     // Specialization for function pointers that return 'RET' and accept seven
     // arguments and an ellipsis.
-//ARB:ENUM 4580
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4596,8 +4585,7 @@ template <class RET, class A1, class A2, class A3, class A4, class A5,
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,...)> {
     // Specialization for function pointers that return 'RET' and accept eight
     // arguments and an ellipsis.
-//ARB:ENUM 4588
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4605,8 +4593,7 @@ template <class RET, class A1, class A2, class A3, class A4, class A5,
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,...)> {
     // Specialization for function pointers that return 'RET' and accept nine
     // arguments and an ellipsis.
-//ARB:ENUM 4596
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4615,8 +4602,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                             A10,...)> {
     // Specialization for function pointers that return 'RET' and accept ten
     // arguments and an ellipsis.
-//ARB:ENUM 4605
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4625,8 +4611,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                             A10,A11,...)> {
     // Specialization for function pointers that return 'RET' and accept eleven
     // arguments and an ellipsis.
-//ARB:ENUM 4614
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4636,8 +4621,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                             A10,A11,A12,...)> {
     // Specialization for function pointers that return 'RET' and accept
     // twelve arguments and an ellipsis.
-//ARB:ENUM 4624
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4647,8 +4631,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                             A10,A11,A12,A13,...)> {
     // Specialization for function pointers that return 'RET' and accept
     // thirteen arguments and an ellipsis.
-//ARB:ENUM 4634
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4658,8 +4641,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                             A10,A11,A12,A13,A14...)> {
     // Specialization for function pointers that return 'RET' and accept
     // fourteen arguments and an ellipsis.
-//ARB:ENUM 4644
-    enum { VALUE = 0 };//ARB:ONELINE
+    enum { k_VaL = 0 };
 };
 }  // close package namespace
 
@@ -4695,13 +4677,10 @@ struct Bind_FuncTraitsImp<RET,FUNC,1,0,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4680
-        IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC*>::VALUE
-//ARB:ENUM 4681
-      , PARAM_OFFSET          = 0
-//ARB:ENUM 4682
-      , HAS_POINTER_SEMANTICS = 0
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC*>::k_VaL
+      , k_PARAM_OFFSET          = 0
+      , k_HAS_POINTER_SEMANTICS = 0
+    };
 
     // PUBLIC TYPES
     typedef FUNC*                                             Type;
@@ -4718,13 +4697,10 @@ struct Bind_FuncTraitsImp<RET,FUNC,0,1,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4700
-        IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC>::VALUE
-//ARB:ENUM 4701
-      , PARAM_OFFSET          = 0
-//ARB:ENUM 4702
-      , HAS_POINTER_SEMANTICS = 0
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC>::k_VaL
+      , k_PARAM_OFFSET          = 0
+      , k_HAS_POINTER_SEMANTICS = 0
+    };
 
     // PUBLIC TYPES
     typedef FUNC              Type;
@@ -4741,13 +4717,10 @@ struct Bind_FuncTraitsImp<RET,FUNC,0,0,1> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4720
-        IS_EXPLICIT           = 1 // we do not support the ellipsis
-//ARB:ENUM 4721
-      , PARAM_OFFSET          = 1
-//ARB:ENUM 4722
-      , HAS_POINTER_SEMANTICS = 0
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = 1 // we do not support the ellipsis
+      , k_PARAM_OFFSET          = 1
+      , k_HAS_POINTER_SEMANTICS = 0
+    };
 
     // PUBLIC TYPES
     typedef FUNC             Type;
@@ -4764,12 +4737,10 @@ struct Bind_FuncTraitsImp<RET,FUNC,0,0,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4740
-        IS_EXPLICIT           = 0
-//ARB:ENUM 4741
-      , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
+        k_IS_EXPLICIT           = 0
+      , k_HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
                                    bslalg::TypeTraitHasPointerSemantics>::VALUE
-    };//ARB:IFNDEF
+    };
 
     // PUBLIC TYPES
     typedef FUNC Type;
@@ -4783,11 +4754,9 @@ struct Bind_FuncTraitsImp<RET,FUNC*,0,0,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4757
-        IS_EXPLICIT           = 0
-//ARB:ENUM 4758
-      , HAS_POINTER_SEMANTICS = 1
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = 0
+      , k_HAS_POINTER_SEMANTICS = 1
+    };
 
     // PUBLIC TYPES
     typedef FUNC  Type;
@@ -4803,13 +4772,10 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,1,0,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4775
-        IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC*>::VALUE
-//ARB:ENUM 4776
-      , PARAM_OFFSET          = 0
-//ARB:ENUM 4777
-      , HAS_POINTER_SEMANTICS = 0
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC*>::k_VaL
+      , k_PARAM_OFFSET          = 0
+      , k_HAS_POINTER_SEMANTICS = 0
+    };
 
     // PUBLIC TYPES
     typedef FUNC                                              Type;
@@ -4827,13 +4793,10 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,1,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4796
-        IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC>::VALUE
-//ARB:ENUM 4797
-      , PARAM_OFFSET          = 0
-//ARB:ENUM 4798
-      , HAS_POINTER_SEMANTICS = 0
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = Bind_FuncTraitsHasNoEllipsis<FUNC>::k_VaL
+      , k_PARAM_OFFSET          = 0
+      , k_HAS_POINTER_SEMANTICS = 0
+    };
 
     // PUBLIC TYPES
     typedef FUNC Type;
@@ -4851,13 +4814,10 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,1> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4817
-        IS_EXPLICIT           = 1 // we do not support the ellipsis
-//ARB:ENUM 4818
-      , PARAM_OFFSET          = 1
-//ARB:ENUM 4819
-      , HAS_POINTER_SEMANTICS = 0
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = 1 // we do not support the ellipsis
+      , k_PARAM_OFFSET          = 1
+      , k_HAS_POINTER_SEMANTICS = 0
+    };
 
     // PUBLIC TYPES
     typedef FUNC             Type;
@@ -4876,12 +4836,10 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4839
-        IS_EXPLICIT           = 0
-//ARB:ENUM 4840
-      , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
+        k_IS_EXPLICIT           = 0
+      , k_HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
                                    bslalg::TypeTraitHasPointerSemantics>::VALUE
-    };//ARB:IFNDEF
+    };
 
     // PUBLIC TYPES
     typedef FUNC                      Type;
@@ -4897,11 +4855,9 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 4858
-        IS_EXPLICIT           = 0
-//ARB:ENUM 4859
-      , HAS_POINTER_SEMANTICS = 1
-    };//ARB:IFNDEF
+        k_IS_EXPLICIT           = 0
+      , k_HAS_POINTER_SEMANTICS = 1
+    };
 
     // PUBLIC TYPES
     typedef FUNC                      Type;
@@ -4928,15 +4884,15 @@ struct Bind_FuncTraits
     //..
     // // ENUMERATIONS
     // enum {
-    //     IS_EXPLICIT           // An invocable object is explicit if ...
+    //     k_IS_EXPLICIT           // An invocable object is explicit if ...
     //                           // (see 'Bind_ImplExplicit')
     //
-    //   , PARAM_OFFSET          // Offset for calculating evaluation of
+    //   , k_PARAM_OFFSET          // Offset for calculating evaluation of
     //                           // placeholder values at invocation.
     //                           // Will be 1 for member function pointers,
     //                           // and 0 otherwise.
     //
-    //   , HAS_POINTER_SEMANTICS // Whether the bound functor should be invoked
+    //   , k_HAS_POINTER_SEMANTICS // Whether the bound functor should be invoked
     //                           // by address or by value.
     // };
     //
@@ -4970,7 +4926,7 @@ struct Bind_FuncTraits
     // B: as determined by the value of
     //    'bslalg_TypeTraits<X, bslalg::TypeTraitHasPointerSemantics>'.
     // ^: in the (rare) case where the 'FUNC' type has an ellipsis argument,
-    //    the IS_EXPLICIT will be set to 0.  Note that we *only* support the
+    //    the k_IS_EXPLICIT will be set to 0.  Note that we *only* support the
     //    ellipsis in non-member functions.
 };
 
@@ -4986,9 +4942,8 @@ struct Bind_ArgumentMask {
     // mask.
 
     enum {
-//ARB:ENUM 4945
-        VALUE = 0
-    };//ARB:IFNDEF
+        k_VaL = 0
+    };
 };
 
 template <int INDEX>
@@ -4998,9 +4953,8 @@ struct Bind_ArgumentMask<PlaceHolder<INDEX> > {
     // position at 'INDEX' is set to 1.
 
     enum {
-//ARB:ENUM 4956
-        VALUE = 1 << INDEX
-    };//ARB:IFNDEF
+        k_VaL = 1 << INDEX
+    };
 };
 
 template <class RET, class FUNC, class LIST>
@@ -5009,14 +4963,13 @@ struct Bind_ArgumentMask<Bind<RET, FUNC, LIST> > {
     // object passed recursively as a bound argument.  The value is not
     // important, as long as it is out of range.  Note that '1 << 30' would be
     // equally valid, but can lead to an overflow in constant expression with
-    // 'Bind_CalcParameterMask::PARAM_MASK2' below (obtained by adding the
+    // 'Bind_CalcParameterMask::k_PARAM_MASK2' below (obtained by adding the
     // masks of the bound arguments together) when there are more than 3 nested
     // binders (this is unfortunately an error with the GNU compiler).
 
     enum {
-//ARB:ENUM 4971
-        VALUE = 1 << 24
-    };//ARB:IFNDEF
+        k_VaL = 1 << 24
+    };
 };
 
 template <class RET, class FUNC, class LIST>
@@ -5028,9 +4981,8 @@ struct Bind_ArgumentMask<BindWrapper<RET, FUNC, LIST> > {
     // the same way as if the the nested binder was of type 'Bind'.
 
     enum {
-//ARB:ENUM 4984
-        VALUE = 1 << 24
-    };//ARB:IFNDEF
+        k_VaL = 1 << 24
+    };
 };
 
 
@@ -5045,9 +4997,8 @@ struct Bind_ArgumentNumber {
     // defines a numeric value of zero.
 
     enum {
-//ARB:ENUM 5000
-        VALUE = 0
-    };//ARB:IFNDEF
+        k_VaL = 0
+    };
 };
 
 template <int INDEX>
@@ -5056,9 +5007,8 @@ struct Bind_ArgumentNumber<PlaceHolder<INDEX> > {
     // the place-holder at the specified 'INDEX' of the bound arguments.
 
     enum {
-//ARB:ENUM 5010
-        VALUE = INDEX
-    };//ARB:IFNDEF
+        k_VaL = INDEX
+    };
 };
 
                        // =============================
@@ -5160,10 +5110,10 @@ struct Bind_MapParameter<FUNC, ARGS, 0, OFFSET> {
 //..
 //  bind time index    invocation time index
 //  ---------------    ---------------------
-//      PARAM1                   1
-//      PARAM2                   0
-//      PARAM3                   2
-//      PARAM4                   5
+//      k_PARAM1                   1
+//      k_PARAM2                   0
+//      k_PARAM3                   2
+//      k_PARAM4                   5
 //..
 // The 'BDLF_BIND_PARAMINDEX' macro will compute the following:
 //..
@@ -5177,20 +5127,20 @@ struct Bind_MapParameter<FUNC, ARGS, 0, OFFSET> {
 // explicit binder.
 
 #define BDLF_BIND_PARAMINDEX(N) ( \
-(PARAM1  == N ? 1  : 0) + \
-(PARAM2  == N ? 2  : 0) + \
-(PARAM3  == N ? 3  : 0) + \
-(PARAM4  == N ? 4  : 0) + \
-(PARAM5  == N ? 5  : 0) + \
-(PARAM6  == N ? 6  : 0) + \
-(PARAM7  == N ? 7  : 0) + \
-(PARAM8  == N ? 8  : 0) + \
-(PARAM9  == N ? 9  : 0) + \
-(PARAM10 == N ? 10 : 0) + \
-(PARAM11 == N ? 11 : 0) + \
-(PARAM12 == N ? 12 : 0) + \
-(PARAM13 == N ? 13 : 0) + \
-(PARAM14 == N ? 14 : 0))
+(k_PARAM1  == N ? 1  : 0) + \
+(k_PARAM2  == N ? 2  : 0) + \
+(k_PARAM3  == N ? 3  : 0) + \
+(k_PARAM4  == N ? 4  : 0) + \
+(k_PARAM5  == N ? 5  : 0) + \
+(k_PARAM6  == N ? 6  : 0) + \
+(k_PARAM7  == N ? 7  : 0) + \
+(k_PARAM8  == N ? 8  : 0) + \
+(k_PARAM9  == N ? 9  : 0) + \
+(k_PARAM10 == N ? 10 : 0) + \
+(k_PARAM11 == N ? 11 : 0) + \
+(k_PARAM12 == N ? 12 : 0) + \
+(k_PARAM13 == N ? 13 : 0) + \
+(k_PARAM14 == N ? 14 : 0))
 
 namespace bdlf {
 template <class LIST>
@@ -5215,80 +5165,63 @@ struct Bind_CalcParameterMask {
     typedef typename LIST::template TypeOf<14>::TypeOrDefault  Type14;
 
     enum {
-//ARB:ENUM 5168
-        PARAM1  = Bind_ArgumentNumber<Type1 >::VALUE
-//ARB:ENUM 5169
-      , PARAM2  = Bind_ArgumentNumber<Type2 >::VALUE
-//ARB:ENUM 5170
-      , PARAM3  = Bind_ArgumentNumber<Type3 >::VALUE
-//ARB:ENUM 5171
-      , PARAM4  = Bind_ArgumentNumber<Type4 >::VALUE
-//ARB:ENUM 5172
-      , PARAM5  = Bind_ArgumentNumber<Type5 >::VALUE
-//ARB:ENUM 5173
-      , PARAM6  = Bind_ArgumentNumber<Type6 >::VALUE
-//ARB:ENUM 5174
-      , PARAM7  = Bind_ArgumentNumber<Type7 >::VALUE
-//ARB:ENUM 5175
-      , PARAM8  = Bind_ArgumentNumber<Type8 >::VALUE
-//ARB:ENUM 5176
-      , PARAM9  = Bind_ArgumentNumber<Type9 >::VALUE
-//ARB:ENUM 5177
-      , PARAM10 = Bind_ArgumentNumber<Type10>::VALUE
-//ARB:ENUM 5178
-      , PARAM11 = Bind_ArgumentNumber<Type11>::VALUE
-//ARB:ENUM 5179
-      , PARAM12 = Bind_ArgumentNumber<Type12>::VALUE
-//ARB:ENUM 5180
-      , PARAM13 = Bind_ArgumentNumber<Type13>::VALUE
-//ARB:ENUM 5181
-      , PARAM14 = Bind_ArgumentNumber<Type14>::VALUE
+        k_PARAM1  = Bind_ArgumentNumber<Type1 >::k_VaL
+      , k_PARAM2  = Bind_ArgumentNumber<Type2 >::k_VaL
+      , k_PARAM3  = Bind_ArgumentNumber<Type3 >::k_VaL
+      , k_PARAM4  = Bind_ArgumentNumber<Type4 >::k_VaL
+      , k_PARAM5  = Bind_ArgumentNumber<Type5 >::k_VaL
+      , k_PARAM6  = Bind_ArgumentNumber<Type6 >::k_VaL
+      , k_PARAM7  = Bind_ArgumentNumber<Type7 >::k_VaL
+      , k_PARAM8  = Bind_ArgumentNumber<Type8 >::k_VaL
+      , k_PARAM9  = Bind_ArgumentNumber<Type9 >::k_VaL
+      , k_PARAM10 = Bind_ArgumentNumber<Type10>::k_VaL
+      , k_PARAM11 = Bind_ArgumentNumber<Type11>::k_VaL
+      , k_PARAM12 = Bind_ArgumentNumber<Type12>::k_VaL
+      , k_PARAM13 = Bind_ArgumentNumber<Type13>::k_VaL
+      , k_PARAM14 = Bind_ArgumentNumber<Type14>::k_VaL
         // Individual place-holder indices.  For each type that is a valid
         // place-holder, 'PARAM<N>' will be set to the index of the
         // corresponding argument.  For non-place-holder types, 'PARAM<N>' will
         // be 0.  For nested 'Bind' types, the out-of-range value 31 will
         // be used.
 
-//ARB:ENUM 5188
-      , PARAM_MASK = Bind_ArgumentMask<Type1 >::VALUE |
-                     Bind_ArgumentMask<Type2 >::VALUE |
-                     Bind_ArgumentMask<Type3 >::VALUE |
-                     Bind_ArgumentMask<Type4 >::VALUE |
-                     Bind_ArgumentMask<Type5 >::VALUE |
-                     Bind_ArgumentMask<Type6 >::VALUE |
-                     Bind_ArgumentMask<Type7 >::VALUE |
-                     Bind_ArgumentMask<Type8 >::VALUE |
-                     Bind_ArgumentMask<Type9 >::VALUE |
-                     Bind_ArgumentMask<Type10>::VALUE |
-                     Bind_ArgumentMask<Type11>::VALUE |
-                     Bind_ArgumentMask<Type12>::VALUE |
-                     Bind_ArgumentMask<Type13>::VALUE |
-                     Bind_ArgumentMask<Type14>::VALUE
+      , k_PARAM_MASK = Bind_ArgumentMask<Type1 >::k_VaL |
+                     Bind_ArgumentMask<Type2 >::k_VaL |
+                     Bind_ArgumentMask<Type3 >::k_VaL |
+                     Bind_ArgumentMask<Type4 >::k_VaL |
+                     Bind_ArgumentMask<Type5 >::k_VaL |
+                     Bind_ArgumentMask<Type6 >::k_VaL |
+                     Bind_ArgumentMask<Type7 >::k_VaL |
+                     Bind_ArgumentMask<Type8 >::k_VaL |
+                     Bind_ArgumentMask<Type9 >::k_VaL |
+                     Bind_ArgumentMask<Type10>::k_VaL |
+                     Bind_ArgumentMask<Type11>::k_VaL |
+                     Bind_ArgumentMask<Type12>::k_VaL |
+                     Bind_ArgumentMask<Type13>::k_VaL |
+                     Bind_ArgumentMask<Type14>::k_VaL
          // Mask of which parameters are place-holders.
 
-//ARB:ENUM 5204
-       , PARAM_MASK2 = Bind_ArgumentMask<Type1 >::VALUE +
-                       Bind_ArgumentMask<Type2 >::VALUE +
-                       Bind_ArgumentMask<Type3 >::VALUE +
-                       Bind_ArgumentMask<Type4 >::VALUE +
-                       Bind_ArgumentMask<Type5 >::VALUE +
-                       Bind_ArgumentMask<Type6 >::VALUE +
-                       Bind_ArgumentMask<Type7 >::VALUE +
-                       Bind_ArgumentMask<Type8 >::VALUE +
-                       Bind_ArgumentMask<Type9 >::VALUE +
-                       Bind_ArgumentMask<Type10>::VALUE +
-                       Bind_ArgumentMask<Type11>::VALUE +
-                       Bind_ArgumentMask<Type12>::VALUE +
-                       Bind_ArgumentMask<Type13>::VALUE +
-                       Bind_ArgumentMask<Type14>::VALUE
+       , k_PARAM_MASK2 = Bind_ArgumentMask<Type1 >::k_VaL +
+                       Bind_ArgumentMask<Type2 >::k_VaL +
+                       Bind_ArgumentMask<Type3 >::k_VaL +
+                       Bind_ArgumentMask<Type4 >::k_VaL +
+                       Bind_ArgumentMask<Type5 >::k_VaL +
+                       Bind_ArgumentMask<Type6 >::k_VaL +
+                       Bind_ArgumentMask<Type7 >::k_VaL +
+                       Bind_ArgumentMask<Type8 >::k_VaL +
+                       Bind_ArgumentMask<Type9 >::k_VaL +
+                       Bind_ArgumentMask<Type10>::k_VaL +
+                       Bind_ArgumentMask<Type11>::k_VaL +
+                       Bind_ArgumentMask<Type12>::k_VaL +
+                       Bind_ArgumentMask<Type13>::k_VaL +
+                       Bind_ArgumentMask<Type14>::k_VaL
         // Mask of which parameters are place-holder calculated by
         // addition rather the by ORing.  If the given place-holder
         // is used for multiple arguments, the result of mask will be
         // different from the ORed value above.
 
-//ARB:ENUM 5223
-      , IS_EXPLICIT = (PARAM_MASK == PARAM_MASK2 ?
-                            (PARAM_MASK < (1<<15) ? 1 : 0) : 0)
+      , k_IS_EXPLICIT = (k_PARAM_MASK == k_PARAM_MASK2 ?
+                            (k_PARAM_MASK < (1<<15) ? 1 : 0) : 0)
         // Indicates if the types defined in 'LIST' are explicit.
         // The LIST is said to be explicit if there are no duplicate
         // references to the same place-holder, and if there is no
@@ -5298,35 +5231,21 @@ struct Bind_CalcParameterMask {
         // take an ellipsis).  See the documentation for this component for
         // more information.
 
-//ARB:ENUM 5234
-      , PARAMINDEX1  = BDLF_BIND_PARAMINDEX( 1)
-//ARB:ENUM 5235
-      , PARAMINDEX2  = BDLF_BIND_PARAMINDEX( 2)
-//ARB:ENUM 5236
-      , PARAMINDEX3  = BDLF_BIND_PARAMINDEX( 3)
-//ARB:ENUM 5237
-      , PARAMINDEX4  = BDLF_BIND_PARAMINDEX( 4)
-//ARB:ENUM 5238
-      , PARAMINDEX5  = BDLF_BIND_PARAMINDEX( 5)
-//ARB:ENUM 5239
-      , PARAMINDEX6  = BDLF_BIND_PARAMINDEX( 6)
-//ARB:ENUM 5240
-      , PARAMINDEX7  = BDLF_BIND_PARAMINDEX( 7)
-//ARB:ENUM 5241
-      , PARAMINDEX8  = BDLF_BIND_PARAMINDEX( 8)
-//ARB:ENUM 5242
-      , PARAMINDEX9  = BDLF_BIND_PARAMINDEX( 9)
-//ARB:ENUM 5243
-      , PARAMINDEX10 = BDLF_BIND_PARAMINDEX(10)
-//ARB:ENUM 5244
-      , PARAMINDEX11 = BDLF_BIND_PARAMINDEX(11)
-//ARB:ENUM 5245
-      , PARAMINDEX12 = BDLF_BIND_PARAMINDEX(12)
-//ARB:ENUM 5246
-      , PARAMINDEX13 = BDLF_BIND_PARAMINDEX(13)
-//ARB:ENUM 5247
-      , PARAMINDEX14 = BDLF_BIND_PARAMINDEX(14)
-    };//ARB:IFNDEF
+      , k_PARAMINDEX1  = BDLF_BIND_PARAMINDEX( 1)
+      , k_PARAMINDEX2  = BDLF_BIND_PARAMINDEX( 2)
+      , k_PARAMINDEX3  = BDLF_BIND_PARAMINDEX( 3)
+      , k_PARAMINDEX4  = BDLF_BIND_PARAMINDEX( 4)
+      , k_PARAMINDEX5  = BDLF_BIND_PARAMINDEX( 5)
+      , k_PARAMINDEX6  = BDLF_BIND_PARAMINDEX( 6)
+      , k_PARAMINDEX7  = BDLF_BIND_PARAMINDEX( 7)
+      , k_PARAMINDEX8  = BDLF_BIND_PARAMINDEX( 8)
+      , k_PARAMINDEX9  = BDLF_BIND_PARAMINDEX( 9)
+      , k_PARAMINDEX10 = BDLF_BIND_PARAMINDEX(10)
+      , k_PARAMINDEX11 = BDLF_BIND_PARAMINDEX(11)
+      , k_PARAMINDEX12 = BDLF_BIND_PARAMINDEX(12)
+      , k_PARAMINDEX13 = BDLF_BIND_PARAMINDEX(13)
+      , k_PARAMINDEX14 = BDLF_BIND_PARAMINDEX(14)
+    };
 };
 }  // close package namespace
 

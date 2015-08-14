@@ -381,8 +381,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(char                             *lhs,
                                          const RHS_TYPE&                   rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
-//ARB:ENUM 384
-    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     const int MIN_CHAR = -128;
     const int MAX_CHAR = 127;
@@ -392,12 +391,12 @@ int bdlat_ValueTypeFunctions_Imp::assign(char                             *lhs,
     bdlat_EnumFunctions::toInt(&proxy, rhs);
 
     if (proxy < MIN_CHAR || proxy > MAX_CHAR) {
-        return BDLAT_FAILURE;                                         // RETURN
+        return k_FAILURE;                                         // RETURN
     }
 
     *lhs = static_cast<char>(proxy);
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class RHS_TYPE>
@@ -406,8 +405,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(short                            *lhs,
                                          const RHS_TYPE&                   rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
-//ARB:ENUM 408
-    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     const int MIN_SHORT = -32768;
     const int MAX_SHORT = 32767;
@@ -417,12 +415,12 @@ int bdlat_ValueTypeFunctions_Imp::assign(short                            *lhs,
     bdlat_EnumFunctions::toInt(&proxy, rhs);
 
     if (proxy < MIN_SHORT || proxy > MAX_SHORT) {
-        return BDLAT_FAILURE;                                         // RETURN
+        return k_FAILURE;                                         // RETURN
     }
 
     *lhs = static_cast<short>(proxy);
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class RHS_TYPE>
@@ -431,12 +429,11 @@ int bdlat_ValueTypeFunctions_Imp::assign(int                              *lhs,
                                          const RHS_TYPE&                   rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
-//ARB:ENUM 432
-    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     bdlat_EnumFunctions::toInt(lhs, rhs);
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class RHS_TYPE>
@@ -445,12 +442,11 @@ int bdlat_ValueTypeFunctions_Imp::assign(bsl::string                      *lhs,
                                          const RHS_TYPE&                   rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
-//ARB:ENUM 445
-    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     bdlat_EnumFunctions::toString(lhs, rhs);
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -460,12 +456,11 @@ int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                    *lhs,
                                          bdlat_TypeCategory::Simple)
 {
     enum {
-//ARB:ENUM 459
-        IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
-    };//ARB:IFNDEF
+        k_IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
+    };
 
     typedef typename
-    bslmf::If<IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
+    bslmf::If<k_IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
 
     return assignSimpleTypes(lhs, rhs, Selector());
 }
@@ -477,12 +472,11 @@ int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE        *lhs,
                                          const RHS_TYPE&  rhs,
                                          RHS_CATEGORY)
 {
-//ARB:ENUM 475
-    enum { BDLAT_FAILURE = -1 };//ARB:ONELINE
+    enum { k_FAILURE = -1 };
 
     (void)lhs;  // quell warning
     (void)rhs;  // quell warning
-    return BDLAT_FAILURE;
+    return k_FAILURE;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -491,12 +485,11 @@ int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
                                                     const RHS_TYPE&  rhs,
                                                     IsConvertible)
 {
-//ARB:ENUM 488
-    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     *lhs = static_cast<LHS_TYPE>(rhs);
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -505,12 +498,11 @@ int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
                                                     const RHS_TYPE&  rhs,
                                                     IsNotConvertible)
 {
-//ARB:ENUM 501
-    enum { BDLAT_FAILURE = -1 };//ARB:ONELINE
+    enum { k_FAILURE = -1 };
 
     (void)lhs;  // quell warning
     (void)rhs;  // quell warning
-    return BDLAT_FAILURE;
+    return k_FAILURE;
 }
 
 template <class TYPE>
@@ -518,15 +510,14 @@ inline
 void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object)
 {
     enum {
-//ARB:ENUM 513
-        HAS_TRAIT = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
+        k_HAS_TRAIT = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
                  || bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
                  || bslalg::HasTrait<TYPE,
                                     bdlat_TypeTraitBasicCustomizedType>::VALUE
-    };//ARB:IFNDEF
+    };
 
     typedef typename
-    bslmf::If<HAS_TRAIT,
+    bslmf::If<k_HAS_TRAIT,
              bdlat_ValueTypeFunctions_Imp::UseResetMethod,
              bdlat_ValueTypeFunctions_Imp::UseDefaultCtor>::Type Selector;
 

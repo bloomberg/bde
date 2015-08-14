@@ -69,9 +69,9 @@ namespace baljsn {
 // PRIVATE MANIPULATORS
 int Tokenizer::reloadStringBuffer()
 {
-    d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.resize(k_MAX_STRING_SIZE);
     const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
-                                             BAEJSN_MAX_STRING_SIZE);
+                                             k_MAX_STRING_SIZE);
     d_cursor = 0;
     d_stringBuffer.resize(numRead);
     return numRead;
@@ -79,10 +79,10 @@ int Tokenizer::reloadStringBuffer()
 
 int Tokenizer::expandBufferForLargeValue()
 {
-    d_stringBuffer.resize(d_stringBuffer.length() + BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.resize(d_stringBuffer.length() + k_MAX_STRING_SIZE);
 
     const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[d_valueIter],
-                                             BAEJSN_MAX_STRING_SIZE);
+                                             k_MAX_STRING_SIZE);
     return numRead ? 0 : -1;
 }
 
@@ -90,13 +90,13 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
 {
     d_stringBuffer.erase(d_stringBuffer.begin(),
                          d_stringBuffer.begin() + d_valueBegin);
-    d_stringBuffer.resize(BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.resize(k_MAX_STRING_SIZE);
 
     d_valueIter = d_valueIter - d_valueBegin;
 
     const int numRead = d_streamBuf_p->sgetn(
                                          &d_stringBuffer[d_valueIter],
-                                         BAEJSN_MAX_STRING_SIZE - d_valueIter);
+                                         k_MAX_STRING_SIZE - d_valueIter);
 
     if (numRead > 0) {
         d_stringBuffer.resize(d_valueIter + numRead);
@@ -257,7 +257,7 @@ int Tokenizer::advanceToNextToken()
              || BAEJSN_BEGIN         == d_tokenType) {
 
                 d_tokenType  = BAEJSN_START_OBJECT;
-                d_context    = BAEJSN_OBJECT_CONTEXT;
+                d_context    = e_OBJECT_CONTEXT;
                 previousChar = '{';
 
                 ++d_cursor;
@@ -275,7 +275,7 @@ int Tokenizer::advanceToNextToken()
              || BAEJSN_END_ARRAY      == d_tokenType) {
 
                 d_tokenType  = BAEJSN_END_OBJECT;
-                d_context    = BAEJSN_OBJECT_CONTEXT;
+                d_context    = e_OBJECT_CONTEXT;
                 previousChar = '}';
 
                 ++d_cursor;
@@ -293,7 +293,7 @@ int Tokenizer::advanceToNextToken()
              || BAEJSN_BEGIN         == d_tokenType) {
 
                 d_tokenType  = BAEJSN_START_ARRAY;
-                d_context    = BAEJSN_ARRAY_CONTEXT;
+                d_context    = e_ARRAY_CONTEXT;
                 previousChar = '[';
 
                 ++d_cursor;
@@ -311,7 +311,7 @@ int Tokenizer::advanceToNextToken()
              || (BAEJSN_END_OBJECT    == d_tokenType && ',' != previousChar)) {
 
                 d_tokenType = BAEJSN_END_ARRAY;
-                d_context   = BAEJSN_OBJECT_CONTEXT;
+                d_context   = e_OBJECT_CONTEXT;
                 previousChar = ']';
 
                 ++d_cursor;
@@ -371,7 +371,7 @@ int Tokenizer::advanceToNextToken()
              || (BAEJSN_END_ARRAY     == d_tokenType && ',' == previousChar)
              || (BAEJSN_ELEMENT_VALUE   == d_tokenType
                && ','                   == previousChar
-               && BAEJSN_OBJECT_CONTEXT == d_context)) {
+               && e_OBJECT_CONTEXT == d_context)) {
                 d_tokenType  = BAEJSN_ELEMENT_NAME;
                 d_valueBegin = d_cursor + 1;
                 d_valueIter  = d_valueBegin;
@@ -381,7 +381,7 @@ int Tokenizer::advanceToNextToken()
                                                         && ':' == previousChar)
                   || (BAEJSN_ELEMENT_VALUE == d_tokenType
                    && ','                  == previousChar
-                   && BAEJSN_ARRAY_CONTEXT == d_context)
+                   && e_ARRAY_CONTEXT == d_context)
                  || (BAEJSN_BEGIN == d_tokenType && d_allowStandAloneValues)) {
                 d_tokenType  = BAEJSN_ELEMENT_VALUE;
                 d_valueBegin = d_cursor;
@@ -417,7 +417,7 @@ int Tokenizer::advanceToNextToken()
              || (BAEJSN_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
              || (BAEJSN_ELEMENT_VALUE == d_tokenType
               && ','                  == previousChar
-              && BAEJSN_ARRAY_CONTEXT == d_context)
+              && e_ARRAY_CONTEXT == d_context)
              || (BAEJSN_BEGIN == d_tokenType && d_allowStandAloneValues)) {
 
                 d_tokenType = BAEJSN_ELEMENT_VALUE;

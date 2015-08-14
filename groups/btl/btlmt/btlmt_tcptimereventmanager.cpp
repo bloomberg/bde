@@ -933,12 +933,12 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
                         , bslma::Allocator>
                                     autoDelete(&requestsPtr, d_allocator_p, 1);
 
-    // Set the state to BTEMT_ENABLED before dispatching any events
+    // Set the state to e_ENABLED before dispatching any events
     // (DRQS 15212134).  Note that the thread calling 'enable' should be
     // blocked (awaiting a response on the control channel) and holding a write
     // lock to 'd_stateLock'.
 
-    d_state = BTEMT_ENABLED;
+    d_state = e_ENABLED;
 
     while (1) {
         // Dispatch socket events, from shorter to longer timeout.
@@ -1016,7 +1016,7 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
                     d_metrics.switchTo(btlso::TimeMetrics::e_IO_BOUND);
                 }
                 BSLS_ASSERT(0 == d_requestQueue.queue().length());
-                BSLS_ASSERT(BTEMT_ENABLED == d_state);
+                BSLS_ASSERT(e_ENABLED == d_state);
                 return;
             }
         }
@@ -1077,7 +1077,7 @@ TcpTimerEventManager::TcpTimerEventManager(
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
+, d_state(e_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
@@ -1098,7 +1098,7 @@ TcpTimerEventManager::TcpTimerEventManager(
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
+, d_state(e_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
@@ -1120,7 +1120,7 @@ TcpTimerEventManager::TcpTimerEventManager(
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
+, d_state(e_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
@@ -1141,7 +1141,7 @@ TcpTimerEventManager::TcpTimerEventManager(
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
+, d_state(e_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
@@ -1163,7 +1163,7 @@ TcpTimerEventManager::TcpTimerEventManager(
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
+, d_state(e_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
@@ -1186,7 +1186,7 @@ TcpTimerEventManager::TcpTimerEventManager(
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
+, d_state(e_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
@@ -1207,7 +1207,7 @@ TcpTimerEventManager::TcpTimerEventManager(
                                                            threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
 , d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
-, d_state(BTEMT_DISABLED)
+, d_state(e_DISABLED)
 , d_terminateThread(0)
 , d_manager_p(rawEventManager)
 , d_isManagedFlag(0)
@@ -1250,7 +1250,7 @@ TcpTimerEventManager::~TcpTimerEventManager()
 // MANIPULATORS
 int TcpTimerEventManager::disable()
 {
-    if (d_state == BTEMT_DISABLED) {
+    if (d_state == e_DISABLED) {
         return 0;
     }
 
@@ -1263,7 +1263,7 @@ int TcpTimerEventManager::disable()
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         // Synchronized section.
-        if (d_state == BTEMT_DISABLED) {
+        if (d_state == e_DISABLED) {
             return 0;
         }
 
@@ -1292,7 +1292,7 @@ int TcpTimerEventManager::disable()
 
         BSLS_ASSERT(0 == rc);
         d_requestPool.deleteObjectRaw(req);
-        d_state = BTEMT_DISABLED;
+        d_state = e_DISABLED;
 
         // Release the control channel object.
         BSLS_ASSERT(0 != d_controlChannel_p);
@@ -1308,14 +1308,14 @@ int TcpTimerEventManager::enable(const bdlqq::ThreadAttributes& attr)
         return 0;
     }
 
-    if (BTEMT_ENABLED == d_state) {
+    if (e_ENABLED == d_state) {
         return 0;
     }
 
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         // Synchronized section.
-        if (BTEMT_ENABLED == d_state) {
+        if (e_ENABLED == d_state) {
             return 0;
         }
 
@@ -1409,13 +1409,13 @@ int TcpTimerEventManager::registerSocketEvent(
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
-    if (BTEMT_DISABLED == d_state) {
+    if (e_DISABLED == d_state) {
         d_stateLock.unlock();
         d_stateLock.lockWrite();
     }
 
     switch (d_state) {
-      case BTEMT_ENABLED: {
+      case e_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
         TcpTimerEventManager_Request *req =
@@ -1431,7 +1431,7 @@ int TcpTimerEventManager::registerSocketEvent(
             return -1;
         }
       } break;
-      case BTEMT_DISABLED: {
+      case e_DISABLED: {
         // Processing thread is disabled -- upgrade to write lock
         // and process request in this thread.
 
@@ -1459,7 +1459,7 @@ void *TcpTimerEventManager::registerTimer(
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         switch (d_state) {
-          case BTEMT_ENABLED: {
+          case e_ENABLED: {
             // As performance optimization, we may do the following:
             // Time queue is thread-safe.  Therefore, we don't have to
             // synchronize the following operation.
@@ -1495,7 +1495,7 @@ void *TcpTimerEventManager::registerTimer(
                 }
             }
           } break;
-          case BTEMT_DISABLED: {
+          case e_DISABLED: {
             // Processing thread is disabled -- register directly
             // since the timer queue is thread-safe.
 
@@ -1523,7 +1523,7 @@ int TcpTimerEventManager::rescheduleTimer(
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         switch (d_state) {
-          case BTEMT_ENABLED: {
+          case e_ENABLED: {
             // As performance optimization, we may do the following:
             // Time queue is thread-safe.  Therefore, we don't have to
             // synchronize the following operation.
@@ -1550,7 +1550,7 @@ int TcpTimerEventManager::rescheduleTimer(
                 }
             }
           } break;
-          case BTEMT_DISABLED: {
+          case e_DISABLED: {
             // Processing thread is disabled -- register directly
             // since the timer queue is thread-safe.
 
@@ -1574,13 +1574,13 @@ void TcpTimerEventManager::deregisterSocketEvent(
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
-    if (BTEMT_DISABLED == d_state) {
+    if (e_DISABLED == d_state) {
         d_stateLock.unlock();
         d_stateLock.lockWrite();
     }
 
     switch (d_state) {
-      case BTEMT_ENABLED: {
+      case e_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
         TcpTimerEventManager_Request *req =
@@ -1594,7 +1594,7 @@ void TcpTimerEventManager::deregisterSocketEvent(
             d_requestPool.deleteObjectRaw(req);
         }
       } break;
-      case BTEMT_DISABLED: {
+      case e_DISABLED: {
         // Processing thread is disabled -- upgrade to write lock
         // and process request in this thread.
 
@@ -1623,7 +1623,7 @@ void TcpTimerEventManager::execute(const bdlf::Function<void (*)()>&
     bdlqq::LockGuard<bdlqq::Mutex>       executeQueueGuard(&d_executeQueueLock);
 
     switch (d_state) {
-      case BTEMT_ENABLED: {
+      case e_ENABLED: {
 
         // Processing thread is enabled -- enqueue the request.
         d_executeQueue_p->push_back(functor);
@@ -1650,7 +1650,7 @@ void TcpTimerEventManager::execute(const bdlf::Function<void (*)()>&
             }
         }
       } break;
-      case BTEMT_DISABLED: {
+      case e_DISABLED: {
         // Processing thread is disabled -- Simply enqueue the request.
 
         d_executeQueue_p->push_back(functor);
@@ -1675,13 +1675,13 @@ void TcpTimerEventManager::deregisterSocket(
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
-    if (BTEMT_DISABLED == d_state) {
+    if (e_DISABLED == d_state) {
         d_stateLock.unlock();
         d_stateLock.lockWrite();
     }
 
     switch (d_state) {
-      case BTEMT_ENABLED: {
+      case e_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
         TcpTimerEventManager_Request *req =
@@ -1694,7 +1694,7 @@ void TcpTimerEventManager::deregisterSocket(
             d_requestPool.deleteObjectRaw(req);
         }
       } break;
-      case BTEMT_DISABLED: {
+      case e_DISABLED: {
         // Processing thread is disabled -- upgrade to write lock
         // and process request in this thread.
 
@@ -1718,13 +1718,13 @@ void TcpTimerEventManager::deregisterAllSocketEvents()
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
-    if (BTEMT_DISABLED == d_state) {
+    if (e_DISABLED == d_state) {
         d_stateLock.unlock();
         d_stateLock.lockWrite();
     }
 
     switch (d_state) {
-      case BTEMT_ENABLED: {
+      case e_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
         TcpTimerEventManager_Request *req =
@@ -1737,7 +1737,7 @@ void TcpTimerEventManager::deregisterAllSocketEvents()
             d_requestPool.deleteObjectRaw(req);
         }
       } break;
-      case BTEMT_DISABLED: {
+      case e_DISABLED: {
         // Processing thread is disabled -- upgrade to write lock
         // and process request in this thread.
 
@@ -1780,13 +1780,13 @@ int TcpTimerEventManager::isRegistered(
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
-    if (BTEMT_DISABLED == d_state) {
+    if (e_DISABLED == d_state) {
         d_stateLock.unlock();
         d_stateLock.lockWrite();
     }
 
     switch (d_state) {
-      case BTEMT_ENABLED: {
+      case e_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
         bdlqq::Mutex     mutex;
@@ -1811,7 +1811,7 @@ int TcpTimerEventManager::isRegistered(
             d_requestPool.deleteObjectRaw(req);
         }
       } break;
-      case BTEMT_DISABLED: {
+      case e_DISABLED: {
         // Processing thread is disabled -- upgrade to write lock
         // and process request in this thread.
 
@@ -1843,13 +1843,13 @@ int TcpTimerEventManager::numSocketEvents(
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
-    if (BTEMT_DISABLED == d_state) {
+    if (e_DISABLED == d_state) {
         d_stateLock.unlock();
         d_stateLock.lockWrite();
     }
 
     switch (d_state) {
-      case BTEMT_ENABLED: {
+      case e_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
         bdlqq::Mutex mutex;
@@ -1873,7 +1873,7 @@ int TcpTimerEventManager::numSocketEvents(
             d_requestPool.deleteObjectRaw(req);
         }
       } break;
-      case BTEMT_DISABLED: {
+      case e_DISABLED: {
         // Processing thread is disabled -- upgrade to write lock
         // and process request in this thread.
 
@@ -1891,7 +1891,7 @@ int TcpTimerEventManager::numTotalSocketEvents() const
 
 int TcpTimerEventManager::isEnabled() const
 {
-    return d_state == BTEMT_ENABLED; // d_state is volatile
+    return d_state == e_ENABLED; // d_state is volatile
 
 /*
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_cs);

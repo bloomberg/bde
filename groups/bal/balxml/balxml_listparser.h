@@ -71,17 +71,17 @@ BSLS_IDENT("$Id: $")
 //  int loadDoublesFromListStream(bsl::vector<double> *result,
 //                                bsl::istream&        stream)
 //  {
-//      enum { BAEXML_FAILURE = -1 };
+//      enum { k_FAILURE = -1 };
 //
 //      balxml::ListParser<bsl::vector<double> > parser(&parseDouble);
 //
 //      if (0 != parser.beginParse(result)) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
 //                                     bsl::istreambuf_iterator<char>())) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      return parser.endParse();
@@ -243,8 +243,7 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(0 < dataLength);
 
-//ARB:ENUM 246
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
 
@@ -265,10 +264,10 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
         // remove the new object from the array
         bdeat_ArrayFunctions::resize(d_object_p, i);
 
-        return BAEXML_FAILURE;
+        return k_FAILURE;
     }
 
-     return BAEXML_SUCCESS;
+     return k_SUCCESS;
 }
 
 // CREATORS
@@ -290,15 +289,14 @@ int ListParser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-//ARB:ENUM 292
-    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     d_characters.clear();
     d_object_p = object;
 
     bdeat_ArrayFunctions::resize(d_object_p, 0);
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <typename TYPE>
@@ -306,19 +304,18 @@ int ListParser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-//ARB:ENUM 307
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     if (!d_characters.empty()) {
         if (0 != appendElement(d_characters.data(),
                                static_cast<int>(d_characters.length()))) {
-            return BAEXML_FAILURE;
+            return k_FAILURE;
         }
     }
 
     d_object_p = 0;
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <typename TYPE>
@@ -328,8 +325,7 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-//ARB:ENUM 328
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     while (begin != end) {
         const char character = *begin;
@@ -341,7 +337,7 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
                 if (0 != appendElement(
                                     d_characters.data(),
                                     static_cast<int>(d_characters.length()))) {
-                    return BAEXML_FAILURE;
+                    return k_FAILURE;
                 }
 
                 d_characters.clear();
@@ -352,7 +348,7 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
         }
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 }  // close package namespace
 

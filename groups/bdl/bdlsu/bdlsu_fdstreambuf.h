@@ -647,28 +647,28 @@ class FdStreamBuf : public bsl::streambuf {
   private:
     // PRIVATE TYPES
 //ARB:ENUM 649
-    enum { BDESU_PBACK_BUF_SIZE = 8 }; // size of d_pBackBuf//ARB:ONELINE
+    enum { k_PBACK_BUF_SIZE = 8 }; // size of d_pBackBuf//ARB:ONELINE
 
     enum FdStreamBufMode  {
 //ARB:ENUM 652
-        BDESU_NULL_MODE          = 0,  // empty state, when not in any other
+        e_NULL_MODE          = 0,  // empty state, when not in any other
                                        // mode; the object is constructed in
                                        // this state
 
 //ARB:ENUM 656
-        BDESU_INPUT_MODE         = 1,  // doing input
+        e_INPUT_MODE         = 1,  // doing input
 
 //ARB:ENUM 658
-        BDESU_INPUT_PUTBACK_MODE = 2,  // input putback mode is a form of input
+        e_INPUT_PUTBACK_MODE = 2,  // input putback mode is a form of input
                                        // mode where chars that have been
                                        // stuffed back into the input buffer
                                        // are kept in 'd_pBackBuf'.
 
 //ARB:ENUM 663
-        BDESU_OUTPUT_MODE        = 3,  // doing output
+        e_OUTPUT_MODE        = 3,  // doing output
 
 //ARB:ENUM 665
-        BDESU_ERROR_MODE         = 4   // An error has occured.  Note that
+        e_ERROR_MODE         = 4   // An error has occured.  Note that
                                        // error mode is sticky -- subsequent
                                        // I/O won't work until error mode is
                                        // cleared by a 'reset' or a seek.
@@ -694,7 +694,7 @@ class FdStreamBuf : public bsl::streambuf {
 
                         // putback buffer
 
-    char              d_pBackBuf[BDESU_PBACK_BUF_SIZE];
+    char              d_pBackBuf[k_PBACK_BUF_SIZE];
                                           // for putback mode (see above)
 
                         // input/output buffer
@@ -1131,7 +1131,7 @@ inline
 void FdStreamBuf::exitPutbackMode()
 {
     setg(d_savedEback_p, d_savedGptr_p, d_savedEgptr_p);
-    d_mode = BDESU_INPUT_MODE;
+    d_mode = e_INPUT_MODE;
 }
 
 inline
@@ -1140,7 +1140,7 @@ FdStreamBuf::seekReturn(pos_type position)
     // Only called by 'seekoff' and 'seekpos', returns the value about to be
     // returned by the calling routine.
 {
-    if (BDESU_INPUT_MODE == d_mode || BDESU_INPUT_PUTBACK_MODE == d_mode) {
+    if (e_INPUT_MODE == d_mode || e_INPUT_PUTBACK_MODE == d_mode) {
         if (0 != exitInputMode(false)) {
             // error
 
@@ -1150,7 +1150,7 @@ FdStreamBuf::seekReturn(pos_type position)
     setg(0, 0, 0);
     setp(0, 0);
 
-    d_mode = BDESU_NULL_MODE;
+    d_mode = e_NULL_MODE;
 
     return position;
 }

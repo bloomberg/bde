@@ -556,8 +556,7 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-//ARB:ENUM 530
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
@@ -603,7 +602,7 @@ int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -613,13 +612,12 @@ int EncoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-//ARB:ENUM 586
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -791,8 +789,7 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-//ARB:ENUM 763
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
@@ -838,7 +835,7 @@ int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -848,13 +845,12 @@ int EncoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-//ARB:ENUM 819
-    enum { NOT_FOUND = -1 };//ARB:ONELINE
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

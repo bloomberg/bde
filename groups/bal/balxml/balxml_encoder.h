@@ -1112,8 +1112,7 @@ Encoder_EncodeObject::executeImp(const TYPE&            object,
                                         int                    formattingMode,
                                         bdeat_TypeCategory::NullableValue)
 {
-//ARB:ENUM 1115
-    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     if (bdeat_NullableValueFunctions::isNull(object)) {
         if (formattingMode & bdeat_FormattingMode::BDEAT_NILLABLE) {
@@ -1163,8 +1162,7 @@ int Encoder_EncodeObject::executeImp(
                                          int                    formattingMode,
                                          ANY_CATEGORY)
 {
-//ARB:ENUM 1165
-    enum { BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_FAILURE = -1 };
 
     bool isUntagged = formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED;
 
@@ -1179,7 +1177,7 @@ int Encoder_EncodeObject::executeImp(
         d_context_p->logError("Unable to encode value",
                               tag,
                               formattingMode);
-        return BAEXML_FAILURE;
+        return k_FAILURE;
     }
 
     if (!isUntagged) {
@@ -1229,8 +1227,7 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
                                          const bslstl::StringRef& tag,
                                          int                    formattingMode)
 {
-//ARB:ENUM 1230
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     const int size = (int)bdeat_ArrayFunctions::size(object);
 
@@ -1249,11 +1246,11 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
                 formattingMode,
                 i);
 
-            return BAEXML_FAILURE;
+            return k_FAILURE;
         }
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 // CREATORS
@@ -1299,8 +1296,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
                                            bdeat_TypeCategory::Sequence)
 {
-//ARB:ENUM 1299
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
     int type = formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK;
@@ -1313,7 +1309,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
     Encoder_SequenceFirstPass firstPass(d_context_p);
 
     if (0 != bdeat_SequenceFunctions::accessAttributes(object, firstPass)) {
-        return BAEXML_FAILURE;
+        return k_FAILURE;
     }
 
     if (!firstPass.simpleContentId().isNull()) {
@@ -1331,7 +1327,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
         return bdeat_SequenceFunctions::accessAttributes(object, secondPass);
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <typename TYPE>
@@ -1340,8 +1336,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
                                            bdeat_TypeCategory::Choice)
 {
-//ARB:ENUM 1339
-    enum { BAEXML_FAILURE = -1 };//ARB:ONELINE
+    enum { k_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
     int type = formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK;
@@ -1355,7 +1350,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
         d_context_p->logError("Undefined selection is not allowed ",
                               "???",
                               formattingMode);
-        return BAEXML_FAILURE;
+        return k_FAILURE;
     }
 
     Encoder_EncodeObject encodeObject(d_context_p);
@@ -1436,11 +1431,10 @@ int Encoder_SequenceFirstPass::addAttributeImp(
                                          int                    formattingMode,
                                          bdeat_TypeCategory::NullableValue)
 {
-//ARB:ENUM 1434
-    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     if (bdeat_NullableValueFunctions::isNull(object)) {
-        return BAEXML_SUCCESS;
+        return k_SUCCESS;
     }
 
     Encoder_SequenceFirstPass_addAttributeProxy proxy = {
@@ -1520,8 +1514,7 @@ template <typename TYPE, typename INFO_TYPE>
 int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
                                                  const INFO_TYPE& info)
 {
-//ARB:ENUM 1517
-    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     int  formattingMode  = info.formattingMode();
     bool isSimpleContent = formattingMode
@@ -1547,7 +1540,7 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
         d_hasSubElements = true;
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 // ACCESSORS
@@ -1581,8 +1574,7 @@ template <typename TYPE, typename INFO_TYPE>
 int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
                                                   const INFO_TYPE& info)
 {
-//ARB:ENUM 1577
-    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     int formattingMode = info.formattingMode();
 
@@ -1593,7 +1585,7 @@ int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
         return d_encodeObjectFunctor(object, info);
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 }  // close package namespace
 

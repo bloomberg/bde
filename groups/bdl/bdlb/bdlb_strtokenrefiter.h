@@ -324,8 +324,7 @@ class StrTokenRefIter {
     // 'bslstl::StringRef'.
 
     // PRIVATE TYPES
-//ARB:ENUM 327
-    enum { BDEUT_TABLE_SIZE = 256 };//ARB:ONELINE
+    enum { k_TABLE_SIZE = 256 };
 
     // DATA
     const char *d_cursor_p;                // cursor into original string
@@ -333,7 +332,7 @@ class StrTokenRefIter {
     const char *d_token_p;                 // ptr to (current) token
     const char *d_postDelim_p;             // ptr to (trailing) delimiter
     const char *d_end_p;                   // ptr to one past end of string
-          char  d_delimTable[BDEUT_TABLE_SIZE];  // table of delimiter
+          char  d_delimTable[k_TABLE_SIZE];  // table of delimiter
                                                  // characters
 
   private:

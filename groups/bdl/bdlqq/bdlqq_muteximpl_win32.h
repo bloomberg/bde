@@ -113,9 +113,8 @@ class MutexImpl<Platform::Win32Threads> {
         // operation spins this many iterations (on, presumably, some atomic
         // integer) before sleeping on the underlying primitive.
 
-//ARB:ENUM 116
-        BCEMT_SPIN_COUNT = 30
-    };//ARB:IFNDEF
+        k_SPIN_COUNT = 30
+    };
 
     // DATA
     void *d_lock[CRITICAL_SECTION_BUFFER_SIZE];
@@ -177,7 +176,7 @@ inline
 bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::MutexImpl()
 {
     InitializeCriticalSectionAndSpinCount(
-          reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock), BCEMT_SPIN_COUNT);
+          reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock), k_SPIN_COUNT);
 }
 
 inline

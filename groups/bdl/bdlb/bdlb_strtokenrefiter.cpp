@@ -108,7 +108,7 @@ StrTokenRefIter::StrTokenRefIter(const char *input,
 , d_postDelim_p(0)
 , d_end_p(0)
 {
-    loadDelimTable(d_delimTable, BDEUT_TABLE_SIZE, softDelims, 0);
+    loadDelimTable(d_delimTable, k_TABLE_SIZE, softDelims, 0);
     reset(input);
 }
 
@@ -121,7 +121,7 @@ StrTokenRefIter::StrTokenRefIter(const char *input,
 , d_postDelim_p(0)
 , d_end_p(0)
 {
-    loadDelimTable(d_delimTable, BDEUT_TABLE_SIZE, softDelims, hardDelims);
+    loadDelimTable(d_delimTable, k_TABLE_SIZE, softDelims, hardDelims);
     reset(input);
 }
 
@@ -134,7 +134,7 @@ StrTokenRefIter::StrTokenRefIter(
 , d_postDelim_p(0)
 , d_end_p(0)
 {
-    loadDelimTable(d_delimTable, BDEUT_TABLE_SIZE, softDelims, 0);
+    loadDelimTable(d_delimTable, k_TABLE_SIZE, softDelims, 0);
     reset(input);
 }
 
@@ -148,7 +148,7 @@ StrTokenRefIter::StrTokenRefIter(
 , d_postDelim_p(0)
 , d_end_p(0)
 {
-    loadDelimTable(d_delimTable, BDEUT_TABLE_SIZE, softDelims, hardDelims);
+    loadDelimTable(d_delimTable, k_TABLE_SIZE, softDelims, hardDelims);
     reset(input);
 }
 

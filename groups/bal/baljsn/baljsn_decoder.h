@@ -691,8 +691,7 @@ int Decoder::decodeImp(TYPE *value,
                               int,
                               bdeat_TypeCategory::Enumeration)
 {
-//ARB:ENUM 694
-    enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };//ARB:ONELINE
+    enum { k_MIN_ENUM_STRING_LENGTH = 2 };
 
     if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Enumeration element value was not found\n";
@@ -702,7 +701,7 @@ int Decoder::decodeImp(TYPE *value,
     bslstl::StringRef dataValue;
     int rc = d_tokenizer.value(&dataValue);
     if (rc
-     || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
+     || dataValue.length() <= k_MIN_ENUM_STRING_LENGTH
      || '"'                != dataValue[0]
      || '"'                != dataValue[dataValue.length() - 1]) {
         d_logStream << "Error reading enumeration value\n";
@@ -858,8 +857,7 @@ int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdeat_TypeCategory::NullableValue)
 {
-//ARB:ENUM 860
-    enum { BAEJSN_NULL_VALUE_LENGTH = 4 };//ARB:ONELINE
+    enum { k_NULL_VALUE_LENGTH = 4 };
 
     if (Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         bslstl::StringRef dataValue;
@@ -868,7 +866,7 @@ int Decoder::decodeImp(TYPE *value,
             return rc;                                                // RETURN
         }
 
-        if (BAEJSN_NULL_VALUE_LENGTH == dataValue.length()
+        if (k_NULL_VALUE_LENGTH == dataValue.length()
          && 'n'                      == dataValue[0]
          && 'u'                      == dataValue[1]
          && 'l'                      == dataValue[2]

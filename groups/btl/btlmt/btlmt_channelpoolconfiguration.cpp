@@ -495,7 +495,7 @@ ChannelPoolConfiguration::ChannelPoolConfiguration()
 , d_minMessageSizeIn(1)
 , d_typMessageSizeIn(1)
 , d_maxMessageSizeIn(1024)
-, d_threadStackSize(BTEMT_DEFAULT_THREAD_STACK_SIZE)
+, d_threadStackSize(k_DEFAULT_THREAD_STACK_SIZE)
 , d_collectTimeMetrics(true)
 {
 }

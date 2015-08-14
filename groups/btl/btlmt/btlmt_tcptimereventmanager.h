@@ -388,9 +388,9 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     // PRIVATE TYPES
     enum State {
 //ARB:ENUM 388
-        BTEMT_ENABLED  = 0,  // dispatching thread is running
+        e_ENABLED  = 0,  // dispatching thread is running
 //ARB:ENUM 389
-        BTEMT_DISABLED = 1   // dispatching thread is not running
+        e_DISABLED = 1   // dispatching thread is not running
     };//ARB:IFNDEF
 
     typedef TcpTimerEventManager_ControlChannel ControlChannel;

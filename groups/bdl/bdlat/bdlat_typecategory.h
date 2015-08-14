@@ -515,30 +515,25 @@ struct bdlat_TypeCategory {
 
       private:
         enum {
-//ARB:ENUM 509
-            BDLAT_IS_ARRAY = bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
-//ARB:ENUM 510
-            BDLAT_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-            BDLAT_IS_CUSTOMIZED_TYPE
+            k_IS_ARRAY = bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
+            k_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+            k_IS_CUSTOMIZED_TYPE
                 = bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-            BDLAT_IS_ENUMERATION
+            k_IS_ENUMERATION
                              = bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-            BDLAT_IS_NULLABLE_VALUE
+            k_IS_NULLABLE_VALUE
                   = bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-            BDLAT_IS_SEQUENCE
+            k_IS_SEQUENCE
                             = bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-//ARB:ENUM 519
-            BDLAT_NUM_CATEGORIES = BDLAT_IS_ARRAY
-                                 + BDLAT_IS_CHOICE
-                                 + BDLAT_IS_CUSTOMIZED_TYPE
-                                 + BDLAT_IS_ENUMERATION
-                                 + BDLAT_IS_NULLABLE_VALUE
-//ARB:ENUM 524
-                                 + BDLAT_IS_SEQUENCE,
-//ARB:ENUM 525
-            BDLAT_IS_DYNAMIC = BDLAT_NUM_CATEGORIES > 1
+            k_NUM_CATEGORIES = k_IS_ARRAY
+                                 + k_IS_CHOICE
+                                 + k_IS_CUSTOMIZED_TYPE
+                                 + k_IS_ENUMERATION
+                                 + k_IS_NULLABLE_VALUE
+                                 + k_IS_SEQUENCE,
+            BDLAT_IS_DYNAMIC = k_NUM_CATEGORIES > 1
                                || bdlat_TypeCategoryDeclareDynamic<TYPE>::VALUE
-        };//ARB:IFNDEF
+        };
 
       public:
         enum {
@@ -547,17 +542,17 @@ struct bdlat_TypeCategory {
 //ARB:ENUM 532
                       BDLAT_IS_DYNAMIC         ? BDLAT_DYNAMIC_CATEGORY
 //ARB:ENUM 533
-                    : BDLAT_IS_ARRAY           ? BDLAT_ARRAY_CATEGORY
+                    : k_IS_ARRAY           ? BDLAT_ARRAY_CATEGORY
 //ARB:ENUM 534
-                    : BDLAT_IS_CHOICE          ? BDLAT_CHOICE_CATEGORY
+                    : k_IS_CHOICE          ? BDLAT_CHOICE_CATEGORY
 //ARB:ENUM 535
-                    : BDLAT_IS_CUSTOMIZED_TYPE ? BDLAT_CUSTOMIZED_TYPE_CATEGORY
+                    : k_IS_CUSTOMIZED_TYPE ? BDLAT_CUSTOMIZED_TYPE_CATEGORY
 //ARB:ENUM 536
-                    : BDLAT_IS_ENUMERATION     ? BDLAT_ENUMERATION_CATEGORY
+                    : k_IS_ENUMERATION     ? BDLAT_ENUMERATION_CATEGORY
 //ARB:ENUM 537
-                    : BDLAT_IS_NULLABLE_VALUE  ? BDLAT_NULLABLE_VALUE_CATEGORY
+                    : k_IS_NULLABLE_VALUE  ? BDLAT_NULLABLE_VALUE_CATEGORY
 //ARB:ENUM 538
-                    : BDLAT_IS_SEQUENCE        ? BDLAT_SEQUENCE_CATEGORY
+                    : k_IS_SEQUENCE        ? BDLAT_SEQUENCE_CATEGORY
                     : BDLAT_SIMPLE_CATEGORY
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -1226,9 +1221,8 @@ bdlat_TypeCategory::Value
 bdlat_TypeCategoryFunctions::bdlat_typeCategorySelect(const TYPE& object)
 {
     enum {
-//ARB:ENUM 1207
-        BDLAT_SELECTION = bdlat_TypeCategory::Select<TYPE>::BDLAT_SELECTION
-    };//ARB:IFNDEF
+        k_BDLAT_SELECTION = bdlat_TypeCategory::Select<TYPE>::BDLAT_SELECTION
+    };
 
     // An assertion below indicates that 'TYPE' is a dynamic type, but does not
     // overload this 'select' function.  Dynamic types *must* overload this
@@ -1236,10 +1230,10 @@ bdlat_TypeCategoryFunctions::bdlat_typeCategorySelect(const TYPE& object)
     // type category.
 
     BSLMF_ASSERT(bdlat_TypeCategory::BDLAT_DYNAMIC_CATEGORY
-             != (bdlat_TypeCategory::Value)BDLAT_SELECTION);
+             != (bdlat_TypeCategory::Value)k_BDLAT_SELECTION);
 
     (void)object;
-    return (bdlat_TypeCategory::Value)BDLAT_SELECTION;
+    return (bdlat_TypeCategory::Value)k_BDLAT_SELECTION;
 }
 
 }  // close enterprise namespace

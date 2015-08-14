@@ -284,7 +284,7 @@ balxml::MiniReader::Node::Node(bslma::Allocator *basicAllocator)
 , d_value         (0)
 , d_namespaceId   (-1)
 , d_namespaceUri  (0)
-, d_flags         (BAEXML_NODE_NO_FLAGS)
+, d_flags         (k_NODE_NO_FLAGS)
 , d_attributes    (basicAllocator)
 , d_attrCount     ()
 , d_namespaceCount(0)
@@ -321,7 +321,7 @@ balxml::MiniReader::Node::reset()
     d_value          = 0;
     d_namespaceId    = -1;
     d_namespaceUri   = 0;
-    d_flags          = BAEXML_NODE_NO_FLAGS;
+    d_flags          = k_NODE_NO_FLAGS;
     d_attrCount      = 0;
     d_namespaceCount = 0;
     d_startPos       = -1;
@@ -371,7 +371,7 @@ namespace balxml {
 MiniReader::MiniReader(bslma::Allocator *basicAllocator)
 : d_state           (ST_CLOSED)
 , d_flags           (0)
-, d_readSize        (BAEXML_DEFAULT_BUFSIZE)
+, d_readSize        (k_DEFAULT_BUFSIZE)
 , d_parseBuf        (basicAllocator)
 , d_streamOffset    (0)
 , d_stream          ()
@@ -399,7 +399,7 @@ MiniReader::MiniReader(bslma::Allocator *basicAllocator)
 , d_dummyStr        ("", basicAllocator)
 , d_options         (0)
 {
-    d_activeNodes.resize(BAEXML_DEFAULT_DEPTH);
+    d_activeNodes.resize(k_DEFAULT_DEPTH);
     d_parseBuf.resize(d_readSize);
 }
 
@@ -435,20 +435,20 @@ MiniReader::MiniReader(int               bufSize,
 , d_dummyStr        ("", basicAllocator)
 , d_options         (0)
 {
-    if (-20000 >= d_readSize && (-20000 - BAEXML_MIN_BUFSIZE) < d_readSize) {
+    if (-20000 >= d_readSize && (-20000 - k_MIN_BUFSIZE) < d_readSize) {
         // TBD: This condition was added as a special case for stress testing
         // pointer rebase, however because readInput resizes d_parseBuf to be
-        // BAEXML_MIN_BUFSIZE setting d_readSize to anything less then
-        // BAEXML_MIN_BUFSIZE is meaningless.
+        // k_MIN_BUFSIZE setting d_readSize to anything less then
+        // k_MIN_BUFSIZE is meaningless.
         d_readSize = -20000 - d_readSize;
     }
-    else if (d_readSize < BAEXML_MIN_BUFSIZE) {
-        d_readSize = BAEXML_MIN_BUFSIZE;
-    } else if (d_readSize > BAEXML_MAX_BUFSIZE ) {
-        d_readSize = BAEXML_MAX_BUFSIZE;
+    else if (d_readSize < k_MIN_BUFSIZE) {
+        d_readSize = k_MIN_BUFSIZE;
+    } else if (d_readSize > k_MAX_BUFSIZE ) {
+        d_readSize = k_MAX_BUFSIZE;
     }
 
-    d_activeNodes.resize(BAEXML_DEFAULT_DEPTH);
+    d_activeNodes.resize(k_DEFAULT_DEPTH);
     d_parseBuf.resize(d_readSize);
 }
 
@@ -776,7 +776,7 @@ MiniReader::isEmptyElement() const
     {
         return false;
     }
-    return ((currentNode().d_flags & Node::BAEXML_NODE_EMPTY) != 0);
+    return ((currentNode().d_flags & Node::k_NODE_EMPTY) != 0);
 }
 
 int
@@ -1463,7 +1463,7 @@ MiniReader::scanStartElement()
     }
 
     if (ch == '/') {
-        node.d_flags |= Node::BAEXML_NODE_EMPTY;
+        node.d_flags |= Node::k_NODE_EMPTY;
         ch = getChar();
     }
 
@@ -1832,8 +1832,8 @@ MiniReader::readInput()
 
     size_t chunkSize = d_parseBuf.size() - numLeft;
 
-    if (chunkSize < BAEXML_MIN_BUFSIZE) {
-        chunkSize = BAEXML_MIN_BUFSIZE;
+    if (chunkSize < k_MIN_BUFSIZE) {
+        chunkSize = k_MIN_BUFSIZE;
     }
 
     if (d_parseBuf.size() < (numLeft + chunkSize + 1)) {

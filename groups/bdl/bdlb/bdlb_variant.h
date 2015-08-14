@@ -767,11 +767,10 @@ struct Variant_ReturnValueHelper {
         // the existence of 'T::ResultType'.
 
     enum {
-//ARB:ENUM 769
-        VALUE = sizeof(match<VISITOR>(0))
+        k_VaL = sizeof(match<VISITOR>(0))
                    == sizeof(Variant_ReturnValueHelper_YesType)
-    };//ARB:IFNDEF
-        // A 'VALUE' of 'true' indicates 'VISITOR::ResultType' exists, and
+    };
+        // A 'k_VaL' of 'true' indicates 'VISITOR::ResultType' exists, and
         // 'false' otherwise.
 };
 
@@ -1368,7 +1367,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1392,7 +1391,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1416,7 +1415,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1439,7 +1438,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1462,7 +1461,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1484,7 +1483,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1506,7 +1505,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1527,7 +1526,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1569,7 +1568,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1592,7 +1591,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1615,7 +1614,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1635,7 +1634,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1781,7 +1780,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     // ACCESSORS
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1804,7 +1803,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1827,7 +1826,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1849,7 +1848,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1871,7 +1870,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1893,7 +1892,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1915,7 +1914,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1936,7 +1935,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1977,7 +1976,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -2002,7 +2001,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -2026,7 +2025,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -2045,7 +2044,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -5051,7 +5050,7 @@ struct Variant_TypeIndex {
     // of 'TYPES'.
 
     enum {
-        VALUE
+        k_VaL
             = bslmf::IsSame<
                       typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault,
                       TYPE>::VALUE ?  1
@@ -5117,7 +5116,7 @@ struct Variant_TypeIndex {
             : 0
     };
 
-    BSLMF_ASSERT(VALUE);
+    BSLMF_ASSERT(k_VaL);
 };
 
                // ============================================
@@ -5707,7 +5706,7 @@ void VariantImp<TYPES>::assignImp(const SOURCE_TYPE& value)
      value,
      this->getAllocator());
 
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6145,7 +6144,7 @@ template <class TYPES>
 template <class TYPE_OR_ALLOCATOR>
 inline
 VariantImp<TYPES>::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Base(Variant_TypeIndex<TYPES, TYPE_OR_ALLOCATOR>::VALUE,
+: Base(Variant_TypeIndex<TYPES, TYPE_OR_ALLOCATOR>::k_VaL,
        typeOrAlloc,
        (bslmf::MetaInt< bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
                                            bslma::Allocator *>::VALUE> *)0)
@@ -6164,7 +6163,7 @@ template <class TYPE>
 inline
 VariantImp<TYPES>::VariantImp(const TYPE&       value,
                                           bslma::Allocator *basicAllocator)
-: Base(Variant_TypeIndex<TYPES, TYPE>::VALUE, basicAllocator)
+: Base(Variant_TypeIndex<TYPES, TYPE>::k_VaL, basicAllocator)
 {
     bslalg::ScalarPrimitives::construct(
      &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
@@ -6313,7 +6312,7 @@ template <class TYPES>
 template <class TYPE>
 VariantImp<TYPES>& VariantImp<TYPES>::assign(const TYPE& value)
 {
-    if (Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type) {
+    if (Variant_TypeIndex<TYPES, TYPE>::k_VaL == this->d_type) {
         reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()
                                                                        = value;
     }
@@ -6329,7 +6328,7 @@ template <class TYPE, class SOURCE_TYPE>
 VariantImp<TYPES>& VariantImp<TYPES>::assignTo(
                                                       const SOURCE_TYPE& value)
 {
-    if (Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type
+    if (Variant_TypeIndex<TYPES, TYPE>::k_VaL == this->d_type
      && bslmf::IsSame<TYPE, SOURCE_TYPE>::VALUE) {
         reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
                                              &this->d_value)->object() = value;
@@ -6384,7 +6383,7 @@ void VariantImp<TYPES>::createInPlace()
     bslalg::ScalarPrimitives::defaultConstruct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6398,7 +6397,7 @@ void VariantImp<TYPES>::createInPlace(const A1& a1)
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6412,7 +6411,7 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6427,7 +6426,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, a3, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6442,7 +6441,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, a3, a4, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6458,7 +6457,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6475,7 +6474,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6492,7 +6491,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6509,7 +6508,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6528,7 +6527,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6547,7 +6546,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6567,7 +6566,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6588,7 +6587,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6609,7 +6608,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   a13, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6630,7 +6629,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   a13, a14, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6679,9 +6678,9 @@ template <class TYPE>
 inline
 TYPE& VariantImp<TYPES>::the()
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::VALUE));
+    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::k_VaL));
     BSLS_ASSERT_SAFE((this->d_type ==
-                                 Variant_TypeIndex<TYPES, TYPE>::VALUE));
+                                 Variant_TypeIndex<TYPES, TYPE>::k_VaL));
     return reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
                                                      &this->d_value)->object();
 }
@@ -6802,7 +6801,7 @@ template <class TYPE>
 inline
 bool VariantImp<TYPES>::is() const
 {
-    return Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type;
+    return Variant_TypeIndex<TYPES, TYPE>::k_VaL == this->d_type;
 }
 
 template <class TYPES>
@@ -6833,9 +6832,9 @@ template <class TYPE>
 inline
 const TYPE& VariantImp<TYPES>::the() const
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::VALUE));
+    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::k_VaL));
     BSLS_ASSERT_SAFE((this->d_type ==
-                                 Variant_TypeIndex<TYPES, TYPE>::VALUE));
+                                 Variant_TypeIndex<TYPES, TYPE>::k_VaL));
 
     return reinterpret_cast<
                    const bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object();

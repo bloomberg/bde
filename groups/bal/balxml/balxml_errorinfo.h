@@ -334,11 +334,15 @@ class ErrorInfo
         // For example, a constraint error would typically have
         // 'BAEXML_ERROR' whereas a parsing (syntax) error would have
         // 'BAEXML_FATAL_ERROR'.
+//ARB:ENUM 337
         BAEXML_NO_ERROR,
+//ARB:ENUM 337
         BAEXML_WARNING,
+//ARB:ENUM 337
         BAEXML_ERROR,
+//ARB:ENUM 337
         BAEXML_FATAL_ERROR
-    };
+    };//ARB:IFNDEF
 
   private:
     // PRIVATE DATA MEMBERS

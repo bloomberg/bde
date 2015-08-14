@@ -275,17 +275,16 @@ bsl::ostream& Print::singleLineHexDump(bsl::ostream&  stream,
                                             INPUT_ITERATOR begin,
                                             INPUT_ITERATOR end)
 {
-//ARB:ENUM 278
-    enum { BDEU_LOCAL_BUF_SIZE = 512 };//ARB:ONELINE
+    enum { k_LOCAL_BUF_SIZE = 512 };
     static const char HEX[] = "0123456789ABCDEF";
 
-    char buf[BDEU_LOCAL_BUF_SIZE];
+    char buf[k_LOCAL_BUF_SIZE];
 
     unsigned int offset = 0;
 
     for (; begin != end; ++begin) {
 
-        if (offset >= (BDEU_LOCAL_BUF_SIZE - 1)) {
+        if (offset >= (k_LOCAL_BUF_SIZE - 1)) {
              stream.write(buf, offset);
              offset = 0;
         }

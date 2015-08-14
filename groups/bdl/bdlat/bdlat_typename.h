@@ -580,19 +580,19 @@ inline
 const char *bdlat_TypeName_Imp::className(const TYPE *object)
 {
     enum {
-//ARB:ENUM 583
+//ARB:ENUM 583 local
         HAS_CLASS_NAME =
              bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
            | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
            | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::VALUE,
 
-//ARB:ENUM 588
+//ARB:ENUM 588 local
         IS_BASIC_ENUMERATION =
             bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE,
 
-//ARB:ENUM 591
+//ARB:ENUM 591 local
         SELECTOR = (HAS_CLASS_NAME ? 0 : (IS_BASIC_ENUMERATION ? 1 : 2))
-    };//ARB:IFNDEF
+    };
 
     typedef typename
     bslmf::Switch<SELECTOR,

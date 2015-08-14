@@ -267,8 +267,7 @@ class Context {
                                                    // sequence
 
     // PRIVATE TYPES
-//ARB:ENUM 270
-    enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     // FRIENDS
     friend bool operator==(const Context&, const Context&);
@@ -454,9 +453,9 @@ int Context::setAttributes(Transmission::Cause transmissionCause,
 {
     if (isValid(transmissionCause, recordIndex, sequenceLength)) {
         setAttributesRaw(transmissionCause, recordIndex, sequenceLength);
-        return BAEL_SUCCESS;
+        return k_SUCCESS;
     }
-    return BAEL_FAILURE;
+    return k_FAILURE;
 }
 
 inline

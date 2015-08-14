@@ -320,13 +320,12 @@ struct Bind_TestSlotsBase {
 
     // ENUMERATIONS
     enum {
-//ARB:ENUM 323
-        NUM_SLOTS = 15
-    };//ARB:IFNDEF
+        k_NUM_SLOTS = 15
+    };
 
   private:
     // PRIVATE CLASS DATA
-    static VALUE s_slots[NUM_SLOTS];
+    static VALUE s_slots[k_NUM_SLOTS];
 
   public:
     // CLASS METHODS
@@ -455,16 +454,15 @@ class Bind_TestTypeNoAlloc {
         // Type returned by the function operator and test methods.
 
     enum {
-//ARB:ENUM 457
-        N1 = -1   // default value for all private data
-    };//ARB:IFNDEF
+        k_N1 = -1   // default value for all private data
+    };
 
     // CREATORS
     explicit Bind_TestTypeNoAlloc(
-                Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1, Arg4  a4  = N1,
-                Arg5  a5  = N1, Arg6  a6  = N1, Arg7  a7  = N1, Arg8  a8  = N1,
-                Arg9  a9  = N1, Arg10 a10 = N1, Arg11 a11 = N1, Arg12 a12 = N1,
-                Arg13 a13 = N1, Arg14 a14 = N1);
+                Arg1  a1  = k_N1, Arg2  a2  = k_N1, Arg3  a3  = k_N1, Arg4  a4  = k_N1,
+                Arg5  a5  = k_N1, Arg6  a6  = k_N1, Arg7  a7  = k_N1, Arg8  a8  = k_N1,
+                Arg9  a9  = k_N1, Arg10 a10 = k_N1, Arg11 a11 = k_N1, Arg12 a12 = k_N1,
+                Arg13 a13 = k_N1, Arg14 a14 = k_N1);
         // Create a test object having the same value as the specified
         // 'original'.
 
@@ -801,7 +799,7 @@ class Bind_TestTypeAlloc {
     // This class provides a test class capable of holding up to 14 bound
     // parameters of types 'Bind_TestArgAlloc[1--14]', with full
     // (non-streamable) value semantics defined by the 'operator=='.  By
-    // default, a 'Bind_TestTypeAlloc' is constructed with nil ('N1')
+    // default, a 'Bind_TestTypeAlloc' is constructed with nil ('k_N1')
     // values, but objects can be constructed with actual values (e.g., for
     // creating expected values).  A 'Bind_TestTypeAlloc' can be invoked
     // with up to 14 parameters, via member functions 'testFunc[1--14]'.  These
@@ -829,9 +827,8 @@ class Bind_TestTypeAlloc {
         // Argument types for shortcut.
 
     enum {
-//ARB:ENUM 830
-        N1 = -1   // default value for all private data
-    };//ARB:IFNDEF
+        k_N1 = -1   // default value for all private data
+    };
 
     // PRIVATE DATA
     mutable Arg1  d_a1;
@@ -864,11 +861,11 @@ class Bind_TestTypeAlloc {
 
     // CREATORS
     explicit Bind_TestTypeAlloc(bslma::Allocator *allocator = 0,
-            Arg1  a1  = N1, Arg2  a2  = N1, Arg3  a3  = N1,
-            Arg4  a4  = N1, Arg5  a5  = N1, Arg6  a6  = N1,
-            Arg7  a7  = N1, Arg8  a8  = N1, Arg9  a9  = N1,
-            Arg10 a10 = N1, Arg11 a11 = N1, Arg12 a12 = N1,
-            Arg13 a13 = N1, Arg14 a14 = N1);
+            Arg1  a1  = k_N1, Arg2  a2  = k_N1, Arg3  a3  = k_N1,
+            Arg4  a4  = k_N1, Arg5  a5  = k_N1, Arg6  a6  = k_N1,
+            Arg7  a7  = k_N1, Arg8  a8  = k_N1, Arg9  a9  = k_N1,
+            Arg10 a10 = k_N1, Arg11 a11 = k_N1, Arg12 a12 = k_N1,
+            Arg13 a13 = k_N1, Arg14 a14 = k_N1);
         // This constructor does *not* participate in the
         // 'UsesBdemaAllocatorTraits' contract, it is here simply to allow to
         // construct expected values with a 'specified' allocator as the first
@@ -1094,7 +1091,7 @@ struct Bind_TestFunctionsAlloc {
 template <typename VALUE>
 VALUE
 bdlf::Bind_TestSlotsBase<VALUE>::s_slots[bdlf::Bind_TestSlotsBase<VALUE>::
-                                                                    NUM_SLOTS];
+                                                                    k_NUM_SLOTS];
 
 namespace bdlf {
 // CLASS METHODS
@@ -1108,7 +1105,7 @@ VALUE Bind_TestSlotsBase<VALUE>::getSlot(int index)
 template <typename VALUE>
 void Bind_TestSlotsBase<VALUE>::resetSlots(VALUE value)
 {
-    for (int i = 0; i < NUM_SLOTS; ++i) {
+    for (int i = 0; i < k_NUM_SLOTS; ++i) {
         s_slots[i] = value;
     }
 }
@@ -1137,7 +1134,7 @@ bool Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
     // Their success depends on the "Return Value Optimization" (RVO)
     // which Windows does not seem to be applying.
 
-    for (int i = 0; i < NUM_SLOTS; ++i) {
+    for (int i = 0; i < k_NUM_SLOTS; ++i) {
         if (EXPECTED[i] != getSlot(i)) {
             equalFlag = false;
             break;
@@ -1147,7 +1144,7 @@ bool Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
 
     if (verboseFlag || !equalFlag) {
         bsl::printf("\tSlots:");
-        for (int i = 0; i < NUM_SLOTS; ++i) {
+        for (int i = 0; i < k_NUM_SLOTS; ++i) {
             bsl::printf(" %d", getSlot(i));
         }
         bsl::printf("\n");

@@ -193,22 +193,22 @@ class Tokenizer {
         // in.
 
 //ARB:ENUM 187
-        BAEJSN_OBJECT_CONTEXT = 1,         // object context
+        e_OBJECT_CONTEXT = 1,         // object context
 //ARB:ENUM 188
-        BAEJSN_ARRAY_CONTEXT               // array context
+        e_ARRAY_CONTEXT               // array context
     };//ARB:IFNDEF
 
     // Intermediate data buffer used for reading data from the stream.
 
     enum {
 //ARB:ENUM 194
-        BAEJSN_BUFSIZE = 1024 * 8,
+        k_BUFSIZE = 1024 * 8,
 //ARB:ENUM 195
-        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE - 1
+        k_MAX_STRING_SIZE = k_BUFSIZE - 1
     };//ARB:IFNDEF
 
     // DATA
-    bsls::AlignedBuffer<BAEJSN_BUFSIZE>  d_buffer;               // buffer
+    bsls::AlignedBuffer<k_BUFSIZE>  d_buffer;               // buffer
 
     bdlma::BufferedSequentialAllocator    d_allocator;            // allocater
                                                                  // (owned)
@@ -344,7 +344,7 @@ class Tokenizer {
 // CREATORS
 inline
 Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
-: d_allocator(d_buffer.buffer(), BAEJSN_BUFSIZE, basicAllocator)
+: d_allocator(d_buffer.buffer(), k_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_streamBuf_p(0)
 , d_cursor(0)
@@ -352,10 +352,10 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_valueEnd(0)
 , d_valueIter(0)
 , d_tokenType(BAEJSN_BEGIN)
-, d_context(BAEJSN_OBJECT_CONTEXT)
+, d_context(e_OBJECT_CONTEXT)
 , d_allowStandAloneValues(true)
 {
-    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.reserve(k_MAX_STRING_SIZE);
 }
 
 inline

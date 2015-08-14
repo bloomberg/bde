@@ -753,8 +753,7 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                    *lhs,
                                          const RHS_TYPE&              rhs,
                                          bdlat_TypeCategory::Choice)
 {
-//ARB:ENUM 756
-    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     bdlat_SymbolicConverter_StoreInChoice<LHS_TYPE> storeInLhs(lhs, this);
 
@@ -762,7 +761,7 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                    *lhs,
                                   == bdlat_ChoiceFunctions::selectionId(rhs)) {
         bdlat_ValueTypeFunctions::reset(lhs);
 
-        return BDLAT_SUCCESS;                                         // RETURN
+        return k_SUCCESS;                                         // RETURN
     }
 
     return bdlat_ChoiceFunctions::accessSelection(rhs, storeInLhs);
@@ -774,8 +773,7 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                   *lhs,
                                          const RHS_TYPE&             rhs,
                                          bdlat_TypeCategory::Array)
 {
-//ARB:ENUM 776
-    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -4 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -4 };
 
     const int size = static_cast<int>(bdlat_ArrayFunctions::size(rhs));
 
@@ -786,11 +784,11 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                   *lhs,
                                                       storeInLhs(lhs, i, this);
 
         if (0 != bdlat_ArrayFunctions::accessElement(rhs, storeInLhs, i)) {
-            return BDLAT_FAILURE;                                     // RETURN
+            return k_FAILURE;                                     // RETURN
         }
     }
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -836,13 +834,12 @@ int bdlat_SymbolicConverter_Imp::convert(
                                        const RHS_TYPE&                     rhs,
                                        bdlat_TypeCategory::NullableValue)
 {
-//ARB:ENUM 837
-    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
         bdlat_ValueTypeFunctions::reset(lhs);
 
-        return BDLAT_SUCCESS;                                         // RETURN
+        return k_SUCCESS;                                         // RETURN
     }
 
     bdlat_SymbolicConverter_StoreInNullable<LHS_TYPE> storeInLhs(lhs, this);
@@ -870,11 +867,10 @@ int bdlat_SymbolicConverter_Imp::convert(
                                        const RHS_TYPE&                     rhs,
                                        bdlat_TypeCategory::NullableValue)
 {
-//ARB:ENUM 870
-    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
-        return BDLAT_SUCCESS;  // ignore the value and let '*lhs' contain its
+        return k_SUCCESS;  // ignore the value and let '*lhs' contain its
                                                                       // RETURN
                          // *default* value
     }
@@ -891,11 +887,10 @@ int bdlat_SymbolicConverter_Imp::convert(
                                       const RHS_TYPE&                      rhs,
                                       bdlat_TypeCategory::NullableValue)
 {
-//ARB:ENUM 890
-    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
+    enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
-        return BDLAT_SUCCESS;  // ignore the value and let '*lhs' contain its
+        return k_SUCCESS;  // ignore the value and let '*lhs' contain its
                                                                       // RETURN
                          // *default* value
     }
@@ -924,8 +919,7 @@ int bdlat_SymbolicConverter_Imp::convert(
                                       const RHS_TYPE&                      rhs,
                                       RHS_CATEGORY)
 {
-//ARB:ENUM 922
-    enum { BDLAT_FAILURE = -5 };//ARB:ONELINE
+    enum { k_FAILURE = -5 };
 
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<LHS_TYPE>::Type LhsBaseType;
@@ -933,7 +927,7 @@ int bdlat_SymbolicConverter_Imp::convert(
     LhsBaseType lhsBaseValue;
 
     if (0 != convert(&lhsBaseValue, rhs)) {
-        return BDLAT_FAILURE;                                         // RETURN
+        return k_FAILURE;                                         // RETURN
     }
 
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(lhs,
@@ -982,12 +976,11 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE        *lhs,
                                          const RHS_TYPE&  rhs,
                                          RHS_CATEGORY)
 {
-//ARB:ENUM 979
-    enum { BDLAT_FAILURE = -6 };//ARB:ONELINE
+    enum { k_FAILURE = -6 };
 
     (void)lhs;  // quell warning
     (void)rhs;  // quell warning
-    return BDLAT_FAILURE;
+    return k_FAILURE;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -1179,8 +1172,7 @@ int bdlat_SymbolicConverter_StoreInSequence<SEQUENCE_TYPE>::operator()(
                                         const SOURCE_MEMBER_TYPE& sourceMember,
                                         const INFO_TYPE&          info) const
 {
-//ARB:ENUM 1175
-    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -7 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -7 };
 
     bdlat_SymbolicConverter_LoadValue<SOURCE_MEMBER_TYPE> loadSourceValue(
                                                                   sourceMember,
@@ -1195,10 +1187,10 @@ int bdlat_SymbolicConverter_StoreInSequence<SEQUENCE_TYPE>::operator()(
                              << bslstl::StringRef(info.name(), info.nameLength())
                              << "'" << bsl::endl;
 
-        return BDLAT_FAILURE;                                         // RETURN
+        return k_FAILURE;                                         // RETURN
     }
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
           // --------------------------------------------------------
@@ -1225,8 +1217,7 @@ int bdlat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>::operator()(
                                         const SOURCE_MEMBER_TYPE& sourceMember,
                                         const INFO_TYPE&          info) const
 {
-//ARB:ENUM 1220
-    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -8 };//ARB:ONELINE
+    enum { k_SUCCESS = 0, k_FAILURE = -8 };
 
     // Make the selection.
 
@@ -1238,7 +1229,7 @@ int bdlat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>::operator()(
                              << bslstl::StringRef(info.name(), info.nameLength())
                              << "'" << bsl::endl;
 
-        return BDLAT_FAILURE;                                         // RETURN
+        return k_FAILURE;                                         // RETURN
     }
 
     // Assign the value.
@@ -1254,10 +1245,10 @@ int bdlat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>::operator()(
                              << bslstl::StringRef(info.name(), info.nameLength())
                              << "'" << bsl::endl;
 
-        return BDLAT_FAILURE;                                         // RETURN
+        return k_FAILURE;                                         // RETURN
     }
 
-    return BDLAT_SUCCESS;
+    return k_SUCCESS;
 }
 
        // -------------------------------------------------------------

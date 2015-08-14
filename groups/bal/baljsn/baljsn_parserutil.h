@@ -299,21 +299,20 @@ int ParserUtil::getDateAndTimeValue(TYPE              *value,
                                            bslstl::StringRef  data,
                                            int                maxLength)
 {
-//ARB:ENUM 302
-    enum { BAEJSN_STRING_LENGTH_WITH_QUOTES = 2 };//ARB:ONELINE
+    enum { k_STRING_LENGTH_WITH_QUOTES = 2 };
 
-    if (data.length()  < BAEJSN_STRING_LENGTH_WITH_QUOTES
+    if (data.length()  < k_STRING_LENGTH_WITH_QUOTES
      || '"'           != *data.begin()
      || '"'           != *(data.end() - 1)
      || data.length()  > static_cast<unsigned int>(maxLength)
-                                          + BAEJSN_STRING_LENGTH_WITH_QUOTES) {
+                                          + k_STRING_LENGTH_WITH_QUOTES) {
         return -1;                                                    // RETURN
     }
 
     return bdlt::Iso8601Util::parse(
            value,
            data.data() + 1,
-           static_cast<int>(data.length() - BAEJSN_STRING_LENGTH_WITH_QUOTES));
+           static_cast<int>(data.length() - k_STRING_LENGTH_WITH_QUOTES));
 }
 
 inline
