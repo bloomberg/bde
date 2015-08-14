@@ -45,7 +45,10 @@ bsl::ostream& btls5::operator<<(bsl::ostream&         stream,
     printer.start();
     printer.printValue(object.description());
     if (object.address().port()) {
-        printer.printValue(object.address());
+        stream << " [";
+        printer.printValue(object.address().hostname());
+        printer.printValue(object.address().port());
+        stream << " ]";
     }
     printer.end();
 

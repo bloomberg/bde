@@ -70,10 +70,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -83,6 +79,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+
+namespace bslma { class Allocator; }
 
 namespace btls5 {
 
@@ -207,16 +205,12 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.
 
-}  // close package namespace
-
 // FREE FUNCTIONS
 void swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
-
-namespace btls5 {
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

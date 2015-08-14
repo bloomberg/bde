@@ -112,8 +112,72 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
+//                  EXCEPTION TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define EXCEPTION_COUNT bslmaExceptionCounter
+
+// ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
+
+typedef btls5::DetailedStatus Obj;
+typedef btlso::Endpoint       Endpoint;
+
+// ============================================================================
+//                             GLOBAL TEST DATA
+// ----------------------------------------------------------------------------
+
+// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
+#else  // 64_BIT
+#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
+                                 "123456789012345678901234567890123"
+#endif
+BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
+const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
+const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
+
+struct DefaultDataRow {
+    int         d_line;           // source line number
+    char        d_mem;            // expected allocation: 'Y', 'N', '?'
+    const char *d_hostname;
+    int         d_portNum;
+    const char *d_username;
+    const char *d_password;
+};
+
+static
+const DefaultDataRow DEFAULT_DATA[] =
+{
+    //LINE  MEM             HNAME       HOSTNAME            PORT
+    //----  ---             ----       --------            ----
+
+    // default (must be first)
+    { L_,   'N',             "",               "",            0    },
+
+    // 'endpoint'
+    { L_,   '?',            "a",          "host1",            1    },
+    { L_,   '?',           "AB",          "host2",           16    },
+    { L_,   '?',   "1234567890",          "host3",          255    },
+    { L_,   'Y',    LONG_STRING,          "host4",         9999    },
+    { L_,   'Y',  LONGER_STRING,          "host5",        32767    },
+    { L_,   'Y', LONGEST_STRING,          "host6",        65535    },
+
+    // 'credential'
+    { L_,   '?',        "desc1",              "a",            1    },       
+    { L_,   '?',        "desc2",             "AB",           16    },       
+    { L_,   '?',        "desc3",     "1234567890",          255    },       
+    { L_,   'Y',        "desc4",      LONG_STRING,         9999    },       
+    { L_,   'Y',        "desc5",    LONGER_STRING,        32767    },       
+    { L_,   'Y',        "desc6",   LONGEST_STRING,        65535    },
+
+};
+const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 // ============================================================================
 //                            MAIN PROGRAM
