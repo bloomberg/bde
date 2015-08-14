@@ -429,7 +429,7 @@ int AggregateRaw::descendIntoArrayItem(
             return 0;                                                 // RETURN
         }
         else if (d_fieldDef_p
-              && bdeat_FormattingMode::BDEAT_NILLABLE ==
+              && bdlat_FormattingMode::e_NILLABLE ==
                                               d_fieldDef_p->formattingMode()) {
             itemType = bdlmxxx::ElemType::BDEM_ROW;
             itemPtr  = makeNonNullFlag
@@ -449,7 +449,7 @@ int AggregateRaw::descendIntoArrayItem(
 
         itemType = bdlmxxx::ElemType::BDEM_CHOICE_ARRAY_ITEM;
         if (d_fieldDef_p
-         && bdeat_FormattingMode::BDEAT_NILLABLE ==
+         && bdlat_FormattingMode::e_NILLABLE ==
                                               d_fieldDef_p->formattingMode()) {
             itemPtr = makeNonNullFlag
              ? &choiceArray.theModifiableItem(index)
@@ -1854,7 +1854,7 @@ int AggregateRaw::insertItems(ErrorAttributes *errorDescription,
         theTable.insertNullRows(index, numItems);
         if (d_recordDef_p
          && (!d_fieldDef_p
-          || bdeat_FormattingMode::BDEAT_NILLABLE !=
+          || bdlat_FormattingMode::e_NILLABLE !=
                                              d_fieldDef_p->formattingMode())) {
             for (int i = index; i < index + numItems; ++i) {
                 bdlmxxx::SchemaAggregateUtil::initRowDeep(
@@ -2675,7 +2675,7 @@ bool AggregateRaw_Util::isConformant(const void           *object,
 //                         'bdlat_typename' overloads
 // ============================================================================
 
-const char *bdeat_TypeName_className(const AggregateRaw& object)
+const char *bdlat_TypeName_className(const AggregateRaw& object)
 {
     const char           *name = 0;
     const bdlmxxx::RecordDef *recordDef = object.recordConstraint();
@@ -2692,10 +2692,10 @@ const char *bdeat_TypeName_className(const AggregateRaw& object)
 }
 
 // ============================================================================
-//                       'bdeat_valuetype' overloads
+//                       'bdlat_valuetype' overloads
 // ============================================================================
 
-void bdeat_valueTypeReset(AggregateRaw *object)
+void bdlat_valueTypeReset(AggregateRaw *object)
 {
     BSLS_ASSERT_SAFE(object);
 
@@ -2713,7 +2713,7 @@ void bdeat_valueTypeReset(AggregateRaw *object)
 // ============================================================================
 
 
-bool bdeat_choiceHasSelection(const AggregateRaw&  object,
+bool bdlat_choiceHasSelection(const AggregateRaw&  object,
                               const char               *selectionName,
                               int                       selectionNameLength)
 {
@@ -2722,12 +2722,12 @@ bool bdeat_choiceHasSelection(const AggregateRaw&  object,
     return object.hasField(name);
 }
 
-int bdeat_choiceMakeSelection(AggregateRaw *object,
+int bdlat_choiceMakeSelection(AggregateRaw *object,
                               int                selectionId)
 {
     AggregateRaw    dummyField;
     ErrorAttributes dummyError;
-    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == selectionId) {
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID == selectionId) {
         object->makeSelectionById(&dummyField,
                                   &dummyError,
                                   bdlmxxx::RecordDef::BDEM_NULL_FIELD_ID);
@@ -2741,7 +2741,7 @@ int bdeat_choiceMakeSelection(AggregateRaw *object,
     return object->makeSelectionById(&dummyField, &dummyError, selectionId);
 }
 
-int bdeat_choiceMakeSelection(AggregateRaw *object,
+int bdlat_choiceMakeSelection(AggregateRaw *object,
                               const char        *selectionName,
                               int                selectionNameLength)
 {
@@ -2760,7 +2760,7 @@ int bdeat_choiceMakeSelection(AggregateRaw *object,
 // ============================================================================
 //                     'bdlat_enumfunctions' overloads
 // ============================================================================
-int bdeat_enumFromInt(AggregateRaw *result, int enumId)
+int bdlat_enumFromInt(AggregateRaw *result, int enumId)
 {
     const bdlmxxx::EnumerationDef *enumDef = result->enumerationConstraint();
     if (! enumDef) {
@@ -2784,7 +2784,7 @@ int bdeat_enumFromInt(AggregateRaw *result, int enumId)
     return 0;
 }
 
-int bdeat_enumFromString(AggregateRaw *result,
+int bdlat_enumFromString(AggregateRaw *result,
                          const char        *string,
                          int                stringLength)
 {
@@ -2815,41 +2815,41 @@ int bdeat_enumFromString(AggregateRaw *result,
 //                     'bdlat_typecategory' overloads
 // ============================================================================
 
-bdeat_TypeCategory::Value
-bdeat_typeCategorySelect(const AggregateRaw& object)
+bdlat_TypeCategory::Value
+bdlat_typeCategorySelect(const AggregateRaw& object)
 {
     bdlmxxx::ElemType::Type dataType = object.dataType();
 
-    bdeat_TypeCategory::Value result;
+    bdlat_TypeCategory::Value result;
 
     if (bdlmxxx::ElemType::isArrayType(dataType)) {
-        result = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
+        result = bdlat_TypeCategory::e_ARRAY_CATEGORY;
     }
     else if (object.enumerationConstraint()) {
-        result = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
+        result = bdlat_TypeCategory::e_ENUMERATION_CATEGORY;
     }
     else if (bdlmxxx::ElemType::isScalarType(dataType)) {
-        result = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+        result = bdlat_TypeCategory::e_SIMPLE_CATEGORY;
     }
     else {
         switch (dataType) {
           case bdlmxxx::ElemType::BDEM_LIST:                        // FALL THROUGH
           case bdlmxxx::ElemType::BDEM_ROW: {
-            result = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
+            result = bdlat_TypeCategory::e_SEQUENCE_CATEGORY;
           } break;
           case bdlmxxx::ElemType::BDEM_CHOICE:
           case bdlmxxx::ElemType::BDEM_CHOICE_ARRAY_ITEM: {
-            result = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
+            result = bdlat_TypeCategory::e_CHOICE_CATEGORY;
           } break;
           case bdlmxxx::ElemType::BDEM_VOID: {
             // Treat void as a simple type (an error will occur later, where
             // it can be more easily detected).
 
-            result = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+            result = bdlat_TypeCategory::e_SIMPLE_CATEGORY;
           } break;
           default: {
             BSLS_ASSERT_OPT("Category error" && 0);
-            result = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+            result = bdlat_TypeCategory::e_SIMPLE_CATEGORY;
           } break;
         }
     }

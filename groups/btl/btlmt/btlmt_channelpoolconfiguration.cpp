@@ -25,105 +25,105 @@ const char btlmt::ChannelPoolConfiguration::CLASS_NAME[] =
                                               "btlmt::ChannelPoolConfiguration";
     // the name of this class
 
-const bdeat_AttributeInfo
+const bdlat_AttributeInfo
                      btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_MAX_CONNECTIONS,
         "MaxConnections",                     // name
         sizeof("MaxConnections") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MAX_THREADS,
         "MaxThreads",                     // name
         sizeof("MaxThreads") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_READ_TIMEOUT,
         "ReadTimeout",                     // name
         sizeof("ReadTimeout") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_METRICS_INTERVAL,
         "MetricsInterval",                     // name
         sizeof("MetricsInterval") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT,
         "MinMessageSizeOut",                     // name
         sizeof("MinMessageSizeOut") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT,
         "TypMessageSizeOut",                     // name
         sizeof("TypMessageSizeOut") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT,
         "MaxMessageSizeOut",                     // name
         sizeof("MaxMessageSizeOut") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN,
         "MinMessageSizeIn",                     // name
         sizeof("MinMessageSizeIn") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN,
         "TypMessageSizeIn",                     // name
         sizeof("TypMessageSizeIn") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN,
         "MaxMessageSizeIn",                     // name
         sizeof("MaxMessageSizeIn") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT,
         "WriteCacheLowWat",                     // name
         sizeof("WriteCacheLowWat") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_WRITE_CACHE_HI_WAT,
         "WriteCacheHiWat",                     // name
         sizeof("WriteCacheHiWat") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_THREAD_STACK_SIZE,
         "ThreadStackSize",                     // name
         sizeof("ThreadStackSize") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_COLLECT_TIME_METRICS,
         "CollectTimeMetrics",                  // name
         sizeof("CollectTimeMetrics") - 1,      // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     }
 
 };
@@ -133,7 +133,7 @@ namespace btlmt {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
+const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -443,7 +443,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
+const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                                                         int id)
 {
     switch (id) {

@@ -399,7 +399,7 @@ STREAM& CustomizedString::bdexStreamIn(STREAM& stream, int version)
 inline
 void CustomizedString::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -598,7 +598,7 @@ class MyChoice {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyChoice")
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
   public:
     // CLASS METHODS
@@ -607,10 +607,10 @@ class MyChoice {
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -771,7 +771,7 @@ inline
 void MyChoice::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -795,7 +795,7 @@ inline
 void MyChoice::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -928,7 +928,7 @@ inline
 int MyChoice::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -1086,26 +1086,26 @@ namespace test {
                                // ---------
 const char MyChoice::CLASS_NAME[] = "MyChoice";
     // the name of this class
-const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",                         // name
         sizeof("Selection1") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",                         // name
         sizeof("Selection2") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
                                // -------------
                                // CLASS METHODS
                                // -------------
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -1137,7 +1137,7 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
     }
     return 0;
 }
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -1275,7 +1275,7 @@ struct MyEnumeration {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyEnumeration")
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -1472,7 +1472,7 @@ namespace test {
                                // ---------
 const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
     // the name of this class
-const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
     {
         MyEnumeration::VALUE1,
         "VALUE1",                      // name
@@ -1604,7 +1604,7 @@ class MySequence {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequence")
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
   public:
     // CLASS METHODS
@@ -1613,10 +1613,10 @@ class MySequence {
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1818,8 +1818,8 @@ STREAM& MySequence::bdexStreamIn(STREAM& stream, int version)
 inline
 void MySequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 template <class MANIPULATOR>
 inline
@@ -1865,7 +1865,7 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
                                      int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1939,7 +1939,7 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
                                  int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -2002,26 +2002,26 @@ namespace test {
                                // ---------
 const char MySequence::CLASS_NAME[] = "MySequence";
     // the name of this class
-const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
                                // -------------
                                // CLASS METHODS
                                // -------------
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -2053,7 +2053,7 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
     }
     return 0;
 }
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -2229,7 +2229,7 @@ class MySequenceWithNullables {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithNullables")
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
   public:
     // CLASS METHODS
@@ -2238,10 +2238,10 @@ class MySequenceWithNullables {
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -2480,11 +2480,11 @@ STREAM& MySequenceWithNullables::bdexStreamIn(STREAM& stream, int version)
 inline
 void MySequenceWithNullables::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute3);
-    bdeat_ValueTypeFunctions::reset(&d_attribute4);
-    bdeat_ValueTypeFunctions::reset(&d_attribute5);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute3);
+    bdlat_ValueTypeFunctions::reset(&d_attribute4);
+    bdlat_ValueTypeFunctions::reset(&d_attribute5);
 }
 template <class MANIPULATOR>
 inline
@@ -2562,7 +2562,7 @@ int MySequenceWithNullables::manipulateAttribute(
         int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -2687,7 +2687,7 @@ int MySequenceWithNullables::accessAttribute(
         int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -2778,45 +2778,45 @@ namespace test {
 // CONSTANTS
 const char MySequenceWithNullables::CLASS_NAME[] = "MySequenceWithNullables";
     // the name of this class
-const bdeat_AttributeInfo MySequenceWithNullables::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequenceWithNullables::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE3,
         "Attribute3",                     // name
         sizeof("Attribute3") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE4,
         "Attribute4",                     // name
         sizeof("Attribute4") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE5,
         "Attribute5",                     // name
         sizeof("Attribute5") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 // CLASS METHODS
-const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -2863,7 +2863,7 @@ const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
     }
     return 0;
 }
-const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -3017,7 +3017,7 @@ class MySequenceWithNullablesContainer {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithNullablesContainer")
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
   public:
     // CLASS METHODS
@@ -3026,10 +3026,10 @@ class MySequenceWithNullablesContainer {
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3230,7 +3230,7 @@ STREAM& MySequenceWithNullablesContainer::bdexStreamIn(STREAM& stream,
 inline
 void MySequenceWithNullablesContainer::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_contained);
+    bdlat_ValueTypeFunctions::reset(&d_contained);
 }
 template <class MANIPULATOR>
 inline
@@ -3270,7 +3270,7 @@ int MySequenceWithNullablesContainer::manipulateAttribute(
                                      int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3331,7 +3331,7 @@ int MySequenceWithNullablesContainer::accessAttribute(ACCESSOR&   accessor,
                                  int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3391,20 +3391,20 @@ namespace test {
 const char MySequenceWithNullablesContainer::CLASS_NAME[]
                                           = "MySequenceWithNullablesContainer";
     // the name of this class
-const bdeat_AttributeInfo
+const bdlat_AttributeInfo
                    MySequenceWithNullablesContainer::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_CONTAINED,
         "Contained",                     // name
         sizeof("Contained") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
                                // -------------
                                // CLASS METHODS
                                // -------------
-const bdeat_AttributeInfo *
+const bdlat_AttributeInfo *
 MySequenceWithNullablesContainer::lookupAttributeInfo(const char *name,
                                                       int         nameLength)
 {
@@ -3426,7 +3426,7 @@ MySequenceWithNullablesContainer::lookupAttributeInfo(const char *name,
     }
     return 0;
 }
-const bdeat_AttributeInfo
+const bdlat_AttributeInfo
 *MySequenceWithNullablesContainer::lookupAttributeInfo(int id)
 {
     switch (id) {
@@ -3744,7 +3744,7 @@ class MySequenceWithManyNullables {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithManyNullables")
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
   public:
     // CLASS METHODS
@@ -3753,10 +3753,10 @@ class MySequenceWithManyNullables {
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -4378,46 +4378,46 @@ STREAM& MySequenceWithManyNullables::bdexStreamIn(STREAM& stream, int version)
 inline
 void MySequenceWithManyNullables::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute01);
-    bdeat_ValueTypeFunctions::reset(&d_attribute02);
-    bdeat_ValueTypeFunctions::reset(&d_attribute03);
-    bdeat_ValueTypeFunctions::reset(&d_attribute04);
-    bdeat_ValueTypeFunctions::reset(&d_attribute05);
-    bdeat_ValueTypeFunctions::reset(&d_attribute06);
-    bdeat_ValueTypeFunctions::reset(&d_attribute07);
-    bdeat_ValueTypeFunctions::reset(&d_attribute08);
-    bdeat_ValueTypeFunctions::reset(&d_attribute09);
-    bdeat_ValueTypeFunctions::reset(&d_attribute10);
-    bdeat_ValueTypeFunctions::reset(&d_attribute11);
-    bdeat_ValueTypeFunctions::reset(&d_attribute12);
-    bdeat_ValueTypeFunctions::reset(&d_attribute13);
-    bdeat_ValueTypeFunctions::reset(&d_attribute14);
-    bdeat_ValueTypeFunctions::reset(&d_attribute15);
-    bdeat_ValueTypeFunctions::reset(&d_attribute16);
-    bdeat_ValueTypeFunctions::reset(&d_attribute17);
-    bdeat_ValueTypeFunctions::reset(&d_attribute18);
-    bdeat_ValueTypeFunctions::reset(&d_attribute19);
-    bdeat_ValueTypeFunctions::reset(&d_attribute20);
-    bdeat_ValueTypeFunctions::reset(&d_attribute21);
-    bdeat_ValueTypeFunctions::reset(&d_attribute22);
-    bdeat_ValueTypeFunctions::reset(&d_attribute23);
-    bdeat_ValueTypeFunctions::reset(&d_attribute24);
-    bdeat_ValueTypeFunctions::reset(&d_attribute25);
-    bdeat_ValueTypeFunctions::reset(&d_attribute26);
-    bdeat_ValueTypeFunctions::reset(&d_attribute27);
-    bdeat_ValueTypeFunctions::reset(&d_attribute28);
-    bdeat_ValueTypeFunctions::reset(&d_attribute29);
-    bdeat_ValueTypeFunctions::reset(&d_attribute30);
-    bdeat_ValueTypeFunctions::reset(&d_attribute31);
-    bdeat_ValueTypeFunctions::reset(&d_attribute32);
-    bdeat_ValueTypeFunctions::reset(&d_attribute33);
-    bdeat_ValueTypeFunctions::reset(&d_attribute34);
-    bdeat_ValueTypeFunctions::reset(&d_attribute35);
-    bdeat_ValueTypeFunctions::reset(&d_attribute36);
-    bdeat_ValueTypeFunctions::reset(&d_attribute37);
-    bdeat_ValueTypeFunctions::reset(&d_attribute38);
-    bdeat_ValueTypeFunctions::reset(&d_attribute39);
-    bdeat_ValueTypeFunctions::reset(&d_attribute40);
+    bdlat_ValueTypeFunctions::reset(&d_attribute01);
+    bdlat_ValueTypeFunctions::reset(&d_attribute02);
+    bdlat_ValueTypeFunctions::reset(&d_attribute03);
+    bdlat_ValueTypeFunctions::reset(&d_attribute04);
+    bdlat_ValueTypeFunctions::reset(&d_attribute05);
+    bdlat_ValueTypeFunctions::reset(&d_attribute06);
+    bdlat_ValueTypeFunctions::reset(&d_attribute07);
+    bdlat_ValueTypeFunctions::reset(&d_attribute08);
+    bdlat_ValueTypeFunctions::reset(&d_attribute09);
+    bdlat_ValueTypeFunctions::reset(&d_attribute10);
+    bdlat_ValueTypeFunctions::reset(&d_attribute11);
+    bdlat_ValueTypeFunctions::reset(&d_attribute12);
+    bdlat_ValueTypeFunctions::reset(&d_attribute13);
+    bdlat_ValueTypeFunctions::reset(&d_attribute14);
+    bdlat_ValueTypeFunctions::reset(&d_attribute15);
+    bdlat_ValueTypeFunctions::reset(&d_attribute16);
+    bdlat_ValueTypeFunctions::reset(&d_attribute17);
+    bdlat_ValueTypeFunctions::reset(&d_attribute18);
+    bdlat_ValueTypeFunctions::reset(&d_attribute19);
+    bdlat_ValueTypeFunctions::reset(&d_attribute20);
+    bdlat_ValueTypeFunctions::reset(&d_attribute21);
+    bdlat_ValueTypeFunctions::reset(&d_attribute22);
+    bdlat_ValueTypeFunctions::reset(&d_attribute23);
+    bdlat_ValueTypeFunctions::reset(&d_attribute24);
+    bdlat_ValueTypeFunctions::reset(&d_attribute25);
+    bdlat_ValueTypeFunctions::reset(&d_attribute26);
+    bdlat_ValueTypeFunctions::reset(&d_attribute27);
+    bdlat_ValueTypeFunctions::reset(&d_attribute28);
+    bdlat_ValueTypeFunctions::reset(&d_attribute29);
+    bdlat_ValueTypeFunctions::reset(&d_attribute30);
+    bdlat_ValueTypeFunctions::reset(&d_attribute31);
+    bdlat_ValueTypeFunctions::reset(&d_attribute32);
+    bdlat_ValueTypeFunctions::reset(&d_attribute33);
+    bdlat_ValueTypeFunctions::reset(&d_attribute34);
+    bdlat_ValueTypeFunctions::reset(&d_attribute35);
+    bdlat_ValueTypeFunctions::reset(&d_attribute36);
+    bdlat_ValueTypeFunctions::reset(&d_attribute37);
+    bdlat_ValueTypeFunctions::reset(&d_attribute38);
+    bdlat_ValueTypeFunctions::reset(&d_attribute39);
+    bdlat_ValueTypeFunctions::reset(&d_attribute40);
 }
 template <class MANIPULATOR>
 inline
@@ -4844,7 +4844,7 @@ int MySequenceWithManyNullables::manipulateAttribute(MANIPULATOR&  manipulator,
                                      int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5528,7 +5528,7 @@ int MySequenceWithManyNullables::accessAttribute(ACCESSOR&   accessor,
                                  int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5900,293 +5900,293 @@ namespace test {
 const char MySequenceWithManyNullables::CLASS_NAME[]
                                                = "MySequenceWithManyNullables";
     // the name of this class
-const bdeat_AttributeInfo
+const bdlat_AttributeInfo
                         MySequenceWithManyNullables::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE01,
         "Attribute01",                     // name
         sizeof("Attribute01") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE02,
         "Attribute02",                     // name
         sizeof("Attribute02") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE03,
         "Attribute03",                     // name
         sizeof("Attribute03") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE04,
         "Attribute04",                     // name
         sizeof("Attribute04") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE05,
         "Attribute05",                     // name
         sizeof("Attribute05") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE06,
         "Attribute06",                     // name
         sizeof("Attribute06") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE07,
         "Attribute07",                     // name
         sizeof("Attribute07") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE08,
         "Attribute08",                     // name
         sizeof("Attribute08") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE09,
         "Attribute09",                     // name
         sizeof("Attribute09") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE10,
         "Attribute10",                     // name
         sizeof("Attribute10") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE11,
         "Attribute11",                     // name
         sizeof("Attribute11") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE12,
         "Attribute12",                     // name
         sizeof("Attribute12") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE13,
         "Attribute13",                     // name
         sizeof("Attribute13") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE14,
         "Attribute14",                     // name
         sizeof("Attribute14") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE15,
         "Attribute15",                     // name
         sizeof("Attribute15") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE16,
         "Attribute16",                     // name
         sizeof("Attribute16") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE17,
         "Attribute17",                     // name
         sizeof("Attribute17") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE18,
         "Attribute18",                     // name
         sizeof("Attribute18") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE19,
         "Attribute19",                     // name
         sizeof("Attribute19") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE20,
         "Attribute20",                     // name
         sizeof("Attribute20") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE21,
         "Attribute21",                     // name
         sizeof("Attribute21") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE22,
         "Attribute22",                     // name
         sizeof("Attribute22") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE23,
         "Attribute23",                     // name
         sizeof("Attribute23") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE24,
         "Attribute24",                     // name
         sizeof("Attribute24") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE25,
         "Attribute25",                     // name
         sizeof("Attribute25") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE26,
         "Attribute26",                     // name
         sizeof("Attribute26") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE27,
         "Attribute27",                     // name
         sizeof("Attribute27") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE28,
         "Attribute28",                     // name
         sizeof("Attribute28") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE29,
         "Attribute29",                     // name
         sizeof("Attribute29") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE30,
         "Attribute30",                     // name
         sizeof("Attribute30") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE31,
         "Attribute31",                     // name
         sizeof("Attribute31") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE32,
         "Attribute32",                     // name
         sizeof("Attribute32") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE33,
         "Attribute33",                     // name
         sizeof("Attribute33") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE34,
         "Attribute34",                     // name
         sizeof("Attribute34") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE35,
         "Attribute35",                     // name
         sizeof("Attribute35") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE36,
         "Attribute36",                     // name
         sizeof("Attribute36") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE37,
         "Attribute37",                     // name
         sizeof("Attribute37") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE38,
         "Attribute38",                     // name
         sizeof("Attribute38") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE39,
         "Attribute39",                     // name
         sizeof("Attribute39") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE40,
         "Attribute40",                     // name
         sizeof("Attribute40") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
                                // -------------
                                // CLASS METHODS
                                // -------------
-const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -6426,7 +6426,7 @@ const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
     }
     return 0;
 }
-const bdeat_AttributeInfo *
+const bdlat_AttributeInfo *
                        MySequenceWithManyNullables::lookupAttributeInfo(int id)
 {
     switch (id) {
@@ -6952,7 +6952,7 @@ class Address {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Address")
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
   public:
     // CLASS METHODS
@@ -6961,10 +6961,10 @@ class Address {
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -7177,9 +7177,9 @@ STREAM& Address::bdexStreamIn(STREAM& stream, int version)
 inline
 void Address::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_street);
-    bdeat_ValueTypeFunctions::reset(&d_city);
-    bdeat_ValueTypeFunctions::reset(&d_state);
+    bdlat_ValueTypeFunctions::reset(&d_street);
+    bdlat_ValueTypeFunctions::reset(&d_city);
+    bdlat_ValueTypeFunctions::reset(&d_state);
 }
 template <class MANIPULATOR>
 inline
@@ -7232,7 +7232,7 @@ int Address::manipulateAttribute(MANIPULATOR&  manipulator,
                                      int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -7317,7 +7317,7 @@ int Address::accessAttribute(ACCESSOR&   accessor,
                                  int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -7386,33 +7386,33 @@ namespace test {
                                // ---------
 const char Address::CLASS_NAME[] = "Address";
     // the name of this class
-const bdeat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_STREET,
         "street",                     // name
         sizeof("street") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_CITY,
         "city",                     // name
         sizeof("city") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_STATE,
         "state",                     // name
         sizeof("state") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
                                // -------------
                                // CLASS METHODS
                                // -------------
-const bdeat_AttributeInfo *Address::lookupAttributeInfo(
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -7447,7 +7447,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
     }
     return 0;
 }
-const bdeat_AttributeInfo *Address::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_STREET:
@@ -7610,7 +7610,7 @@ class Employee {
     // CONSTANTS
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Employee")
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
   public:
     // CLASS METHODS
@@ -7619,10 +7619,10 @@ class Employee {
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -7846,10 +7846,10 @@ STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
 inline
 void Employee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_homeAddress);
-    bdeat_ValueTypeFunctions::reset(&d_age);
-    bdeat_ValueTypeFunctions::reset(&d_dateJoined);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_homeAddress);
+    bdlat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_dateJoined);
 }
 template <class MANIPULATOR>
 inline
@@ -7912,7 +7912,7 @@ int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
                                      int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -8014,7 +8014,7 @@ int Employee::accessAttribute(ACCESSOR&   accessor,
                                  int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -8091,40 +8091,40 @@ namespace test {
                                // ---------
 const char Employee::CLASS_NAME[] = "Employee";
     // the name of this class
-const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "name",                     // name
         sizeof("name") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",                     // name
         sizeof("homeAddress") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "age",                     // name
         sizeof("age") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_DATE_JOINED,
         "dateJoined",                     // name
         sizeof("dateJoined") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
                                // -------------
                                // CLASS METHODS
                                // -------------
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -8178,7 +8178,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
     }
     return 0;
 }
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -8286,14 +8286,14 @@ struct TestValueFunctions_Imp {
     // CLASS METHODS
     template <class TYPE>
     static
-    int loadTestValue(TYPE *object, int index, bdeat_TypeCategory::Array);
+    int loadTestValue(TYPE *object, int index, bdlat_TypeCategory::Array);
         // Load into the specified Array 'object' a test value indicated by the
         // specified 'index'.  Return 0 on success, and a non-zero value
         // otherwise with no effect on 'object'.  The behavior is undefined
         // unless index >= 0.
     template <class TYPE>
     static
-    int loadTestValue(TYPE *object, int index, bdeat_TypeCategory::Choice);
+    int loadTestValue(TYPE *object, int index, bdlat_TypeCategory::Choice);
         // Load into the specified Choice 'object' a test value indicated by
         // the specified 'index'.  Return 0 on success, and a non-zero value
         // otherwise with no effect on 'object'.  The behavior is undefined
@@ -8301,14 +8301,14 @@ struct TestValueFunctions_Imp {
     template <class TYPE>
     static
     int loadTestValue(TYPE *object, int index,
-                      bdeat_TypeCategory::Enumeration);
+                      bdlat_TypeCategory::Enumeration);
         // Load into the specified Enumeration 'object' a test value indicated
         // by the specified 'index'.  Return 0 on success, and a non-zero value
         // otherwise with no effect on 'object'.  The behavior is undefined
         // unless index >= 0.
     template <class TYPE>
     static
-    int loadTestValue(TYPE *object, int index, bdeat_TypeCategory::Sequence);
+    int loadTestValue(TYPE *object, int index, bdlat_TypeCategory::Sequence);
         // Load into the specified Sequence 'object' a test value indicated by
         // the specified 'index'.  Return 0 on success, and a non-zero value
         // otherwise with no effect on 'object'.  The behavior is undefined
@@ -8453,16 +8453,16 @@ template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                           int   index,
-                                          bdeat_TypeCategory::Array)
+                                          bdlat_TypeCategory::Array)
 {
-    BSLMF_ASSERT((bdeat_ArrayFunctions::IsArray<TYPE>::VALUE));
+    BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::VALUE));
     BSLS_ASSERT_SAFE(index >= 0);
     enum { MAX_ARRAY_SIZE = 20 };
     int arraySize = index % MAX_ARRAY_SIZE;
-    bdeat_ArrayFunctions::resize(object, arraySize);
+    bdlat_ArrayFunctions::resize(object, arraySize);
     for (int i = 0; i < arraySize; ++i) {
         TestValueFunctions_Imp manipulator = { index + i };
-        if (0 != bdeat_ArrayFunctions::manipulateElement(object,
+        if (0 != bdlat_ArrayFunctions::manipulateElement(object,
                                                          manipulator,
                                                          i)) {
             return FAILURE;                                           // RETURN
@@ -8474,9 +8474,9 @@ template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                                 int   index,
-                                                bdeat_TypeCategory::Choice)
+                                                bdlat_TypeCategory::Choice)
 {
-    BSLMF_ASSERT((bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE));
+    BSLMF_ASSERT((bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE));
     BSLS_ASSERT_SAFE(index >= 0);
     const int numSelections = TYPE::NUM_SELECTIONS;
     if (0 == index) {
@@ -8494,13 +8494,13 @@ template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                           int   index,
-                                          bdeat_TypeCategory::Enumeration)
+                                          bdlat_TypeCategory::Enumeration)
 {
-    BSLMF_ASSERT((bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE));
+    BSLMF_ASSERT((bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE));
     BSLS_ASSERT_SAFE(index >= 0);
-    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     index = index % Wrapper::NUM_ENUMERATORS;
-    bdeat_EnumeratorInfo info = Wrapper::ENUMERATOR_INFO_ARRAY[index];
+    bdlat_EnumeratorInfo info = Wrapper::ENUMERATOR_INFO_ARRAY[index];
     *object = static_cast<TYPE>(info.value());
     return SUCCESS;
 }
@@ -8508,9 +8508,9 @@ template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                                 int   index,
-                                                bdeat_TypeCategory::Sequence)
+                                                bdlat_TypeCategory::Sequence)
 {
-    BSLMF_ASSERT((bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE));
+    BSLMF_ASSERT((bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE));
     BSLS_ASSERT_SAFE(index >= 0);
     for (int i = 0; i < TYPE::NUM_ATTRIBUTES; ++i) {
         TestValueFunctions_Imp manipulator = { index + i };
@@ -8541,7 +8541,7 @@ template <class TYPE>
 inline
 int TestValueFunctions::loadTestValue(TYPE *object, int index)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Type;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Type;
     return TestValueFunctions_Imp::loadTestValue(object, index, Type());
 }
 inline
@@ -8762,8 +8762,8 @@ class SetToNull {
     int operator()(TYPE *object, const INFO_TYPE&)
     {
         BSLMF_ASSERT(
-                 (bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
-        bdeat_ValueTypeFunctions::reset(object);
+                 (bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
+        bdlat_ValueTypeFunctions::reset(object);
         return 0;
     }
 };
@@ -8802,9 +8802,9 @@ class SetToNotNull {
     int operator()(TYPE *object, const INFO_TYPE&)
     {
         BSLMF_ASSERT(
-                 (bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
-        bdeat_NullableValueFunctions::makeValue(object);
-        return bdeat_NullableValueFunctions::manipulateValue(object,
+                 (bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
+        bdlat_NullableValueFunctions::makeValue(object);
+        return bdlat_NullableValueFunctions::manipulateValue(object,
                                                              d_loadTestValue);
     }
 };

@@ -81,7 +81,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_ArrayFunctions;
+namespace Obj = bdlat_ArrayFunctions;
 
 //=============================================================================
 //                           CLASSES FOR TESTING
@@ -145,7 +145,7 @@ namespace Test {
 template <int SIZE, class TYPE>
 class FixedArray
 {
-    // Fixed-sized array that conforms to the 'bdeat_ArrayFunctions'
+    // Fixed-sized array that conforms to the 'bdlat_ArrayFunctions'
     // interface.
 
     TYPE d_values[SIZE];
@@ -176,27 +176,27 @@ class FixedArray
 
 // FREE MANIPULATORS
 template <int SIZE, class TYPE, class MANIPULATOR>
-int bdeat_arrayManipulateElement(FixedArray<SIZE, TYPE> *array,
+int bdlat_arrayManipulateElement(FixedArray<SIZE, TYPE> *array,
                                  MANIPULATOR&            manipulator,
                                  int                     index);
 
 template <int SIZE, class TYPE>
-void bdeat_arrayResize(FixedArray<SIZE, TYPE> *array, int newSize);
+void bdlat_arrayResize(FixedArray<SIZE, TYPE> *array, int newSize);
 
 // FREE ACCESSORS
 template <int SIZE, class TYPE, class ACCESSOR>
-int bdeat_arrayAccessElement(const FixedArray<SIZE, TYPE>& array,
+int bdlat_arrayAccessElement(const FixedArray<SIZE, TYPE>& array,
                              ACCESSOR&                     accessor,
                              int                           index);
 
 template <int SIZE, class TYPE>
-bsl::size_t bdeat_arraySize(const FixedArray<SIZE, TYPE>& array);
+bsl::size_t bdlat_arraySize(const FixedArray<SIZE, TYPE>& array);
     // Return the number of elements in the specified 'array'.
 
 }  // close namespace Test
 
 namespace BloombergLP {
-namespace bdeat_ArrayFunctions {
+namespace bdlat_ArrayFunctions {
     // META FUNCTIONS
     template <int SIZE, class TYPE>
     struct ElementType<Test::FixedArray<SIZE, TYPE> > {
@@ -322,7 +322,7 @@ int Test::FixedArray<SIZE, TYPE>::accessElement(ACCESSOR& acc, int index) const
 
 // FREE MANIPULATORS
 template <int SIZE, class TYPE, class MANIPULATOR>
-int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
+int Test::bdlat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
                                        MANIPULATOR&                  manip,
                                        int                           index)
 {
@@ -330,14 +330,14 @@ int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
 }
 
 template <int SIZE, class TYPE>
-void Test::bdeat_arrayResize(Test::FixedArray<SIZE, TYPE> *array, int newSize)
+void Test::bdlat_arrayResize(Test::FixedArray<SIZE, TYPE> *array, int newSize)
 {
     array->resize(newSize);
 }
 
 // FREE ACCESSORS
 template <int SIZE, class TYPE, class ACCESSOR>
-int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
+int Test::bdlat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
                                    ACCESSOR&                           acc,
                                    int                                 index)
 {
@@ -345,7 +345,7 @@ int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
 }
 
 template <int SIZE, class TYPE>
-bsl::size_t Test::bdeat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
+bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 {
     return array.length();
 }
@@ -360,7 +360,7 @@ bsl::size_t Test::bdeat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 // example.  First, define a 'PrintValue' function class:
 //..
 
-namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE {
+namespace BDLAT_ARRAYFUNCTIONS_USAGE_EXAMPLE {
 //..
 // The entire 'PrintValue' function class is provided below, uninterrupted, for
 // clarity:
@@ -393,10 +393,10 @@ class PrintValue {
     {
         enum { SUCCESS = 0, FAILURE = -1 };
 
-        int numElements = bdeat_ArrayFunctions::size(value);
+        int numElements = bdlat_ArrayFunctions::size(value);
 
         for (int index = 0; index < numElements; ++index) {
-            if (0 != bdeat_ArrayFunctions::accessElement(value,
+            if (0 != bdlat_ArrayFunctions::accessElement(value,
                                                          *this,
                                                          index)) {
                 return FAILURE;                                       // RETURN
@@ -418,7 +418,7 @@ class PrintValue {
     int operator()(const TYPE& value)
     {
         typedef typename
-        bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+        bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
                  IsArrayType,
                  IsNotArrayType>::Type Toggle;
 
@@ -427,7 +427,7 @@ class PrintValue {
 };  // end 'class PrintValue'
 //..
 // The 'PrintValue' function class can be used for types that expose "array"
-// behavior through the 'bdeat_ArrayFunctions' 'namespace' (e.g.,
+// behavior through the 'bdlat_ArrayFunctions' 'namespace' (e.g.,
 // 'bsl::vector') and any other type that has 'operator<<' defined for it.  For
 // example:
 //..
@@ -447,7 +447,7 @@ void usageExample(int verbose)
     printValue(intArray);  // expected output: '345 456 567 '
 }
 //..
-}  // close namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE
+}  // close namespace BDLAT_ARRAYFUNCTIONS_USAGE_EXAMPLE
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         {
-          using namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE;
+          using namespace BDLAT_ARRAYFUNCTIONS_USAGE_EXAMPLE;
           usageExample(verbose);
         }
 
@@ -496,16 +496,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting meta-functions"
                           << "\n======================" << endl;
 
-        ASSERT(0 == bdeat_ArrayFunctions::IsArray<int>::VALUE);
+        ASSERT(0 == bdlat_ArrayFunctions::IsArray<int>::VALUE);
 
         typedef
             Obj::ElementType<Test::FixedArray<9, short> >::Type FAElementType;
         ASSERT(1 ==
-           (bdeat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::VALUE));
+           (bdlat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::VALUE));
         ASSERT(1 == (bslmf::IsSame<FAElementType, short>::VALUE));
 
         typedef Obj::ElementType<bsl::vector<int> >::Type VecElementType;
-        ASSERT(1 == bdeat_ArrayFunctions::IsArray<bsl::vector<int> >::VALUE);
+        ASSERT(1 == bdlat_ArrayFunctions::IsArray<bsl::vector<int> >::VALUE);
         ASSERT(1 == (bslmf::IsSame<VecElementType, int>::VALUE));
 
       } break;

@@ -193,13 +193,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tTraitless type." << endl;
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
@@ -210,13 +210,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tChoice types." << endl;
 
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
@@ -225,13 +225,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
@@ -240,13 +240,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
@@ -255,13 +255,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
@@ -272,13 +272,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tSequence types." << endl;
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
@@ -287,13 +287,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
@@ -302,13 +302,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
@@ -317,13 +317,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
@@ -334,13 +334,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tEnum types." << endl;
 
         ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_EnumWithNoTraits::Value,
@@ -349,13 +349,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
@@ -366,13 +366,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tCustomized types." << endl;
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
@@ -381,13 +381,13 @@ int main(int argc, char *argv[])
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
-                                   bdeat_TypeTraitBasicChoice>::VALUE));
+                                   bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
-                                   bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                   bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
-                                   bdeat_TypeTraitBasicSequence>::VALUE));
+                                   bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
@@ -397,16 +397,16 @@ int main(int argc, char *argv[])
 
         ASSERT(! (bslalg::HasTrait<
                                   my_ClassWithBasicCustomizedTypeBitwiseTraits,
-                                  bdeat_TypeTraitBasicChoice>::VALUE));
+                                  bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(  (bslalg::HasTrait<
                                   my_ClassWithBasicCustomizedTypeBitwiseTraits,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<
                                   my_ClassWithBasicCustomizedTypeBitwiseTraits,
-                                  bdeat_TypeTraitBasicEnumeration>::VALUE));
+                                  bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<
                                   my_ClassWithBasicCustomizedTypeBitwiseTraits,
-                                  bdeat_TypeTraitBasicSequence>::VALUE));
+                                  bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<
                                   my_ClassWithBasicCustomizedTypeBitwiseTraits,
                                   bdlb::TypeTraitHasPrintMethod>::VALUE));
@@ -419,16 +419,16 @@ int main(int argc, char *argv[])
 
         ASSERT(! (bslalg::HasTrait<
                              my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
-                             bdeat_TypeTraitBasicChoice>::VALUE));
+                             bdlat_TypeTraitBasicChoice>::VALUE));
         ASSERT(  (bslalg::HasTrait<
                              my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
-                             bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                             bdlat_TypeTraitBasicCustomizedType>::VALUE));
         ASSERT(! (bslalg::HasTrait<
                              my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
-                             bdeat_TypeTraitBasicEnumeration>::VALUE));
+                             bdlat_TypeTraitBasicEnumeration>::VALUE));
         ASSERT(! (bslalg::HasTrait<
                              my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
-                             bdeat_TypeTraitBasicSequence>::VALUE));
+                             bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<
                              my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
                              bdlb::TypeTraitHasPrintMethod>::VALUE));

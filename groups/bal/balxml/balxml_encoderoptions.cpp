@@ -46,111 +46,111 @@ const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER = tru
 
 const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_OUTPUT_X_S_I_ALIAS = true;
 
-const bdeat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_OBJECT_NAMESPACE,
         "ObjectNamespace",
         sizeof("ObjectNamespace") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_SCHEMA_LOCATION,
         "SchemaLocation",
         sizeof("SchemaLocation") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_TAG,
         "Tag",
         sizeof("Tag") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_FORMATTING_MODE,
         "FormattingMode",
         sizeof("FormattingMode") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_INITIAL_INDENT_LEVEL,
         "InitialIndentLevel",
         sizeof("InitialIndentLevel") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_SPACES_PER_LEVEL,
         "SpacesPerLevel",
         sizeof("SpacesPerLevel") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_WRAP_COLUMN,
         "WrapColumn",
         sizeof("WrapColumn") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS,
         "MaxDecimalTotalDigits",
         sizeof("MaxDecimalTotalDigits") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS,
         "MaxDecimalFractionDigits",
         sizeof("MaxDecimalFractionDigits") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS,
         "SignificantDoubleDigits",
         sizeof("SignificantDoubleDigits") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_ENCODING_STYLE,
         "EncodingStyle",
         sizeof("EncodingStyle") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS,
         "AllowControlCharacters",
         sizeof("AllowControlCharacters") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER,
         "OutputXMLHeader",
         sizeof("OutputXMLHeader") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS,
         "OutputXSIAlias",
         sizeof("OutputXSIAlias") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
 namespace balxml {
 // CLASS METHODS
 
-const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
+const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -467,7 +467,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_OBJECT_NAMESPACE:
@@ -573,16 +573,16 @@ EncoderOptions::operator=(const EncoderOptions& rhs)
 
 void EncoderOptions::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_objectNamespace);
-    bdeat_ValueTypeFunctions::reset(&d_schemaLocation);
-    bdeat_ValueTypeFunctions::reset(&d_tag);
+    bdlat_ValueTypeFunctions::reset(&d_objectNamespace);
+    bdlat_ValueTypeFunctions::reset(&d_schemaLocation);
+    bdlat_ValueTypeFunctions::reset(&d_tag);
     d_formattingMode = DEFAULT_INITIALIZER_FORMATTING_MODE;
     d_initialIndentLevel = DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
     d_spacesPerLevel = DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
     d_wrapColumn = DEFAULT_INITIALIZER_WRAP_COLUMN;
-    bdeat_ValueTypeFunctions::reset(&d_maxDecimalTotalDigits);
-    bdeat_ValueTypeFunctions::reset(&d_maxDecimalFractionDigits);
-    bdeat_ValueTypeFunctions::reset(&d_significantDoubleDigits);
+    bdlat_ValueTypeFunctions::reset(&d_maxDecimalTotalDigits);
+    bdlat_ValueTypeFunctions::reset(&d_maxDecimalFractionDigits);
+    bdlat_ValueTypeFunctions::reset(&d_significantDoubleDigits);
     d_encodingStyle = DEFAULT_INITIALIZER_ENCODING_STYLE;
     d_allowControlCharacters = DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS;
     d_outputXMLHeader = DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER;

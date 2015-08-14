@@ -78,7 +78,7 @@ struct EncodingStyle {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
     static const char *toString(Value value);

@@ -29,27 +29,27 @@ const int bdlmxxx::BdemDecoderOptions::DEFAULT_BDEM_VERSION = 2;
 
 const int bdlmxxx::BdemDecoderOptions::DEFAULT_MAX_DEPTH = 32;
 
-const bdeat_AttributeInfo bdlmxxx::BdemDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo bdlmxxx::BdemDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_BDEM_VERSION,
         "BdemVersion",
         sizeof("BdemVersion") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_MAX_DEPTH,
         "MaxDepth",
         sizeof("MaxDepth") - 1,
         "maximum recursion depth",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     }
 };
 
 namespace bdlmxxx {
 // CLASS METHODS
 
-const bdeat_AttributeInfo *BdemDecoderOptions::lookupAttributeInfo(
+const bdlat_AttributeInfo *BdemDecoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -89,7 +89,7 @@ const bdeat_AttributeInfo *BdemDecoderOptions::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *BdemDecoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *BdemDecoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_BDEM_VERSION:

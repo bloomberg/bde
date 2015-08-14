@@ -259,7 +259,7 @@ BSLS_IDENT("$Id: $")
 // We will now verify the attributes of the first of the three fields we have
 // just appended.  By default, a field will have a null field-id, it will not
 // be nullable, it will not have a default value, and its formatting mode will
-// be 'bdeat_FormattingMode::BDEAT_DEFAULT':
+// be 'bdlat_FormattingMode::e_DEFAULT':
 //..
 //  assert(3 == ccPaymentRecDef.numFields());
 //  const bdlmxxx::FieldDef& cardTypeFldDef = ccPaymentRecDef.field(0);
@@ -269,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //  assert(bdlmxxx::ElemType::BDEM_STRING  == cardTypeFldDef.elemType());
 //  assert(false                       == cardTypeFldDef.hasDefaultValue());
 //  assert(false                       == cardTypeFldDef.isNullable());
-//  assert(bdeat_FormattingMode::BDEAT_DEFAULT ==
+//  assert(bdlat_FormattingMode::e_DEFAULT ==
 //                                     cardTypeFldDef.formattingMode());
 //  assert(&ccTypeEnumDef == cardTypeFldDef.enumerationConstraint());
 //..

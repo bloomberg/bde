@@ -30,41 +30,41 @@ const bool balber::BerDecoderOptions::DEFAULT_SKIP_UNKNOWN_ELEMENTS = true;
 const int  balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL           =       0;
 const int  balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE     = 8388608;
 
-const bdeat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         e_ATTRIBUTE_ID_MAX_DEPTH,
         "MaxDepth",                        // name
         sizeof("MaxDepth") - 1,            // name length
         "maximum recursion depth",         // annotation
-        bdeat_FormattingMode::BDEAT_DEC    // formatting mode
+        bdlat_FormattingMode::e_DEC    // formatting mode
     },
     {
         e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
         "SkipUnknownElements",             // name
         sizeof("SkipUnknownElements") - 1, // name length
         "Option to skip unknown elements", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT   // formatting mode
+        bdlat_FormattingMode::e_TEXT   // formatting mode
     },
     {
         e_ATTRIBUTE_ID_TRACE_LEVEL,
         "TraceLevel",                      // name
         sizeof("TraceLevel") - 1,          // name length
         "trace (verbosity) level",         // annotation
-        bdeat_FormattingMode::BDEAT_DEC    // formatting mode
+        bdlat_FormattingMode::e_DEC    // formatting mode
     },
     {
         e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE,
         "MaxSequenceSize",                 // name
         sizeof("MaxSequenceSize") - 1,     // name length
         "maximum sequence size",           // annotation
-        bdeat_FormattingMode::BDEAT_DEC    // formatting mode
+        bdlat_FormattingMode::e_DEC    // formatting mode
     }
 };
 
 namespace balber {
 
 // CLASS METHODS
-const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
+const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
@@ -147,7 +147,7 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH:

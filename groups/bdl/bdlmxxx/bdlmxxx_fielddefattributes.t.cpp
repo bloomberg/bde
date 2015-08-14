@@ -292,8 +292,8 @@ int main(int argc, char *argv[])
     ASSERT(false == intType.isNullable());
     ASSERT(false == listType.isNullable());
 
-    ASSERT(bdeat_FormattingMode::BDEAT_DEFAULT == intType.formattingMode());
-    ASSERT(bdeat_FormattingMode::BDEAT_DEFAULT == listType.formattingMode());
+    ASSERT(bdlat_FormattingMode::e_DEFAULT == intType.formattingMode());
+    ASSERT(bdlat_FormattingMode::e_DEFAULT == listType.formattingMode());
 //..
 // We assign the 'isNullable' and 'formattingMode' for the two field types.
 // Note that, depending on the context the field types are used in, these
@@ -302,11 +302,11 @@ int main(int argc, char *argv[])
     intType.setIsNullable(true);
     listType.setIsNullable(true);
 
-    intType.setFormattingMode(bdeat_FormattingMode::BDEAT_HEX);
-    listType.setFormattingMode(bdeat_FormattingMode::BDEAT_DEC);
+    intType.setFormattingMode(bdlat_FormattingMode::e_HEX);
+    listType.setFormattingMode(bdlat_FormattingMode::e_DEC);
 
-    ASSERT(bdeat_FormattingMode::BDEAT_HEX == intType.formattingMode());
-    ASSERT(bdeat_FormattingMode::BDEAT_DEC == listType.formattingMode());
+    ASSERT(bdlat_FormattingMode::e_HEX == intType.formattingMode());
+    ASSERT(bdlat_FormattingMode::e_DEC == listType.formattingMode());
 
     ASSERT(true == intType.isNullable());
     ASSERT(true == listType.isNullable());

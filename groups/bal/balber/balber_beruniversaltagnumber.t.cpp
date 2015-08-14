@@ -260,7 +260,7 @@ CustomizedString& CustomizedString::operator=(const CustomizedString& rhs)
 inline
 void CustomizedString::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -476,16 +476,16 @@ class MyChoice {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyChoice")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -648,7 +648,7 @@ inline
 void MyChoice::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -674,7 +674,7 @@ inline
 void MyChoice::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -780,7 +780,7 @@ int MyChoice::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -941,20 +941,20 @@ namespace test {
 const char MyChoice::CLASS_NAME[] = "MyChoice";
     // the name of this class
 
-const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",                         // name
         sizeof("Selection1") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",                         // name
         sizeof("Selection2") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -962,7 +962,7 @@ const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -995,7 +995,7 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -1152,7 +1152,7 @@ struct MyEnumeration {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyEnumeration")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -1279,7 +1279,7 @@ namespace test {
 const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
     // the name of this class
 
-const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
     {
         MyEnumeration::VALUE1,
         "VALUE1",                      // name
@@ -1437,16 +1437,16 @@ class MySequence {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequence")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1630,8 +1630,8 @@ MySequence::operator=(const MySequence& rhs)
 inline
 void MySequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -1685,7 +1685,7 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1758,7 +1758,7 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1840,20 +1840,20 @@ namespace test {
 const char MySequence::CLASS_NAME[] = "MySequence";
     // the name of this class
 
-const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -1861,7 +1861,7 @@ const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -1894,7 +1894,7 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -1997,27 +1997,27 @@ class MyDynamicType {
     int category() const { return d_category; }
 };
 
-bdeat_TypeCategory::Value bdeat_typeCategorySelect(const MyDynamicType& obj)
+bdlat_TypeCategory::Value bdlat_typeCategorySelect(const MyDynamicType& obj)
 {
-    return bdeat_TypeCategory::Value(obj.category());
+    return bdlat_TypeCategory::Value(obj.category());
 }
 
 }  // close namespace test
 
-namespace bdeat_SequenceFunctions {
+namespace bdlat_SequenceFunctions {
 
     template <>
     struct IsSequence<test::MyDynamicType> : bslmf::MetaInt<1> { };
 }  // close namespace bdlat_SequenceFunctions
 
-namespace bdeat_ChoiceFunctions {
+namespace bdlat_ChoiceFunctions {
 
     template <>
     struct IsChoice<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
 }  // close namespace bdlat_ChoiceFunctions
 
-namespace bdeat_ArrayFunctions {
+namespace bdlat_ArrayFunctions {
 
     template <>
     struct IsArray<test::MyDynamicType> : bslmf::MetaInt<1> { };
@@ -2027,14 +2027,14 @@ namespace bdeat_ArrayFunctions {
 
 }  // close namespace bdlat_ArrayFunctions
 
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
 
     template <>
     struct IsEnumeration<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
 }  // close namespace bdlat_EnumFunctions
 
-namespace bdeat_NullableValueFunctions {
+namespace bdlat_NullableValueFunctions {
 
     template <>
     struct IsNullableValue<test::MyDynamicType> : bslmf::MetaInt<1> { };
@@ -2049,8 +2049,8 @@ namespace bdeat_NullableValueFunctions {
 typedef balber::BerUniversalTagNumber        Class;
 typedef balber::BerUniversalTagNumber::Value Enum;
 const int                                 NUM_ENUMS = Class::k_LENGTH;
-typedef bdeat_FormattingMode              FM;
-typedef bdeat_TypeCategory                TC;
+typedef bdlat_FormattingMode              FM;
+typedef bdlat_TypeCategory                TC;
 
 //=============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
@@ -2064,7 +2064,7 @@ typedef bdeat_TypeCategory                TC;
         LOOP2_ASSERT(expectedResult, result, expectedResult == result);       \
         balber::BerUniversalTagNumber::Value result2 =                           \
             balber::BerUniversalTagNumber::select(object,                        \
-                                         formattingMode | FM::BDEAT_UNTAGGED, \
+                                         formattingMode | FM::e_UNTAGGED, \
                                                options);                      \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
     }
@@ -2080,7 +2080,7 @@ typedef bdeat_TypeCategory                TC;
         LOOP2_ASSERT(expectedResult, result, expectedResult == result);       \
         balber::BerUniversalTagNumber::Value result2 =                           \
             balber::BerUniversalTagNumber::select(object,                        \
-                                         formattingMode | FM::BDEAT_UNTAGGED, \
+                                         formattingMode | FM::e_UNTAGGED, \
                                                &altTag);                      \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
         LOOP2_ASSERT(*otherTag, altTag, *otherTag == altTag);                 \
@@ -2175,225 +2175,225 @@ int main(int argc, char *argv[])
         //          type         formatting mode   expected result
         //          ----         ---------------   ---------------
         TEST_SELECT_WITH_ALT_TAG(bool,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_BOOL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bool,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_BOOL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bool,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_BOOL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(schar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(schar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(schar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uchar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uchar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(short,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(short,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(ushort,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(ushort,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(unsigned long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(unsigned long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(float,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(double,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyEnum,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_ENUMERATION,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyEnum,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_ENUMERATION,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyEnum,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_ENUMERATION,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MySequence,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyChoice,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &otherTag);
 
         otherTag = Class::e_BER_OCTET_STRING;
         TEST_SELECT_WITH_ALT_TAG(bdlt::Date,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::DateTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::Datetime,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::DatetimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::Time,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::TimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(DateVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(TimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(DatetimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
 
@@ -2403,12 +2403,12 @@ int main(int argc, char *argv[])
             TC::Value    d_category;
             Class::Value d_expectedResult;
         } DATA[] = {
-            { TC::BDEAT_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
-            { TC::BDEAT_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
+            { TC::e_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
+            { TC::e_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
 //            { TC::CUSTOMIZED_TYPE_CATEGORY , ? },
-            { TC::BDEAT_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
+            { TC::e_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
 //            { TC::NULLABLE_VALUE_CATEGORY  ,  ? },
-            { TC::BDEAT_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
+            { TC::e_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
         };
 
         static const int DATA_SIZE = sizeof DATA / sizeof DATA[0];
@@ -2422,7 +2422,7 @@ int main(int argc, char *argv[])
 
             balber::BerUniversalTagNumber::Value result =
                 balber::BerUniversalTagNumber::select(object,
-                                                   FM::BDEAT_DEFAULT,
+                                                   FM::e_DEFAULT,
                                                    &otherTag);
 
             LOOP2_ASSERT(EXPECTED_RESULT, result, EXPECTED_RESULT == result);
@@ -2473,262 +2473,262 @@ int main(int argc, char *argv[])
         //          type         formatting mode   expected result
         //          ----         ---------------   ---------------
         TEST_SELECT_WITH_OPTIONS(bool,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_BOOL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bool,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_BOOL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bool,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_BOOL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(schar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(schar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(schar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uchar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uchar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(short,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(short,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(ushort,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(ushort,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(unsigned long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(unsigned long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(float,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(double,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Date,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DateTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Datetime,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DatetimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Time,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::TimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DateVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(TimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DatetimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyEnum,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_ENUMERATION,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyEnum,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_ENUMERATION,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyEnum,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_ENUMERATION,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MySequence,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyChoice,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &options);
 
         options.setEncodeDateAndTimeTypesAsBinary(true);
 
         TEST_SELECT_WITH_OPTIONS(bdlt::Date,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DateTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Datetime,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DatetimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Time,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::TimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DateVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(TimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DatetimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
 
@@ -2738,12 +2738,12 @@ int main(int argc, char *argv[])
             TC::Value    d_category;
             Class::Value d_expectedResult;
         } DATA[] = {
-            { TC::BDEAT_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
-            { TC::BDEAT_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
+            { TC::e_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
+            { TC::e_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
 //            { TC::CUSTOMIZED_TYPE_CATEGORY , ? },
-            { TC::BDEAT_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
+            { TC::e_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
 //            { TC::NULLABLE_VALUE_CATEGORY  ,  ? },
-            { TC::BDEAT_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
+            { TC::e_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
         };
 
         static const int DATA_SIZE = sizeof DATA / sizeof DATA[0];
@@ -2756,7 +2756,7 @@ int main(int argc, char *argv[])
 
             balber::BerUniversalTagNumber::Value result =
                 balber::BerUniversalTagNumber::select(object,
-                                                   FM::BDEAT_DEFAULT,
+                                                   FM::e_DEFAULT,
                                                    &options);
 
             LOOP2_ASSERT(EXPECTED_RESULT, result, EXPECTED_RESULT == result);

@@ -33,34 +33,34 @@ const int balxml::DecoderOptions::DEFAULT_INITIALIZER_FORMATTING_MODE = 0;
 
 const bool balxml::DecoderOptions::DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS = true;
 
-const bdeat_AttributeInfo balxml::DecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo balxml::DecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_MAX_DEPTH,
         "MaxDepth",
         sizeof("MaxDepth") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_FORMATTING_MODE,
         "FormattingMode",
         sizeof("FormattingMode") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
         "SkipUnknownElements",
         sizeof("SkipUnknownElements") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
 namespace balxml {
 // CLASS METHODS
 
-const bdeat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
+const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -128,7 +128,7 @@ const bdeat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *DecoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_MAX_DEPTH:

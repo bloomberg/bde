@@ -72,7 +72,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdeat_SelectionInfo Obj;
+typedef bdlat_SelectionInfo Obj;
 
 //=============================================================================
 //                               USAGE EXAMPLE

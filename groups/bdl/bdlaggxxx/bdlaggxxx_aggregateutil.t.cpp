@@ -412,7 +412,7 @@ class Person {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
@@ -422,11 +422,11 @@ class Person {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -648,7 +648,7 @@ class Company {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
@@ -658,11 +658,11 @@ class Company {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -876,7 +876,7 @@ class Entity {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -885,11 +885,11 @@ class Entity {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -1104,7 +1104,7 @@ struct Enumerated {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
     static int maxSupportedBdexVersion();
@@ -1425,7 +1425,7 @@ int Person::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1542,7 +1542,7 @@ int Person::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -1652,7 +1652,7 @@ int Company::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1733,7 +1733,7 @@ int Company::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -2053,7 +2053,7 @@ int CustomizedType::fromAggregate(const bdlaggxxx::Aggregate& aggregate)
 inline
 void CustomizedType::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -2239,40 +2239,40 @@ namespace test {
 const char Person::CLASS_NAME[] = "Person";
     // the name of this class
 
-const bdeat_AttributeInfo Person::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Person::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_LAST_NAME,
         "LastName",             // name
         sizeof("LastName") - 1, // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_FIRST_NAME,
         "FirstName",             // name
         sizeof("FirstName") - 1, // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "Age",             // name
         sizeof("Age") - 1, // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_BIRTH_DATE,
         "BirthDate",             // name
         sizeof("BirthDate") - 1, // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *Person::lookupAttributeInfo(
+const bdlat_AttributeInfo *Person::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -2337,7 +2337,7 @@ const bdeat_AttributeInfo *Person::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Person::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Person::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_LAST_NAME:
@@ -2420,10 +2420,10 @@ int Person::fromAggregate(const bdlaggxxx::Aggregate& aggregate)
 
 void Person::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_lastName);
-    bdeat_ValueTypeFunctions::reset(&d_firstName);
-    bdeat_ValueTypeFunctions::reset(&d_age);
-    bdeat_ValueTypeFunctions::reset(&d_birthDate);
+    bdlat_ValueTypeFunctions::reset(&d_lastName);
+    bdlat_ValueTypeFunctions::reset(&d_firstName);
+    bdlat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_birthDate);
 }
 
 // ACCESSORS
@@ -2537,26 +2537,26 @@ int Person::toAggregate(bdlaggxxx::Aggregate *result) const
 const char Company::CLASS_NAME[] = "Company";
     // the name of this class
 
-const bdeat_AttributeInfo Company::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Company::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "Name",             // name
         sizeof("Name") - 1, // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ACCOUNT_NUM,
         "AccountNum",             // name
         sizeof("AccountNum") - 1, // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *Company::lookupAttributeInfo(
+const bdlat_AttributeInfo *Company::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -2590,7 +2590,7 @@ const bdeat_AttributeInfo *Company::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Company::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Company::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -2655,8 +2655,8 @@ int Company::fromAggregate(const bdlaggxxx::Aggregate& aggregate)
 
 void Company::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_accountNum);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_accountNum);
 }
 
 // ACCESSORS
@@ -2742,26 +2742,26 @@ int Company::toAggregate(bdlaggxxx::Aggregate *result) const
 const char Entity::CLASS_NAME[] = "Entity";
     // the name of this class
 
-const bdeat_SelectionInfo Entity::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo Entity::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_CORP,
         "Corp",               // name
         sizeof("Corp") - 1,   // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         SELECTION_ID_HUMAN,
         "Human",               // name
         sizeof("Human") - 1,   // name length
         "",  // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 
 // CLASS METHODS
 
-const bdeat_SelectionInfo *Entity::lookupSelectionInfo(
+const bdlat_SelectionInfo *Entity::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -2789,7 +2789,7 @@ const bdeat_SelectionInfo *Entity::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *Entity::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *Entity::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_CORP:
@@ -2911,7 +2911,7 @@ int Entity::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -2923,7 +2923,7 @@ int Entity::makeSelection(const char *name, int nameLength)
 Company& Entity::makeCorp()
 {
     if (SELECTION_ID_CORP == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_corp.object());
+        bdlat_ValueTypeFunctions::reset(&d_corp.object());
     }
     else {
         reset();
@@ -2954,7 +2954,7 @@ Company& Entity::makeCorp(const Company& value)
 Person& Entity::makeHuman()
 {
     if (SELECTION_ID_HUMAN == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_human.object());
+        bdlat_ValueTypeFunctions::reset(&d_human.object());
     }
     else {
         reset();
@@ -3085,7 +3085,7 @@ int Entity::toAggregate(bdlaggxxx::Aggregate *result) const
 
 const char Enumerated::CLASS_NAME[] = "Enumerated";
 
-const bdeat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
     {
         Enumerated::NA,
         "NA",
@@ -3383,14 +3383,14 @@ int loadEnumeration(bdlaggxxx::Aggregate *result)
     // Vector of Nullable elements
     bdlmxxx::RecordDef *base = schema_sp->createRecord(0);
     fa.reset(bdlmxxx::ElemType::BDEM_STRING); fa.setIsNullable(true);
-    fa.setFormattingMode(bdeat_FormattingMode::BDEAT_NILLABLE);
+    fa.setFormattingMode(bdlat_FormattingMode::e_NILLABLE);
     base->appendField(fa, enumDef);
     fa.reset(bdlmxxx::ElemType::BDEM_TABLE); fa.setIsNullable(false);
     rd->appendField(fa, base, "Enumerated7", 7);
 
     base = schema_sp->createRecord(0);
     fa.reset(bdlmxxx::ElemType::BDEM_INT); fa.setIsNullable(true);
-    fa.setFormattingMode(bdeat_FormattingMode::BDEAT_NILLABLE);
+    fa.setFormattingMode(bdlat_FormattingMode::e_NILLABLE);
     base->appendField(fa, enumDef);
     fa.reset(bdlmxxx::ElemType::BDEM_TABLE); fa.setIsNullable(false);
     rd->appendField(fa, base, "Enumerated8", 8);

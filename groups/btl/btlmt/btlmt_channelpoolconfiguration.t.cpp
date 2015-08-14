@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
         {
             btlmt::ChannelPoolConfiguration cpc;
             for (int i = 0; i <  NUM_NAMES; ++i) {
-                bdeat_AttributeInfo info
+                bdlat_AttributeInfo info
                      = btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[i];
 
                 LOOP_ASSERT(i, NAMES[i] == bsl::string(info.name(),
@@ -425,7 +425,7 @@ int main(int argc, char *argv[])
             btlmt::ChannelPoolConfiguration cpc;
             AssignValue<int> visitor(0);
             ASSERT(-1 ==
-                 bdeat_SequenceFunctions::manipulateAttribute(
+                 bdlat_SequenceFunctions::manipulateAttribute(
                                                     &cpc,
                                                     visitor,
                                                     NUM_ATTRIBUTES + 1));
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMaxConnections(MAXCONNECTIONS[i]));
                     AssignValue<int> visitor(MAXCONNECTIONS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMaxThreads(MAXNUMTHREADS[i]));
                     AssignValue<int> visitor(MAXNUMTHREADS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setReadTimeout(READTIMEOUT[i]));
                     AssignValue<double> visitor(READTIMEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMetricsInterval(METRICSINTERVAL[i]));
                     AssignValue<double> visitor(METRICSINTERVAL[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
                                                mA.maxOutgoingMessageSize()));
                     AssignValue<int> visitor(MINMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -491,7 +491,7 @@ int main(int argc, char *argv[])
                                                  mA.maxOutgoingMessageSize()));
                     AssignValue<int> visitor(TYPMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
                                                MAXMESSAGESIZEOUT[i]));
                     AssignValue<int> visitor(MAXMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
                                                mA.maxIncomingMessageSize()));
                     AssignValue<int> visitor(MINMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
                                                  mA.maxIncomingMessageSize()));
                     AssignValue<int> visitor(TYPMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
                                                MAXMESSAGESIZEIN[i]));
                     AssignValue<int> visitor(MAXMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
                                                   mA.writeCacheHiWatermark()));
                     AssignValue<int> visitor(i);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
                                                    MAXWRITECACHE[i]));
                     AssignValue<int> visitor(MAXWRITECACHE[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setThreadStackSize(THREADSTACKSIZE[i]));
                     AssignValue<int> visitor(THREADSTACKSIZE[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setCollectTimeMetrics(COLLECTMETRICS[i]));
                     AssignValue<bool> visitor(COLLECTMETRICS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -585,11 +585,11 @@ int main(int argc, char *argv[])
                     double value;
                     GetValue<double> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<double> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
@@ -597,11 +597,11 @@ int main(int argc, char *argv[])
                     bool value;
                     GetValue<bool> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<bool> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
@@ -609,11 +609,11 @@ int main(int argc, char *argv[])
                     int value;
                     GetValue<int> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<int> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }

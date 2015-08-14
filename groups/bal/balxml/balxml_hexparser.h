@@ -234,7 +234,7 @@ int HexParser<TYPE>::beginParse(TYPE *object)
     d_firstDigit = 0;
     d_object_p   = object;
 
-    bdeat_ValueTypeFunctions::reset(d_object_p);
+    bdlat_ValueTypeFunctions::reset(d_object_p);
 
     return BAEXML_SUCCESS;
 }

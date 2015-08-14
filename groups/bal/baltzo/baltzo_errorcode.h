@@ -90,7 +90,7 @@ struct ErrorCode {
         k_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-      , BAETZO_UNSUPPORTED_ID = k_UNSUPPORTED_ID
+      , e_UNSUPPORTED_ID = k_UNSUPPORTED_ID
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
     };

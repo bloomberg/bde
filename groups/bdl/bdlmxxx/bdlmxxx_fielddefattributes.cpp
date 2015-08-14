@@ -53,7 +53,7 @@ FieldDefAttributes::FieldDefAttributes(
                                               bslma::Allocator *basicAllocator)
 : d_elemType(ElemType::BDEM_VOID)
 , d_flags(DEFAULT_VALUE_IS_NULL_FLAG)
-, d_formattingMode(bdeat_FormattingMode::BDEAT_DEFAULT)
+, d_formattingMode(bdlat_FormattingMode::e_DEFAULT)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,
@@ -70,7 +70,7 @@ FieldDefAttributes::FieldDefAttributes(
                                            bslma::Allocator    *basicAllocator)
 : d_elemType(type)
 , d_flags(DEFAULT_VALUE_IS_NULL_FLAG)
-, d_formattingMode(bdeat_FormattingMode::BDEAT_DEFAULT)
+, d_formattingMode(bdlat_FormattingMode::e_DEFAULT)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,
@@ -89,7 +89,7 @@ FieldDefAttributes::FieldDefAttributes(
 : d_elemType(type)
 , d_flags((nullabilityFlag ? IS_NULLABLE_FLAG : 0) |
                                                     DEFAULT_VALUE_IS_NULL_FLAG)
-, d_formattingMode(bdeat_FormattingMode::BDEAT_DEFAULT)
+, d_formattingMode(bdlat_FormattingMode::e_DEFAULT)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     // Note that 'defaultValueDescriptor' converts from array type to scalar,

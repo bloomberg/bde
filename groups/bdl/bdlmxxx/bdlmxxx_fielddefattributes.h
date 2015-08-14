@@ -26,12 +26,12 @@ BSLS_IDENT("$Id: $")
 // field.  The 'elemType' defines the data type of the field.  The
 // 'isNullable' flag indicates whether values of the described field may be
 // null.  The formattingMode' is one of the enumerated mode values defined by
-// 'bdeat_FormattingMode' (e.g., 'BDEAT_DEC', 'BDEAT_HEX', 'BDEAT_BASE64,
+// 'bdlat_FormattingMode' (e.g., 'e_DEC', 'e_HEX', 'e_BASE64,
 // etc).  The 'formattingMode' can be used to determine how a
 // field's value should be written as text (e.g., if the value were being
 // serialized as XML).  A default constructed 'bdlmxxx::FieldDefAttributes' object
 // will have an element type 'BDEM_VOID', a formatting mode of
-// 'bdeat_FormattingMode::BDEAT_DEFAULT', and both an 'isNullable' and
+// 'bdlat_FormattingMode::e_DEFAULT', and both an 'isNullable' and
 // 'hasDefaultValue' of 'false'.  The 'elemType' of a field def attributes
 // object constrains the valid values for its 'defaultValue' to those of the
 // indicated type.   However, these two attributes can not be set
@@ -62,8 +62,8 @@ BSLS_IDENT("$Id: $")
 //  assert(false == intType.isNullable());
 //  assert(false == listType.isNullable());
 //
-//  assert(bdeat_FormattingMode::BDEAT_DEFAULT == intType.formattingMode());
-//  assert(bdeat_FormattingMode::BDEAT_DEFAULT == listType.formattingMode());
+//  assert(bdlat_FormattingMode::e_DEFAULT == intType.formattingMode());
+//  assert(bdlat_FormattingMode::e_DEFAULT == listType.formattingMode());
 //..
 // We assign the 'isNullable' and 'formattingMode' for the two field types.
 // Note that, depending on the context in which the field types are used,
@@ -72,11 +72,11 @@ BSLS_IDENT("$Id: $")
 //  intType.setIsNullable(true);
 //  listType.setIsNullable(true);
 //
-//  intType.setFormattingMode(bdeat_FormattingMode::BDEAT_HEX);
-//  listType.setFormattingMode(bdeat_FormattingMode::BDEAT_DEC);
+//  intType.setFormattingMode(bdlat_FormattingMode::e_HEX);
+//  listType.setFormattingMode(bdlat_FormattingMode::e_DEC);
 //
-//  assert(bdeat_FormattingMode::BDEAT_HEX == intType.formattingMode());
-//  assert(bdeat_FormattingMode::BDEAT_DEC == listType.formattingMode());
+//  assert(bdlat_FormattingMode::e_HEX == intType.formattingMode());
+//  assert(bdlat_FormattingMode::e_DEC == listType.formattingMode());
 //
 //  assert(true == intType.isNullable());
 //  assert(true == listType.isNullable());
@@ -192,7 +192,7 @@ class FieldDefAttributes {
     //  (4) an optional default value for fields that are of scalar or
     //      array type.
     //  (5) a formatting-mode, which is one of the modes enumerated in
-    //     'bdeat_FormattingMode', describing how the field should be
+    //     'bdlat_FormattingMode', describing how the field should be
     //      written to text.
     //..
     // More generally, this class supports a nearly complete set of *value*
@@ -280,7 +280,7 @@ class FieldDefAttributes {
         // specified, optionally specify a 'formattingMode', indicating how a
         // field described by these attributes should be written to text.  If
         // no 'formattingMode' is provided, 'formattingMode' will default to
-        // 'bdeat_FormattingMode::BDEAT_DEFAULT'.
+        // 'bdlat_FormattingMode::e_DEFAULT'.
 
     FieldDefAttributes(
                            const FieldDefAttributes&  original,
@@ -314,7 +314,7 @@ class FieldDefAttributes {
     void reset(ElemType::Type type,
                bool                nullabilityFlag = false,
                int                 formattingMode  =
-                                          bdeat_FormattingMode::BDEAT_DEFAULT);
+                                          bdlat_FormattingMode::e_DEFAULT);
         // Reset this field definition attributes to have the specified
         // 'type'.  Optionally specify a 'nullabilityFlag' indicating whether
         // a field described by these attributes may be null.  If
@@ -323,9 +323,9 @@ class FieldDefAttributes {
         // 'formattingMode' indicating how a field described by these
         // attributes should be written as text.  If 'formattingMode' is not
         // specified, 'formattingMode()' will default to
-        // 'bdeat_FormattingMode::BDEAT_DEFAULT'.  The behavior is undefined
+        // 'bdlat_FormattingMode::e_DEFAULT'.  The behavior is undefined
         // unless 'formattingMode' is one of the enumerated modes
-        // defined by 'bdeat_FormattingMode'.
+        // defined by 'bdlat_FormattingMode'.
 
     void setIsNullable(bool value);
         // Set the 'isNullable' attribute to the specified 'value'.  Note that
@@ -335,8 +335,8 @@ class FieldDefAttributes {
     void setFormattingMode(int value);
         // Set the formatting-mode of this object to the specified 'value'.
         // The behavior is undefined unless 'formattingMode' is a
-        // valid mode value defined by 'bdeat_FormattingMode' (e.g.,
-        // 'BDEAT_DEFAULT', 'BDEAT_DEC', 'BDEAT_HEX', etc).  Note that this
+        // valid mode value defined by 'bdlat_FormattingMode' (e.g.,
+        // 'e_DEFAULT', 'e_DEC', 'e_HEX', etc).  Note that this
         // value is used to determine how a field described by these
         // attributes should be written to text.
 
@@ -364,8 +364,8 @@ class FieldDefAttributes {
     int formattingMode() const;
         // Return the formatting-mode attribute of this object.  The returned
         // value will be one of the mode values defined by
-        // 'bdeat_FormattingMode' (e.g., 'BDEAT_DEFAULT', 'BDEAT_DEC',
-        // 'BDEAT_HEX').  Note that this value is used to determine how a
+        // 'bdlat_FormattingMode' (e.g., 'e_DEFAULT', 'e_DEC',
+        // 'e_HEX').  Note that this value is used to determine how a
         // field described by these attributes should be formatted in
         // text.
 

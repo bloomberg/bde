@@ -188,11 +188,11 @@ int BerDecoder_Node::logError(const char *msg)
 int BerDecoder_Node::decode(bsl::vector<char> *variable,
                             bdlat_TypeCategory::Array)
 {
-    switch(d_formattingMode & bdlat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdlat_FormattingMode::BDEAT_DEFAULT:
-      case bdlat_FormattingMode::BDEAT_BASE64:
-      case bdlat_FormattingMode::BDEAT_HEX:
-      case bdlat_FormattingMode::BDEAT_TEXT:
+    switch(d_formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_BASE64:
+      case bdlat_FormattingMode::e_HEX:
+      case bdlat_FormattingMode::e_TEXT:
         return this->readVectorChar(variable);                        // RETURN
 
       default:

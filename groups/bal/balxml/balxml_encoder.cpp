@@ -106,16 +106,16 @@ int Encoder_EncodeObject::executeImp(
                                       const bsl::vector<char>&  object,
                                       const bslstl::StringRef&    tag,
                                       int                       formattingMode,
-                                      bdeat_TypeCategory::Array)
+                                      bdlat_TypeCategory::Array)
 {
-    if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
+    if (formattingMode & bdlat_FormattingMode::e_LIST) {
         return executeArrayListImp(object, tag);                      // RETURN
     }
 
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_BASE64:
-      case bdeat_FormattingMode::BDEAT_TEXT:
-      case bdeat_FormattingMode::BDEAT_HEX: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_BASE64:
+      case bdlat_FormattingMode::e_TEXT:
+      case bdlat_FormattingMode::e_HEX: {
         d_context_p->openElement(tag);
 
         TypesPrintUtil::print(d_context_p->rawOutputStream(),

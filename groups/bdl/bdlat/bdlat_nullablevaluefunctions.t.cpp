@@ -184,7 +184,7 @@ int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object) const
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_NullableValueFunctions;
+namespace Obj = bdlat_NullableValueFunctions;
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -216,13 +216,13 @@ class PrintValue {
     {
         enum { SUCCESS = 0 };
 
-        if (bdeat_NullableValueFunctions::isNull(value)) {
+        if (bdlat_NullableValueFunctions::isNull(value)) {
             (*d_stream_p) << "NULL";
 
             return SUCCESS;                                           // RETURN
         }
 
-        return bdeat_NullableValueFunctions::accessValue(value, *this);
+        return bdlat_NullableValueFunctions::accessValue(value, *this);
     }
 
   public:
@@ -238,7 +238,7 @@ class PrintValue {
     {
         typedef typename
         bslmf::If<
-            bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+            bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
             IsNullableValueType,
             IsNotNullableValueType>::Type Toggle;
 
@@ -247,7 +247,7 @@ class PrintValue {
 };  // end 'class PrintValue'
 //..
 // The 'PrintValue' function class can be used for types that expose "nullable"
-// behavior through the 'bdeat_NullableValueFunctions' 'namespace' (e.g.,
+// behavior through the 'bdlat_NullableValueFunctions' 'namespace' (e.g.,
 // 'bdlb::NullableValue') and any other type that has 'operator<<' defined for
 // it.  For example:
 //..

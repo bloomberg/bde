@@ -144,7 +144,7 @@ void Encoder_Formatter::closeDocument()
 // PRIVATE MANIPULATORS
 int Encoder_EncodeImpl::encodeImp(const bsl::vector<char>& value,
                                          int,
-                                         bdeat_TypeCategory::Array)
+                                         bdlat_TypeCategory::Array)
 {
     bsl::string base64String;
     bdlde::Base64Encoder encoder(0);

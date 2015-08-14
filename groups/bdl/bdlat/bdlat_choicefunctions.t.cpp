@@ -31,7 +31,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 3] int lookupSelectionInfo(*info, object, *name, nameLength);
 // [ 3] int lookupSelectionInfo(*info, object, id);
-// [ 2] bdeat_SelectionInfo Obj::selectionInfo(const TYPE&, int);
+// [ 2] bdlat_SelectionInfo Obj::selectionInfo(const TYPE&, int);
 // [ 2] const char *Obj::className(const TYPE&);
 // [ 2] int Obj::numSelections(const TYPE&);
 //-----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_ChoiceFunctions;
+namespace Obj = bdlat_ChoiceFunctions;
 
 //=============================================================================
 //                           CLASSES FOR TESTING
@@ -131,12 +131,12 @@ class Figure {
     static const double DEFAULT_Y;
         // default value of 'Y' selection
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection info for each selection
 
   public:
     // TYPE TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Figure, bdeat_TypeTraitBasicChoice);
+    BSLALG_DECLARE_NESTED_TRAITS(Figure, bdlat_TypeTraitBasicChoice);
 
   private:
     double d_x; // X coordinate
@@ -144,11 +144,11 @@ class Figure {
 
   public:
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -248,7 +248,7 @@ class Figure {
 
 const char Figure::CLASS_NAME[] = "Figure";
 
-const bdeat_SelectionInfo Figure::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo Figure::SELECTION_INFO_ARRAY[] = {
     {SELECTION_ID_CIRCLE, "Circle", sizeof("Circle") -
 1, "Circle"},
     {SELECTION_ID_POLYGON, "Polygon", sizeof("Polygon"
@@ -259,7 +259,7 @@ const bdeat_SelectionInfo Figure::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *Figure::lookupSelectionInfo(
+const bdlat_SelectionInfo *Figure::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -279,7 +279,7 @@ const bdeat_SelectionInfo *Figure::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *Figure::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_CIRCLE:
@@ -337,17 +337,17 @@ struct MyChoice {
 };
 //..
 // We can now make 'MyChoice' expose "choice" behavior by implementing
-// 'bdeat_ChoiceFunctions' for 'MyChoice'.  First, we should forward declare
+// 'bdlat_ChoiceFunctions' for 'MyChoice'.  First, we should forward declare
 // all the functions that we will implement inside the 'mine' namespace:
 //..
     // MANIPULATORS
-    int bdeat_choiceMakeSelection(MyChoice *object, int selectionId);
+    int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
         // Set the value of the specified 'object' to be the default for the
         // selection indicated by the specified 'selectionId'.  Return 0 on
         // success, and non-zero value otherwise (i.e., the selection is not
         // found).
 
-    int bdeat_choiceMakeSelection(MyChoice   *object,
+    int bdlat_choiceMakeSelection(MyChoice   *object,
                                   const char *selectionName,
                                   int         selectionNameLength);
         // Set the value of the specified 'object' to be the default for the
@@ -356,7 +356,7 @@ struct MyChoice {
         // value otherwise (i.e., the selection is not found).
 
     template <class MANIPULATOR>
-    int bdeat_choiceManipulateSelection(MyChoice     *object,
+    int bdlat_choiceManipulateSelection(MyChoice     *object,
                                         MANIPULATOR&  manipulator);
         // Invoke the specified 'manipulator' on the address of the
         // (modifiable) selection of the specified 'object', supplying
@@ -366,7 +366,7 @@ struct MyChoice {
 
     // ACCESSORS
     template <class ACCESSOR>
-    int bdeat_choiceAccessSelection(const MyChoice& object,
+    int bdlat_choiceAccessSelection(const MyChoice& object,
                                     ACCESSOR&       accessor);
         // Invoke the specified 'accessor' on the (non-modifiable) selection of
         // the specified 'object', supplying 'accessor' with the corresponding
@@ -374,7 +374,7 @@ struct MyChoice {
         // undefined, and the value returned from the invocation of 'accessor'
         // otherwise.
 
-    int bdeat_choiceSelectionId(const MyChoice& object);
+    int bdlat_choiceSelectionId(const MyChoice& object);
         // Return the id of the current selection if the selection is defined,
         // and 0 otherwise.
 
@@ -384,7 +384,7 @@ struct MyChoice {
 //..
 // MANIPULATORS
 
-int mine::bdeat_choiceMakeSelection(MyChoice *object,
+int mine::bdlat_choiceMakeSelection(MyChoice *object,
                                     int       selectionId)
 {
     enum { SUCCESS = 0, NOT_FOUND = -1 };
@@ -419,7 +419,7 @@ int mine::bdeat_choiceMakeSelection(MyChoice *object,
     }
 }
 
-int mine::bdeat_choiceMakeSelection(MyChoice   *object,
+int mine::bdlat_choiceMakeSelection(MyChoice   *object,
                                     const char *selectionName,
                                     int         selectionNameLength)
 {
@@ -428,21 +428,21 @@ int mine::bdeat_choiceMakeSelection(MyChoice   *object,
     if (bdlb::String::areEqualCaseless("charValue",
                                       selectionName,
                                       selectionNameLength)) {
-        return bdeat_choiceMakeSelection(object, MyChoice::CHAR_SELECTION_ID);
+        return bdlat_choiceMakeSelection(object, MyChoice::CHAR_SELECTION_ID);
                                                                       // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("intValue",
                                       selectionName,
                                       selectionNameLength)) {
-        return bdeat_choiceMakeSelection(object, MyChoice::INT_SELECTION_ID);
+        return bdlat_choiceMakeSelection(object, MyChoice::INT_SELECTION_ID);
                                                                       // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("floatValue",
                                       selectionName,
                                       selectionNameLength)) {
-        return bdeat_choiceMakeSelection(object, MyChoice::FLOAT_SELECTION_ID);
+        return bdlat_choiceMakeSelection(object, MyChoice::FLOAT_SELECTION_ID);
                                                                       // RETURN
     }
 
@@ -450,21 +450,21 @@ int mine::bdeat_choiceMakeSelection(MyChoice   *object,
 }
 //..
 // For the 'manipulateSelection' and 'accessSelection' functions, we need to
-// create a temporary 'bdeat_SelectionInfo' object and pass it along when
+// create a temporary 'bdlat_SelectionInfo' object and pass it along when
 // invoking the manipulator or accessor.  See the 'bdlat_selectioninfo'
 // component-level documentation for more information.  The implementation of
 // the remaining functions are as follows:
 //..
 template <class MANIPULATOR>
-int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
+int mine::bdlat_choiceManipulateSelection(MyChoice     *object,
                                           MANIPULATOR&  manipulator)
 {
     switch (object->d_selectionId) {
       case MyChoice::CHAR_SELECTION_ID: {
-        bdeat_SelectionInfo info;
+        bdlat_SelectionInfo info;
 
         info.annotation()     = "Char Selection";
-        info.formattingMode() = bdeat_FormattingMode::BDEAT_DEFAULT;
+        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
         info.id()             = MyChoice::CHAR_SELECTION_ID;
         info.name()           = "charValue";
         info.nameLength()     = 9;
@@ -472,10 +472,10 @@ int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
         return manipulator(&object->d_charValue, info);               // RETURN
       }
       case MyChoice::INT_SELECTION_ID: {
-        bdeat_SelectionInfo info;
+        bdlat_SelectionInfo info;
 
         info.annotation()     = "Int Selection";
-        info.formattingMode() = bdeat_FormattingMode::BDEAT_DEFAULT;
+        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
         info.id()             = MyChoice::INT_SELECTION_ID;
         info.name()           = "intValue";
         info.nameLength()     = 8;
@@ -483,10 +483,10 @@ int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
         return manipulator(&object->d_intValue, info);                // RETURN
       }
       case MyChoice::FLOAT_SELECTION_ID: {
-        bdeat_SelectionInfo info;
+        bdlat_SelectionInfo info;
 
         info.annotation()     = "Float Selection";
-        info.formattingMode() = bdeat_FormattingMode::BDEAT_DEFAULT;
+        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
         info.id()             = MyChoice::FLOAT_SELECTION_ID;
         info.name()           = "floatValue";
         info.nameLength()     = 10;
@@ -502,15 +502,15 @@ int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
 // ACCESSORS
 
 template <class ACCESSOR>
-int mine::bdeat_choiceAccessSelection(const MyChoice& object,
+int mine::bdlat_choiceAccessSelection(const MyChoice& object,
                                       ACCESSOR&       accessor)
 {
     switch (object.d_selectionId) {
       case MyChoice::CHAR_SELECTION_ID: {
-        bdeat_SelectionInfo info;
+        bdlat_SelectionInfo info;
 
         info.annotation()     = "Char Selection";
-        info.formattingMode() = bdeat_FormattingMode::BDEAT_DEFAULT;
+        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
         info.id()             = MyChoice::CHAR_SELECTION_ID;
         info.name()           = "charValue";
         info.nameLength()     = 9;
@@ -518,10 +518,10 @@ int mine::bdeat_choiceAccessSelection(const MyChoice& object,
         return accessor(object.d_charValue, info);                    // RETURN
       }
       case MyChoice::INT_SELECTION_ID: {
-        bdeat_SelectionInfo info;
+        bdlat_SelectionInfo info;
 
         info.annotation()     = "Int Selection";
-        info.formattingMode() = bdeat_FormattingMode::BDEAT_DEFAULT;
+        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
         info.id()             = MyChoice::INT_SELECTION_ID;
         info.name()           = "intValue";
         info.nameLength()     = 8;
@@ -529,10 +529,10 @@ int mine::bdeat_choiceAccessSelection(const MyChoice& object,
         return accessor(object.d_intValue, info);                     // RETURN
       }
       case MyChoice::FLOAT_SELECTION_ID: {
-        bdeat_SelectionInfo info;
+        bdlat_SelectionInfo info;
 
         info.annotation()     = "Float Selection";
-        info.formattingMode() = bdeat_FormattingMode::BDEAT_DEFAULT;
+        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
         info.id()             = MyChoice::FLOAT_SELECTION_ID;
         info.name()           = "floatValue";
         info.nameLength()     = 10;
@@ -546,17 +546,17 @@ int mine::bdeat_choiceAccessSelection(const MyChoice& object,
 }
 
 inline
-int mine::bdeat_choiceSelectionId(const MyChoice& object)
+int mine::bdlat_choiceSelectionId(const MyChoice& object)
 {
     return object.d_selectionId;
 }
 //..
 // Finally, we need to specialize the 'IsChoice' meta-function in the
-// 'bdeat_ChoiceFunctions' namespace for the 'mine::MyChoice' type.  This
+// 'bdlat_ChoiceFunctions' namespace for the 'mine::MyChoice' type.  This
 // makes the 'bdeat' infrastructure recognize 'mine::MyChoice' as a choice
 // abstraction:
 //..
-namespace bdeat_ChoiceFunctions {
+namespace bdlat_ChoiceFunctions {
 
     template <>
     struct IsChoice<mine::MyChoice> {
@@ -628,7 +628,7 @@ void printChoiceSelection(bsl::ostream& stream, const TYPE& object)
     PrintSelection accessor;
     accessor.d_stream_p = &stream;
 
-    bdeat_choiceAccessSelection(object, accessor);
+    bdlat_choiceAccessSelection(object, accessor);
 }
 //..
 // Now we have a generic function that takes an output stream and a choice
@@ -733,31 +733,31 @@ int main(int argc, char *argv[])
         int        dummySelectionNameLength = 5;
         int        dummyVisitor             = 0;
 
-        BSLMF_ASSERT(bdeat_IsBasicChoice<geom::Figure>::value);
+        BSLMF_ASSERT(bdlat_IsBasicChoice<geom::Figure>::value);
 
         globalFlag = 0;
-        ASSERT(1 == bdeat_ChoiceFunctions::makeSelection(&mF,
+        ASSERT(1 == bdlat_ChoiceFunctions::makeSelection(&mF,
                                                          dummySelectionId));
         ASSERT(1 == globalFlag);
 
         globalFlag = 0;
-        ASSERT(2 == bdeat_ChoiceFunctions::makeSelection(
+        ASSERT(2 == bdlat_ChoiceFunctions::makeSelection(
                                                     &mF,
                                                     dummySelectionName,
                                                     dummySelectionNameLength));
         ASSERT(2 == globalFlag);
 
         globalFlag = 0;
-        ASSERT(3 == bdeat_ChoiceFunctions::manipulateSelection(&mF,
+        ASSERT(3 == bdlat_ChoiceFunctions::manipulateSelection(&mF,
                                                                dummyVisitor));
         ASSERT(3 == globalFlag);
 
         globalFlag = 0;
-        ASSERT(4 == bdeat_ChoiceFunctions::accessSelection(F, dummyVisitor));
+        ASSERT(4 == bdlat_ChoiceFunctions::accessSelection(F, dummyVisitor));
         ASSERT(4 == globalFlag);
 
         globalFlag = 0;
-        ASSERT(5 == bdeat_ChoiceFunctions::selectionId(F));
+        ASSERT(5 == bdlat_ChoiceFunctions::selectionId(F));
         ASSERT(5 == globalFlag);
 
       } break;

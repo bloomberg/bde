@@ -110,7 +110,9 @@ Reader::dumpNode(bsl::ostream & os) const
            << bsl::endl;
     }
 }
+
 }  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

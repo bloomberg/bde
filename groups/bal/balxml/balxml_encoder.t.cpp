@@ -517,16 +517,16 @@ class MySequence {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequence")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -710,8 +710,8 @@ MySequence::operator=(const MySequence& rhs)
 inline
 void MySequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -765,7 +765,7 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -838,7 +838,7 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -916,20 +916,20 @@ namespace test {
 const char MySequence::CLASS_NAME[] = "MySequence";
     // the name of this class
 
-const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -937,7 +937,7 @@ const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -970,7 +970,7 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -1144,16 +1144,16 @@ class MySequenceWithNullables {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithNullables")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1354,9 +1354,9 @@ MySequenceWithNullables::operator=(const MySequenceWithNullables& rhs)
 inline
 void MySequenceWithNullables::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute3);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute3);
 }
 
 template <class MANIPULATOR>
@@ -1422,7 +1422,7 @@ int MySequenceWithNullables::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1512,7 +1512,7 @@ int MySequenceWithNullables::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1602,27 +1602,27 @@ namespace test {
 const char MySequenceWithNullables::CLASS_NAME[] = "MySequenceWithNullables";
     // the name of this class
 
-const bdeat_AttributeInfo MySequenceWithNullables::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequenceWithNullables::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE3,
         "Attribute3",                     // name
         sizeof("Attribute3") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 
@@ -1630,7 +1630,7 @@ const bdeat_AttributeInfo MySequenceWithNullables::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -1668,7 +1668,7 @@ const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -1863,16 +1863,16 @@ class MyChoice {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyChoice")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -2033,7 +2033,7 @@ inline
 void MyChoice::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -2059,7 +2059,7 @@ inline
 void MyChoice::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -2165,7 +2165,7 @@ int MyChoice::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -2323,20 +2323,20 @@ namespace test {
 const char MyChoice::CLASS_NAME[] = "MyChoice";
     // the name of this class
 
-const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",                         // name
         sizeof("Selection1") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",                         // name
         sizeof("Selection2") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -2344,7 +2344,7 @@ const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -2377,7 +2377,7 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -2577,16 +2577,16 @@ class MySequenceWithArrays {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithArrays")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -2832,13 +2832,13 @@ MySequenceWithArrays::operator=(const MySequenceWithArrays& rhs)
 inline
 void MySequenceWithArrays::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute3);
-    bdeat_ValueTypeFunctions::reset(&d_attribute4);
-    bdeat_ValueTypeFunctions::reset(&d_attribute5);
-    bdeat_ValueTypeFunctions::reset(&d_attribute6);
-    bdeat_ValueTypeFunctions::reset(&d_attribute7);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute3);
+    bdlat_ValueTypeFunctions::reset(&d_attribute4);
+    bdlat_ValueTypeFunctions::reset(&d_attribute5);
+    bdlat_ValueTypeFunctions::reset(&d_attribute6);
+    bdlat_ValueTypeFunctions::reset(&d_attribute7);
 }
 
 template <class MANIPULATOR>
@@ -2947,7 +2947,7 @@ int MySequenceWithArrays::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3105,7 +3105,7 @@ int MySequenceWithArrays::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3224,55 +3224,55 @@ namespace test {
 const char MySequenceWithArrays::CLASS_NAME[] = "MySequenceWithArrays";
     // the name of this class
 
-const bdeat_AttributeInfo MySequenceWithArrays::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequenceWithArrays::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_BASE64 // formatting mode
+        bdlat_FormattingMode::e_BASE64 // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE3,
         "Attribute3",                     // name
         sizeof("Attribute3") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_HEX // formatting mode
+        bdlat_FormattingMode::e_HEX // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE4,
         "Attribute4",                     // name
         sizeof("Attribute4") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE5,
         "Attribute5",                     // name
         sizeof("Attribute5") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE6,
         "Attribute6",                     // name
         sizeof("Attribute6") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_LIST // formatting mode
+        bdlat_FormattingMode::e_LIST // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE7,
         "Attribute7",                     // name
         sizeof("Attribute7") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_LIST // formatting mode
+        bdlat_FormattingMode::e_LIST // formatting mode
     }
 };
 
@@ -3280,7 +3280,7 @@ const bdeat_AttributeInfo MySequenceWithArrays::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequenceWithArrays::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithArrays::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -3338,7 +3338,7 @@ const bdeat_AttributeInfo *MySequenceWithArrays::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequenceWithArrays::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequenceWithArrays::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -3579,16 +3579,16 @@ class MySequenceWithAnonymousChoiceChoice {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithAnonymousChoiceChoice")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -3758,7 +3758,7 @@ inline
 void MySequenceWithAnonymousChoiceChoice::makeMyChoice1()
 {
     if (SELECTION_ID_MY_CHOICE1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_myChoice1.object());
+        bdlat_ValueTypeFunctions::reset(&d_myChoice1.object());
     }
     else {
         reset();
@@ -3784,7 +3784,7 @@ inline
 void MySequenceWithAnonymousChoiceChoice::makeMyChoice2()
 {
     if (SELECTION_ID_MY_CHOICE2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_myChoice2.object());
+        bdlat_ValueTypeFunctions::reset(&d_myChoice2.object());
     }
     else {
         reset();
@@ -3895,7 +3895,7 @@ int MySequenceWithAnonymousChoiceChoice::makeSelection(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -4063,21 +4063,21 @@ const char MySequenceWithAnonymousChoiceChoice::CLASS_NAME[]
                 = "MySequenceWithAnonymousChoiceChoice";
     // the name of this class
 
-const bdeat_SelectionInfo
+const bdlat_SelectionInfo
                 MySequenceWithAnonymousChoiceChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_MY_CHOICE1,
         "MyChoice1",                         // name
         sizeof("MyChoice1") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_MY_CHOICE2,
         "MyChoice2",                         // name
         sizeof("MyChoice2") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -4085,7 +4085,7 @@ const bdeat_SelectionInfo
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *
+const bdlat_SelectionInfo *
 MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(
         const char *name,
         int         nameLength)
@@ -4118,7 +4118,7 @@ MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *
+const bdlat_SelectionInfo *
 MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
@@ -4298,16 +4298,16 @@ class MySequenceWithAnonymousChoice {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithAnonymousChoice")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -4510,9 +4510,9 @@ MySequenceWithAnonymousChoice::operator=(
 inline
 void MySequenceWithAnonymousChoice::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_theChoice);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_theChoice);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -4581,7 +4581,7 @@ int MySequenceWithAnonymousChoice::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4672,7 +4672,7 @@ int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4762,29 +4762,29 @@ const char MySequenceWithAnonymousChoice::CLASS_NAME[]
                 = "MySequenceWithAnonymousChoice";
     // the name of this class
 
-const bdeat_AttributeInfo
+const bdlat_AttributeInfo
                       MySequenceWithAnonymousChoice::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_THE_CHOICE,
         "theChoice",                     // name
         sizeof("theChoice") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
-      | bdeat_FormattingMode::BDEAT_UNTAGGED
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
+      | bdlat_FormattingMode::e_UNTAGGED
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -4792,7 +4792,7 @@ const bdeat_AttributeInfo
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -4839,7 +4839,7 @@ const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *
+const bdlat_AttributeInfo *
 MySequenceWithAnonymousChoice::lookupAttributeInfo(int id)
 {
     switch (id) {
@@ -5029,16 +5029,16 @@ class MySequenceWithAttributes {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithAttributes")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -5249,10 +5249,10 @@ MySequenceWithAttributes::operator=(const MySequenceWithAttributes& rhs)
 inline
 void MySequenceWithAttributes::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_element1);
-    bdeat_ValueTypeFunctions::reset(&d_element2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_element1);
+    bdlat_ValueTypeFunctions::reset(&d_element2);
 }
 
 template <class MANIPULATOR>
@@ -5329,7 +5329,7 @@ int MySequenceWithAttributes::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5436,7 +5436,7 @@ int MySequenceWithAttributes::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5533,36 +5533,36 @@ namespace test {
 const char MySequenceWithAttributes::CLASS_NAME[] = "MySequenceWithAttributes";
     // the name of this class
 
-const bdeat_AttributeInfo MySequenceWithAttributes::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequenceWithAttributes::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
-      | bdeat_FormattingMode::BDEAT_ATTRIBUTE
+        bdlat_FormattingMode::e_DEC // formatting mode
+      | bdlat_FormattingMode::e_ATTRIBUTE
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
-      | bdeat_FormattingMode::BDEAT_ATTRIBUTE
+        bdlat_FormattingMode::e_TEXT // formatting mode
+      | bdlat_FormattingMode::e_ATTRIBUTE
     },
     {
         ATTRIBUTE_ID_ELEMENT1,
         "Element1",                     // name
         sizeof("Element1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ELEMENT2,
         "Element2",                     // name
         sizeof("Element2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -5570,7 +5570,7 @@ const bdeat_AttributeInfo MySequenceWithAttributes::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -5623,7 +5623,7 @@ const bdeat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *
+const bdlat_AttributeInfo *
 MySequenceWithAttributes::lookupAttributeInfo(int id)
 {
     switch (id) {
@@ -5820,16 +5820,16 @@ class MySimpleContent {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySimpleContent")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -6027,9 +6027,9 @@ MySimpleContent::operator=(const MySimpleContent& rhs)
 inline
 void MySimpleContent::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_theContent);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_theContent);
 }
 
 template <class MANIPULATOR>
@@ -6094,7 +6094,7 @@ int MySimpleContent::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6184,7 +6184,7 @@ int MySimpleContent::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6272,30 +6272,30 @@ namespace test {
 const char MySimpleContent::CLASS_NAME[] = "MySimpleContent";
     // the name of this class
 
-const bdeat_AttributeInfo MySimpleContent::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySimpleContent::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
-      | bdeat_FormattingMode::BDEAT_ATTRIBUTE
+        bdlat_FormattingMode::e_TEXT // formatting mode
+      | bdlat_FormattingMode::e_ATTRIBUTE
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
-      | bdeat_FormattingMode::BDEAT_ATTRIBUTE
+        bdlat_FormattingMode::e_TEXT // formatting mode
+      | bdlat_FormattingMode::e_ATTRIBUTE
     },
     {
         ATTRIBUTE_ID_THE_CONTENT,
         "TheContent",                     // name
         sizeof("TheContent") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
-      | bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT
+        bdlat_FormattingMode::e_TEXT // formatting mode
+      | bdlat_FormattingMode::e_SIMPLE_CONTENT
     }
 };
 
@@ -6303,7 +6303,7 @@ const bdeat_AttributeInfo MySimpleContent::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySimpleContent::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySimpleContent::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -6354,7 +6354,7 @@ const bdeat_AttributeInfo *MySimpleContent::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySimpleContent::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySimpleContent::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -6538,16 +6538,16 @@ class MySimpleIntContent {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySimpleIntContent")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -6745,9 +6745,9 @@ MySimpleIntContent::operator=(const MySimpleIntContent& rhs)
 inline
 void MySimpleIntContent::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_theContent);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_theContent);
 }
 
 template <class MANIPULATOR>
@@ -6812,7 +6812,7 @@ int MySimpleIntContent::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6902,7 +6902,7 @@ int MySimpleIntContent::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6990,30 +6990,30 @@ namespace test {
 const char MySimpleIntContent::CLASS_NAME[] = "MySimpleIntContent";
     // the name of this class
 
-const bdeat_AttributeInfo MySimpleIntContent::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySimpleIntContent::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
-      | bdeat_FormattingMode::BDEAT_ATTRIBUTE
+        bdlat_FormattingMode::e_TEXT // formatting mode
+      | bdlat_FormattingMode::e_ATTRIBUTE
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
-      | bdeat_FormattingMode::BDEAT_ATTRIBUTE
+        bdlat_FormattingMode::e_TEXT // formatting mode
+      | bdlat_FormattingMode::e_ATTRIBUTE
     },
     {
         ATTRIBUTE_ID_THE_CONTENT,
         "TheContent",                     // name
         sizeof("TheContent") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
-      | bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT
+        bdlat_FormattingMode::e_DEC // formatting mode
+      | bdlat_FormattingMode::e_SIMPLE_CONTENT
     }
 };
 
@@ -7021,7 +7021,7 @@ const bdeat_AttributeInfo MySimpleIntContent::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -7072,7 +7072,7 @@ const bdeat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -7256,16 +7256,16 @@ class MySequenceWithNillables {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequenceWithNillables")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -7466,9 +7466,9 @@ MySequenceWithNillables::operator=(const MySequenceWithNillables& rhs)
 inline
 void MySequenceWithNillables::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute3);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute3);
 }
 
 template <class MANIPULATOR>
@@ -7534,7 +7534,7 @@ int MySequenceWithNillables::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -7624,7 +7624,7 @@ int MySequenceWithNillables::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -7714,30 +7714,30 @@ namespace test {
 const char MySequenceWithNillables::CLASS_NAME[] = "MySequenceWithNillables";
     // the name of this class
 
-const bdeat_AttributeInfo MySequenceWithNillables::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequenceWithNillables::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
-      | bdeat_FormattingMode::BDEAT_NILLABLE
+        bdlat_FormattingMode::e_DEC // formatting mode
+      | bdlat_FormattingMode::e_NILLABLE
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
-      | bdeat_FormattingMode::BDEAT_NILLABLE
+        bdlat_FormattingMode::e_TEXT // formatting mode
+      | bdlat_FormattingMode::e_NILLABLE
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE3,
         "Attribute3",                     // name
         sizeof("Attribute3") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
-      | bdeat_FormattingMode::BDEAT_NILLABLE
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
+      | bdlat_FormattingMode::e_NILLABLE
     }
 };
 
@@ -7745,7 +7745,7 @@ const bdeat_AttributeInfo MySequenceWithNillables::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -7783,7 +7783,7 @@ const bdeat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -7963,16 +7963,16 @@ class Address {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Address")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -8165,9 +8165,9 @@ Address::operator=(const Address& rhs)
 inline
 void Address::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_street);
-    bdeat_ValueTypeFunctions::reset(&d_city);
-    bdeat_ValueTypeFunctions::reset(&d_state);
+    bdlat_ValueTypeFunctions::reset(&d_street);
+    bdlat_ValueTypeFunctions::reset(&d_city);
+    bdlat_ValueTypeFunctions::reset(&d_state);
 }
 
 template <class MANIPULATOR>
@@ -8232,7 +8232,7 @@ int Address::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -8317,7 +8317,7 @@ int Address::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -8401,27 +8401,27 @@ namespace test {
 const char Address::CLASS_NAME[] = "Address";
     // the name of this class
 
-const bdeat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_STREET,
         "street",                     // name
         sizeof("street") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_CITY,
         "city",                     // name
         sizeof("city") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_STATE,
         "state",                     // name
         sizeof("state") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -8429,7 +8429,7 @@ const bdeat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *Address::lookupAttributeInfo(
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -8465,7 +8465,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Address::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_STREET:
@@ -8645,16 +8645,16 @@ class Employee {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Employee")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -8847,9 +8847,9 @@ Employee::operator=(const Employee& rhs)
 inline
 void Employee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_homeAddress);
-    bdeat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_homeAddress);
+    bdlat_ValueTypeFunctions::reset(&d_age);
 }
 
 template <class MANIPULATOR>
@@ -8912,7 +8912,7 @@ int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -8998,7 +8998,7 @@ int Employee::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -9082,27 +9082,27 @@ namespace test {
 const char Employee::CLASS_NAME[] = "Employee";
     // the name of this class
 
-const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "name",                     // name
         sizeof("name") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",                     // name
         sizeof("homeAddress") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "age",                     // name
         sizeof("age") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
@@ -9110,7 +9110,7 @@ const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -9150,7 +9150,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -11338,12 +11338,12 @@ int main(int argc, char *argv[])
                           << endl;
         {
             enum FormattingMode {
-                DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT,
-                BASE64  = bdeat_FormattingMode::BDEAT_BASE64,
-                HEX     = bdeat_FormattingMode::BDEAT_HEX,
-                DEC     = bdeat_FormattingMode::BDEAT_DEC,
-                TEXT    = bdeat_FormattingMode::BDEAT_TEXT,
-                IS_LIST = bdeat_FormattingMode::BDEAT_LIST,
+                DEFAULT = bdlat_FormattingMode::e_DEFAULT,
+                BASE64  = bdlat_FormattingMode::e_BASE64,
+                HEX     = bdlat_FormattingMode::e_HEX,
+                DEC     = bdlat_FormattingMode::e_DEC,
+                TEXT    = bdlat_FormattingMode::e_TEXT,
+                IS_LIST = bdlat_FormattingMode::e_LIST,
                 LIST_OR_DEC = IS_LIST | DEC
             };
 
@@ -11419,12 +11419,12 @@ int main(int argc, char *argv[])
                           << endl;
         {
             enum FormattingMode {
-                DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT,
-                BASE64  = bdeat_FormattingMode::BDEAT_BASE64,
-                HEX     = bdeat_FormattingMode::BDEAT_HEX,
-                DEC     = bdeat_FormattingMode::BDEAT_DEC,
-                TEXT    = bdeat_FormattingMode::BDEAT_TEXT,
-                IS_LIST = bdeat_FormattingMode::BDEAT_LIST,
+                DEFAULT = bdlat_FormattingMode::e_DEFAULT,
+                BASE64  = bdlat_FormattingMode::e_BASE64,
+                HEX     = bdlat_FormattingMode::e_HEX,
+                DEC     = bdlat_FormattingMode::e_DEC,
+                TEXT    = bdlat_FormattingMode::e_TEXT,
+                IS_LIST = bdlat_FormattingMode::e_LIST,
                 LIST_OR_DEC = IS_LIST | DEC
             };
 

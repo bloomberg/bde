@@ -109,11 +109,11 @@ void aSsErT(bool condition, const char *message, int line)
 //..
     int usageExample1() {
 
-        static const int DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT;
-        static const int DEC     = bdeat_FormattingMode::BDEAT_DEC;
-//      static const int HEX     = bdeat_FormattingMode::BDEAT_HEX;
-//      static const int BASE64  = bdeat_FormattingMode::BDEAT_BASE64;
-        static const int TEXT    = bdeat_FormattingMode::BDEAT_TEXT;
+        static const int DEFAULT = bdlat_FormattingMode::e_DEFAULT;
+        static const int DEC     = bdlat_FormattingMode::e_DEC;
+//      static const int HEX     = bdlat_FormattingMode::e_HEX;
+//      static const int BASE64  = bdlat_FormattingMode::e_BASE64;
+        static const int TEXT    = bdlat_FormattingMode::e_TEXT;
 
         short                    theShort;
         unsigned                 theUint;
@@ -129,36 +129,36 @@ void aSsErT(bool condition, const char *message, int line)
 // None of these types are generated types with metadata, so 'className' will
 // return a null pointer for each of them:
 //..
-        ASSERT(0 == bdeat_TypeName::className(theShort));
-        ASSERT(0 == bdeat_TypeName::className(theUint));
-        ASSERT(0 == bdeat_TypeName::className(theFloat));
-        ASSERT(0 == bdeat_TypeName::className(theCharPtr));
-        ASSERT(0 == bdeat_TypeName::className(theString));
+        ASSERT(0 == bdlat_TypeName::className(theShort));
+        ASSERT(0 == bdlat_TypeName::className(theUint));
+        ASSERT(0 == bdlat_TypeName::className(theFloat));
+        ASSERT(0 == bdlat_TypeName::className(theCharPtr));
+        ASSERT(0 == bdlat_TypeName::className(theString));
 
-        ASSERT(0 == bdeat_TypeName::className(theDate));
-        ASSERT(0 == bdeat_TypeName::className(theDatetime));
-        ASSERT(0 == bdeat_TypeName::className(theCharVector));
-        ASSERT(0 == bdeat_TypeName::className(theStrVector));
+        ASSERT(0 == bdlat_TypeName::className(theDate));
+        ASSERT(0 == bdlat_TypeName::className(theDatetime));
+        ASSERT(0 == bdlat_TypeName::className(theCharVector));
+        ASSERT(0 == bdlat_TypeName::className(theStrVector));
 //..
 // The 'name' function will never return a null pointer.  For each of the
 // fundamental and vocabulary types, it returns the known type name.  For
 // vector types, it returns the appropriate "vector<X>" string:
 //..
-        ASSERT(0 == bsl::strcmp("short", bdeat_TypeName::name(theShort)));
+        ASSERT(0 == bsl::strcmp("short", bdlat_TypeName::name(theShort)));
         ASSERT(0 == bsl::strcmp("unsigned int",
-                                bdeat_TypeName::name(theUint)));
-        ASSERT(0 == bsl::strcmp("float", bdeat_TypeName::name(theFloat)));
+                                bdlat_TypeName::name(theUint)));
+        ASSERT(0 == bsl::strcmp("float", bdlat_TypeName::name(theFloat)));
         ASSERT(0 == bsl::strcmp("const char*",
-                                bdeat_TypeName::name(theCharPtr)));
+                                bdlat_TypeName::name(theCharPtr)));
 
-        ASSERT(0 == bsl::strcmp("string", bdeat_TypeName::name(theString)));
-        ASSERT(0 == bsl::strcmp("bdlt::Date", bdeat_TypeName::name(theDate)));
+        ASSERT(0 == bsl::strcmp("string", bdlat_TypeName::name(theString)));
+        ASSERT(0 == bsl::strcmp("bdlt::Date", bdlat_TypeName::name(theDate)));
         ASSERT(0 == bsl::strcmp("bdlt::DatetimeTz",
-                                bdeat_TypeName::name(theDatetime)));
+                                bdlat_TypeName::name(theDatetime)));
         ASSERT(0 == bsl::strcmp("vector<char>",
-                                bdeat_TypeName::name(theCharVector)));
+                                bdlat_TypeName::name(theCharVector)));
         ASSERT(0 == bsl::strcmp("vector<string>",
-                                bdeat_TypeName::name(theStrVector)));
+                                bdlat_TypeName::name(theStrVector)));
 //..
 // Each of the above types except 'vector<string>' has one or more
 // corresponding XSD types.  The XSD type is affected by a formatting mode so
@@ -167,23 +167,23 @@ void aSsErT(bool condition, const char *message, int line)
 // 'HEX' or 'BASE64').
 //..
         ASSERT(0 == bsl::strcmp("short",
-                                bdeat_TypeName::xsdName(theShort, DEFAULT)));
+                                bdlat_TypeName::xsdName(theShort, DEFAULT)));
         ASSERT(0 == bsl::strcmp("unsignedInt",
-                                bdeat_TypeName::xsdName(theUint, DEFAULT)));
+                                bdlat_TypeName::xsdName(theUint, DEFAULT)));
         ASSERT(0 == bsl::strcmp("float",
-                                bdeat_TypeName::xsdName(theFloat, DEFAULT)));
+                                bdlat_TypeName::xsdName(theFloat, DEFAULT)));
         ASSERT(0 == bsl::strcmp("decimal",
-                                bdeat_TypeName::xsdName(theFloat, DEC)));
+                                bdlat_TypeName::xsdName(theFloat, DEC)));
         ASSERT(0 == bsl::strcmp("base64Binary",
-                             bdeat_TypeName::xsdName(theCharVector, DEFAULT)));
+                             bdlat_TypeName::xsdName(theCharVector, DEFAULT)));
         ASSERT(0 == bsl::strcmp("string",
-                                bdeat_TypeName::xsdName(theCharVector, TEXT)));
+                                bdlat_TypeName::xsdName(theCharVector, TEXT)));
 //..
 // For types that have not corresponding XSD type, 'xsdName' returns
 // "anyType", regardless of formatting mode:
 //..
         ASSERT(0 == bsl::strcmp("anyType",
-                              bdeat_TypeName::xsdName(theStrVector, DEFAULT)));
+                              bdlat_TypeName::xsdName(theStrVector, DEFAULT)));
 
         return 0;
     }
@@ -197,30 +197,30 @@ void aSsErT(bool condition, const char *message, int line)
         };
 //..
 // Then we can assign it a printable name by overloading the
-// 'bdeat_TypeName_className' function in the class's namespace:
+// 'bdlat_TypeName_className' function in the class's namespace:
 //..
-        const char *bdeat_TypeName_className(const MyClass&) {
+        const char *bdlat_TypeName_className(const MyClass&) {
             return "MyClass";
         }
 
     }  // close namespace MyNamespace
 //..
-// Note that 'bdeat_TypeName_className' must return a string that is
+// Note that 'bdlat_TypeName_className' must return a string that is
 // valid and does not change for remaining duration the program.  The
-// overloaded 'bdeat_TypeName_className' function is automatically used for
+// overloaded 'bdlat_TypeName_className' function is automatically used for
 // 'name' and 'xsdName', as well as for 'className':
 //..
     int usageExample2()
     {
-        static const int DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT;
+        static const int DEFAULT = bdlat_FormattingMode::e_DEFAULT;
 
         MyNamespace::MyClass myClassObj;
 
         ASSERT(0 == bsl::strcmp("MyClass",
-                                bdeat_TypeName::className(myClassObj)));
-        ASSERT(0 == bsl::strcmp("MyClass", bdeat_TypeName::name(myClassObj)));
+                                bdlat_TypeName::className(myClassObj)));
+        ASSERT(0 == bsl::strcmp("MyClass", bdlat_TypeName::name(myClassObj)));
         ASSERT(0 == bsl::strcmp("MyClass",
-                                bdeat_TypeName::xsdName(myClassObj, DEFAULT)));
+                                bdlat_TypeName::xsdName(myClassObj, DEFAULT)));
 
         return 0;
     }
@@ -230,7 +230,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdeat_TypeName Obj;
+typedef bdlat_TypeName Obj;
 
 bool streq(const char* s1, const char* s2)
     // Return true if the specified strings 's1' and 's2' are equal and false
@@ -330,7 +330,7 @@ class MyChoice {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyChoice")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
@@ -341,11 +341,11 @@ class MyChoice {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
         // Return selection information for the selection indicated by the
@@ -529,7 +529,7 @@ inline
 void MyChoice::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -555,7 +555,7 @@ inline
 void MyChoice::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -695,7 +695,7 @@ int MyChoice::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -863,20 +863,20 @@ namespace test {
 const char MyChoice::CLASS_NAME[] = "MyChoice";
     // the name of this class
 
-const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",              // name
         sizeof("Selection1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",              // name
         sizeof("Selection2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -884,7 +884,7 @@ const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
@@ -917,7 +917,7 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -1048,7 +1048,7 @@ struct MyEnumeration {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyEnumeration")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -1259,7 +1259,7 @@ namespace test {
 const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
     // the name of this class
 
-const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
     {
         MyEnumeration::VALUE1,
         "VALUE1",                 // name
@@ -1377,7 +1377,7 @@ class MySequence {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequence")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -1388,11 +1388,11 @@ class MySequence {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1624,8 +1624,8 @@ STREAM& MySequence::bdexStreamIn(STREAM& stream, int version)
 inline
 void MySequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -1679,7 +1679,7 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1765,7 +1765,7 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1833,20 +1833,20 @@ namespace test {
 const char MySequence::CLASS_NAME[] = "MySequence";
     // the name of this class
 
-const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",              // name
         sizeof("Attribute1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",              // name
         sizeof("Attribute2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -1854,7 +1854,7 @@ const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
@@ -1887,7 +1887,7 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -2179,7 +2179,7 @@ STREAM& MyCustomizedType::bdexStreamIn(STREAM& stream, int version)
 inline
 void MyCustomizedType::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -2302,18 +2302,18 @@ namespace BloombergLP {
 namespace test {
 
 class MyClassWith92ByteName {
-    // This class overloads 'bdeat_TypeName_className' to produce a name that's
+    // This class overloads 'bdlat_TypeName_className' to produce a name that's
     // 92 bytes long.  That makes
-    // 'bdeat_TypeName::className(vector<MyClassWith93ByteName>)' return a
+    // 'bdlat_TypeName::className(vector<MyClassWith93ByteName>)' return a
     // 100-byte name and
-    // 'bdeat_TypeName::className(vector<vector<MyClassWith93ByteName> >)'
+    // 'bdlat_TypeName::className(vector<vector<MyClassWith93ByteName> >)'
     // return a name truncated truncated to 100 characters.
 };
 
 #define STR_92BYTENAME "MyClassWith92ByteName_" \
     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
 
-const char* bdeat_TypeName_className(const MyClassWith92ByteName&)
+const char* bdlat_TypeName_className(const MyClassWith92ByteName&)
 {
     ASSERT(92 == sizeof(STR_92BYTENAME) - 1);
     return STR_92BYTENAME;
@@ -2328,12 +2328,12 @@ class MyIntWrapper {
     int value() const { return d_value; }
 };
 
-const char* bdeat_TypeName_name(const MyIntWrapper& object)
+const char* bdlat_TypeName_name(const MyIntWrapper& object)
 {
     return "MyIntWrapper";
 }
 
-const char* bdeat_TypeName_xsdName(const MyIntWrapper& object, int format)
+const char* bdlat_TypeName_xsdName(const MyIntWrapper& object, int format)
 {
     return "integer";
 }
@@ -2379,11 +2379,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'xsdName'"
                           << "\n=================" << endl;
 
-        static const int DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT;
-        static const int DEC     = bdeat_FormattingMode::BDEAT_DEC;
-        static const int HEX     = bdeat_FormattingMode::BDEAT_HEX;
-        static const int BASE64  = bdeat_FormattingMode::BDEAT_BASE64;
-        static const int TEXT    = bdeat_FormattingMode::BDEAT_TEXT;
+        static const int DEFAULT = bdlat_FormattingMode::e_DEFAULT;
+        static const int DEC     = bdlat_FormattingMode::e_DEC;
+        static const int HEX     = bdlat_FormattingMode::e_HEX;
+        static const int BASE64  = bdlat_FormattingMode::e_BASE64;
+        static const int TEXT    = bdlat_FormattingMode::e_TEXT;
 
         XSDNAME_TST(bool                     , DEFAULT, "boolean"          );
         XSDNAME_TST(bool                     , DEC    , "boolean"          );
@@ -2506,7 +2506,7 @@ int main(int argc, char *argv[])
             // Special test for truncated name
             bsl::vector<bsl::vector<MyClassWith92ByteName> > object;
             static const char *fullName = "vector<vector<" STR_92BYTENAME ">>";
-            const char *name = bdeat_TypeName::name(object);
+            const char *name = bdlat_TypeName::name(object);
             LOOP_ASSERT(name, 100 == bsl::strlen(name));
             LOOP_ASSERT(name, 0 == bsl::strncmp(fullName, name, 100));
         }

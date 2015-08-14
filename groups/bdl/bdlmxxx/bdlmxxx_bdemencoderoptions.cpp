@@ -27,20 +27,20 @@ const char bdlmxxx::BdemEncoderOptions::CLASS_NAME[] = "bdlmxxx::BdemEncoderOpti
 
 const int bdlmxxx::BdemEncoderOptions::DEFAULT_BDEM_VERSION = 2;
 
-const bdeat_AttributeInfo bdlmxxx::BdemEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo bdlmxxx::BdemEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_BDEM_VERSION,
         "BdemVersion",
         sizeof("BdemVersion") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     }
 };
 
 namespace bdlmxxx {
 // CLASS METHODS
 
-const bdeat_AttributeInfo *BdemEncoderOptions::lookupAttributeInfo(
+const bdlat_AttributeInfo *BdemEncoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -66,7 +66,7 @@ const bdeat_AttributeInfo *BdemEncoderOptions::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *BdemEncoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *BdemEncoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_BDEM_VERSION:

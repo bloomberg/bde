@@ -27,11 +27,11 @@ BSLS_IDENT("$Id: $")
 // mode, and constraint of a field.  The 'elemType' of a field spec defines
 // the data type of the field.  The 'isNullable' flag indicates whether values
 // of the field may be null.  The 'formattingMode' is one of the enumerated
-// mode values defined by 'bdeat_FormattingMode' (e.g., 'BDEAT_DEC',
-// 'BDEAT_HEX', 'BDEAT_BASE64', etc).  The 'formattingMode' can be used to
+// mode values defined by 'bdlat_FormattingMode' (e.g., 'e_DEC',
+// 'e_HEX', 'e_BASE64', etc).  The 'formattingMode' can be used to
 // determine how a field's value should be written as text (e.g., if the value
 // were being serialized as XML).  By default the formatting-mode is
-// 'BDEAT_DEFAULT'.  Finally, a field specification contains an optional
+// 'e_DEFAULT'.  Finally, a field specification contains an optional
 // constraint for a field specification, may either be 0, a record definition,
 // or an enumeration definition.
 //
@@ -108,7 +108,7 @@ class FieldSpec {
     // is *unconstrained* and may have any structure or contents.  If not
     // specified during construction, the formatting-mode, nullabilityFlag,
     // 'hasDefaultValueFlag' attributes of a field spec have the values
-    // 'bdeat_FormattingMode::DEFAULT', 'false' and 'false', respectively.
+    // 'bdlat_FormattingMode::DEFAULT', 'false' and 'false', respectively.
     //
     // More generally, this class supports a complete set of *in-process*
     // *value* *semantic* operations, including copy construction, assignment,
@@ -311,7 +311,7 @@ class FieldSpec {
         // Set the formatting-mode of this field spec to the specified
         // 'formattingMode' value.  Return 0 on success, and a non-zero value
         // otherwise.  The behavior is undefined unless 'formattingMode' is a
-        // valid mode defined by 'bdeat_FormattingMode'.
+        // valid mode defined by 'bdlat_FormattingMode'.
 
     void setIsNullable(bool value);
         // Set the nullability attribute of this field spec to the specified
@@ -353,8 +353,8 @@ class FieldSpec {
     int formattingMode() const;
         // Return the formatting-mode of fields described by this spec.  The
         // returned value will be one of the mode values defined by
-        // 'bdeat_FormattingMode' (e.g., 'BDEAT_DEFAULT', 'BDEAT_DEC',
-        // 'BDEAT_HEX', etc).  Note that this value can be used to determine
+        // 'bdlat_FormattingMode' (e.g., 'e_DEFAULT', 'e_DEC',
+        // 'e_HEX', etc).  Note that this value can be used to determine
         // how a field's value should be written to text.
 
     bool hasDefaultValue() const;
@@ -490,7 +490,7 @@ int FieldSpec::reset(ElemType::Type   type,
 {
     return reset(type,
                  constraint,
-                 bdeat_FormattingMode::BDEAT_DEFAULT,
+                 bdlat_FormattingMode::e_DEFAULT,
                  false);
 }
 
@@ -500,7 +500,7 @@ int FieldSpec::reset(ElemType::Type  type,
 {
     return reset(type,
                  constraint,
-                 bdeat_FormattingMode::BDEAT_DEFAULT,
+                 bdlat_FormattingMode::e_DEFAULT,
                  false);
 }
 

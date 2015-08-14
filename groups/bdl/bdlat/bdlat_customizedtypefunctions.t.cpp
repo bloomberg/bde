@@ -310,7 +310,7 @@ bsl::ostream& mine::operator<<(bsl::ostream& stream, const mine::Cusip& rhs)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_CustomizedTypeFunctions;
+namespace Obj = bdlat_CustomizedTypeFunctions;
 typedef BloombergLP::mine::Cusip Cusip;
 
 //=============================================================================
@@ -318,7 +318,7 @@ typedef BloombergLP::mine::Cusip Cusip;
 //-----------------------------------------------------------------------------
 
 namespace BloombergLP {
-namespace bdeat_CustomizedTypeFunctions {
+namespace bdlat_CustomizedTypeFunctions {
 
     template <>
     struct IsCustomizedType<mine::Cusip> {
@@ -334,7 +334,7 @@ int readCusip(bsl::istream& stream, TYPE *object)
     bsl::string value;
     stream >> value;
 
-    return bdeat_CustomizedTypeFunctions::convertFromBaseType(object, value);
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(object, value);
 }
 
 //=============================================================================
@@ -423,20 +423,20 @@ int main(int argc, char *argv[])
         const bsl::string dummyValue = "dummy";
 
         globalFlag = 0;
-        ASSERT(0 == bdeat_CustomizedTypeFunctions::convertFromBaseType(
+        ASSERT(0 == bdlat_CustomizedTypeFunctions::convertFromBaseType(
                                                                   &mV,
                                                                   dummyValue));
         ASSERT(1 == globalFlag);
 
         globalFlag = 0;
         const bsl::string& temp =
-                           bdeat_CustomizedTypeFunctions::convertToBaseType(V);
+                           bdlat_CustomizedTypeFunctions::convertToBaseType(V);
         ASSERT(dummyValue == temp);
         ASSERT(2          == globalFlag);
 
         globalFlag = 0;
         bsl::string temp2;
-        temp2 = bdeat_CustomizedTypeFunctions::convertToBaseType(V);
+        temp2 = bdlat_CustomizedTypeFunctions::convertToBaseType(V);
         ASSERT(dummyValue == temp2);
         ASSERT(2          == globalFlag);
 

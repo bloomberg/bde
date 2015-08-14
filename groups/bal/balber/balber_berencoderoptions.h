@@ -146,7 +146,7 @@ class BerEncoderOptions {
     static const int  DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
     static const bool DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
     static const bool DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
@@ -168,11 +168,11 @@ class BerEncoderOptions {
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -487,7 +487,7 @@ int BerEncoderOptions::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
         return k_NOT_FOUND;
@@ -620,7 +620,7 @@ int BerEncoderOptions::accessAttribute(ACCESSOR&   accessor,
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
        return k_NOT_FOUND;

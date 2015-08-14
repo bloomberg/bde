@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //    --------           ---------
 //    Array              bdlat_arrayfunctions
 //    CustomizedType     bdlat_customizedtypefunctions
-//    Enumeration        bdeat_enumeration
+//    Enumeration        bdlat_enumeration
 //    NullableValue      bdlat_nullablevaluefunctions
 //..
 // Types that do not fall in any of these categories are mapped as follows:
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // When the parameterized 'TYPE' is an 'Array', the corresponding
 // 'bdlmxxx::ElemType' of the array's element type is used to determine the array's
 // 'bdlmxxx::ElemType' and C++ type.  The array's element type is obtained using
-// 'bdeat_ArrayFunctions::ElementType<TYPE>::Type'.  The mapping is then
+// 'bdlat_ArrayFunctions::ElementType<TYPE>::Type'.  The mapping is then
 // performed based on the following table:
 //..
 //  -- array element --     ---------------------- array ----------------------
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 ///--------------------------------------
 // The 'bdlmxxx::ElemType' and C++ type of the base type are used for the
 // customized type's 'bdlmxxx::ElemType' and C++ type.  The base type is obtained
-// using 'bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type'.
+// using 'bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type'.
 //
 // Note that 'const' and 'volatile' qualifiers are removed from the base type
 // before evaluating the result.
@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------------------------
 // The 'bdlmxxx::ElemType' and C++ type of the value type are used for the nullable
 // value's 'bdlmxxx::ElemType' and C++ type.  The value type is obtained using
-// 'bdeat_NullableValueFunctions::ValueType<TYPE>::Type'.
+// 'bdlat_NullableValueFunctions::ValueType<TYPE>::Type'.
 //
 // Note that 'const' and 'volatile' qualifiers are removed from the value type
 // before evaluating the result.
@@ -315,11 +315,11 @@ struct SelectBdemType_ByCategory {
              // ==================================================
 
 template <class TYPE>
-struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Array> {
+struct SelectBdemType_ByCategory<TYPE, bdlat_TypeCategory::Array> {
 
   private:
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     typedef typename
     bslmf::RemoveCvq<ElementType>::Type                   ElementTypeNonCvq;
@@ -342,10 +342,10 @@ struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Array> {
 
 template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE,
-                                      bdeat_TypeCategory::CustomizedType> {
+                                      bdlat_TypeCategory::CustomizedType> {
   private:
     typedef typename
-    bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
 
     typedef typename
     bslmf::RemoveCvq<BaseType>::Type                    BaseTypeNonCvq;
@@ -363,7 +363,7 @@ struct SelectBdemType_ByCategory<TYPE,
           // ========================================================
 
 template <class TYPE>
-struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Enumeration> {
+struct SelectBdemType_ByCategory<TYPE, bdlat_TypeCategory::Enumeration> {
     enum { VALUE = ElemType::BDEM_INT };
 };
 
@@ -373,10 +373,10 @@ struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Enumeration> {
 
 template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE,
-                                      bdeat_TypeCategory::NullableValue> {
+                                      bdlat_TypeCategory::NullableValue> {
   private:
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
 
     typedef typename
     bslmf::RemoveCvq<ValueType>::Type                    ValueTypeNonCvq;
@@ -571,7 +571,7 @@ template <class TYPE>
 struct SelectBdemType_Imp {
 
   private:
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     typedef SelectBdemType_ByCategory<TYPE, TypeCategory> ByCategory;
 

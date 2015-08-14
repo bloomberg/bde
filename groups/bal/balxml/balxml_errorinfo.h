@@ -538,6 +538,8 @@ bool balxml::operator!=(const ErrorInfo& lhs, const ErrorInfo& rhs)
 
 }  // close enterprise namespace
 
+#endif // INCLUDED_BALXML_ERRORINFO
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

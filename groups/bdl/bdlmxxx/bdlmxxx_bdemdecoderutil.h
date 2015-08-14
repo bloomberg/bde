@@ -48,9 +48,9 @@ BSLS_IDENT("$Id: $")
 //..
 //    o fundamental C++ types are cast to 'bdem' types using the mapping
 //      defined in 'bdlmxxx_selectbdemtype'.
-//    o an object that falls under 'bdeat_TypeCategory::Sequence' is encoded as
+//    o an object that falls under 'bdlat_TypeCategory::Sequence' is encoded as
 //      a LIST containing the attributes of the sequence.
-//    o an object that falls under 'bdeat_TypeCategory::Choice' is encoded as a
+//    o an object that falls under 'bdlat_TypeCategory::Choice' is encoded as a
 //      LIST.  If the choice object has no selection, then the list will
 //      contain exactly one sub-item, which must be an empty string.  If the
 //      choice object has a selection, then the list will contain exactly two
@@ -477,60 +477,60 @@ class BdemDecoderUtil_Decoder {
         // 'variable'.  Note that this function always returns 0.
 
     template <class TYPE>
-    int decodeImp(TYPE *variable, bdeat_TypeCategory::Array);
+    int decodeImp(TYPE *variable, bdlat_TypeCategory::Array);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Array'.
+        // 'bdlat_TypeCategory::Array'.
 
     template <class TYPE>
-    int decodeImp(TYPE *variable, bdeat_TypeCategory::Choice);
+    int decodeImp(TYPE *variable, bdlat_TypeCategory::Choice);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Choice'.
+        // 'bdlat_TypeCategory::Choice'.
 
     template <class TYPE>
-    int decodeImp(TYPE *variable, bdeat_TypeCategory::CustomizedType);
+    int decodeImp(TYPE *variable, bdlat_TypeCategory::CustomizedType);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::CustomizedType'.
+        // 'bdlat_TypeCategory::CustomizedType'.
 
     template <class TYPE>
-    int decodeImp(TYPE *variable, bdeat_TypeCategory::Enumeration);
+    int decodeImp(TYPE *variable, bdlat_TypeCategory::Enumeration);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Enumeration'.
+        // 'bdlat_TypeCategory::Enumeration'.
 
     template <class TYPE>
-    int decodeImp(TYPE *variable, bdeat_TypeCategory::NullableValue);
+    int decodeImp(TYPE *variable, bdlat_TypeCategory::NullableValue);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::NullableValue'.
+        // 'bdlat_TypeCategory::NullableValue'.
 
     template <class TYPE>
-    int decodeImp(TYPE *variable, bdeat_TypeCategory::Sequence);
+    int decodeImp(TYPE *variable, bdlat_TypeCategory::Sequence);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Sequence'.
+        // 'bdlat_TypeCategory::Sequence'.
 
     template <class TYPE>
-    int decodeImp(TYPE *variable, bdeat_TypeCategory::Simple);
+    int decodeImp(TYPE *variable, bdlat_TypeCategory::Simple);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Simple'.
+        // 'bdlat_TypeCategory::Simple'.
 
     template <class TYPE>
     int decodeArrayChoiceImp(TYPE *variable, int numRows);
@@ -551,8 +551,8 @@ class BdemDecoderUtil_Decoder {
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Array' and must contain elements that fall
-        // under 'bdeat_TypeCategory::Choice'.
+        // 'bdlat_TypeCategory::Array' and must contain elements that fall
+        // under 'bdlat_TypeCategory::Choice'.
 
     template <class TYPE>
     int decodeArrayImp(TYPE *variable,
@@ -561,7 +561,7 @@ class BdemDecoderUtil_Decoder {
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Array' and must contain extended types
+        // 'bdlat_TypeCategory::Array' and must contain extended types
         // ('bdlt::DateTz', 'bdlt::DatetimeTz', and 'bdlt::TimeTz').
 
     template <class TYPE>
@@ -571,8 +571,8 @@ class BdemDecoderUtil_Decoder {
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Array' and must contain elements that fall
-        // under 'bdeat_TypeCategory::Sequence'.
+        // 'bdlat_TypeCategory::Array' and must contain elements that fall
+        // under 'bdlat_TypeCategory::Sequence'.
 
     template <class TYPE>
     int decodeArrayImp(TYPE *variable,
@@ -581,7 +581,7 @@ class BdemDecoderUtil_Decoder {
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Array' but not fall under any of the other
+        // 'bdlat_TypeCategory::Array' but not fall under any of the other
         // overloads of 'decodeArrayImp'.
 
     template <class TYPE>
@@ -595,12 +595,12 @@ class BdemDecoderUtil_Decoder {
 
     template <class TYPE>
     int decodeNullableArrayImp(TYPE *variable,
-                               bdeat_TypeCategory::Choice);
+                               bdlat_TypeCategory::Choice);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.  Note that the second argument is used for
         // overloading purposes and indicates that 'TYPE' contains elements
-        // that fall under 'bdeat_TypeCategory::Choice'.
+        // that fall under 'bdlat_TypeCategory::Choice'.
 
     template <class TYPE, class ANY_CATEGORY>
     int decodeNullableArrayImp(TYPE *variable, ANY_CATEGORY);
@@ -612,19 +612,19 @@ class BdemDecoderUtil_Decoder {
 
     template <class TYPE>
     int decodeNullableImp(TYPE *variable,
-                          bdeat_TypeCategory::Array);
+                          bdlat_TypeCategory::Array);
     template <class TYPE>
     int decodeNullableImp(TYPE *variable,
-                          bdeat_TypeCategory::Choice);
+                          bdlat_TypeCategory::Choice);
     template <class TYPE>
     int decodeNullableImp(TYPE *variable,
-                          bdeat_TypeCategory::Enumeration);
+                          bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     int decodeNullableImp(TYPE *variable,
-                          bdeat_TypeCategory::Sequence);
+                          bdlat_TypeCategory::Sequence);
     template <class TYPE>
     int decodeNullableImp(TYPE *variable,
-                          bdeat_TypeCategory::Simple);
+                          bdlat_TypeCategory::Simple);
 
     template <class TYPE>
     int decodeNullableSimpleImp(TYPE *variable,
@@ -791,11 +791,11 @@ struct BdemDecoderUtil_SelectArrayTypeCategory {
     SelectBdemType<TYPE>::Type BdemArrayType;
 
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     enum {
         IS_ELEMENT_NULLABLE
-            = bdeat_NullableValueFunctions::IsNullableValue<ElementType>::VALUE
+            = bdlat_NullableValueFunctions::IsNullableValue<ElementType>::VALUE
     };
 
     BSLMF_ASSERT(!IS_ELEMENT_NULLABLE);
@@ -813,11 +813,11 @@ struct BdemDecoderUtil_SelectArrayTypeCategory {
 
     enum {
         IS_ELEMENT_SEQUENCE
-                      = bdeat_SequenceFunctions::IsSequence<ElementType>::VALUE
+                      = bdlat_SequenceFunctions::IsSequence<ElementType>::VALUE
     };
 
     enum {
-        IS_ELEMENT_CHOICE = bdeat_ChoiceFunctions::IsChoice<ElementType>::VALUE
+        IS_ELEMENT_CHOICE = bdlat_ChoiceFunctions::IsChoice<ElementType>::VALUE
     };
 
     enum {
@@ -875,7 +875,7 @@ STREAM& BdemDecoderUtil::decode(STREAM&                         stream,
                                                  bdemVersion,
                                                  options.maxDepth());
 
-    bdeat_ValueTypeFunctions::reset(variable);
+    bdlat_ValueTypeFunctions::reset(variable);
 
     if (0 != decoder.decode(variable)) {
         stream.invalidate();
@@ -1049,7 +1049,7 @@ template <class STREAM>
 template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
-                                                    bdeat_TypeCategory::Array)
+                                                    bdlat_TypeCategory::Array)
 {
     typedef typename
     BdemDecoderUtil_SelectArrayTypeCategory<TYPE>::Type ArrayTypeCategory;
@@ -1060,7 +1060,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
 template <class STREAM>
 template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
-                                                    bdeat_TypeCategory::Choice)
+                                                    bdlat_TypeCategory::Choice)
 {
     enum { BDEM_FAILURE = -1, SELECTION_NOT_PRESENT = -1 };
 
@@ -1137,14 +1137,14 @@ template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                             TYPE *variable,
-                                            bdeat_TypeCategory::CustomizedType)
+                                            bdlat_TypeCategory::CustomizedType)
 {
     enum { BDEM_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(variable);
 
     typedef typename
-    bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
 
     BaseType base;
 
@@ -1152,7 +1152,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
         return BDEM_FAILURE;                                          // RETURN
     }
 
-    return bdeat_CustomizedTypeFunctions::convertFromBaseType(variable, base);
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(variable, base);
 }
 
 template <class STREAM>
@@ -1160,7 +1160,7 @@ template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                                TYPE *variable,
-                                               bdeat_TypeCategory::Enumeration)
+                                               bdlat_TypeCategory::Enumeration)
 {
     enum { BDEM_FAILURE = -1 };
 
@@ -1174,7 +1174,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
         return BDEM_FAILURE;                                          // RETURN
     }
 
-    return bdeat_EnumFunctions::fromInt(variable, intValue);
+    return bdlat_EnumFunctions::fromInt(variable, intValue);
 }
 
 template <class STREAM>
@@ -1182,15 +1182,15 @@ template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                              TYPE *variable,
-                                             bdeat_TypeCategory::NullableValue)
+                                             bdlat_TypeCategory::NullableValue)
 {
     BSLS_ASSERT_SAFE(variable);
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
 
     typedef typename
-    bdeat_TypeCategory::Select<ValueType>::Type TypeCategory;
+    bdlat_TypeCategory::Select<ValueType>::Type TypeCategory;
 
     return decodeNullableImp(variable, TypeCategory());
 }
@@ -1200,7 +1200,7 @@ template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                                   TYPE *variable,
-                                                  bdeat_TypeCategory::Sequence)
+                                                  bdlat_TypeCategory::Sequence)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
@@ -1221,7 +1221,7 @@ template <class STREAM>
 template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
-                                                    bdeat_TypeCategory::Simple)
+                                                    bdlat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(variable);
 
@@ -1249,7 +1249,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayChoiceImp(TYPE *variable,
         return BDEM_FAILURE;                                          // RETURN
     }
 
-    bdeat_ArrayFunctions::resize(variable, numRows);
+    bdlat_ArrayFunctions::resize(variable, numRows);
 
     BdemDecoderUtil_NewLevelGuard newLevelGuard(&d_level);
 
@@ -1267,7 +1267,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayChoiceImp(TYPE *variable,
             }
         }
 
-        if (0 != bdeat_ArrayFunctions::manipulateElement(variable, *this, i)) {
+        if (0 != bdlat_ArrayFunctions::manipulateElement(variable, *this, i)) {
             return BDEM_FAILURE;                                      // RETURN
         }
     }
@@ -1308,7 +1308,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     BSLS_ASSERT_SAFE(variable);
 
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     // Decode type information.
 
@@ -1323,7 +1323,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
         return BDEM_FAILURE;                                          // RETURN
     }
 
-    bdeat_ArrayFunctions::resize(variable, numRows);
+    bdlat_ArrayFunctions::resize(variable, numRows);
 
     typedef BdemDecoderUtil_Decoder<STREAM> ThisClass;
     typedef bdlf::MemFnInstance<int (ThisClass::*)(ElementType*),
@@ -1332,7 +1332,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     MemFn memFn(&ThisClass::decodeExtendedTypeValue, this);
 
     for (int i = 0; i < numRows; ++i) {
-        if (0 != bdeat_ArrayFunctions::manipulateElement(variable, memFn, i)) {
+        if (0 != bdlat_ArrayFunctions::manipulateElement(variable, memFn, i)) {
             return BDEM_FAILURE;                                      // RETURN
         }
     }
@@ -1385,10 +1385,10 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
         return BDEM_FAILURE;                                          // RETURN
     }
 
-    bdeat_ArrayFunctions::resize(variable, numRows);
+    bdlat_ArrayFunctions::resize(variable, numRows);
 
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
     typedef bdlf::Function<int (*)(ElementType*)>  Functor;
 
     typedef BdemDecoderUtil_Decoder<STREAM> ThisClass;
@@ -1403,7 +1403,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     Functor decodeSequenceFunctor = bdlf::BindUtil::bind(memFn, _1, types);
 
     for (int i = 0; i < numRows; ++i) {
-        if (0 != bdeat_ArrayFunctions::manipulateElement(variable,
+        if (0 != bdlat_ArrayFunctions::manipulateElement(variable,
                                                          decodeSequenceFunctor,
                                                          i)) {
             return BDEM_FAILURE;                                      // RETURN
@@ -1429,10 +1429,10 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
         return BDEM_FAILURE;                                          // RETURN
     }
 
-    bdeat_ArrayFunctions::resize(variable, length);
+    bdlat_ArrayFunctions::resize(variable, length);
 
     for (int i = 0; i < length; ++i) {
-        if (0 != bdeat_ArrayFunctions::manipulateElement(variable, *this, i)) {
+        if (0 != bdlat_ArrayFunctions::manipulateElement(variable, *this, i)) {
             return BDEM_FAILURE;                                      // RETURN
         }
     }
@@ -1450,12 +1450,12 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeChoiceImp(
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1, SELECTION_NOT_PRESENT = -1 };
 
     if (selectionName.empty()) {
-        bdeat_ValueTypeFunctions::reset(variable);
+        bdlat_ValueTypeFunctions::reset(variable);
 
         return BDEM_SUCCESS;                                          // RETURN
     }
 
-    if (0 != bdeat_ChoiceFunctions::makeSelection(
+    if (0 != bdlat_ChoiceFunctions::makeSelection(
                                    variable,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
@@ -1470,12 +1470,12 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeChoiceImp(
 
     BdemDecoderUtil_BuildElemTypes buildElemType(1);
 
-    if (bdeat_ChoiceFunctions::accessSelection(*variable, buildElemType)
+    if (bdlat_ChoiceFunctions::accessSelection(*variable, buildElemType)
      || buildElemType.elemTypes()[0] != selectionType) {
         return BDEM_FAILURE;                                          // RETURN
     }
 
-    return bdeat_ChoiceFunctions::manipulateSelection(variable, *this);
+    return bdlat_ChoiceFunctions::manipulateSelection(variable, *this);
 }
 
 template <class STREAM>
@@ -1590,7 +1590,7 @@ template <class STREAM>
 template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
                                                     TYPE *variable,
-                                                    bdeat_TypeCategory::Choice)
+                                                    bdlat_TypeCategory::Choice)
 {
     // For array of choices, we can determine that it is null if the number of
     // columns in zero.  If the array is not null, then it must have exactly
@@ -1611,12 +1611,12 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
             return BDEM_FAILURE;                                      // RETURN
         }
 
-        bdeat_ValueTypeFunctions::reset(variable);  // make object null
+        bdlat_ValueTypeFunctions::reset(variable);  // make object null
 
         return BDEM_SUCCESS;                                          // RETURN
     }
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
     char columnType;
 
@@ -1629,7 +1629,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
     }
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
     typedef bdlf::Function<int (*)(ValueType*)>          Functor;
 
     typedef BdemDecoderUtil_Decoder<STREAM> ThisClass;
@@ -1642,7 +1642,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
 
     Functor decodeFunctor = bdlf::BindUtil::bind(memFn, _1, numRows);
 
-    return bdeat_NullableValueFunctions::manipulateValue(variable,
+    return bdlat_NullableValueFunctions::manipulateValue(variable,
                                                          decodeFunctor);
 }
 
@@ -1663,10 +1663,10 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
 
     BSLS_ASSERT_SAFE(variable);
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
 
     typedef BdemDecoderUtil_Decoder<STREAM> ThisClass;
     typedef bdlf::MemFnInstance<int (ThisClass::*)(ValueType*),
@@ -1674,7 +1674,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
 
     MemFn decodeMemFn(&ThisClass::decode, this);
 
-    return bdeat_NullableValueFunctions::manipulateValue(variable,
+    return bdlat_NullableValueFunctions::manipulateValue(variable,
                                                          decodeMemFn);
 }
 
@@ -1683,14 +1683,14 @@ template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                      TYPE *variable,
-                                                     bdeat_TypeCategory::Array)
+                                                     bdlat_TypeCategory::Array)
 {
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ArrayType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ArrayType;
     typedef typename
-    bdeat_ArrayFunctions::ElementType<ArrayType>::Type  ElementType;
+    bdlat_ArrayFunctions::ElementType<ArrayType>::Type  ElementType;
     typedef typename
-    bdeat_TypeCategory::Select<ElementType>::Type       TypeCategory;
+    bdlat_TypeCategory::Select<ElementType>::Type       TypeCategory;
 
     enum {
         IS_EXTENDED_BDEM_TYPE
@@ -1711,7 +1711,7 @@ template <class STREAM>
 template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                     TYPE *variable,
-                                                    bdeat_TypeCategory::Choice)
+                                                    bdlat_TypeCategory::Choice)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1, SELECTION_NOT_PRESENT = -1 };
 
@@ -1780,16 +1780,16 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
         break;
       }
       default: {
-        bdeat_ValueTypeFunctions::reset(variable);  // make object null
+        bdlat_ValueTypeFunctions::reset(variable);  // make object null
 
         return BDEM_SUCCESS;                                          // RETURN
       }
     };
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
     typedef bdlf::Function<int (*)(ValueType*)>          Functor;
 
     typedef BdemDecoderUtil_Decoder<STREAM> ThisClass;
@@ -1807,7 +1807,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                       selectionType,
                                                       selectionName);
 
-    return bdeat_NullableValueFunctions::manipulateValue(variable,
+    return bdlat_NullableValueFunctions::manipulateValue(variable,
                                                          decodeChoiceFunctor);
 }
 
@@ -1815,7 +1815,7 @@ template <class STREAM>
 template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                TYPE *variable,
-                                               bdeat_TypeCategory::Enumeration)
+                                               bdlat_TypeCategory::Enumeration)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
@@ -1826,25 +1826,25 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
     }
 
     if (bdltuxxx::Unset<int>::isUnset(proxy)) {
-        bdeat_ValueTypeFunctions::reset(variable);  // make object null
+        bdlat_ValueTypeFunctions::reset(variable);  // make object null
 
         return BDEM_SUCCESS;                                          // RETURN
     }
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
     typedef bdlf::Function<int (*)(ValueType*)>          Functor;
     typedef int (*UtilFn)(ValueType*, int);
 
-    UtilFn utilFn(&bdeat_EnumFunctions::fromInt);
+    UtilFn utilFn(&bdlat_EnumFunctions::fromInt);
 
     using bdlf::PlaceHolders::_1;
 
     Functor convertFunctor = bdlf::BindUtil::bind(utilFn, _1, proxy);
 
-    return bdeat_NullableValueFunctions::manipulateValue(variable,
+    return bdlat_NullableValueFunctions::manipulateValue(variable,
                                                          convertFunctor);
 }
 
@@ -1852,7 +1852,7 @@ template <class STREAM>
 template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                   TYPE *variable,
-                                                  bdeat_TypeCategory::Sequence)
+                                                  bdlat_TypeCategory::Sequence)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
@@ -1873,15 +1873,15 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
         // We will assume that the object in the stream is null, since a
         // sequence with 0 elements (although possible) is not likely.
 
-        bdeat_ValueTypeFunctions::reset(variable);  // make object null
+        bdlat_ValueTypeFunctions::reset(variable);  // make object null
 
         return BDEM_SUCCESS;                                          // RETURN
     }
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
     typedef bdlf::Function<int (*)(ValueType*)>          Functor;
 
     typedef BdemDecoderUtil_Decoder<STREAM> ThisClass;
@@ -1895,7 +1895,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
 
     Functor decodeSequenceFunctor = bdlf::BindUtil::bind(memFn, _1, types);
 
-    return bdeat_NullableValueFunctions::manipulateValue(
+    return bdlat_NullableValueFunctions::manipulateValue(
                                                         variable,
                                                         decodeSequenceFunctor);
 }
@@ -1905,10 +1905,10 @@ template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                     TYPE *variable,
-                                                    bdeat_TypeCategory::Simple)
+                                                    bdlat_TypeCategory::Simple)
 {
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
     typedef typename
     SelectBdemType<ValueType>::Type                BdemType;
 
@@ -1946,24 +1946,24 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
 
     BSLMF_ASSERT((bdltuxxx::UnsetValueIsDefined<ValueType>::VALUE));
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
-    if (0 != bdeat_NullableValueFunctions::manipulateValue(variable, *this)) {
+    if (0 != bdlat_NullableValueFunctions::manipulateValue(variable, *this)) {
         return BDEM_FAILURE;                                          // RETURN
     }
 
     BdemDecoderUtil_IsNull isNull;
 
-    if (0 != bdeat_NullableValueFunctions::accessValue(*variable, isNull)) {
+    if (0 != bdlat_NullableValueFunctions::accessValue(*variable, isNull)) {
         return BDEM_FAILURE;                                          // RETURN
     }
 
     if (isNull.result() == true) {
-        bdeat_ValueTypeFunctions::reset(variable);  // set it back to null
+        bdlat_ValueTypeFunctions::reset(variable);  // set it back to null
     }
 
     return BDEM_SUCCESS;
@@ -1988,7 +1988,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     }
 
     if (0 == types.size()) {
-        bdeat_ValueTypeFunctions::reset(variable);  // make object null
+        bdlat_ValueTypeFunctions::reset(variable);  // make object null
 
         return BDEM_SUCCESS;                                          // RETURN
     }
@@ -1996,7 +1996,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     // Check if the elemtypes are valid.
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
 
     if (!BdemDecoderUtil_ExtendedBdemTypeUtil::areElemTypesValid(
                                                                  (ValueType*)0,
@@ -2007,7 +2007,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     // Object is not null and elemtypes are valid, so make a value and stream
     // it in.
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
     typedef BdemDecoderUtil_Decoder<STREAM> ThisClass;
     typedef bdlf::MemFnInstance<int (ThisClass::*)(ValueType*),
@@ -2015,7 +2015,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
 
     MemFn memFn(&ThisClass::decodeExtendedTypeValue, this);
 
-    return bdeat_NullableValueFunctions::manipulateValue(variable, memFn);
+    return bdlat_NullableValueFunctions::manipulateValue(variable, memFn);
 }
 
 template <class STREAM>
@@ -2027,7 +2027,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
     typedef typename
     SelectBdemType<ValueType>::Type                BdemType;
 
@@ -2040,12 +2040,12 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     }
 
     if (bdltuxxx::Unset<BdemType>::isUnset(proxy)) {
-        bdeat_ValueTypeFunctions::reset(variable);  // make object null
+        bdlat_ValueTypeFunctions::reset(variable);  // make object null
 
         return BDEM_SUCCESS;                                          // RETURN
     }
 
-    bdeat_NullableValueFunctions::makeValue(variable);
+    bdlat_NullableValueFunctions::makeValue(variable);
 
     typedef bdlf::Function<int (*)(ValueType*)> Functor;
 
@@ -2060,7 +2060,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
 
     Functor convertFunctor = bdlf::BindUtil::bind(memFn, _1, proxy);
 
-    return bdeat_NullableValueFunctions::manipulateValue(variable,
+    return bdlat_NullableValueFunctions::manipulateValue(variable,
                                                          convertFunctor);
 }
 
@@ -2076,7 +2076,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeSequenceImp(
                                   static_cast<int>(attributeElemTypes.size()));
 
     if (d_level == d_maxDepth
-     || 0 != bdeat_SequenceFunctions::accessAttributes(*variable,
+     || 0 != bdlat_SequenceFunctions::accessAttributes(*variable,
                                                        buildElemTypes)
      || attributeElemTypes != buildElemTypes.elemTypes()) {
         return BDEM_FAILURE;                                          // RETURN
@@ -2089,13 +2089,13 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeSequenceImp(
                                            decodeAttributesWithMask(d_stream_p,
                                                                     this);
 
-        return bdeat_SequenceFunctions::manipulateAttributes(
+        return bdlat_SequenceFunctions::manipulateAttributes(
                                                      variable,
                                                      decodeAttributesWithMask);
                                                                       // RETURN
     }
     else {
-        return bdeat_SequenceFunctions::manipulateAttributes(variable, *this);
+        return bdlat_SequenceFunctions::manipulateAttributes(variable, *this);
                                                                       // RETURN
     }
 }
@@ -2191,7 +2191,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decode(TYPE *variable)
     BSLS_ASSERT_SAFE(variable);
 
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     return decodeImp(variable, TypeCategory());
 }

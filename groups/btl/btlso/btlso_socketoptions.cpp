@@ -91,20 +91,20 @@ SocketOptions::operator=(const SocketOptions& rhs)
 
 void SocketOptions::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_debugFlag);
-    bdeat_ValueTypeFunctions::reset(&d_allowBroadcasting);
-    bdeat_ValueTypeFunctions::reset(&d_reuseAddress);
-    bdeat_ValueTypeFunctions::reset(&d_keepAlive);
-    bdeat_ValueTypeFunctions::reset(&d_bypassNormalRouting);
-    bdeat_ValueTypeFunctions::reset(&d_linger);
-    bdeat_ValueTypeFunctions::reset(&d_leaveOutOfBandDataInline);
-    bdeat_ValueTypeFunctions::reset(&d_sendBufferSize);
-    bdeat_ValueTypeFunctions::reset(&d_receiveBufferSize);
-    bdeat_ValueTypeFunctions::reset(&d_minimumSendBufferSize);
-    bdeat_ValueTypeFunctions::reset(&d_minimumReceiveBufferSize);
-    bdeat_ValueTypeFunctions::reset(&d_sendTimeout);
-    bdeat_ValueTypeFunctions::reset(&d_receiveTimeout);
-    bdeat_ValueTypeFunctions::reset(&d_tcpNoDelay);
+    bdlat_ValueTypeFunctions::reset(&d_debugFlag);
+    bdlat_ValueTypeFunctions::reset(&d_allowBroadcasting);
+    bdlat_ValueTypeFunctions::reset(&d_reuseAddress);
+    bdlat_ValueTypeFunctions::reset(&d_keepAlive);
+    bdlat_ValueTypeFunctions::reset(&d_bypassNormalRouting);
+    bdlat_ValueTypeFunctions::reset(&d_linger);
+    bdlat_ValueTypeFunctions::reset(&d_leaveOutOfBandDataInline);
+    bdlat_ValueTypeFunctions::reset(&d_sendBufferSize);
+    bdlat_ValueTypeFunctions::reset(&d_receiveBufferSize);
+    bdlat_ValueTypeFunctions::reset(&d_minimumSendBufferSize);
+    bdlat_ValueTypeFunctions::reset(&d_minimumReceiveBufferSize);
+    bdlat_ValueTypeFunctions::reset(&d_sendTimeout);
+    bdlat_ValueTypeFunctions::reset(&d_receiveTimeout);
+    bdlat_ValueTypeFunctions::reset(&d_tcpNoDelay);
 }
 
 // ACCESSORS

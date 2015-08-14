@@ -29,7 +29,7 @@ using namespace bsl;  // automatically added by script
 //                              --------
 //                                  TBD doc
 //-----------------------------------------------------------------------------
-// [ 4] int lookupEnumeratorInfo(bdeat_EnumeratorInfo *info, TYPE value);
+// [ 4] int lookupEnumeratorInfo(bdlat_EnumeratorInfo *info, TYPE value);
 // [ 3] struct IsEnumeration
 // [ 2] const char *className(TYPE);
 // [ 2] int numEnumerators(TYPE);
@@ -86,7 +86,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_EnumFunctions;
+namespace Obj = bdlat_EnumFunctions;
 
 //=============================================================================
 //                           CLASSES FOR TESTING
@@ -116,7 +116,7 @@ struct PolygonType {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "PolygonType")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -167,7 +167,7 @@ const char *PolygonType::toString(PolygonType::Value value)
 
 const char PolygonType::CLASS_NAME[] = "PolygonType";
 
-const bdeat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
     {
         PolygonType::TRIANGLE,
         "Triangle",                 // name
@@ -192,12 +192,12 @@ const bdeat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
 
 // TYPE TRAITS
 template <>
-struct bdeat_IsBasicEnumeration<geom::PolygonType::Value> : bsl::true_type
+struct bdlat_IsBasicEnumeration<geom::PolygonType::Value> : bsl::true_type
 {
 };
 
 template <>
-struct bdeat_BasicEnumerationWrapper<geom::PolygonType::Value> :
+struct bdlat_BasicEnumerationWrapper<geom::PolygonType::Value> :
     geom::PolygonType
 {
     typedef geom::PolygonType Wrapper;
@@ -236,7 +236,7 @@ struct PrimaryColor {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "PrimaryColor")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -431,7 +431,7 @@ namespace test {
 const char PrimaryColor::CLASS_NAME[] = "PrimaryColor";
     // the name of this class
 
-const bdeat_EnumeratorInfo PrimaryColor::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo PrimaryColor::ENUMERATOR_INFO_ARRAY[] = {
     {
         PrimaryColor::BLUE,
         "BLUE",                 // name
@@ -515,17 +515,17 @@ enum MyEnum {
 };
 //..
 // We can now make 'MyEnum' expose "enumeration" behavior by implementing
-// all the necessary 'bdeat_enum*' functions for 'MyEnum' inside the 'mine
+// all the necessary 'bdlat_enum*' functions for 'MyEnum' inside the 'mine
 // namespace'.  First we should forward declare all the functions that we
 // will implement inside the 'mine' namespace:
 //..
     // MANIPULATORS
-    int bdeat_enumFromInt(MyEnum *result, int number);
+    int bdlat_enumFromInt(MyEnum *result, int number);
         // Load into the specified 'result' the enumerator matching the
         // specified 'number'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' if 'number' does not match any enumerator.
 
-    int bdeat_enumFromString(MyEnum     *result,
+    int bdlat_enumFromString(MyEnum     *result,
                              const char *string,
                              int         stringLength);
         // Load into the specified 'result' the enumerator matching the
@@ -534,11 +534,11 @@ enum MyEnum {
         // and 'stringLength' do not match any enumerator.
 
     // ACCESSORS
-    void bdeat_enumToInt(int *result, const MyEnum& value);
+    void bdlat_enumToInt(int *result, const MyEnum& value);
         // Return the integer representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
-    void bdeat_enumToString(bsl::string *result, const MyEnum& value);
+    void bdlat_enumToString(bsl::string *result, const MyEnum& value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
@@ -549,7 +549,7 @@ enum MyEnum {
 // MANIPULATORS
 
 inline
-int mine::bdeat_enumFromInt(MyEnum *result, int number)
+int mine::bdlat_enumFromInt(MyEnum *result, int number)
 {
     enum { SUCCESS = 0, NOT_FOUND = -1 };
 
@@ -576,7 +576,7 @@ int mine::bdeat_enumFromInt(MyEnum *result, int number)
 }
 
 inline
-int mine::bdeat_enumFromString(MyEnum     *result,
+int mine::bdlat_enumFromString(MyEnum     *result,
                                const char *string,
                                int         stringLength)
 {
@@ -605,12 +605,12 @@ int mine::bdeat_enumFromString(MyEnum     *result,
 
 // ACCESSORS
 
-void mine::bdeat_enumToInt(int *result, const MyEnum& value)
+void mine::bdlat_enumToInt(int *result, const MyEnum& value)
 {
     *result = static_cast<int>(value);
 }
 
-void mine::bdeat_enumToString(bsl::string *result, const MyEnum &value)
+void mine::bdlat_enumToString(bsl::string *result, const MyEnum &value)
 {
     switch (value) {
       case RED: {
@@ -629,10 +629,10 @@ void mine::bdeat_enumToString(bsl::string *result, const MyEnum &value)
 }
 //..
 // Finally, we need to specialize the 'IsEnum' meta-function in the
-// 'bdeat_EnumFunctions' namespace for the 'mine::MyEnum' type.  This makes the
+// 'bdlat_EnumFunctions' namespace for the 'mine::MyEnum' type.  This makes the
 // 'bdeat' infrastructure recognize 'MyEnum' as an enumeration abstraction:
 //..
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
 
     template <>
     struct IsEnumeration<mine::MyEnum> {
@@ -683,7 +683,7 @@ int readMyEnum(bsl::istream& stream, TYPE *object)
     bsl::string value;
     stream >> value;
 
-    return bdeat_enumFromString(object, value.c_str(), value.length());
+    return bdlat_enumFromString(object, value.c_str(), value.length());
 }
 //..
 // Now we have a generic function that takes an input stream and a 'Cusip'
@@ -751,7 +751,7 @@ int main(int argc, char *argv[])
         //   match the string representation of any of the valid enumerators.
         //
         // Testing:
-        //   bdeat_enumToString
+        //   bdlat_enumToString
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Conversion to String"
@@ -762,8 +762,8 @@ int main(int argc, char *argv[])
         test::PrimaryColor::Value c2 = (test::PrimaryColor::Value)-1;
 
         bsl::string c1string, c2string;
-        bdeat_EnumFunctions::toString(&c1string, c1);
-        bdeat_EnumFunctions::toString(&c2string, c2);
+        bdlat_EnumFunctions::toString(&c1string, c1);
+        bdlat_EnumFunctions::toString(&c2string, c2);
 
         if (veryVerbose) {
             bsl::cout << "c1 = " << c1string << bsl::endl;
@@ -819,16 +819,16 @@ int main(int argc, char *argv[])
         mX = PolygonType::RHOMBUS;   ASSERT(X == PolygonType::RHOMBUS);
         mN = PolygonType::TRIANGLE;  ASSERT(N == PolygonType::TRIANGLE);
 
-        ASSERT(0 == bdeat_EnumFunctions::fromInt(&mX, N));
+        ASSERT(0 == bdlat_EnumFunctions::fromInt(&mX, N));
                                      ASSERT(X == PolygonType::TRIANGLE);
                                      ASSERT(N == PolygonType::TRIANGLE);
 
         const char *const S = "rhombus";
-        ASSERT(0 == bdeat_EnumFunctions::fromString(&mX, S, 7));
+        ASSERT(0 == bdlat_EnumFunctions::fromString(&mX, S, 7));
                                      ASSERT(X == PolygonType::RHOMBUS);
 
         bsl::string toString;
-        bdeat_EnumFunctions::toString(&toString, X);
+        bdlat_EnumFunctions::toString(&toString, X);
         ASSERT(toString == "rhombus");
         ASSERT(X        == PolygonType::RHOMBUS);
 

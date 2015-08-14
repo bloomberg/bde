@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-        ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID ==
+        ASSERT(baltzo::ErrorCode::e_UNSUPPORTED_ID ==
                baltzo::ErrorCode::k_UNSUPPORTED_ID);
 #endif  // BDE_OPENSOURCE_PUBLICATION
 

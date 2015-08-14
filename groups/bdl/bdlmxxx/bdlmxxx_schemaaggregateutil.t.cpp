@@ -189,7 +189,7 @@ typedef bdlmxxx::Choice              Choice;
 typedef bdlmxxx::ChoiceArray         Array;
 typedef bdlmxxx::ChoiceArrayItem     ChoiceItem;
 
-typedef bdeat_FormattingMode     Format;
+typedef bdlat_FormattingMode     Format;
 
 typedef bsls::Types::Int64       Int64;
 
@@ -769,25 +769,25 @@ const EnumDef *getEnumConstraint(Schema *object, char token)
 int getFormattingMode(char fmtCode)
     // Return the formatting mode corresponding to the specified 'fmtCode'.
     //..
-    //  '0' => BDEAT_DEFAULT (zero, not "oh")
-    //  'B' => BDEAT_BASE64
-    //  'D' => BDEAT_DEC
-    //  'L' => BDEAT_LIST
-    //  'N' => BDEAT_NILLABLE
-    //  'T' => BDEAT_TEXT
-    //  'U' => BDEAT_UNTAGGED
-    //  'X' => BDEAT_HEX
+    //  '0' => e_DEFAULT (zero, not "oh")
+    //  'B' => e_BASE64
+    //  'D' => e_DEC
+    //  'L' => e_LIST
+    //  'N' => e_NILLABLE
+    //  'T' => e_TEXT
+    //  'U' => e_UNTAGGED
+    //  'X' => e_HEX
     //..
 {
     switch (fmtCode) {
-      case '0': return Format::BDEAT_DEFAULT;
-      case 'B': return Format::BDEAT_BASE64;
-      case 'D': return Format::BDEAT_DEC;
-      case 'L': return Format::BDEAT_LIST;
-      case 'N': return Format::BDEAT_NILLABLE;
-      case 'T': return Format::BDEAT_TEXT;
-      case 'U': return Format::BDEAT_UNTAGGED;
-      case 'X': return Format::BDEAT_HEX;
+      case '0': return Format::e_DEFAULT;
+      case 'B': return Format::e_BASE64;
+      case 'D': return Format::e_DEC;
+      case 'L': return Format::e_LIST;
+      case 'N': return Format::e_NILLABLE;
+      case 'T': return Format::e_TEXT;
+      case 'U': return Format::e_UNTAGGED;
+      case 'X': return Format::e_HEX;
 
       default: {
         P(fmtCode);  ASSERT("Invalid formatting mode used in gg script" && 0);
@@ -848,7 +848,7 @@ const char
 
         // Parse field attributes, if any.
 
-        int  fmt           = Format::BDEAT_DEFAULT;
+        int  fmt           = Format::e_DEFAULT;
         bool nullable      = ! bsl::strchr("+#%@", fieldTypeChar);
         bool hasNoDefault  = true;
         int  dfltIndex     = -1;
@@ -3472,7 +3472,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator  testAllocator(veryVeryVerbose);
         bslma::Allocator     *Z = &testAllocator;
-        int                  fmt = Format::BDEAT_DEFAULT;
+        int                  fmt = Format::e_DEFAULT;
 
         Schema s(Z);
         EnumDef *e = s.createEnumeration("a");

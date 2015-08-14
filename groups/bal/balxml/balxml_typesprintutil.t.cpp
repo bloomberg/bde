@@ -131,12 +131,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, TestEnum::Value rhs)
 using TestNamespace::TestEnum;
 
                  // ==========================================
-                 // bdeat_EnumFunctions Overrides for TestEnum
+                 // bdlat_EnumFunctions Overrides for TestEnum
                  // ==========================================
 
 namespace BloombergLP {
 
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
 
     template <>
     struct IsEnumeration<TestEnum::Value> : bslmf::MetaInt<1> {
@@ -229,7 +229,7 @@ struct MyEnumeration {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyEnumeration")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -350,7 +350,7 @@ namespace test {
 const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
     // the name of this class
 
-const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
     {
         MyEnumeration::VALUE1,
         "VALUE1",                      // name
@@ -586,7 +586,7 @@ CustomizedInt& CustomizedInt::operator=(const CustomizedInt& rhs)
 inline
 void CustomizedInt::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -875,7 +875,7 @@ CustomizedString& CustomizedString::operator=(const CustomizedString& rhs)
 inline
 void CustomizedString::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -1155,7 +1155,7 @@ int main(int argc, char *argv[])
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_BASE64);
+                Util::print(ss, X, bdlat_FormattingMode::e_BASE64);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_DEC);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_DEC);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1213,7 +1213,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_DEFAULT);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_DEFAULT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1247,7 +1247,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_DEFAULT);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_DEFAULT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_HEX);
+                Util::print(ss, X, bdlat_FormattingMode::e_HEX);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1327,14 +1327,14 @@ int main(int argc, char *argv[])
 
                 Type mX(INPUT, INPUT + NUM_INPUT);  const Type& X = mX;
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_LIST);
+                Util::print(ss, X, bdlat_FormattingMode::e_LIST);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
 
                 ss.str("");
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_LIST |
-                                   bdeat_FormattingMode::BDEAT_DEC);
+                Util::print(ss, X, bdlat_FormattingMode::e_LIST |
+                                   bdlat_FormattingMode::e_DEC);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_TEXT);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_TEXT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -5134,7 +5134,7 @@ int main(int argc, char *argv[])
               bsl::stringstream ss;
 
               balxml::TypesPrintUtil::print(ss, TestEnum::VALUE2,
-                                    bdeat_FormattingMode::BDEAT_DEFAULT);
+                                    bdlat_FormattingMode::e_DEFAULT);
               LOOP_ASSERT(ss.str(), "VALUE2" == ss.str());
           }
 
@@ -5142,7 +5142,7 @@ int main(int argc, char *argv[])
               bsl::stringstream ss;
 
               balxml::TypesPrintUtil::print(ss, TestEnum::VALUE2,
-                                    bdeat_FormattingMode::BDEAT_DEC);
+                                    bdlat_FormattingMode::e_DEC);
               LOOP_ASSERT(ss.str(), "2" == ss.str());
           }
 

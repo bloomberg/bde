@@ -77,12 +77,12 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 struct MyArrayType {
-    enum { SELECTION = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY };
-    typedef bdeat_TypeCategory::Array Category;
+    enum { SELECTION = bdlat_TypeCategory::e_ARRAY_CATEGORY };
+    typedef bdlat_TypeCategory::Array Category;
 };
 
 namespace BloombergLP {
-namespace bdeat_ArrayFunctions {
+namespace bdlat_ArrayFunctions {
     template <>
     struct IsArray<MyArrayType> {
         enum { VALUE = 1 };
@@ -91,12 +91,12 @@ namespace bdeat_ArrayFunctions {
 }  // close enterprise namespace
 
 struct MyChoiceType {
-    enum { SELECTION = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY };
-    typedef bdeat_TypeCategory::Choice Category;
+    enum { SELECTION = bdlat_TypeCategory::e_CHOICE_CATEGORY };
+    typedef bdlat_TypeCategory::Choice Category;
 };
 
 namespace BloombergLP {
-namespace bdeat_ChoiceFunctions {
+namespace bdlat_ChoiceFunctions {
     template <>
     struct IsChoice<MyChoiceType> {
         enum { VALUE = 1 };
@@ -105,12 +105,12 @@ namespace bdeat_ChoiceFunctions {
 }  // close enterprise namespace
 
 struct MyCustomizedType {
-    enum { SELECTION = bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY };
-    typedef bdeat_TypeCategory::CustomizedType Category;
+    enum { SELECTION = bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY };
+    typedef bdlat_TypeCategory::CustomizedType Category;
 };
 
 namespace BloombergLP {
-namespace bdeat_CustomizedTypeFunctions {
+namespace bdlat_CustomizedTypeFunctions {
     template <>
     struct IsCustomizedType<MyCustomizedType> {
         enum { VALUE = 1 };
@@ -119,12 +119,12 @@ namespace bdeat_CustomizedTypeFunctions {
 }  // close enterprise namespace
 
 struct MyEnumerationType {
-    enum { SELECTION = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY };
-    typedef bdeat_TypeCategory::Enumeration Category;
+    enum { SELECTION = bdlat_TypeCategory::e_ENUMERATION_CATEGORY };
+    typedef bdlat_TypeCategory::Enumeration Category;
 };
 
 namespace BloombergLP {
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
     template <>
     struct IsEnumeration<MyEnumerationType> {
         enum { VALUE = 1 };
@@ -133,12 +133,12 @@ namespace bdeat_EnumFunctions {
 }  // close enterprise namespace
 
 struct MyNullableValueType {
-    enum { SELECTION = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY };
-    typedef bdeat_TypeCategory::NullableValue Category;
+    enum { SELECTION = bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY };
+    typedef bdlat_TypeCategory::NullableValue Category;
 };
 
 namespace BloombergLP {
-namespace bdeat_NullableValueFunctions {
+namespace bdlat_NullableValueFunctions {
     template <>
     struct IsNullableValue<MyNullableValueType> {
         enum { VALUE = 1 };
@@ -147,12 +147,12 @@ namespace bdeat_NullableValueFunctions {
 }  // close enterprise namespace
 
 struct MySequenceType {
-    enum { SELECTION = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY };
-    typedef bdeat_TypeCategory::Sequence Category;
+    enum { SELECTION = bdlat_TypeCategory::e_SEQUENCE_CATEGORY };
+    typedef bdlat_TypeCategory::Sequence Category;
 };
 
 namespace BloombergLP {
-namespace bdeat_SequenceFunctions {
+namespace bdlat_SequenceFunctions {
     template <>
     struct IsSequence<MySequenceType> {
         enum { VALUE = 1 };
@@ -163,94 +163,94 @@ namespace bdeat_SequenceFunctions {
 
 struct MyDeclaredDynamicType {
     enum { SELECTION = 0 };
-    typedef bdeat_TypeCategory::DynamicType Category;
+    typedef bdlat_TypeCategory::DynamicType Category;
 
-    bdeat_TypeCategory::Value d_currentCategory;
+    bdlat_TypeCategory::Value d_currentCategory;
 
     void makeChoice()
     {
-        d_currentCategory = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
+        d_currentCategory = bdlat_TypeCategory::e_CHOICE_CATEGORY;
     }
 
     void makeSequence()
     {
-        d_currentCategory = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
+        d_currentCategory = bdlat_TypeCategory::e_SEQUENCE_CATEGORY;
     }
 };
 
 namespace BloombergLP {
     template <>
-    struct bdeat_TypeCategoryDeclareDynamic<MyDeclaredDynamicType> {
+    struct bdlat_TypeCategoryDeclareDynamic<MyDeclaredDynamicType> {
         enum { VALUE = 1 };
     };
 }  // close enterprise namespace
 
-bdeat_TypeCategory::Value
-bdeat_typeCategorySelect(const MyDeclaredDynamicType& object)
+bdlat_TypeCategory::Value
+bdlat_typeCategorySelect(const MyDeclaredDynamicType& object)
 {
     (void)object;
     return object.d_currentCategory;
 }
 
 template <class MANIPULATOR>
-int bdeat_typeCategoryManipulateChoice(MyDeclaredDynamicType *object,
+int bdlat_typeCategoryManipulateChoice(MyDeclaredDynamicType *object,
                                        MANIPULATOR&           manipulator)
 {
     (void)object;
-    return manipulator(object, bdeat_TypeCategory::Choice());
+    return manipulator(object, bdlat_TypeCategory::Choice());
 }
 
 template <class MANIPULATOR>
-int bdeat_typeCategoryManipulateSequence(MyDeclaredDynamicType *object,
+int bdlat_typeCategoryManipulateSequence(MyDeclaredDynamicType *object,
                                          MANIPULATOR&           manipulator)
 {
     (void)object;
-    return manipulator(object, bdeat_TypeCategory::Sequence());
+    return manipulator(object, bdlat_TypeCategory::Sequence());
 }
 
 template <class ACCESSOR>
-int bdeat_typeCategoryAccessChoice(const MyDeclaredDynamicType& object,
+int bdlat_typeCategoryAccessChoice(const MyDeclaredDynamicType& object,
                                    ACCESSOR&                    accessor)
 {
     (void)object;
-    return accessor(object, bdeat_TypeCategory::Choice());
+    return accessor(object, bdlat_TypeCategory::Choice());
 }
 
 template <class ACCESSOR>
-int bdeat_typeCategoryAccessSequence(const MyDeclaredDynamicType& object,
+int bdlat_typeCategoryAccessSequence(const MyDeclaredDynamicType& object,
                                      ACCESSOR&                    accessor)
 {
     (void)object;
-    return accessor(object, bdeat_TypeCategory::Sequence());
+    return accessor(object, bdlat_TypeCategory::Sequence());
 }
 
 struct MyAutoDetectDynamicType {
     enum { SELECTION = 0 };
-    typedef bdeat_TypeCategory::DynamicType Category;
+    typedef bdlat_TypeCategory::DynamicType Category;
 
-    bdeat_TypeCategory::Value d_currentCategory;
+    bdlat_TypeCategory::Value d_currentCategory;
 
     void makeSequence()
     {
-        d_currentCategory = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
+        d_currentCategory = bdlat_TypeCategory::e_SEQUENCE_CATEGORY;
     }
 
     void makeNullableValue()
     {
-        d_currentCategory = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
+        d_currentCategory = bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY;
     }
 };
 
 namespace BloombergLP {
 
-namespace bdeat_SequenceFunctions {
+namespace bdlat_SequenceFunctions {
     template <>
     struct IsSequence<MyAutoDetectDynamicType> {
         enum { VALUE = 1 };
     };
 }  // close namespace bdlat_SequenceFunctions
 
-namespace bdeat_NullableValueFunctions {
+namespace bdlat_NullableValueFunctions {
     template <>
     struct IsNullableValue<MyAutoDetectDynamicType> {
         enum { VALUE = 1 };
@@ -258,8 +258,8 @@ namespace bdeat_NullableValueFunctions {
 }  // close namespace bdlat_NullableValueFunctions
 }  // close enterprise namespace
 
-bdeat_TypeCategory::Value
-bdeat_typeCategorySelect(const MyAutoDetectDynamicType& object)
+bdlat_TypeCategory::Value
+bdlat_typeCategorySelect(const MyAutoDetectDynamicType& object)
 {
     (void)object;
     return object.d_currentCategory;
@@ -276,59 +276,59 @@ struct MyManipulator {
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::DynamicType)
+    int operator()(TYPE *object, bdlat_TypeCategory::DynamicType)
     {
         (void)object;
         return 0;
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::Array)
+    int operator()(TYPE *object, bdlat_TypeCategory::Array)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
+        return bdlat_TypeCategory::e_ARRAY_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::Choice)
+    int operator()(TYPE *object, bdlat_TypeCategory::Choice)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
+        return bdlat_TypeCategory::e_CHOICE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::CustomizedType)
+    int operator()(TYPE *object, bdlat_TypeCategory::CustomizedType)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
+        return bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::Enumeration)
+    int operator()(TYPE *object, bdlat_TypeCategory::Enumeration)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
+        return bdlat_TypeCategory::e_ENUMERATION_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::NullableValue)
+    int operator()(TYPE *object, bdlat_TypeCategory::NullableValue)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
+        return bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::Sequence)
+    int operator()(TYPE *object, bdlat_TypeCategory::Sequence)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
+        return bdlat_TypeCategory::e_SEQUENCE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(TYPE *object, bdeat_TypeCategory::Simple)
+    int operator()(TYPE *object, bdlat_TypeCategory::Simple)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+        return bdlat_TypeCategory::e_SIMPLE_CATEGORY;
     }
 };
 
@@ -342,59 +342,59 @@ struct MyAccessor {
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::DynamicType)
+    int operator()(const TYPE& object, bdlat_TypeCategory::DynamicType)
     {
         (void)object;
         return 0;
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::Array)
+    int operator()(const TYPE& object, bdlat_TypeCategory::Array)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
+        return bdlat_TypeCategory::e_ARRAY_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::Choice)
+    int operator()(const TYPE& object, bdlat_TypeCategory::Choice)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
+        return bdlat_TypeCategory::e_CHOICE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::CustomizedType)
+    int operator()(const TYPE& object, bdlat_TypeCategory::CustomizedType)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
+        return bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::Enumeration)
+    int operator()(const TYPE& object, bdlat_TypeCategory::Enumeration)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
+        return bdlat_TypeCategory::e_ENUMERATION_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::NullableValue)
+    int operator()(const TYPE& object, bdlat_TypeCategory::NullableValue)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
+        return bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::Sequence)
+    int operator()(const TYPE& object, bdlat_TypeCategory::Sequence)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
+        return bdlat_TypeCategory::e_SEQUENCE_CATEGORY;
     }
 
     template <class TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
+    int operator()(const TYPE& object, bdlat_TypeCategory::Simple)
     {
         (void)object;
-        return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+        return bdlat_TypeCategory::e_SIMPLE_CATEGORY;
     }
 };
 
@@ -420,43 +420,43 @@ struct MyAccessor {
 // In order to implement this function, we will use a set of helper functions
 // that are overloaded based on the category tag:
 //..
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Array)
+    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Array)
     {
         stream << "Array";
     }
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Choice)
+    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Choice)
     {
         stream << "Choice";
     }
 
     void printCategory(bsl::ostream& stream,
-                       bdeat_TypeCategory::CustomizedType)
+                       bdlat_TypeCategory::CustomizedType)
     {
         stream << "CustomizedType";
     }
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::DynamicType)
+    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::DynamicType)
     {
         stream << "DynamicType";
     }
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Enumeration)
+    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Enumeration)
     {
         stream << "Enumeration";
     }
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::NullableValue)
+    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::NullableValue)
     {
         stream << "NullableValue";
     }
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Sequence)
+    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Sequence)
     {
         stream << "Sequence";
     }
 
-    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Simple)
+    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Simple)
     {
         stream << "Simple";
     }
@@ -469,7 +469,7 @@ struct MyAccessor {
     void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
     {
         typedef typename
-        bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+        bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
         printCategory(stream, TypeCategory());
 
@@ -549,80 +549,80 @@ struct MyAccessor {
     };
 //..
 // To make this type dynamic, we will specialize the
-// 'bdeat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
+// 'bdlat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
 // namespace:
 //..
     namespace BloombergLP {
 
         template <>
-        struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
+        struct bdlat_TypeCategoryDeclareDynamic<VectorCharOrString> {
             enum { VALUE = 1 };
         };
 
     }  // close enterprise namespace
 
 //..
-// Next, we define bdeat_typeCategorySelect', and a suite of four function,
-// 'bdeat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
+// Next, we define bdlat_typeCategorySelect', and a suite of four function,
+// 'bdlat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
 // our type, 'VectorCharOrString'.
 //..
-    bdeat_TypeCategory::Value
-    bdeat_typeCategorySelect(const VectorCharOrString& object)
+    bdlat_TypeCategory::Value
+    bdlat_typeCategorySelect(const VectorCharOrString& object)
     {
         if (object.isVectorChar()) {
-            return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;          // RETURN
+            return bdlat_TypeCategory::e_ARRAY_CATEGORY;          // RETURN
         }
         else if (object.isString()) {
-            return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;         // RETURN
+            return bdlat_TypeCategory::e_SIMPLE_CATEGORY;         // RETURN
         }
 
         ASSERT(0);
-        return static_cast<bdeat_TypeCategory::Value>(-1);
+        return static_cast<bdlat_TypeCategory::Value>(-1);
     }
 
     template <class MANIPULATOR>
-    int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
+    int bdlat_typeCategoryManipulateArray(VectorCharOrString *object,
                                           MANIPULATOR&        manipulator)
     {
         if (object->isVectorChar()) {
             return manipulator(&object->theVectorChar(),
-                               bdeat_TypeCategory::Array());          // RETURN
+                               bdlat_TypeCategory::Array());          // RETURN
         }
 
         return manipulator(object, bslmf::Nil());
     }
 
     template <class MANIPULATOR>
-    int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
+    int bdlat_typeCategoryManipulateSimple(VectorCharOrString *object,
                                            MANIPULATOR&        manipulator)
     {
         if (object->isString()) {
             return manipulator(&object->theString(),
-                               bdeat_TypeCategory::Simple());         // RETURN
+                               bdlat_TypeCategory::Simple());         // RETURN
         }
 
         return manipulator(object, bslmf::Nil());
     }
 
     template <class ACCESSOR>
-    int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
+    int bdlat_typeCategoryAccessArray(const VectorCharOrString& object,
                                       ACCESSOR&                 accessor)
     {
         if (object.isVectorChar()) {
             return accessor(object.theVectorChar(),
-                            bdeat_TypeCategory::Array());             // RETURN
+                            bdlat_TypeCategory::Array());             // RETURN
         }
 
         return accessor(object, bslmf::Nil());
     }
 
     template <class ACCESSOR>
-    int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
+    int bdlat_typeCategoryAccessSimple(const VectorCharOrString& object,
                                        ACCESSOR&                 accessor)
     {
         if (object.isString()) {
             return accessor(object.theString(),
-                            bdeat_TypeCategory::Simple());            // RETURN
+                            bdlat_TypeCategory::Simple());            // RETURN
         }
 
         return accessor(object, bslmf::Nil());
@@ -644,7 +644,7 @@ struct MyAccessor {
         }
 
         template <class TYPE>
-        int operator()(const TYPE& object, bdeat_TypeCategory::Array)
+        int operator()(const TYPE& object, bdlat_TypeCategory::Array)
         {
             (*d_stream_p) << "Array = ";
             bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
@@ -652,7 +652,7 @@ struct MyAccessor {
         }
 
         template <class TYPE>
-        int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
+        int operator()(const TYPE& object, bdlat_TypeCategory::Simple)
         {
             (*d_stream_p) << "Simple = ";
             bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
@@ -680,14 +680,14 @@ struct MyAccessor {
         object.theVectorChar().push_back('l');
         object.theVectorChar().push_back('o');
 
-        ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+        ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
         ASSERT("Array = \"Hello\"" == oss.str());
         oss.str("");
 
         object.makeString();
         object.theString() = "World";
 
-        ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+        ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
         ASSERT("Simple = World" == oss.str());
     }
 //..
@@ -762,8 +762,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -773,8 +773,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -784,8 +784,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -795,8 +795,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_ENUMERATION_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -806,8 +806,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -817,8 +817,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -828,8 +828,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -839,8 +839,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -850,8 +850,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -861,8 +861,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -872,8 +872,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -884,14 +884,14 @@ int main(int argc, char *argv[])
             MyAccessor    accessor;
 
             object.makeChoice();
-            int catchoice = bdeat_TypeCategoryUtil::
+            int catchoice = bdlat_TypeCategoryUtil::
                                             accessByCategory(object, accessor);
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY == catchoice);
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY == catchoice);
 
             object.makeSequence();
-            int catseq = bdeat_TypeCategoryUtil::
+            int catseq = bdlat_TypeCategoryUtil::
                                             accessByCategory(object, accessor);
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY == catseq);
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY == catseq);
         }
 
         {
@@ -901,13 +901,13 @@ int main(int argc, char *argv[])
             MyAccessor    accessor;
 
             object.makeSequence();
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
 
             object.makeNullableValue();
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          accessByCategory(object, accessor));
         }
 
@@ -933,8 +933,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -944,8 +944,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -955,8 +955,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -966,8 +966,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_ENUMERATION_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -977,8 +977,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -988,8 +988,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -999,8 +999,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -1010,8 +1010,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -1021,8 +1021,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -1032,8 +1032,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -1043,8 +1043,8 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -1055,14 +1055,14 @@ int main(int argc, char *argv[])
             MyManipulator manip;
 
             object.makeChoice();
-            int catchoice = bdeat_TypeCategoryUtil::
+            int catchoice = bdlat_TypeCategoryUtil::
                                           manipulateByCategory(&object, manip);
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY == catchoice);
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY == catchoice);
 
             object.makeSequence();
-            int catseq = bdeat_TypeCategoryUtil::
+            int catseq = bdlat_TypeCategoryUtil::
                                           manipulateByCategory(&object, manip);
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY == catseq);
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY == catseq);
         }
 
         {
@@ -1072,13 +1072,13 @@ int main(int argc, char *argv[])
             MyManipulator manip;
 
             object.makeSequence();
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
 
             object.makeNullableValue();
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                    == bdeat_TypeCategoryUtil::
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                    == bdlat_TypeCategoryUtil::
                                          manipulateByCategory(&object, manip));
         }
 
@@ -1104,26 +1104,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1133,26 +1133,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1162,26 +1162,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1191,26 +1191,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_ENUMERATION_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1220,26 +1220,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1249,26 +1249,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1278,26 +1278,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1307,26 +1307,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1336,26 +1336,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1365,26 +1365,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1394,26 +1394,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyAccessor    accessor;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    accessArray(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessChoice(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessCustomizedType(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessEnumeration(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessNullableValue(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSequence(object, accessor));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    accessSimple(object, accessor));
         }
 
@@ -1439,26 +1439,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1468,26 +1468,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1497,26 +1497,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1526,26 +1526,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_ENUMERATION_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1555,26 +1555,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1584,26 +1584,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1613,26 +1613,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1642,26 +1642,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1671,26 +1671,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1700,26 +1700,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1729,26 +1729,26 @@ int main(int argc, char *argv[])
             Type          object;
             MyManipulator manip;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                      == bdeat_TypeCategoryFunctions::
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                      == bdlat_TypeCategoryFunctions::
                                    manipulateArray(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateChoice(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateCustomizedType(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateEnumeration(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateNullableValue(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSequence(&object, manip));
 
-            ASSERT(-1 == bdeat_TypeCategoryFunctions::
+            ASSERT(-1 == bdlat_TypeCategoryFunctions::
                                    manipulateSimple(&object, manip));
         }
 
@@ -1773,8 +1773,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1782,8 +1782,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1791,8 +1791,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1800,8 +1800,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_ENUMERATION_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1809,8 +1809,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1818,8 +1818,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1827,8 +1827,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1836,8 +1836,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1845,8 +1845,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1854,8 +1854,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1863,8 +1863,8 @@ int main(int argc, char *argv[])
 
             Type object;
 
-            ASSERT(bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1873,12 +1873,12 @@ int main(int argc, char *argv[])
             Type object;
 
             object.makeChoice();
-            ASSERT(bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_CHOICE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
 
             object.makeSequence();
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
         {
@@ -1887,12 +1887,12 @@ int main(int argc, char *argv[])
             Type object;
 
             object.makeSequence();
-            ASSERT(bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_SEQUENCE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
 
             object.makeNullableValue();
-            ASSERT(bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
-                               == bdeat_TypeCategoryFunctions::select(object));
+            ASSERT(bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
+                               == bdlat_TypeCategoryFunctions::select(object));
         }
 
 
@@ -1916,145 +1916,145 @@ int main(int argc, char *argv[])
             typedef MyArrayType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef MyChoiceType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef MyCustomizedType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef MyEnumerationType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef MyNullableValueType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef MySequenceType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef MyDeclaredDynamicType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef MyAutoDetectDynamicType Type;
 
             ASSERT(((int)Type::SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Type::Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef int Type;
 
-            enum { SELECTION = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY };
-            typedef bdeat_TypeCategory::Simple Category;
+            enum { SELECTION = bdlat_TypeCategory::e_SIMPLE_CATEGORY };
+            typedef bdlat_TypeCategory::Simple Category;
 
             ASSERT(((int)SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef float Type;
 
-            enum { SELECTION = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY };
-            typedef bdeat_TypeCategory::Simple Category;
+            enum { SELECTION = bdlat_TypeCategory::e_SIMPLE_CATEGORY };
+            typedef bdlat_TypeCategory::Simple Category;
 
             ASSERT(((int)SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef char Type;
 
-            enum { SELECTION = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY };
-            typedef bdeat_TypeCategory::Simple Category;
+            enum { SELECTION = bdlat_TypeCategory::e_SIMPLE_CATEGORY };
+            typedef bdlat_TypeCategory::Simple Category;
 
             ASSERT(((int)SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef bsl::string Type;
 
-            enum { SELECTION = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY };
-            typedef bdeat_TypeCategory::Simple Category;
+            enum { SELECTION = bdlat_TypeCategory::e_SIMPLE_CATEGORY };
+            typedef bdlat_TypeCategory::Simple Category;
 
             ASSERT(((int)SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
         {
             typedef bsl::vector<char> Type;
 
-            enum { SELECTION = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY };
-            typedef bdeat_TypeCategory::Array Category;
+            enum { SELECTION = bdlat_TypeCategory::e_ARRAY_CATEGORY };
+            typedef bdlat_TypeCategory::Array Category;
 
             ASSERT(((int)SELECTION
-                   == (int)bdeat_TypeCategory::Select<Type>::BDEAT_SELECTION));
+                   == (int)bdlat_TypeCategory::Select<Type>::e_SELECTION));
             ASSERT((bslmf::IsSame<
                               Category,
-                              bdeat_TypeCategory::Select<Type>::Type>::VALUE));
+                              bdlat_TypeCategory::Select<Type>::Type>::VALUE));
         }
 
       } break;

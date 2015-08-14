@@ -117,15 +117,15 @@ int BerEncoder::encodeImpl(const bsl::vector<char>&    value,
                                 BerConstants::TagClass tagClass,
                                 int                         tagNumber,
                                 int                         formattingMode,
-                                bdeat_TypeCategory::Array)
+                                bdlat_TypeCategory::Array)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_BASE64:
-      case bdeat_FormattingMode::BDEAT_HEX:
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_BASE64:
+      case bdlat_FormattingMode::e_HEX:
+      case bdlat_FormattingMode::e_TEXT: {
       } break;
       default: {
         return this->encodeArrayImpl(value,
@@ -154,7 +154,7 @@ int BerEncoder::encodeImpl(const bsl::vector<char>&    value,
     if (status) {
         logError(tagClass,
                  tagNumber,
-                 0 // bdeat_TypeName::name(value)
+                 0 // bdlat_TypeName::name(value)
                 );
 
         return BDEM_FAILURE;                                          // RETURN

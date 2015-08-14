@@ -33785,16 +33785,16 @@ class Address {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Address")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -33960,33 +33960,33 @@ namespace test {
 const char Address::CLASS_NAME[] = "Address";
     // the name of this class
 
-const bdeat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_STREET,
         "street",                 // name
         sizeof("street") - 1,     // name length
         "street",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_CITY,
         "city",                 // name
         sizeof("city") - 1,     // name length
         "city",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_STATE,
         "state",                 // name
         sizeof("state") - 1,     // name length
         "state",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *Address::lookupAttributeInfo(
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -34025,7 +34025,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Address::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_STREET:
@@ -34144,9 +34144,9 @@ Address::operator=(const Address& rhs)
 inline
 void Address::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_street);
-    bdeat_ValueTypeFunctions::reset(&d_city);
-    bdeat_ValueTypeFunctions::reset(&d_state);
+    bdlat_ValueTypeFunctions::reset(&d_street);
+    bdlat_ValueTypeFunctions::reset(&d_city);
+    bdlat_ValueTypeFunctions::reset(&d_state);
 }
 
 template <class MANIPULATOR>
@@ -34209,7 +34209,7 @@ int Address::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -34295,7 +34295,7 @@ int Address::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -34370,16 +34370,16 @@ class Employee {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Employee")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -34545,33 +34545,33 @@ namespace test {
 const char Employee::CLASS_NAME[] = "Employee";
     // the name of this class
 
-const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "name",                 // name
         sizeof("name") - 1,     // name length
         "name",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",                 // name
         sizeof("homeAddress") - 1,     // name length
         "homeAddress",  // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "age",                 // name
         sizeof("age") - 1,     // name length
         "age",  // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -34614,7 +34614,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -34733,9 +34733,9 @@ Employee::operator=(const Employee& rhs)
 inline
 void Employee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_homeAddress);
-    bdeat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_homeAddress);
+    bdlat_ValueTypeFunctions::reset(&d_age);
 }
 
 template <class MANIPULATOR>
@@ -34798,7 +34798,7 @@ int Employee::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -34885,7 +34885,7 @@ int Employee::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -35055,7 +35055,7 @@ struct Color {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
     static const char *toString(Value value);
@@ -35133,15 +35133,15 @@ class FullName {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -35310,15 +35310,15 @@ class Employee {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -35544,7 +35544,7 @@ int FullName::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -35611,7 +35611,7 @@ int FullName::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -35720,7 +35720,7 @@ int Employee::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -35847,7 +35847,7 @@ int Employee::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -35951,7 +35951,7 @@ namespace case4 {
 
 const char Color::CLASS_NAME[] = "Color";
 
-const bdeat_EnumeratorInfo Color::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo Color::ENUMERATOR_INFO_ARRAY[] = {
     {
         Color::RED,
         "RED",
@@ -35993,7 +35993,7 @@ int Color::fromString(
         int                 stringLength)
 {
     for (int i = 0; i < 3; ++i) {
-        const bdeat_EnumeratorInfo& enumeratorInfo =
+        const bdlat_EnumeratorInfo& enumeratorInfo =
                     Color::ENUMERATOR_INFO_ARRAY[i];
 
         if (stringLength == enumeratorInfo.d_nameLength
@@ -36034,31 +36034,31 @@ const char *Color::toString(Color::Value value)
 
 const char FullName::CLASS_NAME[] = "FullName";
 
-const bdeat_AttributeInfo FullName::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo FullName::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "name",
         sizeof("name") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_IDS,
         "ids",
         sizeof("ids") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *FullName::lookupAttributeInfo(
+const bdlat_AttributeInfo *FullName::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
     for (int i = 0; i < 2; ++i) {
-        const bdeat_AttributeInfo& attributeInfo =
+        const bdlat_AttributeInfo& attributeInfo =
                     FullName::ATTRIBUTE_INFO_ARRAY[i];
 
         if (nameLength == attributeInfo.d_nameLength
@@ -36071,7 +36071,7 @@ const bdeat_AttributeInfo *FullName::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *FullName::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *FullName::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -36117,8 +36117,8 @@ FullName::operator=(const FullName& rhs)
 
 void FullName::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_ids);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_ids);
 }
 
                                // --------------
@@ -36129,59 +36129,59 @@ void FullName::reset()
 
 const char Employee::CLASS_NAME[] = "Employee";
 
-const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "name",
         sizeof("name") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_AGE,
         "age",
         sizeof("age") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_IDS,
         "ids",
         sizeof("ids") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_FULLNAME,
         "fullname",
         sizeof("fullname") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_CAR_COLOR,
         "car_color",
         sizeof("car_color") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_FRIENDS,
         "friends",
         sizeof("friends") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
     for (int i = 0; i < 6; ++i) {
-        const bdeat_AttributeInfo& attributeInfo =
+        const bdlat_AttributeInfo& attributeInfo =
                     Employee::ATTRIBUTE_INFO_ARRAY[i];
 
         if (nameLength == attributeInfo.d_nameLength
@@ -36194,7 +36194,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -36260,12 +36260,12 @@ Employee::operator=(const Employee& rhs)
 
 void Employee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_age);
-    bdeat_ValueTypeFunctions::reset(&d_ids);
-    bdeat_ValueTypeFunctions::reset(&d_fullname);
-    bdeat_ValueTypeFunctions::reset(&d_carColor);
-    bdeat_ValueTypeFunctions::reset(&d_friends);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_ids);
+    bdlat_ValueTypeFunctions::reset(&d_fullname);
+    bdlat_ValueTypeFunctions::reset(&d_carColor);
+    bdlat_ValueTypeFunctions::reset(&d_friends);
 }
 
 
@@ -36547,15 +36547,15 @@ class HexBinarySequence {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -36735,7 +36735,7 @@ int HexBinarySequence::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -36787,7 +36787,7 @@ int HexBinarySequence::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -36829,19 +36829,19 @@ bool operator!=(
 
 const char HexBinarySequence::CLASS_NAME[] = "HexBinarySequence";
 
-const bdeat_AttributeInfo HexBinarySequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo HexBinarySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
+const bdlat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -36858,7 +36858,7 @@ const bdeat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1:
@@ -36898,7 +36898,7 @@ HexBinarySequence::operator=(const HexBinarySequence& rhs)
 
 void HexBinarySequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_element1);
+    bdlat_ValueTypeFunctions::reset(&d_element1);
 }
 
 // ACCESSORS

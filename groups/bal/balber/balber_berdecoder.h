@@ -806,7 +806,7 @@ BerDecoder_Node::BerDecoder_Node(BerDecoder *decoder)
 , d_consumedHeaderBytes(0)
 , d_consumedBodyBytes  (0)
 , d_consumedTailBytes  (0)
-, d_formattingMode     (bdlat_FormattingMode::BDEAT_DEFAULT)
+, d_formattingMode     (bdlat_FormattingMode::e_DEFAULT)
 , d_fieldName          (0)
 {
     ++d_decoder->d_currentDepth;
@@ -937,7 +937,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
         return logError("Expected CONSTRUCTED tag type for choice");
     }
 
-    bool isUntagged = d_formattingMode & bdlat_FormattingMode::BDEAT_UNTAGGED;
+    bool isUntagged = d_formattingMode & bdlat_FormattingMode::e_UNTAGGED;
 
     int rc = BerDecoder::e_BER_SUCCESS;
 
@@ -990,7 +990,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
 {
     int rc = BerDecoder::e_BER_SUCCESS;
 
-    if (d_formattingMode & bdlat_FormattingMode::BDEAT_NILLABLE) {
+    if (d_formattingMode & bdlat_FormattingMode::e_NILLABLE) {
         // nillable is encoded in BER as a sequence with one optional element
 
         if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
@@ -1031,7 +1031,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
             bdlat_ValueTypeFunctions::reset(variable);
         }
     }
-    else {  // not 'bdlat_FormattingMode::BDEAT_NILLABLE'
+    else {  // not 'bdlat_FormattingMode::e_NILLABLE'
         bdlat_NullableValueFunctions::makeValue(variable);
         rc = bdlat_NullableValueFunctions::manipulateValue(variable, *this);
     }

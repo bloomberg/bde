@@ -124,7 +124,9 @@ ball::Severity::Level AssertionLogger::defaultLogSeverity()
     return static_cast<ball::Severity::Level>(
                            bsls::AtomicOperations::getIntRelaxed(&s_severity));
 }
+
 }  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

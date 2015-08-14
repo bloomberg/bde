@@ -157,7 +157,7 @@ class ChoiceA {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "ChoiceA")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
@@ -168,11 +168,11 @@ class ChoiceA {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -355,7 +355,7 @@ inline
 void ChoiceA::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -381,7 +381,7 @@ inline
 void ChoiceA::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -523,7 +523,7 @@ int ChoiceA::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -694,20 +694,20 @@ namespace test {
 const char ChoiceA::CLASS_NAME[] = "ChoiceA";
     // the name of this class
 
-const bdeat_SelectionInfo ChoiceA::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo ChoiceA::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",              // name
         sizeof("Selection1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",              // name
         sizeof("Selection2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -715,7 +715,7 @@ const bdeat_SelectionInfo ChoiceA::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *ChoiceA::lookupSelectionInfo(
+const bdlat_SelectionInfo *ChoiceA::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -746,7 +746,7 @@ const bdeat_SelectionInfo *ChoiceA::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *ChoiceA::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *ChoiceA::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -900,7 +900,7 @@ class ChoiceB {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "ChoiceB")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
@@ -911,11 +911,11 @@ class ChoiceB {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -1099,7 +1099,7 @@ inline
 void ChoiceB::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -1125,7 +1125,7 @@ inline
 void ChoiceB::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -1267,7 +1267,7 @@ int ChoiceB::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -1436,20 +1436,20 @@ namespace test {
 const char ChoiceB::CLASS_NAME[] = "ChoiceB";
     // the name of this class
 
-const bdeat_SelectionInfo ChoiceB::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo ChoiceB::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION2,
         "Selection2",              // name
         sizeof("Selection2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         SELECTION_ID_SELECTION1,
         "Selection1",              // name
         sizeof("Selection1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
@@ -1457,7 +1457,7 @@ const bdeat_SelectionInfo ChoiceB::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(const char *name,
+const bdlat_SelectionInfo *ChoiceB::lookupSelectionInfo(const char *name,
                                                         int         nameLength)
 {
     switch(nameLength) {
@@ -1487,7 +1487,7 @@ const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(const char *name,
     return 0;
 }
 
-const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *ChoiceB::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION2:
@@ -1779,7 +1779,7 @@ STREAM& CustomizedA::bdexStreamIn(STREAM& stream, int version)
 inline
 void CustomizedA::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -2095,7 +2095,7 @@ STREAM& CustomizedB::bdexStreamIn(STREAM& stream, int version)
 inline
 void CustomizedB::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -2250,7 +2250,7 @@ struct EnumerationA {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "EnumerationA")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -2463,7 +2463,7 @@ namespace test {
 const char EnumerationA::CLASS_NAME[] = "EnumerationA";
     // the name of this class
 
-const bdeat_EnumeratorInfo EnumerationA::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo EnumerationA::ENUMERATOR_INFO_ARRAY[] = {
     {
         EnumerationA::VALUE1,
         "VALUE1",                 // name
@@ -2571,7 +2571,7 @@ struct EnumerationB {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "EnumerationB")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -2784,7 +2784,7 @@ namespace test {
 const char EnumerationB::CLASS_NAME[] = "EnumerationB";
     // the name of this class
 
-const bdeat_EnumeratorInfo EnumerationB::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo EnumerationB::ENUMERATOR_INFO_ARRAY[] = {
     {
         EnumerationB::VALUE1,
         "VALUE1",                  // name
@@ -2903,7 +2903,7 @@ class SequenceA {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "SequenceA")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -2914,11 +2914,11 @@ class SequenceA {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3151,8 +3151,8 @@ STREAM& SequenceA::bdexStreamIn(STREAM& stream, int version)
 inline
 void SequenceA::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -3206,7 +3206,7 @@ int SequenceA::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3292,7 +3292,7 @@ int SequenceA::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3360,20 +3360,20 @@ namespace test {
 const char SequenceA::CLASS_NAME[] = "SequenceA";
     // the name of this class
 
-const bdeat_AttributeInfo SequenceA::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo SequenceA::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",              // name
         sizeof("Attribute1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",              // name
         sizeof("Attribute2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -3381,7 +3381,7 @@ const bdeat_AttributeInfo SequenceA::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *SequenceA::lookupAttributeInfo(
+const bdlat_AttributeInfo *SequenceA::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
@@ -3414,7 +3414,7 @@ const bdeat_AttributeInfo *SequenceA::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *SequenceA::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *SequenceA::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -3546,7 +3546,7 @@ class SequenceB {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "SequenceB")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -3557,11 +3557,11 @@ class SequenceB {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3794,8 +3794,8 @@ STREAM& SequenceB::bdexStreamIn(STREAM& stream, int version)
 inline
 void SequenceB::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
 }
 
 template <class MANIPULATOR>
@@ -3849,7 +3849,7 @@ int SequenceB::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3935,7 +3935,7 @@ int SequenceB::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4003,20 +4003,20 @@ namespace test {
 const char SequenceB::CLASS_NAME[] = "SequenceB";
     // the name of this class
 
-const bdeat_AttributeInfo SequenceB::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo SequenceB::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",              // name
         sizeof("Attribute2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",              // name
         sizeof("Attribute1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
@@ -4024,7 +4024,7 @@ const bdeat_AttributeInfo SequenceB::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *SequenceB::lookupAttributeInfo(
+const bdlat_AttributeInfo *SequenceB::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
@@ -4057,7 +4057,7 @@ const bdeat_AttributeInfo *SequenceB::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *SequenceB::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *SequenceB::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE2:
@@ -4199,7 +4199,7 @@ class Employee {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Employee")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -4210,11 +4210,11 @@ class Employee {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -4471,10 +4471,10 @@ STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
 inline
 void Employee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_dept);
-    bdeat_ValueTypeFunctions::reset(&d_age);
-    bdeat_ValueTypeFunctions::reset(&d_salary);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_dept);
+    bdlat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_salary);
 }
 
 template <class MANIPULATOR>
@@ -4545,7 +4545,7 @@ int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4660,7 +4660,7 @@ int Employee::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4743,34 +4743,34 @@ namespace test {
 const char Employee::CLASS_NAME[] = "Employee";
     // the name of this class
 
-const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "Name",                    // name
         sizeof("Name") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_DEPT,
         "Dept",                    // name
         sizeof("Dept") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "Age",                     // name
         sizeof("Age") - 1,         // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_SALARY,
         "Salary",                     // name
         sizeof("Salary") - 1,         // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 
@@ -4778,7 +4778,7 @@ const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
@@ -4824,7 +4824,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -4985,7 +4985,7 @@ class Trainee {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Trainee")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -4996,11 +4996,11 @@ class Trainee {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -5243,9 +5243,9 @@ STREAM& Trainee::bdexStreamIn(STREAM& stream, int version)
 inline
 void Trainee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_dept);
-    bdeat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_dept);
+    bdlat_ValueTypeFunctions::reset(&d_age);
 }
 
 template <class MANIPULATOR>
@@ -5306,7 +5306,7 @@ int Trainee::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5404,7 +5404,7 @@ int Trainee::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5479,27 +5479,27 @@ namespace test {
 const char Trainee::CLASS_NAME[] = "Trainee";
     // the name of this class
 
-const bdeat_AttributeInfo Trainee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Trainee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "Name",                    // name
         sizeof("Name") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_DEPT,
         "Dept",                    // name
         sizeof("Dept") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "Age",                     // name
         sizeof("Age") - 1,         // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
@@ -5507,7 +5507,7 @@ const bdeat_AttributeInfo Trainee::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *Trainee::lookupAttributeInfo(const char *name,
+const bdlat_AttributeInfo *Trainee::lookupAttributeInfo(const char *name,
                                                         int         nameLength)
 {
     switch(nameLength) {
@@ -5542,7 +5542,7 @@ const bdeat_AttributeInfo *Trainee::lookupAttributeInfo(const char *name,
     return 0;
 }
 
-const bdeat_AttributeInfo *Trainee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Trainee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -5711,7 +5711,7 @@ class MixedSequence {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MixedSequence")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -5722,11 +5722,11 @@ class MixedSequence {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -6028,13 +6028,13 @@ STREAM& MixedSequence::bdexStreamIn(STREAM& stream, int version)
 inline
 void MixedSequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute3);
-    bdeat_ValueTypeFunctions::reset(&d_attribute4);
-    bdeat_ValueTypeFunctions::reset(&d_attribute5);
-    bdeat_ValueTypeFunctions::reset(&d_attribute6);
-    bdeat_ValueTypeFunctions::reset(&d_attribute7);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute3);
+    bdlat_ValueTypeFunctions::reset(&d_attribute4);
+    bdlat_ValueTypeFunctions::reset(&d_attribute5);
+    bdlat_ValueTypeFunctions::reset(&d_attribute6);
+    bdlat_ValueTypeFunctions::reset(&d_attribute7);
 }
 
 template <class MANIPULATOR>
@@ -6143,7 +6143,7 @@ int MixedSequence::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6319,7 +6319,7 @@ int MixedSequence::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6429,55 +6429,55 @@ namespace test {
 const char MixedSequence::CLASS_NAME[] = "MixedSequence";
     // the name of this class
 
-const bdeat_AttributeInfo MixedSequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MixedSequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                 // name
         sizeof("Attribute1") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                 // name
         sizeof("Attribute2") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE3,
         "Attribute3",              // name
         sizeof("Attribute3") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE4,
         "Attribute4",                 // name
         sizeof("Attribute4") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE5,
         "Attribute5",              // name
         sizeof("Attribute5") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE6,
         "Attribute6",              // name
         sizeof("Attribute6") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE7,
         "Attribute7",                 // name
         sizeof("Attribute7") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 
@@ -6485,7 +6485,7 @@ const bdeat_AttributeInfo MixedSequence::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MixedSequence::lookupAttributeInfo(
+const bdlat_AttributeInfo *MixedSequence::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
@@ -6543,7 +6543,7 @@ const bdeat_AttributeInfo *MixedSequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MixedSequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MixedSequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -6741,7 +6741,7 @@ int hireTrainee(test::Employee       *result,
                 const test::Trainee&  trainee,
                 float                 salary)
 {
-    int retCode = bdeat_SymbolicConverter::convert(result, trainee);
+    int retCode = bdlat_SymbolicConverter::convert(result, trainee);
 
     result->salary() = salary;
 
@@ -6831,7 +6831,7 @@ int main(int argc, char *argv[])
         Type mY;  const Type& Y = mY;
         LOOP2_ASSERT(X, Y, X != Y);
 
-        int ret = bdeat_SymbolicConverter::convert(&mY, X);
+        int ret = bdlat_SymbolicConverter::convert(&mY, X);
         LOOP_ASSERT(ret, 0     == ret);
         LOOP2_ASSERT(X, Y, X == Y);
 
@@ -6860,7 +6860,7 @@ int main(int argc, char *argv[])
         test::CustomizedB b;
         b.fromString(VALUE);
 
-        int ret = bdeat_SymbolicConverter::convert(&a, b);
+        int ret = bdlat_SymbolicConverter::convert(&a, b);
         LOOP_ASSERT(ret, 0     == ret);
         LOOP_ASSERT(a,   VALUE == a);
 
@@ -6894,7 +6894,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b,            VALUE1 == b);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.toString(), VALUE1 == a.toString());
         }
@@ -6907,7 +6907,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b,            VALUE2 == b);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 != ret);
         }
 
@@ -6941,7 +6941,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b.toString(), VALUE1 == b.toString());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.toString(), VALUE1 == a.toString());
         }
@@ -6955,7 +6955,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b.toString(), VALUE2 == b.toString());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 != ret);
         }
 
@@ -6988,7 +6988,7 @@ int main(int argc, char *argv[])
 
             ASSERT(b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, ValueType() == a);
         }
@@ -7002,7 +7002,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a, b.value(), a != b.value());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP2_ASSERT(a, b.value(), a == b.value());
         }
@@ -7036,7 +7036,7 @@ int main(int argc, char *argv[])
 
             ASSERT(a.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP_ASSERT(a.value(), VALUE2 == a.value());
@@ -7051,7 +7051,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a.value(), b, a.value() != b);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP2_ASSERT(a.value(), b, a.value() == b);
@@ -7087,7 +7087,7 @@ int main(int argc, char *argv[])
             ASSERT(a.isNull());
             ASSERT(b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(a.isNull());
         }
@@ -7100,7 +7100,7 @@ int main(int argc, char *argv[])
             ASSERT(a.isNull());
             ASSERT(!b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP_ASSERT(a.value(), VALUE2 == a.value());
@@ -7114,7 +7114,7 @@ int main(int argc, char *argv[])
             ASSERT(!a.isNull());
             ASSERT(b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(a.isNull());
         }
@@ -7129,7 +7129,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a.value(), b.value(), a.value() != b.value());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP2_ASSERT(a.value(), b.value(), a.value() == b.value());
@@ -7159,7 +7159,7 @@ int main(int argc, char *argv[])
             const bsl::string VALUE1 = "VALUE1";
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7171,7 +7171,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             bsl::string value = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&value, a);
+            int ret = bdlat_SymbolicConverter::convert(&value, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(value, VALUE1 == value);
         }
@@ -7203,7 +7203,7 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(VALUE1 == test::EnumerationA::VALUE1);
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7214,7 +7214,7 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(VALUE1 == test::EnumerationA::VALUE1);
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7225,7 +7225,7 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(VALUE1 == test::EnumerationA::VALUE1);
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7240,7 +7240,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             Number number = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&number, a);
+            int ret = bdlat_SymbolicConverter::convert(&number, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(number, static_cast<Number>(a) == number);
         }
@@ -7253,7 +7253,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             Number number = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&number, a);
+            int ret = bdlat_SymbolicConverter::convert(&number, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(number, static_cast<Number>(a) == number);
         }
@@ -7266,7 +7266,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             Number number = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&number, a);
+            int ret = bdlat_SymbolicConverter::convert(&number, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(number, static_cast<Number>(a) == number);
         }
@@ -7291,7 +7291,7 @@ int main(int argc, char *argv[])
         test::EnumerationA::Value a = test::EnumerationA::VALUE1;
         test::EnumerationB::Value b = test::EnumerationB::VALUE2;
 
-        int ret = bdeat_SymbolicConverter::convert(&a, b);
+        int ret = bdlat_SymbolicConverter::convert(&a, b);
         LOOP_ASSERT(ret, 0 == ret);
         LOOP_ASSERT(a, test::EnumerationA::VALUE2 == a);
 
@@ -7326,7 +7326,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.size(), 0 == a.size());
             LOOP_ASSERT(b.size(), 0 == b.size());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.size(), 0 == a.size());
         }
@@ -7343,7 +7343,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.size(), 0 == a.size());
             LOOP_ASSERT(b.size(), 3 == b.size());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0        == ret);
             LOOP_ASSERT(a.size(), 3        == a.size());
             LOOP_ASSERT(a[0],     ELEMENT1 == a[0]);
@@ -7363,7 +7363,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.size(), 3 == a.size());
             LOOP_ASSERT(b.size(), 0 == b.size());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 0 == a.size());
         }
@@ -7391,7 +7391,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(a[1], b[1], a[1] != b[1]);
             LOOP2_ASSERT(a[2], b[2], a[2] != b[2]);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 3 == a.size());
             LOOP2_ASSERT(a[0], b[0], a[0] == b[0]);
@@ -7416,7 +7416,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a[0], b[0], a[0] != b[0]);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 1 == a.size());
             LOOP2_ASSERT(a[0], b[0], a[0] == b[0]);
@@ -7439,7 +7439,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a[0], b[0], a[0] != b[0]);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 3 == a.size());
             LOOP2_ASSERT(a[0], b[0], a[0] == b[0]);
@@ -7487,7 +7487,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_SELECTION2
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION2
@@ -7514,7 +7514,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_SELECTION1
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION1
@@ -7542,7 +7542,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(a.selection1(),   b.selection1(),
                          a.selection1() != b.selection1());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION1
@@ -7565,7 +7565,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_UNDEFINED
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_UNDEFINED
@@ -7587,7 +7587,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_SELECTION1
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION1
@@ -7607,7 +7607,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_UNDEFINED
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_UNDEFINED
@@ -7646,7 +7646,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(a.attribute1(), ATTRIBUTE1_B != a.attribute1());
         LOOP_ASSERT(a.attribute2(), ATTRIBUTE2_B != a.attribute2());
 
-        int ret = bdeat_SymbolicConverter::convert(&a, b);
+        int ret = bdlat_SymbolicConverter::convert(&a, b);
         LOOP_ASSERT(ret, 0 == ret);
         LOOP_ASSERT(a.attribute1(), ATTRIBUTE1_B == a.attribute1());
         LOOP_ASSERT(a.attribute2(), ATTRIBUTE2_B == a.attribute2());
@@ -7679,7 +7679,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(a, VALUEB != a);
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0      == ret);
                 LOOP_ASSERT(a,   VALUEB == a);
@@ -7695,7 +7695,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(a, VALUEB != a);
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0      == ret);
                 LOOP_ASSERT(a,   VALUEB == a);
@@ -7711,7 +7711,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(a, VALUEB != a);
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0      == ret);
                 LOOP_ASSERT(a,   VALUEB == a);
@@ -7728,7 +7728,7 @@ int main(int argc, char *argv[])
                 int         a = VALUEA;
                 bsl::string b = VALUEB;
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0 != ret);
             }
@@ -7753,14 +7753,14 @@ int main(int argc, char *argv[])
         bool boolValue = false;
         int  intValue  = 1;
 
-        ASSERT(0 == bdeat_SymbolicConverter::convert(&boolValue, intValue));
+        ASSERT(0 == bdlat_SymbolicConverter::convert(&boolValue, intValue));
         ASSERT(true == boolValue);
 
         {
             ConvertibleType a, b;
             a.d_value = 30;
             b.d_value = 100;
-            ASSERT(0 == bdeat_SymbolicConverter::convert(&a, b));
+            ASSERT(0 == bdlat_SymbolicConverter::convert(&a, b));
             ASSERT(100 == a.d_value);
         }
 

@@ -107,7 +107,7 @@ template <class TYPE>
 class MyArray { };
 
 namespace BloombergLP {
-    namespace bdeat_ArrayFunctions {
+    namespace bdlat_ArrayFunctions {
         template <class TYPE>
         struct IsArray<MyArray<TYPE> > {
             enum { VALUE = 1 };
@@ -124,7 +124,7 @@ template <class TYPE, class DUMMY1=void>
 class MyCustomizedType { };
 
 namespace BloombergLP {
-    namespace bdeat_CustomizedTypeFunctions {
+    namespace bdlat_CustomizedTypeFunctions {
         template <class TYPE, class DUMMY1>
         struct IsCustomizedType<MyCustomizedType<TYPE, DUMMY1> > {
             enum { VALUE = 1 };
@@ -142,7 +142,7 @@ template <class TYPE, class DUMMY1=void,
 class MyNullableValue { };
 
 namespace BloombergLP {
-    namespace bdeat_NullableValueFunctions {
+    namespace bdlat_NullableValueFunctions {
         template <class TYPE, class DUMMY1,
                                  class DUMMY2>
         struct IsNullableValue<MyNullableValue<TYPE, DUMMY1,
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
 
         enum {
             IS_ARRAY =
-                   bdeat_ArrayFunctions::IsArray<MyCustomizedType<int> >::VALUE
+                   bdlat_ArrayFunctions::IsArray<MyCustomizedType<int> >::VALUE
         };
 
         char c[IS_ARRAY ? -1 : 1];

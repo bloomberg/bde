@@ -48,9 +48,9 @@ BSLS_IDENT("$Id: $")
 //..
 //    o fundamental C++ types are cast to 'bdem' types using the mapping
 //      defined in 'bdlmxxx_selectbdemtype'.
-//    o an object that falls under 'bdeat_TypeCategory::Sequence' is encoded as
+//    o an object that falls under 'bdlat_TypeCategory::Sequence' is encoded as
 //      a LIST containing the attributes of the sequence.
-//    o an object that falls under 'bdeat_TypeCategory::Choice' is encoded as a
+//    o an object that falls under 'bdlat_TypeCategory::Choice' is encoded as a
 //      LIST.  If the choice object has no selection, then the list will
 //      contain exactly one sub-item, which must be an empty string.  If the
 //      choice object has a selection, then the list will contain exactly two
@@ -375,7 +375,7 @@ class BdemEncoderUtil_BuildBitmaps {
 
     // PRIVATE MANIPULATORS
     template <class TYPE>
-    void addMask(const TYPE& object, bdeat_TypeCategory::NullableValue);
+    void addMask(const TYPE& object, bdlat_TypeCategory::NullableValue);
 
     template <class TYPE, class ANY_CATEGORY>
     void addMask(const TYPE& object, ANY_CATEGORY);
@@ -539,57 +539,57 @@ class BdemEncoderUtil_Encoder {
         // arrays, list, and table).
 
     template <class TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Array);
+    int encodeImp(const TYPE& value, bdlat_TypeCategory::Array);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
-        // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Array'.
+        // indicates that 'TYPE' must fall under 'bdlat_TypeCategory::Array'.
 
     template <class TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Choice);
+    int encodeImp(const TYPE& value, bdlat_TypeCategory::Choice);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
-        // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Choice'.
+        // indicates that 'TYPE' must fall under 'bdlat_TypeCategory::Choice'.
 
     template <class TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::CustomizedType);
+    int encodeImp(const TYPE& value, bdlat_TypeCategory::CustomizedType);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
         // indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::CustomizedType'.
+        // 'bdlat_TypeCategory::CustomizedType'.
 
     template <class TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Enumeration);
+    int encodeImp(const TYPE& value, bdlat_TypeCategory::Enumeration);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
         // indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Enumeration'.
+        // 'bdlat_TypeCategory::Enumeration'.
 
     template <class TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::NullableValue);
+    int encodeImp(const TYPE& value, bdlat_TypeCategory::NullableValue);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
         // indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::NullableValue'.
+        // 'bdlat_TypeCategory::NullableValue'.
 
     template <class TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Sequence);
+    int encodeImp(const TYPE& value, bdlat_TypeCategory::Sequence);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
         // indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::Sequence'.
+        // 'bdlat_TypeCategory::Sequence'.
 
     template <class TYPE>
-    int encodeImp(const TYPE& value, bdeat_TypeCategory::Simple);
+    int encodeImp(const TYPE& value, bdlat_TypeCategory::Simple);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
-        // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Simple'.
+        // indicates that 'TYPE' must fall under 'bdlat_TypeCategory::Simple'.
 
     template <class TYPE>
     int encodeArrayImp(const TYPE& value,
@@ -605,9 +605,9 @@ class BdemEncoderUtil_Encoder {
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
-        // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Array'
+        // indicates that 'TYPE' must fall under 'bdlat_TypeCategory::Array'
         // and must contain elements that fall under
-        // 'bdeat_TypeCategory::Choice'.
+        // 'bdlat_TypeCategory::Choice'.
 
     template <class TYPE>
     int encodeArrayImp(const TYPE& value,
@@ -615,7 +615,7 @@ class BdemEncoderUtil_Encoder {
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
-        // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Array'
+        // indicates that 'TYPE' must fall under 'bdlat_TypeCategory::Array'
         // and must contain extended types ('bdlt::DateTz', 'bdlt::DatetimeTz',
         // and 'bdlt::TimeTz').
 
@@ -625,9 +625,9 @@ class BdemEncoderUtil_Encoder {
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
-        // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Array'
+        // indicates that 'TYPE' must fall under 'bdlat_TypeCategory::Array'
         // and must contain elements that fall under
-        // 'bdeat_TypeCategory::Sequence'.
+        // 'bdlat_TypeCategory::Sequence'.
 
     template <class TYPE>
     int encodeArrayImp(const TYPE& value,
@@ -635,7 +635,7 @@ class BdemEncoderUtil_Encoder {
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
-        // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Array'
+        // indicates that 'TYPE' must fall under 'bdlat_TypeCategory::Array'
         // but not fall under any of the other overloads of 'encodeArrayImp'.
 
     int encodeExtendedTypeElemTypes(bdlt::DateTz *ignored);
@@ -657,12 +657,12 @@ class BdemEncoderUtil_Encoder {
     template <class TYPE>
     int encodeSelectionImp(const TYPE&        value,
                            const bsl::string& name,
-                           bdeat_TypeCategory::NullableValue);
+                           bdlat_TypeCategory::NullableValue);
         // Encode the specified 'value' as a selection with the specified
         // 'name' to the stream held by this encoder.  Return 0 on success, and
         // a non-zero value otherwise.  Note that the third argument is used
         // for overloading purposes and indicates that 'TYPE' must fall under
-        // 'bdeat_TypeCategory::NullableValue'.
+        // 'bdlat_TypeCategory::NullableValue'.
 
     template <class TYPE, class ANY_CATEGORY>
     int encodeSelectionImp(const TYPE&        value,
@@ -678,7 +678,7 @@ class BdemEncoderUtil_Encoder {
     int encodeSequenceAttributes(const TYPE& value);
         // Encode the attributes of the specified 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
-        // Note that 'TYPE' must fall under 'bdeat_TypeCategory::Sequence'.
+        // Note that 'TYPE' must fall under 'bdlat_TypeCategory::Sequence'.
 
     template <class TYPE>
     int encodeSequenceElemTypes(const TYPE& value);
@@ -686,7 +686,7 @@ class BdemEncoderUtil_Encoder {
         // that contains the 'bdem' element types that correspond to the 'bdem'
         // element types of the attributes in the specified 'value'.  Return 0
         // on success, and a non-zero value otherwise.  Note that 'TYPE' must
-        // fall under 'bdeat_TypeCategory::Sequence'.
+        // fall under 'bdlat_TypeCategory::Sequence'.
 
   private:
     // NOT IMPLEMENTED
@@ -730,7 +730,7 @@ class BdemEncoderUtil_Encoder {
     template <class TYPE>
     int encodeSelection(const TYPE& value, const bsl::string& name);
         // Encode the specified 'value' as a selection (of a type that falls
-        // under 'bdeat_TypeCategory::Choice') using the specified 'name' to
+        // under 'bdlat_TypeCategory::Choice') using the specified 'name' to
         // the stream held by this encoder.  Return 0 on success, and a
         // non-zero value otherwise.
 };
@@ -781,11 +781,11 @@ struct BdemEncoderUtil_SelectArrayTypeCategory {
     SelectBdemType<TYPE>::Type BdemArrayType;
 
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     enum {
         IS_ELEMENT_NULLABLE
-            = bdeat_NullableValueFunctions::IsNullableValue<ElementType>::VALUE
+            = bdlat_NullableValueFunctions::IsNullableValue<ElementType>::VALUE
     };
 
     BSLMF_ASSERT(!IS_ELEMENT_NULLABLE);
@@ -803,11 +803,11 @@ struct BdemEncoderUtil_SelectArrayTypeCategory {
 
     enum {
         IS_ELEMENT_SEQUENCE
-                      = bdeat_SequenceFunctions::IsSequence<ElementType>::VALUE
+                      = bdlat_SequenceFunctions::IsSequence<ElementType>::VALUE
     };
 
     enum {
-        IS_ELEMENT_CHOICE = bdeat_ChoiceFunctions::IsChoice<ElementType>::VALUE
+        IS_ELEMENT_CHOICE = bdlat_ChoiceFunctions::IsChoice<ElementType>::VALUE
     };
 
     enum {
@@ -954,11 +954,11 @@ template <class TYPE>
 inline
 void BdemEncoderUtil_BuildBitmaps::addMask(
                                              const TYPE& object,
-                                             bdeat_TypeCategory::NullableValue)
+                                             bdlat_TypeCategory::NullableValue)
 {
     BSLS_ASSERT_SAFE(0 != d_mask);
 
-    if (!bdeat_NullableValueFunctions::isNull(object)) {
+    if (!bdlat_NullableValueFunctions::isNull(object)) {
         d_bitmaps[d_bitmaps.size()-1] |= d_mask;
     }
 }
@@ -989,7 +989,7 @@ int BdemEncoderUtil_BuildBitmaps::operator()(const TYPE& object,
     enum { BDEM_SUCCESS = 0 };
 
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     if (BdemEncoderUtil_Constants::BDEM_FIRST_BIT_MASK == d_mask) {
         d_bitmaps.push_back(0);
@@ -1154,11 +1154,11 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeNullValue(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    BSLMF_ASSERT((bdeat_ArrayFunctions::IsArray<BDEM_TYPE>::VALUE
+    BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<BDEM_TYPE>::VALUE
                || bslmf::IsSame<BDEM_TYPE, List>::VALUE
                || bslmf::IsSame<BDEM_TYPE, Table>::VALUE));
 
-    if (bdeat_ArrayFunctions::IsArray<BDEM_TYPE>::VALUE
+    if (bdlat_ArrayFunctions::IsArray<BDEM_TYPE>::VALUE
      || bslmf::IsSame<BDEM_TYPE, List>::VALUE) {
         if (!d_stream_p->putLength(0)) {
             return BDEM_FAILURE;                                      // RETURN
@@ -1181,7 +1181,7 @@ template <class STREAM>
 template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
-                                                    bdeat_TypeCategory::Array)
+                                                    bdlat_TypeCategory::Array)
 {
     typedef typename
     BdemEncoderUtil_SelectArrayTypeCategory<TYPE>::Type ArrayTypeCategory;
@@ -1192,15 +1192,15 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
 template <class STREAM>
 template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
-                                                    bdeat_TypeCategory::Choice)
+                                                    bdlat_TypeCategory::Choice)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int selectionId = bdeat_ChoiceFunctions::selectionId(value);
+    const int selectionId = bdlat_ChoiceFunctions::selectionId(value);
 
     BdemEncoderUtil_NewLevelGuard newLevelGuard(&d_level);
 
-    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == selectionId) {
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID == selectionId) {
         // Stream out list with 1 element containing empty string.
 
         enum { NUM_ELEMENTS = 1 };
@@ -1220,7 +1220,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
 
     BdemEncoderUtil_BindEncodeSelection<STREAM> encodeSelection(this);
 
-    return bdeat_ChoiceFunctions::accessSelection(value, encodeSelection);
+    return bdlat_ChoiceFunctions::accessSelection(value, encodeSelection);
 }
 
 template <class STREAM>
@@ -1228,9 +1228,9 @@ template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                             const TYPE& value,
-                                            bdeat_TypeCategory::CustomizedType)
+                                            bdlat_TypeCategory::CustomizedType)
 {
-    return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value));
+    return encode(bdlat_CustomizedTypeFunctions::convertToBaseType(value));
 }
 
 template <class STREAM>
@@ -1238,11 +1238,11 @@ template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                                const TYPE& value,
-                                               bdeat_TypeCategory::Enumeration)
+                                               bdlat_TypeCategory::Enumeration)
 {
     int intValue;
 
-    bdeat_EnumFunctions::toInt(&intValue, value);
+    bdlat_EnumFunctions::toInt(&intValue, value);
 
     return encode(intValue);
 }
@@ -1252,10 +1252,10 @@ template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                              const TYPE& value,
-                                             bdeat_TypeCategory::NullableValue)
+                                             bdlat_TypeCategory::NullableValue)
 {
-    if (!bdeat_NullableValueFunctions::isNull(value)) {
-        return bdeat_NullableValueFunctions::accessValue(value, *this);
+    if (!bdlat_NullableValueFunctions::isNull(value)) {
+        return bdlat_NullableValueFunctions::accessValue(value, *this);
                                                                       // RETURN
     }
 
@@ -1279,7 +1279,7 @@ template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                                   const TYPE& value,
-                                                  bdeat_TypeCategory::Sequence)
+                                                  bdlat_TypeCategory::Sequence)
 {
     enum { BDEM_FAILURE = -1 };
 
@@ -1295,7 +1295,7 @@ template <class STREAM>
 template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
-                                                    bdeat_TypeCategory::Simple)
+                                                    bdlat_TypeCategory::Simple)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
@@ -1353,7 +1353,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int numRows = static_cast<int>(bdeat_ArrayFunctions::size(value));
+    const int numRows = static_cast<int>(bdlat_ArrayFunctions::size(value));
 
     if (!d_stream_p->putLength(1)
      || !d_stream_p->putInt8(ElemType::BDEM_LIST)
@@ -1368,7 +1368,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
            && 1 == d_level
            && !d_stream_p->putUint32(
                           BdemEncoderUtil_Constants::BDEM_FIRST_BIT_MASK))
-         || 0 != bdeat_ArrayFunctions::accessElement(value, *this, i)) {
+         || 0 != bdlat_ArrayFunctions::accessElement(value, *this, i)) {
             return BDEM_FAILURE;                                      // RETURN
         }
     }
@@ -1384,10 +1384,10 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int numRows = bdeat_ArrayFunctions::size(value);
+    const int numRows = bdlat_ArrayFunctions::size(value);
 
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     BdemEncoderUtil_NewLevelGuard newLevelGuard(&d_level);
 
@@ -1407,7 +1407,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
     MemFn encodeValuesMemFn(&ThisClass::encodeExtendedTypeValue, this);
 
     for (int i = 0; i < numRows; ++i) {
-        if (0 != bdeat_ArrayFunctions::accessElement(value,
+        if (0 != bdlat_ArrayFunctions::accessElement(value,
                                                      encodeValuesMemFn,
                                                      i)) {
             return BDEM_FAILURE;                                      // RETURN
@@ -1425,7 +1425,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int numRows = static_cast<int>(bdeat_ArrayFunctions::size(value));
+    const int numRows = static_cast<int>(bdlat_ArrayFunctions::size(value));
 
     // If there are no rows, then there is no Sequence object to traverse for
     // type information.  Put out [0, 0] representing an empty table with no
@@ -1442,7 +1442,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
     // Encode type information.
 
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     typedef BdemEncoderUtil_Encoder<STREAM> ThisClass;
     typedef bdlf::MemFnInstance<int (ThisClass::*)(const ElementType&),
@@ -1450,7 +1450,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 
     MemFn encodeElemTypesMemFn(&ThisClass::encodeSequenceElemTypes, this);
 
-    if (0 != bdeat_ArrayFunctions::accessElement(value,
+    if (0 != bdlat_ArrayFunctions::accessElement(value,
                                                  encodeElemTypesMemFn,
                                                  0)
      || !d_stream_p->putLength(numRows)) {
@@ -1462,7 +1462,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
     MemFn encodeAttributesMemFn(&ThisClass::encodeSequenceAttributes, this);
 
     for (int i = 0; i < numRows; ++i) {
-        if (0 != bdeat_ArrayFunctions::accessElement(value,
+        if (0 != bdlat_ArrayFunctions::accessElement(value,
                                                      encodeAttributesMemFn,
                                                      i)) {
             return BDEM_FAILURE;                                      // RETURN
@@ -1480,14 +1480,14 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    const int length = static_cast<int>(bdeat_ArrayFunctions::size(value));
+    const int length = static_cast<int>(bdlat_ArrayFunctions::size(value));
 
     if (!d_stream_p->putLength(static_cast<int>(value.size()))) {
         return BDEM_FAILURE;                                          // RETURN
     }
 
     for (int i = 0; i < length; ++i) {
-        if (0 != bdeat_ArrayFunctions::accessElement(value, *this, i)) {
+        if (0 != bdlat_ArrayFunctions::accessElement(value, *this, i)) {
             return BDEM_FAILURE;                                      // RETURN
         }
     }
@@ -1623,13 +1623,13 @@ template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
                                              const TYPE&        value,
                                              const bsl::string& name,
-                                             bdeat_TypeCategory::NullableValue)
+                                             bdlat_TypeCategory::NullableValue)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     if (2 == d_bdemVersion
      && 1 == d_level
-     && bdeat_NullableValueFunctions::isNull(value)) {
+     && bdlat_NullableValueFunctions::isNull(value)) {
         enum { NUM_ELEMENTS = 1 };
 
         if (!d_stream_p->putLength(NUM_ELEMENTS)
@@ -1647,7 +1647,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
     // (1 == d_level and selection != null).  So, always output 2 elements.
 
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
     typedef bdlf::Function<int (*)(const ValueType&)>    Functor;
 
     typedef BdemEncoderUtil_Encoder<STREAM> ThisClass;
@@ -1661,7 +1661,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
 
     Functor encodeFunctor = bdlf::BindUtil::bind(memFn, _1, name);
 
-    return bdeat_NullableValueFunctions::accessValue(value, encodeFunctor);
+    return bdlat_NullableValueFunctions::accessValue(value, encodeFunctor);
 }
 
 template <class STREAM>
@@ -1702,7 +1702,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceAttributes(
     BdemEncoderUtil_BuildBitmaps buildBitmaps;
 
     if (2 == d_bdemVersion && 1 == d_level) {
-        if (0 != bdeat_SequenceFunctions::accessAttributes(value,
+        if (0 != bdlat_SequenceFunctions::accessAttributes(value,
                                                            buildBitmaps)) {
             return BDEM_FAILURE;                                      // RETURN
         }
@@ -1713,13 +1713,13 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceAttributes(
                                                                     this,
                                                                     &bitmaps);
 
-        return bdeat_SequenceFunctions::accessAttributes(
+        return bdlat_SequenceFunctions::accessAttributes(
                                                      value,
                                                      encodeAttributesWithMask);
                                                                       // RETURN
     }
     else {
-        return bdeat_SequenceFunctions::accessAttributes(value, *this);
+        return bdlat_SequenceFunctions::accessAttributes(value, *this);
                                                                       // RETURN
     }
 }
@@ -1734,7 +1734,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceElemTypes(
 
     BdemEncoderUtil_BuildElemTypes buildElemTypes;
 
-    if (0 != bdeat_SequenceFunctions::accessAttributes(value,
+    if (0 != bdlat_SequenceFunctions::accessAttributes(value,
                                                        buildElemTypes)) {
         return BDEM_FAILURE;                                          // RETURN
     }
@@ -1784,7 +1784,7 @@ inline
 int BdemEncoderUtil_Encoder<STREAM>::encode(const TYPE& value)
 {
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     return encodeImp(value, TypeCategory());
 }
@@ -1845,7 +1845,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSelection(
                                                       const bsl::string& name)
 {
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     return encodeSelectionImp(value, name, TypeCategory());
 }

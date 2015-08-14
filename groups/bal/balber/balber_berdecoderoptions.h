@@ -135,7 +135,7 @@ class BerDecoderOptions {
     static const int DEFAULT_MAX_SEQUENCE_SIZE;
         // default value of 'MaxSequenceSize' attribute
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -161,11 +161,11 @@ class BerDecoderOptions {
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -497,7 +497,7 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { k_BDEM_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
         return k_BDEM_NOT_FOUND;                                      // RETURN
@@ -627,7 +627,7 @@ int BerDecoderOptions::accessAttribute(ACCESSOR&   accessor,
 {
     enum { k_BDEM_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
        return k_BDEM_NOT_FOUND;                                       // RETURN

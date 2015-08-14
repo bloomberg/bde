@@ -37,7 +37,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 //  Context Name                       Comments
 //  ------------                       --------
 //  balxml::Decoder_ChoiceContext          Used for 'TYPE's that fall under
-//                                     'bdeat_TypeCategory::Choice'.
+//                                     'bdlat_TypeCategory::Choice'.
 //
 //  balxml::Decoder_PushParserContext      Used for 'TYPE's that can be parsed
 //                                     using one of the push parsers (i.e.,
@@ -46,7 +46,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 //                                     'balxml::Decoder_ListParser').
 //
 //  balxml::Decoder_SequenceContext        Used for 'TYPE's that fall under
-//                                     'bdeat_TypeCategory::Sequence'.
+//                                     'bdlat_TypeCategory::Sequence'.
 //
 //  balxml::Decoder_SimpleContext          Used for 'TYPE's that can be parsed
 //                                     using 'balxml::TypesParserUtil'.
@@ -54,7 +54,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 //  balxml::Decoder_UTF8Context            Used for 'bsl::string' and
 //                                     'bsl::vector<char>' types when the
 //                                     formatting mode is
-//                                     'bdeat_FormattingMode::BDEAT_TEXT'.
+//                                     'bdlat_FormattingMode::e_TEXT'.
 //                                     Note that this is just an optimization
 //                                     of 'balxml::Decoder_SimpleContext' where
 //                                     the characters are copied directly into
@@ -720,17 +720,17 @@ Decoder_StdStringContext::Decoder_StdStringContext(
                                                    bsl::string *object,
                                                    int          formattingMode)
 {
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_TEXT: {
         new (d_utf8Context.buffer()) UTF8Context(object, formattingMode);
         d_context_p = &d_utf8Context.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_BASE64: {
+      case bdlat_FormattingMode::e_BASE64: {
         new (d_base64Context.buffer()) Base64Context(object, formattingMode);
         d_context_p = &d_base64Context.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_HEX: {
+      case bdlat_FormattingMode::e_HEX: {
         new (d_hexContext.buffer()) HexContext(object, formattingMode);
         d_context_p = &d_hexContext.object();
       } break;
@@ -791,23 +791,23 @@ Decoder_StdVectorCharContext::Decoder_StdVectorCharContext(
                                              bsl::vector<char> *object,
                                              int                formattingMode)
 {
-    if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
+    if (formattingMode & bdlat_FormattingMode::e_LIST) {
         new (d_listContext.buffer()) ListContext(object, formattingMode);
         d_context_p = &d_listContext.object();
         return;                                                       // RETURN
     }
 
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_BASE64: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_BASE64: {
         new (d_base64Context.buffer()) Base64Context(object, formattingMode);
         d_context_p = &d_base64Context.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_HEX: {
+      case bdlat_FormattingMode::e_HEX: {
         new (d_hexContext.buffer()) HexContext(object, formattingMode);
         d_context_p = &d_hexContext.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+      case bdlat_FormattingMode::e_TEXT: {
         new (d_utf8Context.buffer()) UTF8Context(object, formattingMode);
         d_context_p = &d_utf8Context.object();
       } break;
@@ -866,19 +866,19 @@ int Decoder_StdVectorCharContext::parseSubElement(
 
 int Decoder_ParseObject::executeImp(bsl::vector<char> *object,
                                         int                formattingMode,
-                                        bdeat_TypeCategory::Array)
+                                        bdlat_TypeCategory::Array)
 {
-    if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
+    if (formattingMode & bdlat_FormattingMode::e_LIST) {
         return executeArrayImp(object,
                                formattingMode,
                                CanBeListOrRepetition());              // RETURN
     }
 
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_BASE64:
-      case bdeat_FormattingMode::BDEAT_HEX:
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_BASE64:
+      case bdlat_FormattingMode::e_HEX:
+      case bdlat_FormattingMode::e_TEXT: {
         Decoder_StdVectorCharContext stdVectorCharContext(object,
                                                               formattingMode);
 

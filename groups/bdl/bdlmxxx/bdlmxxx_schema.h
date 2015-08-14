@@ -228,13 +228,13 @@ BSLS_IDENT("$Id: $")
 //..
 // We verify the properties of a single field.  By default, a field will not
 // be nullable, it will not have a default value, and its formatting
-// mode will be 'bdeat_FormattingMode::BDEAT_DEFAULT':
+// mode will be 'bdlat_FormattingMode::e_DEFAULT':
 //..
 //  assert(0 == bsl::strcmp("date", dateFldDef->fieldName()));
 //  assert(bdlmxxx::ElemType::BDEM_DATE == dateFldDef->elemType());
 //  assert(false                    == dateFldDef->hasDefaultValue());
 //  assert(false                    == dateFldDef->isNullable());
-//  assert(bdeat_FormattingMode::BDEAT_DEFAULT ==
+//  assert(bdlat_FormattingMode::e_DEFAULT ==
 //                                     dateFldDef->formattingMode());
 //..
 // We can write this schema to the console:
@@ -1169,7 +1169,7 @@ STREAM& Schema::bdexStreamInRecordDef(
             // constraint on the list (i.e., a recursively defined record
             // definition).
 
-            int  formattingMode = bdeat_FormattingMode::BDEAT_DEFAULT;
+            int  formattingMode = bdlat_FormattingMode::e_DEFAULT;
             bool isNullable     = ElemType::BDEM_LIST != elemType ||
                                   recordDef->recordIndex() == constraintIndex;
             if (detailedVersion >= 1001) {

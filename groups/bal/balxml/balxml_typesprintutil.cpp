@@ -58,7 +58,7 @@ const char *printTextReplacingXMLEscapes(
                                       int                          dataLength,
                                       const balxml::EncoderOptions *options = 0)
     // Format the specified 'data' buffer of the specified 'dataLength' to the
-    // specified output 'stream' using the 'bdeat_FormattingMode::BDEAT_TEXT'
+    // specified output 'stream' using the 'bdlat_FormattingMode::e_TEXT'
     // formatting mode, and using the specified encoder 'options'.  Return 0 on
     // success, and a non-negative value otherwise.  If 'dataLength' is -1,
     // then detect automatically the null character as the end of the string.
@@ -737,7 +737,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printBase64(bsl::ostream&                stream,
                                        const bsl::string&           object,
                                        const EncoderOptions *,
-                                       bdeat_TypeCategory::Simple)
+                                       bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     return encodeBase64(stream, object.begin(), object.end());
@@ -747,7 +747,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printBase64(bsl::ostream&                 stream,
                                        const bslstl::StringRef&        object,
                                        const EncoderOptions  *,
-                                       bdeat_TypeCategory::Simple)
+                                       bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     return encodeBase64(stream, object.begin(), object.end());
@@ -757,7 +757,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printBase64(bsl::ostream&                stream,
                                        const bsl::vector<char>&     object,
                                        const EncoderOptions *,
-                                       bdeat_TypeCategory::Array)
+                                       bdlat_TypeCategory::Array)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     return encodeBase64(stream, object.begin(), object.end());
@@ -769,7 +769,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printHex(bsl::ostream&                stream,
                                     const bsl::string&           object,
                                     const EncoderOptions *,
-                                    bdeat_TypeCategory::Simple)
+                                    bdlat_TypeCategory::Simple)
 {
     return bdlb::Print::singleLineHexDump(stream, object.begin(), object.end());
 }
@@ -778,7 +778,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printHex(bsl::ostream&                 stream,
                                     const bslstl::StringRef&        object,
                                     const EncoderOptions  *,
-                                    bdeat_TypeCategory::Simple)
+                                    bdlat_TypeCategory::Simple)
 {
     return bdlb::Print::singleLineHexDump(stream, object.begin(), object.end());
 }
@@ -787,7 +787,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printHex(bsl::ostream&                   stream,
                                     const bsl::vector<char>&        object,
                                     const EncoderOptions    *,
-                                    bdeat_TypeCategory::Array)
+                                    bdlat_TypeCategory::Array)
 {
     return bdlb::Print::singleLineHexDump(stream, object.begin(), object.end());
 }
@@ -798,7 +798,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
                                      const char&                  object,
                                      const EncoderOptions *options,
-                                     bdeat_TypeCategory::Simple)
+                                     bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     printTextReplacingXMLEscapes(stream, &object, 1, options);
@@ -809,7 +809,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
                                      const char                  *object,
                                      const EncoderOptions *options,
-                                     bdeat_TypeCategory::Simple)
+                                     bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     printTextReplacingXMLEscapes(stream, object, -1, options);
@@ -820,7 +820,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
                                      const bsl::string&           object,
                                      const EncoderOptions *options,
-                                     bdeat_TypeCategory::Simple)
+                                     bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     printTextReplacingXMLEscapes(stream,
@@ -834,7 +834,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
                                      const bslstl::StringRef&       object,
                                      const EncoderOptions *options,
-                                     bdeat_TypeCategory::Simple)
+                                     bdlat_TypeCategory::Simple)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     printTextReplacingXMLEscapes(stream,
@@ -848,7 +848,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
                                      const bsl::vector<char>&     object,
                                      const EncoderOptions *options,
-                                     bdeat_TypeCategory::Array)
+                                     bdlat_TypeCategory::Array)
 {
     // Calls a function in the unnamed namespace.  Cannot be inlined.
 
@@ -867,7 +867,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
                                         const float&                 object,
                                         const EncoderOptions *,
-                                        bdeat_TypeCategory::Simple)
+                                        bdlat_TypeCategory::Simple)
 {
     return printDecimalImpl(stream, object, FLT_DIG);
 }
@@ -876,7 +876,7 @@ bsl::ostream&
 TypesPrintUtil_Imp::printDecimal(bsl::ostream&                stream,
                                         const double&                object,
                                         const EncoderOptions *options,
-                                        bdeat_TypeCategory::Simple)
+                                        bdlat_TypeCategory::Simple)
 {
     if (!options
      || (options->maxDecimalTotalDigits().isNull()
@@ -907,7 +907,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                            bsl::ostream&                stream,
                                            const float&                 object,
                                            const EncoderOptions *,
-                                           bdeat_TypeCategory::Simple)
+                                           bdlat_TypeCategory::Simple)
 {
     switch (bdlb::Float::classifyFine(object)) {
       case bdlb::Float::BDES_POSITIVE_INFINITY: {
@@ -953,7 +953,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                            bsl::ostream&                stream,
                                            const double&                object,
                                            const EncoderOptions *,
-                                           bdeat_TypeCategory::Simple)
+                                           bdlat_TypeCategory::Simple)
 {
     switch (bdlb::Float::classifyFine(object)) {
       case bdlb::Float::BDES_POSITIVE_INFINITY: {

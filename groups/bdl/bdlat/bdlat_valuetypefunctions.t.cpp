@@ -27,7 +27,7 @@ using namespace bsl;  // automatically added by script
 //                              --------
 //                                  TBD doc
 //-----------------------------------------------------------------------------
-// [ 2] void bdeat_ValueTypeFunctions::reset(TYPE *object);
+// [ 2] void bdlat_ValueTypeFunctions::reset(TYPE *object);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
@@ -91,7 +91,7 @@ namespace geom {
 class Sequence_Point {
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(Sequence_Point, bdeat_TypeTraitBasicSequence);
+    BSLALG_DECLARE_NESTED_TRAITS(Sequence_Point, bdlat_TypeTraitBasicSequence);
 
   private:
     int d_x;  // X coordinate
@@ -154,7 +154,7 @@ class Sequence_Point {
 class Choice_Point {
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(Choice_Point, bdeat_TypeTraitBasicChoice);
+    BSLALG_DECLARE_NESTED_TRAITS(Choice_Point, bdlat_TypeTraitBasicChoice);
 
   private:
     int d_x;  // X coordinate
@@ -236,12 +236,12 @@ void usageExample()
 
     vecVal2 = vecVal;
 
-    // ASSERT(0 == bdeat_ValueTypeFunctions::assign(&vecVal3, vecVal2));
+    // ASSERT(0 == bdlat_ValueTypeFunctions::assign(&vecVal3, vecVal2));
 
-    bdeat_ValueTypeFunctions::reset(&intVal);
-    bdeat_ValueTypeFunctions::reset(&floatVal);
-    bdeat_ValueTypeFunctions::reset(&stringVal);
-    bdeat_ValueTypeFunctions::reset(&vecVal);
+    bdlat_ValueTypeFunctions::reset(&intVal);
+    bdlat_ValueTypeFunctions::reset(&floatVal);
+    bdlat_ValueTypeFunctions::reset(&stringVal);
+    bdlat_ValueTypeFunctions::reset(&vecVal);
 
     ASSERT(0 == intVal);
     ASSERT(0 == floatVal);
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   void bdeat_ValueTypeFunctions::reset(TYPE *object);
+        //   void bdlat_ValueTypeFunctions::reset(TYPE *object);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'reset'"
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
         {
             Enum mX = E2;
             ASSERT(E1 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             // TBD what to ASSERT, if anything
             // ASSERT(E1 == mX);
         }
@@ -305,91 +305,91 @@ int main(int argc, char *argv[])
         {
             bool mX = true;
             ASSERT(false != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(false == mX);
         }
 
         {
             char mX = 'a';;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             signed char mX = 'a';
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             unsigned char mX = 'a';
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             short mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             unsigned short mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             int mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             unsigned int mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             bsls::Types::Int64  mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             bsls::Types::Uint64  mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             float mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             double mX = 77;
             ASSERT(0 != mX);
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == mX);
         }
 
         {
             bsl::string mX("foo");  const bsl::string& X = mX;
             ASSERT(0 != X.size());
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == X.size());
         }
 
@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
             bsl::vector<int> mX;  const bsl::vector<int>& X = mX;
             mX.push_back(77);
             ASSERT(0 != X.size());
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == X.size());
         }
 
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
             mX.x() = 77;
             mX.y() = 77;
             ASSERT(0 != X.x() && 0 != X.y());
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == X.x() && 0 == X.y());
         }
 
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
             mX.x() = 77;
             mX.y() = 77;
             ASSERT(0 != X.x() && 0 != X.y());
-            bdeat_ValueTypeFunctions::reset(&mX);
+            bdlat_ValueTypeFunctions::reset(&mX);
             ASSERT(0 == X.x() && 0 == X.y());
         }
 

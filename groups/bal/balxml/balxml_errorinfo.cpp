@@ -113,6 +113,8 @@ bsl::ostream& balxml::operator<<(bsl::ostream&           stream,
     return stream;
 }
 
+}  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

@@ -273,7 +273,7 @@ if (veryVerbose)
         const char *CTRL = mCtrl;
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-        ASSERT(Obj::BAETZO_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
+        ASSERT(Obj::e_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
         if (verbose) cout << "\nTesting 'print'." << endl;

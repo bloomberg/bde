@@ -103,9 +103,9 @@ struct DstPolicy {
                        // time or standard time (as appropriate).
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAETZO_DST         = e_DST
-      , BAETZO_STANDARD    = e_STANDARD
-      , BAETZO_UNSPECIFIED = e_UNSPECIFIED
+      , e_DST         = e_DST
+      , e_STANDARD    = e_STANDARD
+      , e_UNSPECIFIED = e_UNSPECIFIED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };

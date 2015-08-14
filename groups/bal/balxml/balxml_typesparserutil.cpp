@@ -308,7 +308,7 @@ namespace balxml {
 int TypesParserUtil_Imp::parseBase64(bsl::string *result,
                                             const char  *input,
                                             int          inputLength,
-                                            bdeat_TypeCategory::Simple)
+                                            bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -328,7 +328,7 @@ int TypesParserUtil_Imp::parseBase64(bsl::string *result,
 int TypesParserUtil_Imp::parseBase64(bsl::vector<char> *result,
                                             const char        *input,
                                             int                inputLength,
-                                            bdeat_TypeCategory::Array)
+                                            bdlat_TypeCategory::Array)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -350,7 +350,7 @@ int TypesParserUtil_Imp::parseBase64(bsl::vector<char> *result,
 int TypesParserUtil_Imp::parseDecimal(bool       *result,
                                              const char *input,
                                              int         inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseBoolean(result, input, inputLength);
 }
@@ -358,7 +358,7 @@ int TypesParserUtil_Imp::parseDecimal(bool       *result,
 int TypesParserUtil_Imp::parseDecimal(char       *result,
                                              const char *input,
                                              int         inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseSignedDecimal((signed char*) result,
                               input, inputLength);
@@ -367,7 +367,7 @@ int TypesParserUtil_Imp::parseDecimal(char       *result,
 int TypesParserUtil_Imp::parseDecimal(short      *result,
                                              const char *input,
                                              int         inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseSignedDecimal(result, input, inputLength);
 }
@@ -375,7 +375,7 @@ int TypesParserUtil_Imp::parseDecimal(short      *result,
 int TypesParserUtil_Imp::parseDecimal(int        *result,
                                              const char *input,
                                              int         inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseSignedDecimal(result, input, inputLength);
 }
@@ -385,7 +385,7 @@ TypesParserUtil_Imp::parseDecimal(
                                        bsls::Types::Int64         *result,
                                        const char                 *input,
                                        int                         inputLength,
-                                       bdeat_TypeCategory::Simple  sc)
+                                       bdlat_TypeCategory::Simple  sc)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -417,7 +417,7 @@ TypesParserUtil_Imp::parseDecimal(
 int TypesParserUtil_Imp::parseDecimal(unsigned char *result,
                                              const char    *input,
                                              int            inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseUnsignedDecimal(result, input, inputLength);
 }
@@ -425,7 +425,7 @@ int TypesParserUtil_Imp::parseDecimal(unsigned char *result,
 int TypesParserUtil_Imp::parseDecimal(unsigned short *result,
                                              const char     *input,
                                              int             inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseUnsignedDecimal(result, input, inputLength);
 }
@@ -433,7 +433,7 @@ int TypesParserUtil_Imp::parseDecimal(unsigned short *result,
 int TypesParserUtil_Imp::parseDecimal(unsigned int *result,
                                              const char   *input,
                                              int           inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseUnsignedDecimal(result, input, inputLength);
 }
@@ -442,7 +442,7 @@ int TypesParserUtil_Imp::parseDecimal(
     bsls::Types::Uint64        *result,
     const char                 *input,
     int                         inputLength,
-    bdeat_TypeCategory::Simple)
+    bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -472,7 +472,7 @@ int TypesParserUtil_Imp::parseDecimal(
     float                     *result,
     const char                *input,
     int                        inputLength,
-    bdeat_TypeCategory::Simple)
+    bdlat_TypeCategory::Simple)
 {
     double tmpResult;
     int rc = parseDouble(&tmpResult, input, inputLength, true);
@@ -486,7 +486,7 @@ int TypesParserUtil_Imp::parseDecimal(
     double                    *result,
     const char                *input,
     int                        inputLength,
-    bdeat_TypeCategory::Simple)
+    bdlat_TypeCategory::Simple)
 {
     return parseDouble(result, input, inputLength, true);
 }
@@ -496,7 +496,7 @@ int TypesParserUtil_Imp::parseDecimal(
 int TypesParserUtil_Imp::parseDefault(bool       *result,
                                              const char *input,
                                              int         inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseBoolean(result, input, inputLength);
 }
@@ -504,7 +504,7 @@ int TypesParserUtil_Imp::parseDefault(bool       *result,
 int TypesParserUtil_Imp::parseDefault(float      *result,
                                              const char *input,
                                              int         inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     double tmpResult;
     int rc = parseDouble(&tmpResult, input, inputLength, false);
@@ -517,7 +517,7 @@ int TypesParserUtil_Imp::parseDefault(float      *result,
 int TypesParserUtil_Imp::parseDefault(double     *result,
                                              const char *input,
                                              int         inputLength,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     return parseDouble(result, input, inputLength, false);
 }
@@ -527,7 +527,7 @@ int TypesParserUtil_Imp::parseDefault(double     *result,
 int TypesParserUtil_Imp::parseHex(bsl::string *result,
                                          const char  *input,
                                          int          inputLength,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -547,7 +547,7 @@ int TypesParserUtil_Imp::parseHex(bsl::string *result,
 int TypesParserUtil_Imp::parseHex(bsl::vector<char> *result,
                                          const char        *input,
                                          int                inputLength,
-                                         bdeat_TypeCategory::Array)
+                                         bdlat_TypeCategory::Array)
 {
     enum { BAEXML_FAILURE = -1 };
 
@@ -569,7 +569,7 @@ int TypesParserUtil_Imp::parseHex(bsl::vector<char> *result,
 int TypesParserUtil_Imp::parseText(bool       *result,
                                           const char *input,
                                           int         inputLength,
-                                          bdeat_TypeCategory::Simple)
+                                          bdlat_TypeCategory::Simple)
 {
     return parseBoolean(result, input, inputLength);
 }
@@ -577,7 +577,7 @@ int TypesParserUtil_Imp::parseText(bool       *result,
 int TypesParserUtil_Imp::parseText(char       *result,
                                           const char *input,
                                           int         inputLength,
-                                          bdeat_TypeCategory::Simple)
+                                          bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -593,7 +593,7 @@ int TypesParserUtil_Imp::parseText(char       *result,
 int TypesParserUtil_Imp::parseText(bsl::string *result,
                                           const char  *input,
                                           int          inputLength,
-                                          bdeat_TypeCategory::Simple)
+                                          bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0 };
 
@@ -605,7 +605,7 @@ int TypesParserUtil_Imp::parseText(bsl::string *result,
 int TypesParserUtil_Imp::parseText(bsl::vector<char> *result,
                                           const char        *input,
                                           int                inputLength,
-                                          bdeat_TypeCategory::Array)
+                                          bdlat_TypeCategory::Array)
 {
     enum { BAEXML_SUCCESS = 0 };
 

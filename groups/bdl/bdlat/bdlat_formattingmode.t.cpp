@@ -21,16 +21,16 @@ using namespace bsl;  // automatically added by script
 // Due to the extremely simple nature of this component, we only have to test
 // that the flags are defined and that they do not overlap in bit patterns.
 //-----------------------------------------------------------------------------
-//  bdeat_FormattingMode::DEFAULT
-//  bdeat_FormattingMode::DEC
-//  bdeat_FormattingMode::HEX
-//  bdeat_FormattingMode::BASE64
-//  bdeat_FormattingMode::TEXT
-//  bdeat_FormattingMode::LIST
-//  bdeat_FormattingMode::UNTAGGED
-//  bdeat_FormattingMode::ATTRIBUTE
-//  bdeat_FormattingMode::SIMPLE_CONTENT
-//  bdeat_FormattingMode::NILLABLE
+//  bdlat_FormattingMode::DEFAULT
+//  bdlat_FormattingMode::DEC
+//  bdlat_FormattingMode::HEX
+//  bdlat_FormattingMode::BASE64
+//  bdlat_FormattingMode::TEXT
+//  bdlat_FormattingMode::LIST
+//  bdlat_FormattingMode::UNTAGGED
+//  bdlat_FormattingMode::ATTRIBUTE
+//  bdlat_FormattingMode::SIMPLE_CONTENT
+//  bdlat_FormattingMode::NILLABLE
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdeat_FormattingMode FM;
+typedef bdlat_FormattingMode FM;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -103,62 +103,62 @@ int main(int argc, char *argv[])
         // Basic Attribute Test:
         //
         // Concerns:
-        //   - BDEAT_TYPE_MASK and BDEAT_FLAGS_MASK are disjoint (i.e., have no
+        //   - e_TYPE_MASK and e_FLAGS_MASK are disjoint (i.e., have no
         //     bits in common).
         //   - Each of the mode enumerations are unique.
         //   - All of the bits of each schema type enumeration are within the
-        //     BDEAT_TYPE_MASK bit-mask.
+        //     e_TYPE_MASK bit-mask.
         //   - All of the bits of formatting flag enumeration are within the
-        //     BDEAT_FLAGS_MASK bit-mask.
+        //     e_FLAGS_MASK bit-mask.
         //   - None of the formatting flag enumerations share any bits in
         //     common with any of the other mode enumerations.
         //
         // Plan:
-        //   - Test that BDEAT_TYPE_MASK and BDEAT_FLAGS_MASK have no bits in
+        //   - Test that e_TYPE_MASK and e_FLAGS_MASK have no bits in
         //     common.
         //   - Loop over each schema type enumeration and verify that it is
         //     within the TYPE_MASK bit-mask and does not overlap the
-        //     BDEAT_FLAGS_MASK.
+        //     e_FLAGS_MASK.
         //   - In a nested loop, test that each schema type enumeration is
         //     not equal to another schema type enumeration.
         //   - Loop over each formatting flag enumeration and verify that it is
-        //     within the BDEAT_FLAGS_MASK bit-mask and does not overlap the
-        //     BDEAT_TYPE_MASK.
+        //     within the e_FLAGS_MASK bit-mask and does not overlap the
+        //     e_TYPE_MASK.
         //   - In a nested loop, test that each formatting flag enumeration has
         //     no bits in common with another formatting flag enumeration.
         //
         // Testing:
-        //    bdeat_FormattingMode::BDEAT_DEFAULT
-        //    bdeat_FormattingMode::BDEAT_DEC
-        //    bdeat_FormattingMode::BDEAT_HEX
-        //    bdeat_FormattingMode::BDEAT_BASE64
-        //    bdeat_FormattingMode::BDEAT_TEXT
-        //    bdeat_FormattingMode::BDEAT_TYPE_MASK
-        //    bdeat_FormattingMode::BDEAT_UNTAGGED
-        //    bdeat_FormattingMode::BDEAT_ATTRIBUTE
-        //    bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT
-        //    bdeat_FormattingMode::BDEAT_NILLABLE
-        //    bdeat_FormattingMode::BDEAT_LIST
-        //    bdeat_FormattingMode::BDEAT_FLAGS_MASK
+        //    bdlat_FormattingMode::e_DEFAULT
+        //    bdlat_FormattingMode::e_DEC
+        //    bdlat_FormattingMode::e_HEX
+        //    bdlat_FormattingMode::e_BASE64
+        //    bdlat_FormattingMode::e_TEXT
+        //    bdlat_FormattingMode::e_TYPE_MASK
+        //    bdlat_FormattingMode::e_UNTAGGED
+        //    bdlat_FormattingMode::e_ATTRIBUTE
+        //    bdlat_FormattingMode::e_SIMPLE_CONTENT
+        //    bdlat_FormattingMode::e_NILLABLE
+        //    bdlat_FormattingMode::e_LIST
+        //    bdlat_FormattingMode::e_FLAGS_MASK
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "Basic Attribute Test" << endl
                           << "====================" << endl;
 
-        // Test that BDEAT_TYPE_MASK and BDEAT_FLAGS_MASK have no bits in
+        // Test that e_TYPE_MASK and e_FLAGS_MASK have no bits in
         // common.
-        ASSERT(0 == (FM::BDEAT_TYPE_MASK & FM::BDEAT_FLAGS_MASK));
+        ASSERT(0 == (FM::e_TYPE_MASK & FM::e_FLAGS_MASK));
 
         if (veryVerbose) cout << "\tTesting type masks\n"
                               << "\t------------------" << endl;
 
         static const int TYPE_MODES[] = {
-            FM::BDEAT_DEFAULT,
-            FM::BDEAT_DEC,
-            FM::BDEAT_HEX,
-            FM::BDEAT_BASE64,
-            FM::BDEAT_TEXT
+            FM::e_DEFAULT,
+            FM::e_DEC,
+            FM::e_HEX,
+            FM::e_BASE64,
+            FM::e_TEXT
         };
 
         static const int NUM_TYPE_MODES =
@@ -171,9 +171,9 @@ int main(int argc, char *argv[])
             // Verify that TYPE_MODE1 is within the TYPE_MASK bit-mask and
             // does not overlap the FLAGS_MASK.
             LOOP_ASSERT(TYPE_MODE1,
-                        TYPE_MODE1 == (TYPE_MODE1 & FM::BDEAT_TYPE_MASK));
+                        TYPE_MODE1 == (TYPE_MODE1 & FM::e_TYPE_MASK));
             LOOP_ASSERT(TYPE_MODE1,
-                        0          == (TYPE_MODE1 & FM::BDEAT_FLAGS_MASK));
+                        0          == (TYPE_MODE1 & FM::e_FLAGS_MASK));
 
             for (int j = 0; j < NUM_TYPE_MODES; ++j) {
                 if (j == i) continue;
@@ -190,11 +190,11 @@ int main(int argc, char *argv[])
                               << "\t-------------------" << endl;
 
         static const int FLAG_MODES[] = {
-            FM::BDEAT_UNTAGGED,
-            FM::BDEAT_ATTRIBUTE,
-            FM::BDEAT_SIMPLE_CONTENT,
-            FM::BDEAT_NILLABLE,
-            FM::BDEAT_LIST
+            FM::e_UNTAGGED,
+            FM::e_ATTRIBUTE,
+            FM::e_SIMPLE_CONTENT,
+            FM::e_NILLABLE,
+            FM::e_LIST
         };
 
         static const int NUM_FLAG_MODES =
@@ -204,12 +204,12 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_FLAG_MODES; ++i) {
             const int FLAG_MODE1 = FLAG_MODES[i];
 
-            // Verify that FLAG_MODE1 is within the 'BDEAT_FLAGS_MASK' bit-mask
-            // and does not overlap the 'BDEAT_TYPE_MASK'.
+            // Verify that FLAG_MODE1 is within the 'e_FLAGS_MASK' bit-mask
+            // and does not overlap the 'e_TYPE_MASK'.
             LOOP_ASSERT(FLAG_MODE1,
-                        FLAG_MODE1 == (FLAG_MODE1 & FM::BDEAT_FLAGS_MASK));
+                        FLAG_MODE1 == (FLAG_MODE1 & FM::e_FLAGS_MASK));
             LOOP_ASSERT(FLAG_MODE1,
-                        0          == (FLAG_MODE1 & FM::BDEAT_TYPE_MASK));
+                        0          == (FLAG_MODE1 & FM::e_TYPE_MASK));
 
             for (int j = 0; j < NUM_FLAG_MODES; ++j) {
                 if (j == i) continue;

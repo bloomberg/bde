@@ -36,41 +36,41 @@ const bool balber::BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS = 
 
 const bool balber::BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = false;
 
-const bdeat_AttributeInfo balber::BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo balber::BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         e_ATTRIBUTE_ID_TRACE_LEVEL,
         "TraceLevel",
         sizeof("TraceLevel") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE,
         "BdeVersionConformance",
         sizeof("BdeVersionConformance") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS,
         "EncodeEmptyArrays",
         sizeof("EncodeEmptyArrays") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY,
         "EncodeDateAndTimeTypesAsBinary",
         sizeof("EncodeDateAndTimeTypesAsBinary") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
 namespace balber {
 // CLASS METHODS
 
-const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
+const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -181,7 +181,7 @@ const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case e_ATTRIBUTE_ID_TRACE_LEVEL:

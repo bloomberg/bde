@@ -1091,9 +1091,11 @@ int SessionPool::import(
     }
     return rc;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
+
+#endif  // INCLUDED_BTLMT_SESSIONPOOL
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

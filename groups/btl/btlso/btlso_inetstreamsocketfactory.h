@@ -1348,9 +1348,11 @@ void InetStreamSocket_AutoCloseSocket::release()
 {
     d_valid = 0;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
+
+#endif  // INCLUDED_BTLSO_INETSTREAMSOCKETFACTORY
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

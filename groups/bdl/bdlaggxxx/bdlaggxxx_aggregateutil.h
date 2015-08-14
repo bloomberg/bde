@@ -251,7 +251,7 @@ class AggregateUtil {
     template <class TYPE>
     static int fromAggregateRawImp(TYPE                     *destination,
                                    const AggregateRaw&  aggregate,
-                                   bdeat_TypeCategory::Enumeration);
+                                   bdlat_TypeCategory::Enumeration);
         // Load into the specified 'destination' the value of the specified
         // 'aggregate'.  Return 0 on success and a non-zero value otherwise.
         // The behavior is undefined unless 'destination' refers to an object
@@ -262,7 +262,7 @@ class AggregateUtil {
     template <class TYPE>
     static int fromAggregateRawImp(TYPE                     *destination,
                                    const AggregateRaw&  aggregate,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
         // Load into the specified 'destination' the value of the specified
         // 'aggregate'.  Return 0 on success and a non-zero value otherwise.
         // The behavior is undefined unless 'destination' refers to an object
@@ -292,27 +292,27 @@ class AggregateUtil {
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
-                                bdeat_TypeCategory::Array);
+                                bdlat_TypeCategory::Array);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
-                                bdeat_TypeCategory::Choice);
+                                bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
-                                bdeat_TypeCategory::CustomizedType);
+                                bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
-                                bdeat_TypeCategory::Enumeration);
+                                bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
-                                bdeat_TypeCategory::Sequence);
+                                bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
-                                bdeat_TypeCategory::Simple);
+                                bdlat_TypeCategory::Simple);
         // Load into the specified 'destination' the value of the specified
         // 'aggregate'.  Return 0 on success and a non-zero value otherwise.
         // The behavior is undefined unless 'destination' refers to an object
@@ -360,31 +360,31 @@ class AggregateUtil {
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Choice);
+                                            bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int fromAggregateToVectorOfNullable(
                                            bsl::vector<TYPE>     *destination,
                                            const Aggregate&  aggregate,
                                            int                    fieldId,
-                                           bdeat_TypeCategory::CustomizedType);
+                                           bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Enumeration);
+                                            bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Sequence);
+                                            bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Simple);
+                                            bdlat_TypeCategory::Simple);
         // Load into the specified 'destination' the value of the sub-aggregate
         // referred to by the specified 'fieldId' in the specified 'aggregate'.
         // Return 0 on success and a non-zero value otherwise.  The behavior is
@@ -398,32 +398,32 @@ class AggregateUtil {
     static int fromAggregateToVector(bsl::vector<TYPE>     *destination,
                                      const Aggregate&  aggregate,
                                      int                    fieldId,
-                                     bdeat_TypeCategory::Choice);
+                                     bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int fromAggregateToVector(bsl::vector<TYPE>     *destination,
                                      const Aggregate&  aggregate,
                                      int                    fieldId,
-                                     bdeat_TypeCategory::CustomizedType);
+                                     bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int fromAggregateToVector(bsl::vector<TYPE>     *destination,
                                      const Aggregate&  aggregate,
                                      int                    fieldId,
-                                     bdeat_TypeCategory::Enumeration);
+                                     bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int fromAggregateToVector(bsl::vector<TYPE>     *destination,
                                      const Aggregate&  aggregate,
                                      int                    fieldId,
-                                     bdeat_TypeCategory::NullableValue);
+                                     bdlat_TypeCategory::NullableValue);
     template <class TYPE>
     static int fromAggregateToVector(bsl::vector<TYPE>     *destination,
                                      const Aggregate&  aggregate,
                                      int                    fieldId,
-                                     bdeat_TypeCategory::Sequence);
+                                     bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int fromAggregateToVector(bsl::vector<TYPE>     *destination,
                                      const Aggregate&  aggregate,
                                      int                    fieldId,
-                                     bdeat_TypeCategory::Simple);
+                                     bdlat_TypeCategory::Simple);
         // Load into the specified 'destination' the value of the sub-aggregate
         // referred to by the specified 'fieldId' in the specified 'aggregate'.
         // Return 0 on success and a non-zero value otherwise.  The behavior is
@@ -438,37 +438,37 @@ class AggregateUtil {
     static int fromAggregateImp(bsl::vector<TYPE>     *destination,
                                 const Aggregate&  aggregate,
                                 int                    fieldId,
-                                bdeat_TypeCategory::Array);
+                                bdlat_TypeCategory::Array);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
                                 int                    fieldId,
-                                bdeat_TypeCategory::Choice);
+                                bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
                                 int                    fieldId,
-                                bdeat_TypeCategory::CustomizedType);
+                                bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
                                 int                    fieldId,
-                                bdeat_TypeCategory::Enumeration);
+                                bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
                                 int                    fieldId,
-                                bdeat_TypeCategory::NullableValue);
+                                bdlat_TypeCategory::NullableValue);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
                                 int                    fieldId,
-                                bdeat_TypeCategory::Sequence);
+                                bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int fromAggregateImp(TYPE                  *destination,
                                 const Aggregate&  aggregate,
                                 int                    fieldId,
-                                bdeat_TypeCategory::Simple);
+                                bdlat_TypeCategory::Simple);
         // Load into the specified 'destination' the value of the sub-aggregate
         // referred to by the specified 'fieldId' in the specified 'aggregate'.
         // Return 0 on success and a non-zero value otherwise.  The behavior is
@@ -497,7 +497,7 @@ class AggregateUtil {
     template <class TYPE>
     static int toAggregateRawImp(AggregateRaw *aggregate,
                                  const TYPE&        source,
-                                 bdeat_TypeCategory::Enumeration);
+                                 bdlat_TypeCategory::Enumeration);
         // Load into the specified 'aggregate' the value of the specified
         // 'source'.  Return 0 on success and a non-zero value otherwise.  The
         // behavior is undefined unless 'source' refers to an object of
@@ -507,7 +507,7 @@ class AggregateUtil {
     template <class TYPE>
     static int toAggregateRawImp(AggregateRaw *aggregate,
                                  const TYPE&        source,
-                                 bdeat_TypeCategory::Simple);
+                                 bdlat_TypeCategory::Simple);
         // Load into the specified 'aggregate' the value of the specified
         // 'source'.  Return 0 on success and a non-zero value otherwise.  The
         // behavior is undefined unless 'source' refers to an object of simple
@@ -536,27 +536,27 @@ class AggregateUtil {
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Array);
+                              bdlat_TypeCategory::Array);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               const TYPE&     source,
-                              bdeat_TypeCategory::CustomizedType);
+                              bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Choice);
+                              bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Enumeration);
+                              bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Sequence);
+                              bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Simple);
+                              bdlat_TypeCategory::Simple);
         // Load into the specified 'aggregate' the value of the specified
         // 'source'.  Return 0 on success and a non-zero value otherwise.  The
         // behavior is undefined unless 'source' refers to an object of
@@ -604,31 +604,31 @@ class AggregateUtil {
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Choice);
+                                           bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::CustomizedType);
+                                           bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Enumeration);
+                                           bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Sequence);
+                                           bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Simple);
+                                           bdlat_TypeCategory::Simple);
         // Load into the sub-aggregate referred to by the specified 'fieldId'
         // in the specified 'aggregate' the value of the specified 'source'.
         // Return 0 on success and a non-zero value otherwise.  The behavior is
@@ -642,32 +642,32 @@ class AggregateUtil {
     static int toAggregateFromVector(Aggregate           *aggregate,
                                      int                       fieldId,
                                      const bsl::vector<TYPE>&  source,
-                                     bdeat_TypeCategory::Choice);
+                                     bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int toAggregateFromVector(Aggregate           *aggregate,
                                      int                       fieldId,
                                      const bsl::vector<TYPE>&  source,
-                                     bdeat_TypeCategory::CustomizedType);
+                                     bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int toAggregateFromVector(Aggregate           *aggregate,
                                      int                       fieldId,
                                      const bsl::vector<TYPE>&  source,
-                                     bdeat_TypeCategory::Enumeration);
+                                     bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int toAggregateFromVector(Aggregate           *aggregate,
                                      int                       fieldId,
                                      const bsl::vector<TYPE>&  source,
-                                     bdeat_TypeCategory::NullableValue);
+                                     bdlat_TypeCategory::NullableValue);
     template <class TYPE>
     static int toAggregateFromVector(Aggregate           *aggregate,
                                      int                       fieldId,
                                      const bsl::vector<TYPE>&  source,
-                                     bdeat_TypeCategory::Sequence);
+                                     bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int toAggregateFromVector(Aggregate           *aggregate,
                                      int                       fieldId,
                                      const bsl::vector<TYPE>&  source,
-                                     bdeat_TypeCategory::Simple);
+                                     bdlat_TypeCategory::Simple);
         // Load into the sub-aggregate referred to by the specified 'fieldId'
         // in the specified 'aggregate' the value of the specified 'source'.
         // Return 0 on success and a non-zero value otherwise.  The behavior is
@@ -682,37 +682,37 @@ class AggregateUtil {
     static int toAggregateImp(Aggregate           *aggregate,
                               int                       fieldId,
                               const bsl::vector<TYPE>&  source,
-                              bdeat_TypeCategory::Array);
+                              bdlat_TypeCategory::Array);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               int             fieldId,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Choice);
+                              bdlat_TypeCategory::Choice);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               int             fieldId,
                               const TYPE&     source,
-                              bdeat_TypeCategory::CustomizedType);
+                              bdlat_TypeCategory::CustomizedType);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               int             fieldId,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Enumeration);
+                              bdlat_TypeCategory::Enumeration);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               int             fieldId,
                               const TYPE&     source,
-                              bdeat_TypeCategory::NullableValue);
+                              bdlat_TypeCategory::NullableValue);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               int             fieldId,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Sequence);
+                              bdlat_TypeCategory::Sequence);
     template <class TYPE>
     static int toAggregateImp(Aggregate *aggregate,
                               int             fieldId,
                               const TYPE&     source,
-                              bdeat_TypeCategory::Simple);
+                              bdlat_TypeCategory::Simple);
         // Load into the sub-aggregate referred to by the specified 'fieldId'
         // in the specified 'aggregate' the value of the specified 'source'.
         // Return 0 on success and a non-zero value otherwise.  The behavior is
@@ -956,7 +956,7 @@ int AggregateUtil::fromAggregateRawToEnumeration(
                                          TYPE                     *destination,
                                          const AggregateRaw&  aggregate)
 {
-    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     return Wrapper::fromString(destination, aggregate.asString());
 }
@@ -984,7 +984,7 @@ inline
 int AggregateUtil::fromAggregateRawImp(
                                          TYPE                     *destination,
                                          const AggregateRaw&  aggregate,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
     return fromAggregateRawToEnumeration(destination, aggregate);
 }
@@ -993,7 +993,7 @@ template <class TYPE>
 int AggregateUtil::fromAggregateRawImp(
                                          TYPE                     *destination,
                                          const AggregateRaw&  aggregate,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     if (!bdlmxxx::ElemType::isScalarType(aggregate.dataType())) {
         return -1;                                                    // RETURN
@@ -1014,7 +1014,7 @@ int AggregateUtil::fromAggregateRawToNullable(
         destination->makeValue();
 
         typedef typename
-        bdeat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
+        bdlat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
 
         return fromAggregateRawImp(&destination->value(),
                                    aggregate,
@@ -1035,7 +1035,7 @@ int AggregateUtil::fromAggregateToComplex(
 template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
-                                         bdeat_TypeCategory::Array)
+                                         bdlat_TypeCategory::Array)
 {
     // This case is only for handling 'bsl::vector<char>'.
 
@@ -1049,7 +1049,7 @@ int AggregateUtil::fromAggregateImp(TYPE                  *destination,
 template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
-                                         bdeat_TypeCategory::Choice)
+                                         bdlat_TypeCategory::Choice)
 {
     if (bdlmxxx::ElemType::BDEM_CHOICE            == aggregate.dataType()
      || bdlmxxx::ElemType::BDEM_CHOICE_ARRAY_ITEM == aggregate.dataType()) {
@@ -1061,7 +1061,7 @@ int AggregateUtil::fromAggregateImp(TYPE                  *destination,
 template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
-                                         bdeat_TypeCategory::CustomizedType)
+                                         bdlat_TypeCategory::CustomizedType)
 {
     bdlmxxx::ElemType::Type expectedType = static_cast<bdlmxxx::ElemType::Type>(
                           bdlmxxx::SelectBdemType<typename TYPE::BaseType>::VALUE);
@@ -1076,7 +1076,7 @@ template <class TYPE>
 inline
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
     return fromAggregateRawToEnumeration(destination,
                                          aggregate.aggregateRaw());
@@ -1085,7 +1085,7 @@ int AggregateUtil::fromAggregateImp(TYPE                  *destination,
 template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
-                                         bdeat_TypeCategory::Sequence)
+                                         bdlat_TypeCategory::Sequence)
 {
     if (bdlmxxx::ElemType::BDEM_LIST == aggregate.dataType()
      || bdlmxxx::ElemType::BDEM_ROW  == aggregate.dataType()) {
@@ -1097,7 +1097,7 @@ int AggregateUtil::fromAggregateImp(TYPE                  *destination,
 template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     if (!bdlmxxx::ElemType::isScalarType(aggregate.dataType())) {
         return -1;                                                    // RETURN
@@ -1118,7 +1118,7 @@ int AggregateUtil::fromAggregateToNullable(
         destination->makeValue();
 
         typedef typename
-        bdeat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
+        bdlat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
 
         return fromAggregateImp(&destination->value(), aggregate, TypeTag());
                                                                       // RETURN
@@ -1173,7 +1173,7 @@ int AggregateUtil::fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Choice)
+                                            bdlat_TypeCategory::Choice)
 {
     const Aggregate& field = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1194,7 +1194,7 @@ int AggregateUtil::fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::CustomizedType)
+                                            bdlat_TypeCategory::CustomizedType)
 {
     const Aggregate& field = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1220,7 +1220,7 @@ int AggregateUtil::fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Enumeration)
+                                            bdlat_TypeCategory::Enumeration)
 {
     AggregateRaw    aggregateRaw = aggregate.aggregateRaw();
     AggregateRaw    field;
@@ -1246,7 +1246,7 @@ int AggregateUtil::fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Sequence)
+                                            bdlat_TypeCategory::Sequence)
 {
     const Aggregate& field = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1267,7 +1267,7 @@ int AggregateUtil::fromAggregateToVectorOfNullable(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Simple)
+                                            bdlat_TypeCategory::Simple)
 {
     AggregateRaw    aggregateRaw = aggregate.aggregateRaw();
     AggregateRaw    field;
@@ -1309,7 +1309,7 @@ int AggregateUtil::fromAggregateToVector(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Choice)
+                                            bdlat_TypeCategory::Choice)
 {
     Aggregate field  = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1330,7 +1330,7 @@ int AggregateUtil::fromAggregateToVector(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::CustomizedType)
+                                            bdlat_TypeCategory::CustomizedType)
 {
     Aggregate field  = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1355,7 +1355,7 @@ int AggregateUtil::fromAggregateToVector(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Enumeration)
+                                            bdlat_TypeCategory::Enumeration)
 {
     AggregateRaw    aggregateRaw = aggregate.aggregateRaw();
     AggregateRaw    field;
@@ -1381,10 +1381,10 @@ int AggregateUtil::fromAggregateToVector(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::NullableValue)
+                                            bdlat_TypeCategory::NullableValue)
 {
     typedef typename TYPE::ValueType                              VALUE_TYPE;
-    typedef typename bdeat_TypeCategory::Select<VALUE_TYPE>::Type TypeTag;
+    typedef typename bdlat_TypeCategory::Select<VALUE_TYPE>::Type TypeTag;
 
     return fromAggregateToVectorOfNullable(destination,
                                            aggregate,
@@ -1397,7 +1397,7 @@ int AggregateUtil::fromAggregateToVector(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Sequence)
+                                            bdlat_TypeCategory::Sequence)
 {
     Aggregate field  = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1418,7 +1418,7 @@ int AggregateUtil::fromAggregateToVector(
                                             bsl::vector<TYPE>     *destination,
                                             const Aggregate&  aggregate,
                                             int                    fieldId,
-                                            bdeat_TypeCategory::Simple)
+                                            bdlat_TypeCategory::Simple)
 {
     AggregateRaw    aggregateRaw = aggregate.aggregateRaw();
     AggregateRaw    field;
@@ -1464,9 +1464,9 @@ inline
 int AggregateUtil::fromAggregateImp(bsl::vector<TYPE>     *destination,
                                          const Aggregate&  aggregate,
                                          int                    fieldId,
-                                         bdeat_TypeCategory::Array)
+                                         bdlat_TypeCategory::Array)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeTag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeTag;
     return fromAggregateToVector(destination, aggregate, fieldId, TypeTag());
 }
 
@@ -1474,7 +1474,7 @@ template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
                                          int                    fieldId,
-                                         bdeat_TypeCategory::Choice)
+                                         bdlat_TypeCategory::Choice)
 {
     Aggregate field = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1491,7 +1491,7 @@ template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
                                          int                    fieldId,
-                                         bdeat_TypeCategory::CustomizedType)
+                                         bdlat_TypeCategory::CustomizedType)
 {
     Aggregate field = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1511,7 +1511,7 @@ template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
                                          int                    fieldId,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
     AggregateRaw    aggregateRaw = aggregate.aggregateRaw();
     AggregateRaw    field;
@@ -1527,7 +1527,7 @@ template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
                                          int                    fieldId,
-                                         bdeat_TypeCategory::NullableValue)
+                                         bdlat_TypeCategory::NullableValue)
 {
     const Aggregate& field = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1541,7 +1541,7 @@ template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
                                          int                    fieldId,
-                                         bdeat_TypeCategory::Sequence)
+                                         bdlat_TypeCategory::Sequence)
 {
     Aggregate field = aggregate.fieldById(fieldId);
     if (field.isError()) {
@@ -1558,7 +1558,7 @@ template <class TYPE>
 int AggregateUtil::fromAggregateImp(TYPE                  *destination,
                                          const Aggregate&  aggregate,
                                          int                    fieldId,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     AggregateRaw    aggregateRaw = aggregate.aggregateRaw();
     AggregateRaw    field;
@@ -1580,7 +1580,7 @@ int AggregateUtil::toAggregateRawFromEnumeration(
                                                 AggregateRaw *aggregate,
                                                 const TYPE&        source)
 {
-    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
 
     ErrorAttributes errorDescription;
     aggregate->setValue(&errorDescription, Wrapper::toString(source));
@@ -1613,7 +1613,7 @@ template <class TYPE>
 inline
 int AggregateUtil::toAggregateRawImp(AggregateRaw *aggregate,
                                           const TYPE&        source,
-                                          bdeat_TypeCategory::Enumeration)
+                                          bdlat_TypeCategory::Enumeration)
 {
     return toAggregateRawFromEnumeration(aggregate, source);
 }
@@ -1621,7 +1621,7 @@ int AggregateUtil::toAggregateRawImp(AggregateRaw *aggregate,
 template <class TYPE>
 int AggregateUtil::toAggregateRawImp(AggregateRaw *aggregate,
                                           const TYPE&        source,
-                                          bdeat_TypeCategory::Simple)
+                                          bdlat_TypeCategory::Simple)
 {
     if (!bdlmxxx::ElemType::isScalarType(aggregate->dataType())) {
         return -1;                                                    // RETURN
@@ -1642,7 +1642,7 @@ int AggregateUtil::toAggregateRawFromNullable(
         aggregate->makeValue();
 
         typedef typename
-        bdeat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
+        bdlat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
 
         return toAggregateRawImp(aggregate, source.value(), TypeTag());
                                                                       // RETURN
@@ -1697,7 +1697,7 @@ int AggregateUtil::toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Choice)
+                                           bdlat_TypeCategory::Choice)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -1718,7 +1718,7 @@ int AggregateUtil::toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::CustomizedType)
+                                           bdlat_TypeCategory::CustomizedType)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -1744,7 +1744,7 @@ int AggregateUtil::toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Enumeration)
+                                           bdlat_TypeCategory::Enumeration)
 {
     AggregateRaw    aggregateRaw = aggregate->aggregateRaw();
     AggregateRaw    field;
@@ -1770,7 +1770,7 @@ int AggregateUtil::toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Sequence)
+                                           bdlat_TypeCategory::Sequence)
 {
     Aggregate field  = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -1791,7 +1791,7 @@ int AggregateUtil::toAggregateFromVectorOfNullable(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Simple)
+                                           bdlat_TypeCategory::Simple)
 {
     AggregateRaw    aggregateRaw = aggregate->aggregateRaw();
     AggregateRaw    field;
@@ -1831,7 +1831,7 @@ int AggregateUtil::toAggregateFromVectorOfNullable(
 template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Array)
+                                       bdlat_TypeCategory::Array)
 {
     // This case is only for handling 'bsl::vector<char>'.
 
@@ -1845,7 +1845,7 @@ int AggregateUtil::toAggregateImp(Aggregate *aggregate,
 template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Choice)
+                                       bdlat_TypeCategory::Choice)
 {
     if (bdlmxxx::ElemType::BDEM_CHOICE            == aggregate->dataType()
      || bdlmxxx::ElemType::BDEM_CHOICE_ARRAY_ITEM == aggregate->dataType()) {
@@ -1857,7 +1857,7 @@ int AggregateUtil::toAggregateImp(Aggregate *aggregate,
 template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::CustomizedType)
+                                       bdlat_TypeCategory::CustomizedType)
 {
     bdlmxxx::ElemType::Type expectedType = static_cast<bdlmxxx::ElemType::Type>(
                           bdlmxxx::SelectBdemType<typename TYPE::BaseType>::VALUE);
@@ -1871,7 +1871,7 @@ template <class TYPE>
 inline
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Enumeration)
+                                       bdlat_TypeCategory::Enumeration)
 {
     return toAggregateRawFromEnumeration(&aggregate->aggregateRaw(), source);
 }
@@ -1879,7 +1879,7 @@ int AggregateUtil::toAggregateImp(Aggregate *aggregate,
 template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Sequence)
+                                       bdlat_TypeCategory::Sequence)
 {
     if (bdlmxxx::ElemType::BDEM_LIST == aggregate->dataType()
      || bdlmxxx::ElemType::BDEM_ROW  == aggregate->dataType()) {
@@ -1891,7 +1891,7 @@ int AggregateUtil::toAggregateImp(Aggregate *aggregate,
 template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Simple)
+                                       bdlat_TypeCategory::Simple)
 {
     if (!bdlmxxx::ElemType::isScalarType(aggregate->dataType())) {
         return -1;                                                    // RETURN
@@ -1911,7 +1911,7 @@ int AggregateUtil::toAggregateFromNullable(Aggregate *aggregate,
         aggregate->makeValue();
 
         typedef typename
-        bdeat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
+        bdlat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
 
         return toAggregateImp(aggregate, source.value(), TypeTag());  // RETURN
     }
@@ -1923,7 +1923,7 @@ int AggregateUtil::toAggregateFromVector(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Enumeration)
+                                           bdlat_TypeCategory::Enumeration)
 {
     AggregateRaw    aggregateRaw = aggregate->aggregateRaw();
     AggregateRaw    field;
@@ -1949,10 +1949,10 @@ int AggregateUtil::toAggregateFromVector(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::NullableValue)
+                                           bdlat_TypeCategory::NullableValue)
 {
     typedef typename
-    bdeat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
+    bdlat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
 
     return toAggregateFromVectorOfNullable(aggregate,
                                            fieldId,
@@ -1965,7 +1965,7 @@ int AggregateUtil::toAggregateFromVector(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Choice)
+                                           bdlat_TypeCategory::Choice)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -1986,7 +1986,7 @@ int AggregateUtil::toAggregateFromVector(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::CustomizedType)
+                                           bdlat_TypeCategory::CustomizedType)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -2011,7 +2011,7 @@ int AggregateUtil::toAggregateFromVector(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Sequence)
+                                           bdlat_TypeCategory::Sequence)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -2032,7 +2032,7 @@ int AggregateUtil::toAggregateFromVector(
                                            Aggregate           *aggregate,
                                            int                       fieldId,
                                            const bsl::vector<TYPE>&  source,
-                                           bdeat_TypeCategory::Simple)
+                                           bdlat_TypeCategory::Simple)
 {
     AggregateRaw    aggregateRaw = aggregate->aggregateRaw();
     AggregateRaw    field;
@@ -2079,9 +2079,9 @@ inline
 int AggregateUtil::toAggregateImp(Aggregate           *aggregate,
                                        int                       fieldId,
                                        const bsl::vector<TYPE>&  source,
-                                       bdeat_TypeCategory::Array)
+                                       bdlat_TypeCategory::Array)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeTag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeTag;
     return toAggregateFromVector(aggregate, fieldId, source, TypeTag());
 }
 
@@ -2089,7 +2089,7 @@ template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        int             fieldId,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Enumeration)
+                                       bdlat_TypeCategory::Enumeration)
 {
     AggregateRaw    aggregateRaw = aggregate->aggregateRaw();
     AggregateRaw    field;
@@ -2105,7 +2105,7 @@ template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        int             fieldId,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::NullableValue)
+                                       bdlat_TypeCategory::NullableValue)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -2119,7 +2119,7 @@ template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        int             fieldId,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::CustomizedType)
+                                       bdlat_TypeCategory::CustomizedType)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -2139,7 +2139,7 @@ template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        int             fieldId,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Choice)
+                                       bdlat_TypeCategory::Choice)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -2156,7 +2156,7 @@ template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        int             fieldId,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Sequence)
+                                       bdlat_TypeCategory::Sequence)
 {
     Aggregate field = aggregate->fieldById(fieldId);
     if (field.isError()) {
@@ -2173,7 +2173,7 @@ template <class TYPE>
 int AggregateUtil::toAggregateImp(Aggregate *aggregate,
                                        int             fieldId,
                                        const TYPE&     source,
-                                       bdeat_TypeCategory::Simple)
+                                       bdlat_TypeCategory::Simple)
 {
     AggregateRaw    aggregateRaw = aggregate->aggregateRaw();
     AggregateRaw    field;
@@ -2196,7 +2196,7 @@ int AggregateUtil::fromAggregate(TYPE                  *destination,
                                       const Aggregate&  aggregate,
                                       int                    fieldId)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeTag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeTag;
     return fromAggregateImp(destination, aggregate, fieldId, TypeTag());
 }
 
@@ -2206,7 +2206,7 @@ int AggregateUtil::toAggregate(Aggregate *aggregate,
                                     int             fieldId,
                                     const TYPE&     source)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeTag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeTag;
     return toAggregateImp(aggregate, fieldId, source, TypeTag());
 }
 }  // close package namespace

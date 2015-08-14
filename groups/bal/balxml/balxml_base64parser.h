@@ -203,7 +203,7 @@ int Base64Parser<TYPE>::beginParse(TYPE *object)
     d_base64Decoder.resetState();
     d_object_p = object;
 
-    bdeat_ValueTypeFunctions::reset(d_object_p);
+    bdlat_ValueTypeFunctions::reset(d_object_p);
 
     return BAEXML_SUCCESS;
 }

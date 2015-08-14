@@ -905,9 +905,11 @@ MiniReader::nodeEndPosition() const
 {
     return  currentNode().d_endPos;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
+
+#endif  // INCLUDED_BALXML_MINIREADER
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

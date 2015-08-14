@@ -275,9 +275,9 @@ if (veryVerbose)
         const char *CTRL = mCtrl;
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-        ASSERT(Obj::BAETZO_DST         == Obj::e_DST);
-        ASSERT(Obj::BAETZO_STANDARD    == Obj::e_STANDARD);
-        ASSERT(Obj::BAETZO_UNSPECIFIED == Obj::e_UNSPECIFIED);
+        ASSERT(Obj::e_DST         == Obj::e_DST);
+        ASSERT(Obj::e_STANDARD    == Obj::e_STANDARD);
+        ASSERT(Obj::e_UNSPECIFIED == Obj::e_UNSPECIFIED);
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
         if (verbose) cout << "\nTesting 'print'." << endl;

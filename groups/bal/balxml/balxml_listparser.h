@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The 'balxml::ListParser<TYPE>' class template provided by this
 // component can be used to parse lists into an object that supports
-// 'bdeat_ArrayFunctions'.
+// 'bdlat_ArrayFunctions'.
 //
 // This class template is a model of the 'PushParser' concept, which contains
 // the following methods:
@@ -166,7 +166,7 @@ class ListParser {
 
     // PRIVATE TYPES
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
   public:
     // TYPES
@@ -245,9 +245,9 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
 
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
-    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
+    const int i = static_cast<int>(bdlat_ArrayFunctions::size(*d_object_p));
 
-    bdeat_ArrayFunctions::resize(d_object_p, i + 1);
+    bdlat_ArrayFunctions::resize(d_object_p, i + 1);
 
     typedef bdlf::Function<int(*)(ElementType*)> Functor;
 
@@ -258,11 +258,11 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
                                                       data,
                                                       dataLength);
 
-    if (0 != bdeat_ArrayFunctions::manipulateElement(d_object_p,
+    if (0 != bdlat_ArrayFunctions::manipulateElement(d_object_p,
                                                      parseElementFunctor,
                                                      i)) {
         // remove the new object from the array
-        bdeat_ArrayFunctions::resize(d_object_p, i);
+        bdlat_ArrayFunctions::resize(d_object_p, i);
 
         return BAEXML_FAILURE;                                        // RETURN
     }
@@ -294,7 +294,7 @@ int ListParser<TYPE>::beginParse(TYPE *object)
     d_characters.clear();
     d_object_p = object;
 
-    bdeat_ArrayFunctions::resize(d_object_p, 0);
+    bdlat_ArrayFunctions::resize(d_object_p, 0);
 
     return BAEXML_SUCCESS;
 }

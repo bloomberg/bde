@@ -110,23 +110,23 @@ struct bdlat_FormattingMode {
       , e_IS_NILLABLE       = e_NILLABLE
       , e_IS_LIST           = e_LIST
 
-      , BDEAT_DEFAULT           = e_DEFAULT
-      , BDEAT_DEC               = e_DEC
-      , BDEAT_HEX               = e_HEX
-      , BDEAT_BASE64            = e_BASE64
-      , BDEAT_TEXT              = e_TEXT
-      , BDEAT_TYPE_MASK         = e_TYPE_MASK
-      , BDEAT_UNTAGGED          = e_UNTAGGED
-      , BDEAT_ATTRIBUTE         = e_ATTRIBUTE
-      , BDEAT_SIMPLE_CONTENT    = e_SIMPLE_CONTENT
-      , BDEAT_NILLABLE          = e_NILLABLE
-      , BDEAT_LIST              = e_LIST
-      , BDEAT_FLAGS_MASK        = e_FLAGS_MASK
-      , BDEAT_IS_UNTAGGED       = e_UNTAGGED
-      , BDEAT_IS_ATTRIBUTE      = e_ATTRIBUTE
-      , BDEAT_IS_SIMPLE_CONTENT = e_SIMPLE_CONTENT
-      , BDEAT_IS_NILLABLE       = e_NILLABLE
-      , BDEAT_IS_LIST           = e_LIST
+      , e_DEFAULT           = e_DEFAULT
+      , e_DEC               = e_DEC
+      , e_HEX               = e_HEX
+      , e_BASE64            = e_BASE64
+      , e_TEXT              = e_TEXT
+      , e_TYPE_MASK         = e_TYPE_MASK
+      , e_UNTAGGED          = e_UNTAGGED
+      , e_ATTRIBUTE         = e_ATTRIBUTE
+      , e_SIMPLE_CONTENT    = e_SIMPLE_CONTENT
+      , e_NILLABLE          = e_NILLABLE
+      , e_LIST              = e_LIST
+      , e_FLAGS_MASK        = e_FLAGS_MASK
+      , e_IS_UNTAGGED       = e_UNTAGGED
+      , e_IS_ATTRIBUTE      = e_ATTRIBUTE
+      , e_IS_SIMPLE_CONTENT = e_SIMPLE_CONTENT
+      , e_IS_NILLABLE       = e_NILLABLE
+      , e_IS_LIST           = e_LIST
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 };

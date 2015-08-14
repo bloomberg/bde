@@ -27,7 +27,7 @@ namespace BloombergLP {
 
 const char balxml::EncodingStyle::CLASS_NAME[] = "balxml::EncodingStyle";
 
-const bdeat_EnumeratorInfo balxml::EncodingStyle::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo balxml::EncodingStyle::ENUMERATOR_INFO_ARRAY[] = {
     {
         balxml::EncodingStyle::BAEXML_COMPACT,
         "COMPACT",

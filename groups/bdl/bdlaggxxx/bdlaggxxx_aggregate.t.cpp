@@ -325,13 +325,13 @@ using bsl::flush;
 //                               const bdlaggxxx::Aggregate& obj);
 //
 // BDEAT FRAMEWORK
-// [24] namespace bdeat_TypeCategoryFunctions
-// [24] namespace bdeat_SequenceFunctions
-// [24] namespace bdeat_ChoiceFunctions
-// [24] namespace bdeat_ArrayFunctions
-// [24] namespace bdeat_EnumFunctions
-// [24] namespace bdeat_NullableValueFunctions
-// [24] namespace bdeat_ValueTypeFunctions
+// [24] namespace bdlat_TypeCategoryFunctions
+// [24] namespace bdlat_SequenceFunctions
+// [24] namespace bdlat_ChoiceFunctions
+// [24] namespace bdlat_ArrayFunctions
+// [24] namespace bdlat_EnumFunctions
+// [24] namespace bdlat_NullableValueFunctions
+// [24] namespace bdlat_ValueTypeFunctions
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -566,7 +566,7 @@ typedef bdlmxxx::Schema             Schema;
 
 typedef bdlmxxx::SchemaUtil          SchemaUtil;
 typedef bdlmxxx::SchemaAggregateUtil SchemaAggUtil;
-typedef bdeat_FormattingMode     Format;
+typedef bdlat_FormattingMode     Format;
 
 typedef bsl::shared_ptr<const RecDef>        ConstRecDefShdPtr;
 typedef bsl::shared_ptr<RecDef>              RecDefShdPtr;
@@ -597,15 +597,15 @@ typedef bdlt::TimeTz           TimeTz;
 
 typedef bsls::Types::Int64    Int64;
 
-typedef bdeat_TypeName     TN;
-typedef bdeat_TypeCategory TC;
+typedef bdlat_TypeName     TN;
+typedef bdlat_TypeCategory TC;
 
-namespace TCF = bdeat_TypeCategoryFunctions;
-namespace SF  = bdeat_SequenceFunctions;
-namespace CF  = bdeat_ChoiceFunctions;
-namespace AF  = bdeat_ArrayFunctions;
-namespace EF  = bdeat_EnumFunctions;
-namespace NVF = bdeat_NullableValueFunctions;
+namespace TCF = bdlat_TypeCategoryFunctions;
+namespace SF  = bdlat_SequenceFunctions;
+namespace CF  = bdlat_ChoiceFunctions;
+namespace AF  = bdlat_ArrayFunctions;
+namespace EF  = bdlat_EnumFunctions;
+namespace NVF = bdlat_NullableValueFunctions;
 
 //=============================================================================
 //                           GLOBAL DATA FOR TESTING
@@ -1501,17 +1501,17 @@ int getFormattingMode(char fmtCode)
     //..
 {
     switch (fmtCode) {
-      case '0': return Format::BDEAT_DEFAULT;                         // RETURN
-      case 'B': return Format::BDEAT_BASE64;                          // RETURN
-      case 'D': return Format::BDEAT_DEC;                             // RETURN
-      case 'T': return Format::BDEAT_TEXT;                            // RETURN
-      case 'X': return Format::BDEAT_HEX;                             // RETURN
-      case 'A': return Format::BDEAT_ATTRIBUTE;                       // RETURN
-      case 'L': return Format::BDEAT_LIST;                            // RETURN
+      case '0': return Format::e_DEFAULT;                         // RETURN
+      case 'B': return Format::e_BASE64;                          // RETURN
+      case 'D': return Format::e_DEC;                             // RETURN
+      case 'T': return Format::e_TEXT;                            // RETURN
+      case 'X': return Format::e_HEX;                             // RETURN
+      case 'A': return Format::e_ATTRIBUTE;                       // RETURN
+      case 'L': return Format::e_LIST;                            // RETURN
       case 'N':
-      case 'n': return Format::BDEAT_NILLABLE;                        // RETURN
-      case 'S': return Format::BDEAT_SIMPLE_CONTENT;                  // RETURN
-      case 'U': return Format::BDEAT_UNTAGGED;                        // RETURN
+      case 'n': return Format::e_NILLABLE;                        // RETURN
+      case 'S': return Format::e_SIMPLE_CONTENT;                  // RETURN
+      case 'U': return Format::e_UNTAGGED;                        // RETURN
       default: {
         P(fmtCode);  ASSERT("Invalid formatting mode used in gg script" && 0);
       } break;
@@ -1687,7 +1687,7 @@ const char *addRecord(Schema     *object,
 
         // Parse field attributes, if any.
 
-        int  fmt       = Format::BDEAT_DEFAULT;
+        int  fmt       = Format::e_DEFAULT;
         bool nullable  = false;
         int  dfltIndex = -1;
         int  id        = BDEM_NULL_FIELD_ID;
@@ -1723,7 +1723,7 @@ const char *addRecord(Schema     *object,
         }
 
         bool isNSA = false;
-        if (bdeat_FormattingMode::BDEAT_NILLABLE & fmt
+        if (bdlat_FormattingMode::e_NILLABLE & fmt
          && EType::isArrayType(fieldType)
          && !EType::isAggregateType(fieldType)
          && -1 == dfltIndex) {
@@ -1734,7 +1734,7 @@ const char *addRecord(Schema     *object,
             bdlmxxx::FieldDefAttributes baseAttr(
                                        baseType,
                                        false,
-                                       bdeat_FormattingMode::BDEAT_NILLABLE);
+                                       bdlat_FormattingMode::e_NILLABLE);
             tmpRecord->appendField(baseAttr, enumConstraint);
             recordConstraint = tmpRecord;
             fieldType = EType::BDEM_TABLE;
@@ -3017,7 +3017,7 @@ inline
 int AggAccessor::operator()(const T& value, const TC::Enumeration&)
 {
     int intValue;
-    bdeat_EnumFunctions::toInt(&intValue, value);
+    bdlat_EnumFunctions::toInt(&intValue, value);
     if (d_isNullable) {
         intValue = -intValue;
     }
@@ -3074,7 +3074,7 @@ int AggAccessor::operator()(const T& value, const bslmf::Nil&)
 template <class T>
 inline
 int AggAccessor::operator()(const T& value) {
-    bdeat_TypeCategoryUtil::accessByCategory(value, *this);
+    bdlat_TypeCategoryUtil::accessByCategory(value, *this);
     d_isNullable = false;
     return 0;
 }
@@ -3201,7 +3201,7 @@ inline
 int NewAggAccessor::operator()(const T& value, const TC::Enumeration&)
 {
     int intValue;
-    bdeat_EnumFunctions::toInt(&intValue, value);
+    bdlat_EnumFunctions::toInt(&intValue, value);
     const bsl::string& name = d_nodes.top();
     d_output << '<' << name << '>'
              << intValue
@@ -3263,13 +3263,13 @@ int NewAggAccessor::operator()(const T& value, const bslmf::Nil&)
 template <class T>
 inline
 int NewAggAccessor::operator()(const T& value) {
-    bdeat_TypeCategoryUtil::accessByCategory(value, *this);
+    bdlat_TypeCategoryUtil::accessByCategory(value, *this);
     return 0;
 }
 
 template <class T, class INFO>
 int NewAggAccessor::operator()(const T& value, const INFO& info) {
-    if (Format::BDEAT_NILLABLE & info.formattingMode()) {
+    if (Format::e_NILLABLE & info.formattingMode()) {
         d_isNillable = true;
     }
     d_nodes.push(info.name());
@@ -3364,7 +3364,7 @@ int NewAggManipulator::operator()(T* value, const TC::Enumeration&)
     int intValue;
     const CERef& ref = d_elements.front();
     bdlmxxx::Convert::convert(&intValue, ref);
-    bdeat_EnumFunctions::fromInt(value, intValue);
+    bdlat_EnumFunctions::fromInt(value, intValue);
     d_elements.pop_front();
     return 0;
 }
@@ -3375,7 +3375,7 @@ int NewAggManipulator::operator()(T* value, const TC::NullableValue&)
 {
     const CERef& ref = d_elements.front();
     if (!ref.isBound()) {
-        bdeat_ValueTypeFunctions::reset(value);
+        bdlat_ValueTypeFunctions::reset(value);
         d_elements.pop_front();
         return 0;                                                     // RETURN
     }
@@ -3409,7 +3409,7 @@ int NewAggManipulator::operator()(T* value, const TC::Simple&)
 template <class T>
 inline
 int NewAggManipulator::operator()(T* value) {
-    bdeat_TypeCategoryUtil::manipulateByCategory(value, *this);
+    bdlat_TypeCategoryUtil::manipulateByCategory(value, *this);
     return 0;
 }
 
@@ -3505,7 +3505,7 @@ template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::Enumeration&)
 {
-    bdeat_EnumFunctions::fromInt(value, counterNext());
+    bdlat_EnumFunctions::fromInt(value, counterNext());
     return 0;
 }
 
@@ -3547,7 +3547,7 @@ int AggManipulator::operator()(T* value, const TC::Simple&)
 template <class T>
 inline
 int AggManipulator::operator()(T* value) {
-    bdeat_TypeCategoryUtil::manipulateByCategory(value, *this);
+    bdlat_TypeCategoryUtil::manipulateByCategory(value, *this);
     d_isNullable = false;
     return 0;
 }
@@ -3763,23 +3763,23 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // TESTING 'bdeat' FUNCTIONS
         //
         // Concerns:
-        //   - 'bdeat_TypeName::className(bdlaggxxx::Aggregate)' returns the
+        //   - 'bdlat_TypeName::className(bdlaggxxx::Aggregate)' returns the
         //     record name for aggregates that are constrained by a record
         //     definition, and a zero pointer for aggregates that are not
         //     constrained by a record definition.
-        //   - 'bdeat_TypeCategory::Select<bdlaggxxx::Aggregate>::
-        //      BDEAT_SELECTION' is '0'
-        //   - 'bdeat_TypeCategoryFunctions::select(bdem::AggregateRawPtr)'
+        //   - 'bdlat_TypeCategory::Select<bdlaggxxx::Aggregate>::
+        //      e_SELECTION' is '0'
+        //   - 'bdlat_TypeCategoryFunctions::select(bdem::AggregateRawPtr)'
         //     returns the category value appropriate to the value of the
         //     aggregate.
-        //   - The following methods in 'bdeat_SequenceFunctions' produce the
+        //   - The following methods in 'bdlat_SequenceFunctions' produce the
         //     expected results on an AggregateRawPtr holding a list or row:
         //     - 'manipulateAttribute'
         //     - 'manipulateAttributes'
         //     - 'accessAttribute'
         //     - 'accessAttributes'
         //     - 'hasAttribute'
-        //   - The following methods in 'bdeat_ChoiceFunctions' produce the
+        //   - The following methods in 'bdlat_ChoiceFunctions' produce the
         //     expected result on an aggregate holding a choice or choice array
         //     item:
         //     - 'makeSelection'
@@ -3787,27 +3787,27 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //     - 'accessSelection'
         //     - 'hasSelection'
         //     - 'selectionId'
-        //   - The following methods in 'bdeat_ArrayFunctions' produce the
+        //   - The following methods in 'bdlat_ArrayFunctions' produce the
         //     expected result on an aggregate holding an array, table, or
         //     choice array:
         //     - 'size'
         //     - 'resize'
         //     - 'manipulateElement'
         //     - 'accessElement'
-        //   - The following methods in 'bdeat_NullableValueFunctions'
+        //   - The following methods in 'bdlat_NullableValueFunctions'
         //     return the expected results when invoked on a nullable field
         //     within an aggregate:
         //     - 'makeValue'
         //     - 'manipulateValue'
         //     - 'accessValue'
         //     - 'isNull'
-        //   - The following methods in 'bdeat_EnumFunctions' set and get the
+        //   - The following methods in 'bdlat_EnumFunctions' set and get the
         //     correct values for an enumeration field within an aggregate:
         //     - 'fromInt'
         //     - 'fromString'
         //     - 'toInt'
         //     - 'toString'
-        //   - The following methods in 'bdeat_ValueTypeFunctions' assign the
+        //   - The following methods in 'bdlat_ValueTypeFunctions' assign the
         //     correct values for a scalar aggregate and for a list aggregate:
         //     - 'assign'
         //     - 'reset'
@@ -3822,12 +3822,12 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // - Define an accessor that records the sequence of calls.
         // - Create an 'bdlaggxxx::Aggregate' object that conforms to the root
         //   record of the schema.
-        // - Call 'bdeat_TypeName::className(bdlaggxxx::Aggregate)' on each
+        // - Call 'bdlat_TypeName::className(bdlaggxxx::Aggregate)' on each
         //   field and check for expected result.
         // - Check that
-        //   'bdeat_TypeCategory::Select<bdlaggxxx::Aggregate>::
-        //    BDEAT_SELECTION' is '0'.
-        // - Call 'bdeat_TypeCategoryFunctions::select(bdem::AggregateRawPtr)'
+        //   'bdlat_TypeCategory::Select<bdlaggxxx::Aggregate>::
+        //    e_SELECTION' is '0'.
+        // - Call 'bdlat_TypeCategoryFunctions::select(bdem::AggregateRawPtr)'
         //   on each field and check for expected result.
         // - Apply the manipulator to the aggregate and confirm that the final
         //   state of the aggregate is as expected.
@@ -3839,13 +3839,13 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //   aggregate is equivalent to the original.
         //
         // Testing:
-        //     namespace bdeat_TypeCategoryFunctions
-        //     namespace bdeat_SequenceFunctions
-        //     namespace bdeat_ChoiceFunctions
-        //     namespace bdeat_ArrayFunctions
-        //     namespace bdeat_EnumFunctions
-        //     namespace bdeat_NullableValueFunctions
-        //     namespace bdeat_ValueTypeFunctions
+        //     namespace bdlat_TypeCategoryFunctions
+        //     namespace bdlat_SequenceFunctions
+        //     namespace bdlat_ChoiceFunctions
+        //     namespace bdlat_ArrayFunctions
+        //     namespace bdlat_EnumFunctions
+        //     namespace bdlat_NullableValueFunctions
+        //     namespace bdlat_ValueTypeFunctions
         // --------------------------------------------------------------------
 
         if (verbose) tst::cout << "\nTESTING 'bdeat' FUNCTIONS"
@@ -3882,7 +3882,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(1 == schema->numEnumerations());
         if (veryVerbose) P(*schema);
 
-        ASSERT(0 == TC::Select<bdlaggxxx::Aggregate>::BDEAT_SELECTION);
+        ASSERT(0 == TC::Select<bdlaggxxx::Aggregate>::e_SELECTION);
 
         Obj mA1(schema, "r");  const Obj& A1 = mA1;
         mA1.setField("a", 4.0);
@@ -3942,37 +3942,37 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing category selection" << bsl::endl;
         ASSERT(0 ==
-                  bdeat_TypeCategory::Select<bdlaggxxx::Aggregate>::BDEAT_SELECTION);
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == TCF::select(A1));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+                  bdlat_TypeCategory::Select<bdlaggxxx::Aggregate>::e_SELECTION);
+        ASSERT(TC::e_SEQUENCE_CATEGORY    == TCF::select(A1));
+        ASSERT(TC::e_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("a").aggregateRaw()));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+        ASSERT(TC::e_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("b").aggregateRaw()));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+        ASSERT(TC::e_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("c").aggregateRaw()));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      ==
+        ASSERT(TC::e_SIMPLE_CATEGORY      ==
                TCF::select(mA1.field("d").aggregateRaw()));
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    ==
+        ASSERT(TC::e_SEQUENCE_CATEGORY    ==
                TCF::select(mA1.field("f").aggregateRaw()));
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    ==
+        ASSERT(TC::e_SEQUENCE_CATEGORY    ==
                TCF::select(mA1.field("g").aggregateRaw()));
-        ASSERT(TC::BDEAT_CHOICE_CATEGORY      ==
+        ASSERT(TC::e_CHOICE_CATEGORY      ==
                TCF::select(mA1.field("h").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+        ASSERT(TC::e_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("i").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+        ASSERT(TC::e_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("j").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+        ASSERT(TC::e_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("k").aggregateRaw()));
-        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY ==
+        ASSERT(TC::e_ENUMERATION_CATEGORY ==
                TCF::select(mA1.field("m").aggregateRaw()));
-        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY ==
+        ASSERT(TC::e_ENUMERATION_CATEGORY ==
                TCF::select(mA1.field("n").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+        ASSERT(TC::e_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("o").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+        ASSERT(TC::e_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("p").aggregateRaw()));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       ==
+        ASSERT(TC::e_ARRAY_CATEGORY       ==
                TCF::select(mA1.field("q").aggregateRaw()));
 
         AggAccessor       theAccessor;
@@ -3998,7 +3998,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         const bsl::string RQ = "<q xsi:nil='true'/><q>2</q>";
 
         bsl::string res;
-        if (verbose) tst::cout << "Testing bdeat_SequenceFunctions"<<bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_SequenceFunctions"<<bsl::endl;
         ASSERT(SF::IsSequence<bdlaggxxx::Aggregate>::VALUE);
 
         newAccessor.reset();
@@ -4302,7 +4302,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(103 == mA2.field("f", "d").asInt64());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ChoiceFunctions" << bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_ChoiceFunctions" << bsl::endl;
         ASSERT(CF::IsChoice<bdlaggxxx::Aggregate>::VALUE);
         int id = 99;
         id = CF::selectionId(mA1.field("h").aggregateRaw());
@@ -4318,7 +4318,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         bdlaggxxx::Aggregate mA2h(mA2.field("h"));
         id = CF::selectionId(mA2h);
-        ASSERT(bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == id);
+        ASSERT(bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID == id);
         CF::makeSelection(&mA2h, 0);
         ASSERT(0 == CF::selectionId(mA2h));
         CF::manipulateSelection(&mA2h, theManipulator);
@@ -4329,7 +4329,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(105 == mA2.field("h", "").asShort());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions" << bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_ArrayFunctions" << bsl::endl;
         ASSERT(AF::IsArray<bdlaggxxx::Aggregate>::VALUE);
         ASSERT(3 == AF::size(mA1.field("i").aggregateRaw()));
         AF::accessElement(mA1.field("i").aggregateRaw(), theAccessor, 0);
@@ -4351,7 +4351,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(106 == mA2.field("i", 1).asInt());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on TABLEs"
+        if (verbose) tst::cout << "Testing bdlat_ArrayFunctions on TABLEs"
                                << bsl::endl;
         ASSERT(2 == AF::size(mA1.field("j").aggregateRaw()));
         AF::accessElement(mA1.field("j").aggregateRaw(), theAccessor, 0);
@@ -4377,7 +4377,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(110 == mA2.field("j", 2, "d").asInt64());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on "
+        if (verbose) tst::cout << "Testing bdlat_ArrayFunctions on "
                                << "CHOICE_ARRAYs" << bsl::endl;
         ASSERT(2 == AF::size(mA1.field("k").aggregateRaw()));
         ASSERT(0 == CF::selectionId(mA1.field("k", 0).aggregateRaw()));
@@ -4412,7 +4412,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (veryVerbose) P(A2);
 
         // WHITE-BOX test of bcem_Aggregate_BdeatUtil::NullableAdapter
-        if (verbose) tst::cout << "Testing bdeat_NullableValueFunctions:"
+        if (verbose) tst::cout << "Testing bdlat_NullableValueFunctions:"
                                << bsl::endl;
         typedef bdlaggxxx::Aggregate_NullableAdapter NullableAdapter;
         ASSERT(! NVF::IsNullableValue<bdlaggxxx::Aggregate>::VALUE);
@@ -4463,7 +4463,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(118 == mA2.field("g", "d").asInt64());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_EnumFunctions:" << bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_EnumFunctions:" << bsl::endl;
         ASSERT(EF::IsEnumeration<bdlaggxxx::Aggregate>::VALUE);
         int intValue;
         bsl::string stringValue;
@@ -4525,7 +4525,7 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ValueTypeFunctions on STRING"
+        if (verbose) tst::cout << "Testing bdlat_ValueTypeFunctions on STRING"
                                << bsl::endl;
         bdlaggxxx::Aggregate mA3d(mA1["d"].clone());
         const bdlaggxxx::Aggregate& A3d = mA3d;
@@ -4535,10 +4535,10 @@ static void testCase35(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             A3d.recordDef().print(bsl::cout) << bsl::endl;
         }
 
-        bdeat_ValueTypeFunctions::reset(&mA3d);
+        bdlat_ValueTypeFunctions::reset(&mA3d);
         ASSERT(ET::BDEM_STRING == A3d.dataType());
         LOOP_ASSERT(A3d.asString(), "vee" == A3d.asString());
-        bdeat_ValueTypeFunctions::assign(&mA3d, mA1["c"]);
+        bdlat_ValueTypeFunctions::assign(&mA3d, mA1["c"]);
         ASSERT("22" == A3d.asString());
         ASSERT(A3d.data() != mA1["c"].data());  // replace with areIdentical.
 
@@ -4580,7 +4580,7 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     // TESTING 'accessArray(RawPtr)'
     //
     // Concerns:
-    //   - bdeat_arrayAccessElement() works properly when the argument is
+    //   - bdlat_arrayAccessElement() works properly when the argument is
     //     bcem_AggregateRaw.
     //
     //
@@ -4588,7 +4588,7 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     //
     // Testing:
     //
-    //  bdeat_arrayAccessElement(bdlaggxxx::AggregateRaw, ...)
+    //  bdlat_arrayAccessElement(bdlaggxxx::AggregateRaw, ...)
     // --------------------------------------------------------------------
 
     if (verbose) tst::cout << "\nTESTING 'accessArray(RawPtr)'"
@@ -4613,7 +4613,7 @@ static void testCase34(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
         Accumulator accumulator;
 
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY == TCF::select(data));
+        ASSERT(TC::e_ARRAY_CATEGORY == TCF::select(data));
         ASSERT(AF::size(data) == numElements);
 
         for (int i = 0; i < numElements; ++i) {
@@ -6401,22 +6401,22 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // TESTING 'bdeat' FUNCTIONS
         //
         // Concerns:
-        //   - 'bdeat_TypeName::className(bdlaggxxx::Aggregate)' returns the record
+        //   - 'bdlat_TypeName::className(bdlaggxxx::Aggregate)' returns the record
         //     name for aggregates that are constrained by a record
         //     definition, and a zero pointer for aggregates that are not
         //     constrained by a record definition.
-        //   - 'bdeat_TypeCategory::Select<bdlaggxxx::Aggregate>::BDEAT_SELECTION' is
+        //   - 'bdlat_TypeCategory::Select<bdlaggxxx::Aggregate>::e_SELECTION' is
         //     '0'
-        //   - 'bdeat_TypeCategoryFunctions::select(bdem::Aggregate)' returns
+        //   - 'bdlat_TypeCategoryFunctions::select(bdem::Aggregate)' returns
         //     the category value appropriate to the value of the aggregate.
-        //   - The following methods in 'bdeat_SequenceFunctions' produce the
+        //   - The following methods in 'bdlat_SequenceFunctions' produce the
         //     expected results on an aggregate holding a list or row:
         //     - 'manipulateAttribute'
         //     - 'manipulateAttributes'
         //     - 'accessAttribute'
         //     - 'accessAttributes'
         //     - 'hasAttribute'
-        //   - The following methods in 'bdeat_ChoiceFunctions' produce the
+        //   - The following methods in 'bdlat_ChoiceFunctions' produce the
         //     expected result on an aggregate holding a choice or choice array
         //     item:
         //     - 'makeSelection'
@@ -6424,27 +6424,27 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //     - 'accessSelection'
         //     - 'hasSelection'
         //     - 'selectionId'
-        //   - The following methods in 'bdeat_ArrayFunctions' produce the
+        //   - The following methods in 'bdlat_ArrayFunctions' produce the
         //     expected result on an aggregate holding an array, table, or
         //     choice array:
         //     - 'size'
         //     - 'resize'
         //     - 'manipulateElement'
         //     - 'accessElement'
-        //   - The following methods in 'bdeat_NullableValueFunctions'
+        //   - The following methods in 'bdlat_NullableValueFunctions'
         //     return the expected results when invoked on a nullable field
         //     within an aggregate:
         //     - 'makeValue'
         //     - 'manipulateValue'
         //     - 'accessValue'
         //     - 'isNull'
-        //   - The following methods in 'bdeat_EnumFunctions' set and get the
+        //   - The following methods in 'bdlat_EnumFunctions' set and get the
         //     correct values for an enumeration field within an aggregate:
         //     - 'fromInt'
         //     - 'fromString'
         //     - 'toInt'
         //     - 'toString'
-        //   - The following methods in 'bdeat_ValueTypeFunctions' assign the
+        //   - The following methods in 'bdlat_ValueTypeFunctions' assign the
         //     correct values for a scalar aggregate and for a list aggregate:
         //     - 'assign'
         //     - 'reset'
@@ -6459,12 +6459,12 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         // - Define an accessor that records the sequence of calls.
         // - Create an 'bdlaggxxx::Aggregate' object that conforms to the root
         //   record of the schema.
-        // - Call 'bdeat_TypeName::className(bdlaggxxx::Aggregate)' on each field
+        // - Call 'bdlat_TypeName::className(bdlaggxxx::Aggregate)' on each field
         //   and check for expected result.
         // - Check that
-        //   'bdeat_TypeCategory::Select<bdlaggxxx::Aggregate>::BDEAT_SELECTION' is
+        //   'bdlat_TypeCategory::Select<bdlaggxxx::Aggregate>::e_SELECTION' is
         //   '0'.
-        // - Call 'bdeat_TypeCategoryFunctions::select(bdem::Aggregate)' on
+        // - Call 'bdlat_TypeCategoryFunctions::select(bdem::Aggregate)' on
         //   each field and check for expected result.
         // - Apply the manipulator to the aggregate and confirm that the final
         //   state of the aggregate is as expected.
@@ -6476,13 +6476,13 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         //   aggregate is equivalent to the original.
         //
         // Testing:
-        //     namespace bdeat_TypeCategoryFunctions
-        //     namespace bdeat_SequenceFunctions
-        //     namespace bdeat_ChoiceFunctions
-        //     namespace bdeat_ArrayFunctions
-        //     namespace bdeat_EnumFunctions
-        //     namespace bdeat_NullableValueFunctions
-        //     namespace bdeat_ValueTypeFunctions
+        //     namespace bdlat_TypeCategoryFunctions
+        //     namespace bdlat_SequenceFunctions
+        //     namespace bdlat_ChoiceFunctions
+        //     namespace bdlat_ArrayFunctions
+        //     namespace bdlat_EnumFunctions
+        //     namespace bdlat_NullableValueFunctions
+        //     namespace bdlat_ValueTypeFunctions
         // --------------------------------------------------------------------
 
         if (verbose) tst::cout << "\nTESTING 'bdeat' FUNCTIONS"
@@ -6519,7 +6519,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(1 == schema->numEnumerations());
         if (veryVerbose) P(*schema);
 
-        ASSERT(0 == TC::Select<bdlaggxxx::Aggregate>::BDEAT_SELECTION);
+        ASSERT(0 == TC::Select<bdlaggxxx::Aggregate>::e_SELECTION);
 
         bdlaggxxx::Aggregate mA1(schema, "r"), &A1 = mA1;
         mA1.setField("a", 4.0);
@@ -6579,23 +6579,23 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (verbose) tst::cout << "Testing category selection" << bsl::endl;
         ASSERT(0 ==
-                  bdeat_TypeCategory::Select<bdlaggxxx::Aggregate>::BDEAT_SELECTION);
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == TCF::select(A1));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == TCF::select(A1.field("a")));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == TCF::select(A1.field("b")));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == TCF::select(A1.field("c")));
-        ASSERT(TC::BDEAT_SIMPLE_CATEGORY      == TCF::select(A1.field("d")));
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == TCF::select(A1.field("f")));
-        ASSERT(TC::BDEAT_SEQUENCE_CATEGORY    == TCF::select(A1.field("g")));
-        ASSERT(TC::BDEAT_CHOICE_CATEGORY      == TCF::select(A1.field("h")));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == TCF::select(A1.field("i")));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == TCF::select(A1.field("j")));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == TCF::select(A1.field("k")));
-        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == TCF::select(A1.field("m")));
-        ASSERT(TC::BDEAT_ENUMERATION_CATEGORY == TCF::select(A1.field("n")));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == TCF::select(A1.field("o")));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == TCF::select(A1.field("p")));
-        ASSERT(TC::BDEAT_ARRAY_CATEGORY       == TCF::select(A1.field("q")));
+                  bdlat_TypeCategory::Select<bdlaggxxx::Aggregate>::e_SELECTION);
+        ASSERT(TC::e_SEQUENCE_CATEGORY    == TCF::select(A1));
+        ASSERT(TC::e_SIMPLE_CATEGORY      == TCF::select(A1.field("a")));
+        ASSERT(TC::e_SIMPLE_CATEGORY      == TCF::select(A1.field("b")));
+        ASSERT(TC::e_SIMPLE_CATEGORY      == TCF::select(A1.field("c")));
+        ASSERT(TC::e_SIMPLE_CATEGORY      == TCF::select(A1.field("d")));
+        ASSERT(TC::e_SEQUENCE_CATEGORY    == TCF::select(A1.field("f")));
+        ASSERT(TC::e_SEQUENCE_CATEGORY    == TCF::select(A1.field("g")));
+        ASSERT(TC::e_CHOICE_CATEGORY      == TCF::select(A1.field("h")));
+        ASSERT(TC::e_ARRAY_CATEGORY       == TCF::select(A1.field("i")));
+        ASSERT(TC::e_ARRAY_CATEGORY       == TCF::select(A1.field("j")));
+        ASSERT(TC::e_ARRAY_CATEGORY       == TCF::select(A1.field("k")));
+        ASSERT(TC::e_ENUMERATION_CATEGORY == TCF::select(A1.field("m")));
+        ASSERT(TC::e_ENUMERATION_CATEGORY == TCF::select(A1.field("n")));
+        ASSERT(TC::e_ARRAY_CATEGORY       == TCF::select(A1.field("o")));
+        ASSERT(TC::e_ARRAY_CATEGORY       == TCF::select(A1.field("p")));
+        ASSERT(TC::e_ARRAY_CATEGORY       == TCF::select(A1.field("q")));
 
         AggAccessor    theAccessor;
         AggManipulator theManipulator;
@@ -6620,7 +6620,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         const bsl::string RQ = "<q xsi:nil='true'/><q>2</q>";
 
         bsl::string res;
-        if (verbose) tst::cout << "Testing bdeat_SequenceFunctions"<<bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_SequenceFunctions"<<bsl::endl;
         ASSERT(SF::IsSequence<bdlaggxxx::Aggregate>::VALUE);
 
         newAccessor.reset();
@@ -6921,7 +6921,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(103 == A2.field("f", "d").asInt64());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ChoiceFunctions" << bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_ChoiceFunctions" << bsl::endl;
         ASSERT(CF::IsChoice<bdlaggxxx::Aggregate>::VALUE);
         int id = 99;
         id = CF::selectionId(A1.field("h"));
@@ -6937,7 +6937,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         bdlaggxxx::Aggregate mA2h(mA2.field("h"));
         id = CF::selectionId(mA2h);
-        ASSERT(bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == id);
+        ASSERT(bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID == id);
         CF::makeSelection(&mA2h, 0);
         ASSERT(0 == CF::selectionId(mA2h));
         CF::manipulateSelection(&mA2h, theManipulator);
@@ -6948,7 +6948,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(105 == A2.field("h", "").asShort());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions" << bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_ArrayFunctions" << bsl::endl;
         ASSERT(AF::IsArray<bdlaggxxx::Aggregate>::VALUE);
         ASSERT(3 == AF::size(A1.field("i")));
         AF::accessElement(A1.field("i"), theAccessor, 0);
@@ -6970,7 +6970,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(106 == A2.field("i", 1).asInt());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on TABLEs"
+        if (verbose) tst::cout << "Testing bdlat_ArrayFunctions on TABLEs"
                                << bsl::endl;
         ASSERT(2 == AF::size(A1.field("j")));
         AF::accessElement(A1.field("j"), theAccessor, 0);
@@ -6996,7 +6996,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(110 == A2.field("j", 2, "d").asInt64());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ArrayFunctions on "
+        if (verbose) tst::cout << "Testing bdlat_ArrayFunctions on "
                                << "CHOICE_ARRAYs" << bsl::endl;
         ASSERT(2 == AF::size(A1.field("k")));
         ASSERT(0 == CF::selectionId(A1.field("k", 0)));
@@ -7031,7 +7031,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (veryVerbose) P(A2);
 
         // WHITE-BOX test of bcem_Aggregate_BdeatUtil::NullableAdapter
-        if (verbose) tst::cout << "Testing bdeat_NullableValueFunctions:"
+        if (verbose) tst::cout << "Testing bdlat_NullableValueFunctions:"
                                << bsl::endl;
         typedef bdlaggxxx::Aggregate_NullableAdapter NullableAdapter;
         ASSERT(! NVF::IsNullableValue<bdlaggxxx::Aggregate>::VALUE);
@@ -7079,7 +7079,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         ASSERT(118 == A2.field("g", "d").asInt64());
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_EnumFunctions:" << bsl::endl;
+        if (verbose) tst::cout << "Testing bdlat_EnumFunctions:" << bsl::endl;
         ASSERT(EF::IsEnumeration<bdlaggxxx::Aggregate>::VALUE);
         int intValue;
         bsl::string stringValue;
@@ -7137,15 +7137,15 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (veryVerbose) P(A2);
 
-        if (verbose) tst::cout << "Testing bdeat_ValueTypeFunctions on STRING"
+        if (verbose) tst::cout << "Testing bdlat_ValueTypeFunctions on STRING"
                                << bsl::endl;
         bdlaggxxx::Aggregate mA3d(A1["d"].clone());
         const bdlaggxxx::Aggregate& A3d = mA3d;
         ASSERT("33" == A3d.asString());
-        bdeat_ValueTypeFunctions::reset(&mA3d);
+        bdlat_ValueTypeFunctions::reset(&mA3d);
         ASSERT(ET::BDEM_STRING == A3d.dataType());
         LOOP_ASSERT(A3d.asString(), "vee" == A3d.asString());
-        bdeat_ValueTypeFunctions::assign(&mA3d, A1["c"]);
+        bdlat_ValueTypeFunctions::assign(&mA3d, A1["c"]);
         ASSERT("22" == A3d.asString());
         ASSERT(A3d.data() != A1["c"].data());  // replace with areIdentical.
 
