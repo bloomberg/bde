@@ -39,29 +39,29 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 1] static int setPreferredPublicationType(
-//                             const char                  *category,
-//                             const char                  *metricName,
-//                             balm::PublicationType::Value  publicationType,
-//                             balm::MetricsManager         *manager = 0);
-// [ 3] static int setFormatSpec(
 //                               const char                   *category,
 //                               const char                   *metricName,
-//                               balm::PublicationType::Value   publicationType,
-//                               const balm::MetricFormatSpec&  formatSpec,
-//                               balm::MetricsManager          *manager = 0);
-// [ 2] static int setFormat(const char               *category,
-//                           const char               *metricName,
+//                               balm::PublicationType::Value  publicationType,
+//                               balm::MetricsManager         *manager = 0);
+// [ 2] static int setFormat(const char                *category,
+//                           const char                *metricName,
 //                           const balm::MetricFormat&  format,
 //                           balm::MetricsManager      *manager = 0);
+// [ 3] static int setFormatSpec(
+//                              const char                    *category,
+//                              const char                    *metricName,
+//                              balm::PublicationType::Value   publicationType,
+//                              const balm::MetricFormatSpec&  formatSpec,
+//                              balm::MetricsManager          *manager = 0);
 // [ 4] static balm::MetricDescription::UserDataKey createUserDataKey(
-//                                                      balm::MetricsManager *);
+//                                                     balm::MetricsManager *);
 // [ 5] static void setUserData(const char *,
 //                              const char *,
-//                              balm::MetricDescription::UserDataKey  ,
+//                              balm::MetricDescription::UserDataKey,
 //                              const void *,
 //                              balm::MetricsManager *);
 // [ 6] static void setUserData(const char *,
-//                              balm::MetricDescription::UserDataKey  ,
+//                              balm::MetricDescription::UserDataKey,
 //                              const void *,
 //                              balm::MetricsManager *);
 //-----------------------------------------------------------------------------
@@ -217,27 +217,27 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     const Type::Value ALL_TYPES[] = {
-        Type::e_BALM_UNSPECIFIED,
-        Type::e_BALM_TOTAL,
-        Type::e_BALM_COUNT,
-        Type::e_BALM_MIN,
-        Type::e_BALM_MAX,
-        Type::e_BALM_AVG,
-        Type::e_BALM_RATE,
-        Type::e_BALM_RATE_COUNT
+        Type::e_UNSPECIFIED,
+        Type::e_TOTAL,
+        Type::e_COUNT,
+        Type::e_MIN,
+        Type::e_MAX,
+        Type::e_AVG,
+        Type::e_RATE,
+        Type::e_RATE_COUNT
     };
     const int NUM_TYPES = sizeof ALL_TYPES / sizeof *ALL_TYPES;
 
     bslma::TestAllocator cAlloc;
     balm::MetricFormat formatA(&cAlloc);
     balm::MetricFormat formatB(&cAlloc);
-    formatB.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
+    formatB.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
     balm::MetricFormat formatC(&cAlloc);
-    formatC.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
-    formatC.setFormatSpec(Type::e_BALM_AVG, Spec(1.0, "%d"));
+    formatC.setFormatSpec(Type::e_TOTAL, Spec(1.0, "%f"));
+    formatC.setFormatSpec(Type::e_AVG, Spec(1.0, "%d"));
     balm::MetricFormat formatD(&cAlloc);
-    formatD.setFormatSpec(Type::e_BALM_MIN, Spec(2.0, "%f"));
-    formatD.setFormatSpec(Type::e_BALM_MAX, Spec(2.0, "%d"));
+    formatD.setFormatSpec(Type::e_MIN, Spec(2.0, "%f"));
+    formatD.setFormatSpec(Type::e_MAX, Spec(2.0, "%d"));
 
     const balm::MetricFormat *FORMATS[] = {
         &formatA,
@@ -380,9 +380,9 @@ int main(int argc, char *argv[])
 // preferred publication type for the metric to be average:
 //..
         balm::ConfigurationUtil::setPreferredPublicationType(
-                                            "myCategory",
-                                            "avgElapsedTimeMs",
-                                            balm::PublicationType::e_BALM_AVG);
+                                                 "myCategory",
+                                                 "avgElapsedTimeMs",
+                                                 balm::PublicationType::e_AVG);
 //..
 // Next, because we will record the elapsed time in seconds, we configure a
 // format to scale the elapsed time by 1000.0.
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
        balm::ConfigurationUtil::setFormatSpec(
                                     "myCategory",
                                     "avgElapsedTimeMs",
-                                    balm::PublicationType::e_BALM_AVG,
+                                    balm::PublicationType::e_AVG,
                                     balm::MetricFormatSpec(1000.0, "%.2f ms"));
 //..
 // We now collect some example an example value of .005:
@@ -864,12 +864,12 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_IDS; ++i) {
                 ASSERT(0 != Obj::setFormatSpec(IDS[i],
                                                IDS[i],
-                                               Type::e_BALM_MIN,
+                                               Type::e_MIN,
                                                SPEC1,
                                                0));
                 ASSERT(0 != Obj::setFormatSpec(IDS[i],
                                                IDS[i],
-                                               Type::e_BALM_MIN,
+                                               Type::e_MIN,
                                                SPEC1));
             }
         }
@@ -1005,10 +1005,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == balm::DefaultMetricsManager::instance());
             for (int i = 0; i < NUM_IDS; ++i) {
                 ASSERT(0 != Obj::setPreferredPublicationType(
-                           IDS[i], IDS[i],Type::e_BALM_MIN, 0));
+                           IDS[i], IDS[i],Type::e_MIN, 0));
 
                 ASSERT(0 != Obj::setPreferredPublicationType(
-                           IDS[i], IDS[i],Type::e_BALM_MIN));
+                           IDS[i], IDS[i],Type::e_MIN));
             }
         }
 

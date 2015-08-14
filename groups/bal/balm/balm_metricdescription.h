@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component provides a class, 'balm::MetricDescription', used
-// to describe a metric.  A 'balm::MetricDescription' object contains the
+//@DESCRIPTION: This component provides a class, 'balm::MetricDescription',
+// used to describe a metric.  A 'balm::MetricDescription' object contains the
 // address of the category to which the metric belongs and also the address of
 // the null-terminated string holding the name of the metric.  The
 // 'balm::MetricDescription' class suppresses copy construction and assignment,
@@ -116,28 +116,27 @@ class MetricFormat;
 
 class MetricDescription {
     // This class provides a mechanism for describing a metric.  A
-    // 'MetricDescription' holds the category to which the metric
-    // belongs, and a null-terminated string containing the name of the metric.
+    // 'MetricDescription' holds the category to which the metric belongs, and
+    // a null-terminated string containing the name of the metric.
 
     // DATA
-    const Category *d_category_p;  // category of metric (held, not
-                                        // owned)
+    const Category *d_category_p;  // category of metric (held, not owned)
 
-    const char          *d_name_p;      // name of metric (held, not owned)
+    const char     *d_name_p;      // name of metric (held, not owned)
 
     PublicationType::Value
-                         d_preferredPublicationType;
-                                        // preferred publication type
+                    d_preferredPublicationType;
+                                   // preferred publication type
 
     bsl::shared_ptr<const MetricFormat>
-                         d_format;      // format for this metric
+                    d_format;      // format for this metric
 
     bsl::vector<const void *>
-                         d_userData;    // user data, indexed by keys
+                    d_userData;    // user data, indexed by keys
 
-    mutable bdlqq::Mutex  d_mutex;       // synchronize non-const elements
-                                        // (publication type, format, user
-                                        // data)
+    mutable bdlqq::Mutex
+                    d_mutex;       // synchronize non-const elements
+                                   // (publication type, format, user data)
 
     // NOT IMPLEMENTED
     MetricDescription(const MetricDescription&);
@@ -152,14 +151,14 @@ class MetricDescription {
         // for information on obtaining a unique key.
 
     // CREATORS
-    MetricDescription(const Category *category,
-                           const char          *name,
-                           bslma::Allocator    *basicAllocator = 0);
+    MetricDescription(const Category   *category,
+                      const char       *name,
+                      bslma::Allocator *basicAllocator = 0);
         // Create a metric description for the specified 'category' and the
         // specified 'name'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The initial value for
-        // 'preferredPublicationType' is 'e_BALM_UNSPECIFIED', and the initial
+        // 'preferredPublicationType' is 'e_UNSPECIFIED', and the initial
         // value for 'format' is 0.  The behavior is undefined unless 'name'
         // and 'category' remain valid, and the contents of 'name' remain
         // unmodified, for the lifetime of this object.
@@ -246,11 +245,11 @@ class MetricDescription {
 
 // FREE OPERATORS
 inline
-bsl::ostream& operator<<(bsl::ostream&                 stream,
+bsl::ostream& operator<<(bsl::ostream&            stream,
                          const MetricDescription& rhs);
     // Write a formatted single-line description of the specified 'rhs' metric
-    // description to the specified 'stream', and return a reference to
-    // the modifiable 'stream'.
+    // description to the specified 'stream', and return a reference to the
+    // modifiable 'stream'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -262,13 +261,12 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
 
 // CREATORS
 inline
-MetricDescription::MetricDescription(
-                                           const Category *category,
-                                           const char          *name,
-                                           bslma::Allocator    *basicAllocator)
+MetricDescription::MetricDescription(const Category   *category,
+                                     const char       *name,
+                                     bslma::Allocator *basicAllocator)
 : d_category_p(category)
 , d_name_p(name)
-, d_preferredPublicationType(PublicationType::e_BALM_UNSPECIFIED)
+, d_preferredPublicationType(PublicationType::e_UNSPECIFIED)
 , d_format()
 , d_userData(basicAllocator)
 , d_mutex()
@@ -306,7 +304,7 @@ void MetricDescription::setFormat(
 }
 
 inline
-void MetricDescription::setUserData(UserDataKey key,  const void *value)
+void MetricDescription::setUserData(UserDataKey key, const void *value)
 {
     BSLS_ASSERT_SAFE(key >= 0);
 
@@ -359,7 +357,7 @@ const void *MetricDescription::userData(UserDataKey key) const
 
 // FREE OPERATORS
 inline
-bsl::ostream& balm::operator<<(bsl::ostream&                 stream,
+bsl::ostream& balm::operator<<(bsl::ostream&      stream,
                          const MetricDescription& rhs)
 {
     return rhs.print(stream);

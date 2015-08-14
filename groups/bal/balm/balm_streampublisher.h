@@ -16,8 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component defines a concrete class that implements the
-// 'balm::Publisher' protocol for publishing metric records:
+//@DESCRIPTION: This component defines a concrete class 'balm:::StreamPublisher
+// that implements the 'balm::Publisher' protocol for publishing metric
+// records:
 //..
 //               ( balm::StreamPublisher )
 //                           |              ctor
@@ -35,8 +36,8 @@ BSLS_IDENT("$Id: $")
 // In the following example we illustrate how to create and publish records
 // with a 'balm::StreamPublisher'.  First we define a couple of metric ids.
 // Note that we create the 'balm::MetricId' objects by hand, but in practice an
-// id should be obtained from a 'balm::MetricRegistry' object (such as the
-// one owned by a 'balm::MetricsManager').
+// id should be obtained from a 'balm::MetricRegistry' object (such as the one
+// owned by a 'balm::MetricsManager').
 //..
 //  balm::Category myCategory("MyCategory");
 //  balm::MetricDescription descA(&myCategory, "MetricA");

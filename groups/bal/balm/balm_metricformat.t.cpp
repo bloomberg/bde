@@ -299,14 +299,14 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     const Type::Value ALL_TYPES[] = {
-        Type::e_BALM_UNSPECIFIED,
-        Type::e_BALM_TOTAL,
-        Type::e_BALM_COUNT,
-        Type::e_BALM_MIN,
-        Type::e_BALM_MAX,
-        Type::e_BALM_AVG,
-        Type::e_BALM_RATE,
-        Type::e_BALM_RATE_COUNT
+        Type::e_UNSPECIFIED,
+        Type::e_TOTAL,
+        Type::e_COUNT,
+        Type::e_MIN,
+        Type::e_MAX,
+        Type::e_AVG,
+        Type::e_RATE,
+        Type::e_RATE_COUNT
     };
     const int NUM_TYPES = sizeof ALL_TYPES / sizeof *ALL_TYPES;
 
@@ -350,33 +350,33 @@ int main(int argc, char *argv[])
 // Next we specify that average values should only be printed to two decimal
 // places:
 //..
-    format.setFormatSpec(balm::PublicationType::e_BALM_AVG,
+    format.setFormatSpec(balm::PublicationType::e_AVG,
                          balm::MetricFormatSpec(1.0, "%.2f"));
 //..
 // Next we specify that rate values should be formatted as a percentage --
 // i.e., multiplied by 100, and then displayed with a "%" character.
 //..
-    format.setFormatSpec(balm::PublicationType::e_BALM_RATE,
+    format.setFormatSpec(balm::PublicationType::e_RATE,
                          balm::MetricFormatSpec(100.0, "%.2f%%"));
 //..
 // We can verify that the correct format specifications have been set.
 //..
     ASSERT(balm::MetricFormatSpec(1.0, "%.2f") ==
-           *format.formatSpec(balm::PublicationType::e_BALM_AVG));
+           *format.formatSpec(balm::PublicationType::e_AVG));
     ASSERT(balm::MetricFormatSpec(100.0, "%.2f%%") ==
-           *format.formatSpec(balm::PublicationType::e_BALM_RATE));
-    ASSERT(0 == format.formatSpec(balm::PublicationType::e_BALM_TOTAL));
+           *format.formatSpec(balm::PublicationType::e_RATE));
+    ASSERT(0 == format.formatSpec(balm::PublicationType::e_TOTAL));
 //..
 // We can use the 'balm::MetricFormatSpec::formatValue' utility function to
 // format the value 0.055 to the console.  Note however, that there is no
 // guarantee that every implementation of 'balm::Publisher' will format metrics
 // in this way.
 //..
-    balm::MetricFormatSpec::formatValue(bsl::cout, .055,
-                        *format.formatSpec(balm::PublicationType::e_BALM_AVG));
+    balm::MetricFormatSpec::formatValue(
+            bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_AVG));
     bsl::cout << bsl::endl;
-    balm::MetricFormatSpec::formatValue(bsl::cout, .055,
-                       *format.formatSpec(balm::PublicationType::e_BALM_RATE));
+    balm::MetricFormatSpec::formatValue(
+           bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_RATE));
     bsl::cout << bsl::endl;
 //..
 // The resulting console output will be:
@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
             gg(&mX, iter.current());
 
             // Test clearFormatSpec.
-            for (int i = 0; i < Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < Type::k_LENGTH; ++i) {
                 if (iter.includesElement(i)) {
                     ASSERT(Spec(i, "%x") == *MX.formatSpec((Type::Value)i));
                     mX.clearFormatSpec((Type::Value)i);
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == MX.formatSpec((Type::Value)i));
 
                 // Verify other format specs are not affected.
-                for (int j = 0; j < Type::e_BALM_LENGTH; ++j) {
+                for (int j = 0; j < Type::k_LENGTH; ++j) {
                     if (j <= i || !iter.includesElement(j)) {
                         ASSERT(0 == MX.formatSpec((Type::Value)j));
                     }
@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
             }
 
             // Re-add format specs.
-            for (int i = 0; i < Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < Type::k_LENGTH; ++i) {
                 ASSERT(0 == MX.formatSpec((Type::Value)i));
                 mX.setFormatSpec((Type::Value)i, Spec(i, "%x"));
                 ASSERT(Spec(i, "%x") == *MX.formatSpec((Type::Value)i));
@@ -471,14 +471,14 @@ int main(int argc, char *argv[])
 
             // Test clearFormatSpecs.
             mX.clearFormatSpecs();
-            for (int i = 0; i < Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 ASSERT(0 == MX.formatSpec(type));
             }
 
             // Re-add format specs.
             mX.clearFormatSpecs();
-            for (int i = 0; i < Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < Type::k_LENGTH; ++i) {
                 ASSERT(0 == MX.formatSpec((Type::Value)i));
                 mX.setFormatSpec((Type::Value)i, Spec(i, "%x"));
                 ASSERT(Spec(i, "%x") == *MX.formatSpec((Type::Value)i));
@@ -506,8 +506,8 @@ int main(int argc, char *argv[])
                           << "balm::MetricFormatSpec" << endl;
 
         Obj mX1;  const Obj& X1 = mX1;
-        mX1.setFormatSpec(Type::e_BALM_AVG, Spec(2.0, "%x"));
-        mX1.setFormatSpec(Type::e_BALM_TOTAL, Spec(3.0, "%u"));
+        mX1.setFormatSpec(Type::e_AVG, Spec(2.0, "%x"));
+        mX1.setFormatSpec(Type::e_TOTAL, Spec(3.0, "%u"));
 
         bsl::ostringstream printBuf, operBuf;
         operBuf << X1;
@@ -710,7 +710,7 @@ int main(int argc, char *argv[])
             Obj mX(Z); const Obj& MX = mX;
             gg(&mX, cIter.current());
 
-            for (int i = 0; i < Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 if (cIter.includesElement(i)) {
                     ASSERT(Spec(i, "%x") == *MX.formatSpec(type));
@@ -757,7 +757,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTest default constructor" << endl;
 
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 ASSERT(0 == MX.formatSpec(type));
             }
@@ -781,7 +781,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Verify the format spec has been added.
-                for (int i = 0; i < Type::e_BALM_LENGTH; ++i) {
+                for (int i = 0; i < Type::k_LENGTH; ++i) {
                     Type::Value type = (Type::Value)i;
                     if (cIter.includesElement(i)) {
                         ASSERT(Spec(i, "%x") == *MX.formatSpec(type));
@@ -1506,20 +1506,20 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."
                              "\t\t{ x1:VA }" << endl;
             Obj mX1;  const Obj& X1 = mX1;
-            mX1.setFormatSpec(Type::e_BALM_AVG, Spec(2.0, "%x"));
-            mX1.setFormatSpec(Type::e_BALM_TOTAL, Spec(3.0, "%u"));
+            mX1.setFormatSpec(Type::e_AVG, Spec(2.0, "%x"));
+            mX1.setFormatSpec(Type::e_TOTAL, Spec(3.0, "%u"));
 
             if (verbose) { cout << '\t';  P(X1); }
 
             if (verbose) cout << "\ta. Check initial state of x1." << endl;
 
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 switch (type) {
-                  case Type::e_BALM_AVG:
+                  case Type::e_AVG:
                     ASSERT(Spec(2.0, "%x") == *X1.formatSpec(type));
                     break;
-                  case Type::e_BALM_TOTAL:
+                  case Type::e_TOTAL:
                     ASSERT(Spec(3.0, "%u") == *X1.formatSpec(type));
                     break;
                   default:
@@ -1537,13 +1537,13 @@ int main(int argc, char *argv[])
             if (verbose) { cout << '\t';  P(X2); }
 
             if (verbose) cout << "\ta. Check the initial state of x2." << endl;
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 switch (type) {
-                  case Type::e_BALM_AVG:
+                  case Type::e_AVG:
                     ASSERT(Spec(2.0, "%x") == *X2.formatSpec(type));
                     break;
-                  case Type::e_BALM_TOTAL:
+                  case Type::e_TOTAL:
                     ASSERT(Spec(3.0, "%u") == *X2.formatSpec(type));
                     break;
                   default:
@@ -1561,20 +1561,20 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\n 3. Set x1 to a new value VB."
                              "\t\t\t{ x1:VB x2:VA }" << endl;
 
-            mX1.setFormatSpec(Type::e_BALM_MAX, Spec(5.0, "%f"));
-            mX1.clearFormatSpec(Type::e_BALM_TOTAL);
+            mX1.setFormatSpec(Type::e_MAX, Spec(5.0, "%f"));
+            mX1.clearFormatSpec(Type::e_TOTAL);
 
             if (verbose) { cout << '\t';  P(X1); }
 
             if (verbose) cout << "\ta. Check new state of x1." << endl;
 
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 switch (type) {
-                  case Type::e_BALM_AVG:
+                  case Type::e_AVG:
                     ASSERT(Spec(2.0, "%x") == *X1.formatSpec(type));
                     break;
-                  case Type::e_BALM_MAX:
+                  case Type::e_MAX:
                     ASSERT(Spec(5.0, "%f") == *X1.formatSpec(type));
                     break;
                   default:
@@ -1595,7 +1595,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\ta. Check initial state of x3." << endl;
 
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 ASSERT(0 == X3.formatSpec(type));
             }
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\ta. Check initial state of x4." << endl;
 
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 ASSERT(0 == X4.formatSpec(type));
             }
@@ -1634,16 +1634,16 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\n 6. Set x3 to a new value VC."
                              "\t\t\t{ x1:VB x2:VA x3:VC x4:U }" << endl;
 
-            mX3.setFormatSpec(Type::e_BALM_MIN, Spec(-1.0, "%x"));
+            mX3.setFormatSpec(Type::e_MIN, Spec(-1.0, "%x"));
 
             if (verbose) { cout << '\t';  P(X3); }
 
             if (verbose) cout << "\ta. Check new state of x3." << endl;
 
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 switch (type) {
-                  case Type::e_BALM_MIN:
+                  case Type::e_MIN:
                     ASSERT(Spec(-1.0, "%x") == *X3.formatSpec(type));
                     break;
                   default:
@@ -1668,13 +1668,13 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\ta. Check new state of x2." << endl;
 
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 switch (type) {
-                  case Type::e_BALM_AVG:
+                  case Type::e_AVG:
                     ASSERT(Spec(2.0, "%x") == *X2.formatSpec(type));
                     break;
-                  case Type::e_BALM_MAX:
+                  case Type::e_MAX:
                     ASSERT(Spec(5.0, "%f") == *X2.formatSpec(type));
                     break;
                   default:
@@ -1698,10 +1698,10 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\ta. Check new state of x2." << endl;
 
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 switch (type) {
-                  case Type::e_BALM_MIN:
+                  case Type::e_MIN:
                     ASSERT(Spec(-1.0, "%x") == *X2.formatSpec(type));
                     break;
                   default:
@@ -1725,13 +1725,13 @@ int main(int argc, char *argv[])
             if (verbose) { cout << '\t';  P(X1); }
 
             if (verbose) cout << "\ta. Check new state of x1." << endl;
-            for (int i = 0; i < (int)Type::e_BALM_LENGTH; ++i) {
+            for (int i = 0; i < (int)Type::k_LENGTH; ++i) {
                 Type::Value type = (Type::Value)i;
                 switch (type) {
-                  case Type::e_BALM_AVG:
+                  case Type::e_AVG:
                     ASSERT(Spec(2.0, "%x") == *X1.formatSpec(type));
                     break;
-                  case Type::e_BALM_MAX:
+                  case Type::e_MAX:
                     ASSERT(Spec(5.0, "%f") == *X1.formatSpec(type));
                     break;
                   default:

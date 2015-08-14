@@ -18,8 +18,8 @@ namespace balm {
 // ACCESSORS
 bsl::ostream&
 MetricSampleGroup::print(bsl::ostream& stream,
-                              int           level,
-                              int           spacesPerLevel) const
+                         int           level,
+                         int           spacesPerLevel) const
 {
     const char *NL = (spacesPerLevel > 0) ? "\n" : " ";
 
@@ -47,8 +47,8 @@ MetricSampleGroup::print(bsl::ostream& stream,
                        // -----------------------
 
 // CREATORS
-MetricSample::MetricSample(const MetricSample&  original,
-                                     bslma::Allocator         *basicAllocator)
+MetricSample::MetricSample(const MetricSample& original,
+                           bslma::Allocator   *basicAllocator)
 : d_timeStamp(original.d_timeStamp)
 , d_records(original.d_records, basicAllocator)
 , d_numRecords(original.d_numRecords)
@@ -68,8 +68,8 @@ MetricSample& MetricSample::operator=(const MetricSample& rhs)
 
 // ACCESSORS
 bsl::ostream& MetricSample::print(bsl::ostream& stream,
-                                       int           level,
-                                       int           spacesPerLevel) const
+                                  int           level,
+                                  int           spacesPerLevel) const
 {
     const char *NL = (spacesPerLevel > 0) ? "\n" : " ";
 

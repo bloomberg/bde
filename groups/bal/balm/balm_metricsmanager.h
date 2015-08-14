@@ -17,13 +17,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component provides a metrics manager class for managing
-// the recording and publishing of metric data.  The metrics manager retrieves
-// 'balm::MetricRecords' from both the collector repository it owns as well as
-// any 'RecordsCollectionCallbacks' registered with it.  The metrics manager
-// also provides methods to register 'balm::Publisher' objects.  The 'publish'
-// method collects metrics for a category (or set of categories) and then
-// sends the collected metrics to the publishers associated with that
+//@DESCRIPTION: This component provides a 'balm::MetricsManager' class for
+// managing the recording and publishing of metric data.  The metrics manager
+// retrieves 'balm::MetricRecords' from both the collector repository it owns
+// as well as any 'RecordsCollectionCallbacks' registered with it.  The metrics
+// manager also provides methods to register 'balm::Publisher' objects.  The
+// 'publish' method collects metrics for a category (or set of categories) and
+// then sends the collected metrics to the publishers associated with that
 // category (or set of categories).
 //
 // Note that a metric in this context is an event associated with a measured
@@ -43,8 +43,8 @@ BSLS_IDENT("$Id: $")
 ///Registered Concrete 'balm::Publisher' Implementations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Concrete implementations of the 'balm::Publisher' protocol (pure abstract
-// base-class) registered with a 'balm::MetricsManager' object must *not*
-// call (either directly or indirectly) the 'publish' method on the
+// base-class) registered with a 'balm::MetricsManager' object must *not* call
+// (either directly or indirectly) the 'publish' method on the
 // 'balm::MetricsManager' object with which they are registered.
 //
 ///Registered 'RecordsCollectionCallback' Implementations
@@ -93,9 +93,9 @@ BSLS_IDENT("$Id: $")
 // This second example demonstrates using 'balm::Collector' objects (obtained
 // from a metrics manager's collector repository) to collect metrics related to
 // a hypothetical 'EventHandler' class.  On construction, the event handler
-// obtains references to 'balm::Collector' objects from the metrics
-// manager's collector repository.  On each handled event, the 'EventHandler',
-// updates its collectors with the appropriate metric values.
+// obtains references to 'balm::Collector' objects from the metrics manager's
+// collector repository.  On each handled event, the 'EventHandler', updates
+// its collectors with the appropriate metric values.
 //
 // Note that the 'balm_metric' component provides both classes and macros to
 // reduce the code required for collecting metric values.
@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 //  : d_numEvents(0)
 //  , d_periodStart(bdlt::CurrentTime::now())
 //  , d_eventsPerSecId()
-//  , d_callbackHandle(balm::MetricsManager::e_BALM_INVALID_HANDLE)
+//  , d_callbackHandle(balm::MetricsManager::e_INVALID_HANDLE)
 //  , d_metricsManager_p(manager)
 //  {
 //      d_eventsPerSecId = d_metricsManager_p->metricRegistry().getId(
@@ -389,7 +389,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -399,6 +399,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -420,7 +424,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace balm {class Category;
+namespace balm {
+
+class Category;
 class Publisher;
 class MetricRecord;
 class MetricSample;
@@ -437,27 +443,26 @@ class MetricsManager {
     // This class implements a manager for the recording and publishing of
     // metrics.  Metrics managed by a 'MetricsManager' are grouped into
     // categories identified by a string.  The metrics manager allows clients
-    // to register a 'Publisher' object using the 'addGeneralPublisher'
-    // and 'addSpecificPublisher' operations.  Metrics can be recorded in one
-    // of two ways: Clients can (1) implement their own metric collection
+    // to register a 'Publisher' object using the 'addGeneralPublisher' and
+    // 'addSpecificPublisher' operations.  Metrics can be recorded in one of
+    // two ways: Clients can (1) implement their own metric collection
     // facilities and register a callback using this metric manager's
-    // 'registerMetricsCallback' method; or (2) use the 'Collector'
-    // objects available from the 'CollectorRepository' owned by this
-    // metrics manager.
+    // 'registerMetricsCallback' method; or (2) use the 'Collector' objects
+    // available from the 'CollectorRepository' owned by this metrics manager.
 
   public:
     // TYPES
     typedef bdlf::Function<void (*)(bsl::vector<MetricRecord> *, bool)>
                                                      RecordsCollectionCallback;
         // 'RecordsCollectionCallback' is an alias for a callback function
-        // that appends to the supplied 'MetricRecord' vector the values
-        // of the collected metrics, and, if the provided 'bool' is 'true',
-        // resets those metrics to their default values.  Clients can register
-        // callbacks matching this prototype with the metrics manager.  Here
-        // is an example prototype matching this callback:
+        // that appends to the supplied 'MetricRecord' vector the values of the
+        // collected metrics, and, if the provided 'bool' is 'true', resets
+        // those metrics to their default values.  Clients can register
+        // callbacks matching this prototype with the metrics manager.  Here is
+        // an example prototype matching this callback:
         //..
         //  void collectionCb(bsl::vector<MetricRecord> *records,
-        //                    bool                            resetFlag);
+        //                    bool                       resetFlag);
         //..
 
     typedef int CallbackHandle;
@@ -466,10 +471,9 @@ class MetricsManager {
   private:
     // PRIVATE TYPES
     typedef bsl::map<const Category *, bsls::TimeInterval> LastResetTimes;
-        // A mapping from a category to the most recent reset
-        // (represented as the interval since the epoch) of that category.
-        // This is used to compute the time interval over which a metric was
-        // collected.
+        // A mapping from a category to the most recent reset (represented
+        // as the interval since the epoch) of that category. This is used to
+        // compute the time interval over which a metric was collected.
 
     // DATA
     MetricRegistry       d_metricRegistry;  // registry of metrics
@@ -508,9 +512,9 @@ class MetricsManager {
   public:
     // CONSTANTS
     enum {
-        e_BALM_INVALID_HANDLE = -1   // an invalid callback handle
+        e_INVALID_HANDLE = -1   // an invalid callback handle
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        , BAEM_INVALID_HANDLE = e_BALM_INVALID_HANDLE
+        , BAEM_INVALID_HANDLE = e_INVALID_HANDLE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -519,9 +523,9 @@ class MetricsManager {
 
     // CREATORS
     MetricsManager(bslma::Allocator *basicAllocator = 0);
-        // Create a 'MetricsManager'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create a 'MetricsManager'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~MetricsManager();
         // Destroy this 'MetricsManager'.
@@ -551,16 +555,16 @@ class MetricsManager {
         // the category.
 
     CallbackHandle registerCollectionCallback(
-                                   const Category              *category,
+                                   const Category                   *category,
                                    const RecordsCollectionCallback&  callback);
         // Register the specified 'callback' to collect records for the
         // specified 'category', and return an opaque integer handle that can
         // be used later to remove the 'callback'.  The supplied 'callback'
         // will be called to collect metrics from 'category' each time
-        // 'category' is published, even if 'category' is disabled
-        // (i.e., 'category->enabled()' is 'false').  If the 'publish' method
-        // is called on 'category' and 'category' is disabled, the 'callback'
-        // will be invoked so clients may update any internal state, but the
+        // 'category' is published, even if 'category' is disabled (i.e.,
+        // 'category->enabled()' is 'false').  If the 'publish' method is
+        // called on 'category' and 'category' is disabled, the 'callback' will
+        // be invoked so clients may update any internal state, but the
         // collected metrics will be ignored.  Clients that wish to avoid
         // overhead associated with collecting metrics for a disabled category
         // must test (within their code) whether the category is disabled.  The
@@ -586,9 +590,8 @@ class MetricsManager {
         // registered for one or more specific categories (using the
         // alternative 'addSpecificPublisher' method).
 
-    int addSpecificPublisher(
-                         const char                             *categoryName,
-                         const bsl::shared_ptr<Publisher>&  publisher);
+    int addSpecificPublisher(const char                        *categoryName,
+                             const bsl::shared_ptr<Publisher>&  publisher);
         // Add the specified 'publisher' to the set of publishers that will be
         // used to publish metrics for the category identified by the
         // specified 'categoryName'.  Return 0 on success, and a non-zero
@@ -599,17 +602,16 @@ class MetricsManager {
         // registered to publish *every* category (using the alternative
         // 'addGeneralPublisher' method).
 
-    int addSpecificPublisher(
-                           const Category                    *category,
-                           const bsl::shared_ptr<Publisher>&  publisher);
+    int addSpecificPublisher(const Category                    *category,
+                             const bsl::shared_ptr<Publisher>&  publisher);
         // Add the specified 'publisher' to the set of publishers that will be
         // used to publish metrics for the specified 'category'.  Return 0 on
         // success, and a non-zero value with no effect if 'publisher' has
         // already been registered to publish 'category'.  The behavior is
-        // undefined unless 'category' is a valid address returned by
-        // the 'metricRegistry' method.  Note that this method will fail and
-        // return a non-zero value if 'publisher' has previously been
-        // registered to publish *every* category (using the alternative
+        // undefined unless 'category' is a valid address returned by the
+        // 'metricRegistry' method.  Note that this method will fail and return
+        // a non-zero value if 'publisher' has previously been registered to
+        // publish *every* category (using the alternative
         // 'addGeneralPublisher' method).
 
     int removePublisher(const Publisher *publisher);
@@ -628,12 +630,12 @@ class MetricsManager {
 
     void collectSample(MetricSample              *sample,
                        bsl::vector<MetricRecord> *records,
-                       bool                            resetFlag = false);
+                       bool                       resetFlag = false);
     void collectSample(MetricSample              *sample,
                        bsl::vector<MetricRecord> *records,
                        const Category    * const  categories[],
-                       int                             numCategories,
-                       bool                            resetFlag = false);
+                       int                        numCategories,
+                       bool                       resetFlag = false);
 
         // Load into the specified 'sample' a metric sample collected from the
         // indicated categories, and append to 'records' those collected
@@ -644,23 +646,22 @@ class MetricsManager {
         // determines if the collected metrics are reset as part of this
         // operation.  This operation will collect aggregated metric values
         // for each *enabled* category in the indicated categories from
-        // registered callbacks as well as from its own
-        // 'CollectorRepository', and then append those values to
-        // 'records' and update 'sample' with the addresses of those collected
-        // 'records'.  If 'resetFlag' is 'true', the metrics being collected
-        // are reset to their default state.  This operation also populates the
-        // 'sample' with the time interval over which the sampled metrics were
-        // collected.  This interval is computed as the elapsed time since the
-        // last time the metrics were reset (either through a call to
-        // the 'publish' or 'collectSample' methods).  If 'category' has not
-        // previously been reset then this interval is taken to be the elapsed
-        // time since the creation of this metrics manager.  The behavior is
-        // undefined unless '0 <= numCategories', 'categories' refers to a
-        // contiguous sequence of (at least) 'numCategories', and each category
-        // in 'categories' appears only once.  Note that 'sample' is loaded
-        // with the *addresses* of the metric records appended to 'records',
-        // and modifying 'records' after this call returns may invalidate
-        // 'sample'.
+        // registered callbacks as well as from its own 'CollectorRepository',
+        // and then append those values to 'records' and update 'sample' with
+        // the addresses of those collected 'records'.  If 'resetFlag' is
+        // 'true', the metrics being collected are reset to their default
+        // state.  This operation also populates the 'sample' with the time
+        // interval is computed as the elapsed time since the interval over
+        // which the sampled metrics were collected.  This last time the
+        // metrics were reset (either through a call to the 'publish' or
+        // 'collectSample' methods).  If 'category' has not previously been
+        // reset then this interval is taken to be the elapsed time since the
+        // creation of this metrics manager.  The behavior is undefined unless
+        // '0 <= numCategories', 'categories' refers to a contiguous sequence
+        // of (at least) 'numCategories', and each category in 'categories'
+        // appears only once.  Note that 'sample' is loaded with the
+        // *addresses* of the metric records appended to 'records', and
+        // modifying 'records' after this call returns may invalidate 'sample'.
 
     void publish(const Category *category, bool resetFlag = true);
         // Publish metrics associated with the specified 'category' if
@@ -670,51 +671,50 @@ class MetricsManager {
         // operation.  If 'category' is enabled (i.e., 'category->isEnabled()'
         // is 'true'),  this operation will collect aggregated metric values
         // for 'category' from any registered callbacks as well as from its
-        // own 'CollectorRepository', and then publish those records
-        // using any publishers associated with 'category'.  If 'resetFlag' is
+        // own 'CollectorRepository', and then publish those records using any
+        // publishers associated with 'category'.  If 'resetFlag' is 'true',
+        // the metrics being collected are reset to their default state.  The
+        // metrics manager provides publishers the time interval over which the
+        // published metrics were collected.  This interval is computed as the
+        // elapsed time since the last time the 'category' was reset (either
+        // through a call to the 'publish' or 'collectSample' methods).  If
+        // 'category' has not previously been reset then this interval is taken
+        // to be the elapsed time since the creation of this metrics manager.
+        // Note that the alternative 'publish' methods that publish multiple
+        // categories in a single invocation are more efficient than publishing
+        // a sequence of categories individually.
+
+    void publish(const Category *const categories[],
+                 int                   numCategories,
+                 bool                  resetFlag = true);
+        // Publish metrics belonging to the specified sequence of (unique)
+        // 'categories', of specified length 'numCategories'.  Optionally
+        // specify a 'resetFlag' that determines if the collected metrics are
+        // reset as part of this operation.  This operation will collect
+        // aggregated metric values for each *enabled* category in 'categories'
+        // from registered callbacks as well as from its own
+        // 'CollectorRepository', and then publish those records using any
+        // publishers associated with the category.  Any individual category in
+        // 'categories' that is not enabled is ignored.  If 'resetFlag' is
         // 'true', the metrics being collected are reset to their default
         // state.  The metrics manager provides publishers the time interval
-        // over which the published metrics were collected.  This
-        // interval is computed as the elapsed time since the last time the
-        // 'category' was reset (either through a call to the 'publish' or
-        // 'collectSample' methods).  If 'category' has not previously been
-        // reset then this interval is taken to be the elapsed time since the
-        // creation of this metrics manager.  Note that the alternative
-        // 'publish' methods that publish multiple categories in a single
-        // invocation are more efficient than publishing a sequence of
-        // categories individually.
-
-    void publish(const Category * const categories[],
-                 int                         numCategories,
-                 bool                        resetFlag = true);
-        // Publish metrics belonging to the specified sequence of (unique)
-        // 'categories', of length 'numCategories'.  Optionally specify a
-        // 'resetFlag' that determines if the collected metrics are reset as
-        // part of this operation.  This operation will collect aggregated
-        // metric values for each *enabled* category in 'categories' from
-        // registered callbacks as well as from its own
-        // 'CollectorRepository', and then publish those records using
-        // any publishers associated with the category.  Any individual
-        // category in 'categories' that is not enabled is ignored.  If
-        // 'resetFlag' is 'true', the metrics being collected are reset to
-        // their default state.  The metrics manager provides publishers the
-        // time interval over which the published metrics were collected.
-        // This interval is computed as the elapsed time since the last time
-        // the 'category' was reset (either through a call to the 'publish' or
-        // 'collectSample' methods).  If a category has not previously
-        // been reset then this interval is taken to be the elapsed time since
-        // the creation of this metrics manager.  The behavior is undefined
-        // unless '0 <= numCategories', 'categories' refers to a contiguous
-        // sequence of (at least) 'numCategories', and each category in
-        // 'categories' appears only once.
+        // over which the published metrics were collected. This interval is
+        // computed as the elapsed time since the last time the 'category'
+        // was reset (either through a call to the 'publish' or 'collectSample'
+        // methods).  If a category has not previously been reset then this
+        // interval is taken to be the elapsed time since the creation of this
+        // metrics manager.  The behavior is undefined unless
+        // '0 <= numCategories', 'categories' refers to a contiguous sequence
+        // of (at least) 'numCategories', and each category in 'categories'
+        // appears only once.
 
     void publish(const bsl::set<const Category *>& categories,
-                 bool                                   resetFlag = true);
+                 bool                              resetFlag = true);
         // Publish metrics belonging to the specified 'categories'.
         // Optionally specify a 'resetFlag' that determines if the metrics
         // are reset as part of this operation.  This operation will collect
-        // aggregated metric values for each *enabled* category in
-        // 'categories' from registered callbacks as well as from its own
+        // aggregated metric values for each *enabled* category in 'categories'
+        // from registered callbacks as well as from its own
         // 'CollectorRepository', and then publish those records using
         // any publishers associated with the category.   Any category in
         // 'categories' that is not enabled is ignored.  If 'resetFlag' is
@@ -733,8 +733,8 @@ class MetricsManager {
         // that determines if the metrics are reset as part of this
         // operation.  This operation will collect aggregated metric values
         // for each enabled category in its 'metricRegistry()' from registered
-        // callbacks as well as from its own 'CollectorRepository', and
-        // then publish those records using any publishers associated with the
+        // callbacks as well as from its own 'CollectorRepository', and then
+        // publish those records using any publishers associated with the
         // category.  Any category that is not enabled is ignored.  If
         // 'resetFlag' is 'true', the metrics being collected are reset to
         // their default state.  The metrics manager provides publishers the
@@ -746,7 +746,7 @@ class MetricsManager {
         // time since the creation of this metrics manager.
 
     void publishAll(const bsl::set<const Category *>& excludedCategories,
-                    bool                                   resetFlag = true);
+                    bool                              resetFlag = true);
         // Publish metrics for every category registered with the contained
         // 'MetricsRegistry' object, except for the specified
         // 'excludedCategories'.  Optionally specify a 'resetFlag' that
@@ -754,25 +754,24 @@ class MetricsManager {
         // This operation will collect aggregated metric values for each
         // *enabled* category in its 'metricRegistry()' (that is not in
         // 'excludedCategories') from registered callbacks as well as from its
-        // own 'CollectorRepository', and then publish those records
-        // using any publishers associated with the category.  Any category
-        // that is not enabled is ignored.  If 'resetFlag' is 'true', the
-        // metrics being collected are reset to their default state.  The
-        // metrics manager provides publishers the time interval over which a
-        // published category of metrics were collected.  This interval is
-        // computed as the elapsed time since the last time the category was
-        // reset (either through a call to the 'publish' or 'collectSample'
-        // methods).  If a category has not previously been reset then this
-        // interval is taken to be the elapsed time since the creation of this
-        // metrics manager.
+        // own 'CollectorRepository', and then publish those records using any
+        // publishers associated with the category.  Any category that is not
+        // enabled is ignored.  If 'resetFlag' is 'true', the metrics being
+        // collected are reset to their default state.  The metrics manager
+        // provides publishers the time interval over which a published
+        // category of metrics were collected.  This interval is computed as
+        // the elapsed time since the last time the category was reset (either
+        // through a call to the 'publish' or 'collectSample' methods).  If a
+        // category has not previously been reset then this interval is taken
+        // to be the elapsed time since the creation of this metrics manager.
 
     void setCategoryEnabled(const char *category,
                             bool        isEnabled = true);
-        // Set whether the specified 'category' is enabled to the specified
-        // 'isEnabled' value.  If 'category' has not been registered, register
-        // it with the 'metricRegistry()'.  If a category is disabled it will
-        // not be published (see the 'publish' methods), and higher level
-        // components may not record values for metrics belonging to the
+        // Set whether the specified 'category' is enabled to the optionally
+        // specified 'isEnabled' value.  If 'category' has not been registered,
+        // register it with the 'metricRegistry()'.  If a category is disabled
+        // it will not be published (see the 'publish' methods), and higher
+        // level components may not record values for metrics belonging to the
         // category (for an example, see the 'balm_metric' documentation).
         // Note that this operation is *not* atomic, and other threads may
         // simultaneously access the current enabled value for 'category' while
@@ -782,23 +781,23 @@ class MetricsManager {
         // 'balm_category' for information on category holders).
 
     void setCategoryEnabled(const Category *category,
-                            bool                 value = true);
-        // Set whether the specified 'category' is enabled to the specified
-        // 'value'.  If a category is disabled it will not be
+                            bool            value = true);
+        // Set whether the specified 'category' is enabled to the optionally
+	// specified 'value'.  If a category is disabled it will not be
         // published (see the 'publish' methods), and higher level components
         // may not record values for metrics belonging to the category (for an
         // example, see the 'balm_metric' documentation).  The behavior is
         // undefined unless 'category' is a valid address of a category
         // previously returned by the metric registry owned by this
-        // 'MetricManager' object (i.e., 'metricRegistry()').  Note that
-        // this operation is thread-safe, but *not* atomic: Other threads may
+        // 'MetricManager' object (i.e., 'metricRegistry()').  Note that this
+        // operation is thread-safe, but *not* atomic: Other threads may
         // simultaneously access the current enabled value for 'category' while
-        // this operation is performed.  Also note that this operation has
+        // this operation is performed. Also note that this operation has
         // *linear* performance with respect to the number of registered
         // category holders for 'category' (see 'balm_metricregistry' and
         // 'balm_category' for information on category holders).
 
-     void setAllCategoriesEnabled(bool value);
+    void setAllCategoriesEnabled(bool value);
         // Set whether each category currently registered with
         // 'metricRegistry()' is enabled to the specified 'value', and ensure
         // that categories registered after this call are initialized as
@@ -828,9 +827,8 @@ class MetricsManager {
         // associated with individual categories (i.e., category specific
         // publishers).
 
-    int findSpecificPublishers(
-                            bsl::vector<Publisher *> *publishers,
-                            const char                    *categoryName) const;
+    int findSpecificPublishers(bsl::vector<Publisher *> *publishers,
+                               const char               *categoryName) const;
         // Append to the specified 'publishers' the addresses of any
         // publishers associated with the (particular) category identified by
         // the specified 'categoryName'.  Return the number of publishers
@@ -868,8 +866,8 @@ class MetricsManager {
 inline
 MetricsManager::CallbackHandle
 MetricsManager::registerCollectionCallback(
-                               const char                       *categoryName,
-                               const RecordsCollectionCallback&  callback)
+                                const char                       *categoryName,
+                                const RecordsCollectionCallback&  callback)
 {
     return registerCollectionCallback(
                                 d_metricRegistry.getCategory(categoryName),
@@ -878,8 +876,8 @@ MetricsManager::registerCollectionCallback(
 
 inline
 int MetricsManager::addSpecificPublisher(
-                          const char                             *categoryName,
-                          const bsl::shared_ptr<Publisher>&  publisher)
+                               const char                        *categoryName,
+                               const bsl::shared_ptr<Publisher>&  publisher)
 {
     return addSpecificPublisher(d_metricRegistry.getCategory(categoryName),
                                 publisher);
@@ -887,18 +885,17 @@ int MetricsManager::addSpecificPublisher(
 
 inline
 void MetricsManager::setCategoryEnabled(const Category *category,
-                                             bool                 value)
+                                        bool            value)
 {
     d_metricRegistry.setCategoryEnabled(category, value);
 }
 
 inline
-void MetricsManager::setCategoryEnabled(const char  *categoryName,
-                                             bool         value)
+void MetricsManager::setCategoryEnabled(const char *category,
+                                        bool        isEnabled)
 {
     d_metricRegistry.setCategoryEnabled(
-                                  d_metricRegistry.getCategory(categoryName),
-                                  value);
+                            d_metricRegistry.getCategory(category), isEnabled);
 }
 
 inline
@@ -923,10 +920,10 @@ MetricRegistry& MetricsManager::metricRegistry()
 
 inline
 int MetricsManager::findSpecificPublishers(
-                               bsl::vector<Publisher *> *publishers,
-                               const char                    *category) const
+                                  bsl::vector<Publisher *> *publishers,
+                                  const char               *categoryName) const
 {
-    const Category *categoryPtr = d_metricRegistry.findCategory(category);
+    const Category *categoryPtr = d_metricRegistry.findCategory(categoryName);
     return categoryPtr ? findSpecificPublishers(publishers, categoryPtr) : 0;
 }
 

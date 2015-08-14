@@ -23,12 +23,12 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 // collector manages, in a thread-safe manner, the count of event occurrences
 // and the aggregated minimum, maximum, and total of the measured metric
 // value.  This collector class provides operations to update the aggregated
-// value, a 'load' operator to populate a 'balm::MetricRecord' with
-// the current state of the collector, a 'reset' method to reset the
-// current state of the collector, and finally a combined 'loadAndReset' method
-// that performs both a load and a reset as an atomic operation.  Note that
-// in practice, most clients should not need to access a 'balm::Collector'
-// directly, but instead use it through another type (see 'balm_metric').
+// value, a 'load' operator to populate a 'balm::MetricRecord' with the current
+// state of the collector, a 'reset' method to reset the current state of the
+// collector, and finally a combined 'loadAndReset' method that performs both
+// a load and a reset as an atomic operation.  Note that in practice, most
+// clients should not need to access a 'balm::Collector' directly, but instead
+// use it through another type (see 'balm_metric').
 //
 ///Thread Safety
 ///-------------
@@ -41,9 +41,9 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 // The following example creates a 'balm::Collector', modifies its values, then
 // collects a 'balm::MetricRecord'.
 //
-// We start by creating a 'balm::MetricId' object by hand, but in
-// practice, an id should be obtained from a 'balm::MetricRegistry' object
-// (such as the one owned by a 'balm::MetricsManager'):
+// We start by creating a 'balm::MetricId' object by hand, but in practice, an
+// id should be obtained from a 'balm::MetricRegistry' object (such as the one
+// owned by a 'balm::MetricsManager'):
 //..
 //  balm::Category           myCategory("MyCategory");
 //  balm::MetricDescription  description(&myCategory, "MyMetric");
@@ -79,6 +79,10 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 #include <balm_metricrecord.h>
 #endif
 
+#ifndef INCLUDED_BALM_METRICID
+#include <balm_metricid.h>
+#endif
+
 #ifndef INCLUDED_BDLQQ_MUTEX
 #include <bdlqq_mutex.h>
 #endif
@@ -94,7 +98,7 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 namespace BloombergLP {
 
 
-namespace balm {class MetricId;
+namespace balm {
 
                       // ====================
                       // class Collector
@@ -107,8 +111,8 @@ class Collector {
     // collected, the number of times an event occurred, and the total,
     // minimum, and maximum aggregates of the associated measurement value.
     // The default value for the count is 0, the default value for the total
-    // is 0.0, the default minimum value is 'MetricRecord::k_DEFAULT_MIN',
-    // and the default maximum value is 'MetricRecord::k_DEFAULT_MAX'.
+    // is 0.0, the default minimum value is 'MetricRecord::k_DEFAULT_MIN', and
+    // the default maximum value is 'MetricRecord::k_DEFAULT_MAX'.
 
     // DATA
     MetricRecord   d_record;  // the recorded metric information
@@ -143,9 +147,9 @@ class Collector {
         // aggregated values for that metric; then reset the count, total,
         // minimum, and maximum values to their default states.  After this
         // operation, the count and total values will be 0, the minimum value
-        // will be 'MetricRecord::k_DEFAULT_MIN', and the maximum value
-        // will be 'MetricRecord::k_DEFAULT_MAX'.  Note that this operation
-        // is logically equivalent to calling the 'load' and then the 'reset'
+        // will be 'MetricRecord::k_DEFAULT_MIN', and the maximum value will be
+        // 'MetricRecord::k_DEFAULT_MAX'.  Note that this operation is
+        // logically equivalent to calling the 'load' and then the 'reset'
         // methods except that it is performed as a single atomic operation.
 
     void update(double value);
@@ -159,20 +163,20 @@ class Collector {
                                     double min,
                                     double max);
         // Increment the event count by the specified 'count', add the
-        // specified 'total' to the accumulated total, if 'min' is less
-        // than the minimum value, set 'min' to be the minimum value, and if
-        // 'max' is greater than the maximum value, set 'max' to be the
-        // maximum value.
+        // specified 'total' to the accumulated total, if specified 'min' is
+        // less than the minimum value, set 'min' to be the minimum value, and
+        // if specified 'max' is greater than the maximum value, set 'max' to
+        // be the maximum value.
 
     void setCountTotalMinMax(int count, double total, double min, double max);
-        // Set the event count to the specied 'count', the total aggregate to
+        // Set the event count to the specified 'count', the total aggregate to
         // the specified 'total', the minimum aggregate to the specified 'min'
         // and the maximum aggregate to the specified 'max'.
 
     // ACCESSORS
     const MetricId& metricId() const;
-         // Return a reference to the non-modifiable 'MetricId' object
-         // identifying the metric for which this object collects values.
+        // Return a reference to the non-modifiable 'MetricId' object
+        // identifying the metric for which this object collects values.
 
     void load(MetricRecord *record) const;
         // Load into the specified 'record' the id of the metric being
@@ -235,9 +239,9 @@ void Collector::update(double value)
 
 inline
 void Collector::accumulateCountTotalMinMax(int    count,
-                                                double total,
-                                                double min,
-                                                double max)
+                                           double total,
+                                           double min,
+                                           double max)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_record.count() += count;
@@ -248,9 +252,9 @@ void Collector::accumulateCountTotalMinMax(int    count,
 
 inline
 void Collector::setCountTotalMinMax(int    count,
-                                         double total,
-                                         double min,
-                                         double max)
+                                    double total,
+                                    double min,
+                                    double max)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_record.count() = count;

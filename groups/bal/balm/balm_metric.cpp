@@ -20,9 +20,9 @@ namespace balm {
 
 // CLASS METHODS
 void Metric_MacroImp::getCollector(Collector      **collector,
-                                        CategoryHolder  *holder,
-                                        const char           *category,
-                                        const char           *metric)
+                                   CategoryHolder  *holder,
+                                   const char      *category,
+                                   const char      *metric)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
     // that the macros have a valid 'collector' when 'holder.enabled()' is
@@ -35,11 +35,11 @@ void Metric_MacroImp::getCollector(Collector      **collector,
 }
 
 void Metric_MacroImp::getCollector(
-                        Collector             **collector,
-                        CategoryHolder         *holder,
-                        const char                  *category,
-                        const char                  *metric,
-                        PublicationType::Value  preferredPublicationType)
+                              Collector             **collector,
+                              CategoryHolder         *holder,
+                              const char             *category,
+                              const char             *metric,
+                              PublicationType::Value  preferredPublicationType)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
     // that the macros have a valid 'collector' when 'holder.enabled()' is

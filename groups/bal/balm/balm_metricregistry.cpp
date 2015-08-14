@@ -111,9 +111,9 @@ MetricRegistry::insertId(const char *category, const char *name)
 }
 
 void MetricRegistry::setCurrentUserData(
-                                 const char                          *category,
-                                 MetricDescription::UserDataKey  key,
-                                 const void                          *value)
+                                      const char                     *category,
+                                      MetricDescription::UserDataKey  key,
+                                      const void                     *value)
 {
     CategoryAndName catAndName(category, "");
     MetricMap::iterator it = d_metrics.lower_bound(catAndName);
@@ -173,7 +173,7 @@ MetricRegistry::~MetricRegistry()
 
 // MANIPULATORS
 MetricId MetricRegistry::addId(const char *category,
-                                         const char *name)
+                               const char *name)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
@@ -182,7 +182,7 @@ MetricId MetricRegistry::addId(const char *category,
 }
 
 MetricId MetricRegistry::getId(const char *category,
-                                         const char *name)
+                               const char *name)
 {
     // Lookup the 'category' and 'name' using 'findId', as that uses only a
     // read-lock on 'd_lock'.
@@ -262,7 +262,7 @@ const Category *MetricRegistry::getCategory(const char *category)
 
 // MANIPULATORS
 void MetricRegistry::setCategoryEnabled(const Category* category,
-                                             bool                 value)
+                                        bool            value)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
@@ -312,15 +312,15 @@ void MetricRegistry::registerCategoryHolder(
 }
 
 void MetricRegistry::setFormat(const MetricId&     metricId,
-                                    const MetricFormat& format)
+                               const MetricFormat& format)
 {
     MetricDescription *desc =
-                 const_cast<MetricDescription *>(metricId.description());
+                       const_cast<MetricDescription *>(metricId.description());
 
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
-    // Note that we need to use a non-'const' pointer to the format in order
-    // to initialize it.
+    // Note that we need to use a non-'const' pointer to the format in order to
+    // initialize it.
 
     MetricFormat *formatPtr =
                  new (*d_allocator_p) MetricFormat(format, d_allocator_p);
@@ -330,7 +330,7 @@ void MetricRegistry::setFormat(const MetricId&     metricId,
 
     // We must allocate the memory for the format strings from the pool of
     // unique string values.
-    for (int i = 0; i < PublicationType::e_BALM_LENGTH; ++i) {
+    for (int i = 0; i < PublicationType::k_LENGTH; ++i) {
         PublicationType::Value  type = (PublicationType::Value)i;
         const MetricFormatSpec *spec = format.formatSpec(type);
         if (0 != spec) {
@@ -343,10 +343,9 @@ void MetricRegistry::setFormat(const MetricId&     metricId,
     desc->setFormat(formatSPtr);
 }
 
-void MetricRegistry::setUserData(
-                               const MetricId&                 metricId,
-                               MetricDescription::UserDataKey  key,
-                               const void                          *value)
+void MetricRegistry::setUserData(const MetricId&                 metricId,
+                                 MetricDescription::UserDataKey  key,
+                                 const void                     *value)
 {
     BSLS_ASSERT(0 <= key && key < d_nextKey);
 
@@ -355,11 +354,10 @@ void MetricRegistry::setUserData(
     desc->setUserData(key, value);
 }
 
-void MetricRegistry::setUserData(
-                           const char                          *categoryName,
-                           MetricDescription::UserDataKey  key,
-                           const void                          *value,
-                           bool                                 prefixFlag)
+void MetricRegistry::setUserData(const char                     *categoryName,
+                                 MetricDescription::UserDataKey  key,
+                                 const void                     *value,
+                                 bool                            prefixFlag)
 {
     BSLS_ASSERT(0 <= key && key < d_nextKey);
 
@@ -418,7 +416,7 @@ const Category *MetricRegistry::findCategory(
 }
 
 MetricId MetricRegistry::findId(const char *category,
-                                          const char *name) const
+                                const char *name) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
     MetricMap::const_iterator it =
@@ -438,8 +436,8 @@ void MetricRegistry::getAllCategories(
 }
 
 bsl::ostream& MetricRegistry::print(bsl::ostream& stream,
-                                         int           level,
-                                         int           spacesPerLevel) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
 

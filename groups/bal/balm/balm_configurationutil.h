@@ -19,12 +19,12 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a set of utility functions for
 // configuring metrics.  The 'balm::ConfigurationUtil' 'struct' provides
 // short-cuts for common configuration operations that are performed on other
-// components in the 'baem' package.
+// components in the 'balm' package.
 //
 ///Thread Safety
 ///-------------
-// 'balm::ConfigurationUtil' is fully *thread-safe*, meaning that all
-// the methods can be safely invoked simultaneously from multiple threads.
+// 'balm::ConfigurationUtil' is fully *thread-safe*, meaning that all the
+// methods can be safely invoked simultaneously from multiple threads.
 //
 ///Usage
 ///-----
@@ -40,10 +40,10 @@ BSLS_IDENT("$Id: $")
 // default metrics manager object.  At construction, we provide the scoped
 // guard an output stream ('stdout') to which the default metrics manager will
 // publish metrics.  Note that the default metrics manager is intended to be
-// created and destroyed by the *owner* of 'main'.  A metrics manager
-// should be created during the initialization of an application (while the
-// task has a single thread) and destroyed just prior to termination (when
-// there is similarly a single thread).
+// created and destroyed by the *owner* of 'main'.  A metrics manager should
+// be created during the initialization of an application (while the task has
+// a single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
 //  {
@@ -56,9 +56,9 @@ BSLS_IDENT("$Id: $")
 // publication type for the metric to be average:
 //..
 //      balm::ConfigurationUtil::setPreferredPublicationType(
-//                                          "myCategory",
-//                                          "avgElapsedTimeMs",
-//                                          balm::PublicationType::e_BALM_AVG);
+//                                               "myCategory",
+//                                               "avgElapsedTimeMs",
+//                                               balm::PublicationType::e_AVG);
 //..
 // Next, because we will record the elapsed time in seconds, we configure a
 // format to scale the elapsed time by 1000.0:
@@ -66,15 +66,15 @@ BSLS_IDENT("$Id: $")
 //     balm::ConfigurationUtil::setFormatSpec(
 //                                   "myCategory",
 //                                   "avgElapsedTimeMs",
-//                                   balm::PublicationType::e_BALM_AVG,
+//                                   balm::PublicationType::e_AVG,
 //                                   balm::MetricFormatSpec(1000.0, "%.2f ms");
 //..
 // We now collect an example value of .005:
 //..
 //     BALM_METRIC_UPDATE("myCategory", "avgElapsedTimeMs", .005);
 //..
-// Finally, we publish the metric.  Note that in practice, clients of
-// the 'baem' package can use the 'balm::PublicationScheduler' to schedule the
+// Finally, we publish the metric.  Note that in practice, clients of the
+// 'balm' package can use the 'balm::PublicationScheduler' to schedule the
 // periodic publication of metrics:
 //..
 //  balm::DefaultMetricsManager::instance()->publishAll();
@@ -221,7 +221,7 @@ BSLS_IDENT("$Id: $")
 //      BALM_METRICS_UPDATE("myCategory", "numRequests", 150);
 //..
 // Finally, we publish the collected metrics.  Note that in practice, clients
-// of the 'baem' package can use the 'balm::PublicationScheduler' to schedule
+// of the 'balm' package can use the 'balm::PublicationScheduler' to schedule
 // the periodic publication of metrics:
 //..
 //  balm::DefaultMetricsManager::instance()->publishAll();
@@ -258,8 +258,8 @@ struct ConfigurationUtil {
     // This 'struct' provides utilities for configuring metrics.
 
     // CLASS METHODS
-    static int setFormat(const char               *category,
-                         const char               *metricName,
+    static int setFormat(const char          *category,
+                         const char          *metricName,
                          const MetricFormat&  format,
                          MetricsManager      *manager = 0);
         // Set the format specification for the metric indicated by the
@@ -269,12 +269,12 @@ struct ConfigurationUtil {
         // the default metrics manager has not been initialized, this method
         // has no effect.  Return 0 on success, or a non-zero value if
         // 'manager' is 0 and the default metrics manager has not been
-        // initialized.  If a 'MetricId' does not exist for the specified
-        // 'category' and 'metricName', create one and add it to the metric
-        // registry of the indicated metrics manager.
+        // initialized.  If a 'MetricId' does not exist for 'category' and
+        // 'metricName', create one and add it to the metric registry of the
+        // indicated metrics manager.
 
-    static int setFormatSpec(const char                   *category,
-                             const char                   *metricName,
+    static int setFormatSpec(const char              *category,
+                             const char              *metricName,
                              PublicationType::Value   publicationType,
                              const MetricFormatSpec&  formatSpec,
                              MetricsManager          *manager = 0);
@@ -285,18 +285,18 @@ struct ConfigurationUtil {
         // manager; if 'manager' is 0 and the default metrics manager has not
         // been initialized, this method has no effect.  Return 0 on success,
         // or a non-zero value if 'manager' is 0 and the default metrics
-        // manager has not been initialized.  If a 'MetricId' does not
-        // exist for the specified 'category' and 'metricName', create one
-        // and add it to the metric registry of the indicated metrics
-        // manager.  For example, a publication type of 'e_BALM_AVG', and a
-        // format spec with a scale of 1000.0 and a format of "%.2f ms",
-        // indicates that the average value of the indicated metric should be
-        // formatted by scaling the value by 1000 and then rounding the value
-        // to the second decimal place and appending " ms".
+        // manager has not been initialized.  If a 'MetricId' does not exist
+        // for 'category' and 'metricName', create one and add it to the metric
+        // registry of the indicated metrics manager.  For example a
+        // publication type of 'e_AVG', and a format spec with a scale of
+        // 1000.0 and a format of "%.2f ms", indicates that the average value
+        // of the indicated metric should be formatted by scaling the value by
+        // 1000 and then rounding the value to the second decimal place and
+        // appending " ms".
 
     static int setPreferredPublicationType(
-                               const char                  *category,
-                               const char                  *metricName,
+                               const char             *category,
+                               const char             *metricName,
                                PublicationType::Value  publicationType,
                                MetricsManager         *manager = 0);
         // Set the preferred publication type of the metric identified by the
@@ -308,48 +308,48 @@ struct ConfigurationUtil {
         // or a non-zero value if 'manager' is 0 and the default metrics
         // manager has not been initialized.  The preferred publication type of
         // a metric indicates the preferred aggregate to publish for that
-        // metric, or 'PublicationType::e_BALM_UNSPECIFIED' if there is no
-        // preference.  For example, specifying 'e_BALM_AVG' indicates that the
+        // metric, or 'PublicationType::e_UNSPECIFIED' if there is no
+        // preference.  For example, specifying 'e_AVG' indicates that the
         // average value of the collected metric should be reported.  If a
-        // 'MetricId' does not exist for the specified 'category' and
-        // 'metricName', create one and add it to the metric registry of the
-        // indicated metrics manager.  Note that there is no uniform
-        // definition for how publishers will interpret this value.
+        // 'MetricId' does not exist for 'category' and 'metricName', create
+        // one and add it to the metric registry of the indicated metrics
+        // manager.  Note that there is no uniform definition for how
+        // publishers will interpret this value.
 
     static MetricDescription::UserDataKey createUserDataKey(
-                                             MetricsManager *manager = 0);
+                                                  MetricsManager *manager = 0);
         // Return a new unique key that can be used to associate (via
         // 'setUserData') a value with a metric (or group of metrics).
         // Optionally specify a metrics 'manager' to configure.  If 'manager'
         // is 0, configure the default metrics manager; if 'manager' is 0 and
         // the default metrics manager has not been initialized, then an
         // unspecified integer value is returned.  Note that the returned key
-        // can be used by clients of 'baem' to associate additional
+        // can be used by clients of 'balm' to associate additional
         // information with a metric.
 
-    static void setUserData(const char                          *category,
-                            const char                          *metricName,
-                            MetricDescription::UserDataKey  key,
-                            const void                          *value,
-                            MetricsManager                 *manager = 0);
+    static void setUserData(const char                    *category,
+                            const char                    *metricName,
+                            MetricDescription::UserDataKey key,
+                            const void                    *value,
+                            MetricsManager                *manager = 0);
         // Associate the specified 'value' with the specified data 'key' in the
         // description of the metric having the specified 'category' and
         // 'metricName'.  Optionally specify a metrics 'manager' to configure.
         // If 'manager' is 0, configure the default metrics manager; if
         // 'manager' is 0 and the default metrics manager has not been
-        // initialized, this method has no effect.  If a 'MetricId' does
-        // not exist for the specified 'category' and 'metricName', create one
-        // and add it to the metric registry of the indicated metrics manager.
-        // The behavior is undefined unless 'key' was previously created for
-        // the indicated metrics manager's metrics registry (e.g., by calling
+        // initialized, this method has no effect.  If a 'MetricId' does not
+        // exist for the specified 'category' and 'metricName', create one and
+        // add it to the metric registry of the indicated metrics manager.  The
+        // behavior is undefined unless 'key' was previously created for the
+        // indicated metrics manager's metrics registry (e.g., by calling
         // 'createUserDataKey').  Note that this method allows clients of
-        // 'baem' to associate (opaque) application-specific information with
-        // a metric.
+        // 'balm' to associate (opaque) application-specific information with a
+        // metric.
 
-    static void setUserData(const char                          *categoryName,
-                            MetricDescription::UserDataKey  key,
-                            const void                          *value,
-                            MetricsManager                 *manager = 0);
+    static void setUserData(const char                    *categoryName,
+                            MetricDescription::UserDataKey key,
+                            const void                    *value,
+                            MetricsManager                *manager = 0);
         // Associate the specified 'value' with the specified data 'key' in
         // any metric belonging to a category having the specified
         // 'categoryName', or, if 'categoryName' ends with an asterisk ('*'),
@@ -362,9 +362,9 @@ struct ConfigurationUtil {
         // created ones.  When a metric is created that matches more than one
         // registered category prefix, it is not specified which supplied
         // value will be associated with 'key', unless only one of those values
-        // is non-null, in which case the unique non-null value is used.
-        // The behavior is undefined unless 'key' was previously created for
-        // the indicated metrics manager's metrics registry (e.g., by calling
+        // is non-null, in which case the unique non-null value is used. The
+        // behavior is undefined unless 'key' was previously created for the
+        // indicated metrics manager's metrics registry (e.g., by calling
         // 'createUserDataKey').
 };
 }  // close package namespace

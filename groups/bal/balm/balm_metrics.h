@@ -18,18 +18,17 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a suite of macros to simplify the
 // process of collecting metrics.  A metric records the number of times an
 // event occurs, as well as an associated measurement value.  A metric
-// maintains a count of event occurrences and the aggregated minimum,
-// maximum, and total of the measured metric-event values.  Note that this
-// component does *not* define what constitutes an event nor what the
-// associated value represents.
+// maintains a count of event occurrences and the aggregated minimum, maximum,
+// and total of the measured metric-event values.  Note that this component
+// does *not* define what constitutes an event nor what the associated value
+// represents.
 //
 ///Thread Safety
 ///-------------
-// All the macros defined in this component are *thread-safe*, meaning
-// that they can be safely invoked simultaneously from multiple threads.
-// It is *not* safe, however, to invoke any of the macros defined in this
-// component while the default metrics manager is being either created or
-// destroyed.
+// All the macros defined in this component are *thread-safe*, meaning that
+// they can be safely invoked simultaneously from multiple threads. It is *not*
+// safe, however, to invoke any of the macros defined in this component while
+// the default metrics manager is being either created or destroyed.
 //
 ///Macro Summary
 ///-------------
@@ -109,8 +108,8 @@ BSLS_IDENT("$Id: $")
 ///Macro Reference
 ///---------------
 // The macros defined in this component make use of the default instance of
-// 'balm::MetricsManager'.  The macros have no effect unless the metrics manager
-// default instance has been initialized via a call to
+// 'balm::MetricsManager'.  The macros have no effect unless the metrics
+// manager default instance has been initialized via a call to
 // 'balm::DefaultMetricsManager::create'.
 //
 // The macros defined below provide two basic operations identified by their
@@ -334,22 +333,22 @@ BSLS_IDENT("$Id: $")
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::e_BALM_SECONDS'.
+//       'balm::StopwatchScopedGuard::k_SECONDS'.
 //
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::e_BALM_MILLISECONDS'.
+//       'balm::StopwatchScopedGuard::k_MILLISECONDS'.
 //
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::e_BALM_MICROSECONDS'.
+//       'balm::StopwatchScopedGuard::k_MICROSECONDS'.
 //
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::e_BALM_NANOSECONDS'.
+//       'balm::StopwatchScopedGuard::k_NANOSECONDS'.
 //..
 //
 ///Usage
@@ -362,13 +361,14 @@ BSLS_IDENT("$Id: $")
 // This example demonstrates how to create the default 'balm::MetricsManager'
 // instance and perform a trivial configuration.
 //
-// Create a 'balm::DefaultMetricsManagerScopedGuard' to manage the lifetime of
-// the default metrics manager instance, and provide it a stream ('stdout')
-// that we want to publish metrics to.  Note that the default metrics
-// manager is intended to be created and released by the *owner* of  'main'.
-// The instance should be created during the initialization of an
-// application (while the task has a single thread) and released just prior to
-// termination (when there is similarly a single thread).
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
+// provide this guard with an output stream ('stdout') to which the default
+// metrics manager will publish metrics.  Note that the default metrics
+// manager is intended to be created and destroyed by the *owner* of 'main':
+// An instance of the manager should be created during the initialization of
+// an application (while the task has a single thread) and destroyed just
+// prior to termination (when there is similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
 //  {
@@ -379,7 +379,8 @@ BSLS_IDENT("$Id: $")
 // Once the default manager object has been created, it can be accessed using
 // the 'instance' operation.
 //..
-//      balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+//      balm::MetricsManager *manager =
+//                                     balm::DefaultMetricsManager::instance();
 //      assert(0 != manager);
 //..
 // Note that the default metrics manager will be released when the
@@ -392,16 +393,15 @@ BSLS_IDENT("$Id: $")
 // Once a metrics manager is initialized, we can use the various macros to
 // record metric values.  In this second example, we collect metrics from a
 // hypothetical event-processing function.  We use 'BALM_METRICS_UPDATE' to
-// record the size of the data being processed to a metric named
-// "msgSize", and the elapsed time (in milliseconds) to process the event to a
-// metric named "elapsedTime".  Finally, we use 'BALM_METRICS_INCREMENT'
-// to record a count of failures to a metric named "failureCount".
-// Note that we do not use the '*_DYNAMIC_*' variants of the
-// 'BALM_METRICS_UPDATE' or 'BALM_METRICS_INCREMENT' macros because the
-// category and metric names are constant across all applications of the macro
-// at a particular instantiation point (the 'DYNAMIC' variants look up the
-// category and metric name on each application, which would incur unnecessary
-// runtime overhead).
+// record the size of the data being processed to a metric named "msgSize",
+// and the elapsed time (in milliseconds) to process the event to a metric
+// named "elapsedTime".  Finally, we use 'BALM_METRICS_INCREMENT' to record
+// a count of failures to a metric named "failureCount". Note that we do not
+// use the '*_DYNAMIC_*' variants of the 'BALM_METRICS_UPDATE' or
+// 'BALM_METRICS_INCREMENT' macros because the category and metric names are
+// constant across all applications of the macro at a particular instantiation
+// point (the 'DYNAMIC' variants look up the category and metric name on each
+// application, which would incur unnecessary runtime overhead).
 //..
 //  int processEvent(int eventId, const bsl::string& eventMessage)
 //      // Process the event described by the specified 'eventId' and
@@ -520,16 +520,15 @@ BSLS_IDENT("$Id: $")
                         // ================================
 
 #define BALM_METRICS_IF_CATEGORY_ENABLED(CATEGORY)                            \
-    BALM_METRICS_IF_CATEGORY_ENABLED_IMP(                                    \
-                        CATEGORY, BALM_METRICS_UNIQUE_NAME(categoryHolder))
+    BALM_METRICS_IF_CATEGORY_ENABLED_IMP(                                     \
+                            CATEGORY, BALM_METRICS_UNIQUE_NAME(categoryHolder))
 
                         // ===================
                         // BALM_METRICS_UPDATE
                         // ===================
 
 // Note that the static collector address must be assigned *before*
-// initializing category holder to ensure initialization is thread
-// safe.
+// initializing category holder to ensure initialization is thread safe.
 #define BALM_METRICS_UPDATE(CATEGORY, METRIC1, VALUE1) do {                   \
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                        \
@@ -743,10 +742,10 @@ BSLS_IDENT("$Id: $")
 
 #define BALM_METRICS_DYNAMIC_UPDATE(CATEGORY, METRIC, VALUE) do {             \
     using namespace BloombergLP;                                              \
-    if (balm::DefaultMetricsManager::instance()) {                             \
-        balm::CollectorRepository& repository =                                \
-             balm::DefaultMetricsManager::instance()->collectorRepository();   \
-        balm::Collector *collector = repository.getDefaultCollector((CATEGORY),\
+    if (balm::DefaultMetricsManager::instance()) {                            \
+        balm::CollectorRepository& repository =                               \
+             balm::DefaultMetricsManager::instance()->collectorRepository();  \
+        balm::Collector *collector = repository.getDefaultCollector((CATEGORY)\
                                                                    (METRIC)); \
         if (collector->metricId().category()->enabled()) {                    \
             collector->update((VALUE));                                       \
@@ -977,10 +976,10 @@ do {                                                                          \
 
 #define BALM_METRICS_DYNAMIC_INT_UPDATE(CATEGORY, METRIC, VALUE) do {         \
     using namespace BloombergLP;                                              \
-    if (balm::DefaultMetricsManager::instance()) {                             \
-        balm::CollectorRepository& repository =                                \
-             balm::DefaultMetricsManager::instance()->collectorRepository();   \
-        balm::IntegerCollector *collector =                                    \
+    if (balm::DefaultMetricsManager::instance()) {                            \
+        balm::CollectorRepository& repository =                               \
+             balm::DefaultMetricsManager::instance()->collectorRepository();  \
+        balm::IntegerCollector *collector =                                   \
                repository.getDefaultIntegerCollector((CATEGORY), (METRIC));   \
         if (collector->metricId().category()->enabled()) {                    \
             collector->update((VALUE));                                       \
@@ -1002,13 +1001,13 @@ do {                                                                          \
                         // =======================
 
 #define BALM_METRICS_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)                 \
-  BALM_METRICS_TIME_BLOCK_IMP((CATEGORY),                                    \
+  BALM_METRICS_TIME_BLOCK_IMP((CATEGORY),                                     \
                                (METRIC),                                      \
                                TIME_UNITS,                                    \
                                BALM_METRICS_UNIQUE_NAME(_bAeM_CoLlEcToR))
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)         \
-  BALM_METRICS_DYNAMIC_TIME_BLOCK_IMP(                                       \
+  BALM_METRICS_DYNAMIC_TIME_BLOCK_IMP(                                        \
                                   (CATEGORY),                                 \
                                   (METRIC),                                   \
                                   TIME_UNITS,                                 \
@@ -1017,55 +1016,55 @@ do {                                                                          \
 #define BALM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)                     \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::e_BALM_SECONDS);
+                          balm::StopwatchScopedGuard::k_SECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)                \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::e_BALM_MILLISECONDS);
+                          balm::StopwatchScopedGuard::k_MILLISECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)                \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::e_BALM_MICROSECONDS);
+                          balm::StopwatchScopedGuard::k_MICROSECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)                 \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::e_BALM_NANOSECONDS);
+                          balm::StopwatchScopedGuard::k_NANOSECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(CATEGORY, METRIC)             \
   BALM_METRICS_DYNAMIC_TIME_BLOCK((CATEGORY),                                 \
                                   (METRIC),                                   \
-                                  balm::StopwatchScopedGuard::e_BALM_SECONDS);
+                                  balm::StopwatchScopedGuard::k_SECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)        \
   BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
                                  (CATEGORY),                                  \
                                  (METRIC),                                    \
-                              balm::StopwatchScopedGuard::e_BALM_MILLISECONDS);
+                              balm::StopwatchScopedGuard::k_MILLISECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)        \
   BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
                                  (CATEGORY),                                  \
                                  (METRIC),                                    \
-                              balm::StopwatchScopedGuard::e_BALM_MICROSECONDS);
+                              balm::StopwatchScopedGuard::k_MICROSECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)         \
   BALM_METRICS_DYNAMIC_TIME_BLOCK((CATEGORY),                                 \
                                   (METRIC),                                   \
-                               balm::StopwatchScopedGuard::e_BALM_NANOSECONDS);
+                               balm::StopwatchScopedGuard::k_NANOSECONDS);
 
                         // =====================
                         // Macro Implementations
                         // =====================
 
-#define BALM_METRICS_IF_CATEGORY_ENABLED_IMP(CATEGORY, HOLDER_NAME)          \
-    static BloombergLP::balm::CategoryHolder HOLDER_NAME = { false, 0, 0 };    \
+#define BALM_METRICS_IF_CATEGORY_ENABLED_IMP(CATEGORY, HOLDER_NAME)           \
+    static BloombergLP::balm::CategoryHolder HOLDER_NAME = { false, 0, 0 };   \
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!HOLDER_NAME.category())        \
      && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                                \
-                 BloombergLP::balm::DefaultMetricsManager::instance() != 0)) { \
-        BloombergLP::balm::Metrics_Helper::initializeCategoryHolder(           \
+                 BloombergLP::balm::DefaultMetricsManager::instance() != 0)) {\
+        BloombergLP::balm::Metrics_Helper::initializeCategoryHolder(          \
                                                    &HOLDER_NAME, CATEGORY);   \
     }                                                                         \
     if (HOLDER_NAME.enabled())
@@ -1077,16 +1076,16 @@ do {                                                                          \
 // 'CATEGORY' and 'METRIC'.  Finally, declare a 'balm::StopwatchScopedGuard'
 // object with a unique variable name and supply its constructor the collector
 // address held in 'VARIABLE_NAME' and the specified 'TIME_UNITS'.
-#define BALM_METRICS_TIME_BLOCK_IMP(CATEGORY,                                \
-                                     METRIC,                                  \
-                                     TIME_UNITS,                              \
-                                     VARIABLE_NAME)                           \
-    static BloombergLP::balm::Collector *VARIABLE_NAME = 0;                    \
-    if (BloombergLP::balm::DefaultMetricsManager::instance()) {                \
+#define BALM_METRICS_TIME_BLOCK_IMP(CATEGORY,                                 \
+                                    METRIC,                                   \
+                                    TIME_UNITS,                               \
+                                    VARIABLE_NAME)                            \
+    static BloombergLP::balm::Collector *VARIABLE_NAME = 0;                   \
+    if (BloombergLP::balm::DefaultMetricsManager::instance()) {               \
        using namespace BloombergLP;                                           \
        if (0 == VARIABLE_NAME) {                                              \
-           balm::CollectorRepository& repository =                             \
-              balm::DefaultMetricsManager::instance()->collectorRepository();  \
+           balm::CollectorRepository& repository =                            \
+              balm::DefaultMetricsManager::instance()->collectorRepository(); \
            VARIABLE_NAME = repository.getDefaultCollector((CATEGORY),         \
                                                           (METRIC));          \
        }                                                                      \
@@ -1094,7 +1093,7 @@ do {                                                                          \
     else {                                                                    \
        VARIABLE_NAME = 0;                                                     \
     }                                                                         \
-    BloombergLP::balm::StopwatchScopedGuard                                    \
+    BloombergLP::balm::StopwatchScopedGuard                                   \
          BALM_METRICS_UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
 
 // Declare a pointer to a 'balm::Collector' with the specified 'VARIABLE_NAME'.
@@ -1104,19 +1103,19 @@ do {                                                                          \
 // 'balm::StopwatchScopedGuard' object with a unique variable name and supply
 // its constructor the collector address held in 'VARIABLE_NAME' and the
 // specified 'TIME_UNITS'.
-#define BALM_METRICS_DYNAMIC_TIME_BLOCK_IMP(CATEGORY,                        \
-                                             METRIC,                          \
-                                             TIME_UNITS,                      \
-                                             VARIABLE_NAME)                   \
-    BloombergLP::balm::Collector *VARIABLE_NAME = 0;                           \
-    if (BloombergLP::balm::DefaultMetricsManager::instance()) {                \
+#define BALM_METRICS_DYNAMIC_TIME_BLOCK_IMP(CATEGORY,                         \
+                                            METRIC,                           \
+                                            TIME_UNITS,                       \
+                                            VARIABLE_NAME)                    \
+    BloombergLP::balm::Collector *VARIABLE_NAME = 0;                          \
+    if (BloombergLP::balm::DefaultMetricsManager::instance()) {               \
         using namespace BloombergLP;                                          \
-        balm::CollectorRepository& repository =                                \
-             balm::DefaultMetricsManager::instance()->collectorRepository();   \
+        balm::CollectorRepository& repository =                               \
+             balm::DefaultMetricsManager::instance()->collectorRepository();  \
         VARIABLE_NAME = repository.getDefaultCollector((CATEGORY),            \
                                                        (METRIC));             \
     }                                                                         \
-    BloombergLP::balm::StopwatchScopedGuard                                    \
+    BloombergLP::balm::StopwatchScopedGuard                                   \
          BALM_METRICS_UNIQUE_NAME(__bAeM_gUaRd)(VARIABLE_NAME, TIME_UNITS);
 
                         // ------------------------
@@ -1178,21 +1177,21 @@ struct Metrics_Helper {
 
     // CLASS METHODS
     static void initializeCategoryHolder(CategoryHolder *holder,
-                                         const char          *category);
+                                         const char     *category);
         // Load into the specified 'holder' the address and enabled status of
         // the specified 'category', and add 'holder' to the list of category
         // holders for 'category'.  The behavior is undefined unless the balm
         // metrics manager singleton is valid.
 
     static Collector *getCollector(const char *category,
-                                        const char *metric);
+                                   const char *metric);
         // Return the address of the default metrics collector for the metric
         // identified by the specified 'category' and 'metric' names.  The
         // behavior is undefined unless the 'balm' metrics manager singleton is
         // valid.
 
     static IntegerCollector *getIntegerCollector(const char *category,
-                                                      const char *metric);
+                                                 const char *metric);
         // Return the address of the default integer metrics collector for the
         // metric identified by the specified 'category' and 'metric' names.
         // The behavior is undefined unless the 'balm' metrics manager
@@ -1226,9 +1225,8 @@ struct Metrics_Helper {
 
 // CLASS METHODS
 inline
-void Metrics_Helper::initializeCategoryHolder(
-                                         CategoryHolder *holder,
-                                         const char          *category)
+void Metrics_Helper::initializeCategoryHolder(CategoryHolder *holder,
+                                              const char     *category)
 {
     MetricsManager  *manager  = DefaultMetricsManager::instance();
     MetricRegistry&  registry = manager->metricRegistry();
@@ -1237,7 +1235,7 @@ void Metrics_Helper::initializeCategoryHolder(
 
 inline
 Collector *Metrics_Helper::getCollector(const char *category,
-                                                  const char *metric)
+                                        const char *metric)
 {
    MetricsManager *manager = DefaultMetricsManager::instance();
    return manager->collectorRepository().getDefaultCollector(category,
@@ -1245,9 +1243,8 @@ Collector *Metrics_Helper::getCollector(const char *category,
 }
 
 inline
-IntegerCollector *Metrics_Helper::getIntegerCollector(
-                                                          const char *category,
-                                                          const char *metric)
+IntegerCollector *Metrics_Helper::getIntegerCollector(const char *category,
+                                                      const char *metric)
 {
    MetricsManager *manager = DefaultMetricsManager::instance();
    return manager->collectorRepository().getDefaultIntegerCollector(category,
@@ -1256,7 +1253,7 @@ IntegerCollector *Metrics_Helper::getIntegerCollector(
 
 inline
 void Metrics_Helper::setPublicationType(const MetricId&        id,
-                                             PublicationType::Value type)
+                                        PublicationType::Value type)
 {
    MetricsManager *manager = DefaultMetricsManager::instance();
    return manager->metricRegistry().setPreferredPublicationType(id, type);

@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
         Obj mX(bsl::cout);
         balm::Category myCategory("MyCategory");
         bdlt::DatetimeTz now(bdlt::CurrentTime::utc(), 0);
-        for (int i = 0; i < balm::PublicationType::e_BALM_LENGTH; ++i) {
+        for (int i = 0; i < balm::PublicationType::k_LENGTH; ++i) {
             balm::MetricDescription desc(&myCategory, "Test");
 
             desc.setPreferredPublicationType((balm::PublicationType::Value)i);
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 
             mX.publish(sample);
 
-            for (int j = 0; j < balm::PublicationType::e_BALM_LENGTH; ++j) {
+            for (int j = 0; j < balm::PublicationType::k_LENGTH; ++j) {
                 balm::MetricFormat format(&ta);
                 format.setFormatSpec((balm::PublicationType::Value)j,
                                      balm::MetricFormatSpec(100, "TEST %f!"));

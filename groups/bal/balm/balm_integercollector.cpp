@@ -24,7 +24,7 @@ const int balm::IntegerCollector::DEFAULT_MAX = INT_MIN;
 
 namespace balm {
 // MANIPULATORS
-void IntegerCollector::loadAndReset(MetricRecord *record)
+void IntegerCollector::loadAndReset(MetricRecord *records)
 {
     int                count;
     bsls::Types::Int64 total;
@@ -43,13 +43,13 @@ void IntegerCollector::loadAndReset(MetricRecord *record)
         d_max   = k_DEFAULT_MAX;
     }
     // Perform the conversion to double values outside of the lock.
-    record->metricId() = d_metricId;
-    record->count()    = count;
-    record->total()    = static_cast<double>(total);
-    record->min()      = (k_DEFAULT_MIN == min)
+    records->metricId() = d_metricId;
+    records->count()    = count;
+    records->total()    = static_cast<double>(total);
+    records->min()      = (k_DEFAULT_MIN == min)
                        ? MetricRecord::k_DEFAULT_MIN
                        : min;
-    record->max()      = (k_DEFAULT_MAX == max)
+    records->max()      = (k_DEFAULT_MAX == max)
                        ? MetricRecord::k_DEFAULT_MAX
                        : max;
 }

@@ -21,8 +21,8 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 // identifier (chosen by the application) that groups together one or more
 // metrics.  A 'balm::Category' object contains the address of a string holding
 // the name of the category and a boolean value indicating whether the
-// category is currently enabled.  The 'balm::Category' class suppresses
-// copy construction and assignment, and does not provide equality operators;
+// category is currently enabled.  The 'balm::Category' class suppresses copy
+// construction and assignment, and does not provide equality operators;
 // applications should use a *single* 'balm::Category' object instance per
 // category (such as one provided by the *'balm::MetricRegistry'* component).
 //
@@ -94,19 +94,17 @@ namespace balm {class CategoryHolder;
 
 class Category {
     // This class provides a mechanism for representing a category.  A category
-    // is an identifier used to group related metrics.  A 'Category'
-    // object contains the address of a null-terminated string, 'name', holding
-    // the name of the category and a boolean value, 'enabled', indicating
-    // whether the category is currently enabled.
+    // is an identifier used to group related metrics.  A 'Category' object
+    // contains the address of a null-terminated string, 'name', holding the
+    // name of the category and a boolean value, 'enabled', indicating whether
+    // the category is currently enabled.
 
     // DATA
-    const char          *d_name_p;     // name of the category (held, not
-                                       // owned)
+    const char     *d_name_p;     // name of the category (held, not owned)
 
-    volatile bool        d_enabled;    // whether the category is enabled
+    bool            d_enabled;    // whether the category is enabled
 
-    CategoryHolder *d_holders_p;  // linked list of holders of this
-                                       // category
+    CategoryHolder *d_holders_p;  // linked list of holders of this category
 
     // NOT IMPLEMENTED
     Category(const Category& );
@@ -116,10 +114,10 @@ class Category {
     // CREATORS
     explicit Category(const char *name, bool enabledFlag = true);
         // Create a category having the specified 'name' address.  Optionally
-        // set the 'enabled' status of the category to the specified
-        // 'enabledFlag'; if 'enabledFlag' is not specified, the 'enabled'
-        // status is set to 'true'.  The behavior is undefined unless 'name'
-        // remains valid and unmodified for the lifetime of this object.
+        // specify 'enabledFlag', the enabled status of the category; if
+        // 'enabledFlag' is not specified, the 'enabled' status is 'true'. The
+        // behavior is undefined unless 'name' remains valid and unmodified for
+        // the lifetime of this object.
 
     ~Category();
         // Destroy this category object.
@@ -132,12 +130,12 @@ class Category {
 
     void setEnabled(bool enabledFlag);
         // Set the 'enabled' state of this category to the value of the
-        // specified 'enabledFlag' and update any 'CategoryHolder'
-        // objects registered with this category.  Note that this operation is
-        // *not* atomic, and other threads may simultaneously access the
-        // current enabled value while this operation is performed.  Also note
-        // that this operation has *linear* performance with respect to the
-        // number of registered category holders for 'category'.
+        // specified 'enabledFlag' and update any 'CategoryHolder' objects
+        // registered with this category.  Note that this operation is *not*
+        // atomic, and other threads may simultaneously access the current
+        // enabled value while this operation is performed.  Also note that
+        // this operation has *linear* performance with respect to the number
+        // of registered category holders for 'category'.
 
     void registerCategoryHolder(CategoryHolder *holder);
         // Load into the specified 'holder' the address of this category, its
@@ -156,7 +154,7 @@ class Category {
         // Return the address of the non-modifiable null-terminated string
         // containing the name of this category.
 
-    const volatile bool& enabled() const;
+    const bool& enabled() const;
         // Return a reference to the non-modifiable boolean value indicating
         // whether this category is enabled.  Note that this value is
         // explicitly returned by reference to allow clients to refer to the
@@ -167,6 +165,10 @@ class Category {
         // Print this category to the specified output 'stream' in some human
         // readable form, and return the modifiable 'stream'.
 };
+
+// ============================================================================
+//                 INLINE DEFINITIONS
+// ============================================================================
 
 // FREE OPERATORS
 inline
@@ -250,9 +252,9 @@ class CategoryHolder {
 
 // CREATORS
 inline
-Category::Category(const char *name, bool enabled)
+Category::Category(const char *name, bool enabledFlag)
 : d_name_p(name)
-, d_enabled(enabled)
+, d_enabled(enabledFlag)
 , d_holders_p(0)
 {
 }
@@ -272,7 +274,7 @@ const char *Category::name() const
 }
 
 inline
-const volatile bool& Category::enabled() const
+const bool& Category::enabled() const
 {
     return d_enabled;
 }

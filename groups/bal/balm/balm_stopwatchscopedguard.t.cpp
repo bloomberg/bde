@@ -546,9 +546,9 @@ int main(int argc, char *argv[])
 
         balm::MetricRecord record = recordValue(collector);
         ASSERT(COUNT == record.count());
-        ASSERT(within(record.total(), Obj::e_BALM_SECONDS, expectedTotal, 1.0))
-        ASSERT(within(record.max(), Obj::e_BALM_SECONDS, expectedMax, 1.0))
-        ASSERT(within(record.min(), Obj::e_BALM_SECONDS, expectedMin, 1.0))
+        ASSERT(within(record.total(), Obj::k_SECONDS, expectedTotal, 1.0))
+        ASSERT(within(record.max(), Obj::k_SECONDS, expectedMax, 1.0))
+        ASSERT(within(record.min(), Obj::k_SECONDS, expectedMin, 1.0))
 
       } break;
       case 5: {
@@ -622,35 +622,35 @@ int main(int argc, char *argv[])
             sw.start();
             {
                 balm::StopwatchScopedGuard gA_D(a_D);
-                balm::StopwatchScopedGuard gA_S(a_S, Obj::e_BALM_SECONDS);
-                balm::StopwatchScopedGuard gA_Ms(a_Ms, Obj::e_BALM_MILLISECONDS);
-                balm::StopwatchScopedGuard gA_Us(a_Us, Obj::e_BALM_MICROSECONDS);
-                balm::StopwatchScopedGuard gA_Ns(a_Ns, Obj::e_BALM_NANOSECONDS);
+                balm::StopwatchScopedGuard gA_S(a_S, Obj::k_SECONDS);
+                balm::StopwatchScopedGuard gA_Ms(a_Ms, Obj::k_MILLISECONDS);
+                balm::StopwatchScopedGuard gA_Us(a_Us, Obj::k_MICROSECONDS);
+                balm::StopwatchScopedGuard gA_Ns(a_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gB_D(idB_D);
-                balm::StopwatchScopedGuard gB_S(idB_S, Obj::e_BALM_SECONDS);
+                balm::StopwatchScopedGuard gB_S(idB_S, Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gB_Ms(idB_Ms,
-                                                Obj::e_BALM_MILLISECONDS);
+                                                Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gB_Us(idB_Us,
-                                                Obj::e_BALM_MICROSECONDS);
-                balm::StopwatchScopedGuard gB_Ns(idB_Ns, Obj::e_BALM_NANOSECONDS);
+                                                Obj::k_MICROSECONDS);
+                balm::StopwatchScopedGuard gB_Ns(idB_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gC_D(&mC_D);
-                balm::StopwatchScopedGuard gC_S(&mC_S, Obj::e_BALM_SECONDS);
+                balm::StopwatchScopedGuard gC_S(&mC_S, Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gC_Ms(&mC_Ms,
-                                                Obj::e_BALM_MILLISECONDS);
+                                                Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gC_Us(&mC_Us,
-                                                Obj::e_BALM_MICROSECONDS);
-                balm::StopwatchScopedGuard gC_Ns(&mC_Ns, Obj::e_BALM_NANOSECONDS);
+                                                Obj::k_MICROSECONDS);
+                balm::StopwatchScopedGuard gC_Ns(&mC_Ns, Obj::k_NANOSECONDS);
 
                 balm::StopwatchScopedGuard gD_D("D", "D");
-                balm::StopwatchScopedGuard gD_S ("D", "S", Obj::e_BALM_SECONDS);
+                balm::StopwatchScopedGuard gD_S ("D", "S", Obj::k_SECONDS);
                 balm::StopwatchScopedGuard gD_Ms("D", "Ms",
-                                                Obj::e_BALM_MILLISECONDS);
+                                                Obj::k_MILLISECONDS);
                 balm::StopwatchScopedGuard gD_Us("D", "Us",
-                                                Obj::e_BALM_MICROSECONDS);
+                                                Obj::k_MICROSECONDS);
                 balm::StopwatchScopedGuard gD_Ns("D", "Ns",
-                                                Obj::e_BALM_NANOSECONDS);
+                                                Obj::k_NANOSECONDS);
 
                 bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
 
@@ -681,41 +681,41 @@ int main(int argc, char *argv[])
             balm::MetricRecord rD_Us = recordValue(d_Us);
             balm::MetricRecord rD_Ns = recordValue(d_Ns);
 
-            ASSERT(within(rA_D.total(),  Obj::e_BALM_SECONDS,
+            ASSERT(within(rA_D.total(),  Obj::k_SECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rA_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rA_Ms.total(), Obj::e_BALM_MILLISECONDS,
+            ASSERT(within(rA_S.total(),  Obj::k_SECONDS,    expected, 1.0));
+            ASSERT(within(rA_Ms.total(), Obj::k_MILLISECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rA_Us.total(), Obj::e_BALM_MICROSECONDS,
+            ASSERT(within(rA_Us.total(), Obj::k_MICROSECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rA_Ns.total(), Obj::e_BALM_NANOSECONDS,
-                                                               expected, 1.0));
-
-            ASSERT(within(rB_D.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rB_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rB_Ms.total(), Obj::e_BALM_MILLISECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Us.total(), Obj::e_BALM_MICROSECONDS,
-                                                               expected, 1.0));
-            ASSERT(within(rB_Ns.total(), Obj::e_BALM_NANOSECONDS,
+            ASSERT(within(rA_Ns.total(), Obj::k_NANOSECONDS,
                                                                expected, 1.0));
 
-            ASSERT(within(rC_D.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rC_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rC_Ms.total(), Obj::e_BALM_MILLISECONDS,
+            ASSERT(within(rB_D.total(),  Obj::k_SECONDS,    expected, 1.0));
+            ASSERT(within(rB_S.total(),  Obj::k_SECONDS,    expected, 1.0));
+            ASSERT(within(rB_Ms.total(), Obj::k_MILLISECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rC_Us.total(), Obj::e_BALM_MICROSECONDS,
+            ASSERT(within(rB_Us.total(), Obj::k_MICROSECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rC_Ns.total(), Obj::e_BALM_NANOSECONDS,
+            ASSERT(within(rB_Ns.total(), Obj::k_NANOSECONDS,
                                                                expected, 1.0));
 
-            ASSERT(within(rD_D.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rD_S.total(),  Obj::e_BALM_SECONDS,    expected, 1.0));
-            ASSERT(within(rD_Ms.total(), Obj::e_BALM_MILLISECONDS,
+            ASSERT(within(rC_D.total(),  Obj::k_SECONDS,    expected, 1.0));
+            ASSERT(within(rC_S.total(),  Obj::k_SECONDS,    expected, 1.0));
+            ASSERT(within(rC_Ms.total(), Obj::k_MILLISECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rD_Us.total(), Obj::e_BALM_MICROSECONDS,
+            ASSERT(within(rC_Us.total(), Obj::k_MICROSECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rD_Ns.total(), Obj::e_BALM_NANOSECONDS,
+            ASSERT(within(rC_Ns.total(), Obj::k_NANOSECONDS,
+                                                               expected, 1.0));
+
+            ASSERT(within(rD_D.total(),  Obj::k_SECONDS,    expected, 1.0));
+            ASSERT(within(rD_S.total(),  Obj::k_SECONDS,    expected, 1.0));
+            ASSERT(within(rD_Ms.total(), Obj::k_MILLISECONDS,
+                                                               expected, 1.0));
+            ASSERT(within(rD_Us.total(), Obj::k_MICROSECONDS,
+                                                               expected, 1.0));
+            ASSERT(within(rD_Ns.total(), Obj::k_NANOSECONDS,
                                                                expected, 1.0));
         }
       } break;

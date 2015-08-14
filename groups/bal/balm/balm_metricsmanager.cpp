@@ -4,6 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 
+#include <bsl_utility.h>
+
+#include <bsls_assert.h>
+
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
@@ -11,23 +15,29 @@ BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_readlockguard.h>
 #include <bdlqq_writelockguard.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlf_bind.h>
+
 #include <bdlf_placeholder.h>
 #include <bdlt_currenttime.h>
+#include <bdlt_datetimetz.h>
+
 #include <bdlb_print.h>
 
 #include <bslma_default.h>
+
+#include <bsl_ostream.h>
 
 ///Implementation Note
 ///-------------------
 // The 'balm::MetricsManager' is implemented using 4 classes defined in this
 // implementation file:
 //
-//                     PublicationHelper: namespace for 'publish' template
-//                            MapProctor: a proctor for inserting into a map
-// balm::MetricsManager_PublisherRegistry: registry of 'balm::Publisher' objects
-//  balm::MetricsManager_CallbackRegistry: registry of callback functors
+//                       PublicationHelper: namespace for 'publish' template
+//                              MapProctor: a proctor for inserting into a map
+//  balm::MetricsManager_PublisherRegistry: registry of 'balm::Publisher' items
+//   balm::MetricsManager_CallbackRegistry: registry of callback functors
 //
 // The classes are defined here, in the implementation, to avoid exposing the
 // implementation details of the metrics manager in the component header.
@@ -36,7 +46,7 @@ namespace BloombergLP {
 
 namespace {
 
-const char LOG_CATEGORY[] = "BALM.METRICSMANAGER";
+const char k_LOG_CATEGORY[] = "BALM.METRICSMANAGER";
 
 struct SampleDescription {
     // This type is used by 'collectSample' to indirectly refer to a series of
@@ -48,8 +58,8 @@ struct SampleDescription {
     bsls::TimeInterval d_elapsedTime;
 
     // CREATORS
-    SampleDescription(int                      beginIndex,
-                      int                      size,
+    SampleDescription(int                       beginIndex,
+                      int                       size,
                       const bsls::TimeInterval& elapsedTime)
     : d_beginIndex(beginIndex)
     , d_size(size)
@@ -61,29 +71,25 @@ struct SampleDescription {
 }  // close unnamed namespace
 
 namespace balm {
-                // ============================================
-                // struct MetricsManager_PublicationHelper
-                // ============================================
 
 struct MetricsManager_PublicationHelper {
     // This class provides a namespace for auxiliary template operations for
-    // the 'MetricsManager' class.  The operations provided serve as
-    // private manipulators of a 'MetricsManager' object but, they are
-    // defined here, in the implementation, to avoid defining the (substantive)
-    // private template operations in the header.  Note that this class is a
-    // friend of 'MetricsManager'.
+    // the 'MetricsManager' class.  The operations provided serve as private
+    // manipulators of a 'MetricsManager' object but, they are defined here, in
+    // the implementation, to avoid defining the (substantive) private template
+    // operations in the header.  Note that this class is a friend of
+    // 'MetricsManager'.
 
-    typedef bsl::map<bsl::shared_ptr<Publisher>, MetricSample>
-                                                                   SampleCache;
+    typedef bsl::map<bsl::shared_ptr<Publisher>, MetricSample> SampleCache;
         // An alias for a mapping of 'Publisher' to the
         // 'MetricSample' for that publisher.
 
     // CLASS METHODS
     static void updateSampleCache(
-                        SampleCache                            *sampleCache,
-                        const bsl::shared_ptr<Publisher>&  publisher,
-                        const MetricSampleGroup&           sampleGroup,
-                        const bdlt::DatetimeTz&                  timeStamp);
+                                SampleCache                       *sampleCache,
+                                const bsl::shared_ptr<Publisher>&  publisher,
+                                const MetricSampleGroup&           sampleGroup,
+                                const bdlt::DatetimeTz&            timeStamp);
         // Update the specified 'sampleCache' entry for the specified
         // 'publisher' with the specified 'sampleGroup' collected at the
         // specified 'timeStamp'.  If a 'MetricSample' does not already
@@ -91,11 +97,11 @@ struct MetricsManager_PublicationHelper {
         // to the 'sampleCache'.
 
     static void collect(bsl::vector<MetricRecord> *records,
-                        bsls::TimeInterval              *elapsedTime,
+                        bsls::TimeInterval        *elapsedTime,
                         MetricsManager            *manager,
                         const Category            *category,
-                        const bsls::TimeInterval&        now,
-                        bool                            resetFlag);
+                        const bsls::TimeInterval&  now,
+                        bool                       resetFlag);
         // Append to the specified 'records' the metrics collected from the
         // specified 'manager' for the specified 'category', and load into
         // specified 'elapsedTime' the time interval from when they were last
@@ -103,12 +109,12 @@ struct MetricsManager_PublicationHelper {
         // reset the metrics to their default state.  This operation will
         // collect aggregated metric record values from metric collection
         // callbacks in 'manager.d_callbackRegistry' as well as from
-        // 'Collector' objects owned by 'manager.d_collectors', and if
-        // 'resetFlag' is 'true', reset those collectors and callbacks to
-        // their default state.  If a 'category' has not been previously
-        // reset, then the 'elapsedTime' is computed from the creation of
-        // 'manager'.  Note that this operation does *not* test if 'category'
-        // is enabled.
+        // 'Collector' objects owned by 'manager.d_collectors', and if the
+        // specified 'resetFlag' is 'true', reset those collectors and
+        // callbacks to their default state.  If a 'category' has not been
+        // previously reset, then the 'elapsedTime' is computed from the
+        // creation of 'manager'.  Note that this operation does *not* test if
+        // 'category' is enabled.
 
     template <class ConstForwardCategoryIterator>
     static void publish(MetricsManager                 *manager,
@@ -119,19 +125,19 @@ struct MetricsManager_PublicationHelper {
         // records for the sequence of categories from the specified
         // 'categoriesBegin' to the specified 'categoriesEnd' collected from
         // metrics managed by 'manager', and if 'resetFlag' is 'true', reset
-        // the metrics being collected to their default state.  The
-        // specified template type 'ConstForwardCategoryIterator' must be a
-        // forward iterator over a container of pointers to constant
-        // 'Category' objects, e.g.:
+        // the metrics being collected to their default state.  The specified
+        // template type 'ConstForwardCategoryIterator' must be a forward
+        // iterator over a container of pointers to constant 'Category'
+        // objects, e.g.:
         //..
         //  bsl::set<const Category *>::const_iterator
         //..
         // This operation will collect aggregated metric record values from
         // metric collection callbacks in 'manager.d_callbackRegistry' as well
-        // as from 'Collector' objects owned by 'manager.d_collectors',
-        // for the categories being iterated over, and then publish those
-        // records using any publishers in 'manager.d_publishers' registered
-        // for those categories.  The map of previous publication times,
+        // as from 'Collector' objects owned by 'manager.d_collectors', for the
+        // categories being iterated over, and then publish those records using
+        // any publishers in 'manager.d_publishers' registered for those
+        // categories.  The map of previous publication times,
         // 'manager.d_prevResetTimes', is used to determine the time interval
         // that the collected metrics provide values for, and is updated as
         // part of this operation.  This operation obtains a *lock* on
@@ -142,7 +148,6 @@ struct MetricsManager_PublicationHelper {
         // friend of 'MetricsManager' and has access to the private data
         // members of 'manager'.
 };
-}  // close package namespace
 
                           // ================
                           // class MapProctor
@@ -205,9 +210,9 @@ class MapProctor {
         // and 'bsl::unordered_map::insert()'.
 
     ~MapProctor();
-        // If 'active()' is 'true', erase the element indicated by the
-        // iterator supplied at construction from the map supplied at
-        // construction, and destroy this proctor.
+        // If 'active()' is 'true', erase the element indicated by the iterator
+        // supplied at construction from the map supplied at construction, and
+        // destroy this proctor.
 
     // MANIPULATORS
     void release();
@@ -215,7 +220,6 @@ class MapProctor {
         // this object will have no effect on the map supplied at construction.
 };
 
-namespace balm {
                // ===========================================
                // class MetricsManager_PublisherRegistry
                // ===========================================
@@ -289,7 +293,7 @@ class MetricsManager_PublisherRegistry {
 
     // PUBLIC TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_PublisherRegistry,
-                                 bslma::UsesBslmaAllocator);
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_PublisherRegistry(bslma::Allocator *basicAllocator);
@@ -310,9 +314,8 @@ class MetricsManager_PublisherRegistry {
         // previously registered for one or more specific categories (using
         // the alternative 'addSpecificPublisher' method).
 
-    int addSpecificPublisher(
-                          const Category                    *category,
-                          const bsl::shared_ptr<Publisher>&  publisher);
+    int addSpecificPublisher(const Category                    *category,
+                             const bsl::shared_ptr<Publisher>&  publisher);
         // Add the specified 'publisher' to the set of publishers that should
         // be used to publish metrics for the specified 'category'.  Return 0
         // on success, and a non-zero value with no effect if 'publisher'
@@ -412,7 +415,7 @@ class MetricsManager_CallbackRegistry {
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_CallbackRegistry,
-                                 bslma::UsesBslmaAllocator);
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_CallbackRegistry(bslma::Allocator *basicAllocator = 0);
@@ -425,15 +428,15 @@ class MetricsManager_CallbackRegistry {
 
     // MANIPULATORS
     CallbackHandle registerCollectionCallback(
-                                  const Category              *category,
-                                  const RecordsCollectionCallback&  callback);
+                                   const Category                   *category,
+                                   const RecordsCollectionCallback&  callback);
         // Register the specified 'callback' to record metrics for the
         // specified 'category', and return an opaque integer handle that can
         // be used later to remove the 'callback'.  The behavior is undefined
-        // if 'callback' returns metrics belonging to metric categories
-        // other than 'category'.  Note that the same 'callback' can be
-        // registered for a 'category' multiple times, and that registering
-        // the same 'callback' multiple times will result in an equal number of
+        // if 'callback' returns metrics belonging to metric categories other
+        // than 'category'.  Note that the same 'callback' can be registered
+        // for a 'category' multiple times, and that registering the same
+        // 'callback' multiple times will result in an equal number of
         // invocations of the 'callback' when publishing the 'category'.
 
     int removeCollectionCallback(CallbackHandle handle);
@@ -441,8 +444,7 @@ class MetricsManager_CallbackRegistry {
         // 0 on success, or a non-zero value if 'handle' cannot be found.
 
     iterator begin();
-        // Return an iterator at the beginning of the collection of
-        // callbacks.
+        // Return an iterator at the beginning of the collection of callbacks.
 
     iterator lowerBound(const Category *category);
         // Return an iterator at the beginning of the range of callbacks
@@ -473,10 +475,10 @@ class MetricsManager_CallbackRegistry {
                 // --------------------------------------------
 
 void MetricsManager_PublicationHelper::updateSampleCache(
-                        SampleCache                            *sampleCache,
-                        const bsl::shared_ptr<Publisher>&  publisher,
-                        const MetricSampleGroup&           sampleGroup,
-                        const bdlt::DatetimeTz&                  timeStamp)
+                                SampleCache                       *sampleCache,
+                                const bsl::shared_ptr<Publisher>&  publisher,
+                                const MetricSampleGroup&           sampleGroup,
+                                const bdlt::DatetimeTz&            timeStamp)
 {
     SampleCache::iterator it = sampleCache->find(publisher);
     if (it == sampleCache->end()) {
@@ -488,15 +490,15 @@ void MetricsManager_PublicationHelper::updateSampleCache(
 }
 
 void MetricsManager_PublicationHelper::collect(
-                                   bsl::vector<MetricRecord> *records,
-                                   bsls::TimeInterval              *elapsedTime,
-                                   MetricsManager            *manager,
-                                   const Category            *category,
-                                   const bsls::TimeInterval&        currentTime,
-                                   bool                            resetFlag)
+                                        bsl::vector<MetricRecord> *records,
+                                        bsls::TimeInterval        *elapsedTime,
+                                        MetricsManager            *manager,
+                                        const Category            *category,
+                                        const bsls::TimeInterval&  now,
+                                        bool                       resetFlag)
 {
     typedef MetricsManager::RecordsCollectionCallback Callback;
-    typedef bsl::vector<const Callback *>                  CBVector;
+    typedef bsl::vector<const Callback *>             CBVector;
     typedef MetricsManager_CallbackRegistry::iterator CBRegistryIterator;
     CBVector callbacks;
 
@@ -516,45 +518,43 @@ void MetricsManager_PublicationHelper::collect(
     }
 
     // Compute the elapsed time since the previous reset, and if 'resetFlag'
-    // is 'true', update the last reset time to 'currentTime'.
+    // is 'true', update the last reset time to 'now'.
     MetricsManager::LastResetTimes::iterator tmIt =
                                       manager->d_prevResetTimes.find(category);
     if (tmIt == manager->d_prevResetTimes.end()) {
-        *elapsedTime = currentTime - manager->d_creationTime;
+        *elapsedTime = now - manager->d_creationTime;
         if (resetFlag) {
-            manager->d_prevResetTimes.insert(bsl::make_pair(category,
-                                                            currentTime));
+            manager->d_prevResetTimes.insert(bsl::make_pair(category, now));
         }
-    }
-    else {
-        *elapsedTime = currentTime - tmIt->second;
+    } else {
+        *elapsedTime = now - tmIt->second;
         if (resetFlag) {
-            tmIt->second = currentTime;
+            tmIt->second = now;
         }
     }
 }
 
 template <class ConstForwardCategoryIterator>
 void MetricsManager_PublicationHelper::publish(
-                       MetricsManager                 *manager,
-                       const ConstForwardCategoryIterator&  categoriesBegin,
-                       const ConstForwardCategoryIterator&  categoriesEnd,
-                       bool                                 resetFlag)
+                          MetricsManager                      *manager,
+                          const ConstForwardCategoryIterator&  categoriesBegin,
+                          const ConstForwardCategoryIterator&  categoriesEnd,
+                          bool                                 resetFlag)
 
 {
     if (categoriesBegin == categoriesEnd) {
         return;                                                       // RETURN
     }
     typedef bsl::vector<bsl::shared_ptr<bsl::vector<MetricRecord> > >
-                                                           RecordBuffer;
+                                                                  RecordBuffer;
 
     // Iterate over the categories, storing their records in a 'RecordBuffer'
     // and populating the samples in the 'SampleCache'.  The samples in the
     // sample cache refer to records in the record buffer.
     RecordBuffer recordBuffer;  // holds onto collected record vectors
 
-    SampleCache  sampleCache;   // publisher -> sample (samples point to
-                                // records in the 'recordBuffer')
+    SampleCache  sampleCache;          // publisher -> sample (samples point to
+                                       // records in the 'recordBuffer')
 
     bdlt::DatetimeTz   timeStamp(bdlt::CurrentTime::utc(), 0);
     bsls::TimeInterval now = bdlt::CurrentTime::now();
@@ -585,7 +585,7 @@ void MetricsManager_PublicationHelper::publish(
         }
 
         if (elapsedTime == bsls::TimeInterval()) {
-            BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
+            BALL_LOG_SET_CATEGORY(k_LOG_CATEGORY);
             BALL_LOG_ERROR << "Invalid elapsed time interval of 0 for "
                            << "published metrics." << BALL_LOG_END;
             elapsedTime.addNanoseconds(1);
@@ -632,7 +632,6 @@ void MetricsManager_PublicationHelper::publish(
         publisher->publish(sample);
     }
 }
-}  // close package namespace
 
                           // ----------------
                           // class MapProctor
@@ -676,7 +675,6 @@ void MapProctor<CONTAINER>::release()
     d_map = 0;
 }
 
-namespace balm {
                // -------------------------------------------
                // class MetricsManager_PublisherRegistry
                // -------------------------------------------
@@ -887,7 +885,7 @@ MetricsManager_CallbackRegistry::~MetricsManager_CallbackRegistry()
 // MANIPULATORS
 MetricsManager_CallbackRegistry::CallbackHandle
 MetricsManager_CallbackRegistry::registerCollectionCallback(
-                                    const Category              *category,
+                                    const Category                   *category,
                                     const RecordsCollectionCallback&  callback)
 {
     int handle = d_nextHandle++;
@@ -947,7 +945,7 @@ MetricsManager_CallbackRegistry::end()
 // ACCESSORS
 int MetricsManager_CallbackRegistry::findCallbacks(
                bsl::vector<const RecordsCollectionCallback *> *callbacks,
-               const Category                            *category) const
+               const Category                                 *category) const
 {
     int count = d_callbacks.count(category);
     if (0 == count) {
@@ -994,26 +992,21 @@ MetricsManager::~MetricsManager()
 }
 
 // MANIPULATORS
-void MetricsManager::collectSample(
-                                    MetricSample              *sample,
-                                    bsl::vector<MetricRecord> *records,
-                                    bool                            resetFlag)
+void MetricsManager::collectSample(MetricSample              *sample,
+                                   bsl::vector<MetricRecord> *records,
+                                   bool                       resetFlag)
 {
     bsl::vector<const Category *> allCategories;
     d_metricRegistry.getAllCategories(&allCategories);
-    collectSample(sample,
-                  records,
-                  allCategories.data(),
-                  allCategories.size(),
-                  resetFlag);
+    collectSample(sample, records, allCategories.data(), allCategories.size(),
+                                                                    resetFlag);
 }
 
-void MetricsManager::collectSample(
-                               MetricSample              *sample,
-                               bsl::vector<MetricRecord> *records,
-                               const Category     * const categories[],
-                               int                             numCategories,
-                               bool                            resetFlag)
+void MetricsManager::collectSample(MetricSample              *sample,
+                                   bsl::vector<MetricRecord> *records,
+                                   const Category      *const categories[],
+                                   int                        numCategories,
+                                   bool                       resetFlag)
 {
     bdlt::DatetimeTz   timeStamp(bdlt::CurrentTime::utc(), 0);
     bsls::TimeInterval now = bdlt::CurrentTime::now();
@@ -1064,29 +1057,24 @@ void MetricsManager::collectSample(
 }
 
 void MetricsManager::publish(const Category *category,
-                                  bool                 resetFlag)
+                             bool            resetFlag)
 {
     publish(&category, 1, resetFlag);
 }
 
 void MetricsManager::publish(const Category * const categories[],
-                                  int                         numCategories,
-                                  bool                        resetFlag)
+                                  int         numCategories,
+                                  bool        resetFlag)
 {
-    MetricsManager_PublicationHelper::publish(this,
-                                                   categories,
-                                                   categories + numCategories,
-                                                   resetFlag);
+    MetricsManager_PublicationHelper::publish(this, categories,
+                                        categories + numCategories, resetFlag);
 }
 
-void MetricsManager::publish(
-                            const bsl::set<const Category *>& categories,
-                            bool                                   resetFlag)
+void MetricsManager::publish(const bsl::set<const Category *>& categories,
+                             bool                              resetFlag)
 {
-    MetricsManager_PublicationHelper::publish(this,
-                                                   categories.begin(),
-                                                   categories.end(),
-                                                   resetFlag);
+    MetricsManager_PublicationHelper::publish(this, categories.begin(),
+                                                  categories.end(), resetFlag);
 }
 
 void MetricsManager::publishAll(bool resetFlag)
@@ -1097,8 +1085,8 @@ void MetricsManager::publishAll(bool resetFlag)
 }
 
 void MetricsManager::publishAll(
-                     const bsl::set<const Category *>& excludedCategories,
-                     bool                                   resetFlag)
+                          const bsl::set<const Category *>& excludedCategories,
+                          bool                              resetFlag)
 {
     if (excludedCategories.empty()) {
         publishAll(resetFlag);
@@ -1111,8 +1099,7 @@ void MetricsManager::publishAll(
     d_metricRegistry.getAllCategories(&allCategories);
     includedCategories.reserve(
                           allCategories.size() - excludedCategories.size());
-    bsl::vector<const Category *>::const_iterator it =
-                                                        allCategories.begin();
+    bsl::vector<const Category *>::const_iterator it = allCategories.begin();
     for (; it != allCategories.end(); ++it) {
         if (excludedCategories.end() == excludedCategories.find(*it)) {
             includedCategories.push_back(*it);
@@ -1128,8 +1115,8 @@ void MetricsManager::publishAll(
 
 MetricsManager::CallbackHandle
 MetricsManager::registerCollectionCallback(
-                                   const Category              *category,
-                                   const RecordsCollectionCallback&  callback)
+                                    const Category                   *category,
+                                    const RecordsCollectionCallback&  callback)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_callbacks->registerCollectionCallback(category, callback);
@@ -1142,14 +1129,14 @@ int MetricsManager::removeCollectionCallback(CallbackHandle handle)
 }
 
 int MetricsManager::addGeneralPublisher(
-                             const bsl::shared_ptr<Publisher>& publisher)
+                                   const bsl::shared_ptr<Publisher>& publisher)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->addGeneralPublisher(publisher);
 }
 int MetricsManager::addSpecificPublisher(
-                           const Category                    *category,
-                           const bsl::shared_ptr<Publisher>&  publisher)
+                                  const Category                    *category,
+                                  const bsl::shared_ptr<Publisher>&  publisher)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->addSpecificPublisher(category, publisher);
@@ -1162,7 +1149,7 @@ int MetricsManager::removePublisher(const Publisher *publisher)
 }
 
 int MetricsManager::removePublisher(
-                             const bsl::shared_ptr<Publisher>& publisher)
+                                   const bsl::shared_ptr<Publisher>& publisher)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->removePublisher(publisher.get());
@@ -1170,15 +1157,15 @@ int MetricsManager::removePublisher(
 
 // ACCESSORS
 int MetricsManager::findGeneralPublishers(
-                               bsl::vector<Publisher *> *publishers) const
+                                    bsl::vector<Publisher *> *publishers) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->findGeneralPublishers(publishers);
 }
 
 int MetricsManager::findSpecificPublishers(
-                                 bsl::vector<Publisher *> *publishers,
-                                 const Category           *category) const
+                                      bsl::vector<Publisher *> *publishers,
+                                      const Category           *category) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->findSpecificPublishers(publishers, category);
