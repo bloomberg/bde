@@ -60,7 +60,7 @@ using namespace bsl;
 // [ 8] void swap(DetailedStatus& a, DetailedStatus& b);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 // [ *] CONCERN: All memory allocation is from the object's allocator.
 // [ *] CONCERN: Precondition violations are detected when enabled.
 
@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   DetailedStatus(const StringRef& u, const Endpoint& p, *a = 0);
+        //   DetailedStatus(const StringRef& u, *a = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2133,17 +2133,17 @@ int main(int argc, char *argv[])
         //LINE L SPL  DESC  NAME PORT  EXP
         //---- - ---  ----  ---- ----  ---
 
-        { L_,  2,  3, "DA", "HA", 255, "      ["                             NL
-                                       "         description = \"DA\""       NL
+        { L_,  2,  3, "DB", "HB", 255, "      ["                             NL
+                                       "         description = \"DB\""       NL
                                        "         address = ["                NL
-                                       "            hostname = \"HA\""       NL
+                                       "            hostname = \"HB\""       NL
                                        "            port = 255"              NL
                                        "         ]"                          NL
                                        "      ]"                             NL
                                                                              },
 
-        { L_,  2,  3, "DA", "HA", 0,   "      ["                             NL
-                                       "         description = \"DA\""       NL
+        { L_,  2,  3, "DB", "HB", 0,   "      ["                             NL
+                                       "         description = \"DB\""       NL
                                        "      ]"                             NL
                                                                              },
 

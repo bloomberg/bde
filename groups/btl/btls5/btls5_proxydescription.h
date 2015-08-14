@@ -319,7 +319,7 @@ bool btls5::operator!=(const ProxyDescription& lhs,
 
 // FREE FUNCTIONS
 inline
-void swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b)
+void btls5::swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b)
 {
     a.swap(b);
 }

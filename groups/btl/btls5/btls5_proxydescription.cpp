@@ -36,11 +36,16 @@ bsl::ostream& ProxyDescription::print(bsl::ostream& stream,
 bsl::ostream& btls5::operator<<(bsl::ostream&           stream,
                                 const ProxyDescription& object)
 {
-    stream << "[ " << object.address();
-    if (!object.credentials().username().empty()) {
-        stream << ' ' << object.credentials();
-    }
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    stream << " [";
+    printer.printValue(object.address().hostname());
+    printer.printValue(object.address().port());
+    stream << " ] [";
+    printer.printValue(object.credentials().username());
+    printer.printValue(object.credentials().password());
     stream << " ]";
+    printer.end();
 
     return stream;
 }
