@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a value-semantic class,
 // 'ball::UserFieldValue', that represents the value of a user supplied log
-// field value.  A user field value acts as a descrimenated union, and may
+// field value.  A user field value acts as a discriminated union, and may
 // represent a value of any of types described in 'ball::UserFieldType' or an
 // unset value (indicated by the type 'ball::UserFieldType::e_VOID').
 //
@@ -105,7 +105,7 @@ namespace ball {
 class UserFieldValue {
     // This class implements a value-semantic type for representing the value
     // of a user field in a log record.  A user field value acts as a
-    // descrimenated union, and may represent a value of any of types described
+    // discriminated union, and may represent a value of any of types described
     // in 'ball::UserFieldType' or an unset value (indicated type
     // 'ball::UserFieldType::e_VOID').
 
@@ -295,7 +295,7 @@ void swap(ball::UserFieldValue& a, ball::UserFieldValue& b);
     // guarantee.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------

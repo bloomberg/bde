@@ -94,6 +94,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfieldvalue.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
@@ -123,8 +127,8 @@ class UserFields {
     typedef bsl::vector<ball::UserFieldValue>::const_iterator ConstIterator;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(UserFields,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFields,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit UserFields(bslma::Allocator *basicAllocator = 0);
@@ -161,7 +165,7 @@ class UserFields {
     void appendDouble(double value);
     void appendString(bslstl::StringRef value);
     void appendDatetimeTz(const bdlt::DatetimeTz& value);
-        // Append the specied 'value' to this object.
+        // Append the specified 'value' to this object.
 
     ball::UserFieldValue& operator[](int index);
     ball::UserFieldValue& value(int index);
@@ -217,8 +221,8 @@ class UserFields {
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
@@ -256,7 +260,7 @@ void swap(ball::UserFields& a, ball::UserFields& b);
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // ----------------
@@ -392,9 +396,9 @@ bool ball::operator!=(const UserFields& lhs, const UserFields& rhs)
 
 inline
 bsl::ostream& ball::operator<<(bsl::ostream&     stream,
-                               const UserFields& rhs)
+                               const UserFields& object)
 {
-    return rhs.print(stream, 0, -1);
+    return object.print(stream, 0, -1);
 }
 
 

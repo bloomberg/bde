@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a description for a sequence user field values
+//@PURPOSE: Provide a description for a sequence user field values.
 //
 //@CLASSES:
 //  ball::UserFieldsSchema: describe a sequence of user field values
@@ -33,11 +33,11 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Use of 'ball::UserFieldsSchema'
-/// - - - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to populate and access a
 // 'ball::UserFieldsSchema' object.  See the 'ball_userfields' for an example
-// of using a schema in the implementation of a logging callback (it
-// cannot be shown here to avoid a circular dependency).
+// of using a schema in the implementation of a logging callback (it cannot be
+// shown here to avoid a circular dependency).
 //
 // First, we create a 'ball::UserFieldsSchema' object, 'fieldSchema', and
 // append the description of two fields; the first haveing the name 'username'
@@ -82,6 +82,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #include <bsl_unordered_map.h>
 #endif
@@ -103,12 +107,12 @@ namespace ball {
                         // ======================
 
 class UserFieldsSchema {
-    // This class implements a value-semantic type for describng the contents
+    // This class implements a value-semantic type for describing the contents
     // of a 'ball::UserFields' object.  A 'ball::UserFieldSchema' object
     // maintains a sequence of field names and field data types.  The name and
     // type at a given index in a schema object indicate the name of a field
     // and its data type in the 'ball::UserFields' object being described.
-    // Additionaly, a schema object provides the method 'indexOf' to lookup
+    // Additionally, a schema object provides the method 'indexOf' to lookup
     // the index of a field given its name.
 
 
@@ -218,8 +222,8 @@ class UserFieldsSchema {
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
@@ -257,7 +261,7 @@ void swap(ball::UserFieldsSchema& a, ball::UserFieldsSchema& b);
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------
@@ -311,6 +315,8 @@ int UserFieldsSchema::appendFieldDescription(bslstl::StringRef         name,
     d_names.push_back(bslstl::StringRef(result.first->first.data(),
                                         result.first->first.size()));
     d_types.push_back(type);
+
+    return 0;
 }
 
 inline
@@ -383,9 +389,9 @@ bool ball::operator!=(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs)
 
 inline
 bsl::ostream& ball::operator<<(bsl::ostream&           stream,
-                               const UserFieldsSchema& rhs)
+                               const UserFieldsSchema& object)
 {
-    return rhs.print(stream, 0, -1);
+    return object.print(stream, 0, -1);
 }
 
 
