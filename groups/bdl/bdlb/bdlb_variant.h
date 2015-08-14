@@ -6150,12 +6150,11 @@ VariantImp<TYPES>::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc)
                                            bslma::Allocator *>::VALUE> *)0)
 {
     enum {
-//ARB:ENUM 6147 local
-        IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
+        k_IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
                                               bslma::Allocator *>::VALUE
     };
 
-    create(typeOrAlloc, (bslmf::MetaInt<IS_ALLOCATOR> *)0);
+    create(typeOrAlloc, (bslmf::MetaInt<k_IS_ALLOCATOR> *)0);
 }
 
 template <class TYPES>

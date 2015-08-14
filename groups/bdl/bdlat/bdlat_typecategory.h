@@ -447,8 +447,10 @@ struct bdlat_TypeCategoryDeclareDynamic {
     // 'manipulate*' and 'access*' functions, the dynamic object should expose
     // its real type.
 
+    enum {
 //ARB:ENUM 450
-    enum { VALUE = 0 };//ARB:ONELINE
+        VALUE = 0
+    };//ARB:IFNDEF
 };
 
 struct bdlat_TypeCategory {

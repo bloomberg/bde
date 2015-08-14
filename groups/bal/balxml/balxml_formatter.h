@@ -332,8 +332,11 @@ class Formatter {
         // Use a fixed-length string to validate close tag against open tag.
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
+        enum {
 //ARB:ENUM 327
-        enum { k_TRUNCATED_TAG_LEN = 15 };//ARB:ONELINE
+            k_TRUNCATED_TAG_LEN = 15
+        };//ARB:IFNDEF
+
         unsigned char d_tagLen;  // actual tag length, up to 255
         char          d_tag[k_TRUNCATED_TAG_LEN]; // truncated tag
 #endif

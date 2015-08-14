@@ -159,8 +159,10 @@ struct Severity {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    enum {
 //ARB:ENUM 154
-    enum { BAEL_LENGTH = 8 };//ARB:ONELINE
+        BAEL_LENGTH = 8
+    };//ARB:IFNDEF
         // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'
         // enumeration.
 

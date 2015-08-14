@@ -1457,8 +1457,7 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                       MANIPULATOR& manipulator,
                                                       int          id)
 {
-//ARB:ENUM 1431 local
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_CONNECTIONS: {
@@ -1533,7 +1532,7 @@ int ChannelPoolConfiguration::manipulateAttribute(
       } break;
 
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -1544,13 +1543,12 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                      const char   *name,
                                                      int           nameLength)
 {
-//ARB:ENUM 1517 local
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1841,8 +1839,7 @@ int
 ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
                                                                           const
 {
-//ARB:ENUM 1813 local
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_CONNECTIONS: {
@@ -1917,7 +1914,7 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
       } break;
 
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -1928,13 +1925,12 @@ int ChannelPoolConfiguration::accessAttribute(ACCESSOR&   accessor,
                                                     int         nameLength)
                                                                           const
 {
-//ARB:ENUM 1899 local
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return k_NOT_FOUND;                                           // RETURN
      }
 
      return accessAttribute(accessor, attributeInfo->d_id);

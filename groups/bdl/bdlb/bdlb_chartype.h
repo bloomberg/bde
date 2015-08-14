@@ -381,8 +381,10 @@ struct CharType {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    enum {
 //ARB:ENUM 368
-    enum { BDEU_NUM_CATEGORIES = BDEU_NONE + 1 };//ARB:ONELINE
+        BDEU_NUM_CATEGORIES = BDEU_NONE + 1
+    };//ARB:IFNDEF
         // Current number of categories supported by this component.
 
   private:

@@ -202,8 +202,10 @@ struct Transmission {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    enum {
 //ARB:ENUM 199
-    enum { BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1 };//ARB:ONELINE
+        BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1
+    };//ARB:IFNDEF
         // Define 'LENGTH' to be the number of consecutively-valued enumerators
         // in the range '[ BAEL_PASSTHROUGH .. BAEL_MANUAL_PUBLISH_ALL ]'.
 

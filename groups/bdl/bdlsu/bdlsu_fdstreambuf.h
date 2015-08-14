@@ -646,8 +646,7 @@ class FdStreamBuf : public bsl::streambuf {
 
   private:
     // PRIVATE TYPES
-//ARB:ENUM 649
-    enum { k_PBACK_BUF_SIZE = 8 }; // size of d_pBackBuf//ARB:ONELINE
+    enum { k_PBACK_BUF_SIZE = 8 }; // size of d_pBackBuf
 
     enum FdStreamBufMode  {
 //ARB:ENUM 652
