@@ -225,9 +225,8 @@ bool operator!=(const Endpoint& lhs, const Endpoint& rhs);
     // have the same value if any of the corresponding values of their
     // 'hostname' and 'port' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&         stream,
+bsl::ostream& operator<<(bsl::ostream&   stream,
                          const Endpoint& object);
-}  // close package namespace
     // Write the value of the specified 'object' to the specified
     // output 'stream' in a single-line format, and return a reference
     // providing modifiable access to 'stream'.  If 'stream' is not valid on
@@ -236,8 +235,7 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
 
 // FREE FUNCTIONS
 void swap(btlso::Endpoint& a, btlso::Endpoint& b);
-
-namespace btlso {    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
@@ -299,7 +297,7 @@ void Endpoint::set(const bslstl::StringRef& hostname, int port)
 {
     BSLS_ASSERT_SAFE(isValid(hostname, port));
 
-    d_hostname = hostname;
+    d_hostname.assign(hostname.begin(), hostname.end());
     d_port     = port;
 }
 
@@ -307,7 +305,7 @@ inline
 int Endpoint::setIfValid(const bslstl::StringRef& hostname, int port)
 {
     if (isValid(hostname, port)) {
-        d_hostname = hostname;
+        d_hostname.assign(hostname.begin(), hostname.end());
         d_port     = port;
         return 0;                                                     // RETURN
     }
@@ -347,6 +345,7 @@ bslma::Allocator *Endpoint::allocator() const
 {
     return d_hostname.get_allocator().mechanism();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -364,7 +363,7 @@ bool btlso::operator!=(const Endpoint& lhs, const Endpoint& rhs)
 
 // FREE FUNCTIONS
 inline
-void swap(btlso::Endpoint& a, btlso::Endpoint& b)
+void btlso::swap(btlso::Endpoint& a, btlso::Endpoint& b)
 {
     a.swap(b);
 }
