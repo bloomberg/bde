@@ -59,15 +59,6 @@ static void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() bsl::cout << '\t' << bsl::flush; // Print tab w/o newline.
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
