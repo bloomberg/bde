@@ -25,9 +25,46 @@ BSLS_IDENT("$Id: $")
 // where each index in the schema supplies an identifying string and
 // 'ball::UserFieldType' for corresponding index in the described
 // 'ball::UserFields' object.  In addition, a 'ball::UserFieldsSchema'
-// provides an operation, 'indexOf', for users to find the index of the field
+// provides an operation, 'indexOf', for users to find the index of a field
 // having a particular identifier.
 //
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFieldsSchema'
+/// - - - - - - - - - - - - - - - - - - - - - - - - 
+// In the following example we demonstrate how to populate and access a
+// 'ball::UserFieldsSchema' object.  See the 'ball_userfields' for an example
+// of using a schema in the implementation of a logging callback (it
+// cannot be shown here to avoid a circular dependency).
+//
+// First, we create a 'ball::UserFieldsSchema' object, 'fieldSchema', and
+// append the description of two fields; the first haveing the name 'username'
+// and the type 'bsl::string', and the second having the name 'taskId' and the
+// type 'int64_t':
+//..
+//  typedef ball::UserFieldType Type;
+//
+//  ball::UserFieldsSchema fieldSchema;
+//
+//  fieldSchema.appendFieldDescription("username", Type::e_STRING);
+//  fieldSchema.appendFieldDescription("taskId", Type::e_INT64);
+//..
+// Next we use the 'length', 'name', and 'type' accessors to verify the new
+// field descriptions were appended correctly:
+//..
+//  assert(2              == fieldSchema.length());
+//  assert("username"     == fieldSchema.name(0));
+//  assert(Type::e_STRING == fieldSchema.type(0));
+//  assert("taskId"       == fieldSchema.name(1));
+//  assert(Type::e_INT64  == fieldSchema.type(1));
+//..
+// Finally, we use 'indexOf' to efficiently lookup the index of the field
+// having the name "taskId":
+//..
+//  assert(1 == fieldSchema.indexOf("taskId"));
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -66,10 +103,14 @@ namespace ball {
                         // ======================
 
 class UserFieldsSchema {
-    // This component provides a value-semantic container-type,
-    // 'ball::UserFieldsSchema', that is used to describe the contents of a
-    // 'ball::UserFields' object.
-    //
+    // This class implements a value-semantic type for describng the contents
+    // of a 'ball::UserFields' object.  A 'ball::UserFieldSchema' object
+    // maintains a sequence of field names and field data types.  The name and
+    // type at a given index in a schema object indicate the name of a field
+    // and its data type in the 'ball::UserFields' object being described.
+    // Additionaly, a schema object provides the method 'indexOf' to lookup
+    // the index of a field given its name.
+
 
     // PRIVATE TYPES
     typedef bsl::unordered_map<bsl::string, int> NameToIndex;

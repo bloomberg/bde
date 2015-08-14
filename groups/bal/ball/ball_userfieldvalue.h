@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a value-semantic class,
 // 'ball::UserFieldValue', that represents the value of a user supplied log
-// field value.  A user field value acts as a descriminated union, and may
+// field value.  A user field value acts as a descrimenated union, and may
 // represent a value of any of types described in 'ball::UserFieldType' or an
 // unset value (indicated by the type 'ball::UserFieldType::e_VOID').
 //
@@ -78,14 +78,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimetz.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
 
-// TBD: Replace with bsl_cstdint.h
-#ifndef INCLUDED_STDINT
-#include <stdint.h>
-#define INCLUDED_STDINT
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
 #endif
 
 namespace BloombergLP {
@@ -99,7 +105,7 @@ namespace ball {
 class UserFieldValue {
     // This class implements a value-semantic type for representing the value
     // of a user field in a log record.  A user field value acts as a
-    // descriminated union, and may represent a value of any of types described
+    // descrimenated union, and may represent a value of any of types described
     // in 'ball::UserFieldType' or an unset value (indicated type
     // 'ball::UserFieldType::e_VOID').
 
@@ -117,8 +123,8 @@ class UserFieldValue {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(UserFieldValue,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFieldValue,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit UserFieldValue(bslma::Allocator *basicAllocator = 0);
@@ -158,7 +164,7 @@ class UserFieldValue {
         // is (temporarily) provided inline to avoid issues with MSVC 2008.
 
     UserFieldValue(const UserFieldValue&  original,
-                   bslma::Allocator       *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a 'UserFieldValue' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -203,7 +209,7 @@ class UserFieldValue {
     // ACCESSORS
     bool isUnset() const;
         // Return 'true' if this object has the unset value, and 'false'
-        // otehrwise.  Note that if 'isUnset' is 'true', then 'type' is
+        // otherwise.  Note that if 'isUnset' is 'true', then 'type' is
         // 'ball::UserFieldType::e_VOID'.
 
     ball::UserFieldType::Enum type() const;
@@ -251,8 +257,8 @@ class UserFieldValue {
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
@@ -270,7 +276,7 @@ bool operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs);
     // is not 'e_VOID') the value of that type (as accessed through 'the*'
     // methods) is not the same.
 
-bsl::ostream& operator<<(bsl::ostream&          stream,
+bsl::ostream& operator<<(bsl::ostream&         stream,
                          const UserFieldValue& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
@@ -331,7 +337,7 @@ UserFieldValue::UserFieldValue(const bdlt::DatetimeTz&  value,
 
 inline
 UserFieldValue::UserFieldValue(const UserFieldValue&  original,
-                               bslma::Allocator       *basicAllocator)
+                               bslma::Allocator      *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
@@ -471,10 +477,10 @@ bool ball::operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs)
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&          stream,
-                               const UserFieldValue& rhs)
+bsl::ostream& ball::operator<<(bsl::ostream&         stream,
+                               const UserFieldValue& object)
 {
-    return rhs.print(stream, 0, -1);
+    return object.print(stream, 0, -1);
 }
 
 

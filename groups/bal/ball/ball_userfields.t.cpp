@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 
         // This test intentionally uses the default allocator.
 
-        bslma::TestAllocator testAllocator("breathing", veryVeryVeryVerbose);
+        bslma::TestAllocator testAllocator("usage", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
         ball::UserFields result;

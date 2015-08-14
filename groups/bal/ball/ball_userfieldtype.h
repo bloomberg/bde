@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type,
-// 'ball::UserFieldType::Enum', that enumerates the set of types a user
-// defined log attribute may have.
+// 'ball::UserFieldType', that enumerates the set of types a user defined log
+// attribute may have.
 //
 ///Enumerators
 ///-----------
@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code provide a simple illustration of
 // 'ball::UserFieldType' usage.
 //
-// First, we create a variable 'value' of type 'ball::UserFieldType::Enum'
-// and initialize it to the value 'ball::UserFieldType::e_STRING':
+// First, we create a variable 'value' of type 'ball::UserFieldType::Enum' and
+// initialize it to the value 'ball::UserFieldType::e_STRING':
 //..
 //  ball::UserFieldType::Enum value = ball::UserFieldType::e_STRING;
 //..
@@ -59,8 +59,8 @@ BSLS_IDENT("$Id: $")
 //  STRING
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BALSCM_VERSION
+#include <balscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -96,10 +96,10 @@ struct UserFieldType {
     };
 
     // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream&     stream,
+    static bsl::ostream& print(bsl::ostream&       stream,
                                UserFieldType::Enum value,
-                               int               level          = 0,
-                               int               spacesPerLevel = 4);
+                               int                 level          = 0,
+                               int                 spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose
@@ -158,7 +158,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, UserFieldType::Enum value);
 
 // FREE OPERATORS
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&               stream,
+bsl::ostream& ball::operator<<(bsl::ostream&             stream,
                                ball::UserFieldType::Enum value)
 {
     return ball::UserFieldType::print(stream, value, 0, -1);

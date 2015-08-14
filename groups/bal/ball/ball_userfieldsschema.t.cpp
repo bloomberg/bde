@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 20: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -191,7 +191,46 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+        bslma::TestAllocator testAllocator("usage", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&testAllocator);
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFieldsSchema'
+/// - - - - - - - - - - - - - - - - - - - - - - - - 
+// In the following example we demonstrate how to populate and access a
+// 'ball::UserFieldsSchema' object.  See the 'ball_userfields' for an example
+// of using a schema in the implementation of a logging callback (it
+// cannot be shown here to avoid a circular dependency).
+//
+// First, we create a 'ball::UserFieldsSchema' object, 'fieldSchema', and
+// append the description of two fields; the first haveing the name 'username'
+// and the type 'bsl::string', and the second having the name 'taskId' and the
+// type 'int64_t':
+//..
+    typedef ball::UserFieldType Type;
+//
+    ball::UserFieldsSchema fieldSchema;
+//
+    fieldSchema.appendFieldDescription("username", Type::e_STRING);
+    fieldSchema.appendFieldDescription("taskId", Type::e_INT64);
+//..
+// Next we use the 'length', 'name', and 'type' accessors to verify the new
+// field descriptions were appended correctly:
+//..
+    ASSERT(2              == fieldSchema.length());
+    ASSERT("username"     == fieldSchema.name(0));
+    ASSERT(Type::e_STRING == fieldSchema.type(0));
+    ASSERT("taskId"       == fieldSchema.name(1));
+    ASSERT(Type::e_INT64  == fieldSchema.type(1));
+//..
+// Finally, we use 'indexOf' to efficiently lookup the index of the field
+// having the name "taskId":
+//..
+    ASSERT(1 == fieldSchema.indexOf("taskId"));
+//..
       } break;
       case 1: {
 

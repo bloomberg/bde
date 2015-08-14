@@ -16,10 +16,10 @@ namespace ball {
                      // ----------------------
 
 // CLASS METHODS
-bsl::ostream& UserFieldType::print(bsl::ostream&     stream,
-                                 UserFieldType::Enum value,
-                                 int               level,
-                                 int               spacesPerLevel)
+bsl::ostream& UserFieldType::print(bsl::ostream&       stream,
+                                   UserFieldType::Enum value,
+                                   int                 level,
+                                   int                 spacesPerLevel)
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
 
