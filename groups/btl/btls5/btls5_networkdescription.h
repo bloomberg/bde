@@ -13,13 +13,13 @@ BSLS_IDENT("$Id: $")
 //  btls5::NetworkDescription: description of a network of SOCKS5 proxies
 //
 //@SEE_ALSO: btls5_proxydescription, btls5_networkconnector,
-// btls5_networkdescriptionutil
+//           btls5_networkdescriptionutil
 //
 //@DESCRIPTION: This component provides a value-semantic class,
 // 'btls5::NetworkDescription', describing a network of SOCKS5 proxies
 // necessary to reach one or more destination hosts.  An object of this type is
 // used with 'btls5::NetworkConnector'; see the 'btls5_networkconnector'
-// component for more complete usage examples.
+// component for a more complete usage examples.
 //
 // Each proxy is described by its address (hostname and port) and credentials
 // (username and password) for authentication (see RFC 1929).  The credentials
@@ -90,16 +90,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
-#include <bsl_cstddef.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -112,6 +104,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
 namespace btls5 {
 
@@ -142,7 +135,6 @@ class NetworkDescription {
     // FRIENDS
     friend bool operator==(const NetworkDescription&,
                            const NetworkDescription&);
-
     friend bool operator!=(const NetworkDescription&,
                            const NetworkDescription&);
 
@@ -169,18 +161,18 @@ class NetworkDescription {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    bsl::size_t addProxy(bsl::size_t level, const btlso::Endpoint& address);
+        // Add a proxy host with the specified 'address' and empty credentials
+        // to the specified 'level' in this 'NetworkDescription' object, and
+        // return its ordinal number in the 'level'.  Note that if
+        // 'numLevels() <= level', this function will create empty intermediate
+        // proxy levels.
+
     bsl::size_t addProxy(bsl::size_t            level,
                          const btlso::Endpoint& address,
                          const Credentials&     credentials);
         // Add a proxy host with the specified 'address' and 'credentials' to
         // the specified 'level' in this 'NetworkDescription' object, and
-        // return its ordinal number in the 'level'.  Note that if
-        // 'numLevels() <= level', this function will create empty intermediate
-        // proxy levels.
-
-    bsl::size_t addProxy(bsl::size_t level, const btlso::Endpoint& address);
-        // Add a proxy host with the specified 'address' and empty credentials
-        // to the specified 'level' in this 'NetworkDescription' object, and
         // return its ordinal number in the 'level'.  Note that if
         // 'numLevels() <= level', this function will create empty intermediate
         // proxy levels.
@@ -263,25 +255,12 @@ bsl::ostream& operator<<(bsl::ostream&             output,
     // Write the specified 'object' to the specified 'output' in human-readable
     // format, and return a reference to 'output'.
 
-}  // close package namespace
-
 // FREE FUNCTIONS
 void swap(btls5::NetworkDescription& a, btls5::NetworkDescription& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
-
-// TRAITS
-namespace bslma {
-
-template<>
-struct UsesBslmaAllocator<btls5::NetworkDescription> : bsl::true_type {
-};
-
-}  // close namespace bslma
-
-namespace btls5 {
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -389,6 +368,21 @@ bool btls5::operator!=(const NetworkDescription& lhs,
 {
     return lhs.d_proxies != rhs.d_proxies;
 }
+
+inline
+void btls5::swap(btls5::NetworkDescription& a, btls5::NetworkDescription& b)
+{
+    a.swap(b);
+}
+
+// TRAITS
+namespace bslma {
+
+template<>
+struct UsesBslmaAllocator<btls5::NetworkDescription> : bsl::true_type {
+};
+
+}  // close namespace bslma
 
 }  // close enterprise namespace
 
