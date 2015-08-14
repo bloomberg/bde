@@ -184,7 +184,9 @@ class Tokenizer {
         BAEJSN_ELEMENT_VALUE,              // element value of a simple type
 //ARB:ENUM 178
         BAEJSN_ERROR                       // error token
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   private:
     // TYPES
@@ -196,7 +198,9 @@ class Tokenizer {
         e_OBJECT_CONTEXT = 1,         // object context
 //ARB:ENUM 188
         e_ARRAY_CONTEXT               // array context
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // Intermediate data buffer used for reading data from the stream.
 
@@ -205,7 +209,9 @@ class Tokenizer {
         k_BUFSIZE = 1024 * 8,
 //ARB:ENUM 195
         k_MAX_STRING_SIZE = k_BUFSIZE - 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // DATA
     bsls::AlignedBuffer<k_BUFSIZE>  d_buffer;               // buffer

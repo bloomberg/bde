@@ -415,7 +415,9 @@ class Base64Encoder {
         BDEDE_INITIAL_STATE   =  0, // Ready to accept input.
 //ARB:ENUM 414
         BDEDE_DONE_STATE      =  1  // Any additional input is an error.
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CLASS DATA
     static const char *const s_encodedChars_p;        // 6-bit map of Base64

@@ -450,7 +450,9 @@ struct bdlat_TypeCategoryDeclareDynamic {
     enum {
 //ARB:ENUM 450
         VALUE = 0
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 };
 
 struct bdlat_TypeCategory {

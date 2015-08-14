@@ -77,12 +77,16 @@ class DecoderOptions {
       , ATTRIBUTE_ID_FORMATTING_MODE       = 1
 //ARB:ENUM 76
       , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 80
         NUM_ATTRIBUTES = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 84
@@ -91,7 +95,9 @@ class DecoderOptions {
       , ATTRIBUTE_INDEX_FORMATTING_MODE       = 1
 //ARB:ENUM 86
       , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];

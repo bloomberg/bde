@@ -76,7 +76,9 @@ struct EncodingStyle {
     enum {
 //ARB:ENUM 75
         NUM_ENUMERATORS = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];

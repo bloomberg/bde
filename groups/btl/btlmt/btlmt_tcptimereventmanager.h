@@ -391,7 +391,9 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         e_ENABLED  = 0,  // dispatching thread is running
 //ARB:ENUM 389
         e_DISABLED = 1   // dispatching thread is not running
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     typedef TcpTimerEventManager_ControlChannel ControlChannel;
         // Channel for sending messages from external threads operating on this

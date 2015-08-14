@@ -450,7 +450,9 @@ class QuotedPrintableEncoder {
         BDEDE_DONE_STATE    = 2,   // accepting; any additional input is error
 //ARB:ENUM 447
         BDEDE_SAW_CR_STATE  = 3    // TBD doc
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 451
@@ -460,7 +462,9 @@ class QuotedPrintableEncoder {
                                    // client's code even in the unlikely event
                                    // that the s_defaultMaxLineLength should
                                    // change
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   public:
     // PUBLIC TYPES
@@ -477,7 +481,9 @@ class QuotedPrintableEncoder {
         BDEDE_WS,      // whitespace          - buffer; wait for more input
 //ARB:ENUM 468
         BDEDE_CC       // control character   - encode to Quoted Printable
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum LineBreakMode {
         // Configuration governing how various forms of line breaks are to be
@@ -492,7 +498,9 @@ class QuotedPrintableEncoder {
 
 //ARB:ENUM 480
         BDEDE_MIXED_MODE      // allow both "\r\n" and '\n'
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   private:
     // CLASS DATA

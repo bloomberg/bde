@@ -1093,7 +1093,9 @@ struct VariantImp_Traits {
          && bslmf::IsBitwiseMoveable<Type18>::value
          && bslmf::IsBitwiseMoveable<Type19>::value
          && bslmf::IsBitwiseMoveable<Type20>::value)
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     typedef typename bslmf::If<
         VARIANT_USES_BSLMA_ALLOCATOR,

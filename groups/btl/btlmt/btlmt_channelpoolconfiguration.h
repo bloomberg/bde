@@ -290,7 +290,9 @@ class ChannelPoolConfiguration {
     enum {
 //ARB:ENUM 291
         NUM_ATTRIBUTES = 14 // the number of attributes in this class
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 295
@@ -335,7 +337,9 @@ class ChannelPoolConfiguration {
 //ARB:ENUM 321
         ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
             // index for 'CollectTimeMetrics' attribute
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 326
@@ -380,7 +384,9 @@ class ChannelPoolConfiguration {
 //ARB:ENUM 352
         ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
             // id for 'CollectTimeMetrics' attribute
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   public:
     // CONSTANTS

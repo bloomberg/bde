@@ -342,7 +342,9 @@ class ErrorInfo
         BAEXML_ERROR,
 //ARB:ENUM 337
         BAEXML_FATAL_ERROR
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   private:
     // PRIVATE DATA MEMBERS

@@ -671,7 +671,9 @@ class FdStreamBuf : public bsl::streambuf {
                                        // error mode is sticky -- subsequent
                                        // I/O won't work until error mode is
                                        // cleared by a 'reset' or a seek.
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   private:
     // DATA

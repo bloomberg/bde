@@ -155,12 +155,16 @@ class EncoderOptions {
       , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER         = 12
 //ARB:ENUM 143
       , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS          = 13
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 147
         NUM_ATTRIBUTES = 14
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 151
@@ -191,7 +195,9 @@ class EncoderOptions {
       , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER         = 12
 //ARB:ENUM 164
       , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS          = 13
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];

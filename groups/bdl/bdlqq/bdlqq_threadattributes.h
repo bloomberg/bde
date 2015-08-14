@@ -305,7 +305,9 @@ class ThreadAttributes {
 //ARB:ENUM 300
         BCEMT_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
                                   // equivalent to 'BCEMT_SCHED_OTHER'
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
         // The following constants indicate that the 'stackSize', 'guardSize',
@@ -325,7 +327,9 @@ class ThreadAttributes {
         BCEMT_SCHED_MIN        = BCEMT_SCHED_OTHER,
 //ARB:ENUM 316
         BCEMT_SCHED_MAX        = BCEMT_SCHED_DEFAULT
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   private:
     // DATA

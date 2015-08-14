@@ -84,7 +84,9 @@ struct ChannelType {
     enum {
 //ARB:ENUM 80
         BTEMT_LENGTH = BTEMT_IMPORTED_CHANNEL
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
         // Define 'LENGTH' to be the number of consecutively valued enumerators
         // in the range '[ LISTENING_CHANNEL .. IMPORTED_CHANNEL ]'.
 

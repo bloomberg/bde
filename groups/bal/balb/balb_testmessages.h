@@ -351,12 +351,16 @@ struct Enumerated {
       , NEW_JERSEY = 1
 //ARB:ENUM 350
       , LONDON     = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 354
         NUM_ENUMERATORS = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -435,19 +439,25 @@ class SequenceWithAnonymityChoice1 {
       , SELECTION_ID_SELECTION5 = 0
 //ARB:ENUM 430
       , SELECTION_ID_SELECTION6 = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 434
         NUM_SELECTIONS = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 438
         SELECTION_INDEX_SELECTION5 = 0
 //ARB:ENUM 439
       , SELECTION_INDEX_SELECTION6 = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -628,19 +638,25 @@ class SimpleRequest {
         ATTRIBUTE_ID_DATA            = 0
 //ARB:ENUM 618
       , ATTRIBUTE_ID_RESPONSE_LENGTH = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 622
         NUM_ATTRIBUTES = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 626
         ATTRIBUTE_INDEX_DATA            = 0
 //ARB:ENUM 627
       , ATTRIBUTE_INDEX_RESPONSE_LENGTH = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -822,12 +838,16 @@ class UnsignedSequence {
       , ATTRIBUTE_ID_ELEMENT2 = 1
 //ARB:ENUM 806
       , ATTRIBUTE_ID_ELEMENT3 = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 810
         NUM_ATTRIBUTES = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 814
@@ -836,7 +856,9 @@ class UnsignedSequence {
       , ATTRIBUTE_INDEX_ELEMENT2 = 1
 //ARB:ENUM 816
       , ATTRIBUTE_INDEX_ELEMENT3 = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -1014,7 +1036,9 @@ class VoidSequence {
     enum {
 //ARB:ENUM 993
         NUM_ATTRIBUTES = 0
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
 
     // CONSTANTS
@@ -1182,12 +1206,16 @@ class Sequence3 {
       , ATTRIBUTE_ID_ELEMENT5 = 4
 //ARB:ENUM 1155
       , ATTRIBUTE_ID_ELEMENT6 = 5
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1159
         NUM_ATTRIBUTES = 6
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1163
@@ -1202,7 +1230,9 @@ class Sequence3 {
       , ATTRIBUTE_INDEX_ELEMENT5 = 4
 //ARB:ENUM 1168
       , ATTRIBUTE_INDEX_ELEMENT6 = 5
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -1429,12 +1459,16 @@ class Sequence5 {
       , ATTRIBUTE_ID_ELEMENT6 = 5
 //ARB:ENUM 1388
       , ATTRIBUTE_ID_ELEMENT7 = 6
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1392
         NUM_ATTRIBUTES = 7
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1396
@@ -1451,7 +1485,9 @@ class Sequence5 {
       , ATTRIBUTE_INDEX_ELEMENT6 = 5
 //ARB:ENUM 1402
       , ATTRIBUTE_INDEX_ELEMENT7 = 6
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -1709,12 +1745,16 @@ class Sequence6 {
       , ATTRIBUTE_ID_ELEMENT14 = 13
 //ARB:ENUM 1645
       , ATTRIBUTE_ID_ELEMENT15 = 14
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1649
         NUM_ATTRIBUTES = 15
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1653
@@ -1747,7 +1787,9 @@ class Sequence6 {
       , ATTRIBUTE_INDEX_ELEMENT14 = 13
 //ARB:ENUM 1667
       , ATTRIBUTE_INDEX_ELEMENT15 = 14
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -2044,12 +2086,16 @@ class Choice3 {
       , SELECTION_ID_SELECTION3 = 2
 //ARB:ENUM 1959
       , SELECTION_ID_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1963
         NUM_SELECTIONS = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 1967
@@ -2060,7 +2106,9 @@ class Choice3 {
       , SELECTION_INDEX_SELECTION3 = 2
 //ARB:ENUM 1970
       , SELECTION_INDEX_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -2295,12 +2343,16 @@ class SequenceWithAnonymityChoice {
       , SELECTION_ID_SELECTION3 = 2
 //ARB:ENUM 2200
       , SELECTION_ID_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2204
         NUM_SELECTIONS = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2208
@@ -2311,7 +2363,9 @@ class SequenceWithAnonymityChoice {
       , SELECTION_INDEX_SELECTION3 = 2
 //ARB:ENUM 2211
       , SELECTION_INDEX_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -2546,12 +2600,16 @@ class Choice1 {
       , SELECTION_ID_SELECTION3 = 2
 //ARB:ENUM 2441
       , SELECTION_ID_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2445
         NUM_SELECTIONS = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2449
@@ -2562,7 +2620,9 @@ class Choice1 {
       , SELECTION_INDEX_SELECTION3 = 2
 //ARB:ENUM 2452
       , SELECTION_INDEX_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -2797,12 +2857,16 @@ class Choice2 {
       , SELECTION_ID_SELECTION3 = 2
 //ARB:ENUM 2682
       , SELECTION_ID_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2686
         NUM_SELECTIONS = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2690
@@ -2813,7 +2877,9 @@ class Choice2 {
       , SELECTION_INDEX_SELECTION3 = 2
 //ARB:ENUM 2693
       , SELECTION_INDEX_SELECTION4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -3085,12 +3151,16 @@ class Sequence4 {
       , ATTRIBUTE_ID_ELEMENT18 = 17
 //ARB:ENUM 2946
       , ATTRIBUTE_ID_ELEMENT19 = 18
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2950
         NUM_ATTRIBUTES = 19
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 2954
@@ -3131,7 +3201,9 @@ class Sequence4 {
       , ATTRIBUTE_INDEX_ELEMENT18 = 17
 //ARB:ENUM 2972
       , ATTRIBUTE_INDEX_ELEMENT19 = 18
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -3456,12 +3528,16 @@ class Sequence1 {
       , ATTRIBUTE_ID_ELEMENT4 = 3
 //ARB:ENUM 3292
       , ATTRIBUTE_ID_ELEMENT5 = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3296
         NUM_ATTRIBUTES = 5
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3300
@@ -3474,7 +3550,9 @@ class Sequence1 {
       , ATTRIBUTE_INDEX_ELEMENT4 = 3
 //ARB:ENUM 3304
       , ATTRIBUTE_INDEX_ELEMENT5 = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -3686,12 +3764,16 @@ class Sequence2 {
       , ATTRIBUTE_ID_ELEMENT4 = 3
 //ARB:ENUM 3511
       , ATTRIBUTE_ID_ELEMENT5 = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3515
         NUM_ATTRIBUTES = 5
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3519
@@ -3704,7 +3786,9 @@ class Sequence2 {
       , ATTRIBUTE_INDEX_ELEMENT4 = 3
 //ARB:ENUM 3523
       , ATTRIBUTE_INDEX_ELEMENT5 = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -3915,19 +3999,25 @@ class SequenceWithAnonymityChoice2 {
       , SELECTION_ID_SELECTION7 = 0
 //ARB:ENUM 3731
       , SELECTION_ID_SELECTION8 = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3735
         NUM_SELECTIONS = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3739
         SELECTION_INDEX_SELECTION7 = 0
 //ARB:ENUM 3740
       , SELECTION_INDEX_SELECTION8 = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -4114,12 +4204,16 @@ class SequenceWithAnonymity {
       , ATTRIBUTE_ID_CHOICE2  = 2
 //ARB:ENUM 3923
       , ATTRIBUTE_ID_ELEMENT4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3927
         NUM_ATTRIBUTES = 4
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 3931
@@ -4130,7 +4224,9 @@ class SequenceWithAnonymity {
       , ATTRIBUTE_INDEX_CHOICE2  = 2
 //ARB:ENUM 3934
       , ATTRIBUTE_INDEX_ELEMENT4 = 3
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -4360,12 +4456,16 @@ class FeatureTestMessage {
       , SELECTION_ID_SELECTION10 = 9
 //ARB:ENUM 4152
       , SELECTION_ID_SELECTION11 = 10
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 4156
         NUM_SELECTIONS = 11
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 4160
@@ -4390,7 +4490,9 @@ class FeatureTestMessage {
       , SELECTION_INDEX_SELECTION10 = 9
 //ARB:ENUM 4170
       , SELECTION_INDEX_SELECTION11 = 10
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -4759,19 +4861,25 @@ class Request {
       , SELECTION_ID_SIMPLE_REQUEST  = 0
 //ARB:ENUM 4536
       , SELECTION_ID_FEATURE_REQUEST = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 4540
         NUM_SELECTIONS = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 4544
         SELECTION_INDEX_SIMPLE_REQUEST  = 0
 //ARB:ENUM 4545
       , SELECTION_INDEX_FEATURE_REQUEST = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -4964,19 +5072,25 @@ class Response {
       , SELECTION_ID_RESPONSE_DATA    = 0
 //ARB:ENUM 4735
       , SELECTION_ID_FEATURE_RESPONSE = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 4739
         NUM_SELECTIONS = 2
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum {
 //ARB:ENUM 4743
         SELECTION_INDEX_RESPONSE_DATA    = 0
 //ARB:ENUM 4744
       , SELECTION_INDEX_FEATURE_RESPONSE = 1
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CONSTANTS
     static const char CLASS_NAME[];

@@ -197,7 +197,9 @@ struct ChannelStatus {
         BTEMT_UNKNOWN_ID         = -5,  // The write request failed because the
                                         // channel identified by an specified
                                         // id does not exist.
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   public:
     // CLASS METHODS

@@ -644,7 +644,9 @@ class SessionPool {
 //ARB:ENUM 635
       , CONNECT_ABORTED = 10        // session was shutdown before the
                                     // connection could be established
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum ConnectResolutionMode {
         // Mode indicating whether to perform name resolution at each connect
@@ -657,7 +659,9 @@ class SessionPool {
 //ARB:ENUM 646
         RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
                                       // connect attempt
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     enum PoolState {
         // Result code passed to the pool callback.  Note that
@@ -667,7 +671,9 @@ class SessionPool {
 
 //ARB:ENUM 656
         SESSION_LIMIT_REACHED = 1   // cannot create more sessions
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     typedef bdlf::Function<void (*)(int            state,
                                    int            handle,

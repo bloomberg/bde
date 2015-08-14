@@ -325,7 +325,9 @@ class MiniReader :  public Reader {
         k_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
 //ARB:ENUM 323
         k_DEFAULT_DEPTH   = 20           // Average expected deep
-    };                                        // to minimize allocations//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };                                        // to minimize allocations
 
     typedef ElementAttribute Attribute;
     typedef bsl::vector<Attribute>  AttributeVector;
@@ -339,7 +341,9 @@ class MiniReader :  public Reader {
             k_NODE_NO_FLAGS = 0x0000,
 //ARB:ENUM 335
             k_NODE_EMPTY    = 0x0001
-        };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        };
 
         NodeType         d_type;
         const char      *d_qualifiedName;

@@ -73,7 +73,9 @@ struct CharConvertStatus {
         BDEDE_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the
                                             // output was insufficient for the
                                             // translation.
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
   public:
     // CLASS METHODS

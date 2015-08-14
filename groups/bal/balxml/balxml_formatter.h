@@ -320,7 +320,9 @@ class Formatter {
 //ARB:ENUM 313
         e_BETWEEN_TAGS,
         e_AT_END
-    };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     class ElemContext;
     friend class ElemContext;
@@ -335,7 +337,9 @@ class Formatter {
         enum {
 //ARB:ENUM 327
             k_TRUNCATED_TAG_LEN = 15
-        };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        };
 
         unsigned char d_tagLen;  // actual tag length, up to 255
         char          d_tag[k_TRUNCATED_TAG_LEN]; // truncated tag

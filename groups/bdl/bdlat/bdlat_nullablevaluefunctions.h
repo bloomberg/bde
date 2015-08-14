@@ -404,7 +404,9 @@ namespace bdlat_NullableValueFunctions {
         enum {
 //ARB:ENUM 403
             VALUE = 1
-        };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        };
     };
 
     template <typename TYPE>
@@ -444,7 +446,9 @@ namespace bdlat_NullableValueFunctions {
         enum {
 //ARB:ENUM 440
             VALUE = 1
-        };//ARB:IFNDEF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        };
     };
 
     template <typename TYPE>
