@@ -274,11 +274,11 @@ if (veryVerbose)
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(Obj::BAETZO_DST         == Obj::BALTZO_DST);
         ASSERT(Obj::BAETZO_STANDARD    == Obj::BALTZO_STANDARD);
         ASSERT(Obj::BAETZO_UNSPECIFIED == Obj::BALTZO_UNSPECIFIED);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "\nTesting 'print'." << endl;
 

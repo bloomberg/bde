@@ -276,9 +276,9 @@ if (veryVerbose)
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(Obj::BAETZO_UNSUPPORTED_ID == Obj::BALTZO_UNSUPPORTED_ID);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "\nTesting 'print'." << endl;
 

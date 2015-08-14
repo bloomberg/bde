@@ -24,7 +24,7 @@ bool Bind_TestSlotsAlloc::verifySlots(
     // Their success depends on the "Return Value Optimization" (RVO)
     // which Windows does not seem to be applying.
 
-    for (int i = 0; i < NUM_SLOTS; ++i) {
+    for (int i = 0; i < k_NUM_SLOTS; ++i) {
         if (EXPECTED[i] != getSlot(i)) {
             equalFlag = false;
             break;
@@ -34,7 +34,7 @@ bool Bind_TestSlotsAlloc::verifySlots(
 
     if (verboseFlag || !equalFlag) {
         bsl::printf("\tAllocSlots:");
-        for (int i = 0; i < NUM_SLOTS; ++i) {
+        for (int i = 0; i < k_NUM_SLOTS; ++i) {
             bsl::printf(" %s", (getSlot(i) == getZ0()) ? "Z0"
                             : ((getSlot(i) == getZ1()) ? "Z1"
                             : ((getSlot(i) == getZ2()) ? "Z2"

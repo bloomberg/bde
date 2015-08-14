@@ -726,10 +726,10 @@ int main(int argc, char *argv[])
             ASSERT(AMERICA_NEW_YORK_ID == timeZone.identifier());
         }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID ==
                baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
       } break;
       case 5: {
