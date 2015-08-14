@@ -14,12 +14,53 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
-//@SEE_ALSO: 
+//@SEE_ALSO: ball_userfields, ball_userfieldsschema
 //
 //@DESCRIPTION: This component provides a value-semantic class,
 // 'ball::UserFieldValue', that represents the value of a user supplied log
-// field value.
+// field value.  A user field value acts as a descriminated union, and may
+// represent a value of any of types described in 'ball::UserFieldType' or an
+// unset value (indicated by the type 'ball::UserFieldType::e_VOID').
 //
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFieldValue'
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to create and use a
+// 'ball::UserFieldValue' object.  Note that 'ball::UserFieldValue' objects
+// are typically used in a description of a sequence of user fields (see
+// 'ball_userfields'). 
+//
+// First, we create a default 'ball::UserFieldValue', 'valueA', and observe
+// that it is in the unset state, meaning that 'isUnset' is true and its type
+// is 'ball::UserFieldValue::e_VOID':
+//..
+//  ball::UserFieldValue valueA;
+//
+//  assert(true                         == valueA.isUnset());
+//  assert(ball::UserFieldValue::e_VOID == valueA.type());
+//..
+// Next, we create a second 'ball::UserFieldValue' having the value 5, and
+// then confirm its value and observe that it does not compare equal to the
+// 'valueA':
+//..
+//  ball::UserFieldValue valueB(5);
+//
+//  assert(false                         == valueB.isUnset());
+//  assert(ball::UserFieldValue::e_INT64 == valueB.type());
+//  assert(5                             == valueB.theInt64();
+//
+//  assert(valueA != valueB);
+//..
+// Finally, we call 'reset' of 'valueB' resetting it to the unset state, and
+// observer that 'valueA' now compares equal to 'valueB':
+//..
+//  valueB.reset();
+//
+//  assert(valueA == valueB);
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -56,6 +97,11 @@ namespace ball {
                         // ====================
 
 class UserFieldValue {
+    // This class implements a value-semantic type for representing the value
+    // of a user field in a log record.  A user field value acts as a
+    // descriminated union, and may represent a value of any of types described
+    // in 'ball::UserFieldType' or an unset value (indicated type
+    // 'ball::UserFieldType::e_VOID').
 
     // TYPES
     typedef bdlb::Variant<int64_t, 
@@ -64,7 +110,7 @@ class UserFieldValue {
                           bdlt::DatetimeTz> ValueVariant;
 
     // DATA
-    ValueVariant d_value;      
+    ValueVariant d_value;  // value
 
     // FRIENDS
     friend bool operator==(const UserFieldValue&, const UserFieldValue&);
@@ -76,11 +122,11 @@ class UserFieldValue {
 
     // CREATORS
     explicit UserFieldValue(bslma::Allocator *basicAllocator = 0);
-        // Create a user field value having the default (unset) value.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // Create a user field value having the unset value.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
- 
+
     explicit UserFieldValue(int64_t                  value, 
                             bslma::Allocator        *basicAllocator = 0);
     explicit UserFieldValue(double                   value, 
@@ -94,30 +140,103 @@ class UserFieldValue {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
+    template <class INTEGRAL_TYPE>
+    explicit UserFieldValue(
+                INTEGRAL_TYPE     value,
+                bslma::Allocator *basicAllocator = 0,
+                typename bsl::enable_if<
+                     bsl::is_integral<INTEGRAL_TYPE>::value>::type * = 0)
+    : d_value(static_cast<int64_t>(value), basicAllocator) {}
+        // Create a user field value having the specified integral 'value'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+        //
+        // Note that this constructor is provided to disambiguate between
+        // constructors taking 'double' and 'int64_t' when supplied a integer
+        // that is not of type 'int64_t'.  Note also that the implementation
+        // is (temporarily) provided inline to avoid issues with MSVC 2008.
+
     UserFieldValue(const UserFieldValue&  original,
                    bslma::Allocator       *basicAllocator = 0);
+        // Create a 'UserFieldValue' object having the same value as the
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+
+    //! ~UserFieldValue() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     UserFieldValue& operator=(const UserFieldValue& rhs);
-
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+        
     void reset();
-    void setValue(int64_t value);
-    void setValue(double value);
-    void setValue(bslstl::StringRef value);
-    void setValue(const bdlt::DatetimeTz& value);
+        // Set this object to the unset value.  After this operation 'type'
+        // will be 'ball::UserFieldType::e_VOID'.
+
+    void setInt64(int64_t value);
+        // Set this object to the specified 'value'.  After this operation
+        // 'type' will be 'ball::UserFieldType::e_INT64'.
+
+    void setDouble(double value);
+        // Set this object to the specified 'value'.  After this operation
+        // 'type' will be 'ball::UserFieldType::e_DOUBLE'.
+
+    void setString(bslstl::StringRef value);
+        // Set this object to the specified 'value'.  After this operation
+        // 'type' will be 'ball::UserFieldType::e_STRING'.
+
+    void setDatetimeTz(const bdlt::DatetimeTz& value);
+        // Set this object to the specified 'value'.  After this operation
+        // 'type' will be 'ball::UserFieldType::e_DATETIMETZ'.
+
+                                  // Aspects
 
     void swap(UserFieldValue& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // guarantee if 'type' is the same as 'other.type()';  otherwise it
+        // provides the basic guarantee.
 
-    // ACCESSORS
-    bslma::Allocator *allocator() const;
+    // ACCESSORS       
+    bool isUnset() const;
+        // Return 'true' if this object has the unset value, and 'false'
+        // otehrwise.  Note that if 'isUnset' is 'true', then 'type' is
+        // 'ball::UserFieldType::e_VOID'.
 
     ball::UserFieldType::Enum type() const;
+        // Return the type of this user field value.  The type
+        // 'ball::UserFieldValue::e_VOID' represents the unset value.
     
     const int64_t& theInt64() const;
+        // Return a reference providing non-modifiable access to the 64-bit
+        // integer value of this object.  The behavior is undefined unless
+        // 'type' is 'ball::UserFieldType::e_INT64'.
+
     const double& theDouble() const;
+        // Return a reference providing non-modifiable access to the double
+        // value of this object.  The behavior is undefined unless 'type' is
+        // 'ball::UserFieldType::e_DOUBLE'.
+
     const bsl::string& theString() const;
+        // Return a reference providing non-modifiable access to the string
+        // value of this object.  The behavior is undefined unless 'type' is
+        // 'ball::UserFieldType::e_STRING'.
+
     const bdlt::DatetimeTz& theDatetimeTz() const;
-        
+        // Return a reference providing non-modifiable access to the
+        // 'DatetimeTz' value of this object.  The behavior is undefined
+        // unless 'type' is 'ball::UserFieldType::e_DATETIMETZ'.       
+
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -165,9 +284,9 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
 // FREE FUNCTIONS
 void swap(ball::UserFieldValue& a, ball::UserFieldValue& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw guarantee.  The
-    // behavior is undefined if the two objects being swapped have non-equal
-    // allocators.
+    // specified 'b' object.  This method provides the no-throw guarantee if
+    // 'a.type()' is the same as 'b.type()'; otherwise it provides the basic
+    // guarantee.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -232,25 +351,25 @@ void UserFieldValue::reset()
 }
    
 inline
-void UserFieldValue::setValue(int64_t value)
+void UserFieldValue::setInt64(int64_t value)
 {
     d_value.assign(value);
 }
 
 inline
-void UserFieldValue::setValue(double value)
+void UserFieldValue::setDouble(double value)
 {
     d_value.assign(value);
 }
 
 inline
-void UserFieldValue::setValue(bslstl::StringRef value)
+void UserFieldValue::setString(bslstl::StringRef value)
 {
     d_value.assign<bsl::string>(value);
 }
 
 inline
-void UserFieldValue::setValue(const bdlt::DatetimeTz& value)
+void UserFieldValue::setDatetimeTz(const bdlt::DatetimeTz& value)
 {
     d_value.assign(value);
 }
@@ -266,6 +385,12 @@ inline
 bslma::Allocator *UserFieldValue::allocator() const
 {
     return d_value.getAllocator();
+}
+
+inline
+bool UserFieldValue::isUnset() const
+{
+    return d_value.isUnset();
 }
 
 inline
@@ -367,7 +492,7 @@ void swap(ball::UserFieldValue& a, ball::UserFieldValue& b)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the

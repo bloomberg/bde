@@ -11,17 +11,18 @@ BSLS_IDENT_RCSID(btls5_detailedstatus_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btls5 {
-                        // --------------------------
+
+                        // --------------------
                         // class DetailedStatus
-                        // --------------------------
+                        // --------------------
 
 // ACCESSORS
 
                                   // Aspects
 
 bsl::ostream& DetailedStatus::print(bsl::ostream& stream,
-                                          int           level,
-                                          int           spacesPerLevel) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -33,11 +34,12 @@ bsl::ostream& DetailedStatus::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& btls5::operator<<(bsl::ostream&               stream,
-                         const DetailedStatus& object)
+bsl::ostream& btls5::operator<<(bsl::ostream&         stream,
+                                const DetailedStatus& object)
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
@@ -53,8 +55,8 @@ bsl::ostream& btls5::operator<<(bsl::ostream&               stream,
 }  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
+// NOTICE
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

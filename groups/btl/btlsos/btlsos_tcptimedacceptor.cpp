@@ -50,10 +50,10 @@ enum {
 
 template <class RESULT>
 inline
-RESULT *allocate(int                                   *status,
-                 int                                    flags,
+RESULT *allocate(int                                     *status,
+                 int                                      flags,
                  btlso::StreamSocket<btlso::IPv4Address> *socket,
-                 bdlma::Pool                            *pool)
+                 bdlma::Pool                             *pool)
 {
     BSLS_ASSERT(socket);
     BSLS_ASSERT(pool);
@@ -439,16 +439,15 @@ int TcpTimedAcceptor::setOption(int level, int option, int value)
 
 // ACCESSORS
 
-int
-TcpTimedAcceptor::getOption(int *result, int level, int option) const
+int TcpTimedAcceptor::getOption(int *result, int level, int option) const
 {
     BSLS_ASSERT(!d_isInvalidFlag);
     BSLS_ASSERT(d_serverSocket_p);
 
     return d_serverSocket_p->socketOption(result, level, option);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

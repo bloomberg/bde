@@ -210,9 +210,9 @@ bsl::ostream& Crc32::print(bsl::ostream& stream) const
 
     return stream << array;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -100,21 +100,22 @@ public:
     char              d_callbackType;
 
     // CREATORS
-    TcpCbChannel_RReg(char *buffer, int length,
-                             int numSysCalls,
-                             const ReadCb& callback,
-                             int flags);
+    TcpCbChannel_RReg(char          *buffer,
+                      int            length,
+                      int            numSysCalls,
+                      const ReadCb&  callback,
+                      int            flags);
 
     TcpCbChannel_RReg(const btls::Iovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const ReadCb& callback,
-                             int flags);
+                      int                numBuffers,
+                      int                numSysCalls,
+                      const ReadCb&      callback,
+                      int                flags);
 
-    TcpCbChannel_RReg(int length,
-                             int numSysCalls,
-                             const BReadCb& callback,
-                             int flags);
+    TcpCbChannel_RReg(int            length,
+                      int            numSysCalls,
+                      const BReadCb& callback,
+                      int            flags);
 
     ~TcpCbChannel_RReg();
         // Destroy this request.
@@ -225,32 +226,31 @@ TcpCbChannel_RReg::~TcpCbChannel_RReg() {
 }
 
 // MANIPULATORS
-
 inline
-void TcpCbChannel_RReg::invoke(int status, int asyncStatus) const {
+void TcpCbChannel_RReg::invoke(int status, int augStatus) const {
     BSLS_ASSERT(e_VFUNC2 == d_callbackType);
     bdlf::Function<void (*)(int, int)> *cb =
         (bdlf::Function<void (*)(int, int)> *)
         (void *) const_cast<char *>(d_cb.d_arena);
-    (*cb)(status, asyncStatus);
+    (*cb)(status, augStatus);
 }
 
 inline
 void TcpCbChannel_RReg::invoke(const char *buffer,
-                                      int status, int asyncStatus) const {
+                               int         status,
+                               int         augStatus) const {
     BSLS_ASSERT(e_VFUNC3 == d_callbackType);
     BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
-    (*cb)(buffer, status, asyncStatus);
+    (*cb)(buffer, status, augStatus);
 }
 
 inline
-void TcpCbChannel_RReg::invokeConditionally(int status,
-                                            int asyncStatus) const {
+void TcpCbChannel_RReg::invokeConditionally(int status, int augStatus) const {
     if (e_VFUNC2 == d_callbackType) {
-        invoke(status, asyncStatus);
+        invoke(status, augStatus);
     }
     else {
-        invoke(NULL, status, asyncStatus);
+        invoke(NULL, status, augStatus);
     }
 }
 
@@ -315,27 +315,28 @@ public:
     int               d_flags;       // flags supplied in request.
 
     // CREATORS
-    TcpCbChannel_WReg(const char *buffer, int length,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+    TcpCbChannel_WReg(const char     *buffer,
+                      int             length,
+                      int             numSysCalls,
+                      const WriteCb&  callback,
+                      int             flags);
 
     TcpCbChannel_WReg(const btls::Iovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+                      int                numBuffers,
+                      int                numSysCalls,
+                      const WriteCb&     callback,
+                      int                flags);
 
     TcpCbChannel_WReg(const btls::Ovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+                      int               numBuffers,
+                      int               numSysCalls,
+                      const WriteCb&    callback,
+                      int               flags);
 
-    TcpCbChannel_WReg(int length,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+    TcpCbChannel_WReg(int            length,
+                      int            numSysCalls,
+                      const WriteCb& callback,
+                      int            flags);
 
     ~TcpCbChannel_WReg();
         // Destroy this request.
@@ -439,16 +440,15 @@ TcpCbChannel_WReg::~TcpCbChannel_WReg() {
 // MANIPULATORS
 
 inline
-void TcpCbChannel_WReg::invoke(int status, int asyncStatus) const
+void TcpCbChannel_WReg::invoke(int status, int augStatus) const
 {
-    d_callback(status, asyncStatus);
+    d_callback(status, augStatus);
 }
 
 inline
-void TcpCbChannel_WReg::invokeConditionally(int status,
-                                                   int asyncStatus) const
+void TcpCbChannel_WReg::invokeConditionally(int status, int augStatus) const
 {
-    d_callback(status, asyncStatus);
+    d_callback(status, augStatus);
 }
 }  // close package namespace
 
@@ -457,9 +457,9 @@ void TcpCbChannel_WReg::invokeConditionally(int status,
                        // ================================
 static inline
 int completeOperation(btlsos::TcpCbChannel_RReg *request,
-                      bsl::vector<char>        *bufferPtr,
-                      int                      *offset,
-                      int                      *SP)
+                      bsl::vector<char>         *bufferPtr,
+                      int                       *offset,
+                      int                       *SP)
     // Try to satisfy the specified 'request' given that there is data in the
     // specified 'buffer' of the specified '*offset' length.  Return 0 if the
     // 'request' cannot be satisfied, and a non-zero value otherwise.  If the
@@ -566,7 +566,7 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     // either 'pool' or 'queue' is 0.
 {
     BSLS_ASSERT(queue);
-    int numElements = queue->size();
+    int numElements = static_cast<int>(queue->size());
 
     for (int i = 0; i < numElements; ++i) {
         REG *reg = (*queue)[numElements - 1 - i];
@@ -583,9 +583,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
                      // ===============================
 
 static inline
-void initializeBuffer(bsl::vector<char>                     *buffer,
+void initializeBuffer(bsl::vector<char>                       *buffer,
                       btlso::StreamSocket<btlso::IPv4Address> *socket_p,
-                      int                                    option)
+                      int                                      option)
 {
     enum { k_DEFAULT_BUFFER_SIZE = 8192 };
     int result;
@@ -656,7 +656,7 @@ void TcpCbChannel::bufferedReadCb()
 
     int requestLength = d_currentReadRequest_p->d_requestLength;
     int numBytesRemaining = requestLength - d_readBufferOffset;
-    int available = d_readBuffer.size() - d_readBufferOffset;
+    int available = static_cast<int>(d_readBuffer.size()) - d_readBufferOffset;
     BSLS_ASSERT(available >= numBytesRemaining);
 
     int s = d_socket_p->read(&d_readBuffer.front() + d_readBufferOffset,
@@ -962,7 +962,7 @@ void TcpCbChannel::bufferedWriteCb() {
                                            d_writeRequests.back()->d_category);
 
     int numBytesToWrite = 0;
-    int numPendingRequests = d_writeRequests.size();
+    int numPendingRequests = static_cast<int>(d_writeRequests.size());
     for (int i = numPendingRequests - 1; 0 <= i; --i) {
         if (d_writeRequests[i]->d_category
                                        != TcpCbChannel_WReg::e_BUFFERED) {
@@ -1325,9 +1325,9 @@ void TcpCbChannel::writeCb() {
 // CREATORS
 
 TcpCbChannel::TcpCbChannel(
-        btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-        btlso::TimerEventManager               *manager,
-        bslma::Allocator                      *basicAllocator)
+                       btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                       btlso::TimerEventManager                *manager,
+                       bslma::Allocator                        *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(manager)
 , d_wManager_p(manager)
@@ -1372,10 +1372,10 @@ TcpCbChannel::TcpCbChannel(
 }
 
 TcpCbChannel::TcpCbChannel(
-        btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-        btlso::TimerEventManager               *rManager,
-        btlso::TimerEventManager               *wManager,
-        bslma::Allocator                      *basicAllocator)
+                       btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                       btlso::TimerEventManager                *rManager,
+                       btlso::TimerEventManager                *wManager,
+                       bslma::Allocator                        *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(rManager)
 , d_wManager_p(wManager)
@@ -1519,10 +1519,10 @@ int TcpCbChannel::readv(const btls::Iovec   *buffers,
 }
 
 int
-TcpCbChannel::readvRaw(const btls::Iovec *buffers,
-                                   int                      numBuffers,
-                                   const ReadCallback&      readCallback,
-                                   int                      flags)
+TcpCbChannel::readvRaw(const btls::Iovec   *buffers,
+                       int                  numBuffers,
+                       const ReadCallback&  readCallback,
+                       int                  flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1557,10 +1557,9 @@ TcpCbChannel::readvRaw(const btls::Iovec *buffers,
 }
 
 int
-TcpCbChannel::bufferedRead(
-        int                         numBytes,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+TcpCbChannel::bufferedRead(int                         numBytes,
+                           const BufferedReadCallback& bufferedReadCallback,
+                           int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -2037,11 +2036,10 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
     return 0;
 }
 
-int TcpCbChannel::bufferedWritev(
-        const btls::Iovec        *buffers,
-        int                      numBuffers,
-        const WriteCallback&     writeCallback,
-        int                      flags)
+int TcpCbChannel::bufferedWritev(const btls::Iovec    *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2080,9 +2078,11 @@ int TcpCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer.front() + d_writeBufferOffset,
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers + idx + 1,
+                                  numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -2100,9 +2100,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2124,9 +2126,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2159,9 +2163,11 @@ int TcpCbChannel::bufferedWritev(
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
-            &d_writeBuffer.front() + d_writeBufferOffset,
-            d_writeBuffer.size() - d_writeBufferOffset,
-            buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
@@ -2176,11 +2182,10 @@ int TcpCbChannel::bufferedWritev(
     return 0;
 }
 
-int TcpCbChannel::bufferedWritev(
-        const btls::Ovec         *buffers,
-        int                      numBuffers,
-        const WriteCallback&     writeCallback,
-        int                      flags)
+int TcpCbChannel::bufferedWritev(const btls::Ovec     *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2221,9 +2226,11 @@ int TcpCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer.front() + d_writeBufferOffset,
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers + idx + 1,
+                                  numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -2241,9 +2248,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2265,9 +2274,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2300,9 +2311,11 @@ int TcpCbChannel::bufferedWritev(
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
-            &d_writeBuffer.front() + d_writeBufferOffset,
-            d_writeBuffer.size() - d_writeBufferOffset,
-            buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
@@ -2333,7 +2346,8 @@ void TcpCbChannel::cancelRead() {
                            d_readRequests.begin(),
                            d_readRequests.begin() + d_readRequests.size() - 1,
                            d_allocator_p);
-        d_readRequests.erase(d_readRequests.begin(),
+        d_readRequests.erase(
+                           d_readRequests.begin(),
                            d_readRequests.begin() + d_readRequests.size() - 1);
         dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_rrequestPool);
         BSLS_ASSERT(d_currentReadRequest_p == d_readRequests.back());
@@ -2342,7 +2356,7 @@ void TcpCbChannel::cancelRead() {
         bsl::deque<TcpCbChannel_RReg *>
                                   toBeCancelled(d_readRequests, d_allocator_p);
         d_readRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
 
         if (numToCancel) {
             d_rManager_p->deregisterSocketEvent(d_socket_p->handle(),
@@ -2368,13 +2382,13 @@ void TcpCbChannel::cancelWrite() {
         BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
     }
     else {
-        bsl::deque<TcpCbChannel_WReg *>
-                                 toBeCancelled(d_writeRequests, d_allocator_p);
+        bsl::deque<TcpCbChannel_WReg *> toBeCancelled(d_writeRequests,
+                                                      d_allocator_p);
         d_writeRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_wManager_p->deregisterSocketEvent(d_socket_p->handle(),
-                                               btlso::EventType::e_WRITE);
+                                                btlso::EventType::e_WRITE);
         }
         dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_wrequestPool);
     }
@@ -2393,15 +2407,13 @@ void TcpCbChannel::invalidateWrite() {
     d_isInvalidWriteFlag = 1;
 }
 
-void TcpCbChannel::setReadEventManager(
-        btlso::TimerEventManager *manager) {
+void TcpCbChannel::setReadEventManager(btlso::TimerEventManager *manager) {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingReadOperations());
     d_rManager_p = manager;
 }
 
-void TcpCbChannel::setWriteEventManager(
-        btlso::TimerEventManager *manager) {
+void TcpCbChannel::setWriteEventManager(btlso::TimerEventManager *manager) {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingWriteOperations());
     d_wManager_p = manager;
@@ -2418,14 +2430,14 @@ int TcpCbChannel::isInvalidWrite() const {
 }
 
 int TcpCbChannel::numPendingReadOperations() const {
-    return d_readRequests.size();
+    return static_cast<int>(d_readRequests.size());
 }
 
 int TcpCbChannel::numPendingWriteOperations() const {
-    return d_writeRequests.size();
+    return static_cast<int>(d_writeRequests.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -196,10 +196,7 @@ int TcpChannel::read(char *buffer, int numBytes, int flags)
     return numBytesRead;
 }
 
-int TcpChannel::read(int  *augStatus,
-                            char *buffer,
-                            int   numBytes,
-                            int   flags)
+int TcpChannel::read(int *augStatus, char *buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -265,9 +262,7 @@ int TcpChannel::read(int  *augStatus,
     return numBytesRead;
 }
 
-int TcpChannel::readv(const btls::Iovec *buffers,
-                             int               numBuffers,
-                             int               flags)
+int TcpChannel::readv(const btls::Iovec *buffers, int numBuffers, int flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -354,10 +349,10 @@ int TcpChannel::readv(const btls::Iovec *buffers,
     return numBytesRead;
 }
 
-int TcpChannel::readv(int              *augStatus,
-                             const btls::Iovec *buffers,
-                             int               numBuffers,
-                             int               flags)
+int TcpChannel::readv(int               *augStatus,
+                      const btls::Iovec *buffers,
+                      int                numBuffers,
+                      int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -516,10 +511,7 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
     return retValue;
 }
 
-int TcpChannel::readRaw(int  *,
-                               char *buffer,
-                               int   numBytes,
-                               int)
+int TcpChannel::readRaw(int *, char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -590,9 +582,7 @@ int TcpChannel::readRaw(int  *,
     return retValue;
 }
 
-int TcpChannel::readvRaw(const btls::Iovec *buffers,
-                                int               numBuffers,
-                                int)
+int TcpChannel::readvRaw(const btls::Iovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -667,10 +657,10 @@ int TcpChannel::readvRaw(const btls::Iovec *buffers,
     return retValue;
 }
 
-int TcpChannel::readvRaw(int              *,
-                                const btls::Iovec *buffers,
-                                int               numBuffers,
-                                int)
+int TcpChannel::readvRaw(int               *,
+                         const btls::Iovec *buffers,
+                         int                numBuffers,
+                         int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -746,9 +736,7 @@ int TcpChannel::readvRaw(int              *,
     return retValue;
 }
 
-int TcpChannel::bufferedRead(const char **buffer,
-                                    int          numBytes,
-                                    int          flags)
+int TcpChannel::bufferedRead(const char **buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -824,9 +812,9 @@ int TcpChannel::bufferedRead(const char **buffer,
 }
 
 int TcpChannel::bufferedRead(int         *augStatus,
-                                    const char **buffer,
-                                    int          numBytes,
-                                    int          flags)
+                             const char **buffer,
+                             int          numBytes,
+                             int          flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -899,9 +887,7 @@ int TcpChannel::bufferedRead(int         *augStatus,
     return numBytesRead;
 }
 
-int TcpChannel::bufferedReadRaw(const char **buffer,
-                                       int          numBytes,
-                                       int)
+int TcpChannel::bufferedReadRaw(const char **buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -976,10 +962,7 @@ int TcpChannel::bufferedReadRaw(const char **buffer,
     return retValue;
 }
 
-int TcpChannel::bufferedReadRaw(int         *,
-                                       const char **buffer,
-                                       int          numBytes,
-                                       int)
+int TcpChannel::bufferedReadRaw(int *, const char **buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1059,9 +1042,7 @@ int TcpChannel::bufferedReadRaw(int         *,
 ///Write section
 ///-------------
 
-int TcpChannel::write(const char *buffer,
-                             int         numBytes,
-                             int         flags)
+int TcpChannel::write(const char *buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1103,9 +1084,9 @@ int TcpChannel::write(const char *buffer,
 }
 
 int TcpChannel::write(int        *augStatus,
-                             const char *buffer,
-                             int         numBytes,
-                             int         flags)
+                      const char *buffer,
+                      int         numBytes,
+                      int         flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1146,9 +1127,7 @@ int TcpChannel::write(int        *augStatus,
     return numBytesWritten;
 }
 
-int TcpChannel::writeRaw(const char *buffer,
-                                int         numBytes,
-                                int)
+int TcpChannel::writeRaw(const char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1194,10 +1173,7 @@ int TcpChannel::writeRaw(const char *buffer,
     return retValue;
 }
 
-int TcpChannel::writeRaw(int        *,
-                                const char *buffer,
-                                int         numBytes,
-                                int)
+int TcpChannel::writeRaw(int *, const char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1243,9 +1219,7 @@ int TcpChannel::writeRaw(int        *,
     return retValue;
 }
 
-int TcpChannel::writev(const btls::Ovec  *buffers,
-                              int               numBuffers,
-                              int               flags)
+int TcpChannel::writev(const btls::Ovec *buffers, int numBuffers, int flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1303,9 +1277,7 @@ int TcpChannel::writev(const btls::Ovec  *buffers,
     return numBytesWritten;
 }
 
-int TcpChannel::writev(const btls::Iovec *buffers,
-                              int               numBuffers,
-                              int               flags)
+int TcpChannel::writev(const btls::Iovec *buffers, int numBuffers, int flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1364,9 +1336,9 @@ int TcpChannel::writev(const btls::Iovec *buffers,
 }
 
 int TcpChannel::writev(int              *augStatus,
-                              const btls::Ovec  *buffers,
-                              int               numBuffers,
-                              int               flags)
+                       const btls::Ovec *buffers,
+                       int               numBuffers,
+                       int               flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1424,10 +1396,10 @@ int TcpChannel::writev(int              *augStatus,
     return numBytesWritten;
 }
 
-int TcpChannel::writev(int              *augStatus,
-                              const btls::Iovec *buffers,
-                              int               numBuffers,
-                              int               flags)
+int TcpChannel::writev(int               *augStatus,
+                       const btls::Iovec *buffers,
+                       int                numBuffers,
+                       int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1466,8 +1438,7 @@ int TcpChannel::writev(int              *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                          // mode
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 return numBytesWritten;  // Return the total bytes written.
             }
@@ -1486,9 +1457,7 @@ int TcpChannel::writev(int              *augStatus,
     return numBytesWritten;
 }
 
-int TcpChannel::writevRaw(const btls::Ovec *buffers,
-                                 int              numBuffers,
-                                 int)
+int TcpChannel::writevRaw(const btls::Ovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1535,9 +1504,7 @@ int TcpChannel::writevRaw(const btls::Ovec *buffers,
     return retValue;
 }
 
-int TcpChannel::writevRaw(const btls::Iovec *buffers,
-                                 int               numBuffers,
-                                 int)
+int TcpChannel::writevRaw(const btls::Iovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1584,10 +1551,10 @@ int TcpChannel::writevRaw(const btls::Iovec *buffers,
     return retValue;
 }
 
-int TcpChannel::writevRaw(int             *,
-                                 const btls::Ovec *buffers,
-                                 int              numBuffers,
-                                 int)
+int TcpChannel::writevRaw(int              *,
+                          const btls::Ovec *buffers,
+                          int               numBuffers,
+                          int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1634,10 +1601,10 @@ int TcpChannel::writevRaw(int             *,
     return retValue;
 }
 
-int TcpChannel::writevRaw(int              *,
-                                 const btls::Iovec *buffers,
-                                 int               numBuffers,
-                                 int)
+int TcpChannel::writevRaw(int               *,
+                          const btls::Iovec *buffers,
+                          int                numBuffers,
+                          int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);

@@ -20,6 +20,8 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstring.h>
 #include <bsl_fstream.h>
+#include <bsl_ios.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
@@ -28,7 +30,7 @@ static const char LOG_CATEGORY[] = "BALTZO.DATAFILELOADER";
 static const char *INVALID_PATH = "! INVALID_FILE_PATH !";
 
 static const int UNSPECIFIED_ERROR = -1;
-static const int UNSUPPORTED_ID    = baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;
+static const int UNSUPPORTED_ID    = baltzo::ErrorCode::k_UNSUPPORTED_ID;
 
 BSLMF_ASSERT(UNSUPPORTED_ID != UNSPECIFIED_ERROR);
 
@@ -163,9 +165,9 @@ int baltzo::DataFileLoader::loadTimeZone(Zoneinfo   *result,
     if (!infile.is_open()) {
         // Failed to open the data file for 'timeZoneId'.  If the data-file
         // loader is correctly configured, 'timeZoneId' is not a supported
-        // time-zone identifier, so return 'BALTZO_UNSUPPORTED_ID'.  Otherwise,
-        // if the data-file loader is not correctly configured, return
-        // 'UNSPECIFIED_ERROR' (different from 'BALTZO_UNSUPPORTED_ID').
+        // time-zone identifier, so return 'k_UNSUPPORTED_ID'.  Otherwise, if
+        // the data-file loader is not correctly configured, return
+        // 'UNSPECIFIED_ERROR' (different from 'k_UNSUPPORTED_ID').
 
         BALL_LOG_ERROR << "Failed to open time-zone information file '"
                        << path << "'" << BALL_LOG_END;

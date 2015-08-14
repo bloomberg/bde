@@ -221,15 +221,14 @@ class TcpChannel : public btlsc::Channel {
 
     // PRIVATE MANIPULATORS
     void initializeReadBuffer(int size = -1);
-        // Initialize internal read buffer with the optionally-specified
+        // Initialize internal read buffer with the optionally specified
         // 'size'.  If 'size' is not specified, the default that is obtained by
         // querying the underlying socket is used.
 
   public:
     // CREATORS
-    TcpChannel(
-                    btlso::StreamSocket<btlso::IPv4Address> *socket,
-                    bslma::Allocator                      *basicAllocator = 0);
+    TcpChannel(btlso::StreamSocket<btlso::IPv4Address> *socket,
+               bslma::Allocator                        *basicAllocator = 0);
         // Create a channel attached to the specified stream-oriented 'socket'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -240,7 +239,7 @@ class TcpChannel : public btlsc::Channel {
 
     // MANIPULATORS
     int read(char *buffer, int numBytes, int flags = 0);
-    int read(int  *augStatus, char *buffer, int numBytes, int flags = 0);
+    int read(int *augStatus, char *buffer, int numBytes, int flags = 0);
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
         // 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events" are
@@ -259,15 +258,13 @@ class TcpChannel : public btlsc::Channel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and 0 < numBytes.
+        // and '0 < numBytes'.
 
-    int readv(const btls::Iovec *buffers,
-               int              numBuffers,
-               int              flags = 0);
-    int readv(int              *augStatus,
-               const btls::Iovec *buffers,
-               int               numBuffers,
-               int               flags = 0);
+    int readv(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int readv(int               *augStatus,
+              const btls::Iovec *buffers,
+              int                numBuffers,
+              int                flags = 0);
         // Read from this channel into the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers', the respective numbers of
         // bytes as specified in each corresponding 'btls::Iovec' buffer.  If
@@ -292,13 +289,8 @@ class TcpChannel : public btlsc::Channel {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    int readRaw(char *buffer,
-                 int   numBytes,
-                 int   flags = 0);
-    int readRaw(int  *augStatus,
-                 char *buffer,
-                 int   numBytes,
-                 int   flags = 0);
+    int readRaw(char *buffer, int numBytes, int flags = 0);
+    int readRaw(int *augStatus, char *buffer, int numBytes, int flags = 0);
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
         // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT',
@@ -319,17 +311,15 @@ class TcpChannel : public btlsc::Channel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and 0 < numBytes.  Note that if the specified 'timeout' value has
+        // and '0 < numBytes'.  Note that if the specified 'timeout' value has
         // already passed, the "read" operation will still be attempted, but
         // the attempt will not block.
 
-     int readvRaw(const btls::Iovec *buffers,
-                         int        numBuffers,
-                         int        flags = 0);
-     int readvRaw(int              *augStatus,
-                  const btls::Iovec *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
+    int readvRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int readvRaw(int               *augStatus,
+                 const btls::Iovec *buffers,
+                 int                numBuffers,
+                 int                flags = 0);
         // *Atomically* read from this channel into the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers' *at* *most* the
         // respective numbers of bytes as specified in each corresponding
@@ -356,13 +346,11 @@ class TcpChannel : public btlsc::Channel {
         // "read" operation will still be attempted, but the attempt will not
         // block.
 
-    int bufferedRead(const char **buffer,
-                     int          numBytes,
-                     int          flags = 0                      );
+    int bufferedRead(const char **buffer, int numBytes, int flags = 0 );
     int bufferedRead(int         *augStatus,
                      const char **buffer,
                      int          numBytes,
-                     int          flags = 0                      );
+                     int          flags = 0 );
         // Read from this channel into a channel-supplied buffer, identified
         // via the specified 'buffer', the specified 'numBytes'.  If the
         // optionally specified 'flags' incorporates
@@ -383,15 +371,13 @@ class TcpChannel : public btlsc::Channel {
         // negative "status", however, indicates a permanent error (leaving
         // 'buffer' undefined); -1 implies that the connection was closed by
         // the peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless 0 < numBytes.
+        // undefined unless '0 < numBytes'.
 
-    int bufferedReadRaw(const char **buffer,
-                        int          numBytes,
-                        int          flags = 0                   );
+    int bufferedReadRaw(const char **buffer, int numBytes, int flags = 0);
     int bufferedReadRaw(int         *augStatus,
                         const char **buffer,
                         int          numBytes,
-                        int          flags = 0                   );
+                        int          flags = 0);
         // *Atomically* read from this channel into a channel-supplied buffer,
         // identified via the specified 'buffer', *at* *most* the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
@@ -413,17 +399,12 @@ class TcpChannel : public btlsc::Channel {
         // by subsequent read operations.  A negative "status", however,
         // indicates a permanent error (leaving 'buffer' unset); -1 implies
         // that the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 0 < numBytes.
+        // guaranteed).  The behavior is undefined unless '0 < numBytes'.
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-    int write(const char *buffer,
-              int         numBytes,
-              int         flags = 0);
-    int write(int        *augStatus,
-              const char *buffer,
-              int         numBytes,
-              int         flags = 0);
+    int write(const char *buffer, int numBytes, int flags = 0);
+    int write(int *augStatus, const char *buffer, int numBytes, int flags = 0);
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
         // 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events" are
@@ -440,11 +421,9 @@ class TcpChannel : public btlsc::Channel {
         // with some reasonable hope of success.  A negative "status", however,
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.
+        // behavior is undefined unless '0 < numBytes'.
 
-    int writeRaw(const char *buffer,
-                 int         numBytes,
-                 int         flags = 0);
+    int writeRaw(const char *buffer, int numBytes, int flags = 0);
     int writeRaw(int        *augStatus,
                  const char *buffer,
                  int         numBytes,
@@ -467,24 +446,20 @@ class TcpChannel : public btlsc::Channel {
         // some reasonable hope of success.  A negative "status", however,
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.  Note that if the
+        // behavior is undefined unless '0 < numBytes'.  Note that if the
         // specified 'timeout' value has already passed, the "write" operation
         // will still be attempted, but the attempt will not block.
 
-    int writev(const btls::Ovec  *buffers,
-               int               numBuffers,
-               int               flags = 0);
-    int writev(const btls::Iovec *buffers,
-               int               numBuffers,
-               int               flags = 0);
+    int writev(const btls::Ovec *buffers, int numBuffers, int flags = 0);
+    int writev(const btls::Iovec *buffers, int numBuffers, int flags = 0);
     int writev(int              *augStatus,
-               const btls::Ovec  *buffers,
+               const btls::Ovec *buffers,
                int               numBuffers,
                int               flags = 0);
-    int writev(int              *augStatus,
+    int writev(int               *augStatus,
                const btls::Iovec *buffers,
-               int               numBuffers,
-               int               flags = 0);
+               int                numBuffers,
+               int                flags = 0);
         // Write to this channel from the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Ovec' (or
@@ -505,20 +480,16 @@ class TcpChannel : public btlsc::Channel {
         // closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 0 < numBytes.
 
-    int writevRaw(const btls::Ovec  *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
-    int writevRaw(const btls::Iovec *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
+    int writevRaw(const btls::Ovec *buffers, int numBuffers, int flags = 0);
+    int writevRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
     int writevRaw(int              *augStatus,
-                  const btls::Ovec  *buffers,
+                  const btls::Ovec *buffers,
                   int               numBuffers,
                   int               flags = 0);
-    int writevRaw(int              *augStatus,
+    int writevRaw(int               *augStatus,
                   const btls::Iovec *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
+                  int                numBuffers,
+                  int                flags = 0);
         // *Atomically* write to this channel, from the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
         // respective numbers of bytes as specified in each corresponding
@@ -552,7 +523,7 @@ class TcpChannel : public btlsc::Channel {
 
     int getOption(int *result, int level, int option);
         // Load into the specified 'result' the current value of the specified
-        // option of the specified 'level' set on the underlying socket.
+        // 'option' of the specified 'level' set on the underlying socket.
         // Return 0 on success and a non-zero value otherwise.  The list of
         // commonly-supported options (and levels) is enumerated in
         // 'btlso_socketoptutil'.
@@ -581,9 +552,9 @@ class TcpChannel : public btlsc::Channel {
 
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 void TcpChannel::invalidate()

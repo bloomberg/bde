@@ -1,9 +1,10 @@
-// ball_userfieldvalues.cpp                                           -*-C++-*-
-#include <ball_userfieldvalues.h>
+// ball_userfieldsschema.cpp                                          -*-C++-*-
+#include <ball_userfieldsschema.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(ball_userfieldvalues_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(ball_userfieldsschema_cpp,"$Id$ $CSID$")
 
+#include <ball_userfieldtype.h>
 #include <bslim_printer.h>
 
 #include <bsl_ostream.h>
@@ -13,21 +14,32 @@ namespace BloombergLP {
 namespace ball {
 
 
-                             // ---------------------
-                             // class UserFieldValues
-                             // ---------------------
+                             // ----------------------
+                             // class UserFieldsSchema
+                             // ----------------------
+
+// CREATORS
+UserFieldsSchema::~UserFieldsSchema()
+{
+    BSLS_ASSERT(d_names.size() == d_types.size());
+}
 
 // ACCESSORS
-bsl::ostream& UserFieldValues::print(bsl::ostream& stream,
-                                     int           level,
-                                     int           spacesPerLevel) const
+bsl::ostream& UserFieldsSchema::print(bsl::ostream& stream,
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
     }
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.printValue(begin(), end());
+    printer.start();
+    for (int i = 0; i < length(); ++i) {
+        printer.printAttribute(d_names[i].data(),  d_types[i]);
+    }
+    printer.end();
+
     return stream;
 }
 

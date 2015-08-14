@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component provides a concrete test implementation of the
-// 'baltzo::Loader' protocol for loading a 'baltzo::Zoneinfo' object.  The
-// following inheritance hierarchy diagram shows the classes involved and
-// their methods:
+//@DESCRIPTION: This component provides 'baltzo::TestLoader', a concrete test
+// implementation of the 'baltzo::Loader' protocol for loading a
+// 'baltzo::Zoneinfo' object.  The following inheritance hierarchy diagram
+// shows the classes involved and their methods:
 //..
 //   ,------------------.
 //  ( baltzo::TestLoader )
@@ -34,10 +34,10 @@ BSLS_IDENT("$Id: $")
 //                 loadTimeZone
 //..
 // This test implementation maintains a mapping of time-zone identifiers to
-// 'baltzo::Zoneinfo' objects.  Clients can associate a time-zone object
-// with a time-zone identifier using the 'setTimeZone' method.   A subsequent
-// call to the protocol method 'loadTimeZone' for that time-zone identifier
-// will return the supplied 'baltzo::Zoneinfo' object.
+// 'baltzo::Zoneinfo' objects.  Clients can associate a time-zone object with a
+// time-zone identifier using the 'setTimeZone' method.  A subsequent call to
+// the protocol method 'loadTimeZone' for that time-zone identifier will return
+// the supplied 'baltzo::Zoneinfo' object.
 //
 ///Usage
 ///-----
@@ -161,13 +161,13 @@ namespace baltzo {
                             // ================
 
 class TestLoader : public Loader {
-    // This class provides a concrete test implementation of the
-    // 'Loader' protocol (an abstract interface) for obtaining a time
-    // zone.  This test implementation maintains a mapping of time-zone
-    // identifiers to 'Zoneinfo' objects.  Time zone information objects
-    // are associated with a time-zone identifier using the 'setTimeZone'
-    // method, and can be subsequently accessed by calling the protocol method
-    // 'loadTimeZone' with the same identifier.
+    // This class provides a concrete test implementation of the 'Loader'
+    // protocol (an abstract interface) for obtaining a time zone.  This test
+    // implementation maintains a mapping of time-zone identifiers to
+    // 'Zoneinfo' objects.  Time zone information objects are associated with a
+    // time-zone identifier using the 'setTimeZone' method, and can be
+    // subsequently accessed by calling the protocol method 'loadTimeZone' with
+    // the same identifier.
 
   private:
     typedef bsl::map<bsl::string, Zoneinfo> TimeZoneMap;
@@ -184,13 +184,17 @@ class TestLoader : public Loader {
     TestLoader& operator=(const TestLoader&);
 
   public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TestLoader,
+                                          bslalg::TypeTraitUsesBslmaAllocator);
+
     // CREATORS
     explicit TestLoader(bslma::Allocator *basicAllocator = 0);
-        // Create a 'TestLoader' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  By default the
-        // test loader will return 'ErrorCode::BALTZO_UNSUPPORTED_ID'
-        // for all time-zone identifiers.
+        // Create a 'TestLoader' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  By default the test loader
+        // will return 'ErrorCode::k_UNSUPPORTED_ID' for all time-zone
+        // identifiers.
 
     virtual ~TestLoader();
         // Destroy this 'TestLoader' object;
@@ -216,9 +220,9 @@ class TestLoader : public Loader {
         // Load into the specified 'result' the time-zone information for the
         // time-zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
-        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.  If an error occurs during the
-        // operation, 'result' will be left in a valid but unspecified state.
+        // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId' is not
+        // recognized.  If an error occurs during the operation, 'result' will
+        // be left in a valid but unspecified state.
 
     // ACCESSORS
 
@@ -258,7 +262,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                             // ----------------

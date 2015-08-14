@@ -354,7 +354,7 @@ static int isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
 }
 
 static int numIncCallback = 0;
-void incCallback(BloombergLP::ball::UserFieldValues *list) {
+void incCallback(BloombergLP::ball::UserFields *list) {
     ASSERT(list);
     ++numIncCallback;
     return;
@@ -371,7 +371,7 @@ class Point {
     const bsl::string& name() const { return d_name; };
 };
 
-void populateUsingPoint(BloombergLP::ball::UserFieldValues *list, const Point& point)
+void populateUsingPoint(BloombergLP::ball::UserFields *list, const Point& point)
 {
     list->appendString(point.name());
     list->appendInt64(point.x());
@@ -1079,7 +1079,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("callback test");
             const Point point;
-            bdlf::Function <void (*)(BloombergLP::ball::UserFieldValues *)> cb;
+            bdlf::Function <void (*)(BloombergLP::ball::UserFields *)> cb;
             cb = bdlf::BindUtil::bind(&populateUsingPoint,
                                      bdlf::PlaceHolders::_1,
                                      point);
@@ -2270,7 +2270,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == ball::LoggerManager::isInitialized());
                 BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::ball::UserFieldValues *)> callback =
+                        <void (*)(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
                 numIncCallback = 0;
 
@@ -2317,7 +2317,7 @@ int main(int argc, char *argv[])
                       << "Testing callback macro safety w/o LoggerManager\n"
                       << "===============================================\n";
 
-        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFieldValues *)> callback
+        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFields *)> callback
                                                                 = &incCallback;
 
         numIncCallback = 0;
@@ -2404,7 +2404,7 @@ int main(int argc, char *argv[])
                                << bsl::endl;
 
         BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::ball::UserFieldValues *)> callback =
+                        <void (*)(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
         numIncCallback = 0;
 

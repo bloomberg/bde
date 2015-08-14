@@ -656,7 +656,7 @@ BSLS_IDENT("$Id: $")
                                         BAEL_SEVERITY)) {                   \
             ball::Log_Stream bael_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__, \
                                               __LINE__, BAEL_SEVERITY);     \
-            CB(&bael_lOcAl_StReAm.record()->userFieldValues());             \
+            CB(&bael_lOcAl_StReAm.record()->userFields());             \
             BAEL_STREAM
 
 #define BALL_LOGCB_TRACE(CB) BALL_LOGCB_STREAM(ball::Severity::BAEL_TRACE, CB)

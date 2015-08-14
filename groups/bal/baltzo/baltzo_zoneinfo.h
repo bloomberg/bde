@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // are set forward by an hour to mark the transition from Eastern Standard Time
 // to Eastern Daylight Time.  This change can be represented by a
 // 'baltzo::ZoneinfoTransition' object whose 'utcTime' refers to March 14,
-// 2011, 1 a.m. and whose 'descriptor' describes Eastern Daylight Time (i.e.,
+// 2011, 1am and whose 'descriptor' describes Eastern Daylight Time (i.e.,
 // description is "EDT", 'dstInEffectFlag' is 'true', and 'utcOffsetInSeconds'
 // is -14,400 (-4 * 60 * 60)).
 //
@@ -371,10 +371,10 @@ bool operator!=(const ZoneinfoTransition& lhs, const ZoneinfoTransition& rhs);
     // not the same or if they do not refer to the same 'descriptor' address.
 
 bool operator<(const ZoneinfoTransition& lhs, const ZoneinfoTransition& rhs);
-     // Return 'true' if the value of the specified 'lhs' is less than (ordered
-     // before) the value of the specified 'rhs'.  Note that the value of 'lhs'
-     // is less than the value of 'rhs' if the value of the 'utcTime' attribute
-     // of 'lhs' is less than the value of the 'utcTime' attribute of 'rhs'.
+    // Return 'true' if the value of the specified 'lhs' is less than (ordered
+    // before) the value of the specified 'rhs'.  Note that the value of 'lhs'
+    // is less than the value of 'rhs' if the value of the 'utcTime' attribute
+    // of 'lhs' is less than the value of the 'utcTime' attribute of 'rhs'.
 
 bsl::ostream& operator<<(bsl::ostream&             stream,
                          const ZoneinfoTransition& object);
@@ -467,9 +467,9 @@ class Zoneinfo {
         // allow the conversion from 'TimeT64' without generating 'bsls_log'
         // output.
         //
-        // Load into 'result' the absolute datetime computed as the sum of the
-        // specified relative 'time' and the epoch.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // Load into the specified 'result' the absolute datetime computed as
+        // the sum of the specified relative 'time' and the epoch.  Return 0 on
+        // success, and a non-zero value otherwise.
 
     // TYPES
     typedef TransitionSequence::const_iterator TransitionConstIterator;
@@ -533,7 +533,7 @@ class Zoneinfo {
         // Return an iterator providing non-modifiable access to the transition
         // that holds the local-time descriptor associated with the specified
         // 'utcTime'.  The behavior is undefined unless 'numTransitions() > 0'
-        // and the specified 'utcTime' is later than the transition returned by
+        // and 'utcTime' is later than the transition returned by
         // 'firstTransition'.
 
     const ZoneinfoTransition& firstTransition() const;
@@ -593,8 +593,7 @@ bool operator!=(const Zoneinfo& lhs, const Zoneinfo& rhs);
     // have the same value, or if both do *not* store the same sequence of
     // transitions, ordered by time.
 
-bsl::ostream& operator<<(bsl::ostream&          stream,
-                         const Zoneinfo& object);
+bsl::ostream& operator<<(bsl::ostream& stream, const Zoneinfo& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -614,7 +613,7 @@ void swap(Zoneinfo& a, Zoneinfo& b);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                         // ------------------------

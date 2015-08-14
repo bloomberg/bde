@@ -1,6 +1,7 @@
 // baltzo_loader.t.cpp                                                -*-C++-*-
 #include <baltzo_loader.h>
 
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
 #include <bdlt_datetime.h>
@@ -9,7 +10,10 @@
 
 #include <bsls_protocoltest.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -115,7 +119,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 
         // MANIPULATORS
         virtual int loadTimeZone(baltzo::Zoneinfo *result,
-                                 const char      *timeZoneId);
+                                 const char       *timeZoneId);
             // Load into the specified 'result' the "Zoneinfo" time zone
             // information for the time zone identified by the specified
             // 'timeZoneId'.  Return 0 on success, and non-zero otherwise.
@@ -244,9 +248,9 @@ int main(int argc, char *argv[])
 // implementation that loads data from an external data source (e.g.,
 // 'baltzo_datafileloader').
 //
-// First, we create a loader 'myLoader' using the class 'MyLoaderImp'
-// defined in the previous example, and obtain a 'bdlma::AlignedAllocator'
-// pointer to it:
+// First, we create a loader 'myLoader' using the class 'MyLoaderImp' defined
+// in the previous example, and obtain a 'bdlma::AlignedAllocator' pointer to
+// it:
 //..
     MyLoaderImp myLoader;
     baltzo::Loader& loader = myLoader;

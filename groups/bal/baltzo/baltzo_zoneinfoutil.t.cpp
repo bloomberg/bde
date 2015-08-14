@@ -1,12 +1,14 @@
 // baltzo_zoneinfoutil.t.cpp                                          -*-C++-*-
 #include <baltzo_zoneinfoutil.h>
 
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
 #include <ball_administration.h>
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
 #include <bdlt_iso8601util.h>
@@ -25,6 +27,8 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
@@ -188,7 +192,7 @@ struct TransitionDescription {
     bool        d_isDst;
 };
 
-void addTransitions(baltzo::Zoneinfo             *result,
+void addTransitions(baltzo::Zoneinfo            *result,
                     const TransitionDescription *descriptions,
                     int                          numDescriptions)
     // Insert to the specified 'result' the contiguous sequence of specified
@@ -219,8 +223,8 @@ struct LogVerbosityGuard {
     int  d_defaultPassthrough;  // default passthrough log level
 
     LogVerbosityGuard(bool verbose = false)
-        // If the specified 'verbose' is 'false' disable logging util this
-        // guard is destroyed.
+        // If the optionally specified 'verbose' is 'false' disable logging
+        // until this guard is destroyed.
     {
         d_verbose = verbose;
         if (!d_verbose) {
@@ -242,7 +246,7 @@ struct LogVerbosityGuard {
         }
     }
 
-   ~LogVerbosityGuard()
+    ~LogVerbosityGuard()
         // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
@@ -294,9 +298,9 @@ int main(int argc, char *argv[])
     const bdlt::EpochUtil::TimeT64 MAX_DATETIME =
                         toTimeT(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999));
 
-    const Validity::Enum U = baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE;
-    const Validity::Enum A = baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS;
-    const Validity::Enum I = baltzo::LocalTimeValidity::BALTZO_INVALID;
+    const Validity::Enum U = baltzo::LocalTimeValidity::e_VALID_UNIQUE;
+    const Validity::Enum A = baltzo::LocalTimeValidity::e_VALID_AMBIGUOUS;
+    const Validity::Enum I = baltzo::LocalTimeValidity::e_INVALID;
 
     switch (test) { case 0:
       case 6: {
@@ -464,10 +468,10 @@ int main(int argc, char *argv[])
 // during Eastern Standard Time, and whose local time offset from UTC is
 // -5:00.  Because "Jan 1, 2011 12:00" is both a valid and unique local time,
 // the returned validity will be
-// 'baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE' and the two returned
-// transition iterators will be equal:
+// 'baltzo::LocalTimeValidity::e_VALID_UNIQUE' and the two returned transition
+// iterators will be equal:
 //..
-    ASSERT(baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE == validity);
+    ASSERT(baltzo::LocalTimeValidity::e_VALID_UNIQUE == validity);
     ASSERT(firstTransition == secondTransition);
 //
     ASSERT(false    == firstTransition->descriptor().dstInEffectFlag());
@@ -495,15 +499,15 @@ int main(int argc, char *argv[])
 // Finally we observe that the local time was ambiguous and that the returned
 // transitions are distinct:
 //..
-    ASSERT(baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS == validity);
+    ASSERT(baltzo::LocalTimeValidity::e_VALID_AMBIGUOUS == validity);
     ASSERT(firstTransition != secondTransition);
 //..
 // Because 'ambiguousLocalTime' may refer to either the standard or the
 // daylight-saving time value "Nov 7, 2010 01:30", the returned validity will
-// be 'BALTZO_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will
-// differ.  'first' will refer to a description of the local time before the
-// transition (daylight-saving time) and 'second' will refer to a description
-// of local time after the transition (standard-time):
+// be 'e_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will differ.
+// 'first' will refer to a description of the local time before the transition
+// (daylight-saving time) and 'second' will refer to a description of local
+// time after the transition (standard-time):
 //..
     ASSERT(true      == firstTransition->descriptor().dstInEffectFlag());
     ASSERT(-4*60*60  == firstTransition->descriptor().utcOffsetInSeconds());
@@ -792,8 +796,8 @@ int main(int argc, char *argv[])
             const int NUM_DIFFERENCES = sizeof DIFFERENCES /
                                         sizeof *DIFFERENCES;
 
-            // Each value in the set of 'EPSILONS' represents an offset from
-            // a time value that we want to test.
+            // Each value in the set of 'EPSILONS' represents an offset from a
+            // time value that we want to test.
             const char *EPSILONS[] = {
                 "-01:00:00.000",
                 "-00:01:00.000",
@@ -976,8 +980,8 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            // Each value in the set of 'EPSILONS' represents an offset from
-            // a time value that we want to test.
+            // Each value in the set of 'EPSILONS' represents an offset from a
+            // time value that we want to test.
             const char *EPSILONS[] = {
                 "-01:00:00.000",
                 "-00:01:00.000",
@@ -1530,9 +1534,6 @@ int main(int argc, char *argv[])
 
         LogVerbosityGuard logGuard;
         baltzo::LocalTimeDescriptor desc(0, false, "junk", Z);
-        enum {
-            SECONDS_PER_DAY = 24 * 60 * 60
-        };
         {
             if (veryVerbose) {
                 cout << "\tTesting a default constructed 'Zoneinfo' "

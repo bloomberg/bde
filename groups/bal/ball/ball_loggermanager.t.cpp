@@ -1,4 +1,4 @@
-// ball_loggermanager.t.cpp         -*-C++-*-
+// ball_loggermanager.t.cpp                                           -*-C++-*-
 
 #include <ball_loggermanager.h>
 
@@ -7,8 +7,8 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_loggermanagerdefaults.h>
 #include <ball_userfieldtype.h>
-#include <ball_userfieldvalues.h>
-#include <ball_userfielddescriptors.h>
+#include <ball_userfields.h>
+#include <ball_userfieldsschema.h>
 #include <ball_severity.h>
 #include <ball_testobserver.h>                  // for testing only
 
@@ -238,8 +238,8 @@ typedef ball::RecordAttributes           Attr;
 typedef ball::RecordBuffer               RecBuf;
 
 typedef ball::UserFieldType              FieldType;
-typedef ball::UserFieldValues            FieldValues;
-typedef ball::UserFieldDescriptors       Descriptors;
+typedef ball::UserFields            FieldValues;
+typedef ball::UserFieldsSchema       Descriptors;
 
 typedef ball::ThresholdAggregate            Thresholds;
 typedef Logger::PublishAllTriggerCallback   Pac;
@@ -764,8 +764,8 @@ void inheritThresholdLevels(int        *recordLevel,
 static int globalFactorialArgument;  // TBD kludge
 
 static
-void myPopulator(ball::UserFieldValues             *list, 
-                 const ball::UserFieldDescriptors&  descriptors)
+void myPopulator(ball::UserFields             *list, 
+                 const ball::UserFieldsSchema&  descriptors)
 {
     ASSERT(1                  == descriptors.length());
     ASSERT(0                  == descriptors.indexOf("n!"));
@@ -853,8 +853,8 @@ void simpleThresholdLevels(int        *recordLevel,
 }
 
 static
-void simplePopulator(ball::UserFieldValues             *list, 
-                     const ball::UserFieldDescriptors&  schema)
+void simplePopulator(ball::UserFields             *list, 
+                     const ball::UserFieldsSchema&  schema)
 {
     list->appendInt64(1066);
     list->appendString("XXX");
@@ -1662,7 +1662,7 @@ int main(int argc, char *argv[])
             ASSERT(LINE         == A.lineNumber());
             ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-            const FieldValues& V = R.userFieldValues();
+            const FieldValues& V = R.userFields();
             ASSERT(0 == V.length());
         }
         ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
@@ -1906,7 +1906,7 @@ int main(int argc, char *argv[])
             ASSERT(LINE         == A.lineNumber());
             ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-            const FieldValues& V = R.userFieldValues();
+            const FieldValues& V = R.userFields();
             ASSERT(0 == V.length());
         }
         ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
@@ -2312,15 +2312,15 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                 thresholdsCallback(&inheritThresholdLevels);
 
-        ball::UserFieldDescriptors descriptors;
-        descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
+        ball::UserFieldsSchema descriptors;
+        descriptors.appendFieldDescription("n!", ball::UserFieldType::e_INT64);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
         ball::LoggerManagerConfiguration mLMC;
         mLMC.setCategoryNameFilterCallback(nameFilter);
         mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
-        mLMC.setUserFieldDescriptors(descriptors, populator);
+        mLMC.setUserFieldsSchema(descriptors, populator);
 
         ball::LoggerManagerScopedGuard guard(&testObserver, mLMC);
         Obj& mLM = Obj::singleton();
@@ -2818,8 +2818,8 @@ int main(int argc, char *argv[])
 
             Cnf nameFilter(&toLower);
 
-            ball::UserFieldDescriptors descriptors;
-            descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
+            ball::UserFieldsSchema descriptors;
+            descriptors.appendFieldDescription("n!", ball::UserFieldType::e_INT64);
 
             ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
@@ -2831,7 +2831,7 @@ int main(int argc, char *argv[])
             mLMC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
 
             mLMC.setCategoryNameFilterCallback(nameFilter);
-            mLMC.setUserFieldDescriptors(descriptors, populator);
+            mLMC.setUserFieldsSchema(descriptors, populator);
 
             Obj* mLM_p;
             bslma::ManagedPtr<Obj> mLM_mp;
@@ -3449,15 +3449,15 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                 thresholdsCallback(&inheritThresholdLevels);
 
-        ball::UserFieldDescriptors descriptors;
-        descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
+        ball::UserFieldsSchema descriptors;
+        descriptors.appendFieldDescription("n!", ball::UserFieldType::e_INT64);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
         ball::LoggerManagerConfiguration mLMC;
         mLMC.setCategoryNameFilterCallback(nameFilter);
         mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
-        mLMC.setUserFieldDescriptors(descriptors, populator);
+        mLMC.setUserFieldsSchema(descriptors, populator);
 
         ball::LoggerManagerScopedGuard lmg(&testObserver, mLMC);
         Obj& mLM = Obj::singleton();  const Obj& LM = mLM;
@@ -3769,9 +3769,9 @@ int main(int argc, char *argv[])
                 thresholdsCallback(&simpleThresholdLevels, OA);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            ball::UserFieldDescriptors descriptors(OA);
-            descriptors.appendDescriptor("int", FieldType::e_INT64);
-            descriptors.appendDescriptor("string", FieldType::e_STRING);
+            ball::UserFieldsSchema descriptors(OA);
+            descriptors.appendFieldDescription("int", FieldType::e_INT64);
+            descriptors.appendFieldDescription("string", FieldType::e_STRING);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator, OA);
@@ -3783,7 +3783,7 @@ int main(int argc, char *argv[])
 
             ball::LoggerManagerConfiguration mLMC(OA);
             mLMC.setDefaultValues(mLMD);
-            mLMC.setUserFieldDescriptors(descriptors, populator);
+            mLMC.setUserFieldsSchema(descriptors, populator);
             mLMC.setCategoryNameFilterCallback(nameFilter);
             mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
@@ -3852,7 +3852,7 @@ int main(int argc, char *argv[])
             ASSERT(LINE == A.lineNumber());
             ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-            const FieldValues& V = R.userFieldValues();
+            const FieldValues& V = R.userFields();
             ASSERT(   2 == V.length());
             ASSERT(1066 == V[0].theInt64());
             ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
@@ -3901,9 +3901,9 @@ int main(int argc, char *argv[])
 
         Obj::FactoryDefaultThresholds fdt(19, 17, 13, 11);
 
-        ball::UserFieldDescriptors descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        ball::UserFieldsSchema descriptors;
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -3963,7 +3963,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(   2 == V.length());
         ASSERT(1066 == V[0].theInt64());
         ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
@@ -4007,9 +4007,9 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
             thresholdsCallback(&simpleThresholdLevels);
 
-        ball::UserFieldDescriptors descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        ball::UserFieldsSchema descriptors;
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -4069,7 +4069,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(   2 == V.length());
         ASSERT(1066 == V[0].theInt64());
         ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
@@ -4112,9 +4112,9 @@ int main(int argc, char *argv[])
 
         Obj::FactoryDefaultThresholds fdt(19, 17, 13, 11);
 
-        ball::UserFieldDescriptors descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        ball::UserFieldsSchema descriptors;
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
         
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -4170,7 +4170,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(   2 == V.length());
         ASSERT(1066 == V[0].theInt64());
         ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
@@ -4210,9 +4210,9 @@ int main(int argc, char *argv[])
 
         ball::TestObserver testObserver(cout);
 
-        ball::UserFieldDescriptors descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        ball::UserFieldsSchema descriptors;
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -4269,7 +4269,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(   2 == V.length());
         ASSERT(1066 == V[0].theInt64());
         ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
@@ -4449,7 +4449,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
@@ -4625,7 +4625,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
@@ -4767,7 +4767,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
@@ -4908,7 +4908,7 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const FieldValues& V = R.userFieldValues();
+        const FieldValues& V = R.userFields();
         ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
@@ -4940,15 +4940,15 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                 thresholdsCallback(&inheritThresholdLevels);
 
-        ball::UserFieldDescriptors descriptors;
-        descriptors.appendDescriptor("n!", FieldType::e_INT64);
+        ball::UserFieldsSchema descriptors;
+        descriptors.appendFieldDescription("n!", FieldType::e_INT64);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
         ball::LoggerManagerConfiguration mLMC;
         mLMC.setCategoryNameFilterCallback(nameFilter);
         mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
-        mLMC.setUserFieldDescriptors(descriptors, populator);
+        mLMC.setUserFieldsSchema(descriptors, populator);
 
         ball::LoggerManagerScopedGuard lmg(&testObserver, mLMC);
         ball::LoggerManager& mLM = Obj::singleton();

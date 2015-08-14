@@ -170,14 +170,17 @@ class my_EchoServer {
     void allocateCb(btlsc::TimedCbChannel *channel, int status);
          // Invoked by the socket event manager when a connection is accepted.
 
-    void bufferedReadCb(const char *buffer, int status, int asyncStatus,
+    void bufferedReadCb(const char            *buffer,
+                        int                    status,
+                        int                    asyncStatus,
                         btlsc::TimedCbChannel *channel);
 
-    void readCb(int status, int asyncStatus,
-                btlsc::TimedCbChannel *channel);
+    void readCb(int status, int asyncStatus, btlsc::TimedCbChannel *channel);
 
-    void writeCb(int status, int asyncStatus, btlsc::TimedCbChannel *channel,
-                 int numBytes);
+    void writeCb(int                    status,
+                 int                    asyncStatus,
+                 btlsc::TimedCbChannel *channel,
+                 int                    numBytes);
   private:
     my_EchoServer(const my_EchoServer&);    // Not implemented.
     my_EchoServer&
@@ -185,9 +188,9 @@ class my_EchoServer {
   public:
     // CREATORS
     my_EchoServer(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 btlso::TimerEventManager                      *manager,
-                 bslma::Allocator                             *basicAllocator);
+               btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+               btlso::TimerEventManager                       *manager,
+               bslma::Allocator                               *basicAllocator);
     ~my_EchoServer();
 
     //  MANIPULATORS
@@ -264,8 +267,9 @@ void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
     }
 }
 
-void my_EchoServer::bufferedReadCb(const char *buffer, int status,
-                                   int asyncStatus,
+void my_EchoServer::bufferedReadCb(const char            *buffer,
+                                   int                    status,
+                                   int                    asyncStatus,
                                    btlsc::TimedCbChannel *channel)
 {
     cout << "my_EchoServer::bufferedReadCb: "
@@ -317,7 +321,8 @@ void my_EchoServer::bufferedReadCb(const char *buffer, int status,
     }
 }
 
-void my_EchoServer::readCb(int status, int asyncStatus,
+void my_EchoServer::readCb(int                    status,
+                           int                    asyncStatus,
                            btlsc::TimedCbChannel *channel)
 {
     cout << "my_EchoServer::readCb: "
@@ -555,19 +560,19 @@ class my_TickReporter {
 
   private:
     void acceptCb(btlsc::TimedCbChannel     *clientChannel,
-                  int                       status,
+                  int                        status,
                   const bsls::TimeInterval&  timeout);
         // Called when a new client channel has been accepted.  ...
 
-    void readCb(const char           *buffer,
-                int                   status,
-                int                   asyncStatus,
+    void readCb(const char            *buffer,
+                int                    status,
+                int                    asyncStatus,
                 btlsc::TimedCbChannel *clientChannel);
         // Called when a 'my_Tick' value has been read from the channel.  ...
 
-    void timeCb(int                  lastNumTicks,
-                int                 *curNumTicks,
-                bsls::TimeInterval    lastTime);
+    void timeCb(int                 lastNumTicks,
+                int                *curNumTicks,
+                bsls::TimeInterval  lastTime);
         // To calculate the tick send/receive rate (Ticks/second).
 
   private:
@@ -575,7 +580,7 @@ class my_TickReporter {
     my_TickReporter& operator=(const my_TickReporter&);  // not impl.
 
   public:
-    my_TickReporter(bsl::ostream&                  console,
+    my_TickReporter(bsl::ostream&                   console,
                     btlsc::TimedCbChannelAllocator *acceptor,
                     btlso::TcpTimerEventManager    *d_eventManager_p);
         // Create a non-blocking tick-reporter using the specified 'acceptor'
@@ -616,7 +621,7 @@ static int myTickMessageSize()
 }
 
 void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
-                               int                       status,
+                               int                        status,
                                const bsls::TimeInterval&  timeout)
 {
     bsls::TimeInterval nextTimeout(timeout);
@@ -671,9 +676,9 @@ void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
     }
 }
 
-void my_TickReporter::readCb(const char           *buffer,
-                             int                   status,
-                             int                   asyncStatus,
+void my_TickReporter::readCb(const char            *buffer,
+                             int                    status,
+                             int                    asyncStatus,
                              btlsc::TimedCbChannel *clientChannel)
 {
     static int curNumTicks = 0;
@@ -750,9 +755,9 @@ void my_TickReporter::readCb(const char           *buffer,
     }
 }
 
-void my_TickReporter::timeCb(int                lastNumTicks,
-                              int               *curNumTicks,
-                              bsls::TimeInterval  lastTime)
+void my_TickReporter::timeCb(int                 lastNumTicks,
+                             int                *curNumTicks,
+                             bsls::TimeInterval  lastTime)
 {
     int numTicks = *curNumTicks - lastNumTicks;
     enum { k_TIME_LEN = 15 };  // 15 seconds
@@ -813,13 +818,13 @@ my_TickReporter::~my_TickReporter()
 }
 
 static void acceptCb(btlsc::CbChannel           *channel,
-                     int                        status,
+                     int                         status,
                      btlsos::TcpTimedCbAcceptor *acceptor,
-                     int                       *numConnections,
-                     int                        validChannel,
-                     int                        expStatus,
-                     int                        cancelFlag,
-                     int                        closeFlag)
+                     int                        *numConnections,
+                     int                         validChannel,
+                     int                         expStatus,
+                     int                         cancelFlag,
+                     int                         closeFlag)
     // Verify the result of an "ACCEPT" request by comparing against the
     // expected values: If the specified 'channelFlag' is nonzero, a new
     // channel should be established; the return 'status' should be the same as

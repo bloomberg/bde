@@ -49,16 +49,17 @@ BSLS_IDENT("$Id: $")
 // passed to us:
 //..
 //  void connectCb(
-//                int                                           status,
-//                btlso::StreamSocket< btlso::IPv4Address>       *socket,
-//                btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
-//                const btls5::DetailedStatus&                   detailedStatus,
-//                bdlqq::Mutex                                  *stateLock,
-//                bdlqq::Condition                              *stateChanged,
-//                volatile int                                 *state)
+//              int                                             status,
+//              btlso::StreamSocket< btlso::IPv4Address>       *socket,
+//              btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+//              const btls5::DetailedStatus&                    detailedStatus,
+//              bdlqq::Mutex                                   *stateLock,
+//              bdlqq::Condition                               *stateChanged,
+//              volatile int                                   *state)
 //  {
 //      if (0 == status) {
 //          // Success: conduct I/O operations with 'socket' ... and deallocate
+//
 //          socketFactory->deallocate(socket);
 //      } else {
 //          cout << "Connect failed " << status << ": " << detailedStatus
@@ -90,7 +91,8 @@ BSLS_IDENT("$Id: $")
 // the proxies in the connection path requires that type of authentication:
 //..
 //      btls5::Credentials credentials("John.smith", "pass1");
-//      btls5::NetworkDescriptionUtil::setAllCredentials(&proxies, credentials);
+//      btls5::NetworkDescriptionUtil::setAllCredentials(&proxies,
+//                                                       credentials);
 //..
 // Now, we construct a 'btls5::NetworkConnector' that will be used to connect
 // to one or more destinations:
@@ -109,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //      const bsls::TimeInterval totalTimeout(30.0);
 //      bdlqq::Mutex     stateLock;
 //      bdlqq::Condition stateChanged;
-//      volatile int    state = 0; // value > 0 indicates success, < 0 is error
+//      volatile int     state = 0; // value > 0 is success and < 0 is error
 //      using namespace bdlf::PlaceHolders;
 //      btls5::NetworkConnector::ConnectionAttemptHandle attempt =
 //         connector.makeConnectionAttemptHandle(bdlf::BindUtil::bind(
@@ -187,9 +189,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btls5 {
-                        // ============================
+
+                        // ======================
                         // class NetworkConnector
-                        // ============================
+                        // ======================
 
 class NetworkConnector {
     // This class supports a connection to a destination TCP server using one
@@ -205,8 +208,8 @@ class NetworkConnector {
     //
     // A 'NetworkConnector' object allows multiple concurrent connection
     // attempts.  A connection attempt is initiated by calling
-    // 'makeConnectionAttemptHandle' to obtain a 'ConnectionAttemptHandle'
-    // that is subsequently passed to 'startConnectionAttempt'.  The
+    // 'makeConnectionAttemptHandle' to obtain a 'ConnectionAttemptHandle' that
+    // is subsequently passed to 'startConnectionAttempt'.  The
     // 'ConnectionAttemptHandle' object can also be used to cancel the
     // connection attempt.
 
@@ -228,11 +231,11 @@ class NetworkConnector {
     };
 
     typedef bdlf::Function<void (*)(
-            NetworkConnector::ConnectionStatus      status,
-            btlso::StreamSocket<btlso::IPv4Address>        *socket,
-            btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
-            const DetailedStatus&                   detailedStatus)>
-        ConnectionStateCallback;
+               NetworkConnector::ConnectionStatus              status,
+               btlso::StreamSocket<btlso::IPv4Address>        *socket,
+               btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+               const DetailedStatus&                           detailedStatus)>
+                                                       ConnectionStateCallback;
         // A callback of this type is invoked when the 'NetworkConnector'
         // object establishes a connection or fails.  If the specified 'status'
         // is zero, use the specified 'socket' for communication, and the
@@ -256,17 +259,17 @@ class NetworkConnector {
   public:
     // CREATORS
     NetworkConnector(
-             const NetworkDescription&               socks5Servers,
-             btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
-             btlmt::TcpTimerEventManager                   *eventManager,
-             bslma::Allocator                             *basicAllocator = 0);
+           const NetworkDescription&                       socks5Servers,
+           btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+           btlmt::TcpTimerEventManager                    *eventManager,
+           bslma::Allocator                               *basicAllocator = 0);
     NetworkConnector(
-             const NetworkDescription&               socks5Servers,
-             btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
-             btlmt::TcpTimerEventManager                   *eventManager,
-             int                                           minSourcePort,
-             int                                           maxSourcePort,
-             bslma::Allocator                             *basicAllocator = 0);
+           const NetworkDescription&                       socks5Servers,
+           btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+           btlmt::TcpTimerEventManager                    *eventManager,
+           int                                             minSourcePort,
+           int                                             maxSourcePort,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a 'NetworkConnector' object that will use the specified
         // 'socks5Servers' to connect to a TCP server, allocating and
         // deallocating sockets using the specified 'socketFactory'.  Use the
@@ -277,8 +280,8 @@ class NetworkConnector {
         // port.  Optionally specify a 'basicAllocator' used to supply memory.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  The behavior is undefined unless
-        // 'NetworkDescriptionUtil::isWellFormed(socks5Servers)' is
-        // 'true', and, for the second signature, '1 <= minSourcePort' and
+        // 'NetworkDescriptionUtil::isWellFormed(socks5Servers)' is 'true',
+        // and, for the second signature, '1 <= minSourcePort' and
         // 'minSourcePort <= maxSourcePort' and 'maxSourcePort <= 65535'.
 
     //! ~NetworkConnector() = default;
@@ -288,9 +291,9 @@ class NetworkConnector {
     // MANIPULATORS
     ConnectionAttemptHandle makeConnectionAttemptHandle(
                                    const ConnectionStateCallback& callback,
-                                   const bsls::TimeInterval&       proxyTimeout,
-                                   const bsls::TimeInterval&       totalTimeout,
-                                   const btlso::Endpoint&          server);
+                                   const bsls::TimeInterval&      proxyTimeout,
+                                   const bsls::TimeInterval&      totalTimeout,
+                                   const btlso::Endpoint&         server);
         // Return a 'ConnectionAttemptHandle' object that can be used to
         // asynchronously connect to the specified 'server'; the specified
         // 'callback' will be invoked with connection status.  If the specified
@@ -329,6 +332,7 @@ class NetworkConnector {
         // Return a reference providing non-modifiable access to the internal
         // copy of the network description that was suplied at construction.
 };
+
 }  // close package namespace
 
 // TRAITS
@@ -346,7 +350,7 @@ struct UsesBslmaAllocator<btls5::NetworkConnector> : bsl::true_type {
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

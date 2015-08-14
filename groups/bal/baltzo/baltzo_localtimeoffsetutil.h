@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Steven Breitstein (sbreitstein)
 //
-//@DESCRIPTION: This component provides
+//@DESCRIPTION: This component, 'baltzo::LocalTimeOffsetUtil', provides
 // 'baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset', a high performance
 // 'bdetu_systemtime' local time offset callback function, which accesses the
 // Zoneinfo database.  To achieve high performance, this function refers to a
@@ -30,9 +30,9 @@ BSLS_IDENT("$Id: $")
 // cached information might be invalidated by updates to the Zoneinfo database;
 // however, those occur are also infrequent events.
 //
-// A successful return from one of the 'configure' methods is a prerequite
-// to the use of most of the other functions provided here.  Most methods
-// are thread-safe.  Refer to the function-level documentation for details.
+// A successful return from one of the 'configure' methods is a prerequisite to
+// the use of most of the other functions provided here.  Most methods are
+// thread-safe.  Refer to the function-level documentation for details.
 //
 ///Usage
 ///-----
@@ -141,6 +141,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
+#endif
+
+#ifndef INCLUDED_BDLT_LOCALTIMEOFFSET
+#include <bdlt_localtimeoffset.h>
 #endif
 
 #ifndef INCLUDED_BDLQQ_RWMUTEX
@@ -262,7 +266,7 @@ struct LocalTimeOffsetUtil {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                         // --------------------------

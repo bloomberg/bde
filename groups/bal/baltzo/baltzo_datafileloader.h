@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: provide a concrete 'baltzo::Loader' for Zoneinfo binary files
+//@PURPOSE: provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
 //
 //@CLASSES:
 //  baltzo::DataFileLoader: concrete 'baltzo::Loader' for Zoneinfo binary data
@@ -202,6 +202,10 @@ BSLS_IDENT("$Id: $")
 #include <baltzo_loader.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -220,10 +224,10 @@ class Zoneinfo;
                             // ====================
 
 class DataFileLoader : public Loader {
-    // This component provides a concrete implementation of the
-    // 'DataLoader' protocol for loading, into a 'Zoneinfo', the
-    // properties of a time zone defined by an Zoneinfo (TZ Database) binary
-    // file located on the file system.
+    // This component provides a concrete implementation of the 'DataLoader'
+    // protocol for loading, into a 'Zoneinfo', the properties of a time zone
+    // defined by an Zoneinfo (TZ Database) binary file located on the file
+    // system.
 
     // DATA
     bsl::string d_rootPath;  // root path for time-zone data file
@@ -234,6 +238,10 @@ class DataFileLoader : public Loader {
     DataFileLoader& operator=(const DataFileLoader&);
 
   public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(DataFileLoader,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
     // CLASS METHODS
     static bool isPlausibleZoneinfoRootPath(const char *path);
         // Return 'true' if there currently exists a directory at the specified
@@ -271,9 +279,9 @@ class DataFileLoader : public Loader {
         // Load into the specified 'result' the time-zone information for the
         // time zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
-        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.  If an error occurs during this
-        // operation, 'result' will be left in a valid, but unspecified state.
+        // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId' is not
+        // recognized.  If an error occurs during this operation, 'result' will
+        // be left in a valid, but unspecified state.
 
     // ACCESSORS
     int loadTimeZoneFilePath(bsl::string *result,
@@ -304,7 +312,7 @@ class DataFileLoader : public Loader {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // ACCESSORS

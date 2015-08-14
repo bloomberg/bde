@@ -200,9 +200,9 @@ int TcpTimedChannel::read(char *buffer, int numBytes, int flags)
 }
 
 int TcpTimedChannel::read(int  *augStatus,
-                                 char *buffer,
-                                 int   numBytes,
-                                 int   flags)
+                          char *buffer,
+                          int   numBytes,
+                          int   flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -268,10 +268,10 @@ int TcpTimedChannel::read(int  *augStatus,
     return numBytesRead;
 }
 
-int TcpTimedChannel::timedRead(char                     *buffer,
-                                      int                       numBytes,
-                                      const bsls::TimeInterval&  timeout,
-                                      int                       flags)
+int TcpTimedChannel::timedRead(char                      *buffer,
+                               int                        numBytes,
+                               const bsls::TimeInterval&  timeout,
+                               int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -357,11 +357,11 @@ int TcpTimedChannel::timedRead(char                     *buffer,
     return retValue;
 }
 
-int TcpTimedChannel::timedRead(int                      *augStatus,
-                                      char                     *buffer,
-                                      int                       numBytes,
-                                      const bsls::TimeInterval&  timeout,
-                                      int                       flags)
+int TcpTimedChannel::timedRead(int                       *augStatus,
+                               char                      *buffer,
+                               int                        numBytes,
+                               const bsls::TimeInterval&  timeout,
+                               int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -451,8 +451,8 @@ int TcpTimedChannel::timedRead(int                      *augStatus,
 }
 
 int TcpTimedChannel::readv(const btls::Iovec *buffers,
-                                  int               numBuffers,
-                                  int               flags)
+                           int                numBuffers,
+                           int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -539,10 +539,10 @@ int TcpTimedChannel::readv(const btls::Iovec *buffers,
     return numBytesRead;
 }
 
-int TcpTimedChannel::readv(int              *augStatus,
-                                  const btls::Iovec *buffers,
-                                  int               numBuffers,
-                                  int               flags)
+int TcpTimedChannel::readv(int               *augStatus,
+                           const btls::Iovec *buffers,
+                           int                numBuffers,
+                           int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -633,9 +633,9 @@ int TcpTimedChannel::readv(int              *augStatus,
 }
 
 int TcpTimedChannel::timedReadv(const btls::Iovec         *buffers,
-                                       int                       numBuffers,
-                                       const bsls::TimeInterval&  timeout,
-                                       int                       flags)
+                                int                        numBuffers,
+                                const bsls::TimeInterval&  timeout,
+                                int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -746,11 +746,11 @@ int TcpTimedChannel::timedReadv(const btls::Iovec         *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::timedReadv(int                      *augStatus,
-                                       const btls::Iovec         *buffers,
-                                       int                       numBuffers,
-                                       const bsls::TimeInterval&  timeout,
-                                       int                       flags)
+int TcpTimedChannel::timedReadv(int                       *augStatus,
+                                const btls::Iovec         *buffers,
+                                int                        numBuffers,
+                                const bsls::TimeInterval&  timeout,
+                                int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -934,10 +934,7 @@ int TcpTimedChannel::readRaw(char *buffer, int numBytes, int)
     return retValue;
 }
 
-int TcpTimedChannel::readRaw(int  *,
-                                    char *buffer,
-                                    int   numBytes,
-                                    int)
+int TcpTimedChannel::readRaw(int *, char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1009,10 +1006,10 @@ int TcpTimedChannel::readRaw(int  *,
     return retValue;
 }
 
-int TcpTimedChannel::timedReadRaw(char                     *buffer,
-                                         int                       numBytes,
-                                         const bsls::TimeInterval&  timeout,
-                                         int)
+int TcpTimedChannel::timedReadRaw(char                      *buffer,
+                                  int                        numBytes,
+                                  const bsls::TimeInterval&  timeout,
+                                  int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1090,11 +1087,11 @@ int TcpTimedChannel::timedReadRaw(char                     *buffer,
     return retValue;
 }
 
-int TcpTimedChannel::timedReadRaw(int                      *augStatus,
-                                         char                     *buffer,
-                                         int                       numBytes,
-                                         const bsls::TimeInterval&  timeout,
-                                         int)
+int TcpTimedChannel::timedReadRaw(int                       *augStatus,
+                                  char                      *buffer,
+                                  int                        numBytes,
+                                  const bsls::TimeInterval&  timeout,
+                                  int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1172,9 +1169,7 @@ int TcpTimedChannel::timedReadRaw(int                      *augStatus,
     return retValue;
 }
 
-int TcpTimedChannel::readvRaw(const btls::Iovec *buffers,
-                                     int               numBuffers,
-                                     int)
+int TcpTimedChannel::readvRaw(const btls::Iovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1253,10 +1248,10 @@ int TcpTimedChannel::readvRaw(const btls::Iovec *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::readvRaw(int              *,
-                                     const btls::Iovec *buffers,
-                                     int               numBuffers,
-                                     int)
+int TcpTimedChannel::readvRaw(int               *,
+                              const btls::Iovec *buffers,
+                              int                numBuffers,
+                              int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1336,10 +1331,10 @@ int TcpTimedChannel::readvRaw(int              *,
     return retValue;
 }
 
-int TcpTimedChannel::timedReadvRaw(const btls::Iovec        *buffers,
-                                          int                      numBuffers,
-                                          const bsls::TimeInterval& timeout,
-                                          int)
+int TcpTimedChannel::timedReadvRaw(const btls::Iovec         *buffers,
+                                   int                        numBuffers,
+                                   const bsls::TimeInterval&  timeout,
+                                   int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1419,11 +1414,11 @@ int TcpTimedChannel::timedReadvRaw(const btls::Iovec        *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::timedReadvRaw(int                     *augStatus,
-                                          const btls::Iovec        *buffers,
-                                          int                      numBuffers,
-                                          const bsls::TimeInterval& timeout,
-                                          int)
+int TcpTimedChannel::timedReadvRaw(int                       *augStatus,
+                                   const btls::Iovec         *buffers,
+                                   int                        numBuffers,
+                                   const bsls::TimeInterval&  timeout,
+                                   int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1504,9 +1499,7 @@ int TcpTimedChannel::timedReadvRaw(int                     *augStatus,
     return retValue;
 }
 
-int TcpTimedChannel::bufferedRead(const char **buffer,
-                                         int          numBytes,
-                                         int          flags)
+int TcpTimedChannel::bufferedRead(const char **buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1579,9 +1572,9 @@ int TcpTimedChannel::bufferedRead(const char **buffer,
 }
 
 int TcpTimedChannel::bufferedRead(int         *augStatus,
-                                         const char **buffer,
-                                         int          numBytes,
-                                         int          flags)
+                                  const char **buffer,
+                                  int          numBytes,
+                                  int          flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1655,11 +1648,10 @@ int TcpTimedChannel::bufferedRead(int         *augStatus,
     return numBytesRead;
 }
 
-int TcpTimedChannel::timedBufferedRead(
-                                           const char              **buffer,
-                                           int                       numBytes,
-                                           const bsls::TimeInterval&  timeout,
-                                           int                       flags)
+int TcpTimedChannel::timedBufferedRead(const char                **buffer,
+                                       int                         numBytes,
+                                       const bsls::TimeInterval&   timeout,
+                                       int                         flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1756,12 +1748,11 @@ int TcpTimedChannel::timedBufferedRead(
     return retValue;
 }
 
-int TcpTimedChannel::timedBufferedRead(
-                                           int                      *augStatus,
-                                           const char              **buffer,
-                                           int                       numBytes,
-                                           const bsls::TimeInterval&  timeout,
-                                           int                       flags)
+int TcpTimedChannel::timedBufferedRead(int                        *augStatus,
+                                       const char                **buffer,
+                                       int                         numBytes,
+                                       const bsls::TimeInterval&   timeout,
+                                       int                         flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1862,9 +1853,7 @@ int TcpTimedChannel::timedBufferedRead(
     return retValue;
 }
 
-int TcpTimedChannel::bufferedReadRaw(const char **buffer,
-                                            int          numBytes,
-                                            int)
+int TcpTimedChannel::bufferedReadRaw(const char **buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1941,9 +1930,9 @@ int TcpTimedChannel::bufferedReadRaw(const char **buffer,
 }
 
 int TcpTimedChannel::bufferedReadRaw(int         *,
-                                            const char **buffer,
-                                            int          numBytes,
-                                            int)
+                                     const char **buffer,
+                                     int          numBytes,
+                                     int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2020,11 +2009,10 @@ int TcpTimedChannel::bufferedReadRaw(int         *,
     return retValue;
 }
 
-int TcpTimedChannel::timedBufferedReadRaw(
-                                           const char              **buffer,
-                                           int                       numBytes,
-                                           const bsls::TimeInterval&  timeout,
-                                           int                       flags)
+int TcpTimedChannel::timedBufferedReadRaw(const char                **buffer,
+                                          int                         numBytes,
+                                          const bsls::TimeInterval&   timeout,
+                                          int                         flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2109,11 +2097,11 @@ int TcpTimedChannel::timedBufferedReadRaw(
 }
 
 int TcpTimedChannel::timedBufferedReadRaw(
-                                           int                      *augStatus,
-                                           const char              **buffer,
-                                           int                       numBytes,
-                                           const bsls::TimeInterval&  timeout,
-                                           int                       flags)
+                                         int                        *augStatus,
+                                         const char                **buffer,
+                                         int                         numBytes,
+                                         const bsls::TimeInterval&   timeout,
+                                         int                         flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2204,9 +2192,7 @@ int TcpTimedChannel::timedBufferedReadRaw(
 ///Write section
 ///-------------
 
-int TcpTimedChannel::write(const char *buffer,
-                                  int         numBytes,
-                                  int         flags)
+int TcpTimedChannel::write(const char *buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2251,9 +2237,9 @@ int TcpTimedChannel::write(const char *buffer,
 }
 
 int TcpTimedChannel::write(int        *augStatus,
-                                  const char *buffer,
-                                  int         numBytes,
-                                  int         flags)
+                           const char *buffer,
+                           int         numBytes,
+                           int         flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2297,10 +2283,10 @@ int TcpTimedChannel::write(int        *augStatus,
     return numBytesWritten;
 }
 
-int TcpTimedChannel::timedWrite(const char               *buffer,
-                                       int                       numBytes,
-                                       const bsls::TimeInterval&  timeout,
-                                       int                       flags)
+int TcpTimedChannel::timedWrite(const char                *buffer,
+                                int                        numBytes,
+                                const bsls::TimeInterval&  timeout,
+                                int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2363,11 +2349,11 @@ int TcpTimedChannel::timedWrite(const char               *buffer,
     return retValue;
 }
 
-int TcpTimedChannel::timedWrite(int                      *augStatus,
-                                       const char               *buffer,
-                                       int                       numBytes,
-                                       const bsls::TimeInterval&  timeout,
-                                       int                       flags)
+int TcpTimedChannel::timedWrite(int                       *augStatus,
+                                const char                *buffer,
+                                int                        numBytes,
+                                const bsls::TimeInterval&  timeout,
+                                int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2431,9 +2417,7 @@ int TcpTimedChannel::timedWrite(int                      *augStatus,
     return retValue;
 }
 
-int TcpTimedChannel::writeRaw(const char *buffer,
-                                     int         numBytes,
-                                     int)
+int TcpTimedChannel::writeRaw(const char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2481,10 +2465,7 @@ int TcpTimedChannel::writeRaw(const char *buffer,
     return retValue;
 }
 
-int TcpTimedChannel::writeRaw(int        *,
-                                     const char *buffer,
-                                     int         numBytes,
-                                     int)
+int TcpTimedChannel::writeRaw(int *, const char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2531,10 +2512,10 @@ int TcpTimedChannel::writeRaw(int        *,
     return retValue;
 }
 
-int TcpTimedChannel::timedWriteRaw(const char               *buffer,
-                                          int                       numBytes,
-                                          const bsls::TimeInterval&  timeout,
-                                          int)
+int TcpTimedChannel::timedWriteRaw(const char                *buffer,
+                                   int                        numBytes,
+                                   const bsls::TimeInterval&  timeout,
+                                   int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2584,11 +2565,11 @@ int TcpTimedChannel::timedWriteRaw(const char               *buffer,
     return retValue;
 }
 
-int TcpTimedChannel::timedWriteRaw(int                      *augStatus,
-                                          const char               *buffer,
-                                          int                       numBytes,
-                                          const bsls::TimeInterval&  timeout,
-                                          int)
+int TcpTimedChannel::timedWriteRaw(int                       *augStatus,
+                                   const char                *buffer,
+                                   int                        numBytes,
+                                   const bsls::TimeInterval&  timeout,
+                                   int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2639,9 +2620,9 @@ int TcpTimedChannel::timedWriteRaw(int                      *augStatus,
     return retValue;
 }
 
-int TcpTimedChannel::writev(const btls::Ovec  *buffers,
-                                   int               numBuffers,
-                                   int               flags)
+int TcpTimedChannel::writev(const btls::Ovec *buffers,
+                            int               numBuffers,
+                            int               flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2700,8 +2681,8 @@ int TcpTimedChannel::writev(const btls::Ovec  *buffers,
 }
 
 int TcpTimedChannel::writev(const btls::Iovec *buffers,
-                              int               numBuffers,
-                              int               flags)
+                            int                numBuffers,
+                            int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2761,9 +2742,9 @@ int TcpTimedChannel::writev(const btls::Iovec *buffers,
 }
 
 int TcpTimedChannel::writev(int              *augStatus,
-                              const btls::Ovec  *buffers,
-                              int               numBuffers,
-                              int               flags)
+                            const btls::Ovec *buffers,
+                            int               numBuffers,
+                            int               flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2822,10 +2803,10 @@ int TcpTimedChannel::writev(int              *augStatus,
     return numBytesWritten;
 }
 
-int TcpTimedChannel::writev(int              *augStatus,
-                              const btls::Iovec *buffers,
-                              int               numBuffers,
-                              int               flags)
+int TcpTimedChannel::writev(int               *augStatus,
+                            const btls::Iovec *buffers,
+                            int                numBuffers,
+                            int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2885,9 +2866,9 @@ int TcpTimedChannel::writev(int              *augStatus,
 }
 
 int TcpTimedChannel::timedWritev(const btls::Ovec          *buffers,
-                                        int                       numBuffers,
-                                        const bsls::TimeInterval&  timeout,
-                                        int                       flags)
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2967,9 +2948,9 @@ int TcpTimedChannel::timedWritev(const btls::Ovec          *buffers,
 }
 
 int TcpTimedChannel::timedWritev(const btls::Iovec         *buffers,
-                                        int                       numBuffers,
-                                        const bsls::TimeInterval&  timeout,
-                                        int                       flags)
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3049,11 +3030,11 @@ int TcpTimedChannel::timedWritev(const btls::Iovec         *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::timedWritev(int                      *augStatus,
-                                        const btls::Ovec          *buffers,
-                                        int                       numBuffers,
-                                        const bsls::TimeInterval&  timeout,
-                                        int                       flags)
+int TcpTimedChannel::timedWritev(int                       *augStatus,
+                                 const btls::Ovec          *buffers,
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3135,11 +3116,11 @@ int TcpTimedChannel::timedWritev(int                      *augStatus,
     return retValue;
 }
 
-int TcpTimedChannel::timedWritev(int                      *augStatus,
-                                        const btls::Iovec         *buffers,
-                                        int                       numBuffers,
-                                        const bsls::TimeInterval&  timeout,
-                                        int                       flags)
+int TcpTimedChannel::timedWritev(int                       *augStatus,
+                                 const btls::Iovec         *buffers,
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3222,9 +3203,7 @@ int TcpTimedChannel::timedWritev(int                      *augStatus,
     return retValue;
 }
 
-int TcpTimedChannel::writevRaw(const btls::Ovec *buffers,
-                                      int              numBuffers,
-                                      int)
+int TcpTimedChannel::writevRaw(const btls::Ovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3274,9 +3253,7 @@ int TcpTimedChannel::writevRaw(const btls::Ovec *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::writevRaw(const btls::Iovec *buffers,
-                                      int               numBuffers,
-                                      int)
+int TcpTimedChannel::writevRaw(const btls::Iovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3326,10 +3303,10 @@ int TcpTimedChannel::writevRaw(const btls::Iovec *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::writevRaw(int             *,
-                                      const btls::Ovec *buffers,
-                                      int              numBuffers,
-                                      int)
+int TcpTimedChannel::writevRaw(int              *,
+                               const btls::Ovec *buffers,
+                               int               numBuffers,
+                               int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3379,10 +3356,10 @@ int TcpTimedChannel::writevRaw(int             *,
     return retValue;
 }
 
-int TcpTimedChannel::writevRaw(int              *,
-                                      const btls::Iovec *buffers,
-                                      int               numBuffers,
-                                      int)
+int TcpTimedChannel::writevRaw(int               *,
+                               const btls::Iovec *buffers,
+                               int                numBuffers,
+                               int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3431,10 +3408,10 @@ int TcpTimedChannel::writevRaw(int              *,
     return retValue;
 }
 
-int TcpTimedChannel::timedWritevRaw(const btls::Ovec         *buffers,
-                                           int                      numBuffers,
-                                           const bsls::TimeInterval& timeout,
-                                           int)
+int TcpTimedChannel::timedWritevRaw(const btls::Ovec          *buffers,
+                                    int                        numBuffers,
+                                    const bsls::TimeInterval&  timeout,
+                                    int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3487,10 +3464,10 @@ int TcpTimedChannel::timedWritevRaw(const btls::Ovec         *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::timedWritevRaw(const btls::Iovec        *buffers,
-                                           int                      numBuffers,
-                                           const bsls::TimeInterval& timeout,
-                                           int)
+int TcpTimedChannel::timedWritevRaw(const btls::Iovec         *buffers,
+                                    int                        numBuffers,
+                                    const bsls::TimeInterval&  timeout,
+                                    int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3542,11 +3519,11 @@ int TcpTimedChannel::timedWritevRaw(const btls::Iovec        *buffers,
     return retValue;
 }
 
-int TcpTimedChannel::timedWritevRaw(int                     *augStatus,
-                                           const btls::Ovec         *buffers,
-                                           int                      numBuffers,
-                                           const bsls::TimeInterval& timeout,
-                                           int)
+int TcpTimedChannel::timedWritevRaw(int                       *augStatus,
+                                    const btls::Ovec          *buffers,
+                                    int                        numBuffers,
+                                    const bsls::TimeInterval&  timeout,
+                                    int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3600,11 +3577,11 @@ int TcpTimedChannel::timedWritevRaw(int                     *augStatus,
     return retValue;
 }
 
-int TcpTimedChannel::timedWritevRaw(int                     *augStatus,
-                                           const btls::Iovec        *buffers,
-                                           int                      numBuffers,
-                                           const bsls::TimeInterval& timeout,
-                                           int)
+int TcpTimedChannel::timedWritevRaw(int                       *augStatus,
+                                    const btls::Iovec         *buffers,
+                                    int                        numBuffers,
+                                    const bsls::TimeInterval&  timeout,
+                                    int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);

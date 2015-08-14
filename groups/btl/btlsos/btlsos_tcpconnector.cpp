@@ -49,11 +49,12 @@ enum {
 
 template <class RESULT>
 inline
-    RESULT *allocate(int                                          *status,
-                     int                                           flags,
-                     const btlso::IPv4Address&                     peerAddress,
-                     btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                     bdlma::Pool                                   *pool)
+    RESULT *allocate(
+                   int                                            *status,
+                   int                                             flags,
+                   const btlso::IPv4Address&                       peerAddress,
+                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                   bdlma::Pool                                    *pool)
 {
     BSLS_ASSERT(factory);
     BSLS_ASSERT(pool);
@@ -98,8 +99,8 @@ namespace btlsos {
 
 // CREATORS
 TcpConnector::TcpConnector(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
@@ -109,9 +110,9 @@ TcpConnector::TcpConnector(
 }
 
 TcpConnector::TcpConnector(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 int                                           numElements,
-                 bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                int                                             numElements,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE,
          bsls::BlockGrowth::BSLS_CONSTANT,
          numElements,

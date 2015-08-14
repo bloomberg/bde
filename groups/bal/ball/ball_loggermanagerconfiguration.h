@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 // that the "set" methods called in this example cannot fail, so they return
 // 'void':
 //..
-//  config.setUserFieldDescriptors(schema, populator);
+//  config.setUserFieldsSchema(schema, populator);
 //  config.setCategoryNameFilterCallback(nameFilter);
 //  config.setDefaultThresholdLevelsCallback(defaultThresholds);
 //  config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
@@ -238,8 +238,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_loggermanagerdefaults.h>
 #endif
 
-#ifndef INCLUDED_BALL_USERFIELDDESCRIPTORS
-#include <ball_userfielddescriptors.h>
+#ifndef INCLUDED_BALL_USERFIELDSSCHEMA
+#include <ball_userfieldsschema.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -262,7 +262,7 @@ namespace BloombergLP {
 
 namespace ball {     
 
-class UserFieldValues;
+class UserFields;
 
                     // ================================
                     // class LoggerManagerConfiguration
@@ -287,13 +287,13 @@ class LoggerManagerConfiguration {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(ball::UserFieldValues *, 
-                                    const ball::UserFieldDescriptors& )>
+    typedef bdlf::Function<void (*)(ball::UserFields *, 
+                                    const ball::UserFieldsSchema& )>
                                                    UserFieldsPopulatorCallback;
         // 'UserFieldsPopulatorCallback' is the type of a user-supplied
         // callback functor used to populate the user-defined fields in each
         // log record.  Note that the user-defined fields of each record must
-        // be type-consistent with the 'UserFieldDescriptors' of the user
+        // be type-consistent with the 'UserFieldsSchema' of the user
         // populator callback.
 
 
@@ -351,8 +351,8 @@ class LoggerManagerConfiguration {
                                                   // severity threshold levels
                                                   // for logger manager
 
-    ball::UserFieldDescriptors  
-                          d_userFieldDescriptors; // describes the fields
+    ball::UserFieldsSchema
+                          d_userFieldsSchema;     // describes the fields
                                                   // returned by 
                                                   // 'd_userPopulatorCallback'
 
@@ -469,14 +469,14 @@ class LoggerManagerConfiguration {
         // Return 0 on success, and a non-zero value otherwise with no effect
         // on this object.
     
-    void setUserFieldDescriptors(
-                       const ball::UserFieldDescriptors   fieldDescriptions,
+    void setUserFieldsSchema(
+                       const ball::UserFieldsSchema   fieldDescriptions,
                        const UserFieldsPopulatorCallback& populatorCallback);
         // Set the user-defined-fields attributes of this object such that the
         // specified 'populatorCallback' will be invoked and supplied the
         // specified 'fieldDescriptions'.  Note that this method cannot
         // fail per se, but it is the user's responsibility to make sure that
-        // 'populatorCallback' can populate a 'ball::UserFieldValues' object
+        // 'populatorCallback' can populate a 'ball::UserFields' object
         // in a way consistent with the 'fieldDescriptions'.
 
     void setCategoryNameFilterCallback(
@@ -530,7 +530,7 @@ class LoggerManagerConfiguration {
         // 'LoggerManagerDefaults' attribute of this object.
 
 
-    const ball::UserFieldDescriptors& userFieldDescriptors() const;
+    const ball::UserFieldsSchema& userFieldsSchema() const;
         // Return a reference to the non-modifiable descriptors for user
         // fields.
 

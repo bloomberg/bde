@@ -109,40 +109,42 @@ public:
     char              d_callbackType;
 
     // CREATORS
-    TcpTimedCbChannel_RReg(char *buffer, int length,
-                                 int numSysCalls,
-                                 const ReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(char          *buffer,
+                           int            length,
+                           int            numSysCalls,
+                           const ReadCb&  callback,
+                           int            flags);
 
-    TcpTimedCbChannel_RReg(char *buffer, int length,
-                                 int numSysCalls,
-                                 const bsls::TimeInterval& timeout,
-                                 const ReadCb& callback,
-                                 int flags);
-
-    TcpTimedCbChannel_RReg(const btls::Iovec *buffers,
-                                 int numBuffers,
-                                 int numSysCalls,
-                                 const ReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(char                      *buffer,
+                           int                        length,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const ReadCb&              callback,
+                           int                        flags);
 
     TcpTimedCbChannel_RReg(const btls::Iovec *buffers,
-                                 int numBuffers,
-                                 int numSysCalls,
-                                 const bsls::TimeInterval& timeout,
-                                 const ReadCb& callback,
-                                 int flags);
+                           int                numBuffers,
+                           int                numSysCalls,
+                           const ReadCb&      callback,
+                           int                flags);
 
-    TcpTimedCbChannel_RReg(int length,
-                                 int numSysCalls,
-                                 const BReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(const btls::Iovec         *buffers,
+                           int                        numBuffers,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const ReadCb&              callback,
+                           int                        flags);
 
-    TcpTimedCbChannel_RReg(int length,
-                                 int numSysCalls,
-                                 const bsls::TimeInterval& timeout,
-                                 const BReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(int            length,
+                           int            numSysCalls,
+                           const BReadCb& callback,
+                           int            flags);
+
+    TcpTimedCbChannel_RReg(int                       length,
+                           int                       numSysCalls,
+                           const bsls::TimeInterval& timeout,
+                           const BReadCb&            callback,
+                           int                       flags);
 
     ~TcpTimedCbChannel_RReg();
         // Destroy this request.
@@ -343,7 +345,8 @@ void TcpTimedCbChannel_RReg::invoke(int status, int asyncStatus) const {
 
 inline
 void TcpTimedCbChannel_RReg::invoke(const char *buffer,
-                                          int status, int asyncStatus) const {
+                                    int         status,
+                                    int         asyncStatus) const {
     BSLS_ASSERT(e_VFUNC3 == d_callbackType);
     BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(buffer, status, asyncStatus);
@@ -351,7 +354,7 @@ void TcpTimedCbChannel_RReg::invoke(const char *buffer,
 
 inline
 void TcpTimedCbChannel_RReg::invokeConditionally(int status,
-                                                        int asyncStatus) const
+                                                 int asyncStatus) const
 {
     if (e_VFUNC2 == d_callbackType) {
         invoke(status, asyncStatus);
@@ -427,53 +430,55 @@ public:
     char                  d_isTimedFlag;      // true if operation is timed
 
     // CREATORS
-    TcpTimedCbChannel_WReg(const char *buffer, int length,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(const char     *buffer,
+                           int             length,
+                           int             numSysCalls,
+                           const WriteCb&  callback,
+                           int             flags);
 
-    TcpTimedCbChannel_WReg(const char *buffer, int length,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
-
-    TcpTimedCbChannel_WReg(const btls::Iovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(const char                *buffer,
+                           int                        length,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const WriteCb&             callback,
+                           int                        flags);
 
     TcpTimedCbChannel_WReg(const btls::Iovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
+                           int                numBuffers,
+                           int                numSysCalls,
+                           const WriteCb&     callback,
+                           int                flags);
+
+    TcpTimedCbChannel_WReg(const btls::Iovec         *buffers,
+                           int                        numBuffers,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const WriteCb&             callback,
+                           int                        flags);
 
     TcpTimedCbChannel_WReg(const btls::Ovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+                           int               numBuffers,
+                           int               numSysCalls,
+                           const WriteCb&    callback,
+                           int               flags);
 
-    TcpTimedCbChannel_WReg(const btls::Ovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(const btls::Ovec          *buffers,
+                           int                        numBuffers,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const WriteCb&             callback,
+                           int                        flags);
 
-    TcpTimedCbChannel_WReg(int length,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(int            length,
+                           int            numSysCalls,
+                           const WriteCb& callback,
+                           int            flags);
 
-    TcpTimedCbChannel_WReg(int length,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(int                       length,
+                           int                       numSysCalls,
+                           const bsls::TimeInterval& timeout,
+                           const WriteCb&            callback,
+                           int                       flags);
 
     ~TcpTimedCbChannel_WReg();
         // Destroy this request.
@@ -683,7 +688,7 @@ void TcpTimedCbChannel_WReg::invoke(int status, int asyncStatus) const
 
 inline
 void TcpTimedCbChannel_WReg::invokeConditionally(int status,
-                                                        int asyncStatus) const
+                                                 int asyncStatus) const
 {
     d_callback(status, asyncStatus);
 }
@@ -727,7 +732,7 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     // either 'pool' or 'queue' is 0.
 {
     BSLS_ASSERT(queue);
-    int numElements = queue->size();
+    int numElements = static_cast<int>(queue->size());
     for (int i = 0; i < numElements; ++i) {
         REG *reg = (*queue)[numElements - 1 - i];
         BSLS_ASSERT(reg);
@@ -743,9 +748,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
 
 static inline
 int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
-                      bsl::vector<char>             *bufferPtr,
-                      int                           *offset,
-                      int                           *SP)
+                      bsl::vector<char>              *bufferPtr,
+                      int                            *offset,
+                      int                            *SP)
     // Try to satisfy the specified 'request' given that there is data in the
     // specified 'buffer' of the specified '*offset' length.  Return 0 if the
     // 'request' cannot be satisfied, and a non-zero value otherwise.  If the
@@ -843,9 +848,9 @@ int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
                      // ===============================
 
 static inline
-void initializeBuffer(bsl::vector<char>                     *buffer,
+void initializeBuffer(bsl::vector<char>                       *buffer,
                       btlso::StreamSocket<btlso::IPv4Address> *socket_p,
-                      int                                    option)
+                      int                                      option)
 {
     enum { k_DEFAULT_BUFFER_SIZE = 8192 };
     int result;
@@ -902,7 +907,7 @@ void TcpTimedCbChannel::initializeWriteBuffer(int size)
 void TcpTimedCbChannel::bufferedReadCb()
 {
     BSLS_ASSERT(d_socket_p);
-    BSLS_ASSERT(d_readRequests.size());
+    BSLS_ASSERT(static_cast<int>(d_readRequests.size()));
     BSLS_ASSERT(0 == d_readBufferSP);
     BSLS_ASSERT(0 == d_currentReadRequest_p);
 
@@ -919,7 +924,7 @@ void TcpTimedCbChannel::bufferedReadCb()
 
     int requestLength = d_currentReadRequest_p->d_requestLength;
     int numBytesRemaining = requestLength - d_readBufferOffset;
-    int available = d_readBuffer.size() - d_readBufferOffset;
+    int available = static_cast<int>(d_readBuffer.size()) - d_readBufferOffset;
     BSLS_ASSERT(available >= numBytesRemaining);
 
     int s = d_socket_p->read(&d_readBuffer.front() + d_readBufferOffset,
@@ -987,7 +992,8 @@ void TcpTimedCbChannel::bufferedReadCb()
             toBeCancelled.pop_back();
             d_readRequests.erase(d_readRequests.begin(),
                                  d_readRequests.begin()
-                                                  + d_readRequests.size() - 1);
+                                      + static_cast<int>(d_readRequests.size())
+                                      - 1);
             BSLS_ASSERT(d_currentReadRequest_p == d_readRequests.back());
 
             d_currentReadRequest_p->invoke(&d_readBuffer.front(),
@@ -1033,7 +1039,7 @@ void TcpTimedCbChannel::bufferedReadCb()
     d_readRequests.pop_back();
     d_rrequestPool.deleteObjectRaw(d_currentReadRequest_p);
 
-    while (d_readRequests.size()) {
+    while (static_cast<int>(d_readRequests.size())) {
         d_currentReadRequest_p = d_readRequests.back();
         BSLS_ASSERT(d_currentReadRequest_p);
         if (!completeOperation(d_currentReadRequest_p,
@@ -1047,7 +1053,7 @@ void TcpTimedCbChannel::bufferedReadCb()
         d_rrequestPool.deleteObjectRaw(d_currentReadRequest_p);
         d_currentReadRequest_p = NULL;
     }
-    if (d_readRequests.size()) {
+    if (static_cast<int>(d_readRequests.size())) {
         if (d_currentReadRequest_p->d_isTimedFlag) {
             d_readTimerId = d_rManager_p->registerTimer(
                 d_currentReadRequest_p->d_timeout, d_readTimerFunctor);
@@ -1070,7 +1076,7 @@ void TcpTimedCbChannel::bufferedReadCb()
                 d_readTimerId = NULL;
             }
 
-            if (0 == d_readRequests.size()) {
+            if (0 == static_cast<int>(d_readRequests.size())) {
                 d_rManager_p->deregisterSocketEvent(d_socket_p->handle(),
                                                  btlso::EventType::e_READ);
                 break;
@@ -1096,7 +1102,7 @@ void TcpTimedCbChannel::bufferedReadCb()
 
 void TcpTimedCbChannel::readCb()
 {
-    BSLS_ASSERT(d_readRequests.size());
+    BSLS_ASSERT(static_cast<int>(d_readRequests.size()));
     BSLS_ASSERT(d_currentReadRequest_p == NULL);
     d_currentReadRequest_p = d_readRequests.back();
     BSLS_ASSERT(d_currentReadRequest_p);
@@ -1165,7 +1171,8 @@ void TcpTimedCbChannel::readCb()
                       toBeCancelled.pop_back();
                       d_readRequests.erase(d_readRequests.begin(),
                                            d_readRequests.begin() +
-                                                    d_readRequests.size() - 1);
+                                               static_cast<int>(
+                                                   d_readRequests.size()) - 1);
                       BSLS_ASSERT(d_currentReadRequest_p ==
                                      d_readRequests.back());
 
@@ -1258,7 +1265,8 @@ void TcpTimedCbChannel::readCb()
                       toBeCancelled.pop_back();
                       d_readRequests.erase(d_readRequests.begin(),
                                            d_readRequests.begin() +
-                                                    d_readRequests.size() - 1);
+                                                static_cast<int>(
+                                                   d_readRequests.size()) - 1);
                       BSLS_ASSERT(d_currentReadRequest_p ==
                                      d_readRequests.back());
 
@@ -1311,7 +1319,7 @@ void TcpTimedCbChannel::readCb()
         d_rrequestPool.deleteObjectRaw(d_currentReadRequest_p);
         d_currentReadRequest_p = NULL;
 
-        if (0 == d_readRequests.size() ||
+        if (0 == static_cast<int>(d_readRequests.size()) ||
             TcpTimedCbChannel_RReg::e_BUFFERED ==
                                                  d_readRequests[0]->d_category)
         {
@@ -1327,7 +1335,7 @@ void TcpTimedCbChannel::readCb()
         }
     }
 
-    if (d_readRequests.size()) {
+    if (static_cast<int>(d_readRequests.size())) {
         d_currentReadRequest_p = d_readRequests.back();
         BSLS_ASSERT(d_currentReadRequest_p);
 
@@ -1352,7 +1360,7 @@ void TcpTimedCbChannel::readCb()
                 d_readTimerId = NULL;
             }
 
-            if (0 == d_readRequests.size()) {
+            if (0 == static_cast<int>(d_readRequests.size())) {
                 d_rManager_p->deregisterSocketEvent(d_socket_p->handle(),
                                                 btlso::EventType::e_READ);
                 break;
@@ -1382,7 +1390,7 @@ void TcpTimedCbChannel::readCb()
 void TcpTimedCbChannel::readTimerCb()
 {
     // A read operation has timed out.
-    BSLS_ASSERT(d_readRequests.size());
+    BSLS_ASSERT(static_cast<int>(d_readRequests.size()));
     BSLS_ASSERT(d_readTimerId != NULL);
 
     d_currentReadRequest_p = d_readRequests.back();
@@ -1424,7 +1432,7 @@ void TcpTimedCbChannel::readTimerCb()
     d_rrequestPool.deleteObjectRaw(d_currentReadRequest_p);
     d_currentReadRequest_p = NULL;
 
-    while (d_readRequests.size()) {
+    while (static_cast<int>(d_readRequests.size())) {
         d_currentReadRequest_p = d_readRequests.back();
         BSLS_ASSERT(d_currentReadRequest_p);
         if (d_currentReadRequest_p->d_isTimedFlag) {
@@ -1468,7 +1476,7 @@ void TcpTimedCbChannel::readTimerCb()
             }
         }
     }
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         BSLS_ASSERT(NULL == d_readTimerId);
         d_rManager_p->deregisterSocketEvent(d_socket_p->handle(),
                                             btlso::EventType::e_READ);
@@ -1487,7 +1495,7 @@ void TcpTimedCbChannel::bufferedWriteCb()
                                            d_writeRequests.back()->d_category);
 
     int numBytesToWrite = 0;
-    int numPendingRequests = d_writeRequests.size();
+    int numPendingRequests = static_cast<int>(d_writeRequests.size());
     for (int i = numPendingRequests - 1; 0 <= i; --i) {
         if (d_writeRequests[i]->d_category
                                   != TcpTimedCbChannel_WReg::e_BUFFERED) {
@@ -1972,8 +1980,8 @@ void TcpTimedCbChannel::writeCb()
             BSLS_ASSERT(d_writeTimerId);
         }
         int rCode = 0;
-        if ((int) TcpTimedCbChannel_WReg::e_BUFFERED ==
-            (int) d_currentWriteRequest_p->d_category)
+        if (static_cast<int>(TcpTimedCbChannel_WReg::e_BUFFERED) ==
+            static_cast<int>(d_currentWriteRequest_p->d_category))
         {
             rCode = d_wManager_p->registerSocketEvent(
                                                  d_socket_p->handle(),
@@ -2275,7 +2283,7 @@ int TcpTimedCbChannel::read(char                *buffer,
                                                            readCallback,
                                                            flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2318,7 +2326,7 @@ int TcpTimedCbChannel::timedRead(char                      *buffer,
                                                            readCallback,
                                                            flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2360,7 +2368,7 @@ int TcpTimedCbChannel::readRaw(char                *buffer,
                                                             readCallback,
                                                             flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2385,11 +2393,11 @@ int TcpTimedCbChannel::readRaw(char                *buffer,
 }
 
 int
-TcpTimedCbChannel::timedReadRaw(char                     *buffer,
-                                       int                       numBytes,
-                                       const bsls::TimeInterval&  timeout,
-                                       const ReadCallback&       readCallback,
-                                       int                       flags)
+TcpTimedCbChannel::timedReadRaw(char                      *buffer,
+                                int                        numBytes,
+                                const bsls::TimeInterval&  timeout,
+                                const ReadCallback&        readCallback,
+                                int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2404,7 +2412,7 @@ TcpTimedCbChannel::timedReadRaw(char                     *buffer,
                                                             readCallback,
                                                             flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2414,7 +2422,7 @@ TcpTimedCbChannel::timedReadRaw(char                     *buffer,
         }
         d_readRequests.push_front(request);
 
-        BSLS_ASSERT(0 < d_readRequests.size());
+        BSLS_ASSERT(0 < static_cast<int>(d_readRequests.size()));
         if (0 != d_rManager_p->registerSocketEvent(
                                                   d_socket_p->handle(),
                                                   btlso::EventType::e_READ,
@@ -2444,19 +2452,19 @@ int TcpTimedCbChannel::readv(const btls::Iovec   *buffers,
 
 int
 TcpTimedCbChannel::timedReadv(const btls::Iovec         *buffers,
-                                     int                       numBuffers,
-                                     const bsls::TimeInterval&  timeout,
-                                     const ReadCallback&       readCallback,
-                                     int                       flags)
+                              int                        numBuffers,
+                              const bsls::TimeInterval&  timeout,
+                              const ReadCallback&        readCallback,
+                              int                        flags)
 {
     return timedReadvRaw(buffers, numBuffers, timeout, readCallback, flags);
 }
 
 int
-TcpTimedCbChannel::readvRaw(const btls::Iovec    *buffers,
-                                   int                  numBuffers,
-                                   const ReadCallback&  readCallback,
-                                   int                  flags)
+TcpTimedCbChannel::readvRaw(const btls::Iovec   *buffers,
+                            int                  numBuffers,
+                            const ReadCallback&  readCallback,
+                            int                  flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2470,7 +2478,7 @@ TcpTimedCbChannel::readvRaw(const btls::Iovec    *buffers,
                    TcpTimedCbChannel_RReg(buffers, numBuffers,
                                                  1, readCallback, flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2496,10 +2504,10 @@ TcpTimedCbChannel::readvRaw(const btls::Iovec    *buffers,
 
 int
 TcpTimedCbChannel::timedReadvRaw(const btls::Iovec         *buffers,
-                                        int                       numBuffers,
-                                        const bsls::TimeInterval&  timeout,
-                                        const ReadCallback&       readCallback,
-                                        int                       flags)
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 const ReadCallback&        readCallback,
+                                 int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2514,7 +2522,7 @@ TcpTimedCbChannel::timedReadvRaw(const btls::Iovec         *buffers,
                                                  1, timeout, readCallback,
                                                  flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2542,9 +2550,9 @@ TcpTimedCbChannel::timedReadvRaw(const btls::Iovec         *buffers,
 
 int
 TcpTimedCbChannel::bufferedRead(
-        int                         numBytes,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+                              int                         numBytes,
+                              const BufferedReadCallback& bufferedReadCallback,
+                              int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -2558,7 +2566,7 @@ TcpTimedCbChannel::bufferedRead(
                                                           bufferedReadCallback,
                                                           flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2602,7 +2610,7 @@ int TcpTimedCbChannel::timedBufferedRead(
                                                           bufferedReadCallback,
                                                           flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2646,7 +2654,7 @@ int TcpTimedCbChannel::bufferedReadRaw(
                                                           bufferedReadCallback,
                                                           flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -2674,10 +2682,10 @@ int TcpTimedCbChannel::bufferedReadRaw(
 
 int
 TcpTimedCbChannel::timedBufferedReadRaw(
-        int                         numBytes,
-        const bsls::TimeInterval&    timeout,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+                              int                         numBytes,
+                              const bsls::TimeInterval&   timeout,
+                              const BufferedReadCallback& bufferedReadCallback,
+                              int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -2691,7 +2699,7 @@ TcpTimedCbChannel::timedBufferedReadRaw(
                                                           bufferedReadCallback,
                                                           flags);
 
-    if (0 == d_readRequests.size()) {
+    if (0 == static_cast<int>(d_readRequests.size())) {
         if (completeOperation(request,
                               &d_readBuffer,
                               &d_readBufferOffset,
@@ -3290,11 +3298,12 @@ int TcpTimedCbChannel::timedWritevRaw(const btls::Iovec         *buffers,
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
                 TcpTimedCbChannel_WReg *request =
-                    new (d_wrequestPool) TcpTimedCbChannel_WReg(buffers,
-                                                              numBuffers,
-                                                              1, timeout,
-                                                              writeCallback,
-                                                              flags);
+                     new (d_wrequestPool) TcpTimedCbChannel_WReg(buffers,
+                                                                 numBuffers,
+                                                                 1,
+                                                                 timeout,
+                                                                 writeCallback,
+                                                                 flags);
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
@@ -3305,10 +3314,11 @@ int TcpTimedCbChannel::timedWritevRaw(const btls::Iovec         *buffers,
             else {
                 TcpTimedCbChannel_WReg *request =
                     new (d_wrequestPool) TcpTimedCbChannel_WReg(buffers,
-                                                              numBuffers,
-                                                              1, timeout,
-                                                              writeCallback,
-                                                              flags);
+                                                                numBuffers,
+                                                                1,
+                                                                timeout,
+                                                                writeCallback,
+                                                                flags);
                 d_writeRequests.push_front(request);
             }
         }
@@ -3317,8 +3327,8 @@ int TcpTimedCbChannel::timedWritevRaw(const btls::Iovec         *buffers,
             return 0;
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
-                                          btlso::EventType::e_WRITE,
-                                          d_writeFunctor)) {
+                                                   btlso::EventType::e_WRITE,
+                                                   d_writeFunctor)) {
             TcpTimedCbChannel_WReg *request = d_writeRequests.back();
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
@@ -3331,12 +3341,12 @@ int TcpTimedCbChannel::timedWritevRaw(const btls::Iovec         *buffers,
     }
     else {
         TcpTimedCbChannel_WReg *request =
-            new (d_wrequestPool) TcpTimedCbChannel_WReg(buffers,
-                                                               numBuffers,
-                                                               1,
-                                                               timeout,
-                                                               writeCallback,
-                                                               flags);
+                     new (d_wrequestPool) TcpTimedCbChannel_WReg(buffers,
+                                                                 numBuffers,
+                                                                 1,
+                                                                 timeout,
+                                                                 writeCallback,
+                                                                 flags);
         d_writeRequests.push_front(request);
     }
     return 0;
@@ -3357,7 +3367,8 @@ int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
         initializeWriteBuffer();
     }
 
-    if ((int) d_writeBuffer.size() < numBytes + d_writeBufferOffset) {
+    if (static_cast<int>(d_writeBuffer.size()) <
+                                              numBytes + d_writeBufferOffset) {
         d_writeBuffer.resize(d_writeBufferOffset + numBytes);
     }
 
@@ -3376,12 +3387,12 @@ int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
             // Partial result.
             TcpTimedCbChannel_WReg *request =
                 new (d_wrequestPool) TcpTimedCbChannel_WReg(numBytes,
-                                                          numBytes,
-                                                          writeCallback,
-                                                          flags);
+                                                            numBytes,
+                                                            writeCallback,
+                                                            flags);
             request->d_data.d_s.d_length -= s;
-            if ((int) d_writeBuffer.size() < d_writeBufferOffset + numBytes -
-                                                                           s) {
+            if (static_cast<int>(d_writeBuffer.size()) <
+                                          d_writeBufferOffset + numBytes - s) {
                 d_writeBuffer.resize(d_writeBufferOffset + numBytes - s);
             }
             bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
@@ -3397,14 +3408,13 @@ int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
             }
             else {
                 TcpTimedCbChannel_WReg *request =
-                    new (d_wrequestPool)
-                                TcpTimedCbChannel_WReg(numBytes,
-                                                              numBytes,
-                                                              writeCallback,
-                                                              flags);
+                    new (d_wrequestPool) TcpTimedCbChannel_WReg(numBytes,
+                                                                numBytes,
+                                                                writeCallback,
+                                                                flags);
 
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset +
-                                                                    numBytes) {
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                              d_writeBufferOffset + numBytes) {
                     d_writeBuffer.resize(d_writeBufferOffset + numBytes);
                 }
                 bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
@@ -3429,7 +3439,8 @@ int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
         }
     }
     else {
-        if ((int) d_writeBuffer.size() < d_writeBufferOffset + numBytes) {
+        if (static_cast<int>(d_writeBuffer.size()) <
+                                              d_writeBufferOffset + numBytes) {
             d_writeBuffer.resize(d_writeBufferOffset + numBytes);
         }
         bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
@@ -3448,11 +3459,11 @@ int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
 }
 
 int TcpTimedCbChannel::timedBufferedWrite(
-        const char               *buffer,
-        int                       numBytes,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+                                      const char                *buffer,
+                                      int                        numBytes,
+                                      const bsls::TimeInterval&  timeout,
+                                      const WriteCallback&       writeCallback,
+                                      int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -3461,7 +3472,8 @@ int TcpTimedCbChannel::timedBufferedWrite(
         return -1;
     }
 
-    if ((int) d_writeBuffer.size() < numBytes + d_writeBufferOffset) {
+    if (static_cast<int>(d_writeBuffer.size()) <
+                                              numBytes + d_writeBufferOffset) {
         d_writeBuffer.resize(d_writeBufferOffset + numBytes);
     }
 
@@ -3485,8 +3497,8 @@ int TcpTimedCbChannel::timedBufferedWrite(
                                                           writeCallback,
                                                           flags);
             request->d_data.d_s.d_length -= s;
-            if ((int) d_writeBuffer.size() < d_writeBufferOffset + numBytes -
-                                                                          s ) {
+            if (static_cast<int>(d_writeBuffer.size()) <
+                                         d_writeBufferOffset + numBytes - s ) {
                 d_writeBuffer.resize(d_writeBufferOffset + numBytes - s);
             }
             bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
@@ -3502,14 +3514,13 @@ int TcpTimedCbChannel::timedBufferedWrite(
             }
             else {
                 TcpTimedCbChannel_WReg *request =
-                    new (d_wrequestPool)
-                                TcpTimedCbChannel_WReg(numBytes,
-                                                              numBytes,
-                                                              timeout,
-                                                              writeCallback,
-                                                              flags);
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset +
-                                                                    numBytes) {
+                    new (d_wrequestPool) TcpTimedCbChannel_WReg(numBytes,
+                                                                numBytes,
+                                                                timeout,
+                                                                writeCallback,
+                                                                flags);
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                              d_writeBufferOffset + numBytes) {
                     d_writeBuffer.resize(d_writeBufferOffset + numBytes);
                 }
                 bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
@@ -3537,7 +3548,8 @@ int TcpTimedCbChannel::timedBufferedWrite(
                                                      d_writeTimerFunctor);
     }
     else {
-        if ((int) d_writeBuffer.size() < d_writeBufferOffset + numBytes) {
+        if (static_cast<int>(d_writeBuffer.size()) <
+                                              d_writeBufferOffset + numBytes) {
             d_writeBuffer.resize(d_writeBufferOffset + numBytes);
         }
         bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
@@ -3555,11 +3567,10 @@ int TcpTimedCbChannel::timedBufferedWrite(
 
 }
 
-int TcpTimedCbChannel::bufferedWritev(
-        const btls::Ovec      *buffers,
-        int                   numBuffers,
-        const WriteCallback&  writeCallback,
-        int                   flags)
+int TcpTimedCbChannel::bufferedWritev(const btls::Ovec     *buffers,
+                                      int                   numBuffers,
+                                      const WriteCallback&  writeCallback,
+                                      int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3588,8 +3599,8 @@ int TcpTimedCbChannel::bufferedWritev(
                 BSLS_ASSERT(offset < buffers[idx].length());
 
                 int numBytes = length - s;
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset +
-                                                                    numBytes) {
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                              d_writeBufferOffset + numBytes) {
                     d_writeBuffer.resize(d_writeBufferOffset + numBytes);
                 }
 
@@ -3601,28 +3612,33 @@ int TcpTimedCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer[d_writeBufferOffset],
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers + idx + 1,
+                                         numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
                 TcpTimedCbChannel_WReg *request =
-                    new (d_wrequestPool) TcpTimedCbChannel_WReg(length,
-                                                              length,
-                                                              writeCallback,
-                                                              flags);
+                     new (d_wrequestPool) TcpTimedCbChannel_WReg(length,
+                                                                 length,
+                                                                 writeCallback,
+                                                                 flags);
                 request->d_data.d_s.d_length -= s;
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset + length){
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                                d_writeBufferOffset + length) {
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers,
+                                         numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -3639,14 +3655,16 @@ int TcpTimedCbChannel::bufferedWritev(
                 return 0;
             }
             else {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset +
-                                                                      length) {
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                                d_writeBufferOffset + length) {
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers,
+                                         numBuffers);
                 BSLS_ASSERT(length == len);
                 d_writeBufferOffset += length;
 
@@ -3663,8 +3681,8 @@ int TcpTimedCbChannel::bufferedWritev(
             return 0;
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
-                                          btlso::EventType::e_WRITE,
-                                          d_bufferedWriteFunctor)) {
+                                                   btlso::EventType::e_WRITE,
+                                                   d_bufferedWriteFunctor)) {
             TcpTimedCbChannel_WReg *request = d_writeRequests.back();
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
@@ -3674,13 +3692,15 @@ int TcpTimedCbChannel::bufferedWritev(
     }
     else {
         int length = btls::IovecUtil::length(buffers, numBuffers);
-        if ((int) d_writeBuffer.size() < d_writeBufferOffset + length) {
+        if (static_cast<int>(d_writeBuffer.size()) <
+                                                d_writeBufferOffset + length) {
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
-            &d_writeBuffer[d_writeBufferOffset],
-            d_writeBuffer.size() - d_writeBufferOffset,
-            buffers, numBuffers);
+                  &d_writeBuffer[d_writeBufferOffset],
+                  static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
+                  buffers,
+                  numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
@@ -3694,11 +3714,10 @@ int TcpTimedCbChannel::bufferedWritev(
     return 0;
 }
 
-int TcpTimedCbChannel::bufferedWritev(
-        const btls::Iovec *buffers,
-        int                      numBuffers,
-        const WriteCallback&     writeCallback,
-        int                      flags)
+int TcpTimedCbChannel::bufferedWritev(const btls::Iovec    *buffers,
+                                      int                   numBuffers,
+                                      const WriteCallback&  writeCallback,
+                                      int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3727,8 +3746,8 @@ int TcpTimedCbChannel::bufferedWritev(
                 BSLS_ASSERT(offset < buffers[idx].length());
 
                 int numBytes = length - s;
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset +
-                                                                    numBytes) {
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                              d_writeBufferOffset + numBytes) {
                     d_writeBuffer.resize(d_writeBufferOffset + numBytes);
                 }
 
@@ -3738,9 +3757,11 @@ int TcpTimedCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer[d_writeBufferOffset],
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers + idx + 1,
+                                         numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -3753,13 +3774,16 @@ int TcpTimedCbChannel::bufferedWritev(
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset + length){
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                                 d_writeBufferOffset + length){
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers,
+                                         numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -3776,19 +3800,22 @@ int TcpTimedCbChannel::bufferedWritev(
                 return 0;
             }
             else {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset + length){
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                                 d_writeBufferOffset + length){
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers,
+                                         numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
 
                 TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
-                                   TcpTimedCbChannel_WReg(length,
+                                          TcpTimedCbChannel_WReg(length,
                                                                  length,
                                                                  writeCallback,
                                                                  flags);
@@ -3811,12 +3838,13 @@ int TcpTimedCbChannel::bufferedWritev(
     }
     else {
         int length = btls::IovecUtil::length(buffers, numBuffers);
-        if ((int) d_writeBuffer.size() < d_writeBufferOffset + length) {
+        if (static_cast<int>(d_writeBuffer.size()) <
+                                                d_writeBufferOffset + length) {
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
             &d_writeBuffer[d_writeBufferOffset],
-            d_writeBuffer.size() - d_writeBufferOffset,
+            static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
             buffers, numBuffers);
         BSLS_ASSERT(length == len);
 
@@ -3832,11 +3860,11 @@ int TcpTimedCbChannel::bufferedWritev(
 }
 
 int TcpTimedCbChannel::timedBufferedWritev(
-        const btls::Ovec   *buffers,
-        int                       numBuffers,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+                                      const btls::Ovec          *buffers,
+                                      int                        numBuffers,
+                                      const bsls::TimeInterval&  timeout,
+                                      const WriteCallback&       writeCallback,
+                                      int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3855,61 +3883,69 @@ int TcpTimedCbChannel::timedBufferedWritev(
             return 0;
         }
         else if (0 < s) {
-                // Got a partial result -- enqueue the rest
-                int idx, offset;
-                btls::IovecUtil::pivot(&idx, &offset,
-                                      buffers, numBuffers, s);
-                BSLS_ASSERT(0 <= idx);
-                BSLS_ASSERT(idx < numBuffers);
-                BSLS_ASSERT(0 <= offset);
-                BSLS_ASSERT(offset < buffers[idx].length());
+            // Got a partial result -- enqueue the rest
+            int idx, offset;
+            btls::IovecUtil::pivot(&idx,
+                                   &offset,
+                                   buffers,
+                                   numBuffers,
+                                   s);
+            BSLS_ASSERT(0 <= idx);
+            BSLS_ASSERT(idx < numBuffers);
+            BSLS_ASSERT(0 <= offset);
+            BSLS_ASSERT(offset < buffers[idx].length());
 
-                int numBytes = length - s;
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset +
-                                                                    numBytes) {
-                    d_writeBuffer.resize(d_writeBufferOffset + numBytes);
-                }
+            int numBytes = length - s;
+            if (static_cast<int>(d_writeBuffer.size())
+                                            < d_writeBufferOffset + numBytes) {
+                d_writeBuffer.resize(d_writeBufferOffset + numBytes);
+            }
 
-                bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
+            bsl::memcpy(&d_writeBuffer[d_writeBufferOffset],
                             (char*) const_cast<void *>(buffers[idx].buffer())
                                 + offset,
                             buffers[idx].length() - offset);
 
-                if (idx < numBuffers - 1) {
-                    int len = btls::IovecUtil::gather(
-                         &d_writeBuffer[d_writeBufferOffset],
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
-                    BSLS_ASSERT(length == len);
-                }
-                d_writeBufferOffset += numBytes;
-                TcpTimedCbChannel_WReg *request =
-                    new (d_wrequestPool)
-                                TcpTimedCbChannel_WReg(length, length,
-                                                              timeout,
-                                                              writeCallback,
-                                                              flags);
-                request->d_data.d_s.d_length -= s;
-                d_writeRequests.push_front(request);
-        }
-        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset + length){
-                    d_writeBuffer.resize(d_writeBufferOffset + length);
-                }
+            if (idx < numBuffers - 1) {
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers + idx + 1,
+                                         numBuffers - idx - 1);
                 BSLS_ASSERT(length == len);
-
-                d_writeBufferOffset += length;
-                TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
-                                   TcpTimedCbChannel_WReg(length,
+            }
+            d_writeBufferOffset += numBytes;
+            TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
+                                          TcpTimedCbChannel_WReg(length,
                                                                  length,
                                                                  timeout,
                                                                  writeCallback,
                                                                  flags);
-                d_writeRequests.push_front(request);
+            request->d_data.d_s.d_length -= s;
+            d_writeRequests.push_front(request);
+        }
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
+            if (static_cast<int>(d_writeBuffer.size()) <
+                                                 d_writeBufferOffset + length){
+                d_writeBuffer.resize(d_writeBufferOffset + length);
+            }
+            int len = btls::IovecUtil::gather(
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers,
+                                         numBuffers);
+            BSLS_ASSERT(length == len);
+
+            d_writeBufferOffset += length;
+            TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
+                                          TcpTimedCbChannel_WReg(length,
+                                                                 length,
+                                                                 timeout,
+                                                                 writeCallback,
+                                                                 flags);
+            d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
@@ -3917,13 +3953,16 @@ int TcpTimedCbChannel::timedBufferedWritev(
                 return 0;
             }
             else {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset + length){
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                                 d_writeBufferOffset + length){
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                         &d_writeBuffer[d_writeBufferOffset],
+                                         static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                         buffers,
+                                         numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -3956,23 +3995,24 @@ int TcpTimedCbChannel::timedBufferedWritev(
     }
     else {
         int length = btls::IovecUtil::length(buffers, numBuffers);
-        if ((int) d_writeBuffer.size() < d_writeBufferOffset + length) {
+        if (static_cast<int>(d_writeBuffer.size())
+                                              < d_writeBufferOffset + length) {
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
             &d_writeBuffer[d_writeBufferOffset],
-            d_writeBuffer.size() - d_writeBufferOffset,
+            static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
             buffers, numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
 
         TcpTimedCbChannel_WReg *request =
-            new (d_wrequestPool) TcpTimedCbChannel_WReg(length,
-                                                               length,
-                                                               timeout,
-                                                               writeCallback,
-                                                               flags);
+                     new (d_wrequestPool) TcpTimedCbChannel_WReg(length,
+                                                                 length,
+                                                                 timeout,
+                                                                 writeCallback,
+                                                                 flags);
 
         d_writeRequests.push_front(request);
     }
@@ -3980,11 +4020,11 @@ int TcpTimedCbChannel::timedBufferedWritev(
 }
 
 int TcpTimedCbChannel::timedBufferedWritev(
-        const btls::Iovec  *buffers,
-        int                       numBuffers,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+                                      const btls::Iovec         *buffers,
+                                      int                        numBuffers,
+                                      const bsls::TimeInterval&  timeout,
+                                      const WriteCallback&       writeCallback,
+                                      int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -4013,8 +4053,8 @@ int TcpTimedCbChannel::timedBufferedWritev(
                 BSLS_ASSERT(offset < buffers[idx].length());
 
                 int numBytes = length - s;
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset +
-                                                                    numBytes) {
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                              d_writeBufferOffset + numBytes) {
                     d_writeBuffer.resize(d_writeBufferOffset + numBytes);
                 }
 
@@ -4024,9 +4064,11 @@ int TcpTimedCbChannel::timedBufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer[d_writeBufferOffset],
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                   &d_writeBuffer[d_writeBufferOffset],
+                                   static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                   buffers + idx + 1,
+                                   numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -4040,18 +4082,21 @@ int TcpTimedCbChannel::timedBufferedWritev(
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset + length){
+                if (static_cast<int>(d_writeBuffer.size())
+                                               < d_writeBufferOffset + length){
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer[d_writeBufferOffset],
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
                 TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
-                                   TcpTimedCbChannel_WReg(length,
+                                          TcpTimedCbChannel_WReg(length,
                                                                  length,
                                                                  timeout,
                                                                  writeCallback,
@@ -4064,13 +4109,16 @@ int TcpTimedCbChannel::timedBufferedWritev(
                 return 0;
             }
             else {
-                if ((int) d_writeBuffer.size() < d_writeBufferOffset + length){
+                if (static_cast<int>(d_writeBuffer.size()) <
+                                                 d_writeBufferOffset + length){
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer[d_writeBufferOffset],
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                              &d_writeBuffer[d_writeBufferOffset],
+                              static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                              buffers,
+                              numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -4103,12 +4151,13 @@ int TcpTimedCbChannel::timedBufferedWritev(
     }
     else {
         int length = btls::IovecUtil::length(buffers, numBuffers);
-        if ((int) d_writeBuffer.size() < d_writeBufferOffset + length) {
+        if (static_cast<int>(d_writeBuffer.size()) <
+                                                d_writeBufferOffset + length) {
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
             &d_writeBuffer[d_writeBufferOffset],
-            d_writeBuffer.size() - d_writeBufferOffset,
+            static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
             buffers, numBuffers);
         BSLS_ASSERT(length == len);
 
@@ -4137,12 +4186,14 @@ void TcpTimedCbChannel::cancelRead() {
         // A callback is active -- can't destroy current request.
         bsl::deque<TcpTimedCbChannel_RReg *> toBeCancelled(
                             d_readRequests.begin(),
-                            d_readRequests.begin() + d_readRequests.size() - 1,
+                            d_readRequests.begin()
+                                 + static_cast<int>(d_readRequests.size()) - 1,
                             d_allocator_p);
-        d_readRequests.erase(
-                           d_readRequests.begin(),
-                           d_readRequests.begin() + d_readRequests.size() - 1);
-        int numToCancel = toBeCancelled.size();
+        d_readRequests.erase(d_readRequests.begin(),
+                             d_readRequests.begin()
+                                + static_cast<int>(d_readRequests.size()) - 1);
+        int numToCancel =
+                      static_cast<int>(static_cast<int>(toBeCancelled.size()));
 
         while (numToCancel--) {
             TcpTimedCbChannel_RReg *reg = toBeCancelled.back();
@@ -4162,7 +4213,7 @@ void TcpTimedCbChannel::cancelRead() {
         bsl::deque<TcpTimedCbChannel_RReg *>
                                   toBeCancelled(d_readRequests, d_allocator_p);
         d_readRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_rManager_p->deregisterSocketEvent(d_socket_p->handle(),
                                                 btlso::EventType::e_READ);
@@ -4197,7 +4248,7 @@ void TcpTimedCbChannel::cancelWrite() {
                               d_writeRequests.begin()
                                                  + d_writeRequests.size() - 1);
 
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
 
         while (numToCancel--) {
             TcpTimedCbChannel_WReg *reg = toBeCancelled.back();
@@ -4210,7 +4261,7 @@ void TcpTimedCbChannel::cancelWrite() {
         bsl::deque<TcpTimedCbChannel_WReg *>
                                  toBeCancelled(d_writeRequests, d_allocator_p);
         d_writeRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_wManager_p->deregisterSocketEvent(d_socket_p->handle(),
                                                btlso::EventType::e_WRITE);
@@ -4241,16 +4292,14 @@ void TcpTimedCbChannel::invalidateWrite() {
     d_isInvalidWriteFlag = 1;
 }
 
-void TcpTimedCbChannel::setReadEventManager(
-        btlso::TimerEventManager *manager)
+void TcpTimedCbChannel::setReadEventManager(btlso::TimerEventManager *manager)
 {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingReadOperations());
     d_rManager_p = manager;
 }
 
-void TcpTimedCbChannel::setWriteEventManager(
-        btlso::TimerEventManager *manager)
+void TcpTimedCbChannel::setWriteEventManager(btlso::TimerEventManager *manager)
 {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingWriteOperations());
@@ -4258,7 +4307,6 @@ void TcpTimedCbChannel::setWriteEventManager(
 }
 
 // ACCESSORS
-
 int TcpTimedCbChannel::isInvalidRead() const {
    return d_isInvalidReadFlag ;
 }
@@ -4268,14 +4316,14 @@ int TcpTimedCbChannel::isInvalidWrite() const {
 }
 
 int TcpTimedCbChannel::numPendingReadOperations() const {
-    return d_readRequests.size();
+    return static_cast<int>(d_readRequests.size());
 }
 
 int TcpTimedCbChannel::numPendingWriteOperations() const {
-    return d_writeRequests.size();
+    return static_cast<int>(d_writeRequests.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

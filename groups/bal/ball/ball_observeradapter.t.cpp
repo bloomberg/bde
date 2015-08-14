@@ -125,7 +125,7 @@ void my_OstreamObserver::publish(const ball::Record&  record,
               << fixedFields.category()                << ' '
               << fixedFields.message()                 << ' ';
 
-    const ball::UserFieldValues& userFields = record.userFieldValues();
+    const ball::UserFields& userFields = record.userFields();
     const int numUserFields = userFields.length();
     for (int i = 0; i < numUserFields; ++i) {
         *d_stream << userFields[i] << ' ';
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
             bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            ball::UserFieldValues  userFields;
+            ball::UserFields  userFields;
 
             if (verbose)
                 cout << "Publish a sequence of three messages." << endl;

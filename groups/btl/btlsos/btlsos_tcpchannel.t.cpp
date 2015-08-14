@@ -572,15 +572,14 @@ void fillBuffers(VECBUFFER *vecBuffers, int numBuffers, char ch)
     }
 }
 
-static int testExecutionHelper(
-                      btlsos::TcpChannel                     *channel,
-                      TestCommand                           *command,
-                      btlso::SocketHandle::Handle            *socketPair,
-                      bdlqq::ThreadUtil::Handle              *threadHandle,
-                      char                                  *buffer,
-                      const btls::Iovec                      *ioBuffer,
-                      const btls::Ovec                       *oBuffer,
-                      int                                   *idx)
+static int testExecutionHelper(btlsos::TcpChannel          *channel,
+                               TestCommand                 *command,
+                               btlso::SocketHandle::Handle *socketPair,
+                               bdlqq::ThreadUtil::Handle   *threadHandle,
+                               char                        *buffer,
+                               const btls::Iovec           *ioBuffer,
+                               const btls::Ovec            *oBuffer,
+                               int                         *idx)
     // Process the specified 'command' to invoke some operation of the
     // specified 'channel', or the 'helperSocket' which is the control endpoint
     // of the socket pair.  For a read operation, load either 'buffer' or
@@ -1089,8 +1088,10 @@ int main(int argc, char *argv[]) {
                 char writeBuf[k_LEN] = "abcdefghij1234567890",
                      readBuf[k_LEN];
                 int numBytes = 0, augStatus = -1, interruptFlag = 1;
-                int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
-                                               strlen(writeBuf));
+                int len = btlso::SocketImpUtil::write(
+                                           handles[1],
+                                           writeBuf,
+                                           static_cast<int>(strlen(writeBuf)));
 
                 ASSERT(len == (int)strlen(writeBuf));
                 // Read 5 bytes from the channel.

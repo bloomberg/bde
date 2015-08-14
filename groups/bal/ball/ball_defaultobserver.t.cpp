@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
             Obj X(bsl::cout);
 
             ball::RecordAttributes fixed;
-            ball::UserFieldValues  userValues;
+            ball::UserFields  userValues;
 
             bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             fixed.setTimestamp(now);
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
             Obj X(&bsl::cout);
 
             ball::RecordAttributes fixed;
-            ball::UserFieldValues  userValues;
+            ball::UserFields  userValues;
 
             bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             fixed.setTimestamp(now);
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
             Obj X(bsl::cout);
 
             ball::RecordAttributes fixed;
-            ball::UserFieldValues  userValues;
+            ball::UserFields  userValues;
 
             const int NUM_MESSAGES = 3;
             for (int n = 0; n < NUM_MESSAGES; ++n) {
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
             Obj X(&bsl::cout);
 
             ball::RecordAttributes fixed;
-            ball::UserFieldValues  userValues;
+            ball::UserFields  userValues;
 
             const int NUM_MESSAGES = 3;
             for (int n = 0; n < NUM_MESSAGES; ++n) {

@@ -283,10 +283,11 @@ void* threadAsServer(void *arg)
 static void signalHandler(int sig)
     // The signal handler does nothing.
 {
-     if (veryVerbose) {
-         write(2, "caught signal\n", sizeof("caught signal\n"));
-     }
-     return;
+    (void)sig;
+    if (veryVerbose) {
+        write(2, "caught signal\n", sizeof("caught signal\n"));
+    }
+    return;
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
@@ -322,11 +323,11 @@ static int numChannelToBeEstablished(const TestCommand *commands,
     return total;
 }
 
-static int testExecutionHelper(btlsos::TcpTimedConnector   *connector,
-                               int                        *status,
-                               const TestCommand          *command,
-                               bsl::vector<btlsc::Channel*> *channels,
-                               btlsc::Channel             **newChannel)
+static int testExecutionHelper(btlsos::TcpTimedConnector     *connector,
+                               int                           *status,
+                               const TestCommand             *command,
+                               bsl::vector<btlsc::Channel*>  *channels,
+                               btlsc::Channel               **newChannel)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
@@ -845,7 +846,7 @@ int main(int argc, char *argv[]) {
 
                       factory.deallocate(serverSocket);
                   }
-                  length = connList.size();
+                  length = static_cast<int>(connList.size());
                   for (int j = 0; j < length; ++j) {
                       factory.deallocate(connList[j]);
                   }
@@ -1035,7 +1036,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1104,7 +1105,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 testing 'timedAllocateTimed' method:");
@@ -1157,7 +1158,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -1205,7 +1206,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
@@ -1261,7 +1262,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 5: channels.size() = ");
                           PT(channels.size());
@@ -1269,7 +1270,7 @@ int main(int argc, char *argv[]) {
                   }
                   channels.clear();
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
 
                   for (int j = 0; j < length; ++j) {
                       factory.deallocate(connList[j]);
@@ -1458,7 +1459,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1528,7 +1529,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 for testing 'timedAllocate' method:");
@@ -1581,7 +1582,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 3: channels.size() = ");
                           PT(channels.size());
@@ -1630,7 +1631,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
@@ -1686,7 +1687,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 5: channels.size() = ");
                           PT(channels.size());
@@ -1694,7 +1695,7 @@ int main(int argc, char *argv[]) {
                   }
                   channels.clear();
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
                   if (verbose) {
                       PT(connList.size());
                   }
@@ -1889,7 +1890,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1959,7 +1960,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                    if (verbose) {
                       QT("Step 3 for testing 'allocateTimed' method:");
@@ -2012,7 +2013,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 3: channels.size() = ");
                           PT(channels.size());
@@ -2061,7 +2062,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
@@ -2118,7 +2119,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 5: channels.size() = ");
                           PT(channels.size());
@@ -2126,7 +2127,7 @@ int main(int argc, char *argv[]) {
                   }
                   channels.clear();
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
 
                   for (int j = 0; j < length; ++j) {
                       factory.deallocate(connList[j]);
@@ -2317,7 +2318,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -2385,7 +2386,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 for testing 'allocate' method:");
@@ -2438,7 +2439,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 3: channels.size() = ");
                           PT(channels.size());
@@ -2488,7 +2489,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
@@ -2545,7 +2546,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 5: channels.size() = ");
                           PT(channels.size());
@@ -2553,7 +2554,7 @@ int main(int argc, char *argv[]) {
                   }
                   channels.clear();
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
 
                   for (int j = 0; j < length; ++j) {
                       factory.deallocate(connList[j]);
@@ -2660,7 +2661,7 @@ int main(int argc, char *argv[]) {
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
                   if (veryVerbose) {
                       P(channels.size());
                   }
@@ -2803,7 +2804,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                  int length = channels.size();
+                  int length = static_cast<int>(channels.size());
                   if (veryVerbose) {
                       P(channels.size());
                   }
@@ -2848,9 +2849,8 @@ int main(int argc, char *argv[]) {
 
                     connector.setPeer(serverAddress);
                     ASSERT(0 == connector.isInvalid());
-                    int status = 0;
-
 #if 0
+                    int status = 0;
                     btlsc::Channel *newChannel = connector.allocate(&status);
                     ASSERT(0 == newChannel);
                     ASSERT(e_FAILED == status);

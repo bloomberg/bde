@@ -3,7 +3,7 @@
 #include <ball_record.h>
 
 #include <ball_severity.h>                                 // for testing only
-#include <ball_userfieldvalues.h>
+#include <ball_userfields.h>
 
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
@@ -50,16 +50,16 @@ using namespace bsl;  // automatically added by script
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
 // [ 2] ball::Record(bslma::Allocator *ba = 0);
-// [ 2] ball::Record(const ball::RecordAttributes&, const ball::UserFieldValues&, *ba = 0);
+// [ 2] ball::Record(const ball::RecordAttributes&, const ball::UserFields&, *ba = 0);
 // [ 7] ball::Record(const ball::Record& original, *ba = 0);
 // [ 2] ~ball::Record();
 // [ 8] ball::Record& operator=(const ball::Record& rhs);
 // [ 1] ball::RecordAttributes& fixedFields();
 // [ 2] void setFixedFields(const ball::RecordAttributes& fixedFields);
-// [ 2] void setUserFieldValues(const ball::UserFieldValues& userFields);
-// [ 1] ball::UserFieldValues& userFields();
+// [ 2] void setUserFields(const ball::UserFields& userFields);
+// [ 1] ball::UserFields& userFields();
 // [ 4] const ball::RecordAttributes& fixedFields() const;
-// [ 4] const ball::UserFieldValues& userFields() const;
+// [ 4] const ball::UserFields& userFields() const;
 // [ 9] int numAllocatedBytes() const;
 // [  ] bsl::ostream& print(bsl::ostream& stream, int level, int spl) const;
 // [ 6] bool operator==(const ball::Record& lhs, const ball::Record& rhs);
@@ -68,7 +68,7 @@ using namespace bsl;  // automatically added by script
 // [ 9] STREAM& operator<<(STREAM& stream, const ball::Record& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFieldValues')
+// [ 3] TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFields')
 // [10] USAGE EXAMPLE 1
 // [11] USAGE EXAMPLE 2
 //=============================================================================
@@ -133,7 +133,7 @@ void aSsErT(int c, const char *s, int i)
 
 typedef ball::Record           Obj;
 typedef ball::RecordAttributes Record_Attr;
-typedef ball::UserFieldValues  Values;
+typedef ball::UserFields  Values;
 typedef bsls::Types::Int64     Int64;
 
 
@@ -328,12 +328,12 @@ int main(int argc, char *argv[])
                 int ii = i % NUM_VALUES_DATA;
 
                 v.setFixedFields(REC_ATTRS[i]);
-                v.setUserFieldValues(*VALUES_DATA[ii]);
+                v.setUserFields(*VALUES_DATA[ii]);
                 for (int j = 0; j < NUM_RECATTRS; ++j) {
                     Obj u;  const Obj& U = u;
                     int jj = j % NUM_VALUES_DATA;
                     u.setFixedFields(REC_ATTRS[j]);
-                    u.setUserFieldValues(*VALUES_DATA[jj]);
+                    u.setUserFields(*VALUES_DATA[jj]);
                     if (veryVerbose) { T_();  P_(V);  P_(U); }
                     Obj w(V);  const Obj &W = w;          // control
                     u = V;
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
                 Obj u;  const Obj& U = u;
                 int ii = i % NUM_VALUES_DATA;
                 u.setFixedFields(REC_ATTRS[i]);
-                u.setUserFieldValues(*VALUES_DATA[ii]);
+                u.setUserFields(*VALUES_DATA[ii]);
                 Obj w(U);  const Obj &W = w;              // control
                 u = u;
                 if (veryVerbose) { T_();  P_(U);  P(W); }
@@ -385,11 +385,11 @@ int main(int argc, char *argv[])
                 Obj w;  const Obj& W = w;           // control
                 int j = i % NUM_VALUES_DATA;
                 w.setFixedFields(REC_ATTRS[i]);
-                w.setUserFieldValues(*VALUES_DATA[j]);
+                w.setUserFields(*VALUES_DATA[j]);
 
                 Obj x;  const Obj& X = x;
                 x.setFixedFields(REC_ATTRS[i]);
-                x.setUserFieldValues(*VALUES_DATA[j]);
+                x.setUserFields(*VALUES_DATA[j]);
 
                 Obj y(X);  const Obj &Y = y;
                 if (veryVerbose) { T_();  P_(W);  P_(X);  P(Y); }
@@ -424,11 +424,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 3; ++i) {
                 Obj u;  const Obj& U = u;
                 u.setFixedFields(REC_ATTRS[i]);
-                u.setUserFieldValues(*VALUES_DATA[i]);
+                u.setUserFields(*VALUES_DATA[i]);
                 for (int j = 0; j < 3; ++j) {
                     Obj v;  const Obj& V = v;
                     v.setFixedFields(REC_ATTRS[j]);
-                    v.setUserFieldValues(*VALUES_DATA[j]);
+                    v.setUserFields(*VALUES_DATA[j]);
                     int isSame = i == j;
                     if (veryVerbose) { T_();  P_(i);  P_(j);  P_(U);  P(V); }
                     LOOP2_ASSERT(i, j,  isSame == (U == V));
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   const ball::RecordAttributes& fixedFields();
-        //   const ball::UserFieldValues& userFields();
+        //   const ball::UserFields& userFields();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -490,13 +490,13 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { P(mT); }
                 LOOP2_ASSERT(ii, jj, mT.fixedFields() == Y);
-                LOOP2_ASSERT(ii, jj, mT.userFieldValues()  == X);
+                LOOP2_ASSERT(ii, jj, mT.userFields()  == X);
             }
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFieldValues')
+        // TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFields')
         // Plan:
         //   Test the behavior of 'gg' and 'ggg'.
         //   * Verify that all test values are distinct.
@@ -508,8 +508,8 @@ int main(int argc, char *argv[])
         //   * Test 'ggg' syntax checking with syntactically illegal inputs.
         //
         // Testing:
-        //   ball::UserFieldValues& gg(ball::UserFieldValues *address, const char *spec);
-        //   int ggg(ball::UserFieldValues *address, const char *spec, int showErrorFlag);
+        //   ball::UserFields& gg(ball::UserFields *address, const char *spec);
+        //   int ggg(ball::UserFields *address, const char *spec, int showErrorFlag);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
             << "Testing 'gg' and 'ggg' generator functions" << endl
@@ -525,7 +525,7 @@ int main(int argc, char *argv[])
         //   the member fields correctly.
         //
         // Plan:
-        //   Create three ball::RecordAttributes and ball::UserFieldValues objects with
+        //   Create three ball::RecordAttributes and ball::UserFields objects with
         //   different values - one unset value and two distinct values.
         //   Construct ball::Record objects with these values and with default
         //   constructor, verify the values with the basic accessors, verify
@@ -535,10 +535,10 @@ int main(int argc, char *argv[])
         //   scope.
         //
         // Testing:
-        //   ball::Record(const ball::RecordAttributes &, const ball::UserFieldValues &);
+        //   ball::Record(const ball::RecordAttributes &, const ball::UserFields &);
         //   ball::Record();
         //   void setFixedFields(const ball::RecordAttributes &);
-        //   void setUserFieldValues(const ball::UserFieldValues &);
+        //   void setUserFields(const ball::UserFields &);
         //   ~ball::Record();
         // --------------------------------------------------------------------
 
@@ -640,17 +640,17 @@ int main(int argc, char *argv[])
             ASSERT(mY.fixedFields() == FB);    
             ASSERT(mZ.fixedFields() == FC);    
 
-            ASSERT(mX.userFieldValues()  == Values());
-            ASSERT(mY.userFieldValues()  == *VALUES_DATA[1]);
-            ASSERT(mZ.userFieldValues()  == *VALUES_DATA[2]);
+            ASSERT(mX.userFields()  == Values());
+            ASSERT(mY.userFields()  == *VALUES_DATA[1]);
+            ASSERT(mZ.userFields()  == *VALUES_DATA[2]);
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
                                   << endl;
             mX.setFixedFields(FB);     
             ASSERT(mX.fixedFields() == FB);
             
-            mX.setUserFieldValues(*VALUES_DATA[1]);
-            ASSERT(mX.userFieldValues() == *VALUES_DATA[1]);
+            mX.setUserFields(*VALUES_DATA[1]);
+            ASSERT(mX.userFields() == *VALUES_DATA[1]);
 
             ASSERT(mX == mY);
 
@@ -659,8 +659,8 @@ int main(int argc, char *argv[])
             mX.setFixedFields(FC);           
             ASSERT(mX.fixedFields() == FC);
             
-            mX.setUserFieldValues(*VALUES_DATA[2]);         
-            ASSERT(mX.userFieldValues()  == *VALUES_DATA[2]);
+            mX.setUserFields(*VALUES_DATA[2]);         
+            ASSERT(mX.userFields()  == *VALUES_DATA[2]);
 
             ASSERT(mX == mZ);
         }
@@ -687,17 +687,17 @@ int main(int argc, char *argv[])
             ASSERT(mY.fixedFields() == FB);   
             ASSERT(mZ.fixedFields() == FC);   
  
-            ASSERT(mX.userFieldValues()  == Values());
-            ASSERT(mY.userFieldValues()  == *VALUES_DATA[1]);
-            ASSERT(mZ.userFieldValues()  == *VALUES_DATA[2]);
+            ASSERT(mX.userFields()  == Values());
+            ASSERT(mY.userFields()  == *VALUES_DATA[1]);
+            ASSERT(mZ.userFields()  == *VALUES_DATA[2]);
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
                                   << endl;
             mX.setFixedFields(FB);       
             ASSERT(mX.fixedFields() == FB);
             
-            mX.setUserFieldValues(*VALUES_DATA[1]);     
-            ASSERT(mX.userFieldValues() == *VALUES_DATA[1]);
+            mX.setUserFields(*VALUES_DATA[1]);     
+            ASSERT(mX.userFields() == *VALUES_DATA[1]);
 
             ASSERT(mX == mY);
 
@@ -706,8 +706,8 @@ int main(int argc, char *argv[])
             mX.setFixedFields(FC);   
             ASSERT(mX.fixedFields() == FC);
 
-            mX.setUserFieldValues(*VALUES_DATA[2]);   
-            ASSERT(mX.userFieldValues()  == *VALUES_DATA[2]);
+            mX.setUserFields(*VALUES_DATA[2]);   
+            ASSERT(mX.userFields()  == *VALUES_DATA[2]);
 
             ASSERT(mX == mZ);
         }
@@ -735,17 +735,17 @@ int main(int argc, char *argv[])
             ASSERT(mY.fixedFields() == FB); 
             ASSERT(mZ.fixedFields() == FC);
 
-            ASSERT(mX.userFieldValues()  == Values());
-            ASSERT(mY.userFieldValues()  == *VALUES_DATA[1]);
-            ASSERT(mZ.userFieldValues()  == *VALUES_DATA[2]);
+            ASSERT(mX.userFields()  == Values());
+            ASSERT(mY.userFields()  == *VALUES_DATA[1]);
+            ASSERT(mZ.userFields()  == *VALUES_DATA[2]);
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
                                   << endl;
             mX.setFixedFields(FB);    
             ASSERT(mX.fixedFields() == FB);
 
-            mX.setUserFieldValues(*VALUES_DATA[1]);  
-            ASSERT(mX.userFieldValues() == *VALUES_DATA[1]);
+            mX.setUserFields(*VALUES_DATA[1]);  
+            ASSERT(mX.userFields() == *VALUES_DATA[1]);
 
             ASSERT(mX == mY);
 
@@ -754,8 +754,8 @@ int main(int argc, char *argv[])
             mX.setFixedFields(FC);    
             ASSERT(mX.fixedFields() == FC);
 
-            mX.setUserFieldValues(*VALUES_DATA[2]); 
-            ASSERT(mX.userFieldValues()  == *VALUES_DATA[2]);
+            mX.setUserFields(*VALUES_DATA[2]); 
+            ASSERT(mX.userFields()  == *VALUES_DATA[2]);
 
             ASSERT(mX == mZ);
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
@@ -773,9 +773,9 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //     - constructor/destructor
         //     - assignment operator
-        //     - userFieldValues()/fixedFields() (non-const versions)
-        //     - userFieldValues()/fixedFields() (const versions)
-        //     - setUserFieldValues()/setFixedFields()
+        //     - userFields()/fixedFields() (non-const versions)
+        //     - userFields()/fixedFields() (const versions)
+        //     - setuserFields()/setFixedFields()
         //     - numAllocatedBytes()
         //     - equality/inequality operator (== and !=)
         //     - etc.
@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
         //   their equality.  Use manipulators to set RA to values hold by RB,
         //   verify RA's inequality with RC, and equality with RB.  Reset RA
         //   original values.  Get the dynamic memory usage.  To test
-        //   non-const versions of the 'userFieldValues' and 'fixedFields' methods,
+        //   non-const versions of the 'userFields' and 'fixedFields' methods,
         //   create a record RA from FA and *VALUES_DATA[1], get modifiables references
         //   to fixed field and user field and assign them FB and *VALUES_DATA[2] and
         //   finally verify that record is appropriately modified.
@@ -818,7 +818,7 @@ int main(int argc, char *argv[])
         Obj RA(FA, *VALUES_DATA[1]);
         
         ASSERT(FA == RA.fixedFields()); 
-        ASSERT(*VALUES_DATA[1] == RA.userFieldValues());
+        ASSERT(*VALUES_DATA[1] == RA.userFields());
 
         Record_Attr FB(bdlt::Datetime(),
                        bdlsu::ProcessUtil::getProcessId(),
@@ -835,26 +835,26 @@ int main(int argc, char *argv[])
 
         Obj RB(FB, *VALUES_DATA[2]);
         ASSERT(FB == RB.fixedFields()); 
-        ASSERT(*VALUES_DATA[2] == RB.userFieldValues());
+        ASSERT(*VALUES_DATA[2] == RB.userFields());
 
         Obj RC(RA);
         ASSERT(RC == RA);               ASSERT(RC != RB);
 
         RA.setFixedFields(FB);
-        RA.setUserFieldValues(*VALUES_DATA[2]);
+        RA.setUserFields(*VALUES_DATA[2]);
         ASSERT(FB == RA.fixedFields()); 
-        ASSERT(*VALUES_DATA[2] == RA.userFieldValues());
+        ASSERT(*VALUES_DATA[2] == RA.userFields());
         ASSERT(RA == RB);               ASSERT(RA != RC);
 
         RA.setFixedFields(FA);
-        RA.setUserFieldValues(*VALUES_DATA[1]);
+        RA.setUserFields(*VALUES_DATA[1]);
         ASSERT(FA == RA.fixedFields()); 
-        ASSERT(*VALUES_DATA[1] == RA.userFieldValues());
+        ASSERT(*VALUES_DATA[1] == RA.userFields());
         ASSERT(RA != RB);               ASSERT(RA == RC);
 
         RC = RB;
         ASSERT(FB == RC.fixedFields()); 
-        ASSERT(*VALUES_DATA[2] == RC.userFieldValues());
+        ASSERT(*VALUES_DATA[2] == RC.userFields());
         ASSERT(RA != RC);               ASSERT(RB == RC);
 
         const int sizea = RA.numAllocatedBytes();
@@ -865,22 +865,22 @@ int main(int argc, char *argv[])
         {
             if (verbose) {
                 cout << "testing const versions of 'fixedFields'"
-                     << "and 'userFieldValues'"
+                     << "and 'userFields'"
                      << endl;
             }
 
             Obj RA(FA, *VALUES_DATA[1]);
             Record_Attr &ff = RA.fixedFields();
             ff = FB;
-            Values &uf = RA.userFieldValues();
+            Values &uf = RA.userFields();
             uf = *VALUES_DATA[2];
             const Obj &CRA = RA;
             LOOP_ASSERT(CRA.fixedFields(), CRA.fixedFields() == FB);
-            LOOP_ASSERT(CRA.userFieldValues(), 
-                        CRA.userFieldValues() == *VALUES_DATA[2]);
+            LOOP_ASSERT(CRA.userFields(), 
+                        CRA.userFields() == *VALUES_DATA[2]);
             if (verbose) {
                 cout << "tested const versions of 'fixedFields'"
-                     << "and 'userFieldValues'"
+                     << "and 'userFields'"
                      << endl;
             }
         }

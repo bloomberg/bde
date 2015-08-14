@@ -382,12 +382,12 @@ static int numChannelToBeEstablished(const TestCommand *commands,
     return total;
 }
 
-static int testExecutionHelper(btlsos::TcpTimedAcceptor     *acceptor,
-                               int                         *status,
-                               const TestCommand           *command,
-                               bsl::vector<btlsc::Channel*> *channels,
-                               btlsc::Channel              **newChannel,
-                               bdlqq::Barrier               * syncBarrier)
+static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
+                               int                           *status,
+                               const TestCommand             *command,
+                               bsl::vector<btlsc::Channel*>  *channels,
+                               btlsc::Channel               **newChannel,
+                               bdlqq::Barrier                * syncBarrier)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the

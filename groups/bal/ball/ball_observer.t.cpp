@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                                       dynamic_cast<ball::Observer&>(myObserver);
             bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            ball::UserFieldValues  userValues;
+            ball::UserFields  userValues;
 
 
             if (verbose)

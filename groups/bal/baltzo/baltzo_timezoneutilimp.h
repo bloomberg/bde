@@ -189,8 +189,8 @@ struct TimeZoneUtilImp {
         // corresponding to the specified 'utcTime', using time zone
         // information supplied by the specified 'cache'.  Return 0 on success,
         // and a non-zero value otherwise.  A return status of
-        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that 'resultTimeZoneId'
-        // is not recognized.
+        // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'resultTimeZoneId' is
+        // not recognized.
 
     static void createLocalTimePeriod(
                           LocalTimePeriod                          *result,
@@ -218,8 +218,8 @@ struct TimeZoneUtilImp {
         // Load, into the specified 'resultValidity' the value indicating the
         // whether 'localTime' is unique, ambiguous but valid, or invalid.
         // Return 0 on success, and a non-zero value otherwise.  A return
-        // status of 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.
+        // status of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
+        // is not recognized.
 
     static int loadLocalTimePeriodForUtc(LocalTimePeriod       *result,
                                          const char            *timeZoneId,
@@ -231,7 +231,7 @@ struct TimeZoneUtilImp {
         // daylight-saving time), as well as the time interval over which those
         // attributes apply, using time zone information supplied by the
         // specified 'cache'.  Return 0 on success, and a non-zero value
-        // otherwise.  A return status of 'ErrorCode::BALTZO_UNSUPPORTED_ID'
+        // otherwise.  A return status of 'ErrorCode::k_UNSUPPORTED_ID'
         // indicates that 'timeZoneId' is not recognized.
 
     static void resolveLocalTime(

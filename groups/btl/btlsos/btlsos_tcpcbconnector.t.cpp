@@ -625,10 +625,10 @@ void *threadToAcceptConnection(void *arg)
     return 0;
 }
 
-static int testExecutionHelper(btlsos::TcpCbConnector *connector,
-                               int                        *numConnections,
+static int testExecutionHelper(btlsos::TcpCbConnector      *connector,
+                               int                         *numConnections,
                                btlso::TcpTimerEventManager *manager,
-                               const TestCommand          *command,
+                               const TestCommand           *command,
                                const btlso::IPv4Address    *newPeer)
 {
     int rCode = 0;
