@@ -24,11 +24,13 @@ using namespace bsl;
 //                              --------
 //
 //-----------------------------------------------------------------------------
-// [ ] static void setLevelCredentials(proxyNetwork, level, credentials);
-// [ ] static void setAllCredentials(proxyNetwork, credentials);
+// [1] static bool isWellFormed(const NetworkDescription& socks5Servers);
+// [1] static void setLevelCredentials(proxyNetwork, level, credentials);
+// [1] static void setAllCredentials(proxyNetwork, credentials);
 //
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
+// [2] USAGE TEST
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -230,6 +232,16 @@ int main(int argc, char *argv[])
         ASSERT(n1.beginLevel(0)[1].credentials() == c2);
         ASSERT(n1.beginLevel(1)[0].credentials() == c2);
         ASSERT(n1.beginLevel(1)[1].credentials() == c2);
+
+        btls5::NetworkDescription n2;
+        ASSERT(true  == Obj::isWellFormed(n1))
+        ASSERT(false == Obj::isWellFormed(n2))
+
+        n1.addProxy(3, btlso::Endpoint("proxy1.ny.bloomberg.com", 1080));
+        n2.addProxy(0, btlso::Endpoint("proxy1.ny.bloomberg.com", 1080));
+
+        ASSERT(false == Obj::isWellFormed(n1))
+        ASSERT(true  == Obj::isWellFormed(n2))
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -245,7 +257,7 @@ int main(int argc, char *argv[])
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
