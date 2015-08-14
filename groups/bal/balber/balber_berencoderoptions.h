@@ -10,7 +10,12 @@ BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
 //
+//@CLASSES:
+//  balber::BerEncoderOptions: BER encoding options
+//
 //@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
+//
+//@DESCRIPTION: TBD
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
@@ -50,42 +55,44 @@ BSLS_IDENT_PRAGMA_ONCE
 #endif
 
 namespace BloombergLP {
-
 namespace balber {
 
-                     // ==================================
+                     // =======================
                      // class BerEncoderOptions
-                     // ==================================
+                     // =======================
 
 class BerEncoderOptions {
     // BER encoding options
 
-    // INSTANCE DATA
-    int   d_traceLevel;
+    // DATA
+    int d_traceLevel;
         // trace (verbosity) level
-    int   d_bdeVersionConformance;
+       
+    int d_bdeVersionConformance;
         // The largest BDE version that can be assumed of the corresponding
-        // decoder for the encoded message, expressed as 10000*majorVersion +
-        // 100*minorVersion + patchVersion (e.g.  1.5.0 is expressed as 10500).
-        //  Ideally, the BER encoder should be permitted to generate any BER
-        // that conforms to X.690 (Basic Encoding Rules) and X.694 (mapping of
-        // XSD to ASN.1).  In practice, however, certain unimplemented features
-        // and missunderstandings of these standards have resulted in a decoder
-        // that cannot accept the full range of legal inputs.  Even when the
-        // encoder and decoder are both upgraded to a richer subset of BER, the
-        // program receiving the encoded values may not have been recompiled
-        // with the latest version and, thus restricting the encoder to emit
-        // BER that can be understood by the decoder at the other end of the
-        // wire.  If it is that the receiver has a more modern decoder, set
-        // this variable to a larger value to allow the encoder to produce BER
-        // that is richer and more standards conformant.  The default should be
-        // increased only when old copies of the decoder are completely out of
-        // circulation.
-    bool  d_encodeEmptyArrays;
+        // decoder for the encoded message, expressed as
+        // '10000*majorVersion + 100*minorVersion + patchVersion' (e.g.  1.5.0
+        // is expressed as 10500).  Ideally, the BER encoder should be
+        // permitted to generate any BER that conforms to X.690 (Basic Encoding
+        // Rules) and X.694 (mapping of XSD to ASN.1).  In practice, however,
+        // certain unimplemented features and missunderstandings of these
+        // standards have resulted in a decoder that cannot accept the full
+        // range of legal inputs.  Even when the encoder and decoder are both
+        // upgraded to a richer subset of BER, the program receiving the
+        // encoded values may not have been recompiled with the latest version
+        // and, thus restricting the encoder to emit BER that can be understood
+        // by the decoder at the other end of the wire.  If it is that the
+        // receiver has a more modern decoder, set this variable to a larger
+        // value to allow the encoder to produce BER that is richer and more
+        // standards conformant.  The default should be increased only when old
+        // copies of the decoder are completely out of circulation.
+
+    bool d_encodeEmptyArrays;
         // This option allows users to control if empty arrays are encoded.  By
         // default empty arrays are encoded as not encoding empty arrays is
         // non-compliant with the BER encoding specification.
-    bool  d_encodeDateAndTimeTypesAsBinary;
+
+    bool d_encodeDateAndTimeTypesAsBinary;
         // This option allows users to control if date and time types are
         // encoded as binary integers.  By default these types are encoded as
         // strings in the ISO 8601 format.
@@ -98,10 +105,14 @@ class BerEncoderOptions {
       , e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
       , e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_ID_TRACE_LEVEL                          = e_ATTRIBUTE_ID_TRACE_LEVEL
-      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE
-      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS
-      , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
+      , ATTRIBUTE_ID_TRACE_LEVEL                          =
+                            e_ATTRIBUTE_ID_TRACE_LEVEL
+      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              =
+                            e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE
+      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  =
+                            e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS
+      , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
+                            e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -118,24 +129,23 @@ class BerEncoderOptions {
       , e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
       , e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_INDEX_TRACE_LEVEL                          = e_ATTRIBUTE_INDEX_TRACE_LEVEL
-      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE
-      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS
-      , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
+      , ATTRIBUTE_INDEX_TRACE_LEVEL                          =
+                         e_ATTRIBUTE_INDEX_TRACE_LEVEL
+      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              =
+                         e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE
+      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  =
+                         e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS
+      , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
+                         e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS
     static const char CLASS_NAME[];
-
-    static const int DEFAULT_INITIALIZER_TRACE_LEVEL;
-
-    static const int DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
-
+    static const int  DEFAULT_INITIALIZER_TRACE_LEVEL;
+    static const int  DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
     static const bool DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
-
     static const bool DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
-
     static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
@@ -163,8 +173,8 @@ class BerEncoderOptions {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdeat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -232,19 +242,19 @@ class BerEncoderOptions {
         // an attribute of this class, and -1 otherwise.
 
     void setTraceLevel(int value);
-        // Set the "TraceLevel" attribute of this object to the specified
+        // Set the 'TraceLevel' attribute of this object to the specified
         // 'value'.
 
     int& bdeVersionConformance();
-        // Return a reference to the modifiable "BdeVersionConformance"
+        // Return a reference to the modifiable 'BdeVersionConformance'
         // attribute of this object.
 
     void setEncodeEmptyArrays(bool value);
-        // Set the "EncodeEmptyArrays" attribute of this object to the
+        // Set the 'EncodeEmptyArrays' attribute of this object to the
         // specified 'value'.
 
     void setEncodeDateAndTimeTypesAsBinary(bool value);
-        // Set the "EncodeDateAndTimeTypesAsBinary" attribute of this object to
+        // Set the 'EncodeDateAndTimeTypesAsBinary' attribute of this object to
         // the specified 'value'.  If this option is set to 'true' then date
         // and time types will be encoded (in a standard-incompliant way) as an
         // octet string as opposed to as a string in the ISO 8601 format as
@@ -308,20 +318,20 @@ class BerEncoderOptions {
         // class, and -1 otherwise.
 
     int traceLevel() const;
-        // Return a reference to the non-modifiable "TraceLevel" attribute of
+        // Return a reference to the non-modifiable 'TraceLevel' attribute of
         // this object.
 
     int bdeVersionConformance() const;
-        // Return a reference to the non-modifiable "BdeVersionConformance"
+        // Return a reference to the non-modifiable 'BdeVersionConformance'
         // attribute of this object.
 
     bool encodeEmptyArrays() const;
-        // Return a reference to the non-modifiable "EncodeEmptyArrays"
+        // Return a reference to the non-modifiable 'EncodeEmptyArrays'
         // attribute of this object.
 
     bool encodeDateAndTimeTypesAsBinary() const;
         // Return a reference to the non-modifiable
-        // "EncodeDateAndTimeTypesAsBinary" attribute of this object.
+        // 'EncodeDateAndTimeTypesAsBinary' attribute of this object.
 };
 
 // FREE OPERATORS
@@ -344,22 +354,20 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
     // return a reference to the modifiable 'stream'.
 
 
-// TRAITS
 }
 
+// TRAITS
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balber::BerEncoderOptions)
-
-namespace balber {
-
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+namespace balber {
 
-                     // ----------------------------------
+                     // -----------------------
                      // class BerEncoderOptions
-                     // ----------------------------------
+                     // -----------------------
 
 // CLASS METHODS
 inline
@@ -383,10 +391,19 @@ STREAM& BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {
           case 1: {
-            bslx::InStreamFunctions::bdexStreamIn(stream, d_traceLevel, 1);
-            bslx::InStreamFunctions::bdexStreamIn(stream, d_bdeVersionConformance, 1);
-            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeEmptyArrays, 1);
-            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeDateAndTimeTypesAsBinary, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream,
+                                                  d_traceLevel,
+                                                  1);
+            bslx::InStreamFunctions::bdexStreamIn(stream,
+                                                  d_bdeVersionConformance,
+                                                  1);
+            bslx::InStreamFunctions::bdexStreamIn(stream,
+                                                  d_encodeEmptyArrays,
+                                                  1);
+            bslx::InStreamFunctions::bdexStreamIn(
+                                              stream,
+                                              d_encodeDateAndTimeTypesAsBinary,
+                                              1);
           } break;
           default: {
             stream.invalidate();
@@ -401,24 +418,31 @@ int BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_traceLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
+    ret = manipulator(&d_traceLevel,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+    ret = manipulator(
+              &d_bdeVersionConformance,
+              ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+    ret = manipulator(
+                  &d_encodeEmptyArrays,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+    ret = manipulator(&d_encodeDateAndTimeTypesAsBinary,
+                      ATTRIBUTE_INFO_ARRAY[
+                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -431,16 +455,25 @@ int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case e_ATTRIBUTE_ID_TRACE_LEVEL: {
-        return manipulator(&d_traceLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
+        return manipulator(
+                          &d_traceLevel,
+                          ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
       } break;
       case e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE: {
-        return manipulator(&d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+        return manipulator(
+              &d_bdeVersionConformance,
+              ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
       } break;
       case e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
-        return manipulator(&d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+        return manipulator(
+                  &d_encodeEmptyArrays,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
       } break;
       case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
-        return manipulator(&d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+        return manipulator(
+                      d_encodeDateAndTimeTypesAsBinary,
+                      ATTRIBUTE_INFO_ARRAY[
+                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
       } break;
       default:
         return k_NOT_FOUND;
@@ -448,16 +481,15 @@ int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 }
 
 template <class MANIPULATOR>
-int BerEncoderOptions::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int BerEncoderOptions::manipulateAttribute(MANIPULATOR&  manipulator,
+                                           const char   *name,
+                                           int           nameLength)
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
-           lookupAttributeInfo(name, nameLength);
-    if (0 == attributeInfo) {
+    const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+                                                                   nameLength);
+    if (!attributeInfo) {
         return k_NOT_FOUND;
     }
 
@@ -494,10 +526,19 @@ STREAM& BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        bslx::OutStreamFunctions::bdexStreamOut(stream, d_traceLevel, 1);
-        bslx::OutStreamFunctions::bdexStreamOut(stream, d_bdeVersionConformance, 1);
-        bslx::OutStreamFunctions::bdexStreamOut(stream, d_encodeEmptyArrays, 1);
-        bslx::OutStreamFunctions::bdexStreamOut(stream, d_encodeDateAndTimeTypesAsBinary, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream,
+                                                d_traceLevel,
+                                                1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream,
+                                                d_bdeVersionConformance,
+                                                1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream,
+                                                d_encodeEmptyArrays,
+                                                1);
+        bslx::OutStreamFunctions::bdexStreamOut(
+                                              stream,
+                                              d_encodeDateAndTimeTypesAsBinary,
+                                              1);
       } break;
       default: {
         stream.invalidate();
@@ -511,24 +552,31 @@ int BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_traceLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
+    ret = accessor(d_traceLevel,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+    ret = accessor(d_bdeVersionConformance,
+                   ATTRIBUTE_INFO_ARRAY[
+                                   e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+    ret = accessor(d_encodeEmptyArrays,
+                   ATTRIBUTE_INFO_ARRAY[
+                                       e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+    ret = accessor(d_encodeDateAndTimeTypesAsBinary,
+                   ATTRIBUTE_INFO_ARRAY[
+                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -541,16 +589,24 @@ int BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case e_ATTRIBUTE_ID_TRACE_LEVEL: {
-        return accessor(d_traceLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
+        return accessor(d_traceLevel,
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
       } break;
       case e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE: {
-        return accessor(d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+        return accessor(d_bdeVersionConformance,
+                        ATTRIBUTE_INFO_ARRAY[
+                                   e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
       } break;
       case e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
-        return accessor(d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+        return accessor(d_encodeEmptyArrays,
+                        ATTRIBUTE_INFO_ARRAY[
+                                       e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
       } break;
       case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
-        return accessor(d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+        return accessor(
+                      d_encodeDateAndTimeTypesAsBinary,
+                      ATTRIBUTE_INFO_ARRAY[
+                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
       } break;
       default:
         return k_NOT_FOUND;
@@ -558,16 +614,15 @@ int BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 }
 
 template <class ACCESSOR>
-int BerEncoderOptions::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int BerEncoderOptions::accessAttribute(ACCESSOR&   accessor,
+                                       const char *name,
+                                       int         nameLength) const
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
-          lookupAttributeInfo(name, nameLength);
-    if (0 == attributeInfo) {
+    const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+                                                                   nameLength);
+    if (!attributeInfo) {
        return k_NOT_FOUND;
     }
 
@@ -603,31 +658,30 @@ bool BerEncoderOptions::encodeDateAndTimeTypesAsBinary() const
 // FREE FUNCTIONS
 
 inline
-bool balber::operator==(
-        const BerEncoderOptions& lhs,
-        const BerEncoderOptions& rhs)
+bool balber::operator==(const BerEncoderOptions& lhs,
+                        const BerEncoderOptions& rhs)
 {
-    return  lhs.traceLevel() == rhs.traceLevel()
-         && lhs.bdeVersionConformance() == rhs.bdeVersionConformance()
-         && lhs.encodeEmptyArrays() == rhs.encodeEmptyArrays()
-         && lhs.encodeDateAndTimeTypesAsBinary() == rhs.encodeDateAndTimeTypesAsBinary();
+    return  lhs.traceLevel()                     == rhs.traceLevel()
+         && lhs.bdeVersionConformance()          == rhs.bdeVersionConformance()
+         && lhs.encodeEmptyArrays()              == rhs.encodeEmptyArrays()
+         && lhs.encodeDateAndTimeTypesAsBinary() ==
+                                          rhs.encodeDateAndTimeTypesAsBinary();
 }
 
 inline
-bool balber::operator!=(
-        const BerEncoderOptions& lhs,
-        const BerEncoderOptions& rhs)
+bool balber::operator!=(const BerEncoderOptions& lhs,
+                        const BerEncoderOptions& rhs)
 {
-    return  lhs.traceLevel() != rhs.traceLevel()
-         || lhs.bdeVersionConformance() != rhs.bdeVersionConformance()
-         || lhs.encodeEmptyArrays() != rhs.encodeEmptyArrays()
-         || lhs.encodeDateAndTimeTypesAsBinary() != rhs.encodeDateAndTimeTypesAsBinary();
+    return  lhs.traceLevel()                     != rhs.traceLevel()
+         || lhs.bdeVersionConformance()          != rhs.bdeVersionConformance()
+         || lhs.encodeEmptyArrays()              != rhs.encodeEmptyArrays()
+         || lhs.encodeDateAndTimeTypesAsBinary() !=
+                                          rhs.encodeDateAndTimeTypesAsBinary();
 }
 
 inline
-bsl::ostream& balber::operator<<(
-        bsl::ostream& stream,
-        const BerEncoderOptions& rhs)
+bsl::ostream& balber::operator<<(bsl::ostream&            stream,
+                                 const BerEncoderOptions& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
