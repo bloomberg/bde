@@ -278,11 +278,13 @@ class ThreadAttributes {
         // joinable thread and a non-joinable (detached) thread.
 
 //ARB:ENUM 280
-        BCEMT_CREATE_JOINABLE = 0,  // create a joinable thread
+        e_CREATE_JOINABLE = 0,  // create a joinable thread
 //ARB:ENUM 281
-        BCEMT_CREATE_DETACHED = 1   // create a non-joinable thread
+        e_CREATE_DETACHED = 1   // create a non-joinable thread
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEMT_CREATE_JOINABLE = e_CREATE_JOINABLE
+      , BCEMT_CREATE_DETACHED = e_CREATE_DETACHED
       , CREATE_JOINABLE = BCEMT_CREATE_JOINABLE
       , CREATE_DETACHED = BCEMT_CREATE_DETACHED
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -293,19 +295,23 @@ class ThreadAttributes {
         // different thread scheduling policies.
 
 //ARB:ENUM 293
-        BCEMT_SCHED_OTHER   = 0,  // unspecified, OS-dependent scheduling
+        e_SCHED_OTHER   = 0,  // unspecified, OS-dependent scheduling
                                   // policy
 
 //ARB:ENUM 296
-        BCEMT_SCHED_FIFO    = 1,  // first-in-first-out scheduling policy
+        e_SCHED_FIFO    = 1,  // first-in-first-out scheduling policy
 
 //ARB:ENUM 298
-        BCEMT_SCHED_RR      = 2,  // round-robin scheduling policy
+        e_SCHED_RR      = 2,  // round-robin scheduling policy
 
 //ARB:ENUM 300
-        BCEMT_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
+        e_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
                                   // equivalent to 'BCEMT_SCHED_OTHER'
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEMT_SCHED_OTHER = e_SCHED_OTHER
+      , BCEMT_SCHED_FIFO = e_SCHED_FIFO
+      , BCEMT_SCHED_RR = e_SCHED_RR
+      , BCEMT_SCHED_DEFAULT = e_SCHED_DEFAULT
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -317,17 +323,22 @@ class ThreadAttributes {
         // attributes object is default constructed.
 
 //ARB:ENUM 311
-        BCEMT_UNSET_STACK_SIZE = -1,
+        e_UNSET_STACK_SIZE = -1,
 //ARB:ENUM 312
-        BCEMT_UNSET_GUARD_SIZE = -1,
+        e_UNSET_GUARD_SIZE = -1,
 //ARB:ENUM 313
-        BCEMT_UNSET_PRIORITY   = INT_MIN,
+        e_UNSET_PRIORITY   = INT_MIN,
 
 //ARB:ENUM 315
-        BCEMT_SCHED_MIN        = BCEMT_SCHED_OTHER,
+        e_SCHED_MIN        = BCEMT_SCHED_OTHER,
 //ARB:ENUM 316
-        BCEMT_SCHED_MAX        = BCEMT_SCHED_DEFAULT
+        e_SCHED_MAX        = BCEMT_SCHED_DEFAULT
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEMT_UNSET_STACK_SIZE = e_UNSET_STACK_SIZE
+      , BCEMT_UNSET_GUARD_SIZE = e_UNSET_GUARD_SIZE
+      , BCEMT_UNSET_PRIORITY = e_UNSET_PRIORITY
+      , BCEMT_SCHED_MIN = e_SCHED_MIN
+      , BCEMT_SCHED_MAX = e_SCHED_MAX
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

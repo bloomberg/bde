@@ -441,28 +441,34 @@ class QuotedPrintableEncoder {
         // symbolic state values for the encoder
 
 //ARB:ENUM 443
-        BDEDE_ERROR_STATE   = -1,  // input is irreparably invalid
+        e_ERROR_STATE   = -1,  // input is irreparably invalid
 //ARB:ENUM 444
-        BDEDE_INITIAL_STATE = 0,   // require no more input
+        e_INITIAL_STATE = 0,   // require no more input
 //ARB:ENUM 445
-        BDEDE_INPUT_STATE   = 1,   // general input state
+        e_INPUT_STATE   = 1,   // general input state
 //ARB:ENUM 446
-        BDEDE_DONE_STATE    = 2,   // accepting; any additional input is error
+        e_DONE_STATE    = 2,   // accepting; any additional input is error
 //ARB:ENUM 447
-        BDEDE_SAW_CR_STATE  = 3    // TBD doc
+        e_SAW_CR_STATE  = 3    // TBD doc
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_ERROR_STATE = e_ERROR_STATE
+      , BDEDE_INITIAL_STATE = e_INITIAL_STATE
+      , BDEDE_INPUT_STATE = e_INPUT_STATE
+      , BDEDE_DONE_STATE = e_DONE_STATE
+      , BDEDE_SAW_CR_STATE = e_SAW_CR_STATE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
 //ARB:ENUM 451
-        DEFAULT_MAX_LINELEN = -1   // a flag to indicate that the default
+        e_DEFAULT_MAX_LINELEN = -1   // a flag to indicate that the default
                                    // s_defaultMaxLineLength is to be used;
                                    // this device prevents recompilation of the
                                    // client's code even in the unlikely event
                                    // that the s_defaultMaxLineLength should
                                    // change
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , DEFAULT_MAX_LINELEN = e_DEFAULT_MAX_LINELEN
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -472,16 +478,21 @@ class QuotedPrintableEncoder {
         // The input equivalence classes
 
 //ARB:ENUM 464
-        BDEDE_PC = 0,  // printable character - copy straight to output
+        e_PC = 0,  // printable character - copy straight to output
 //ARB:ENUM 465
-        BDEDE_CR,      // carriage return     - wait for more input
+        e_CR,      // carriage return     - wait for more input
 //ARB:ENUM 466
-        BDEDE_LF,      // line feed           - complete linebreak
+        e_LF,      // line feed           - complete linebreak
 //ARB:ENUM 467
-        BDEDE_WS,      // whitespace          - buffer; wait for more input
+        e_WS,      // whitespace          - buffer; wait for more input
 //ARB:ENUM 468
-        BDEDE_CC       // control character   - encode to Quoted Printable
+        e_CC       // control character   - encode to Quoted Printable
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_PC = e_PC
+      , BDEDE_CR = e_CR
+      , BDEDE_LF = e_LF
+      , BDEDE_WS = e_WS
+      , BDEDE_CC = e_CC
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -490,15 +501,18 @@ class QuotedPrintableEncoder {
         // interpreted
 
 //ARB:ENUM 475
-        BDEDE_CRLF_MODE = 0,  // only allow "\r\n" linebreaks
+        e_CRLF_MODE = 0,  // only allow "\r\n" linebreaks
 
 //ARB:ENUM 477
-        BDEDE_LF_MODE,        // only allow '\n' linebreaks (without the '\r'
+        e_LF_MODE,        // only allow '\n' linebreaks (without the '\r'
                               // prefix)
 
 //ARB:ENUM 480
-        BDEDE_MIXED_MODE      // allow both "\r\n" and '\n'
+        e_MIXED_MODE      // allow both "\r\n" and '\n'
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_CRLF_MODE = e_CRLF_MODE
+      , BDEDE_LF_MODE = e_LF_MODE
+      , BDEDE_MIXED_MODE = e_MIXED_MODE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

@@ -165,28 +165,37 @@ class NamespaceRegistry {
     enum {
         // Preregistered namespace IDs.
 //ARB:ENUM 167
-        BAEXML_NO_NAMESPACE = -1,    // (empty URI string)
+        e_NO_NAMESPACE = -1,    // (empty URI string)
 
 //ARB:ENUM 169
-        BAEXML_PREDEF_MIN = 0x40000000,
+        e_PREDEF_MIN = 0x40000000,
 
 //ARB:ENUM 171
-        BAEXML_XML = BAEXML_PREDEF_MIN, // http://www.w3.org/XML/1998/namespace
+        e_XML = BAEXML_PREDEF_MIN, // http://www.w3.org/XML/1998/namespace
 //ARB:ENUM 172
-        BAEXML_XMLNS,              // http://www.w3.org/2000/xmlns/
+        e_XMLNS,              // http://www.w3.org/2000/xmlns/
 //ARB:ENUM 173
-        BAEXML_XMLSCHEMA,          // http://www.w3.org/2001/XMLSchema
+        e_XMLSCHEMA,          // http://www.w3.org/2001/XMLSchema
 //ARB:ENUM 174
-        BAEXML_XMLSCHEMA_INSTANCE, // http://www.w3.org/2001/XMLSchema-instance
+        e_XMLSCHEMA_INSTANCE, // http://www.w3.org/2001/XMLSchema-instance
 //ARB:ENUM 175
-        BAEXML_WSDL,               // http://schemas.xmlsoap.org/wsdl/
+        e_WSDL,               // http://schemas.xmlsoap.org/wsdl/
 //ARB:ENUM 176
-        BAEXML_WSDL_SOAP,          // http://schemas.xmlsoap.org/wsdl/soap/
+        e_WSDL_SOAP,          // http://schemas.xmlsoap.org/wsdl/soap/
 //ARB:ENUM 177
-        BAEXML_BDEM,               // http://bloomberg.com/schemas/bdem
+        e_BDEM,               // http://bloomberg.com/schemas/bdem
 
         BAEXML_PREDEF_MAX
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEXML_NO_NAMESPACE = e_NO_NAMESPACE
+      , BAEXML_PREDEF_MIN = e_PREDEF_MIN
+      , BAEXML_XML = e_XML
+      , BAEXML_XMLNS = e_XMLNS
+      , BAEXML_XMLSCHEMA = e_XMLSCHEMA
+      , BAEXML_XMLSCHEMA_INSTANCE = e_XMLSCHEMA_INSTANCE
+      , BAEXML_WSDL = e_WSDL
+      , BAEXML_WSDL_SOAP = e_WSDL_SOAP
+      , BAEXML_BDEM = e_BDEM
       , NSID_NO_NAMESPACE       = BAEXML_NO_NAMESPACE
       , NSID_PREDEF_MIN         = BAEXML_PREDEF_MIN
       , NSID_XML                = BAEXML_XML

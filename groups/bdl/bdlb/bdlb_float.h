@@ -175,16 +175,21 @@ struct Float {
         // using bit-wise OR.
 
 //ARB:ENUM 177
-        BDES_ZERO      = 0x01, // positive or negative zero
+        k_ZERO      = 0x01, // positive or negative zero
 //ARB:ENUM 178
-        BDES_NORMAL    = 0x02, // full-precision, non-zero, normal number
+        k_NORMAL    = 0x02, // full-precision, non-zero, normal number
 //ARB:ENUM 179
-        BDES_SUBNORMAL = 0x04, // reduced-precision numb with a small abs value
+        k_SUBNORMAL = 0x04, // reduced-precision numb with a small abs value
 //ARB:ENUM 180
-        BDES_INFINITE  = 0x08, // positive or negative infinity
+        k_INFINITE  = 0x08, // positive or negative infinity
 //ARB:ENUM 181
-        BDES_NAN       = 0x10  // not a number
+        k_NAN       = 0x10  // not a number
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDES_ZERO = k_ZERO
+      , BDES_NORMAL = k_NORMAL
+      , BDES_SUBNORMAL = k_SUBNORMAL
+      , BDES_INFINITE = k_INFINITE
+      , BDES_NAN = k_NAN
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -195,31 +200,43 @@ struct Float {
         // exactly one of these classifications.
 
 //ARB:ENUM 190
-        BDES_NEGATIVE           = 0x8000,  // Bit for negative floats
+        k_NEGATIVE           = 0x8000,  // Bit for negative floats
 //ARB:ENUM 191
-        BDES_SIGNALING          = 0x4000,  // Bit for signaling NaNs
+        k_SIGNALING          = 0x4000,  // Bit for signaling NaNs
 
 //ARB:ENUM 193
-        BDES_POSITIVE_INFINITY  = BDES_INFINITE,
+        k_POSITIVE_INFINITY  = BDES_INFINITE,
 //ARB:ENUM 194
-        BDES_NEGATIVE_INFINITY  = BDES_INFINITE | BDES_NEGATIVE,
+        k_NEGATIVE_INFINITY  = BDES_INFINITE | BDES_NEGATIVE,
 //ARB:ENUM 195
-        BDES_QNAN               = BDES_NAN,
+        k_QNAN               = BDES_NAN,
 //ARB:ENUM 196
-        BDES_SNAN               = BDES_NAN | BDES_SIGNALING,
+        k_SNAN               = BDES_NAN | BDES_SIGNALING,
 //ARB:ENUM 197
-        BDES_POSITIVE_NORMAL    = BDES_NORMAL,
+        k_POSITIVE_NORMAL    = BDES_NORMAL,
 //ARB:ENUM 198
-        BDES_NEGATIVE_NORMAL    = BDES_NORMAL | BDES_NEGATIVE,
+        k_NEGATIVE_NORMAL    = BDES_NORMAL | BDES_NEGATIVE,
 //ARB:ENUM 199
-        BDES_POSITIVE_SUBNORMAL = BDES_SUBNORMAL,
+        k_POSITIVE_SUBNORMAL = BDES_SUBNORMAL,
 //ARB:ENUM 200
-        BDES_NEGATIVE_SUBNORMAL = BDES_SUBNORMAL | BDES_NEGATIVE,
+        k_NEGATIVE_SUBNORMAL = BDES_SUBNORMAL | BDES_NEGATIVE,
 //ARB:ENUM 201
-        BDES_POSITIVE_ZERO      = BDES_ZERO,
+        k_POSITIVE_ZERO      = BDES_ZERO,
 //ARB:ENUM 202
-        BDES_NEGATIVE_ZERO      = BDES_ZERO | BDES_NEGATIVE
+        k_NEGATIVE_ZERO      = BDES_ZERO | BDES_NEGATIVE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDES_NEGATIVE = k_NEGATIVE
+      , BDES_SIGNALING = k_SIGNALING
+      , BDES_POSITIVE_INFINITY = k_POSITIVE_INFINITY
+      , BDES_NEGATIVE_INFINITY = k_NEGATIVE_INFINITY
+      , BDES_QNAN = k_QNAN
+      , BDES_SNAN = k_SNAN
+      , BDES_POSITIVE_NORMAL = k_POSITIVE_NORMAL
+      , BDES_NEGATIVE_NORMAL = k_NEGATIVE_NORMAL
+      , BDES_POSITIVE_SUBNORMAL = k_POSITIVE_SUBNORMAL
+      , BDES_NEGATIVE_SUBNORMAL = k_NEGATIVE_SUBNORMAL
+      , BDES_POSITIVE_ZERO = k_POSITIVE_ZERO
+      , BDES_NEGATIVE_ZERO = k_NEGATIVE_ZERO
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

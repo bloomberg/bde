@@ -127,10 +127,12 @@ class EncoderOptions {
         // This 'enum' provides enumerators to specify the encoding styles.
 
 //ARB:ENUM 129
-        BAEJSN_COMPACT = 0,  // compact encoding without any whitespace
+        e_COMPACT = 0,  // compact encoding without any whitespace
 //ARB:ENUM 130
-        BAEJSN_PRETTY        // pretty encoding with appropriate indentation
+        e_PRETTY        // pretty encoding with appropriate indentation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_COMPACT = e_COMPACT
+      , BAEJSN_PRETTY = e_PRETTY
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

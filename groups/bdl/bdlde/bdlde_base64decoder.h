@@ -412,16 +412,21 @@ class Base64Decoder {
         // Symbolic state values.
 
 //ARB:ENUM 414
-        BDEDE_ERROR_STATE      = -1, // input is irreparably invalid
+        e_ERROR_STATE      = -1, // input is irreparably invalid
 //ARB:ENUM 415
-        BDEDE_INPUT_STATE      =  0, // general input state
+        e_INPUT_STATE      =  0, // general input state
 //ARB:ENUM 416
-        BDEDE_NEED_EQUAL_STATE =  1, // need an '='
+        e_NEED_EQUAL_STATE =  1, // need an '='
 //ARB:ENUM 417
-        BDEDE_SOFT_DONE_STATE  =  2, // only ignorable input and 'endConvert'
+        e_SOFT_DONE_STATE  =  2, // only ignorable input and 'endConvert'
 //ARB:ENUM 418
-        BDEDE_DONE_STATE       =  3  // any additional input is an error
+        e_DONE_STATE       =  3  // any additional input is an error
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_ERROR_STATE = e_ERROR_STATE
+      , BDEDE_INPUT_STATE = e_INPUT_STATE
+      , BDEDE_NEED_EQUAL_STATE = e_NEED_EQUAL_STATE
+      , BDEDE_SOFT_DONE_STATE = e_SOFT_DONE_STATE
+      , BDEDE_DONE_STATE = e_DONE_STATE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

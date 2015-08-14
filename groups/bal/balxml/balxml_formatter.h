@@ -277,23 +277,27 @@ class Formatter {
         // of an element between its pair of opening and closing tags.
 
 //ARB:ENUM 279
-        BAEXML_PRESERVE_WHITESPACE,  // data is output as is
+        e_PRESERVE_WHITESPACE,  // data is output as is
 
 //ARB:ENUM 281
-        BAEXML_WORDWRAP,             // data may be wrapped if output otherwise
+        e_WORDWRAP,             // data may be wrapped if output otherwise
                                      // exceeds the wrap column
 
 //ARB:ENUM 284
-        BAEXML_WORDWRAP_INDENT,      // in addition to allowing wrapping,
+        e_WORDWRAP_INDENT,      // in addition to allowing wrapping,
                                      // indent properly before continuing to
                                      // output on the next line after wrapping
 
 //ARB:ENUM 288
-        BAEXML_NEWLINE_INDENT        // in addition to allowing wrapping and
+        e_NEWLINE_INDENT        // in addition to allowing wrapping and
                                      // indentation, the tags do not share
                                      // their respective lines with data
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEXML_PRESERVE_WHITESPACE = e_PRESERVE_WHITESPACE
+      , BAEXML_WORDWRAP = e_WORDWRAP
+      , BAEXML_WORDWRAP_INDENT = e_WORDWRAP_INDENT
+      , BAEXML_NEWLINE_INDENT = e_NEWLINE_INDENT
       , PRESERVE_WHITESPACE = BAEXML_PRESERVE_WHITESPACE
       , WORDWRAP            = BAEXML_WORDWRAP
       , WORDWRAP_INDENT     = BAEXML_WORDWRAP_INDENT

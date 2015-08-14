@@ -314,11 +314,13 @@ class LoggerManagerConfiguration {
         // Trigger and Trigger-All events.
 
 //ARB:ENUM 316
-        BAEL_FIFO,  // oldest logged messages are published first
+        e_FIFO,  // oldest logged messages are published first
 //ARB:ENUM 317
-        BAEL_LIFO   // newest logged messages are published first
+        e_LIFO   // newest logged messages are published first
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_FIFO = e_FIFO
+      , BAEL_LIFO = e_LIFO
       , FIFO = BAEL_FIFO
       , LIFO = BAEL_LIFO
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -334,13 +336,15 @@ class LoggerManagerConfiguration {
         // value of this attribute is 'BAEL_BEGIN_END_MARKERS'.
 
 //ARB:ENUM 334
-        BAEL_NO_MARKERS,        // don't print any markers
+        e_NO_MARKERS,        // don't print any markers
 
 //ARB:ENUM 336
-        BAEL_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
+        e_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
                                 // "END RECORD DUMP" markers (default)
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_NO_MARKERS = e_NO_MARKERS
+      , BAEL_BEGIN_END_MARKERS = e_BEGIN_END_MARKERS
       , NO_MARKERS        = BAEL_NO_MARKERS
       , BEGIN_END_MARKERS = BAEL_BEGIN_END_MARKERS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED

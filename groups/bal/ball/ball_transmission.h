@@ -181,19 +181,25 @@ struct Transmission {
     // TYPES
     enum Cause {
 //ARB:ENUM 183
-        BAEL_PASSTHROUGH        = 0,  // single record emitted; caused locally
+        e_PASSTHROUGH        = 0,  // single record emitted; caused locally
 //ARB:ENUM 184
-        BAEL_TRIGGER            = 1,  // all records emitted; caused locally
+        e_TRIGGER            = 1,  // all records emitted; caused locally
 //ARB:ENUM 185
-        BAEL_TRIGGER_ALL        = 2,  // all records emitted; caused remotely
+        e_TRIGGER_ALL        = 2,  // all records emitted; caused remotely
 //ARB:ENUM 186
-        BAEL_MANUAL_PUBLISH     = 3,  // manually publish a single record
+        e_MANUAL_PUBLISH     = 3,  // manually publish a single record
 //ARB:ENUM 187
-        BAEL_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
+        e_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
 //ARB:ENUM 188
-        BAEL_END                = 5   // end flag for asynchronous publication
+        e_END                = 5   // end flag for asynchronous publication
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_PASSTHROUGH = e_PASSTHROUGH
+      , BAEL_TRIGGER = e_TRIGGER
+      , BAEL_TRIGGER_ALL = e_TRIGGER_ALL
+      , BAEL_MANUAL_PUBLISH = e_MANUAL_PUBLISH
+      , BAEL_MANUAL_PUBLISH_ALL = e_MANUAL_PUBLISH_ALL
+      , BAEL_END = e_END
       , PASSTHROUGH        = BAEL_PASSTHROUGH
       , TRIGGER            = BAEL_TRIGGER
       , TRIGGER_ALL        = BAEL_TRIGGER_ALL
@@ -204,8 +210,9 @@ struct Transmission {
 
     enum {
 //ARB:ENUM 199
-        BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1
+        e_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_LENGTH = e_LENGTH
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'LENGTH' to be the number of consecutively-valued enumerators

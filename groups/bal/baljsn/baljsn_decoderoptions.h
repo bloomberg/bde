@@ -100,9 +100,10 @@ class DecoderOptions {
     // CONSTANTS
     enum {
 //ARB:ENUM 102
-        BAEJSN_DEFAULT_MAX_DEPTH = 32  // default value for
+        e_DEFAULT_MAX_DEPTH = 32  // default value for
                                        // 'maxDepth' attribute
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_DEFAULT_MAX_DEPTH = e_DEFAULT_MAX_DEPTH
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

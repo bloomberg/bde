@@ -335,14 +335,18 @@ class ErrorInfo
         // 'BAEXML_ERROR' whereas a parsing (syntax) error would have
         // 'BAEXML_FATAL_ERROR'.
 //ARB:ENUM 337
-        BAEXML_NO_ERROR,
+        e_NO_ERROR,
 //ARB:ENUM 337
-        BAEXML_WARNING,
+        e_WARNING,
 //ARB:ENUM 337
-        BAEXML_ERROR,
+        e_ERROR,
 //ARB:ENUM 337
-        BAEXML_FATAL_ERROR
+        e_FATAL_ERROR
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEXML_NO_ERROR = e_NO_ERROR
+      , BAEXML_WARNING = e_WARNING
+      , BAEXML_ERROR = e_ERROR
+      , BAEXML_FATAL_ERROR = e_FATAL_ERROR
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

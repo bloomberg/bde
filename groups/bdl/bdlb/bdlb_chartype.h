@@ -329,39 +329,55 @@ struct CharType {
         // Set of character categories supported by this component.
 
 //ARB:ENUM 331
-        BDEU_UPPER,          // [A-Z]
+        e_UPPER,          // [A-Z]
 //ARB:ENUM 332
-        BDEU_LOWER,          // [a-z]
+        e_LOWER,          // [a-z]
 //ARB:ENUM 333
-        BDEU_ALPHA,          // [A-Za-z]
+        e_ALPHA,          // [A-Za-z]
 //ARB:ENUM 334
-        BDEU_DIGIT,          // [0-9]
+        e_DIGIT,          // [0-9]
 //ARB:ENUM 335
-        BDEU_XDIGIT,         // [0-9A-Fa-f]
+        e_XDIGIT,         // [0-9A-Fa-f]
 //ARB:ENUM 336
-        BDEU_ALNUM,          // [0-9A-Za-z]
+        e_ALNUM,          // [0-9A-Za-z]
 //ARB:ENUM 337
-        BDEU_SPACE,          // [space|tab|CR|NL|VT|FF]
+        e_SPACE,          // [space|tab|CR|NL|VT|FF]
 //ARB:ENUM 338
-        BDEU_PRINT,          // any printable character including SPACE
+        e_PRINT,          // any printable character including SPACE
 //ARB:ENUM 339
-        BDEU_GRAPH,          // any printable character except SPACE
+        e_GRAPH,          // any printable character except SPACE
 //ARB:ENUM 340
-        BDEU_PUNCT,          // any printable character except SPACE or ALNUM
+        e_PUNCT,          // any printable character except SPACE or ALNUM
 //ARB:ENUM 341
-        BDEU_CNTRL,          // [\1-\37] and \177
+        e_CNTRL,          // [\1-\37] and \177
 //ARB:ENUM 342
-        BDEU_ASCII,          // [\0-\177]
+        e_ASCII,          // [\0-\177]
 //ARB:ENUM 343
-        BDEU_IDENT,          // [ALNUM|_]
+        e_IDENT,          // [ALNUM|_]
 //ARB:ENUM 344
-        BDEU_ALUND,          // [ALPHA|_]
+        e_ALUND,          // [ALPHA|_]
 //ARB:ENUM 345
-        BDEU_ALL,            // [\0-\377]
+        e_ALL,            // [\0-\377]
 //ARB:ENUM 346
-        BDEU_NONE            // []
+        e_NONE            // []
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEU_UPPER = e_UPPER
+      , BDEU_LOWER = e_LOWER
+      , BDEU_ALPHA = e_ALPHA
+      , BDEU_DIGIT = e_DIGIT
+      , BDEU_XDIGIT = e_XDIGIT
+      , BDEU_ALNUM = e_ALNUM
+      , BDEU_SPACE = e_SPACE
+      , BDEU_PRINT = e_PRINT
+      , BDEU_GRAPH = e_GRAPH
+      , BDEU_PUNCT = e_PUNCT
+      , BDEU_CNTRL = e_CNTRL
+      , BDEU_ASCII = e_ASCII
+      , BDEU_IDENT = e_IDENT
+      , BDEU_ALUND = e_ALUND
+      , BDEU_ALL = e_ALL
+      , BDEU_NONE = e_NONE
       , UPPER  = BDEU_UPPER
       , LOWER  = BDEU_LOWER
       , ALPHA  = BDEU_ALPHA
@@ -383,8 +399,9 @@ struct CharType {
 
     enum {
 //ARB:ENUM 368
-        BDEU_NUM_CATEGORIES = BDEU_NONE + 1
+        k_NUM_CATEGORIES = BDEU_NONE + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEU_NUM_CATEGORIES = k_NUM_CATEGORIES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Current number of categories supported by this component.

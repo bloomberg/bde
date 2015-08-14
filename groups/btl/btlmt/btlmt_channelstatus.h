@@ -153,12 +153,12 @@ struct ChannelStatus {
     // TYPES
     enum Enum {
 //ARB:ENUM 155
-        BTEMT_SUCCESS            =  0,  // The write request was successfully
+        e_SUCCESS            =  0,  // The write request was successfully
                                         // enqueued or has been successfully
                                         // written synchronously.
 
 //ARB:ENUM 159
-        BTEMT_CACHE_OVERFLOW     = -1,  // The write request failed because the
+        e_CACHE_OVERFLOW     = -1,  // The write request failed because the
                                         // existing write cache size (not
                                         // including the size of the message
                                         // being written) is greater than the
@@ -169,24 +169,24 @@ struct ChannelStatus {
                                         // object managing the channels.
 
 //ARB:ENUM 169
-        BTEMT_CACHE_HIGHWATER    = -2,  // The write request failed because the
+        e_CACHE_HIGHWATER    = -2,  // The write request failed because the
                                         // existing write cache size after the
                                         // current message gets enqueued will
                                         // be greater than the write cache
                                         // high-water mark.
 
 //ARB:ENUM 175
-        BTEMT_READ_CHANNEL_DOWN  = -6,  // The read request falied because the
+        e_READ_CHANNEL_DOWN  = -6,  // The read request falied because the
                                         // read part of the channel had already
                                         // been closed.
 
 //ARB:ENUM 179
-        BTEMT_WRITE_CHANNEL_DOWN = -3,  // The write request failed because the
+        e_WRITE_CHANNEL_DOWN = -3,  // The write request failed because the
                                         // write part of the channel had
                                         // already been closed.
 
 //ARB:ENUM 183
-        BTEMT_ENQUEUE_HIGHWATER  = -4,  // The write request failed because the
+        e_ENQUEUE_HIGHWATER  = -4,  // The write request failed because the
                                         // existing write cache size (not
                                         // including the size of the message
                                         // being written) is greater than the
@@ -194,10 +194,17 @@ struct ChannelStatus {
                                         // provided as a function argument.
 
 //ARB:ENUM 190
-        BTEMT_UNKNOWN_ID         = -5,  // The write request failed because the
+        e_UNKNOWN_ID         = -5,  // The write request failed because the
                                         // channel identified by an specified
                                         // id does not exist.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTEMT_SUCCESS = e_SUCCESS
+      , BTEMT_CACHE_OVERFLOW = e_CACHE_OVERFLOW
+      , BTEMT_CACHE_HIGHWATER = e_CACHE_HIGHWATER
+      , BTEMT_READ_CHANNEL_DOWN = e_READ_CHANNEL_DOWN
+      , BTEMT_WRITE_CHANNEL_DOWN = e_WRITE_CHANNEL_DOWN
+      , BTEMT_ENQUEUE_HIGHWATER = e_ENQUEUE_HIGHWATER
+      , BTEMT_UNKNOWN_ID = e_UNKNOWN_ID
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

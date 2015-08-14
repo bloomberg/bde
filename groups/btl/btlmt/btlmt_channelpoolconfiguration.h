@@ -289,102 +289,131 @@ class ChannelPoolConfiguration {
     // TYPES
     enum {
 //ARB:ENUM 291
-        NUM_ATTRIBUTES = 14 // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 14 // the number of attributes in this class
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
 //ARB:ENUM 295
-        ATTRIBUTE_INDEX_MAX_CONNECTIONS      = 0,
+        e_ATTRIBUTE_INDEX_MAX_CONNECTIONS      = 0,
             // index for 'MaxConnections' attribute
 //ARB:ENUM 297
-        ATTRIBUTE_INDEX_MAX_THREADS          = 1,
+        e_ATTRIBUTE_INDEX_MAX_THREADS          = 1,
             // index for 'MaxThreads' attribute
 //ARB:ENUM 299
-        ATTRIBUTE_INDEX_READ_TIMEOUT         = 2,
+        e_ATTRIBUTE_INDEX_READ_TIMEOUT         = 2,
             // index for 'ReadTimeout' attribute
 //ARB:ENUM 301
-        ATTRIBUTE_INDEX_METRICS_INTERVAL     = 3,
+        e_ATTRIBUTE_INDEX_METRICS_INTERVAL     = 3,
             // index for 'MetricsInterval' attribute
 //ARB:ENUM 303
-        ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = 4,
+        e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = 4,
             // index for 'MinMessageSizeOut' attribute
 //ARB:ENUM 305
-        ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = 5,
+        e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = 5,
             // index for 'TypMessageSizeOut' attribute
 //ARB:ENUM 307
-        ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = 6,
+        e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = 6,
             // index for 'MaxMessageSizeOut' attribute
 //ARB:ENUM 309
-        ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN  = 7,
+        e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN  = 7,
             // index for 'MinMessageSizeIn' attribute
 //ARB:ENUM 311
-        ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN  = 8,
+        e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN  = 8,
             // index for 'TypMessageSizeIn' attribute
 //ARB:ENUM 313
-        ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  = 9,
+        e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  = 9,
             // index for 'MaxMessageSizeIn' attribute
 //ARB:ENUM 315
-        ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  = 10,
+        e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  = 10,
             // index for 'WriteCacheLowWat' attribute
 //ARB:ENUM 317
-        ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   = 11,
+        e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   = 11,
             // index for 'WriteCacheHiWat' attribute
 //ARB:ENUM 319
-        ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
+        e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
             // index for 'ThreadStackSize' attribute
 //ARB:ENUM 321
-        ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
+        e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
             // index for 'CollectTimeMetrics' attribute
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_MAX_CONNECTIONS = e_ATTRIBUTE_INDEX_MAX_CONNECTIONS
+      , ATTRIBUTE_INDEX_MAX_THREADS = e_ATTRIBUTE_INDEX_MAX_THREADS
+      , ATTRIBUTE_INDEX_READ_TIMEOUT = e_ATTRIBUTE_INDEX_READ_TIMEOUT
+      , ATTRIBUTE_INDEX_METRICS_INTERVAL = e_ATTRIBUTE_INDEX_METRICS_INTERVAL
+      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT = e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT
+      , ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT = e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT
+      , ATTRIBUTE_INDEX_THREAD_STACK_SIZE = e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE
+      , ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
 //ARB:ENUM 326
-        ATTRIBUTE_ID_MAX_CONNECTIONS         = 1,
+        e_ATTRIBUTE_ID_MAX_CONNECTIONS         = 1,
             // id for 'MaxConnections' attribute
 //ARB:ENUM 328
-        ATTRIBUTE_ID_MAX_THREADS             = 2,
+        e_ATTRIBUTE_ID_MAX_THREADS             = 2,
             // id for 'MaxThreads' attribute
 //ARB:ENUM 330
-        ATTRIBUTE_ID_READ_TIMEOUT            = 3,
+        e_ATTRIBUTE_ID_READ_TIMEOUT            = 3,
             // id for 'ReadTimeout' attribute
 //ARB:ENUM 332
-        ATTRIBUTE_ID_METRICS_INTERVAL        = 4,
+        e_ATTRIBUTE_ID_METRICS_INTERVAL        = 4,
             // id for 'MetricsInterval' attribute
 //ARB:ENUM 334
-        ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT    = 5,
+        e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT    = 5,
             // id for 'MinMessageSizeOut' attribute
 //ARB:ENUM 336
-        ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT    = 6,
+        e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT    = 6,
             // id for 'TypMessageSizeOut' attribute
 //ARB:ENUM 338
-        ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT    = 7,
+        e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT    = 7,
             // id for 'MaxMessageSizeOut' attribute
 //ARB:ENUM 340
-        ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN     = 8,
+        e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN     = 8,
             // id for 'MinMessageSizeIn' attribute
 //ARB:ENUM 342
-        ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN     = 9,
+        e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN     = 9,
             // id for 'TypMessageSizeIn' attribute
 //ARB:ENUM 344
-        ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN     = 10,
+        e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN     = 10,
             // id for 'MaxMessageSizeIn' attribute
 //ARB:ENUM 346
-        ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT     = 11,
+        e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT     = 11,
             // id for 'WriteCacheLowWat' attribute
 //ARB:ENUM 348
-        ATTRIBUTE_ID_WRITE_CACHE_HI_WAT      = 12,
+        e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT      = 12,
             // id for 'WriteCacheHiWat' attribute
 //ARB:ENUM 350
-        ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
+        e_ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
             // id for 'ThreadStackSize' attribute
 //ARB:ENUM 352
-        ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
+        e_ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
             // id for 'CollectTimeMetrics' attribute
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_MAX_CONNECTIONS = e_ATTRIBUTE_ID_MAX_CONNECTIONS
+      , ATTRIBUTE_ID_MAX_THREADS = e_ATTRIBUTE_ID_MAX_THREADS
+      , ATTRIBUTE_ID_READ_TIMEOUT = e_ATTRIBUTE_ID_READ_TIMEOUT
+      , ATTRIBUTE_ID_METRICS_INTERVAL = e_ATTRIBUTE_ID_METRICS_INTERVAL
+      , ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT = e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT
+      , ATTRIBUTE_ID_WRITE_CACHE_HI_WAT = e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT
+      , ATTRIBUTE_ID_THREAD_STACK_SIZE = e_ATTRIBUTE_ID_THREAD_STACK_SIZE
+      , ATTRIBUTE_ID_COLLECT_TIME_METRICS = e_ATTRIBUTE_ID_COLLECT_TIME_METRICS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

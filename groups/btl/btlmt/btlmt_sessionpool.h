@@ -624,27 +624,37 @@ class SessionPool {
         // Result code passed to the session callback.
 
 //ARB:ENUM 626
-        SESSION_UP = 1              // new session has been allocated
+        e_SESSION_UP = 1              // new session has been allocated
 //ARB:ENUM 627
-      , SESSION_DOWN = 2            // session went down
+      , e_SESSION_DOWN = 2            // session went down
 //ARB:ENUM 628
-      , SESSION_ALLOC_FAILED = 3    // session allocation failed
+      , e_SESSION_ALLOC_FAILED = 3    // session allocation failed
 //ARB:ENUM 629
-      , SESSION_STARTUP_FAILED = 4  // the call to 'start' failed
+      , e_SESSION_STARTUP_FAILED = 4  // the call to 'start' failed
 //ARB:ENUM 630
-      , WRITE_CACHE_LOWWAT = 5      // write cache low watermark reached
+      , e_WRITE_CACHE_LOWWAT = 5      // write cache low watermark reached
 //ARB:ENUM 631
-      , WRITE_CACHE_HIWAT = 6       // write cache high watermark reached
+      , e_WRITE_CACHE_HIWAT = 6       // write cache high watermark reached
 //ARB:ENUM 632
-      , ACCEPT_FAILED = 7           // accept failed
+      , e_ACCEPT_FAILED = 7           // accept failed
 //ARB:ENUM 633
-      , CONNECT_ATTEMPT_FAILED = 8  // a connection attempt failed
+      , e_CONNECT_ATTEMPT_FAILED = 8  // a connection attempt failed
 //ARB:ENUM 634
-      , CONNECT_FAILED = 9          // the connection initiation failed
+      , e_CONNECT_FAILED = 9          // the connection initiation failed
 //ARB:ENUM 635
-      , CONNECT_ABORTED = 10        // session was shutdown before the
+      , e_CONNECT_ABORTED = 10        // session was shutdown before the
                                     // connection could be established
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , SESSION_UP = e_SESSION_UP
+      , SESSION_DOWN = e_SESSION_DOWN
+      , SESSION_ALLOC_FAILED = e_SESSION_ALLOC_FAILED
+      , SESSION_STARTUP_FAILED = e_SESSION_STARTUP_FAILED
+      , WRITE_CACHE_LOWWAT = e_WRITE_CACHE_LOWWAT
+      , WRITE_CACHE_HIWAT = e_WRITE_CACHE_HIWAT
+      , ACCEPT_FAILED = e_ACCEPT_FAILED
+      , CONNECT_ATTEMPT_FAILED = e_CONNECT_ATTEMPT_FAILED
+      , CONNECT_FAILED = e_CONNECT_FAILED
+      , CONNECT_ABORTED = e_CONNECT_ABORTED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -653,13 +663,15 @@ class SessionPool {
         // attempt in 'connect'.
 
 //ARB:ENUM 643
-        RESOLVE_ONCE            = 0,  // perform resolution once prior to the
+        e_RESOLVE_ONCE            = 0,  // perform resolution once prior to the
                                       // first connect attempt
 
 //ARB:ENUM 646
-        RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
+        e_RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
                                       // connect attempt
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , RESOLVE_ONCE = e_RESOLVE_ONCE
+      , RESOLVE_AT_EACH_ATTEMPT = e_RESOLVE_AT_EACH_ATTEMPT
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -670,8 +682,9 @@ class SessionPool {
         // callbacks.
 
 //ARB:ENUM 656
-        SESSION_LIMIT_REACHED = 1   // cannot create more sessions
+        e_SESSION_LIMIT_REACHED = 1   // cannot create more sessions
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , SESSION_LIMIT_REACHED = e_SESSION_LIMIT_REACHED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

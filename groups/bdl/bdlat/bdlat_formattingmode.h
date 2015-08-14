@@ -76,33 +76,45 @@ struct bdlat_FormattingMode {
     enum {
         // bit-field: original type (i.e., schema type)
 //ARB:ENUM 78
-        BDLAT_DEFAULT   = 0x0,  // default formatting mode
+        e_DEFAULT   = 0x0,  // default formatting mode
 //ARB:ENUM 79
-        BDLAT_DEC       = 0x1,  // use decimal format
+        e_DEC       = 0x1,  // use decimal format
 //ARB:ENUM 80
-        BDLAT_HEX       = 0x2,  // use hexadecimal format
+        e_HEX       = 0x2,  // use hexadecimal format
 //ARB:ENUM 81
-        BDLAT_BASE64    = 0x3,  // use base64 format
+        e_BASE64    = 0x3,  // use base64 format
 //ARB:ENUM 82
-        BDLAT_TEXT      = 0x4,  // use text format
+        e_TEXT      = 0x4,  // use text format
 //ARB:ENUM 83
-        BDLAT_TYPE_MASK = 0x7,  // mask for type bit-field
+        k_TYPE_MASK = 0x7,  // mask for type bit-field
 
         // formatting flags
 //ARB:ENUM 86
-        BDLAT_UNTAGGED       = 0x00010000,  // use untagged formatting
+        k_UNTAGGED       = 0x00010000,  // use untagged formatting
 //ARB:ENUM 87
-        BDLAT_ATTRIBUTE      = 0x00020000,  // use attribute formatting
+        k_ATTRIBUTE      = 0x00020000,  // use attribute formatting
 //ARB:ENUM 88
-        BDLAT_SIMPLE_CONTENT = 0x00040000,  // use simple content formatting
+        k_SIMPLE_CONTENT = 0x00040000,  // use simple content formatting
 //ARB:ENUM 89
-        BDLAT_NILLABLE       = 0x00080000,  // use nillable formatting
+        k_NILLABLE       = 0x00080000,  // use nillable formatting
 //ARB:ENUM 90
-        BDLAT_LIST           = 0x00100000,  // use list format (for arrays)
+        k_LIST           = 0x00100000,  // use list format (for arrays)
 //ARB:ENUM 91
-        BDLAT_FLAGS_MASK     = 0x001F0000   // mask for formatting flags
+        k_FLAGS_MASK     = 0x001F0000   // mask for formatting flags
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDLAT_DEFAULT = e_DEFAULT
+      , BDLAT_DEC = e_DEC
+      , BDLAT_HEX = e_HEX
+      , BDLAT_BASE64 = e_BASE64
+      , BDLAT_TEXT = e_TEXT
+      , BDLAT_TYPE_MASK = k_TYPE_MASK
+      , BDLAT_UNTAGGED = k_UNTAGGED
+      , BDLAT_ATTRIBUTE = k_ATTRIBUTE
+      , BDLAT_SIMPLE_CONTENT = k_SIMPLE_CONTENT
+      , BDLAT_NILLABLE = k_NILLABLE
+      , BDLAT_LIST = k_LIST
+      , BDLAT_FLAGS_MASK = k_FLAGS_MASK
       , DEFAULT           = BDLAT_DEFAULT
       , DEC               = BDLAT_DEC
       , HEX               = BDLAT_HEX

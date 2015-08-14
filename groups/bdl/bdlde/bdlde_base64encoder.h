@@ -410,12 +410,15 @@ class Base64Encoder {
         // Symbolic state values.
 
 //ARB:ENUM 412
-        BDEDE_ERROR_STATE     = -1, // Input is irreparably invalid.
+        k_ERROR_STATE     = -1, // Input is irreparably invalid.
 //ARB:ENUM 413
-        BDEDE_INITIAL_STATE   =  0, // Ready to accept input.
+        e_INITIAL_STATE   =  0, // Ready to accept input.
 //ARB:ENUM 414
-        BDEDE_DONE_STATE      =  1  // Any additional input is an error.
+        e_DONE_STATE      =  1  // Any additional input is an error.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_ERROR_STATE = k_ERROR_STATE
+      , BDEDE_INITIAL_STATE = e_INITIAL_STATE
+      , BDEDE_DONE_STATE = e_DONE_STATE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

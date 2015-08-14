@@ -131,23 +131,31 @@ struct Severity {
   public:
     enum Level {
 //ARB:ENUM 133
-        BAEL_OFF   =   0,  // disable generation of corresponding message
+        e_OFF   =   0,  // disable generation of corresponding message
 //ARB:ENUM 134
-        BAEL_FATAL =  32,  // a condition that will (likely) cause a *crash*
+        e_FATAL =  32,  // a condition that will (likely) cause a *crash*
 //ARB:ENUM 135
-        BAEL_ERROR =  64,  // a condition that *will* cause incorrect behavior
+        e_ERROR =  64,  // a condition that *will* cause incorrect behavior
 //ARB:ENUM 136
-        BAEL_WARN  =  96,  // a *potentially* problematic condition
+        e_WARN  =  96,  // a *potentially* problematic condition
 //ARB:ENUM 137
-        BAEL_INFO  = 128,  // data about the running process
+        e_INFO  = 128,  // data about the running process
 //ARB:ENUM 138
-        BAEL_DEBUG = 160,  // information useful while debugging
+        e_DEBUG = 160,  // information useful while debugging
 //ARB:ENUM 139
-        BAEL_TRACE = 192,  // execution trace data
+        e_TRACE = 192,  // execution trace data
 //ARB:ENUM 140
-        BAEL_NONE  = 224   // !DEPRECATED! Do not use
+        e_NONE  = 224   // !DEPRECATED! Do not use
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_OFF = e_OFF
+      , BAEL_FATAL = e_FATAL
+      , BAEL_ERROR = e_ERROR
+      , BAEL_WARN = e_WARN
+      , BAEL_INFO = e_INFO
+      , BAEL_DEBUG = e_DEBUG
+      , BAEL_TRACE = e_TRACE
+      , BAEL_NONE = e_NONE
       , OFF   = BAEL_OFF
       , FATAL = BAEL_FATAL
       , ERROR = BAEL_ERROR
@@ -161,8 +169,9 @@ struct Severity {
 
     enum {
 //ARB:ENUM 154
-        BAEL_LENGTH = 8
+        e_LENGTH = 8
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_LENGTH = e_LENGTH
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'

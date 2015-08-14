@@ -367,13 +367,15 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // ignored by this component.
 
 //ARB:ENUM 369
-        BTEMT_NO_HINT,                 // The (de)registrations will likely be
+        e_NO_HINT,                 // The (de)registrations will likely be
                                        // frequent.
 
 //ARB:ENUM 372
-        BTEMT_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
+        e_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
                                        // infrequent.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTEMT_NO_HINT = e_NO_HINT
+      , BTEMT_INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
       , NO_HINT                 = BTEMT_NO_HINT
       , INFREQUENT_REGISTRATION = BTEMT_INFREQUENT_REGISTRATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED

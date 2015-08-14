@@ -365,12 +365,15 @@ class MultiQueueThreadPool_Queue {
         // Queue states.
 
 //ARB:ENUM 367
-        BCEP_ENQUEUEING_ENABLED,     // enqueueing is enabled
+        e_ENQUEUEING_ENABLED,     // enqueueing is enabled
 //ARB:ENUM 368
-        BCEP_ENQUEUEING_DISABLED,    // enqueueing is disabled
+        e_ENQUEUEING_DISABLED,    // enqueueing is disabled
 //ARB:ENUM 369
-        BCEP_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
+        e_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEP_ENQUEUEING_ENABLED = e_ENQUEUEING_ENABLED
+      , BCEP_ENQUEUEING_DISABLED = e_ENQUEUEING_DISABLED
+      , BCEP_ENQUEUEING_BLOCKED = e_ENQUEUEING_BLOCKED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -526,10 +529,12 @@ class MultiQueueThreadPool {
     // TYPES
     enum {
 //ARB:ENUM 523
-        BCEP_ENQUEUE_FRONT,    // enqueue new job at front of queue
+        e_ENQUEUE_FRONT,    // enqueue new job at front of queue
 //ARB:ENUM 524
-        BCEP_ENQUEUE_BACK      // enqueue new job at back of queue
+        e_ENQUEUE_BACK      // enqueue new job at back of queue
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEP_ENQUEUE_FRONT = e_ENQUEUE_FRONT
+      , BCEP_ENQUEUE_BACK = e_ENQUEUE_BACK
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

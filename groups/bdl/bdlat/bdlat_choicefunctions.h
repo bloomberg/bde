@@ -498,9 +498,10 @@ namespace bdlat_ChoiceFunctions {
     // CONSTANTS
     enum {
 //ARB:ENUM 500
-        BDLAT_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
+        e_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDLAT_UNDEFINED_SELECTION_ID = e_UNDEFINED_SELECTION_ID
       , UNDEFINED_SELECTION_ID = BDLAT_UNDEFINED_SELECTION_ID
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 

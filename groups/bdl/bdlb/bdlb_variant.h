@@ -1026,7 +1026,7 @@ struct VariantImp_Traits {
   public:
     enum {
 //ARB:ENUM 1026
-        VARIANT_USES_BSLMA_ALLOCATOR = (
+        k_VARIANT_USES_BSLMA_ALLOCATOR = (
             bslma::UsesBslmaAllocator< Type1>::value
          || bslma::UsesBslmaAllocator< Type2>::value
          || bslma::UsesBslmaAllocator< Type3>::value
@@ -1049,7 +1049,7 @@ struct VariantImp_Traits {
          || bslma::UsesBslmaAllocator<Type20>::value),
 
 //ARB:ENUM 1048
-        VARIANT_IS_BITWISE_COPYABLE = (
+        k_VARIANT_IS_BITWISE_COPYABLE = (
             bsl::is_trivially_copyable< Type1>::value
          && bsl::is_trivially_copyable< Type2>::value
          && bsl::is_trivially_copyable< Type3>::value
@@ -1072,7 +1072,7 @@ struct VariantImp_Traits {
          && bsl::is_trivially_copyable<Type20>::value),
 
 //ARB:ENUM 1070
-        VARIANT_IS_BITWISE_MOVEABLE = (
+        k_VARIANT_IS_BITWISE_MOVEABLE = (
             bslmf::IsBitwiseMoveable< Type1>::value
          && bslmf::IsBitwiseMoveable< Type2>::value
          && bslmf::IsBitwiseMoveable< Type3>::value
@@ -1094,6 +1094,9 @@ struct VariantImp_Traits {
          && bslmf::IsBitwiseMoveable<Type19>::value
          && bslmf::IsBitwiseMoveable<Type20>::value)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , VARIANT_USES_BSLMA_ALLOCATOR = k_VARIANT_USES_BSLMA_ALLOCATOR
+      , VARIANT_IS_BITWISE_COPYABLE = k_VARIANT_IS_BITWISE_COPYABLE
+      , VARIANT_IS_BITWISE_MOVEABLE = k_VARIANT_IS_BITWISE_MOVEABLE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

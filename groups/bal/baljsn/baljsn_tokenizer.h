@@ -169,22 +169,30 @@ class Tokenizer {
         // This 'enum' lists all the possible token types.
 
 //ARB:ENUM 171
-        BAEJSN_BEGIN = 1,                  // starting token
+        e_BEGIN = 1,                  // starting token
 //ARB:ENUM 172
-        BAEJSN_ELEMENT_NAME,               // element name
+        e_ELEMENT_NAME,               // element name
 //ARB:ENUM 173
-        BAEJSN_START_OBJECT,               // start of an object ('{')
+        e_START_OBJECT,               // start of an object ('{')
 //ARB:ENUM 174
-        BAEJSN_END_OBJECT,                 // end of an object   ('}')
+        e_END_OBJECT,                 // end of an object   ('}')
 //ARB:ENUM 175
-        BAEJSN_START_ARRAY,                // start of an array  ('[')
+        e_START_ARRAY,                // start of an array  ('[')
 //ARB:ENUM 176
-        BAEJSN_END_ARRAY,                  // end of an array    (']')
+        e_END_ARRAY,                  // end of an array    (']')
 //ARB:ENUM 177
-        BAEJSN_ELEMENT_VALUE,              // element value of a simple type
+        e_ELEMENT_VALUE,              // element value of a simple type
 //ARB:ENUM 178
-        BAEJSN_ERROR                       // error token
+        e_ERROR                       // error token
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_BEGIN = e_BEGIN
+      , BAEJSN_ELEMENT_NAME = e_ELEMENT_NAME
+      , BAEJSN_START_OBJECT = e_START_OBJECT
+      , BAEJSN_END_OBJECT = e_END_OBJECT
+      , BAEJSN_START_ARRAY = e_START_ARRAY
+      , BAEJSN_END_ARRAY = e_END_ARRAY
+      , BAEJSN_ELEMENT_VALUE = e_ELEMENT_VALUE
+      , BAEJSN_ERROR = e_ERROR
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

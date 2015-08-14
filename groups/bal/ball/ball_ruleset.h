@@ -123,9 +123,10 @@ class RuleSet {
 
     enum {
 //ARB:ENUM 125
-        BAEL_MAX_NUM_RULES = 8 * sizeof(MaskType)
+        e_MAX_NUM_RULES = 8 * sizeof(MaskType)
            // The maximum number of rules managed by this object.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_MAX_NUM_RULES = e_MAX_NUM_RULES
       , MAX_NUM_RULES = BAEL_MAX_NUM_RULES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };

@@ -96,18 +96,21 @@ struct DstPolicy {
     // TYPES
     enum Enum {
 //ARB:ENUM 98
-        BALTZO_DST,         // Local time is interpreted as daylight-saving
+        e_DST,         // Local time is interpreted as daylight-saving
                             // time.
 
 //ARB:ENUM 101
-        BALTZO_STANDARD,    // Local time is interpreted as standard time.
+        e_STANDARD,    // Local time is interpreted as standard time.
 
 //ARB:ENUM 103
-        BALTZO_UNSPECIFIED  // Local time is interpreted as either
+        e_UNSPECIFIED  // Local time is interpreted as either
                             // daylight-saving time or standard time (as
                             // appropriate).
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BALTZO_DST = e_DST
+      , BALTZO_STANDARD = e_STANDARD
+      , BALTZO_UNSPECIFIED = e_UNSPECIFIED
       , BAETZO_DST         = BALTZO_DST
       , BAETZO_STANDARD    = BALTZO_STANDARD
       , BAETZO_UNSPECIFIED = BALTZO_UNSPECIFIED

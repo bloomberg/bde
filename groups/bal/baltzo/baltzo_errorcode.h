@@ -88,9 +88,10 @@ struct ErrorCode {
     // TYPES
     enum Enum {
 //ARB:ENUM 90
-        BALTZO_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
+        e_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BALTZO_UNSUPPORTED_ID = e_UNSUPPORTED_ID
       , BAETZO_UNSUPPORTED_ID = BALTZO_UNSUPPORTED_ID
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
