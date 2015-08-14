@@ -2,6 +2,8 @@
 
 #include <bdlat_enumfunctions.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_typetraits.h>
 #include <bdlb_string.h>
@@ -36,61 +38,49 @@ using namespace bsl;  // automatically added by script
 // [ 2] TESTING META-FUNCTIONS
 // [ 5] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -283,15 +273,15 @@ struct PrimaryColor {
         // reference to the modifiable 'stream'.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
+        // undefined.  If the 'version' is not supported, 'stream' is marked
+        // invalid, but 'value' is unaltered.  Note that no version is read
+        // from 'stream'.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&  stream,
@@ -310,8 +300,8 @@ struct PrimaryColor {
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, PrimaryColor::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -382,9 +372,9 @@ const char *PrimaryColor::toString(PrimaryColor::Value value)
 
 template <class STREAM>
 inline
-STREAM& PrimaryColor::bdexStreamIn(STREAM&             stream,
+STREAM& PrimaryColor::bdexStreamIn(STREAM&              stream,
                                    PrimaryColor::Value& value,
-                                   int                 version)
+                                   int                  version)
 {
     switch(version) {
       case 1: {
@@ -405,9 +395,9 @@ STREAM& PrimaryColor::bdexStreamIn(STREAM&             stream,
 
 template <class STREAM>
 inline
-STREAM& PrimaryColor::bdexStreamOut(STREAM&              stream,
+STREAM& PrimaryColor::bdexStreamOut(STREAM&             stream,
                                     PrimaryColor::Value value,
-                                    int                version)
+                                    int                 version)
 {
     switch (version) {
       case 1: {
@@ -421,9 +411,8 @@ STREAM& PrimaryColor::bdexStreamOut(STREAM&              stream,
 // FREE FUNCTIONS
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        test::PrimaryColor::Value rhs)
+bsl::ostream& test::operator<<(bsl::ostream&             stream,
+                               test::PrimaryColor::Value rhs)
 {
     return test::PrimaryColor::print(stream, rhs);
 }
@@ -467,8 +456,8 @@ const bdeat_EnumeratorInfo PrimaryColor::ENUMERATOR_INFO_ARRAY[] = {
 // CLASS METHODS
 
 int PrimaryColor::fromString(PrimaryColor::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+                            const char           *string,
+                            int                   stringLength)
 {
 
     enum { SUCCESS = 0, NOT_FOUND = 1 };
@@ -533,22 +522,21 @@ enum MyEnum {
     // MANIPULATORS
     int bdeat_enumFromInt(MyEnum *result, int number);
         // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value
-        // with no effect on 'result' if 'number' does not match any
-        // enumerator.
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' if 'number' does not match any enumerator.
 
-    int bdeat_enumFromString(MyEnum *result,
-                             const char *string, int stringLength);
+    int bdeat_enumFromString(MyEnum     *result,
+                             const char *string,
+                             int         stringLength);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' if
-        // 'string' and 'stringLength' do not match any enumerator.
+        // success, and a non-zero value with no effect on 'result' if 'string'
+        // and 'stringLength' do not match any enumerator.
 
     // ACCESSORS
     void bdeat_enumToInt(int *result, const MyEnum& value);
-        // Return the integer representation exactly matching the
-        // enumerator name corresponding to the specified enumeration
-        // 'value'.
+        // Return the integer representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
 
     void bdeat_enumToString(bsl::string *result, const MyEnum& value);
         // Return the string representation exactly matching the enumerator
@@ -588,34 +576,28 @@ int mine::bdeat_enumFromInt(MyEnum *result, int number)
 }
 
 inline
-int mine::bdeat_enumFromString(MyEnum    *result,
+int mine::bdeat_enumFromString(MyEnum     *result,
                                const char *string,
                                int         stringLength)
 {
     enum { SUCCESS = 0, NOT_FOUND = -1 };
 
-    if (bdlb::String::areEqualCaseless("red",
-                                      string,
-                                      stringLength)) {
+    if (bdlb::String::areEqualCaseless("red", string, stringLength)) {
         *result = RED;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
 
-    if (bdlb::String::areEqualCaseless("green",
-                                      string,
-                                      stringLength)) {
+    if (bdlb::String::areEqualCaseless("green", string, stringLength)) {
         *result = GREEN;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
 
-    if (bdlb::String::areEqualCaseless("blue",
-                                      string,
-                                      stringLength)) {
+    if (bdlb::String::areEqualCaseless("blue", string, stringLength)) {
         *result = BLUE;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
 
     return NOT_FOUND;
@@ -628,7 +610,7 @@ void mine::bdeat_enumToInt(int *result, const MyEnum& value)
     *result = static_cast<int>(value);
 }
 
-void mine::bdeat_enumToString(bsl::string    *result, const MyEnum&  value)
+void mine::bdeat_enumToString(bsl::string *result, const MyEnum &value)
 {
     switch (value) {
       case RED: {
@@ -732,7 +714,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+//  int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -865,10 +847,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
