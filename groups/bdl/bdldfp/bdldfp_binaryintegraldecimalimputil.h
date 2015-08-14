@@ -1,4 +1,4 @@
-// bdldfp_binaryintegraldecimalimputil.h                               -*-C++-*-
+// bdldfp_binaryintegraldecimalimputil.h                              -*-C++-*-
 #ifndef INCLUDED_BDLDFP_BINARYINTEGRALDECIMALIMPUTIL
 #define INCLUDED_BDLDFP_BINARYINTEGRALDECIMALIMPUTIL
 

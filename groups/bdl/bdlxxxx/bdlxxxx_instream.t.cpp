@@ -1,4 +1,4 @@
-// bdlxxxx_instream.t.cpp          -*-C++-*-
+// bdlxxxx_instream.t.cpp                                             -*-C++-*-
 
 #include <bdlxxxx_instream.h>
 
@@ -12,9 +12,9 @@ using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 
-//==========================================================================
+//=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
@@ -26,17 +26,17 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                              TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              OVERVIEW
 // We are testing a pure protocol class as well as a set of overloaded
 // operators.  We need to verify that (1) a concrete derived class compiles
 // and links, and (2) that each overloaded input operator correctly forwards
 // the call to the appropriate method.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] virtual ~bdlxxxx::InStream();
 // [ 1] virtual stream& getLength(int& variable) = 0;
 // [ 1] virtual stream& getVersion(int& variable) = 0;
@@ -86,15 +86,15 @@ static void aSsErT(int c, const char *s, int i)
 // [ 1] virtual int isEmpty() const = 0;
 // [ 1] virtual int length() const = 0;
 // [ 1] virtual int cursor() const = 0;
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 2] BDEX TEST - Make sure bdex functions call correct functions.
 // [ 3] USAGE TEST - Make sure usage example compiles and works as advertized.
-//==========================================================================
+//=============================================================================
 
-//==========================================================================
-//                      USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 // mypoint.h
 
@@ -164,12 +164,12 @@ STREAM& MyPoint::bdexStreamIn(STREAM& stream, int version)
           case 1: {
             bdex_InStreamFunctions::streamIn(stream, d_xCoord, 0);
             if (!stream) {
-                return stream;                                    // RETURN
+                return stream;                                        // RETURN
             }
 
             bdex_InStreamFunctions::streamIn(stream, d_yCoord, 0);
             if (!stream) {
-                return stream;                                    // RETURN
+                return stream;                                        // RETURN
             }
           } break;
           default: {
@@ -198,7 +198,7 @@ STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // mybox.h
 
 class MyBox {
@@ -267,12 +267,12 @@ STREAM& MyBox::bdexStreamIn(STREAM& stream, int version)
           case 1: {
             bdex_InStreamFunctions::streamIn(stream, d_originCorner, 1);
             if (!stream) {
-                return stream;                                    // RETURN
+                return stream;                                        // RETURN
             }
 
             bdex_InStreamFunctions::streamIn(stream, d_oppositeCorner, 1);
             if (!stream) {
-                return stream;                                    // RETURN
+                return stream;                                        // RETURN
             }
           } break;
           default: {
@@ -303,7 +303,7 @@ STREAM& MyBox::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // second usage example
 int extractExpectedObjectsFromStream(bdlxxxx::InStream& inputStream)
 {
@@ -318,9 +318,9 @@ int extractExpectedObjectsFromStream(bdlxxxx::InStream& inputStream)
              : SUCCESS;
 }
 
-//==========================================================================
+//=============================================================================
 //                      CONCRETE DERIVED TYPE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 class MyInStream : public bdlxxxx::InStream {
   // Test class used to verify protocol.
 
@@ -425,9 +425,9 @@ class MyInStream : public bdlxxxx::InStream {
         // Return descriptive code for the function called.
 };
 
-//==========================================================================
-//                      MAIN PROGRAM
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -719,11 +719,11 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

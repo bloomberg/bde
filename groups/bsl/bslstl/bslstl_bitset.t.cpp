@@ -102,9 +102,9 @@ using namespace std;
 // [12] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 namespace {
 int testStatus = 0;
@@ -116,10 +116,10 @@ void aSsErT(int c, const char *s, int i) {
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-} // close anonymous namespace
+}  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
@@ -171,7 +171,7 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
     for (unsigned int i = 0; i < N; ++i) {
         ASSERT(expected[i] == '1' || expected[i] == '0');
         if ((expected[i] == '1') != obj[N - i - 1]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -194,7 +194,7 @@ bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
                 T_ P_(N) P_(bitIndex) P_(expectedBit) P(obj[bitIndex]);
             }
 
-            return false;
+            return false;                                             // RETURN
         }
     }
 
@@ -285,7 +285,7 @@ void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
     }
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -371,7 +371,7 @@ bool isPrime(int candidate)
         }
 
         if (true == compositeFlags[candidate]) {
-            return false;                                          // RETURN
+            return false;                                             // RETURN
         }
     }
 

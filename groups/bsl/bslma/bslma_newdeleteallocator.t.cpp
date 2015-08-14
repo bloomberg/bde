@@ -77,9 +77,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//==========================================================================
+//=============================================================================
 //                              TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // We are testing a concrete implementation of a protocol.  The component also
@@ -90,19 +90,19 @@ void aSsErT(bool condition, const char *message, int line)
 // class call global operators 'new' and 'delete'.  We can do that by
 // redefining these global operators and instrumenting them to be sure that
 // these operators are in fact called.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 2] static bslma::NewDeleteAllocator& singleton();
 // [ 2] static bslma::Allocator *allocator(bslma::Allocator *basicAllocator);
 // [ 1] bslma::NewDeleteAllocator();
 // [ 1] ~bslma::NewDeleteAllocator();
 // [ 1] void *allocate(int size);
 // [ 1] void deallocate(void *address);
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] Make sure that global operators new and delete are called.
 // [ 2] Make sure that the lifetime of the singleton is sufficient.
 // [ 2] Make sure that memory is not leaked.
 // [ 3] USAGE EXAMPLE
-//==========================================================================
+//=============================================================================
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -280,9 +280,9 @@ void aSsErT(bool condition, const char *message, int line)
 // Finally note that this entire component is *not* intended for direct use by
 // typical clients: See 'bslma_default' for more information or proper usage.
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                      REDEFINED GLOBAL OPERATOR NEW
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static bool globalVeryVerbose = false;
 

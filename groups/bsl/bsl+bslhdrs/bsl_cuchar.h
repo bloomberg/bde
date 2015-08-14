@@ -30,7 +30,7 @@ namespace bsl {
     using native_std::mbrtoc16;
     using native_std::mbrtoc32;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

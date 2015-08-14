@@ -790,7 +790,7 @@ struct CharToPairConverter {
 
         bslma::Allocator *privateAllocator =
                                       &bslma::MallocFreeAllocator::singleton();
-        
+
         bsls::ObjectBuffer<KEY> tempKey;
         bsltf::TemplateTestFacility::emplace(
                                        bsls::Util::addressOf(tempKey.object()),
@@ -2289,7 +2289,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
 
             Obj mX;  const Obj& X = mX;
 
-            (void) X;            
+            (void) X;
 
             Iter it = mX.insert(mX.end(), VALUES[0]);
 
@@ -3366,7 +3366,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                   } break;
                   default: {
                       ASSERTV(LINE, CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
                 ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -5088,7 +5088,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
 
@@ -5455,7 +5455,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
-                  return;
+                  return;                                             // RETURN
               } break;
             }
 
@@ -6485,7 +6485,7 @@ bool operator!=(const PhoneBook& lhs, const PhoneBook& rhs)
 }
 //..
 
-}  // close namespace 'UsageExample'
+}  // close namespace UsageExample
 
 // ============================================================================
 //                            MAIN PROGRAM

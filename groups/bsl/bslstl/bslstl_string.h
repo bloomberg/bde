@@ -2610,7 +2610,7 @@ void hashAppend(
     // namespace 'std', and this component essentially provides the interface
     // between 'bsl' and 'std' string types.
 
-}  // close package namespace
+}  // close namespace bslh
 }  // close enterprise namespace
 
 // ============================================================================
@@ -5901,7 +5901,7 @@ struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslmf {
 
@@ -5910,7 +5910,7 @@ struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : IsBitwiseMoveable<ALLOC>
 {};
 
-}  // close package namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -5919,7 +5919,7 @@ struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : bsl::is_convertible<Allocator *, ALLOC>
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

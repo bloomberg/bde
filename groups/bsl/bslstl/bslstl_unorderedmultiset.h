@@ -1651,7 +1651,7 @@ struct HasStlIterators<bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR> >
      : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslma {
 
@@ -1663,7 +1663,7 @@ struct UsesBslmaAllocator<bsl::unordered_multiset<KEY,
     : bsl::is_convertible<Allocator*, ALLOCATOR>::type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

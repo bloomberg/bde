@@ -139,7 +139,7 @@ class SwapUtil {
 
   public:
     // CLASS METHODS
-    template <typename T>
+    template <class T>
     static
     void swap(T *a, T *b);
         // Exchange the values of the specified 'a' and 'b' objects using
@@ -148,16 +148,16 @@ class SwapUtil {
         // 'bsl::swap' otherwise.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                            // ---------------
                            // struct SwapUtil
                            // ---------------
 
 // CLASS METHODS
-template <typename T>
+template <class T>
 void SwapUtil::swap(T *a, T *b)
 {
     BSLS_ASSERT_SAFE(a != NULL);
@@ -176,9 +176,9 @@ void SwapUtil::swap(T *a, T *b)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::SwapUtil bslalg_SwapUtil;
     // This alias is defined for backward compatibility.

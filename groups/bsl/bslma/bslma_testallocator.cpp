@@ -759,13 +759,13 @@ int TestAllocator::status() const
     const bsls::Types::Int64 numErrors = numMismatches() + numBoundsErrors();
 
     if (numErrors > 0) {
-        return static_cast<int>(numErrors);
+        return static_cast<int>(numErrors);                           // RETURN
     }
     else if (numBlocksInUse() || numBytesInUse()) {
-        return BSLMA_MEMORY_LEAK;
+        return BSLMA_MEMORY_LEAK;                                     // RETURN
     }
     else {
-        return BSLMA_SUCCESS;
+        return BSLMA_SUCCESS;                                         // RETURN
     }
 }
 

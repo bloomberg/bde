@@ -1,4 +1,4 @@
-// balxml_typesparserutil.t.cpp                  -*-C++-*-
+// balxml_typesparserutil.t.cpp                                       -*-C++-*-
 
 #include <balxml_typesparserutil.h>
 
@@ -447,8 +447,11 @@ namespace bdeat_EnumFunctions {
     {
         switch (value) {
           case TestEnum::VALUE1: *result = TestEnum::VALUE1; return 0;
+                                                                      // RETURN
           case TestEnum::VALUE2: *result = TestEnum::VALUE2; return 0;
+                                                                      // RETURN
           case TestEnum::VALUE3: *result = TestEnum::VALUE3; return 0;
+                                                                      // RETURN
         }
 
         return -1;
@@ -461,24 +464,24 @@ namespace bdeat_EnumFunctions {
     {
         if ("VALUE1" == bsl::string(input, inputLength)) {
             *result = TestEnum::VALUE1;
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if ("VALUE2" == bsl::string(input, inputLength)) {
             *result = TestEnum::VALUE2;
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if ("VALUE3" == bsl::string(input, inputLength)) {
             *result = TestEnum::VALUE3;
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
     }
 
-}  // close namespace bdeat_EnumFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_EnumFunctions
+}  // close enterprise namespace
 
 // test_myenumeration.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYENUMERATION
@@ -572,9 +575,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 inline
 int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
@@ -585,9 +588,9 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
       case MyEnumeration::VALUE1:
       case MyEnumeration::VALUE2:
         *result = (MyEnumeration::Value)number;
-        return SUCCESS;                                         // RETURN
+        return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -606,10 +609,10 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
 {
     switch (value) {
       case VALUE1: {
-        return "VALUE1";
+        return "VALUE1";                                              // RETURN
       } break;
       case VALUE2: {
-        return "VALUE2";
+        return "VALUE2";                                              // RETURN
       } break;
       default:
         BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
@@ -618,7 +621,7 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
     return 0;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
@@ -631,7 +634,7 @@ bsl::ostream& test::operator<<(bsl::ostream&              stream,
     return test::MyEnumeration::print(stream, rhs);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
@@ -721,8 +724,8 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
@@ -854,9 +857,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedInt& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -903,7 +906,7 @@ int CustomizedInt::fromInt(int value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -927,7 +930,7 @@ const int& CustomizedInt::toInt() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -956,7 +959,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
@@ -992,8 +995,8 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
@@ -1139,9 +1142,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -1191,7 +1194,7 @@ int CustomizedString::fromString(const bsl::string& value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -1215,7 +1218,7 @@ const bsl::string& CustomizedString::toString() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -1244,7 +1247,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
@@ -1282,8 +1285,8 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
@@ -3361,10 +3364,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

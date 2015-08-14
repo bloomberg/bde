@@ -1364,7 +1364,7 @@ template<>
 struct UsesBslmaAllocator<NAMESPACE_USAGE_EXAMPLE_1::MyUser>
      : bsl::true_type {};
 
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 //=============================================================================
@@ -2247,7 +2247,7 @@ template <class TYPE>
 struct UsesBslmaAllocator<TestSharedPtrRep<TYPE> >
      : bsl::true_type {};
 
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 // ============================================================================
@@ -3063,7 +3063,7 @@ template <class TYPE>
 void doNotDelete(TYPE *) {}
     // Do nothing
 
-}  // close 'TestDriver' namespace
+}  // close namespace TestDriver
 
 
 template <class ALLOCATOR>

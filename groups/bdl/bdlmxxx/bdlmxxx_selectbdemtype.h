@@ -1,4 +1,4 @@
-// bdlmxxx_selectbdemtype.h                                              -*-C++-*-
+// bdlmxxx_selectbdemtype.h                                           -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_SELECTBDEMTYPE
 #define INCLUDED_BDLMXXX_SELECTBDEMTYPE
 
@@ -223,45 +223,45 @@ class Table;
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlmxxx {class Choice;
 class ChoiceArray;
 class Row;
 class ChoiceArrayItem;
 
-template <typename TYPE, typename TYPE_CATEGORY>
+template <class TYPE, class TYPE_CATEGORY>
 struct SelectBdemType_ByCategory;
 
 template <int ELEM_TYPE>
 struct SelectBdemType_GetCppType;
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_Imp;
 
 template <int ELEM_TYPE>
@@ -271,7 +271,7 @@ struct SelectBdemType_ToArrayElemType;
                          // struct SelectBdemType
                          // ==========================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType {
     // This meta-function contains a 'VALUE' compile-time constant that
     // indicates the corresponding 'ElemType::Type' value for the
@@ -298,7 +298,7 @@ struct SelectBdemType {
          // struct SelectBdemType_ByCategory<TYPE, TYPE_CATEGORY>
          // ==========================================================
 
-template <typename TYPE, typename TYPE_CATEGORY>
+template <class TYPE, class TYPE_CATEGORY>
 struct SelectBdemType_ByCategory {
 
   private:
@@ -314,7 +314,7 @@ struct SelectBdemType_ByCategory {
              // struct SelectBdemType_ByCategory<TYPE, Array>
              // ==================================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Array> {
 
   private:
@@ -340,7 +340,7 @@ struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Array> {
         // struct SelectBdemType_ByCategory<TYPE, CustomizedType>
         // ===========================================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE,
                                       bdeat_TypeCategory::CustomizedType> {
   private:
@@ -362,7 +362,7 @@ struct SelectBdemType_ByCategory<TYPE,
           // struct SelectBdemType_ByCategory<TYPE, Enumeration>
           // ========================================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Enumeration> {
     enum { VALUE = ElemType::BDEM_INT };
 };
@@ -371,7 +371,7 @@ struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Enumeration> {
          // struct SelectBdemType_ByCategory<TYPE, NullableValue>
          // ==========================================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE,
                                       bdeat_TypeCategory::NullableValue> {
   private:
@@ -567,7 +567,7 @@ struct SelectBdemType_GetCppType<ElemType::BDEM_CHOICE_ARRAY_ITEM> {
             // struct SelectBdemType_Imp<TYPE>
             // ====================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_Imp {
 
   private:
@@ -819,15 +819,15 @@ SelectBdemType_ToArrayElemType<ElemType::BDEM_CHOICE_ARRAY_ITEM> {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

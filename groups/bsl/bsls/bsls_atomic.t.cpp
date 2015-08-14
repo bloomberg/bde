@@ -165,7 +165,7 @@ typedef bsls::AtomicPointer<const APTestObj> CAP;
 typedef bsls::Types::Int64            Int64;
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -1038,7 +1038,7 @@ template <class TYPE>
 inline void my_PtrStack<TYPE>::freeNode(Node *node)
 {
     if (!node) {
-        return;
+        return;                                                       // RETURN
     }
 
     while (1) {

@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class TypeTraitBitwiseEqualityComparable;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::TypeTraitBitwiseEqualityComparable bslalg_TypeTraitBitwiseEqualityComparable;
-}
+}  // close enterprise namespace
 
 #else
 

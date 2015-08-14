@@ -412,6 +412,7 @@ int mine::bdeat_sequenceManipulateAttribute(
                                             object,
                                             manipulator,
                                             MySequence::NAME_ATTRIBUTE_ID);
+                                                                      // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("age",
@@ -421,6 +422,7 @@ int mine::bdeat_sequenceManipulateAttribute(
                                              object,
                                              manipulator,
                                              MySequence::AGE_ATTRIBUTE_ID);
+                                                                      // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("salary",
@@ -430,6 +432,7 @@ int mine::bdeat_sequenceManipulateAttribute(
                                           object,
                                           manipulator,
                                           MySequence::SALARY_ATTRIBUTE_ID);
+                                                                      // RETURN
     }
 
     return NOT_FOUND;
@@ -532,6 +535,7 @@ int mine::bdeat_sequenceAccessAttribute(
                                             object,
                                             accessor,
                                             MySequence::NAME_ATTRIBUTE_ID);
+                                                                      // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("age",
@@ -540,6 +544,7 @@ int mine::bdeat_sequenceAccessAttribute(
         return bdeat_sequenceAccessAttribute(object,
                                              accessor,
                                              MySequence::AGE_ATTRIBUTE_ID);
+                                                                      // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("salary",
@@ -549,6 +554,7 @@ int mine::bdeat_sequenceAccessAttribute(
                                           object,
                                           accessor,
                                           MySequence::SALARY_ATTRIBUTE_ID);
+                                                                      // RETURN
     }
 
     return NOT_FOUND;
@@ -666,7 +672,7 @@ namespace bdeat_SequenceFunctions {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdeat_SequenceFunctions
+}  // close namespace bdlat_SequenceFunctions
 }  // close enterprise namespace
 //..
 // The 'bdeat' infrastructure (and any component that uses this infrastructure)
@@ -891,10 +897,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

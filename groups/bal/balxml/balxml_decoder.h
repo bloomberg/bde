@@ -1,4 +1,4 @@
-// balxml_decoder.h         -*-C++-*-
+// balxml_decoder.h                                                   -*-C++-*-
 #ifndef INCLUDED_BALXML_DECODER
 #define INCLUDED_BALXML_DECODER
 
@@ -524,10 +524,10 @@ class Decoder {
     int  readTopElement();
     int  parse(Decoder_ElementContext *context);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *object, bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int decodeImp(TYPE *object, ANY_CATEGORY);
 
   public:
@@ -588,7 +588,7 @@ class Decoder {
         // 'Reader::open') to read XML data from the file with the
         // specified 'filename'.  Return 0 on success and non-zero otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     bsl::istream& decode(bsl::istream&  stream,
                          TYPE          *object,
                          const char    *uri = 0);
@@ -601,7 +601,7 @@ class Decoder {
         // requirements of a 'bdeat' sequence or choice, as described in
         // 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::streambuf *buffer,
                TYPE           *object,
                const char     *uri = 0);
@@ -613,7 +613,7 @@ class Decoder {
         // sequence or choice, as described in 'bdlat_sequencefunctions' and
         // 'bdlat_choicefunctions'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(const char  *buffer,
                bsl::size_t  length,
                TYPE        *object,
@@ -627,7 +627,7 @@ class Decoder {
         // as described in 'bdlat_sequencefunctions' and
         // 'bdlat_choicefunctions'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(const char *filename, TYPE *object);
         // Decode the specified 'object' of parameterized 'TYPE' from the file
         // with the specified 'filename'.  Return 0 on success, and a non-zero
@@ -635,7 +635,7 @@ class Decoder {
         // conforms to the requirements of a bdeat sequence or choice, as
         // described in 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(TYPE *object);
         // Decode the specified 'object' of parameterized 'TYPE' from the
         // input source specified by a previous call to 'open' and leave the
@@ -772,17 +772,17 @@ class Decoder_ErrorLogger {
 
 namespace balxml {class Decoder_ElementContext;
 
-template <typename TYPE>
+template <class TYPE>
 class Decoder_ChoiceContext;
-template <typename TYPE>
+template <class TYPE>
 class Decoder_CustomizedContext;
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 class Decoder_PushParserContext;
-template <typename TYPE>
+template <class TYPE>
 class Decoder_SequenceContext;
-template <typename TYPE>
+template <class TYPE>
 class Decoder_SimpleContext;
-template <typename TYPE>
+template <class TYPE>
 class Decoder_UTF8Context;
 
 class Decoder_UnknownElementContext;
@@ -794,7 +794,7 @@ class Decoder_StdVectorCharContext;  // proxy context
                      // class Decoder_ListParser<TYPE>
                      // =====================================
 
-template <typename TYPE>
+template <class TYPE>
 class Decoder_ListParser {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This is a wrapper around 'ListParser<TYPE>'.  The
@@ -859,7 +859,7 @@ class Decoder_ListParser {
         return d_imp.endParse();
     }
 
-    template <typename INPUT_ITERATOR>
+    template <class INPUT_ITERATOR>
     int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
     {
         return d_imp.pushCharacters(begin, end);
@@ -872,13 +872,13 @@ class Decoder_ListParser {
                 // ==============================================
 
 
-namespace balxml {template <typename CATEGORY, typename TYPE>
+namespace balxml {template <class CATEGORY, class TYPE>
 struct Decoder_InstantiateContext;
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This 'struct' instantiates a context for the parameterized 'TYPE' that
     // falls under the parameterized 'CATEGORY'.
 
-template <typename TYPE>
+template <class TYPE>
 struct Decoder_InstantiateContext<bdeat_TypeCategory::Array, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -894,21 +894,21 @@ struct Decoder_InstantiateContext<bdeat_TypeCategory::Array,
     typedef Decoder_StdVectorCharContext Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct Decoder_InstantiateContext<bdeat_TypeCategory::Choice, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_ChoiceContext<TYPE> Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct Decoder_InstantiateContext<bdeat_TypeCategory::Sequence, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_SequenceContext<TYPE> Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct Decoder_InstantiateContext<bdeat_TypeCategory::Simple, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -923,7 +923,7 @@ Decoder_InstantiateContext<bdeat_TypeCategory::Simple, bsl::string>
     typedef Decoder_StdStringContext Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct
 Decoder_InstantiateContext<bdeat_TypeCategory::CustomizedType, TYPE>
 {
@@ -933,7 +933,7 @@ Decoder_InstantiateContext<bdeat_TypeCategory::CustomizedType, TYPE>
     typedef Decoder_CustomizedContext<TYPE> Type;
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct Decoder_InstantiateContext<bdeat_TypeCategory::Enumeration, TYPE>
 {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -947,7 +947,7 @@ struct Decoder_InstantiateContext<bdeat_TypeCategory::Enumeration, TYPE>
                    // struct Decoder_SelectContext<TYPE>
                    // ========================================
 
-template <typename TYPE>
+template <class TYPE>
 struct Decoder_SelectContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This meta-function is used to select a context for the parameterized
@@ -966,7 +966,7 @@ struct Decoder_SelectContext {
                    // class Decoder_ChoiceContext<TYPE>
                    // ========================================
 
-template <typename TYPE>
+template <class TYPE>
 class Decoder_ChoiceContext :  public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This is the context for types that fall under
@@ -1067,7 +1067,7 @@ class Decoder_NillableContext :  public Decoder_ElementContext {
              // class Decoder_PushParserContext<TYPE, PARSER>
              // ====================================================
 
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 class Decoder_PushParserContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Context for types that use one of the following push parsers:
@@ -1116,7 +1116,7 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
                   // class Decoder_SequenceContext<TYPE>
                   // ==========================================
 
-template <typename TYPE>
+template <class TYPE>
 class Decoder_SequenceContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Context for types that fall under 'bdeat_TypeCategory::Sequence'.
@@ -1159,7 +1159,7 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
                    // class Decoder_SimpleContext<TYPE>
                    // ========================================
 
-template <typename TYPE>
+template <class TYPE>
 class Decoder_SimpleContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Context for simple types (uses TypesParserUtil).
@@ -1203,7 +1203,7 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
                    // class Decoder_CustomizedContext<TYPE>
                    // ============================================
 
-template <typename TYPE>
+template <class TYPE>
 class Decoder_CustomizedContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This is the context for types that fall under
@@ -1296,7 +1296,7 @@ class Decoder_UnknownElementContext :
                        // class Decoder_UTF8Context
                        // ================================
 
-template <typename TYPE>
+template <class TYPE>
 class Decoder_UTF8Context : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Context for UTF8 strings (i.e., 'bsl::string' and 'bsl::vector<char>').
@@ -1495,7 +1495,7 @@ class Decoder_PrepareSequenceContext {
     // ~Decoder_PrepareSequenceContext();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(const TYPE&      object,
                    const INFO_TYPE& info);
 };
@@ -1531,10 +1531,10 @@ class Decoder_ParseSequenceSimpleContent {
     // ~Decoder_ParseSequenceSimpleContent();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(TYPE *object, const INFO_TYPE& info);
 
-    template <typename INFO_TYPE>
+    template <class INFO_TYPE>
     int operator()(bsl::string *object, const INFO_TYPE& info);
 };
 
@@ -1568,11 +1568,11 @@ class Decoder_ParseSequenceSubElement {
     // ~Decoder_ParseSequenceSubElement();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(TYPE             *object,
                    const INFO_TYPE&  info);
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(TYPE *object, int id, int formattingMode);
 };
 
@@ -1594,13 +1594,13 @@ class Decoder_ParseAttribute {
 
   public:
     // IMPLEMENTATION MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::NullableValue);
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::DynamicType);
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int executeImp(TYPE *object, int formattingMode, ANY_CATEGORY);
 
   private:
@@ -1620,10 +1620,10 @@ class Decoder_ParseAttribute {
     // ~Decoder_ParseAttribute();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(TYPE *object, const INFO_TYPE& info);
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(TYPE *object, int formattingMode);
 
     // ACCESSORS
@@ -1656,47 +1656,47 @@ class Decoder_ParseObject {
     int executeImp(bsl::vector<char> *object, int formattingMode,
                    bdeat_TypeCategory::Array);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(bsl::vector<TYPE> *object, int formattingMode,
                    bdeat_TypeCategory::Array);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::Array);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::Sequence);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::Choice);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::NullableValue);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::CustomizedType);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, int formattingMode,
                    bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int executeImp(TYPE *object, int formattingMode,
                    ANY_CATEGORY);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeArrayImp(TYPE *object, int formattingMode,
                         CanBeListOrRepetition);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeArrayImp(TYPE *object, int formattingMode,
                         CanBeRepetitionOnly);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeArrayRepetitionImp(TYPE *object, int formattingMode);
 
   public:
@@ -1710,11 +1710,11 @@ class Decoder_ParseObject {
     // ~Decoder_ParseObject();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(TYPE             *object,
                    const INFO_TYPE&  info);
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(TYPE *object, int formattingMode);
 };
 
@@ -1732,10 +1732,10 @@ class Decoder_ParseNillableObject {
 
   public:
     // IMPLEMENTATION MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(TYPE *object, bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int executeImp(TYPE *object, ANY_CATEGORY);
 
   private:
@@ -1754,7 +1754,7 @@ class Decoder_ParseNillableObject {
     // ~Decoder_ParseNillableObject();
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object);
         // Visit the specified 'object'.
 
@@ -1782,7 +1782,7 @@ struct Decoder_decodeImpProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
@@ -1790,7 +1790,7 @@ struct Decoder_decodeImpProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
@@ -1814,7 +1814,7 @@ struct Decoder_ParseAttribute_executeProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(TYPE *object)
     {
@@ -1838,7 +1838,7 @@ struct Decoder_ParseAttribute_executeImpProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
@@ -1846,7 +1846,7 @@ struct Decoder_ParseAttribute_executeImpProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
@@ -1870,7 +1870,7 @@ struct Decoder_ParseObject_executeProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(TYPE *object)
     {
@@ -1894,7 +1894,7 @@ struct Decoder_ParseObject_executeImpProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
@@ -1902,7 +1902,7 @@ struct Decoder_ParseObject_executeImpProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
@@ -1925,7 +1925,7 @@ struct Decoder_ParseNillableObject_executeImpProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(TYPE *, bslmf::Nil)
     {
@@ -1933,7 +1933,7 @@ struct Decoder_ParseNillableObject_executeImpProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(TYPE *object, ANY_CATEGORY category)
     {
@@ -2045,7 +2045,7 @@ int Decoder::open(bsl::istream& stream, const char *uri)
     return open(stream.rdbuf(), uri);
 }
 
-template <typename TYPE>
+template <class TYPE>
 bsl::istream& Decoder::decode(bsl::istream&  stream,
                                      TYPE          *object,
                                      const char    *uri)
@@ -2057,7 +2057,7 @@ bsl::istream& Decoder::decode(bsl::istream&  stream,
                 << "Unable to decode XML object. "
                 << BALXML_DECODER_LOG_END;
 
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (0 != this->decode(stream.rdbuf(), object, uri)) {
@@ -2067,13 +2067,13 @@ bsl::istream& Decoder::decode(bsl::istream&  stream,
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int
 Decoder::decode(bsl::streambuf *buffer, TYPE *object, const char *uri)
 {
     if (this->open(buffer, uri) != 0) {
 
-        return this->errorCount();
+        return this->errorCount();                                    // RETURN
 
     }
 
@@ -2098,7 +2098,7 @@ Decoder::decode(bsl::streambuf *buffer, TYPE *object, const char *uri)
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(const char  *buffer,
                            bsl::size_t  buflen,
                            TYPE        *object,
@@ -2106,7 +2106,7 @@ int Decoder::decode(const char  *buffer,
 {
     if (this->open(buffer, buflen, uri) != 0) {
 
-        return this->errorCount();
+        return this->errorCount();                                    // RETURN
     }
 
     int ret = this->decode(object);
@@ -2114,12 +2114,12 @@ int Decoder::decode(const char  *buffer,
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(const char *filename, TYPE *object)
 {
     if (this->open(filename) != 0) {
 
-        return this->errorCount();
+        return this->errorCount();                                    // RETURN
     }
 
     int ret = this->decode(object);
@@ -2127,7 +2127,7 @@ int Decoder::decode(const char *filename, TYPE *object)
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder::decode(TYPE *object)
 {
@@ -2141,7 +2141,7 @@ int Decoder::decode(TYPE *object)
     return this->errorCount();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder::decodeImp(TYPE *object,
                               bdeat_TypeCategory::DynamicType)
@@ -2150,7 +2150,7 @@ int Decoder::decodeImp(TYPE *object,
     return bdeat_TypeCategoryUtil::manipulateByCategory(object, proxy);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder::decodeImp(TYPE *object, ANY_CATEGORY)
 {
@@ -2166,7 +2166,7 @@ int Decoder::decodeImp(TYPE *object, ANY_CATEGORY)
                    // class Decoder_ChoiceContext<TYPE>
                    // ----------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
 Decoder_ChoiceContext<TYPE>::Decoder_ChoiceContext(
                                                           TYPE *object,
@@ -2183,7 +2183,7 @@ Decoder_ChoiceContext<TYPE>::Decoder_ChoiceContext(
 
 // CALLBACKS
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ChoiceContext<TYPE>::startElement(Decoder *)
 {
     enum { BAEXML_SUCCESS = 0 };
@@ -2193,7 +2193,7 @@ int Decoder_ChoiceContext<TYPE>::startElement(Decoder *)
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ChoiceContext<TYPE>::endElement(Decoder *decoder)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
@@ -2203,13 +2203,13 @@ int Decoder_ChoiceContext<TYPE>::endElement(Decoder *decoder)
                  << "No elements selected in choice."
                  << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;  // will trigger failure in parser
+        return BAEXML_FAILURE;  // will trigger failure in parser     // RETURN
     }
 
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ChoiceContext<TYPE>::addCharacters(const char *chars,
                                                    unsigned int length,
                                                    Decoder *decoder)
@@ -2230,13 +2230,13 @@ int Decoder_ChoiceContext<TYPE>::addCharacters(const char *chars,
                          << "\" when parsing choice."
                          << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;  // will trigger failure in parser
+        return BAEXML_FAILURE;  // will trigger failure in parser     // RETURN
     }
 
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ChoiceContext<TYPE>::parseAttribute(const char     *,
                                                        const char     *,
@@ -2248,7 +2248,7 @@ int Decoder_ChoiceContext<TYPE>::parseAttribute(const char     *,
     return BAEXML_ATTRIBUTE_IGNORED;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ChoiceContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
@@ -2264,7 +2264,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
                             << "Only one selection is permitted inside choice."
                             << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     bool wasSelectionNameKnown = d_isSelectionNameKnown;
@@ -2280,7 +2280,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
         d_selectionName.assign(elementName, lenName);
 
         Decoder_UnknownElementContext unknownElement;
-        return unknownElement.beginParse(decoder);
+        return unknownElement.beginParse(decoder);                    // RETURN
     }
 
     if (!wasSelectionNameKnown) {
@@ -2293,7 +2293,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
                                               << "\"."
                                               << BALXML_DECODER_LOG_END;
 
-            return BAEXML_FAILURE;
+            return BAEXML_FAILURE;                                    // RETURN
         }
 
         d_selectionIsRepeatable = true;  // TBD: check if repeatable
@@ -2309,7 +2309,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
              // ----------------------------------------------------
 
 // CREATORS
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 inline
 Decoder_PushParserContext<TYPE, PARSER>::
                          Decoder_PushParserContext(TYPE *object,
@@ -2321,7 +2321,7 @@ Decoder_PushParserContext<TYPE, PARSER>::
 
 // CALLBACKS
 
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 int Decoder_PushParserContext<TYPE, PARSER>::startElement(
                                           Decoder *decoder)
 {
@@ -2338,7 +2338,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::startElement(
     return result;
 }
 
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 int Decoder_PushParserContext<TYPE, PARSER>::endElement(
                                           Decoder *decoder)
 {
@@ -2354,7 +2354,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::endElement(
     return result;
 }
 
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 int Decoder_PushParserContext<TYPE, PARSER>::addCharacters(
                                                        const char     *chars,
                                                        unsigned int    length,
@@ -2377,7 +2377,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::addCharacters(
     return result;
 }
 
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 inline
 int Decoder_PushParserContext<TYPE, PARSER>::parseAttribute(
                                                       const char     *,
@@ -2390,7 +2390,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseAttribute(
     return BAEXML_ATTRIBUTE_IGNORED;
 }
 
-template <typename TYPE, typename PARSER>
+template <class TYPE, class PARSER>
 int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
@@ -2411,7 +2411,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
                   // ------------------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(
                                                           TYPE *object,
@@ -2425,7 +2425,7 @@ Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(
 
 // CALLBACKS
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SequenceContext<TYPE>::startElement(
                                           Decoder *decoder)
 {
@@ -2447,7 +2447,7 @@ int Decoder_SequenceContext<TYPE>::startElement(
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SequenceContext<TYPE>::endElement(Decoder *)
 {
     enum { BAEXML_SUCCESS = 0 };
@@ -2455,7 +2455,7 @@ int Decoder_SequenceContext<TYPE>::endElement(Decoder *)
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SequenceContext<TYPE>::addCharacters(
                                                        const char     *chars,
                                                        unsigned int    length,
@@ -2479,9 +2479,9 @@ int Decoder_SequenceContext<TYPE>::addCharacters(
                                              << "\"."
                                              << BALXML_DECODER_LOG_END;
 
-            return BAEXML_FAILURE;
+            return BAEXML_FAILURE;                                    // RETURN
         }
-        return BAEXML_SUCCESS;
+        return BAEXML_SUCCESS;                                        // RETURN
     }
 
     Decoder_ParseSequenceSimpleContent parseSimpleContent(decoder,
@@ -2494,7 +2494,7 @@ int Decoder_SequenceContext<TYPE>::addCharacters(
                                             d_simpleContentId.value());
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SequenceContext<TYPE>::parseAttribute(
                                                       const char     *name,
                                                       const char     *value,
@@ -2512,15 +2512,15 @@ int Decoder_SequenceContext<TYPE>::parseAttribute(
                                                           name,
                                                           lenName)) {
         if (visitor.failed()) {
-            return BAEXML_FAILURE;
+            return BAEXML_FAILURE;                                    // RETURN
         }
-        return ATTRIBUTE_IGNORED;
+        return ATTRIBUTE_IGNORED;                                     // RETURN
     }
 
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SequenceContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
@@ -2536,7 +2536,7 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(
         decoder->setNumUnknownElementsSkipped(
                                      decoder->numUnknownElementsSkipped() + 1);
         Decoder_UnknownElementContext unknownElement;
-        return unknownElement.beginParse(decoder);
+        return unknownElement.beginParse(decoder);                    // RETURN
     }
 
     Decoder_ParseSequenceSubElement visitor(decoder,
@@ -2554,7 +2554,7 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(
                    // ----------------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 Decoder_SimpleContext<TYPE>::Decoder_SimpleContext(
                                                           TYPE *object,
@@ -2566,7 +2566,7 @@ Decoder_SimpleContext<TYPE>::Decoder_SimpleContext(
 
 // CALLBACKS
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SimpleContext<TYPE>::startElement(Decoder *)
 {
     enum { BAEXML_SUCCESS = 0 };
@@ -2576,7 +2576,7 @@ int Decoder_SimpleContext<TYPE>::startElement(Decoder *)
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SimpleContext<TYPE>::endElement(Decoder *)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
@@ -2584,7 +2584,7 @@ int Decoder_SimpleContext<TYPE>::endElement(Decoder *)
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
                                                       unsigned int    length,
                                                       Decoder *decoder)
@@ -2607,13 +2607,13 @@ int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
                     << "\".\n"
                     << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_SimpleContext<TYPE>::parseAttribute(
                                                       const char     *,
@@ -2626,7 +2626,7 @@ int Decoder_SimpleContext<TYPE>::parseAttribute(
     return ATTRIBUTE_IGNORED;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_SimpleContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
@@ -2648,7 +2648,7 @@ int Decoder_SimpleContext<TYPE>::parseSubElement(
                    // --------------------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 Decoder_CustomizedContext<TYPE>::Decoder_CustomizedContext(
                                                           TYPE *object,
@@ -2661,14 +2661,14 @@ Decoder_CustomizedContext<TYPE>::Decoder_CustomizedContext(
 
 // CALLBACKS
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_CustomizedContext<TYPE>::startElement(
                                                        Decoder *decoder)
 {
     return d_baseContext.startElement (decoder);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_CustomizedContext<TYPE>::endElement(
                                           Decoder *decoder)
 {
@@ -2677,13 +2677,13 @@ int Decoder_CustomizedContext<TYPE>::endElement(
     if (rc == BAEXML_SUCCESS
      &&  0 == bdeat_CustomizedTypeFunctions::convertFromBaseType(d_object,
                                                                  d_baseObj)) {
-        return BAEXML_SUCCESS;
+        return BAEXML_SUCCESS;                                        // RETURN
     }
 
     return BAEXML_FAILURE;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_CustomizedContext<TYPE>::addCharacters(const char *chars,
                                           unsigned int length,
                                           Decoder *decoder)
@@ -2691,7 +2691,7 @@ int Decoder_CustomizedContext<TYPE>::addCharacters(const char *chars,
     return d_baseContext.addCharacters(chars, length, decoder);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_CustomizedContext<TYPE>::parseAttribute(
                                                       const char     *name,
                                                       const char     *value,
@@ -2701,7 +2701,7 @@ int Decoder_CustomizedContext<TYPE>::parseAttribute(
     return d_baseContext.parseAttribute(name, value, lenValue, decoder);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_CustomizedContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
@@ -2714,7 +2714,7 @@ int Decoder_CustomizedContext<TYPE>::parseSubElement(
                        // --------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 Decoder_UTF8Context<TYPE>::Decoder_UTF8Context(TYPE *object,
                                                              int   )
@@ -2724,7 +2724,7 @@ Decoder_UTF8Context<TYPE>::Decoder_UTF8Context(TYPE *object,
 
 // CALLBACKS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::startElement(Decoder *)
 {
@@ -2735,7 +2735,7 @@ int Decoder_UTF8Context<TYPE>::startElement(Decoder *)
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::endElement(Decoder *)
 {
@@ -2744,7 +2744,7 @@ int Decoder_UTF8Context<TYPE>::endElement(Decoder *)
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::addCharacters(const char *chars,
                                           unsigned int length,
@@ -2757,7 +2757,7 @@ int Decoder_UTF8Context<TYPE>::addCharacters(const char *chars,
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::parseAttribute(const char     *,
                                                      const char     *,
@@ -2769,7 +2769,7 @@ int Decoder_UTF8Context<TYPE>::parseAttribute(const char     *,
     return BAEXML_ATTRIBUTE_IGNORED;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_UTF8Context<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
@@ -2798,7 +2798,7 @@ Decoder_PrepareSequenceContext::Decoder_PrepareSequenceContext(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 int Decoder_PrepareSequenceContext::operator()(const TYPE&,
                                                       const INFO_TYPE& info)
 {
@@ -2831,7 +2831,7 @@ Decoder_ParseSequenceSimpleContent::
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 int Decoder_ParseSequenceSimpleContent::operator()(
                                                       TYPE             *object,
                                                       const INFO_TYPE&  info)
@@ -2858,13 +2858,13 @@ int Decoder_ParseSequenceSimpleContent::operator()(
                << "\"."
                << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return BAEXML_SUCCESS;
 }
 
-template <typename INFO_TYPE>
+template <class INFO_TYPE>
 inline
 int Decoder_ParseSequenceSimpleContent::operator()(
                                                       bsl::string      *object,
@@ -2899,7 +2899,7 @@ Decoder_ParseSequenceSubElement::Decoder_ParseSequenceSubElement(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 inline
 int Decoder_ParseSequenceSubElement::operator()(
                                                       TYPE             *object,
@@ -2908,7 +2908,7 @@ int Decoder_ParseSequenceSubElement::operator()(
     return execute(object, info.id(), info.formattingMode());
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseSequenceSubElement::execute(TYPE *object,
                                                     int   ,
                                                     int   formattingMode)
@@ -2926,7 +2926,7 @@ int Decoder_ParseSequenceSubElement::execute(TYPE *object,
                       // -----------------------------------
 
 // PRIVATE MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
                                            bdeat_TypeCategory::NullableValue)
 {
@@ -2941,7 +2941,7 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
     return bdeat_NullableValueFunctions::manipulateValue(object, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
                                            bdeat_TypeCategory::DynamicType)
@@ -2951,7 +2951,7 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
     return bdeat_TypeCategoryUtil::manipulateByCategory(object, proxy);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
                                            ANY_CATEGORY)
 {
@@ -2983,7 +2983,7 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
 
         d_failed = true;
 
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return BAEXML_SUCCESS;
@@ -3008,7 +3008,7 @@ Decoder_ParseAttribute::Decoder_ParseAttribute(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 inline
 int Decoder_ParseAttribute::operator()(TYPE             *object,
                                               const INFO_TYPE&  info)
@@ -3016,7 +3016,7 @@ int Decoder_ParseAttribute::operator()(TYPE             *object,
     return execute(object, info.formattingMode());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseAttribute::execute(TYPE *object, int formattingMode)
 {
@@ -3038,7 +3038,7 @@ bool Decoder_ParseAttribute::failed() const
                        // --------------------------------
 
 // PRIVATE MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseObject::executeImp(
                                  bsl::vector<TYPE> *object, int formattingMode,
@@ -3061,7 +3061,7 @@ int Decoder_ParseObject::executeImp(
     return executeArrayImp(object, formattingMode, Toggle());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdeat_TypeCategory::Array)
@@ -3069,7 +3069,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     return executeArrayImp(object, formattingMode, CanBeListOrRepetition());
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                            bdeat_TypeCategory::Sequence)
 {
@@ -3084,7 +3084,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
             d_decoder->setNumUnknownElementsSkipped(
                                    d_decoder->numUnknownElementsSkipped() + 1);
             Decoder_UnknownElementContext unknownElement;
-            return unknownElement.beginParse(d_decoder);
+            return unknownElement.beginParse(d_decoder);              // RETURN
         }
 
         return bdeat_SequenceFunctions::manipulateAttribute(
@@ -3092,6 +3092,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                                   *this,
                                                   d_elementName_p,
                                                   static_cast<int>(d_lenName));
+                                                                      // RETURN
     }
 
     typedef typename
@@ -3103,7 +3104,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     return context.beginParse(d_decoder);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdeat_TypeCategory::Choice)
 {
@@ -3120,7 +3121,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
             d_decoder->setNumUnknownElementsSkipped(
                                    d_decoder->numUnknownElementsSkipped() + 1);
             Decoder_UnknownElementContext unknownElement;
-            return unknownElement.beginParse(d_decoder);
+            return unknownElement.beginParse(d_decoder);              // RETURN
         }
 
         if (0 != bdeat_ChoiceFunctions::makeSelection(
@@ -3133,10 +3134,11 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                               << "\"."
                                               << BALXML_DECODER_LOG_END;
 
-            return BAEXML_FAILURE;
+            return BAEXML_FAILURE;                                    // RETURN
         }
 
         return bdeat_ChoiceFunctions::manipulateSelection(object, *this);
+                                                                      // RETURN
     }
 
     typedef typename
@@ -3148,7 +3150,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     return context.beginParse(d_decoder);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdeat_TypeCategory::NullableValue)
 {
@@ -3167,7 +3169,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
         if (0 != bdeat_NullableValueFunctions::manipulateValue(
                                                             object,
                                                             parseAsNillable)) {
-            return BAEXML_FAILURE;
+            return BAEXML_FAILURE;                                    // RETURN
         }
 
         if (parseAsNillable.isNil()) {
@@ -3175,7 +3177,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
             bdeat_ValueTypeFunctions::reset(object);
         }
 
-        return BAEXML_SUCCESS;
+        return BAEXML_SUCCESS;                                        // RETURN
     }
 
     Decoder_ParseObject_executeProxy proxy = { this, formattingMode };
@@ -3183,7 +3185,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     return bdeat_NullableValueFunctions::manipulateValue(object, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdeat_TypeCategory::CustomizedType)
 {
@@ -3197,7 +3199,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     return context.beginParse(d_decoder);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                            bdeat_TypeCategory::DynamicType)
@@ -3209,7 +3211,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     return bdeat_TypeCategoryUtil::manipulateByCategory(object, proxy);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                            ANY_CATEGORY)
@@ -3222,7 +3224,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
     return context.beginParse(d_decoder);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseObject::executeArrayImp(TYPE *object,
                                                 int   formattingMode,
                                                 CanBeListOrRepetition)
@@ -3234,13 +3236,13 @@ int Decoder_ParseObject::executeArrayImp(TYPE *object,
 
         ListContext listContext(object, formattingMode);
 
-        return listContext.beginParse(d_decoder);
+        return listContext.beginParse(d_decoder);                     // RETURN
     } else {
-        return executeArrayRepetitionImp(object, formattingMode);
+        return executeArrayRepetitionImp(object, formattingMode);     // RETURN
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseObject::executeArrayImp(TYPE *object,
                                                 int   formattingMode,
@@ -3249,7 +3251,7 @@ int Decoder_ParseObject::executeArrayImp(TYPE *object,
     return executeArrayRepetitionImp(object, formattingMode);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder_ParseObject::executeArrayRepetitionImp(TYPE *object,
                                                           int   formattingMode)
 {
@@ -3280,7 +3282,7 @@ Decoder_ParseObject::Decoder_ParseObject(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 inline
 int Decoder_ParseObject::operator()(TYPE             *object,
                                            const INFO_TYPE&  info)
@@ -3288,7 +3290,7 @@ int Decoder_ParseObject::operator()(TYPE             *object,
     return execute(object, info.formattingMode());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseObject::execute(TYPE *object, int formattingMode)
 {
@@ -3303,7 +3305,7 @@ int Decoder_ParseObject::execute(TYPE *object, int formattingMode)
                    // ----------------------------------------
 
 // IMPLEMENTATION MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseNillableObject::executeImp(
                                                TYPE *object,
@@ -3314,7 +3316,7 @@ int Decoder_ParseNillableObject::executeImp(
     return bdeat_TypeCategoryUtil::manipulateByCategory(object, proxy);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder_ParseNillableObject::executeImp(TYPE *object, ANY_CATEGORY)
 {
@@ -3339,7 +3341,7 @@ Decoder_ParseNillableObject::Decoder_ParseNillableObject(
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ParseNillableObject::operator()(TYPE *object)
 {
@@ -3357,15 +3359,22 @@ bool Decoder_ParseNillableObject::isNil() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

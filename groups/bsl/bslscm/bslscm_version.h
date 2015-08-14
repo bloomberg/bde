@@ -119,9 +119,9 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           bslscm::Version::BSLSCM_S_VERSION);
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslscm::Version bslscm_Version;
     // This alias is defined for backward compatibility.

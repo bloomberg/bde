@@ -1,4 +1,4 @@
-// bdlcxxx_bitarray.h                                                    -*-C++-*-
+// bdlcxxx_bitarray.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLCXXX_BITARRAY
 #define INCLUDED_BDLCXXX_BITARRAY
 
@@ -1331,9 +1331,9 @@ namespace bdlcxxx {    // Swap the values of the specified 'a' and 'b' objects. 
     // provides the no-throw guarantee.  The behavior is undefined if the two
     // objects being swapped have non-equal allocators.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------
                         // class BitArray
@@ -1799,15 +1799,15 @@ void swap(bdlcxxx::BitArray& a, bdlcxxx::BitArray& b)
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

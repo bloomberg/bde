@@ -1,4 +1,4 @@
-// ball_categorymanager.cpp               -*-C++-*-
+// ball_categorymanager.cpp                                           -*-C++-*-
 #include <ball_categorymanager.h>
 
 #include <bsls_ident.h>
@@ -319,7 +319,7 @@ Category *CategoryManager::addCategory(
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
 
     if (iter != d_registry.end()) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     else {
         Category *category = addNewCategory(categoryName,
@@ -356,7 +356,7 @@ Category *CategoryManager::addCategory(
                                                   category->d_ruleThreshold));
         }
 
-        return category;
+        return category;                                              // RETURN
     }
 }
 
@@ -425,7 +425,7 @@ Category *CategoryManager::setThresholdLevels(
                             triggerLevel,
                             triggerAllLevel);
 
-        return category;
+        return category;                                              // RETURN
     }
     else {
         d_registryLock.upgradeToWriteLock();
@@ -457,7 +457,7 @@ Category *CategoryManager::setThresholdLevels(
         // No need to update holders since the category was just newly created
         // and thus does not have any linked holders.
 
-        return category;
+        return category;                                              // RETURN
     }
 }
 
@@ -586,13 +586,20 @@ const Category *CategoryManager::lookupCategory(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

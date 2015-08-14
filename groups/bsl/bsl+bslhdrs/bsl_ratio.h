@@ -59,7 +59,7 @@ namespace bsl {
     using native_std::yotta;
 #endif
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

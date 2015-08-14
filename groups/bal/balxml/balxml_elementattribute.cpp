@@ -1,4 +1,4 @@
-// balxml_elementattribute.cpp                  -*-C++-*-
+// balxml_elementattribute.cpp                                        -*-C++-*-
 #include <balxml_elementattribute.h>
 
 #include <bsls_ident.h>
@@ -81,16 +81,16 @@ const char *ElementAttribute::prefix() const
 {
     if (d_prefix || ! d_qualifiedName) {
         // Prefix is set or there is no qualified name.
-        return d_prefix;
+        return d_prefix;                                              // RETURN
     }
 
     if (! d_prefixStack) {
-        return d_prefix = "";
+        return d_prefix = "";                                         // RETURN
     }
 
     const char* colon = bsl::strchr(d_qualifiedName, ':');
     if (! colon) {
-        return d_prefix = "";
+        return d_prefix = "";                                         // RETURN
     }
 
     bslstl::StringRef prefix(d_qualifiedName, colon);
@@ -103,7 +103,7 @@ const char *ElementAttribute::localName() const
 {
     if (d_localName || ! d_qualifiedName) {
         // Local name is set or there is no qualified name.
-        return d_localName;
+        return d_localName;                                           // RETURN
     }
 
     const char* colon = bsl::strchr(d_qualifiedName, ':');
@@ -123,7 +123,7 @@ int ElementAttribute::namespaceId() const
 {
     if (INT_MIN != d_namespaceId || ! d_qualifiedName) {
         // namespace id is already set or there is no qualified name
-        return d_namespaceId;
+        return d_namespaceId;                                         // RETURN
     }
 
     const char* nsPrefix = prefix();
@@ -143,7 +143,7 @@ const char *ElementAttribute::namespaceUri() const
 {
     if (d_namespaceUri || ! d_qualifiedName) {
         // Namespace URI is already set or qualified name is null.
-        return d_namespaceUri;
+        return d_namespaceUri;                                        // RETURN
     }
 
     if (d_prefixStack) {
@@ -167,13 +167,20 @@ ElementAttribute::print(bsl::ostream& os,
 }
 }  // close package namespace
 
-} // Close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

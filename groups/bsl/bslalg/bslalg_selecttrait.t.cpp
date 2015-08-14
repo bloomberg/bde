@@ -109,7 +109,7 @@ const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
 const unsigned TRAIT_EQPOD = (TRAIT_POD |
                               TRAIT_BITWISEEQUALITYCOMPARABLE);
 
-template <typename TYPE>
+template <class TYPE>
 unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
@@ -144,7 +144,7 @@ unsigned traitBits()
     return result;
 }
 
-template <typename TYPE>
+template <class TYPE>
 struct Identity
 {
     // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')

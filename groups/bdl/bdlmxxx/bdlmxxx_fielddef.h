@@ -1,4 +1,4 @@
-// bdlmxxx_fielddef.h                                                    -*-C++-*-
+// bdlmxxx_fielddef.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_FIELDDEF
 #define INCLUDED_BDLMXXX_FIELDDEF
 
@@ -463,15 +463,15 @@ bool FieldDef::hasDefaultValue() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

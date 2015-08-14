@@ -900,7 +900,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<bslx::TestOutStream> : bsl::true_type {};
 
-}  // close 'bslma' namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

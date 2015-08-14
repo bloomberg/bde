@@ -22,9 +22,9 @@ BSLS_IDENT_RCSID(balxml_encoderoptions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                      // -------------------------------                       
-                      // class balxml::EncoderOptions                       
-                      // -------------------------------                       
+                      // -------------------------------
+                      // class balxml::EncoderOptions
+                      // -------------------------------
 
 // CONSTANTS
 
@@ -160,7 +160,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[1]=='a'
              && name[2]=='g')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG];    // RETURN
             }
         } break;
         case 10: {
@@ -176,6 +176,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[9]=='n')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN];
+                                                                      // RETURN
             }
         } break;
         case 13: {
@@ -194,6 +195,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[12]=='e')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE];
+                                                                      // RETURN
             }
         } break;
         case 14: {
@@ -214,6 +216,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                      && name[13]=='e')
                     {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE];
+                                                                      // RETURN
                     }
                 } break;
                 case 'O': {
@@ -232,6 +235,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                      && name[13]=='s')
                     {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS];
+                                                                      // RETURN
                     }
                 } break;
                 case 'S': {
@@ -251,6 +255,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                              && name[13]=='n')
                             {
                                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION];
+                                                                      // RETURN
                             }
                         } break;
                         case 'p': {
@@ -268,6 +273,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                              && name[13]=='l')
                             {
                                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL];
+                                                                      // RETURN
                             }
                         } break;
                     }
@@ -294,6 +300,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                          && name[14]=='e')
                         {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE];
+                                                                      // RETURN
                         }
                     } break;
                     case 'u': {
@@ -312,6 +319,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                          && name[14]=='r')
                         {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER];
+                                                                      // RETURN
                         }
                     } break;
                 }
@@ -338,6 +346,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[17]=='l')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL];
+                                                                      // RETURN
             }
         } break;
         case 21: {
@@ -364,6 +373,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[20]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS];
+                                                                      // RETURN
             }
         } break;
         case 22: {
@@ -391,6 +401,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[21]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS];
+                                                                      // RETURN
             }
         } break;
         case 23: {
@@ -419,6 +430,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[22]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS];
+                                                                      // RETURN
             }
         } break;
         case 24: {
@@ -448,6 +460,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[23]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS];
+                                                                      // RETURN
             }
         } break;
     }
@@ -753,14 +766,20 @@ bsl::ostream& EncoderOptions::print(
 }  // close package namespace
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.9 Fri Jan 20 14:14:54 2012
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

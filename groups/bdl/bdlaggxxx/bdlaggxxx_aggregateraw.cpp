@@ -1,4 +1,4 @@
-// bdlaggxxx_aggregateraw.cpp                                              -*-C++-*-
+// bdlaggxxx_aggregateraw.cpp                                         -*-C++-*-
 #include <bdlaggxxx_aggregateraw.h>
 
 #include <bsls_ident.h>
@@ -49,7 +49,7 @@ class ArrayCapacitor {
     }
 
     // MANIPULATORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array)
     {
         *d_capacity_p = array->capacity();
@@ -89,7 +89,7 @@ class ArrayInserter {
                                            // null
 
     // PRIVATE TYPES
-    template <typename TYPE>
+    template <class TYPE>
     struct SignChecker {
         // TBD REMOVE
 
@@ -116,7 +116,7 @@ class ArrayInserter {
         // 'index < 0', elements are appended to the end of the array.
 
     // MANIPULATORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array);
         // Insert elements into the specified 'array' of parameterized
         // 'ARRAYTYPE' as indicated by the arguments supplied at construction.
@@ -165,7 +165,7 @@ class ArrayItemEraser {
     }
 
     // MANIPULATORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array)
     {
         if (d_pos + d_numItems > (int)array->size()) {
@@ -206,7 +206,7 @@ class ArrayReserver {
     }
 
     // ACCESSORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array) const
     {
         array->reserve(d_numItems);
@@ -322,7 +322,7 @@ ArrayInserter::ArrayInserter(int                  index,
 }
 
 // MANIPULATORS
-template <typename ARRAYTYPE>
+template <class ARRAYTYPE>
 int ArrayInserter::operator()(ARRAYTYPE *array)
 {
     BSLS_ASSERT_SAFE(array);
@@ -377,7 +377,7 @@ int ArrayInserter::length() const
     return d_length;
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 namespace bdlaggxxx {
                         // -----------------------
@@ -835,7 +835,7 @@ int AggregateRaw::makeSelectionByIndexRaw(
         description += bdlmxxx::ElemType::toAscii(d_dataType);
         errorDescription->setDescription(description);
         errorDescription->setCode(ErrorCode::BCEM_NOT_A_CHOICE);
-        return -1;                                                  // RETURN
+        return -1;                                                    // RETURN
       }
     }
 
@@ -1269,7 +1269,8 @@ const bdlmxxx::ElemRef AggregateRaw::asElemRef() const
                           ? &s_voidNullnessWord
                           : d_isTopLevelAggregateNull_p;
 
-        return bdlmxxx::ElemRef(d_value_p, descriptor, nullnessWord, 0);  // RETURN
+        return bdlmxxx::ElemRef(d_value_p, descriptor, nullnessWord, 0);
+                                                                      // RETURN
     }
 
     void *valuePtr = d_parentData_p;
@@ -1308,7 +1309,7 @@ const bdlmxxx::ElemRef AggregateRaw::asElemRef() const
 
         const bdlmxxx::Descriptor *descriptor =
                                 bdlmxxx::ElemAttrLookup::lookupTable()[d_dataType];
-        return bdlmxxx::ElemRef(d_value_p, descriptor);                   // RETURN
+        return bdlmxxx::ElemRef(d_value_p, descriptor);               // RETURN
       }
     }
 }
@@ -1362,7 +1363,7 @@ bsl::string AggregateRaw::convertScalar<bsl::string>() const
 
     if (0 != status) {
         // Conversion failed.
-        return "";
+        return "";                                                    // RETURN
     }
 
     return result;
@@ -1732,7 +1733,7 @@ int AggregateRaw::selectorId() const
     AggregateRaw    choiceObj;
     ErrorAttributes dummy;
     if (0 != findUnambiguousChoice(&choiceObj, &dummy, "selectorId")) {
-        return bdlmxxx::RecordDef::BDEM_NULL_FIELD_ID;                    // RETURN
+        return bdlmxxx::RecordDef::BDEM_NULL_FIELD_ID;                // RETURN
     }
 
     int index = choiceObj.selectorIndex();
@@ -2546,12 +2547,12 @@ bool AggregateRaw_Util::isConformant(const bdlmxxx::ConstElemRef *object,
         bdlmxxx::ElemType::Type type = object->type();
 
         if (bdlmxxx::RecordDef::BDEM_CHOICE_RECORD == recordDef->recordType()) {
-            return bdlmxxx::ElemType::isChoiceType(type);                 // RETURN
+            return bdlmxxx::ElemType::isChoiceType(type);             // RETURN
         }
 
         return bdlmxxx::ElemType::BDEM_ROW   == type
             || bdlmxxx::ElemType::BDEM_LIST  == type
-            || bdlmxxx::ElemType::BDEM_TABLE == type;                     // RETURN
+            || bdlmxxx::ElemType::BDEM_TABLE == type;                 // RETURN
     }
 
     return result;
@@ -2857,13 +2858,13 @@ bdeat_typeCategorySelect(const AggregateRaw& object)
 }
 }  // close package namespace
 
-} // namespace BloombegLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

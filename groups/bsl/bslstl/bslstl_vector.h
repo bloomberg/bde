@@ -4270,7 +4270,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslmf {
 
@@ -4279,7 +4279,7 @@ struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
 
-}  // close package namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -4288,7 +4288,7 @@ struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
     : bsl::is_convertible<Allocator*, ALLOCATOR>::type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

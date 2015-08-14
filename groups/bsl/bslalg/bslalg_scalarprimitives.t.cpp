@@ -204,7 +204,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<my_Class2> : bsl::true_type { };
 
-}  // close namesace bslma
+}  // close namespace bslma
 }  // close enterprise namespace
 
                              // ===================
@@ -290,7 +290,7 @@ struct is_trivially_copyable<my_ClassFussy> : true_type {};
 template <>
 struct is_trivially_default_constructible<my_ClassFussy> : true_type {};
 
-}
+}  // close namespace bsl
 
                                  // =========
                                  // my_Class4
@@ -381,18 +381,18 @@ namespace BloombergLP {
 
 namespace bslma {
 template <> struct UsesBslmaAllocator<my_Class5> : bsl::true_type { };
-}  // close namesace bslma
+}  // close namespace bslma
 
 namespace bslmf {
 template <> struct IsBitwiseMoveable<my_Class5> : bsl::true_type { };
-}  // close namesace bslmf
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 
                              // =============
                              // class my_Pair
                              // =============
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_Pair {
     // Test pair type without allocators.
 
@@ -411,7 +411,7 @@ struct my_Pair {
 
     my_Pair(const my_Pair& other) : first(other.first), second(other.second) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_Pair(const my_Pair<U1, U2>& other)
         : first(other.first), second(other.second) { }
 };
@@ -420,7 +420,7 @@ struct my_Pair {
                                // class my_PairA
                                // ==============
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_PairA {
     // Test pair type with mixed allocator and non-allocator.
     // Only T2 must use allocators.  We assume that the treatment of T1 and T2
@@ -445,7 +445,7 @@ struct my_PairA {
     my_PairA(const my_PairA& other, bslma::Allocator *a = 0)
         : first(other.first), second(other.second, a) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_PairA(const my_PairA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first), second(other.second, a) {}
 };
@@ -453,7 +453,7 @@ struct my_PairA {
 namespace BloombergLP {
 namespace bslma {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
 
 }  // close namespace bslma
@@ -463,7 +463,7 @@ struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
                               // class my_PairAA
                               // ===============
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_PairAA {
     // Test pair type with allocators.
     // Both T1 and T2 must use allocators.
@@ -486,7 +486,7 @@ struct my_PairAA {
     my_PairAA(const my_PairAA& other, bslma::Allocator *a = 0)
         : first(other.first, a), second(other.second, a) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_PairAA(const my_PairAA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first, a), second(other.second, a) {}
 };
@@ -494,7 +494,7 @@ struct my_PairAA {
 namespace BloombergLP {
 namespace bslma {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type  { };
 
 }  // close namespace bslma
@@ -504,7 +504,7 @@ struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type  { };
                               // class my_PairBB
                               // ===============
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_PairBB {
     // Test pair type without the allocator trait.  Note that although this
     // pair type will not allow to construct its two members with an allocator,
@@ -528,7 +528,7 @@ struct my_PairBB {
     my_PairBB(const my_PairBB& other)
         : first(other.first), second(other.second) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_PairBB(const my_PairBB<U1, U2>& other)
         : first(other.first), second(other.second) {}
 };
@@ -536,10 +536,10 @@ struct my_PairBB {
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
 
-}  // close namespace bslalg
+}  // close namespace bslmf
 }  // close enterprise namespace
 
                               // ===============

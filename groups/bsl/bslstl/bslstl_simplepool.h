@@ -563,7 +563,7 @@ void SimplePool<VALUE, ALLOCATOR>::release()
     d_freeList_p = 0;
 }
 
-}  // close namespace bslstl
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

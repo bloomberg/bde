@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: 'Temperature Map'
-/// - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - -
 // There exist many applications in which the range of 'int' data that a
 // container will hold is not known at design time.  This means in order to
 // build a robust component one must default to 'bsl::vector<int>', which for

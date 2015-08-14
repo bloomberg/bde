@@ -32,7 +32,7 @@ namespace bsl {
     using native_std::notify_all_at_thread_exit;
 #endif
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

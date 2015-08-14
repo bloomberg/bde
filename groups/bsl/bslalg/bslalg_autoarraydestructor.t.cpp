@@ -216,7 +216,7 @@ namespace BloombergLP {
 namespace bslma {
 template <>
 struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}  // close package namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
@@ -289,7 +289,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
 
-}  // close package namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 //=============================================================================

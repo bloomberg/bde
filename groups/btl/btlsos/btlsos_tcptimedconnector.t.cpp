@@ -117,7 +117,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -241,7 +241,7 @@ void* threadAsServer(void *arg)
         if (verbose) {
             QT("thread exited. ");
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
     ASSERT(0 == info.d_serverSocket_p->listen(info.d_equeueSize));
 
@@ -503,7 +503,7 @@ int processTest(
 //..
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -599,7 +599,7 @@ int main(int argc, char *argv[]) {
         }
         // In any case, invalidate the allocator, and exit.
         connector.invalidate();
-        return -1;
+        return -1;                                                    // RETURN
     }
 //..
 // Send 'k_NUM_PACKETS' packets to the server, wait for the response for each,

@@ -1,4 +1,4 @@
-// bdlaggxxx_aggregateutil.t.cpp   -*-C++-*-
+// bdlaggxxx_aggregateutil.t.cpp                                      -*-C++-*-
 #include <bdlaggxxx_aggregateutil.h>
 
 #include <bdlaggxxx_aggregate.h>
@@ -267,7 +267,7 @@ static const bsls::Types::Uint64 NLUI64_MIN =
 static const bsls::Types::Uint64 NLUI64_MAX =
     bsl::numeric_limits<bsls::Types::Uint64>::max();
 
-template <typename TYPE>
+template <class TYPE>
 struct NullTraits {
     static TYPE notUnsetValue() { return 1 + bdltuxxx::Unset<TYPE>::unsetValue(); }
 };
@@ -1364,24 +1364,24 @@ int Person::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_lastName,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_LAST_NAME]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_firstName,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FIRST_NAME]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_birthDate,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BIRTH_DATE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1396,20 +1396,24 @@ int Person::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_LAST_NAME: {
         return manipulator(&d_lastName,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_LAST_NAME]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_FIRST_NAME: {
         return manipulator(&d_firstName,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FIRST_NAME]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_AGE: {
         return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_BIRTH_DATE: {
         return manipulator(&d_birthDate,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BIRTH_DATE]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1424,7 +1428,7 @@ int Person::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1477,24 +1481,24 @@ int Person::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_lastName,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_LAST_NAME]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_firstName,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FIRST_NAME]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_birthDate,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BIRTH_DATE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1509,20 +1513,24 @@ int Person::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_LAST_NAME: {
         return accessor(d_lastName,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_LAST_NAME]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_FIRST_NAME: {
         return accessor(d_firstName,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FIRST_NAME]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_AGE: {
         return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_BIRTH_DATE: {
         return accessor(d_birthDate,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BIRTH_DATE]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1537,7 +1545,7 @@ int Person::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -1603,13 +1611,13 @@ int Company::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_accountNum,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ACCOUNT_NUM]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1624,13 +1632,15 @@ int Company::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_NAME: {
         return manipulator(&d_name,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ACCOUNT_NUM: {
         return manipulator(&d_accountNum,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ACCOUNT_NUM]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1645,7 +1655,7 @@ int Company::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1683,13 +1693,13 @@ int Company::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_accountNum,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ACCOUNT_NUM]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1703,13 +1713,15 @@ int Company::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_NAME: {
         return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ACCOUNT_NUM: {
         return accessor(d_accountNum,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ACCOUNT_NUM]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1724,7 +1736,7 @@ int Company::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -1777,7 +1789,7 @@ STREAM& Entity::bdexStreamIn(STREAM& stream, int version)
             short selectionId;
             stream.getInt16(selectionId);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             switch (selectionId) {
               case SELECTION_ID_CORP: {
@@ -1820,7 +1832,7 @@ int Entity::manipulateSelection(MANIPULATOR& manipulator)
       default:
         BSLS_ASSERT_SAFE(Entity::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -1882,7 +1894,7 @@ int Entity::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_HUMAN]);
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -2022,7 +2034,7 @@ STREAM& CustomizedType::bdexStreamIn(STREAM& stream, int version)
     bdex_InStreamFunctions::streamIn(stream, temp, version);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (fromInt(temp)!=0) {
@@ -2165,11 +2177,11 @@ bool test::operator==(
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -2189,7 +2201,7 @@ bsl::ostream& test::operator<<(
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 #endif
 
 // GENERATED BY BLP_BAS_CODEGEN_3.0.9 Tue Jun 24 15:47:19 2008
@@ -2270,7 +2282,7 @@ const bdeat_AttributeInfo *Person::lookupAttributeInfo(
              && (name[1]|0x20)=='g'
              && (name[2]|0x20)=='e')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
             }
         } break;
         case 8: {
@@ -2284,6 +2296,7 @@ const bdeat_AttributeInfo *Person::lookupAttributeInfo(
              && (name[7]|0x20)=='e')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_LAST_NAME];
+                                                                      // RETURN
             }
         } break;
         case 9: {
@@ -2300,6 +2313,7 @@ const bdeat_AttributeInfo *Person::lookupAttributeInfo(
                     {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BIRTH_DATE];
+                                                                      // RETURN
                     }
                 } break;
                 case 'F': {
@@ -2314,6 +2328,7 @@ const bdeat_AttributeInfo *Person::lookupAttributeInfo(
                     {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FIRST_NAME];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -2397,7 +2412,7 @@ int Person::fromAggregate(const bdlaggxxx::Aggregate& aggregate)
                        aggregate,
                        ATTRIBUTE_ID_BIRTH_DATE)))
     {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     return 0;
@@ -2507,7 +2522,7 @@ int Person::toAggregate(bdlaggxxx::Aggregate *result) const
                        ATTRIBUTE_ID_BIRTH_DATE,
                        d_birthDate)))
     {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     return 0;
@@ -2552,7 +2567,7 @@ const bdeat_AttributeInfo *Company::lookupAttributeInfo(
              && (name[2]|0x20)=='m'
              && (name[3]|0x20)=='e')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
             }
         } break;
         case 10: {
@@ -2568,6 +2583,7 @@ const bdeat_AttributeInfo *Company::lookupAttributeInfo(
              && (name[9]|0x20)=='m')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ACCOUNT_NUM];
+                                                                      // RETURN
             }
         } break;
     }
@@ -2631,7 +2647,7 @@ int Company::fromAggregate(const bdlaggxxx::Aggregate& aggregate)
                        aggregate,
                        ATTRIBUTE_ID_ACCOUNT_NUM)))
     {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     return 0;
@@ -2711,7 +2727,7 @@ int Company::toAggregate(bdlaggxxx::Aggregate *result) const
                        ATTRIBUTE_ID_ACCOUNT_NUM,
                        d_accountNum)))
     {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     return 0;
@@ -2756,7 +2772,7 @@ const bdeat_SelectionInfo *Entity::lookupSelectionInfo(
              && (name[2]|0x20)=='r'
              && (name[3]|0x20)=='p')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_CORP];
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_CORP];   // RETURN
             }
         } break;
         case 5: {
@@ -2766,7 +2782,7 @@ const bdeat_SelectionInfo *Entity::lookupSelectionInfo(
              && (name[3]|0x20)=='a'
              && (name[4]|0x20)=='n')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_HUMAN];
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_HUMAN];  // RETURN
             }
         } break;
     }
@@ -2886,7 +2902,7 @@ int Entity::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
     return SUCCESS;
 }
@@ -2898,7 +2914,7 @@ int Entity::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -3035,7 +3051,7 @@ int Entity::toAggregate(bdlaggxxx::Aggregate *result) const
 {
     bdlaggxxx::Aggregate selection = result->makeSelectionById(d_selectionId);
     if (selection.isError()) {
-        return selection.errorCode();
+        return selection.errorCode();                                 // RETURN
     }
 
     int rc = 0;
@@ -3113,9 +3129,9 @@ int Enumerated::fromInt(Enumerated::Value *result, int number)
       case Enumerated::VALUE_2:
       case Enumerated::VALUE_3:
         *result = (Enumerated::Value)number;
-        return 0;
+        return 0;                                                     // RETURN
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -3129,15 +3145,15 @@ int Enumerated::fromString(Enumerated::Value *result,
             switch(string[0]) {
                 case '1': {
                     *result = Enumerated::VALUE_1;
-                    return 0;
+                    return 0;                                         // RETURN
                 } break;
                 case '2': {
                     *result = Enumerated::VALUE_2;
-                    return 0;
+                    return 0;                                         // RETURN
                 } break;
                 case '3': {
                     *result = Enumerated::VALUE_3;
-                    return 0;
+                    return 0;                                         // RETURN
                 } break;
             }
         } break;
@@ -3146,7 +3162,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[1]=='A')
             {
                 *result = Enumerated::NA;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
         case 7: {
@@ -3159,7 +3175,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[6]=='N')
             {
                 *result = Enumerated::UNKNOWN;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
     }
@@ -3171,19 +3187,19 @@ const char *Enumerated::toString(Enumerated::Value value)
 {
     switch (value) {
       case NA: {
-        return "NA";
+        return "NA";                                                  // RETURN
       } break;
       case UNKNOWN: {
-        return "UNKNOWN";
+        return "UNKNOWN";                                             // RETURN
       } break;
       case VALUE_1: {
-        return "1";
+        return "1";                                                   // RETURN
       } break;
       case VALUE_2: {
-        return "2";
+        return "2";                                                   // RETURN
       } break;
       case VALUE_3: {
-        return "3";
+        return "3";                                                   // RETURN
       } break;
     }
 
@@ -3200,11 +3216,11 @@ const char *Enumerated::toString(Enumerated::Value value)
 int CustomizedType::checkRestrictions(const int& value)
 {
     if (1 > value) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (100 < value) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -3215,7 +3231,7 @@ int CustomizedType::checkRestrictions(const int& value)
 const char CustomizedType::CLASS_NAME[] = "CustomizedType";
 
 }  // close namespace test
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // GENERATED BY BLP_BAS_CODEGEN_3.0.9 Tue Jun 24 15:47:19 2008
 // ----------------------------------------------------------------------------
@@ -3793,7 +3809,7 @@ int loadArraysOfNullableValues(bdlaggxxx::Aggregate *result)
         || result->setFieldById(ID_VAL18, VXT()).errorCode();
 }
 
-template <typename TYPE>
+template <class TYPE>
 bsl::string vectorToString(const bsl::vector<TYPE>& v)
 {
     bsl::ostringstream ss;

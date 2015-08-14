@@ -1,4 +1,4 @@
-// bdlimpxxx_bitwisecopy.t.cpp         -*-C++-*-
+// bdlimpxxx_bitwisecopy.t.cpp                                        -*-C++-*-
 
 #include <bdlimpxxx_bitwisecopy.h>
 
@@ -42,12 +42,12 @@ using namespace bsl;  // automatically added by script
 // [ 1 ]  bdlimpxxx::BitwiseCopy<T>::copy(d, s);
 // [ 2 ]  Performance test
 // [ 3 ]  USAGE
-//============================================================================
+//=============================================================================
 
 
-//============================================================================
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -60,7 +60,7 @@ static void aSsErT(int c, const char *s, int i)
 }
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 # define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
@@ -89,12 +89,12 @@ static void aSsErT(int c, const char *s, int i)
                      << #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
         aSsErT(1, #X, __LINE__); } }
 
-//============================================================================
+//=============================================================================
 #define P(X)  cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X)  cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                            // current Line number
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static int memendcmp (void *buffer, int cursor, int bufferSize, char fill)
     // Return 1 if any character in the specified 'buffer' of the specified
@@ -102,7 +102,7 @@ static int memendcmp (void *buffer, int cursor, int bufferSize, char fill)
     // the specified 'fill' character, and 0 otherwise.
 {
     for (int i = cursor; i < bufferSize; ++i) {
-        if (((char *) buffer)[i] != fill) return 1;
+        if (((char *) buffer)[i] != fill) return 1;                   // RETURN
     }
 
     return 0;
@@ -162,9 +162,9 @@ inline void performtest(const char *name, char *testsource, char *testdest)
 #endif
 }
 
-//============================================================================
+//=============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 struct testMixed1 {
     int     d_int;
@@ -342,9 +342,9 @@ struct Example {
 };
 
 
-//============================================================================
+//=============================================================================
 //                                MAIN PROGRAM
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -1371,11 +1371,11 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

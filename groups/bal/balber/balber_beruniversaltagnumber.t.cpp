@@ -1,4 +1,4 @@
-// balber_beruniversaltagnumber.t.cpp                                   -*-C++-*-
+// balber_beruniversaltagnumber.t.cpp                                 -*-C++-*-
 #include <balber_beruniversaltagnumber.h>
 
 #include <bdlat_arrayfunctions.h>
@@ -43,7 +43,7 @@ void aSsErT(int c, const char *s, int i)
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-}
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -217,9 +217,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -269,7 +269,7 @@ int CustomizedString::fromString(const bsl::string& value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -293,7 +293,7 @@ const bsl::string& CustomizedString::toString() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -322,18 +322,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_customizedstring.cpp  -*-C++-*-
 
@@ -365,17 +365,17 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mychoice.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYCHOICE
@@ -696,7 +696,7 @@ void MyChoice::makeSelection2(const bsl::string& value)
     }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CREATORS
 inline
@@ -770,7 +770,7 @@ int MyChoice::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return SUCCESS;
 }
@@ -783,7 +783,7 @@ int MyChoice::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return NOT_FOUND;                                            // RETURN
+       return NOT_FOUND;                                              // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -807,7 +807,7 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
       default:
         BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -849,7 +849,7 @@ int MyChoice::accessSelection(ACCESSOR& accessor) const
                                                                       // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -867,7 +867,7 @@ const bsl::string& MyChoice::selection2() const
     return d_selection2.object();
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(test::MyChoice)
@@ -887,11 +887,11 @@ bool test::operator==(const test::MyChoice& lhs, const test::MyChoice& rhs)
           default:
             BSLS_ASSERT_SAFE(test::MyChoice::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -907,18 +907,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mychoice.cpp  -*-C++-*-
 
@@ -981,10 +981,12 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
                     case '1': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -1080,17 +1082,17 @@ bsl::ostream& MyChoice::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_myenumeration.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYENUMERATION
@@ -1184,9 +1186,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
 
@@ -1199,9 +1201,9 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
       case MyEnumeration::VALUE1:
       case MyEnumeration::VALUE2:
         *result = (MyEnumeration::Value)number;
-        return SUCCESS;                                         // RETURN
+        return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1212,7 +1214,7 @@ bsl::ostream& MyEnumeration::print(bsl::ostream&      stream,
     return stream << toString(value);
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CLASS METHODS
 inline
@@ -1220,10 +1222,10 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
 {
     switch (value) {
       case VALUE1: {
-        return "VALUE1";
+        return "VALUE1";                                              // RETURN
       } break;
       case VALUE2: {
-        return "VALUE2";
+        return "VALUE2";                                              // RETURN
       } break;
       default:
         BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
@@ -1232,7 +1234,7 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
     return 0;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
@@ -1245,18 +1247,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return test::MyEnumeration::print(stream, rhs);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_myenumeration.cpp  -*-C++-*-
 
@@ -1313,12 +1315,12 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                 switch(bdlb::CharType::toUpper(string[5])) {
                     case '1': {
                         *result = MyEnumeration::VALUE1;
-                        return SUCCESS;
+                        return SUCCESS;                               // RETURN
                                                                       // RETURN
                     } break;
                     case '2': {
                         *result = MyEnumeration::VALUE2;
-                        return SUCCESS;
+                        return SUCCESS;                               // RETURN
                                                                       // RETURN
                     } break;
                 }
@@ -1342,17 +1344,17 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mysequence.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYSEQUENCE
@@ -1641,13 +1643,13 @@ int MySequence::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_attribute1,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_attribute2,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1663,15 +1665,15 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1686,7 +1688,7 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1714,13 +1716,13 @@ int MySequence::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_attribute1,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_attribute2,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1736,15 +1738,15 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1759,7 +1761,7 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
 
      return accessAttribute(accessor, attributeInfo->d_id);
@@ -1777,7 +1779,7 @@ const bsl::string& MySequence::attribute2() const
     return d_attribute2;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::MySequence)
@@ -1804,18 +1806,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mysequence.cpp  -*-C++-*-
 
@@ -1878,10 +1880,12 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
                     case '1': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -1967,17 +1971,17 @@ bsl::ostream& MySequence::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 namespace BloombergLP {
 namespace test {
@@ -1998,20 +2002,20 @@ bdeat_TypeCategory::Value bdeat_typeCategorySelect(const MyDynamicType& obj)
     return bdeat_TypeCategory::Value(obj.category());
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 namespace bdeat_SequenceFunctions {
 
     template <>
     struct IsSequence<test::MyDynamicType> : bslmf::MetaInt<1> { };
-}
+}  // close namespace bdlat_SequenceFunctions
 
 namespace bdeat_ChoiceFunctions {
 
     template <>
     struct IsChoice<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
-}  // close namespace bdeat_ChoiceFunctions
+}  // close namespace bdlat_ChoiceFunctions
 
 namespace bdeat_ArrayFunctions {
 
@@ -2021,14 +2025,14 @@ namespace bdeat_ArrayFunctions {
     template <>
     struct ElementType<test::MyDynamicType> { typedef int Type; };
 
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace bdlat_ArrayFunctions
 
 namespace bdeat_EnumFunctions {
 
     template <>
     struct IsEnumeration<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
-} // close namespace bdeat_EnumFunctions
+}  // close namespace bdlat_EnumFunctions
 
 namespace bdeat_NullableValueFunctions {
 
@@ -2038,9 +2042,9 @@ namespace bdeat_NullableValueFunctions {
     template <>
     struct ValueType<test::MyDynamicType> { typedef int Type; };
 
-}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace bdlat_NullableValueFunctions
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 typedef balber::BerUniversalTagNumber        Class;
 typedef balber::BerUniversalTagNumber::Value Enum;
@@ -2895,11 +2899,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

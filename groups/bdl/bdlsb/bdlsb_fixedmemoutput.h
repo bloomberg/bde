@@ -287,7 +287,7 @@ inline
 FixedMemOutput::int_type FixedMemOutput::sputc(char c)
 {
     if (d_pos >= d_capacity) {
-        return traits_type::eof();
+        return traits_type::eof();                                    // RETURN
     }
     d_buffer_p[static_cast<IntPtr>(d_pos)] = c;
     d_pos += 1;
@@ -350,7 +350,7 @@ bsl::streamsize FixedMemOutput::bufSize() const
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-}  // closing namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

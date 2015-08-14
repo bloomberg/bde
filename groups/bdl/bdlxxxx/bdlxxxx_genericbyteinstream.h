@@ -1,4 +1,4 @@
-// bdlxxxx_genericbyteinstream.h                                         -*-C++-*-
+// bdlxxxx_genericbyteinstream.h                                      -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_GENERICBYTEINSTREAM
 #define INCLUDED_BDLXXXX_GENERICBYTEINSTREAM
 
@@ -750,7 +750,7 @@ class GenericByteInStream {
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <class StreamBuf, typename VALUE>
+template <class StreamBuf, class VALUE>
 inline
 GenericByteInStream<StreamBuf>& operator>>(
                                    GenericByteInStream<StreamBuf>& stream,
@@ -772,9 +772,9 @@ GenericByteInStream<StreamBuf>& operator>>(
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ------------------------------
                         // class GenericByteInStream
@@ -1969,7 +1969,7 @@ bdlxxxx::GenericByteInStream<StreamBuf>::operator const void *() const
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <class StreamBuf, typename OBJECT>
+template <class StreamBuf, class OBJECT>
 inline
 bdlxxxx::GenericByteInStream<StreamBuf>&
         bdlxxxx::operator>>(GenericByteInStream<StreamBuf>& stream, OBJECT& object)
@@ -1979,15 +1979,15 @@ bdlxxxx::GenericByteInStream<StreamBuf>&
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

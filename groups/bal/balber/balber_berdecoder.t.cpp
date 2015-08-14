@@ -1,4 +1,4 @@
-// balber_berdecoder.t.cpp                                              -*-C++-*-
+// balber_berdecoder.t.cpp                                            -*-C++-*-
 
 #include <balber_berdecoder.h>
 
@@ -45,9 +45,9 @@ using namespace bsl;  // automatically added by script
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -59,7 +59,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { P(I); aSsErT(1, #X, __LINE__); } }
 
@@ -748,7 +748,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyChoice& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -945,7 +945,7 @@ operator<<(bsl::ostream& stream, const MySequenceWithNullable& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -1152,7 +1152,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -1346,7 +1346,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -1556,7 +1556,7 @@ operator<<(bsl::ostream& stream, const MySequenceWithNillable& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -1621,7 +1621,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -1796,7 +1796,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sqrt& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -1910,7 +1910,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -2126,7 +2126,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BasicRecord& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -2345,7 +2345,7 @@ bsl::ostream& operator<<(bsl::ostream& stream,
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -2541,7 +2541,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithArray& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -2749,7 +2749,7 @@ bsl::ostream& operator<<(bsl::ostream&                              stream,
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -2956,7 +2956,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -3150,7 +3150,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BigRecord& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -3363,7 +3363,7 @@ operator<<(bsl::ostream& stream, const MySequenceWithAnonymousChoice& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -3589,7 +3589,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TimingRequest& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
+}  // close namespace test
 
 // TRAITS
 
@@ -3607,7 +3607,7 @@ struct Messages {
     // defined outside of this component in the current namespace.
 };
 
-}  // close package namespace
+}  // close namespace test
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -3810,7 +3810,7 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);    // RETURN
       default:
         BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -3852,7 +3852,7 @@ int MyChoice::accessSelection(ACCESSOR& accessor) const
                                                                       // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -3974,7 +3974,7 @@ MySequenceWithNullable::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4048,7 +4048,7 @@ int MySequenceWithNullable::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4179,7 +4179,7 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4258,7 +4258,7 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
       } break;
       case ATTRIBUTE_ID_CITY: {
         return accessor(d_city,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);  // RETURN
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_STATE: {
@@ -4266,7 +4266,7 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4390,7 +4390,7 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4464,7 +4464,7 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4599,7 +4599,7 @@ int MySequenceWithNillable::manipulateAttribute(MANIPULATOR& manipulator,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4690,7 +4690,7 @@ int MySequenceWithNillable::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4747,7 +4747,7 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
         *result = (MyEnumeration::Value)number;
         return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4763,10 +4763,10 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
 {
     switch (value) {
       case VALUE1: {
-        return "VALUE1";
+        return "VALUE1";                                              // RETURN
       } break;
       case VALUE2: {
-        return "VALUE2";
+        return "VALUE2";                                              // RETURN
       } break;
       default:
         BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
@@ -4841,7 +4841,7 @@ int Sqrt::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4896,7 +4896,7 @@ int Sqrt::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4935,7 +4935,7 @@ int CustomizedString::checkRestrictions(const bsl::string& value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (25 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     return SUCCESS;
@@ -5113,7 +5113,7 @@ int BasicRecord::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5213,7 +5213,7 @@ int BasicRecord::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5367,7 +5367,7 @@ int BasicRecordWithVariant::manipulateAttribute(MANIPULATOR& manipulator,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5483,7 +5483,7 @@ int BasicRecordWithVariant::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5614,7 +5614,7 @@ int MySequenceWithArray::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5688,7 +5688,7 @@ int MySequenceWithArray::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5925,7 +5925,7 @@ int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
       default:
         BSLS_ASSERT_SAFE(
  MySequenceWithAnonymousChoiceChoice::SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -5968,7 +5968,7 @@ MySequenceWithAnonymousChoiceChoice::accessSelection(ACCESSOR& accessor) const
                                                                       // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -6100,7 +6100,7 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6187,7 +6187,7 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6309,7 +6309,7 @@ int BigRecord::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6379,7 +6379,7 @@ int BigRecord::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6516,7 +6516,7 @@ MySequenceWithAnonymousChoice::manipulateAttribute(MANIPULATOR& manipulator,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6607,7 +6607,7 @@ int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR& accessor,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6883,17 +6883,17 @@ int TimingRequest::manipulateSelection(MANIPULATOR& manipulator)
     switch (d_selectionId) {
       case TimingRequest::SELECTION_ID_SQRT:
         return manipulator(&d_sqrt.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SQRT]);        // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SQRT]);          // RETURN
       case TimingRequest::SELECTION_ID_BASIC:
         return manipulator(&d_basic.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_BASIC]);        // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_BASIC]);         // RETURN
       case TimingRequest::SELECTION_ID_BIG:
         return manipulator(&d_big.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG]);        // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG]);           // RETURN
       default:
         BSLS_ASSERT_SAFE(TimingRequest::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -6934,16 +6934,16 @@ int TimingRequest::accessSelection(ACCESSOR& accessor) const
     switch (d_selectionId) {
       case SELECTION_ID_SQRT:
         return accessor(d_sqrt.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_SQRT]);        // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SQRT]);          // RETURN
       case SELECTION_ID_BASIC:
         return accessor(d_basic.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_BASIC]);        // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_BASIC]);         // RETURN
       case SELECTION_ID_BIG:
         return accessor(d_big.object(),
-                SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG]);        // RETURN
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG]);           // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -6991,7 +6991,7 @@ bool TimingRequest::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
-}  // close package namespace
+}  // close namespace test
 
 // FREE FUNCTIONS
 
@@ -7012,11 +7012,11 @@ bool test::operator==(
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -7303,11 +7303,11 @@ bool test::operator==(
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -7429,11 +7429,11 @@ bool test::operator==(
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -7453,7 +7453,7 @@ bsl::ostream& test::operator<<(
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 #endif
 
 // GENERATED BY BLP_BAS_CODEGEN_2.1.8
@@ -7535,9 +7535,11 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
                       return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                       return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -7670,9 +7672,11 @@ const bdeat_AttributeInfo *MySequenceWithNullable::lookupAttributeInfo(
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -7794,7 +7798,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='T'
              && bdlb::CharType::toUpper(name[3])=='Y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];   // RETURN
             }
         } break;
         case 5: {
@@ -7804,7 +7808,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[3])=='T'
              && bdlb::CharType::toUpper(name[4])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];  // RETURN
             }
         } break;
         case 6: {
@@ -7815,7 +7819,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[4])=='E'
              && bdlb::CharType::toUpper(name[5])=='T')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]; // RETURN
             }
         } break;
     }
@@ -7948,9 +7952,11 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -8083,10 +8089,12 @@ const bdeat_AttributeInfo *MySequenceWithNillable::lookupAttributeInfo(
                           case '1': {
                             return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                           } break;
                           case '2': {
                             return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                           } break;
                         }
                     }
@@ -8104,6 +8112,7 @@ const bdeat_AttributeInfo *MySequenceWithNillable::lookupAttributeInfo(
                     {
                         return
                             &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MY_NILLABLE];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -8282,7 +8291,7 @@ const bdeat_AttributeInfo *Sqrt::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[3])=='U'
              && bdlb::CharType::toUpper(name[4])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALUE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALUE];  // RETURN
             }
         } break;
     }
@@ -8403,7 +8412,7 @@ const bdeat_AttributeInfo *BasicRecord::lookupAttributeInfo(
         case 1: {
             if (bdlb::CharType::toUpper(name[0])=='S')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S];      // RETURN
             }
         } break;
         case 2: {
@@ -8412,15 +8421,18 @@ const bdeat_AttributeInfo *BasicRecord::lookupAttributeInfo(
                     if (bdlb::CharType::toUpper(name[1])=='T')
                     {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT];
+                                                                      // RETURN
                     }
                 } break;
                 case 'I': {
                     switch(bdlb::CharType::toUpper(name[1])) {
                         case '1': {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1];
+                                                                      // RETURN
                         } break;
                         case '2': {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2];
+                                                                      // RETURN
                         } break;
                     }
                 } break;
@@ -8571,7 +8583,7 @@ const bdeat_AttributeInfo *BasicRecordWithVariant::lookupAttributeInfo(
         case 1: {
             if (bdlb::CharType::toUpper(name[0])=='S')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_S];      // RETURN
             }
         } break;
         case 2: {
@@ -8580,15 +8592,18 @@ const bdeat_AttributeInfo *BasicRecordWithVariant::lookupAttributeInfo(
                     if (bdlb::CharType::toUpper(name[1])=='T')
                     {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DT];
+                                                                      // RETURN
                     }
                 } break;
                 case 'I': {
                     switch(bdlb::CharType::toUpper(name[1])) {
                         case '1': {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I1];
+                                                                      // RETURN
                         } break;
                         case '2': {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_I2];
+                                                                      // RETURN
                         } break;
                     }
                 } break;
@@ -8748,9 +8763,11 @@ const bdeat_AttributeInfo *MySequenceWithArray::lookupAttributeInfo(
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -8875,9 +8892,11 @@ MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(
                 switch(bdlb::CharType::toUpper(name[8])) {
                     case '1': {
                       return &SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                       return &SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -9009,7 +9028,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[1])=='G'
              && bdlb::CharType::toUpper(name[2])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
             }
         } break;
         case 4: {
@@ -9018,7 +9037,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='M'
              && bdlb::CharType::toUpper(name[3])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
             }
         } break;
         case 11: {
@@ -9035,6 +9054,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[10])=='S')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
+                                                                      // RETURN
             }
         } break;
     }
@@ -9159,7 +9179,7 @@ const bdeat_AttributeInfo *BigRecord::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='M'
              && bdlb::CharType::toUpper(name[3])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
             }
         } break;
         case 5: {
@@ -9169,7 +9189,7 @@ const bdeat_AttributeInfo *BigRecord::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[3])=='A'
              && bdlb::CharType::toUpper(name[4])=='Y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ARRAY];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ARRAY];  // RETURN
             }
         } break;
     }
@@ -9286,11 +9306,11 @@ const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
         int         nameLength)
 {
     if (bdlb::String::areEqualCaseless("myChoice1", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];         // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("myChoice2", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];         // RETURN
     }
 
     switch(nameLength) {
@@ -9302,7 +9322,7 @@ const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[4])=='C'
              && bdlb::CharType::toUpper(name[5])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]; // RETURN
             }
         } break;
         case 10: {
@@ -9319,9 +9339,11 @@ const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
                 switch(bdlb::CharType::toUpper(name[9])) {
                     case '1': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                       return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -9455,7 +9477,7 @@ const bdeat_SelectionInfo *TimingRequest::lookupSelectionInfo(
              && bdlb::CharType::toUpper(name[1])=='I'
              && bdlb::CharType::toUpper(name[2])=='G')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG];
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG];    // RETURN
             }
         } break;
         case 4: {
@@ -9464,7 +9486,7 @@ const bdeat_SelectionInfo *TimingRequest::lookupSelectionInfo(
              && bdlb::CharType::toUpper(name[2])=='R'
              && bdlb::CharType::toUpper(name[3])=='T')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SQRT];
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SQRT];   // RETURN
             }
         } break;
         case 5: {
@@ -9474,7 +9496,7 @@ const bdeat_SelectionInfo *TimingRequest::lookupSelectionInfo(
              && bdlb::CharType::toUpper(name[3])=='I'
              && bdlb::CharType::toUpper(name[4])=='C')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_BASIC];
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_BASIC];  // RETURN
             }
         } break;
     }
@@ -9570,8 +9592,8 @@ bsl::ostream& TimingRequest::print(
     return stream << bsl::flush;
 }
 
-}  // close package namespace
-}  // close namespace BloombergLP
+}  // close namespace test
+}  // close enterprise namespace
 
 // GENERATED BY BLP_BAS_CODEGEN_2.1.8
 // ----------------------------------------------------------------------------
@@ -13832,7 +13854,7 @@ int main(int argc, char *argv[])
           default:
             bsl::cerr << "Unknown request type: " << '-' << requestType
                       << bsl::endl;
-            return 1;
+            return 1;                                                 // RETURN
         }
 
         bsl::cout << "  " << reps << " repetitions..." << bsl::endl;
@@ -13903,11 +13925,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE --------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

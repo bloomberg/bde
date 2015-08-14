@@ -224,9 +224,9 @@ struct IsPolymorphic : bsl::is_polymorphic<TYPE>::type {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_IsPolymorphic
 #undef bslmf_IsPolymorphic

@@ -183,8 +183,8 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
     ta.print();
     return out;
 }
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 Element randElement(int *seed)
 {
@@ -563,7 +563,7 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
 }  // close namespace QUEUE_USAGE_EXAMPLE_2
 
 //=============================================================================
-//          TEST CASE 12
+//                              TEST CASE 12
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_12 {
@@ -672,7 +672,7 @@ class TestPopBack {
 }  // close namespace QUEUE_TEST_CASE_12
 
 //=============================================================================
-//          TEST CASE 11
+//                              TEST CASE 11
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_11 {
@@ -750,7 +750,7 @@ int TestClass13::s_pushCount;
 }  // close namespace QUEUE_TEST_CASE_11
 
 //=============================================================================
-//          TEST CASE 10
+//                              TEST CASE 10
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_10 {
@@ -821,7 +821,7 @@ class TestClass12 {      // this class is a functor passed to thread::create
 }  // close namespace QUEUE_TEST_CASE_10
 
 //=============================================================================
-//          TEST CASE 6
+//                              TEST CASE 6
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_6 {
@@ -893,7 +893,7 @@ void *test6(void *arg)
 
 }  // close namespace QUEUE_TEST_CASE_6
 //=============================================================================
-//          TEST CASE 5
+//                              TEST CASE 5
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_5 {
@@ -1026,7 +1026,7 @@ void *test5front(void *arg)
 
 }  // close namespace QUEUE_TEST_CASE_5
 //=============================================================================
-//          TEST CASE 4
+//                              TEST CASE 4
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_4 {
@@ -1121,7 +1121,7 @@ void *test4front(void *arg)
 
 }  // close namespace QUEUE_TEST_CASE_4
 //=============================================================================
-//          TEST CASE 3
+//                              TEST CASE 3
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_3 {
@@ -1288,7 +1288,7 @@ extern "C" {
 } // extern "C"
 
 //=============================================================================
-//          TEST CASE 2
+//                              TEST CASE 2
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_2 {
@@ -1383,7 +1383,7 @@ void *test2front(void *arg)
 }  // close namespace QUEUE_TEST_CASE_2
 
 //=============================================================================
-//          TEST CASE 2
+//                              TEST CASE 2
 //-----------------------------------------------------------------------------
 
 namespace QUEUE_TEST_CASE_MINUS_1 {
@@ -1437,7 +1437,7 @@ struct Consumer {
 }  // close namespace QUEUE_TEST_CASE_MINUS_1
 
 //=============================================================================
-//         SEQUENCE CONSTRAINT TEST
+//                          SEQUENCE CONSTRAINT TEST
 //-----------------------------------------------------------------------------
 
 namespace seqtst {
@@ -1734,7 +1734,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }  // close namespace seqtst3
 
 //=============================================================================
-//         ZERO PTR TEST
+//                              ZERO PTR TEST
 //-----------------------------------------------------------------------------
 
 namespace zerotst {

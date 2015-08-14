@@ -639,10 +639,10 @@ int main(int argc, char *argv[])
             ASSERT(within1Sec(local, datetimeTz.localDatetime()));
         }
         if (verbose) { cout << "Test with  a test clock value" << endl; }
-        {           
+        {
             Util::setCurrentTimeCallback(getClientTime);
             bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(getClientOffset);
-            
+
             bdlt::Datetime   utc        = Util::utc();
             bdlt::Datetime   local      = Util::local();
             bdlt::DatetimeTz datetimeTz = Util::asDatetimeTz();

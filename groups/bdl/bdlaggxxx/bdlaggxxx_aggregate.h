@@ -1,4 +1,4 @@
-// bdlaggxxx_aggregate.h                                                   -*-C++-*-
+// bdlaggxxx_aggregate.h                                              -*-C++-*-
 #ifndef INCLUDED_BDLAGGXXX_AGGREGATE
 #define INCLUDED_BDLAGGXXX_AGGREGATE
 
@@ -830,7 +830,7 @@ class Aggregate {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    template <typename TYPE>
+    template <class TYPE>
     static const TYPE&  valueRef(const TYPE& value);
     static bdlmxxx::ElemRef valueRef(const Aggregate& value);
         // Return the specified 'value' if 'value' is not a 'Aggregate'
@@ -921,7 +921,7 @@ class Aggregate {
         // Create an empty aggregate with no schema or data.  Note that after
         // construction 'isNul2()' returns 'true'.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     Aggregate(const bdlmxxx::ElemType::Type  dataType,
                    const VALTYPE&             value,
                    bslma::Allocator          *basicAllocator = 0);
@@ -1114,7 +1114,7 @@ class Aggregate {
         // call, then do nothing.  The object's type and constraints are
         // unchanged.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setValue(const VALTYPE& value) const;
         // Set the value referenced by this aggregate to the specified
         // 'value', resetting its nullness flag if 'isNul2()' is 'true',
@@ -1128,32 +1128,32 @@ class Aggregate {
         // aggregate unmodified if this aggregate was in an error state before
         // calling 'setValue'.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
                                   FieldSelector fieldSelector4,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
                                   FieldSelector fieldSelector4,
                                   FieldSelector fieldSelector5,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
@@ -1161,7 +1161,7 @@ class Aggregate {
                                   FieldSelector fieldSelector5,
                                   FieldSelector fieldSelector6,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
@@ -1170,7 +1170,7 @@ class Aggregate {
                                   FieldSelector fieldSelector6,
                                   FieldSelector fieldSelector7,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
@@ -1180,7 +1180,7 @@ class Aggregate {
                                   FieldSelector fieldSelector7,
                                   FieldSelector fieldSelector8,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
@@ -1191,7 +1191,7 @@ class Aggregate {
                                   FieldSelector fieldSelector8,
                                   FieldSelector fieldSelector9,
                                   const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setField(FieldSelector fieldSelector1,
                                   FieldSelector fieldSelector2,
                                   FieldSelector fieldSelector3,
@@ -1285,7 +1285,7 @@ class Aggregate {
         // the chain of fields is null then an error is returned.  This
         // aggregate is not modified if an error is detected.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setFieldById(int fieldId, const VALTYPE& value) const;
         // Set the value of the field in this aggregate selected by the
         // specified 'fieldId' to the specified 'value', resetting its
@@ -1307,7 +1307,7 @@ class Aggregate {
         // documentation).  Note that if 'true == isNul2()' then an error is
         // returned.  This aggregate is not modified if an error is detected.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setFieldByIndex(int            fieldIndex,
                                          const VALTYPE& value) const;
         // Set the value of the field in this aggregate selected by the
@@ -1331,7 +1331,7 @@ class Aggregate {
         // then an error is returned.  This aggregate is not modified if an
         // error is detected.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate setItem(int index, const VALTYPE& value) const;
         // Set the value in this aggregate of the scalar array item, table
         // row, or choice array item selected by the specified 'index' to the
@@ -1354,7 +1354,7 @@ class Aggregate {
         // documentation).  Note that if 'true == isNul2()' then an error is
         // returned.  This aggregate is not modified if an error is detected.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate append(const VALTYPE& newItem) const;
         // Append a copy of 'newItem' to the end of the scalar array, table or
         // choice array referenced by this aggregate resetting the nullness
@@ -1384,7 +1384,7 @@ class Aggregate {
         //  this->insertNull(length());
         //..
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate insert(int pos, const VALTYPE& newItem) const;
         // Insert a copy of the specified 'newItem' at the specified 'pos'
         // index in the scalar array, table, or choice array referenced by
@@ -1518,10 +1518,10 @@ class Aggregate {
         // documentation).  This aggregate is not modified if an error is
         // detected.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate makeSelection(const char        *newSelector,
                                        const VALTYPE&     value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate makeSelection(const bsl::string& newSelector,
                                        const VALTYPE&     value) const;
         // Change the selector in the choice object referenced by this
@@ -1553,7 +1553,7 @@ class Aggregate {
         // component-level documentation).  This aggregate is not modified if
         // an error is detected.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate makeSelectionById(int            newSelectorId,
                                            const VALTYPE& value) const;
         // Change the selector in the choice object referenced by this
@@ -1586,7 +1586,7 @@ class Aggregate {
         // documentation).  This aggregate is not modified if an error is
         // detected.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     const Aggregate makeSelectionByIndex(int            newSelectorIndex,
                                               const VALTYPE& value) const;
         // Change the selector in the choice object referenced by this
@@ -2153,16 +2153,16 @@ namespace bdlaggxxx {    // Format 'rhs' in human-readable form (same format as
     // 'rhs.print(stream, 0, -1)') and return a modifiable reference to
     // 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //---------------------
                         // class Aggregate
                         //---------------------
 
 // PRIVATE CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE& Aggregate::valueRef(const TYPE& value)
 {
@@ -2199,7 +2199,7 @@ int Aggregate::maxSupportedBdexVersion()
 }
 
 // CREATORS
-template <typename VALTYPE>
+template <class VALTYPE>
 Aggregate::Aggregate(const bdlmxxx::ElemType::Type  dataType,
                                const VALTYPE&             value,
                                bslma::Allocator          *basicAllocator)
@@ -2335,7 +2335,7 @@ const Aggregate Aggregate::makeValue() const
     return *this;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 const Aggregate Aggregate::setValue(const VALTYPE& value) const
 {
     if (isError()) {
@@ -2349,7 +2349,7 @@ const Aggregate Aggregate::setValue(const VALTYPE& value) const
     return *this;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2358,7 +2358,7 @@ const Aggregate Aggregate::setField(
     return fieldImp(true, fieldSelector1).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2368,7 +2368,7 @@ const Aggregate Aggregate::setField(
     return fieldImp(true, fieldSelector1, fieldSelector2).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2382,7 +2382,7 @@ const Aggregate Aggregate::setField(
                     fieldSelector3).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2398,7 +2398,7 @@ const Aggregate Aggregate::setField(
                     fieldSelector4).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2416,7 +2416,7 @@ const Aggregate Aggregate::setField(
                     fieldSelector5).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2436,7 +2436,7 @@ const Aggregate Aggregate::setField(
                     fieldSelector6).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2458,7 +2458,7 @@ const Aggregate Aggregate::setField(
                     fieldSelector7).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2482,7 +2482,7 @@ const Aggregate Aggregate::setField(
                     fieldSelector8).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                              FieldSelector fieldSelector1,
@@ -2508,7 +2508,7 @@ const Aggregate Aggregate::setField(
                     fieldSelector9).setValue(value);
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::setField(
                                             FieldSelector fieldSelector1,
@@ -2705,7 +2705,7 @@ Aggregate::setFieldNull(FieldSelector fieldSelector1,
                     fieldSelector10).makeNull();
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate
 Aggregate::setFieldById(int fieldId, const VALTYPE& value) const
@@ -2719,7 +2719,7 @@ const Aggregate Aggregate::setFieldNullById(int fieldId) const
     return fieldById(fieldId).makeNull();
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate
 Aggregate::setFieldByIndex(int fieldIndex, const VALTYPE& value) const
@@ -2733,7 +2733,7 @@ const Aggregate Aggregate::setFieldNullByIndex(int fieldIndex) const
     return fieldByIndex(fieldIndex).makeNull();
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate
 Aggregate::setItem(int index, const VALTYPE& value) const
@@ -2747,7 +2747,7 @@ const Aggregate Aggregate::setItemNull(int index) const
     return (*this)[index].makeNull();
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate Aggregate::append(const VALTYPE& newItem) const
 {
@@ -2760,7 +2760,7 @@ const Aggregate Aggregate::appendNull() const
     return insertNull(length());
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 const Aggregate Aggregate::insert(int            pos,
                                             const VALTYPE& newItem) const
 {
@@ -2936,7 +2936,7 @@ Aggregate::makeSelection(const bsl::string& newSelector) const
     return makeSelection(newSelector.c_str());
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 const Aggregate
 Aggregate::makeSelection(const char     *newSelector,
                               const VALTYPE&  value) const
@@ -2958,7 +2958,7 @@ Aggregate::makeSelection(const char     *newSelector,
     }
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 const Aggregate
 Aggregate::makeSelection(const bsl::string& newSelector,
@@ -2967,7 +2967,7 @@ Aggregate::makeSelection(const bsl::string& newSelector,
     return makeSelection(newSelector.c_str(), valueRef(value));
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 const Aggregate
 Aggregate::makeSelectionById(int id, const VALTYPE& value) const
 {
@@ -2988,7 +2988,7 @@ Aggregate::makeSelectionById(int id, const VALTYPE& value) const
     }
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 const Aggregate
 Aggregate::makeSelectionByIndex(int index, const VALTYPE& value) const
 {
@@ -3221,10 +3221,10 @@ namespace bdeat_ArrayFunctions {
         typedef bdlaggxxx::Aggregate Type;
     };
 
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace bdlat_ArrayFunctions
 
 namespace bdlaggxxx {
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_arrayManipulateElement(Aggregate *array,
                                  MANIPULATOR&    manipulator,
@@ -3241,7 +3241,7 @@ void bdeat_arrayResize(Aggregate *array, int newSize)
     array->resize(newSize);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_arrayAccessElement(const Aggregate& array,
                              ACCESSOR&             accessor,
@@ -3269,7 +3269,7 @@ namespace bdeat_ChoiceFunctions {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdeat_ChoiceFunctions
+}  // close namespace bdlat_ChoiceFunctions
 
 namespace bdlaggxxx {
 inline
@@ -3298,7 +3298,7 @@ int bdeat_choiceMakeSelection(Aggregate *object,
                                      selectionNameLength);
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_choiceManipulateSelection(Aggregate *object,
                                     MANIPULATOR&    manipulator)
@@ -3307,7 +3307,7 @@ int bdeat_choiceManipulateSelection(Aggregate *object,
                                            manipulator);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_choiceAccessSelection(const Aggregate& object,
                                 ACCESSOR&             accessor)
@@ -3340,7 +3340,7 @@ namespace bdeat_EnumFunctions {
         enum { VALUE = 1 };
     };
 
-} // close namespace bdeat_EnumFunctions
+}  // close namespace bdlat_EnumFunctions
 
 namespace bdlaggxxx {
 inline
@@ -3389,7 +3389,7 @@ namespace bdeat_NullableValueFunctions {
         typedef bdlaggxxx::Aggregate Type;
     };
 
-}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace bdlat_NullableValueFunctions
 
 namespace bdlaggxxx {
 inline
@@ -3404,7 +3404,7 @@ void bdeat_nullableValueMakeValue(Aggregate_NullableAdapter *object)
     object->d_element_p->makeValue();
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_nullableValueManipulateValue(
                                    Aggregate_NullableAdapter *object,
@@ -3413,7 +3413,7 @@ int bdeat_nullableValueManipulateValue(
     return manipulator(object->d_element_p);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_nullableValueAccessValue(
                                 const Aggregate_NullableAdapter& object,
@@ -3450,10 +3450,10 @@ namespace bdeat_SequenceFunctions {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdeat_SequenceFunctions
+}  // close namespace bdlat_SequenceFunctions
 
 namespace bdlaggxxx {
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_sequenceManipulateAttribute(Aggregate *object,
                                       MANIPULATOR&    manipulator,
@@ -3466,7 +3466,7 @@ int bdeat_sequenceManipulateAttribute(Aggregate *object,
                                              attributeNameLength);
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_sequenceManipulateAttribute(Aggregate *object,
                                       MANIPULATOR&    manipulator,
@@ -3477,7 +3477,7 @@ int bdeat_sequenceManipulateAttribute(Aggregate *object,
                                              attributeId);
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_sequenceManipulateAttributes(Aggregate *object,
                                        MANIPULATOR&    manipulator)
@@ -3486,7 +3486,7 @@ int bdeat_sequenceManipulateAttributes(Aggregate *object,
                                               manipulator);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_sequenceAccessAttribute(const Aggregate&  object,
                                   ACCESSOR&              accessor,
@@ -3499,7 +3499,7 @@ int bdeat_sequenceAccessAttribute(const Aggregate&  object,
                                          attributeNameLength);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_sequenceAccessAttribute(const Aggregate& object,
                                   ACCESSOR&             accessor,
@@ -3510,7 +3510,7 @@ int bdeat_sequenceAccessAttribute(const Aggregate& object,
                                          attributeId);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_sequenceAccessAttributes(const Aggregate& object,
                                    ACCESSOR&             accessor)
@@ -3545,7 +3545,7 @@ bdeat_typeCategorySelect(const Aggregate& object)
     return bdeat_typeCategorySelect(object.aggregateRaw());
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_typeCategoryManipulateArray(Aggregate *object,
                                       MANIPULATOR&    manipulator)
@@ -3554,7 +3554,7 @@ int bdeat_typeCategoryManipulateArray(Aggregate *object,
                                              manipulator);
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_typeCategoryManipulateSimple(Aggregate *object,
                                        MANIPULATOR&    manipulator)
@@ -3563,7 +3563,7 @@ int bdeat_typeCategoryManipulateSimple(Aggregate *object,
                                               manipulator);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_typeCategoryAccessArray(const Aggregate& object,
                                   ACCESSOR&             accessor)
@@ -3571,7 +3571,7 @@ int bdeat_typeCategoryAccessArray(const Aggregate& object,
     return bdeat_typeCategoryAccessArray(object.aggregateRaw(), accessor);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_typeCategoryAccessSimple(const Aggregate& object,
                                    ACCESSOR&             accessor)
@@ -3612,15 +3612,15 @@ void bdeat_valueTypeReset(Aggregate *object)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

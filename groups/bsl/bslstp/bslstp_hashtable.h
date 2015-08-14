@@ -394,7 +394,7 @@ public:
   {
     for (size_type __n = 0; __n < _M_buckets.size(); ++__n)
       if (_M_buckets[__n])
-        return iterator((_Node*)_M_buckets[__n], this);
+        return iterator((_Node*)_M_buckets[__n], this);               // RETURN
     return end();
   }
 
@@ -404,7 +404,7 @@ public:
   {
     for (size_type __n = 0; __n < _M_buckets.size(); ++__n)
       if (_M_buckets[__n])
-        return const_iterator((_Node*)_M_buckets[__n], this);
+        return const_iterator((_Node*)_M_buckets[__n], this);         // RETURN
     return end();
   }
 
@@ -713,7 +713,7 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>::_M_equal(
 {
   //  typedef _Hashtable_node<_Val> _Node;
   if (__ht1.bucket_count() != __ht2.bucket_count())
-    return false;
+    return false;                                                     // RETURN
   for (size_t __n = 0; __n < __ht1.bucket_count(); ++__n) {
     const _Node* __cur1 = __ht1._M_get_bucket(__n);
     const _Node* __cur2 = __ht2._M_get_bucket(__n);
@@ -721,7 +721,7 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>::_M_equal(
           __cur1 = __cur1->_M_next, __cur2 = __cur2->_M_next)
       {}
     if (__cur1 || __cur2)
-      return false;
+      return false;                                                   // RETURN
   }
   return true;
 }
@@ -736,7 +736,7 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>
 
   for (_Node* __cur = __first; __cur; __cur = __cur->_M_next)
     if (_M_equals(_M_get_key(__cur->_M_val), _M_get_key(__obj)))
-      return pair<iterator, bool>(iterator(__cur, this), false);
+      return pair<iterator, bool>(iterator(__cur, this), false);      // RETURN
 
   _Node* __tmp = _M_new_node(__obj);
   __tmp->_M_next = __first;
@@ -759,7 +759,7 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>
       __tmp->_M_next = __cur->_M_next;
       __cur->_M_next = __tmp;
       ++_M_num_elements._M_data;
-      return iterator(__tmp, this);
+      return iterator(__tmp, this);                                   // RETURN
     }
 
   _Node* __tmp = _M_new_node(__obj);
@@ -792,9 +792,9 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>::find_or_insert(const value_type& __obj)
 
   _Node* __first = _M_find(_M_get_key(__obj));
   if (__first)
-    return __first->_M_val;
+    return __first->_M_val;                                           // RETURN
   else
-    return _M_insert(__obj);
+    return _M_insert(__obj);                                          // RETURN
 }
 
 template <class _Val, class _Key, class _HF, class _ExK, class _EqK, class _All>
@@ -810,11 +810,12 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>::equal_range(const key_type& __key)
       for (_Node* __cur = __first->_M_next; __cur; __cur = __cur->_M_next)
         if (!_M_equals(_M_get_key(__cur->_M_val), __key))
           return _Pii(iterator(__first, this), iterator(__cur, this));
+                                                                      // RETURN
       for (size_type __m = __n + 1; __m < _M_buckets.size(); ++__m)
         if (_M_buckets[__m])
           return _Pii(iterator(__first, this),
-                     iterator((_Node*)_M_buckets[__m], this));
-      return _Pii(iterator(__first, this), end());
+                     iterator((_Node*)_M_buckets[__m], this));        // RETURN
+      return _Pii(iterator(__first, this), end());                    // RETURN
     }
   return _Pii(end(), end());
 }
@@ -837,12 +838,12 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>
            __cur = __cur->_M_next)
         if (!_M_equals(_M_get_key(__cur->_M_val), __key))
           return _Pii(const_iterator(__first, this),
-                      const_iterator(__cur, this));
+                      const_iterator(__cur, this));                   // RETURN
       for (size_type __m = __n + 1; __m < _M_buckets.size(); ++__m)
         if (_M_buckets[__m])
           return _Pii(const_iterator(__first, this),
-                      const_iterator((_Node*)_M_buckets[__m], this));
-      return _Pii(const_iterator(__first, this), end());
+                      const_iterator((_Node*)_M_buckets[__m], this)); // RETURN
+      return _Pii(const_iterator(__first, this), end());              // RETURN
     }
   }
   return _Pii(end(), end());
@@ -925,7 +926,7 @@ void hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>
   size_type __l_bucket = __last._M_cur ?
     _M_bkt_num(__last._M_cur->_M_val) : _M_buckets.size();
   if (__first._M_cur == __last._M_cur)
-    return;
+    return;                                                           // RETURN
   else if (__f_bucket == __l_bucket)
     _M_erase_bucket(__f_bucket, __first._M_cur, __last._M_cur);
   else {

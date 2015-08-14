@@ -1,4 +1,4 @@
-// bdlmxxx_elemattrlookup.t.cpp                  -*-C++-*-
+// bdlmxxx_elemattrlookup.t.cpp                                       -*-C++-*-
 
 #include <bdlmxxx_elemattrlookup.h>
 
@@ -26,7 +26,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // The following function tests the functionality of one of the bdem types:
@@ -77,7 +77,7 @@ static void aSsErT(int c, const char *s, int i) {
 //..
 
 //=============================================================================
-//                  SUPPORT TYPES
+//                              SUPPORT TYPES
 //-----------------------------------------------------------------------------
 
 // The Sun compiler doesn't work with explicit template instantiation,
@@ -185,11 +185,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

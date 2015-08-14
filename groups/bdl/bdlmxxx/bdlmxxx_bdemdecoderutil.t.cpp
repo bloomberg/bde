@@ -1,4 +1,4 @@
-// bdlmxxx_bdemdecoderutil.t.cpp                                         -*-C++-*-
+// bdlmxxx_bdemdecoderutil.t.cpp                                      -*-C++-*-
 
 #include <bdlmxxx_bdemdecoderutil.h>
 
@@ -78,9 +78,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [16] USAGE EXAMPLE
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -92,7 +92,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -338,9 +338,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -386,7 +386,7 @@ STREAM& CustomizedString::bdexStreamIn(STREAM& stream, int version)
     streamIn(stream, temp, version);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (fromString(temp)!=0) {
@@ -408,7 +408,7 @@ int CustomizedString::fromString(const bsl::string& value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -444,7 +444,7 @@ const bsl::string& CustomizedString::toString() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -473,18 +473,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_customizedstring.cpp  -*-C++-*-
 #include <bsl_string.h>
 namespace BloombergLP {
@@ -506,16 +506,16 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
                                 // ---------
                                 // ACCESSORS
                                 // ---------
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mychoice.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYCHOICE
 #define INCLUDED_TEST_MYCHOICE
@@ -815,7 +815,7 @@ void MyChoice::makeSelection2(const bsl::string& value)
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 inline
 MyChoice::MyChoice(bslma::Allocator *basicAllocator)
@@ -878,7 +878,7 @@ STREAM& MyChoice::bdexStreamIn(STREAM& stream, int version)
             short selectionId;
             stream.getInt16(selectionId);
             if (!stream) {
-                return stream;                                      // RETURN
+                return stream;                                        // RETURN
             }
             switch (selectionId) {
               case SELECTION_ID_SELECTION1: {
@@ -920,7 +920,7 @@ int MyChoice::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return SUCCESS;
 }
@@ -931,7 +931,7 @@ int MyChoice::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return NOT_FOUND;                                            // RETURN
+       return NOT_FOUND;                                              // RETURN
     }
     return makeSelection(selectionInfo->d_id);
 }
@@ -952,7 +952,7 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
       default:
         BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 inline
@@ -1012,7 +1012,7 @@ int MyChoice::accessSelection(ACCESSOR& accessor) const
                                                                       // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 inline
@@ -1027,7 +1027,7 @@ const bsl::string& MyChoice::selection2() const
     BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
 }
-}  // close namespace test;
+}  // close namespace test
 // TRAITS
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(test::MyChoice)
 // FREE OPERATORS
@@ -1045,11 +1045,11 @@ bool test::operator==(const test::MyChoice& lhs, const test::MyChoice& rhs)
           default:
             BSLS_ASSERT_SAFE(test::MyChoice::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 inline
@@ -1062,16 +1062,16 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mychoice.cpp  -*-C++-*-
 #include <bsl_iostream.h>
 #include <bdlb_print.h>
@@ -1124,10 +1124,12 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
                     case '1': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -1209,16 +1211,16 @@ bsl::ostream& MyChoice::print(
     }
     return stream << bsl::flush;
 }
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_myenumeration.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYENUMERATION
 #define INCLUDED_TEST_MYENUMERATION
@@ -1331,9 +1333,9 @@ inline
 bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 // The following inlined functions are invoked from other inline functions.
 inline
 int MyEnumeration::maxSupportedBdexVersion()
@@ -1348,9 +1350,9 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
       case MyEnumeration::VALUE1:
       case MyEnumeration::VALUE2:
         *result = (MyEnumeration::Value)number;
-        return SUCCESS;                                         // RETURN
+        return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 inline
@@ -1359,17 +1361,17 @@ bsl::ostream& MyEnumeration::print(bsl::ostream&      stream,
 {
     return stream << toString(value);
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CLASS METHODS
 inline
 const char *MyEnumeration::toString(MyEnumeration::Value value)
 {
     switch (value) {
       case VALUE1: {
-        return "VALUE1";
+        return "VALUE1";                                              // RETURN
       } break;
       case VALUE2: {
-        return "VALUE2";
+        return "VALUE2";                                              // RETURN
       } break;
       default:
         BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
@@ -1412,7 +1414,7 @@ STREAM& MyEnumeration::bdexStreamOut(STREAM&              stream,
     return stream;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 STREAM& streamIn(STREAM&                              stream,
                  test::MyEnumeration::Value& value,
@@ -1427,7 +1429,7 @@ int maxSupportedVersion(test::MyEnumeration::Value)
     return test::MyEnumeration::maxSupportedBdexVersion();
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 STREAM& streamOut(STREAM& stream,
                   const test::MyEnumeration::Value& value,
@@ -1436,7 +1438,7 @@ STREAM& streamOut(STREAM& stream,
     return test::MyEnumeration::bdexStreamOut(stream, value, version);
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
@@ -1447,16 +1449,16 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 {
     return test::MyEnumeration::print(stream, rhs);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_myenumeration.cpp  -*-C++-*-
 #include <bsl_iostream.h>
 #include <bsls_assert.h>
@@ -1523,16 +1525,16 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                                 // ---------
                                 // ACCESSORS
                                 // ---------
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mysequence.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYSEQUENCE
 #define INCLUDED_TEST_MYSEQUENCE
@@ -1762,7 +1764,7 @@ int MySequence::maxSupportedBdexVersion()
 {
     return 1;  // versions start at 1.
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 inline
 MySequence::MySequence(bslma::Allocator *basicAllocator)
@@ -1827,12 +1829,12 @@ int MySequence::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_attribute1,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute2,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -1845,15 +1847,15 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class MANIPULATOR>
@@ -1866,7 +1868,7 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return manipulateAttribute(manipulator, attributeInfo->d_id);
 }
@@ -1901,12 +1903,12 @@ int MySequence::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_attribute1,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute2,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -1919,15 +1921,15 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class ACCESSOR>
@@ -1940,7 +1942,7 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
      return accessAttribute(accessor, attributeInfo->d_id);
 }
@@ -1954,7 +1956,7 @@ const bsl::string& MySequence::attribute2() const
 {
     return d_attribute2;
 }
-}  // close namespace test;
+}  // close namespace test
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::MySequence)
 // FREE OPERATORS
@@ -1976,16 +1978,16 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 {
     return rhs.print(stream, 0, -1);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mysequence.cpp  -*-C++-*-
 #include <bsl_iostream.h>
 #include <bdlb_print.h>
@@ -2038,10 +2040,12 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
                     case '1': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -2110,16 +2114,16 @@ bsl::ostream& MySequence::print(
     }
     return stream << bsl::flush;
 }
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mysequencewithnullables.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYSEQUENCEWITHNULLABLES
 #define INCLUDED_TEST_MYSEQUENCEWITHNULLABLES
@@ -2490,27 +2494,27 @@ int MySequenceWithNullables::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_attribute1,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute2,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute3,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute4,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE4]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute5,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE5]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -2524,30 +2528,30 @@ int MySequenceWithNullables::manipulateAttribute(MANIPULATOR& manipulator,
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE3: {
         return manipulator(&d_attribute3,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE4: {
         return manipulator(&d_attribute4,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE4]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE5: {
         return manipulator(&d_attribute5,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE5]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class MANIPULATOR>
@@ -2561,7 +2565,7 @@ int MySequenceWithNullables::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return manipulateAttribute(manipulator, attributeInfo->d_id);
 }
@@ -2616,27 +2620,27 @@ int MySequenceWithNullables::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_attribute1,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute2,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute3,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute4,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE4]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute5,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE5]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -2649,30 +2653,30 @@ int MySequenceWithNullables::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE3: {
         return accessor(d_attribute3,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE4: {
         return accessor(d_attribute4,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE4]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE5: {
         return accessor(d_attribute5,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE5]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class ACCESSOR>
@@ -2686,7 +2690,7 @@ int MySequenceWithNullables::accessAttribute(
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
      return accessAttribute(accessor, attributeInfo->d_id);
 }
@@ -2719,7 +2723,7 @@ const bdlb::NullableValue<MyEnumeration::Value>&
 {
     return d_attribute5;
 }
-}  // close namespace test;
+}  // close namespace test
 // FREE FUNCTIONS
 inline
 bool test::operator==(const test::MySequenceWithNullables& lhs,
@@ -2747,7 +2751,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 {
     return rhs.print(stream, 0, -1);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
 // ----------------------------------------------------------------------------
 // NOTICE:
@@ -2831,22 +2835,27 @@ const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
                     case '1': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE5];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -2937,8 +2946,8 @@ bsl::ostream& MySequenceWithNullables::print(
     }
     return stream << bsl::flush;
 }
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
@@ -3170,7 +3179,7 @@ int MySequenceWithNullablesContainer::maxSupportedBdexVersion()
 {
     return 1;  // versions start at 1.
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 inline
 MySequenceWithNullablesContainer::MySequenceWithNullablesContainer(
@@ -3232,7 +3241,7 @@ int MySequenceWithNullablesContainer::manipulateAttributes(
     ret = manipulator(&d_contained,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CONTAINED]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -3247,10 +3256,10 @@ int MySequenceWithNullablesContainer::manipulateAttribute(
       case ATTRIBUTE_ID_CONTAINED: {
         return manipulator(&d_contained,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CONTAINED]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class MANIPULATOR>
@@ -3264,7 +3273,7 @@ int MySequenceWithNullablesContainer::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return manipulateAttribute(manipulator, attributeInfo->d_id);
 }
@@ -3295,7 +3304,7 @@ int MySequenceWithNullablesContainer::accessAttributes(
     ret = accessor(d_contained,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CONTAINED]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -3309,10 +3318,10 @@ int MySequenceWithNullablesContainer::accessAttribute(ACCESSOR& accessor,
       case ATTRIBUTE_ID_CONTAINED: {
         return accessor(d_contained,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CONTAINED]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class ACCESSOR>
@@ -3325,7 +3334,7 @@ int MySequenceWithNullablesContainer::accessAttribute(ACCESSOR&   accessor,
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
      return accessAttribute(accessor, attributeInfo->d_id);
 }
@@ -3335,7 +3344,7 @@ const MySequenceWithNullables& MySequenceWithNullablesContainer::contained()
 {
     return d_contained;
 }
-}  // close namespace test;
+}  // close namespace test
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(
         test::MySequenceWithNullablesContainer)
@@ -3358,16 +3367,16 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 {
     return rhs.print(stream, 0, -1);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mysequencewithnullablescontainer.cpp  -*-C++-*-
 #include <bsl_iostream.h>
 #include <bdlb_print.h>
@@ -3411,6 +3420,7 @@ MySequenceWithNullablesContainer::lookupAttributeInfo(const char *name,
              && bdlb::CharType::toUpper(name[7])=='E'
              && bdlb::CharType::toUpper(name[8])=='D') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CONTAINED];
+                                                                      // RETURN
             }
         } break;
     }
@@ -3468,16 +3478,16 @@ bsl::ostream& MySequenceWithNullablesContainer::print(
     }
     return stream << bsl::flush;
 }
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mysequencewithmanynullables.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYSEQUENCEWITHMANYNULLABLES
 #define INCLUDED_TEST_MYSEQUENCEWITHMANYNULLABLES
@@ -4126,7 +4136,7 @@ int MySequenceWithManyNullables::maxSupportedBdexVersion()
 {
     return 1;  // versions start at 1.
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 inline
 MySequenceWithManyNullables::MySequenceWithManyNullables()
@@ -4417,202 +4427,202 @@ int MySequenceWithManyNullables::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_attribute01,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE01]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute02,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE02]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute03,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE03]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute04,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE04]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute05,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE05]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute06,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE06]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute07,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE07]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute08,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE08]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute09,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE09]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute10,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE10]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute11,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE11]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute12,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE12]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute13,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE13]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute14,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE14]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute15,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE15]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute16,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE16]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute17,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE17]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute18,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE18]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute19,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE19]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute20,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE20]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute21,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE21]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute22,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE22]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute23,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE23]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute24,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE24]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute25,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE25]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute26,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE26]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute27,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE27]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute28,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE28]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute29,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE29]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute30,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE30]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute31,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE31]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute32,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE32]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute33,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE33]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute34,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE34]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute35,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE35]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute36,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE36]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute37,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE37]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute38,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE38]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute39,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE39]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_attribute40,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE40]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -4626,205 +4636,205 @@ int MySequenceWithManyNullables::manipulateAttribute(MANIPULATOR& manipulator,
       case ATTRIBUTE_ID_ATTRIBUTE01: {
         return manipulator(&d_attribute01,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE01]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE02: {
         return manipulator(&d_attribute02,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE02]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE03: {
         return manipulator(&d_attribute03,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE03]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE04: {
         return manipulator(&d_attribute04,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE04]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE05: {
         return manipulator(&d_attribute05,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE05]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE06: {
         return manipulator(&d_attribute06,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE06]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE07: {
         return manipulator(&d_attribute07,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE07]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE08: {
         return manipulator(&d_attribute08,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE08]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE09: {
         return manipulator(&d_attribute09,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE09]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE10: {
         return manipulator(&d_attribute10,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE10]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE11: {
         return manipulator(&d_attribute11,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE11]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE12: {
         return manipulator(&d_attribute12,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE12]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE13: {
         return manipulator(&d_attribute13,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE13]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE14: {
         return manipulator(&d_attribute14,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE14]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE15: {
         return manipulator(&d_attribute15,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE15]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE16: {
         return manipulator(&d_attribute16,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE16]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE17: {
         return manipulator(&d_attribute17,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE17]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE18: {
         return manipulator(&d_attribute18,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE18]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE19: {
         return manipulator(&d_attribute19,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE19]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE20: {
         return manipulator(&d_attribute20,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE20]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE21: {
         return manipulator(&d_attribute21,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE21]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE22: {
         return manipulator(&d_attribute22,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE22]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE23: {
         return manipulator(&d_attribute23,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE23]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE24: {
         return manipulator(&d_attribute24,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE24]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE25: {
         return manipulator(&d_attribute25,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE25]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE26: {
         return manipulator(&d_attribute26,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE26]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE27: {
         return manipulator(&d_attribute27,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE27]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE28: {
         return manipulator(&d_attribute28,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE28]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE29: {
         return manipulator(&d_attribute29,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE29]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE30: {
         return manipulator(&d_attribute30,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE30]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE31: {
         return manipulator(&d_attribute31,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE31]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE32: {
         return manipulator(&d_attribute32,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE32]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE33: {
         return manipulator(&d_attribute33,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE33]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE34: {
         return manipulator(&d_attribute34,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE34]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE35: {
         return manipulator(&d_attribute35,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE35]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE36: {
         return manipulator(&d_attribute36,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE36]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE37: {
         return manipulator(&d_attribute37,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE37]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE38: {
         return manipulator(&d_attribute38,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE38]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE39: {
         return manipulator(&d_attribute39,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE39]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE40: {
         return manipulator(&d_attribute40,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE40]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class MANIPULATOR>
@@ -4837,7 +4847,7 @@ int MySequenceWithManyNullables::manipulateAttribute(MANIPULATOR&  manipulator,
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return manipulateAttribute(manipulator, attributeInfo->d_id);
 }
@@ -5101,202 +5111,202 @@ int MySequenceWithManyNullables::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_attribute01,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE01]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute02,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE02]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute03,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE03]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute04,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE04]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute05,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE05]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute06,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE06]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute07,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE07]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute08,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE08]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute09,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE09]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute10,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE10]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute11,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE11]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute12,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE12]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute13,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE13]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute14,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE14]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute15,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE15]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute16,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE16]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute17,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE17]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute18,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE18]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute19,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE19]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute20,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE20]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute21,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE21]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute22,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE22]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute23,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE23]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute24,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE24]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute25,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE25]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute26,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE26]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute27,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE27]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute28,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE28]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute29,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE29]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute30,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE30]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute31,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE31]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute32,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE32]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute33,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE33]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute34,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE34]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute35,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE35]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute36,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE36]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute37,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE37]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute38,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE38]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute39,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE39]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_attribute40,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE40]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -5310,205 +5320,205 @@ int MySequenceWithManyNullables::accessAttribute(ACCESSOR& accessor,
       case ATTRIBUTE_ID_ATTRIBUTE01: {
         return accessor(d_attribute01,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE01]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE02: {
         return accessor(d_attribute02,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE02]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE03: {
         return accessor(d_attribute03,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE03]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE04: {
         return accessor(d_attribute04,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE04]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE05: {
         return accessor(d_attribute05,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE05]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE06: {
         return accessor(d_attribute06,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE06]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE07: {
         return accessor(d_attribute07,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE07]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE08: {
         return accessor(d_attribute08,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE08]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE09: {
         return accessor(d_attribute09,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE09]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE10: {
         return accessor(d_attribute10,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE10]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE11: {
         return accessor(d_attribute11,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE11]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE12: {
         return accessor(d_attribute12,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE12]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE13: {
         return accessor(d_attribute13,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE13]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE14: {
         return accessor(d_attribute14,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE14]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE15: {
         return accessor(d_attribute15,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE15]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE16: {
         return accessor(d_attribute16,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE16]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE17: {
         return accessor(d_attribute17,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE17]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE18: {
         return accessor(d_attribute18,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE18]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE19: {
         return accessor(d_attribute19,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE19]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE20: {
         return accessor(d_attribute20,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE20]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE21: {
         return accessor(d_attribute21,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE21]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE22: {
         return accessor(d_attribute22,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE22]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE23: {
         return accessor(d_attribute23,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE23]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE24: {
         return accessor(d_attribute24,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE24]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE25: {
         return accessor(d_attribute25,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE25]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE26: {
         return accessor(d_attribute26,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE26]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE27: {
         return accessor(d_attribute27,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE27]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE28: {
         return accessor(d_attribute28,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE28]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE29: {
         return accessor(d_attribute29,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE29]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE30: {
         return accessor(d_attribute30,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE30]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE31: {
         return accessor(d_attribute31,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE31]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE32: {
         return accessor(d_attribute32,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE32]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE33: {
         return accessor(d_attribute33,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE33]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE34: {
         return accessor(d_attribute34,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE34]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE35: {
         return accessor(d_attribute35,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE35]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE36: {
         return accessor(d_attribute36,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE36]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE37: {
         return accessor(d_attribute37,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE37]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE38: {
         return accessor(d_attribute38,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE38]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE39: {
         return accessor(d_attribute39,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE39]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE40: {
         return accessor(d_attribute40,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE40]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class ACCESSOR>
@@ -5521,7 +5531,7 @@ int MySequenceWithManyNullables::accessAttribute(ACCESSOR&   accessor,
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
      return accessAttribute(accessor, attributeInfo->d_id);
 }
@@ -5765,7 +5775,7 @@ const bdlb::NullableValue<int>& MySequenceWithManyNullables::attribute40()
 {
     return d_attribute40;
 }
-}  // close namespace test;
+}  // close namespace test
 // TRAITS
 BDLAT_DECL_SEQUENCE_TRAITS(test::MySequenceWithManyNullables)
 // FREE OPERATORS
@@ -5865,16 +5875,16 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 {
     return rhs.print(stream, 0, -1);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_mysequencewithmanynullables.cpp  -*-C++-*-
 #include <bsl_iostream.h>
 #include <bdlb_print.h>
@@ -6197,38 +6207,47 @@ const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
                             case '1': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE01];
+                                                                      // RETURN
                             } break;
                             case '2': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE02];
+                                                                      // RETURN
                             } break;
                             case '3': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE03];
+                                                                      // RETURN
                             } break;
                             case '4': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE04];
+                                                                      // RETURN
                             } break;
                             case '5': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE05];
+                                                                      // RETURN
                             } break;
                             case '6': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE06];
+                                                                      // RETURN
                             } break;
                             case '7': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE07];
+                                                                      // RETURN
                             } break;
                             case '8': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE08];
+                                                                      // RETURN
                             } break;
                             case '9': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE09];
+                                                                      // RETURN
                             } break;
                         }
                     } break;
@@ -6237,42 +6256,52 @@ const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
                             case '0': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE10];
+                                                                      // RETURN
                             } break;
                             case '1': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE11];
+                                                                      // RETURN
                             } break;
                             case '2': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE12];
+                                                                      // RETURN
                             } break;
                             case '3': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE13];
+                                                                      // RETURN
                             } break;
                             case '4': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE14];
+                                                                      // RETURN
                             } break;
                             case '5': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE15];
+                                                                      // RETURN
                             } break;
                             case '6': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE16];
+                                                                      // RETURN
                             } break;
                             case '7': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE17];
+                                                                      // RETURN
                             } break;
                             case '8': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE18];
+                                                                      // RETURN
                             } break;
                             case '9': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE19];
+                                                                      // RETURN
                             } break;
                         }
                     } break;
@@ -6281,42 +6310,52 @@ const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
                             case '0': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE20];
+                                                                      // RETURN
                             } break;
                             case '1': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE21];
+                                                                      // RETURN
                             } break;
                             case '2': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE22];
+                                                                      // RETURN
                             } break;
                             case '3': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE23];
+                                                                      // RETURN
                             } break;
                             case '4': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE24];
+                                                                      // RETURN
                             } break;
                             case '5': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE25];
+                                                                      // RETURN
                             } break;
                             case '6': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE26];
+                                                                      // RETURN
                             } break;
                             case '7': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE27];
+                                                                      // RETURN
                             } break;
                             case '8': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE28];
+                                                                      // RETURN
                             } break;
                             case '9': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE29];
+                                                                      // RETURN
                             } break;
                         }
                     } break;
@@ -6325,42 +6364,52 @@ const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
                             case '0': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE30];
+                                                                      // RETURN
                             } break;
                             case '1': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE31];
+                                                                      // RETURN
                             } break;
                             case '2': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE32];
+                                                                      // RETURN
                             } break;
                             case '3': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE33];
+                                                                      // RETURN
                             } break;
                             case '4': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE34];
+                                                                      // RETURN
                             } break;
                             case '5': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE35];
+                                                                      // RETURN
                             } break;
                             case '6': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE36];
+                                                                      // RETURN
                             } break;
                             case '7': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE37];
+                                                                      // RETURN
                             } break;
                             case '8': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE38];
+                                                                      // RETURN
                             } break;
                             case '9': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                                   ATTRIBUTE_INDEX_ATTRIBUTE39];
+                                                                      // RETURN
                             } break;
                         }
                     } break;
@@ -6368,6 +6417,7 @@ const bdeat_AttributeInfo *MySequenceWithManyNullables::lookupAttributeInfo(
                         if (bsl::toupper(name[10])=='0') {
                             return &ATTRIBUTE_INFO_ARRAY[
                                               ATTRIBUTE_INDEX_ATTRIBUTE40];
+                                                                      // RETURN
                         }
                     } break;
                 }
@@ -6818,16 +6868,16 @@ bsl::ostream& MySequenceWithManyNullables::print(
     }
     return stream << bsl::flush;
 }
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_address.h   -*-C++-*-
 #ifndef INCLUDED_TEST_ADDRESS
 #define INCLUDED_TEST_ADDRESS
@@ -7069,7 +7119,7 @@ int Address::maxSupportedBdexVersion()
 {
     return 1;  // versions start at 1.
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 inline
 Address::Address(bslma::Allocator *basicAllocator)
@@ -7138,15 +7188,15 @@ int Address::manipulateAttributes(MANIPULATOR& manipulator)
     int ret;
     ret = manipulator(&d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -7159,20 +7209,20 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_STREET: {
         return manipulator(&d_street,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_CITY: {
         return manipulator(&d_city,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_STATE: {
         return manipulator(&d_state,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class MANIPULATOR>
@@ -7185,7 +7235,7 @@ int Address::manipulateAttribute(MANIPULATOR&  manipulator,
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return manipulateAttribute(manipulator, attributeInfo->d_id);
 }
@@ -7225,15 +7275,15 @@ int Address::accessAttributes(ACCESSOR& accessor) const
     int ret;
     ret = accessor(d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -7246,18 +7296,18 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_STREET: {
         return accessor(d_street,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_CITY: {
         return accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_STATE: {
         return accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class ACCESSOR>
@@ -7270,7 +7320,7 @@ int Address::accessAttribute(ACCESSOR&   accessor,
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
      return accessAttribute(accessor, attributeInfo->d_id);
 }
@@ -7289,7 +7339,7 @@ const bsl::string& Address::state() const
 {
     return d_state;
 }
-}  // close namespace test;
+}  // close namespace test
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Address)
 // FREE OPERATORS
@@ -7312,16 +7362,16 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Address& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_address.cpp  -*-C++-*-
 #include <bsl_iostream.h>
 #include <bdlb_print.h>
@@ -7372,7 +7422,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[1])=='I'
              && bdlb::CharType::toUpper(name[2])=='T'
              && bdlb::CharType::toUpper(name[3])=='Y') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];   // RETURN
             }
         } break;
         case 5: {
@@ -7381,7 +7431,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='A'
              && bdlb::CharType::toUpper(name[3])=='T'
              && bdlb::CharType::toUpper(name[4])=='E') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];  // RETURN
             }
         } break;
         case 6: {
@@ -7391,7 +7441,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[3])=='E'
              && bdlb::CharType::toUpper(name[4])=='E'
              && bdlb::CharType::toUpper(name[5])=='T') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]; // RETURN
             }
         } break;
     }
@@ -7468,16 +7518,16 @@ bsl::ostream& Address::print(
     }
     return stream << bsl::flush;
 }
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_employee.h   -*-C++-*-
 #ifndef INCLUDED_TEST_EMPLOYEE
 #define INCLUDED_TEST_EMPLOYEE
@@ -7732,7 +7782,7 @@ int Employee::maxSupportedBdexVersion()
 {
     return 1;  // versions start at 1.
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 inline
 Employee::Employee(bslma::Allocator *basicAllocator)
@@ -7808,21 +7858,21 @@ int Employee::manipulateAttributes(MANIPULATOR& manipulator)
     int ret;
     ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_homeAddress,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = manipulator(&d_dateJoined,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATE_JOINED]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -7835,24 +7885,24 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_NAME: {
         return manipulator(&d_name,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_HOME_ADDRESS: {
         return manipulator(&d_homeAddress,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_AGE: {
         return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_DATE_JOINED: {
         return manipulator(&d_dateJoined,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATE_JOINED]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class MANIPULATOR>
@@ -7865,7 +7915,7 @@ int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return manipulateAttribute(manipulator, attributeInfo->d_id);
 }
@@ -7911,21 +7961,21 @@ int Employee::accessAttributes(ACCESSOR& accessor) const
     int ret;
     ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_homeAddress,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     ret = accessor(d_dateJoined,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATE_JOINED]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
     return ret;
 }
@@ -7937,24 +7987,24 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_NAME: {
         return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_HOME_ADDRESS: {
         return accessor(d_homeAddress,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_AGE: {
         return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_DATE_JOINED: {
         return accessor(d_dateJoined,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATE_JOINED]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 template <class ACCESSOR>
@@ -7967,7 +8017,7 @@ int Employee::accessAttribute(ACCESSOR&   accessor,
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
      return accessAttribute(accessor, attributeInfo->d_id);
 }
@@ -7991,7 +8041,7 @@ const bdlt::DateTz& Employee::dateJoined() const
 {
     return d_dateJoined;
 }
-}  // close namespace test;
+}  // close namespace test
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Employee)
 // FREE OPERATORS
@@ -8016,16 +8066,16 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Employee& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 // test_employee.cpp  -*-C++-*-
 #include <bsl_iostream.h>
 #include <bdlb_print.h>
@@ -8083,7 +8133,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
             if (bdlb::CharType::toUpper(name[0])=='A'
              && bdlb::CharType::toUpper(name[1])=='G'
              && bdlb::CharType::toUpper(name[2])=='E') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
             }
         } break;
         case 4: {
@@ -8091,7 +8141,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[1])=='A'
              && bdlb::CharType::toUpper(name[2])=='M'
              && bdlb::CharType::toUpper(name[3])=='E') {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
             }
         } break;
         case 10: {
@@ -8106,6 +8156,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[8])=='E'
              && bdlb::CharType::toUpper(name[9])=='D') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATE_JOINED];
+                                                                      // RETURN
             }
         } break;
         case 11: {
@@ -8121,6 +8172,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[9])=='S'
              && bdlb::CharType::toUpper(name[10])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
+                                                                      // RETURN
             }
         } break;
     }
@@ -8207,16 +8259,16 @@ bsl::ostream& Employee::print(
     }
     return stream << bsl::flush;
 }
-}  // close namespace test;
-}  // close namespace BloombergLP;
-// ---------------------------------------------------------------------------
+}  // close namespace test
+}  // close enterprise namespace
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -8232,21 +8284,21 @@ struct TestValueFunctions_Imp {
     enum { SUCCESS = 0, FAILURE = -1 };
         // Return values for the methods in this 'struct'.
     // CLASS METHODS
-    template <typename TYPE>
+    template <class TYPE>
     static
     int loadTestValue(TYPE *object, int index, bdeat_TypeCategory::Array);
         // Load into the specified Array 'object' a test value indicated by the
         // specified 'index'.  Return 0 on success, and a non-zero value
         // otherwise with no effect on 'object'.  The behavior is undefined
         // unless index >= 0.
-    template <typename TYPE>
+    template <class TYPE>
     static
     int loadTestValue(TYPE *object, int index, bdeat_TypeCategory::Choice);
         // Load into the specified Choice 'object' a test value indicated by
         // the specified 'index'.  Return 0 on success, and a non-zero value
         // otherwise with no effect on 'object'.  The behavior is undefined
         // unless index >= 0.
-    template <typename TYPE>
+    template <class TYPE>
     static
     int loadTestValue(TYPE *object, int index,
                       bdeat_TypeCategory::Enumeration);
@@ -8254,7 +8306,7 @@ struct TestValueFunctions_Imp {
         // by the specified 'index'.  Return 0 on success, and a non-zero value
         // otherwise with no effect on 'object'.  The behavior is undefined
         // unless index >= 0.
-    template <typename TYPE>
+    template <class TYPE>
     static
     int loadTestValue(TYPE *object, int index, bdeat_TypeCategory::Sequence);
         // Load into the specified Sequence 'object' a test value indicated by
@@ -8262,11 +8314,11 @@ struct TestValueFunctions_Imp {
         // otherwise with no effect on 'object'.  The behavior is undefined
         // unless index >= 0.
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(TYPE *object, const INFO&);
         // Load a test value into the specified 'object' of parameterized
         // 'TYPE'.  Return 0 on success, and a non-zero value otherwise.
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object);
         // Load a test value into the specified 'object' of parameterized
         // 'TYPE'.  Return 0 on success, and a non-zero value otherwise.
@@ -8283,7 +8335,7 @@ namespace TestValueFunctions {
     enum { SUCCESS = 0, FAILURE = -1 };
         // Return values for the functions in this 'namespace'.
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int loadTestValue(TYPE *object, int index);
         // Load into the specified 'object' a test value indicated by the
         // specified 'index'.  Return 0 on success, and a non-zero value
@@ -8390,14 +8442,14 @@ namespace TestValueFunctions {
         // non-zero value otherwise with no effect on 'object'.  The behavior
         // is undefined unless index >= 0.
 }  // close namespace TestValueFunctions
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
                    // -------------------------------------
                    // private struct TestValueFunctions_Imp
                    // -------------------------------------
 // CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                           int   index,
@@ -8413,12 +8465,12 @@ int TestValueFunctions_Imp::loadTestValue(TYPE *object,
         if (0 != bdeat_ArrayFunctions::manipulateElement(object,
                                                          manipulator,
                                                          i)) {
-            return FAILURE;
+            return FAILURE;                                           // RETURN
         }
     }
     return SUCCESS;
 }
-template <typename TYPE>
+template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                                 int   index,
@@ -8429,16 +8481,16 @@ int TestValueFunctions_Imp::loadTestValue(TYPE *object,
     const int numSelections = TYPE::NUM_SELECTIONS;
     if (0 == index) {
         object->reset();
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
     int selectionId = (index-1) % numSelections;
     if (0 != object->makeSelection(selectionId)) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
     TestValueFunctions_Imp manipulator = { index + 1 };
     return object->manipulateSelection(manipulator);
 }
-template <typename TYPE>
+template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                           int   index,
@@ -8452,7 +8504,7 @@ int TestValueFunctions_Imp::loadTestValue(TYPE *object,
     *object = static_cast<TYPE>(info.value());
     return SUCCESS;
 }
-template <typename TYPE>
+template <class TYPE>
 inline
 int TestValueFunctions_Imp::loadTestValue(TYPE *object,
                                                 int   index,
@@ -8463,19 +8515,19 @@ int TestValueFunctions_Imp::loadTestValue(TYPE *object,
     for (int i = 0; i < TYPE::NUM_ATTRIBUTES; ++i) {
         TestValueFunctions_Imp manipulator = { index + i };
         if (0 != object->manipulateAttribute(manipulator, i)) {
-            return FAILURE;
+            return FAILURE;                                           // RETURN
         }
     }
     return SUCCESS;
 }
 // MANIPULATORS
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 inline
 int TestValueFunctions_Imp::operator()(TYPE *object, const INFO&)
 {
     return TestValueFunctions::loadTestValue(object, d_index);
 }
-template <typename TYPE>
+template <class TYPE>
 inline
 int TestValueFunctions_Imp::operator()(TYPE *object)
 {
@@ -8485,7 +8537,7 @@ int TestValueFunctions_Imp::operator()(TYPE *object)
                         // namespace TestValueFunctions
                         // ----------------------------
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int TestValueFunctions::loadTestValue(TYPE *object, int index)
 {
@@ -8706,7 +8758,7 @@ int TestValueFunctions::loadTestValue(bdlt::TimeTz *object, int index)
                               // ===============
 class SetToNull {
   public:
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(TYPE *object, const INFO_TYPE&)
     {
         BSLMF_ASSERT(
@@ -8730,7 +8782,7 @@ class LoadTestValue {
         int i = d_valueIndex % test::MyEnumeration::NUM_ENUMERATORS;
         return test::MyEnumeration::fromInt(object, i);
     }
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object)
     {
         return TestValueFunctions::loadTestValue(object, d_valueIndex);
@@ -8746,7 +8798,7 @@ class SetToNotNull {
     : d_loadTestValue(valueIndex)
     {
     }
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(TYPE *object, const INFO_TYPE&)
     {
         BSLMF_ASSERT(
@@ -8756,7 +8808,7 @@ class SetToNotNull {
                                                              d_loadTestValue);
     }
 };
-}  // close namespace <anonymous>
+}  // close unnamed namespace
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -11085,11 +11137,11 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

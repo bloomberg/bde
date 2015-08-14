@@ -1,4 +1,4 @@
-// balxml_decoder.t.cpp    -*-C++-*-
+// balxml_decoder.t.cpp                                               -*-C++-*-
 
 // Working around Linux compiler problem (GCC 3.4.4)
 // =================================================
@@ -583,7 +583,7 @@ bool compareEqual(const bsl::string& lhs, const bsl::string& rhs)
     for (int k = 0; k < LEN; ++k) {
         if (lhs[k] != rhs[k]) {
             LOOP4_ASSERT(line, k, lhs[k], rhs[k], lhs[k] == rhs[k]);
-            return false;
+            return false;                                             // RETURN
         }
         if ('\n' == lhs[k]) {
             ++line;
@@ -3773,32 +3773,32 @@ int Sequence3::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -3812,24 +3812,30 @@ int Sequence3::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -3844,7 +3850,7 @@ int Sequence3::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -3894,32 +3900,32 @@ int Sequence3::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -3933,24 +3939,30 @@ int Sequence3::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -3965,7 +3977,7 @@ int Sequence3::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -4021,37 +4033,37 @@ int Sequence5::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -4065,27 +4077,34 @@ int Sequence5::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4100,7 +4119,7 @@ int Sequence5::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -4156,37 +4175,37 @@ int Sequence5::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -4200,27 +4219,34 @@ int Sequence5::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4235,7 +4261,7 @@ int Sequence5::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -4297,77 +4323,77 @@ int Sequence6::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -4381,51 +4407,66 @@ int Sequence6::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4440,7 +4481,7 @@ int Sequence6::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -4545,77 +4586,77 @@ int Sequence6::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -4629,51 +4670,66 @@ int Sequence6::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -4688,7 +4744,7 @@ int Sequence6::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -4824,7 +4880,7 @@ int Choice3::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice3::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -4881,7 +4937,7 @@ int Choice3::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -4982,7 +5038,7 @@ int Choice1::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice1::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -5039,7 +5095,7 @@ int Choice1::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -5140,7 +5196,7 @@ int Choice2::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice2::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -5197,7 +5253,7 @@ int Choice2::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -5273,97 +5329,97 @@ int Sequence4::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5377,63 +5433,82 @@ int Sequence4::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT16: {
         return manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT17: {
         return manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT18: {
         return manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT19: {
         return manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5449,7 +5524,7 @@ int Sequence4::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5577,97 +5652,97 @@ int Sequence4::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5681,63 +5756,82 @@ int Sequence4::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT16: {
         return accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT17: {
         return accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT18: {
         return accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT19: {
         return accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5752,7 +5846,7 @@ int Sequence4::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5886,27 +5980,27 @@ int Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5920,21 +6014,26 @@ int Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -5949,7 +6048,7 @@ int Sequence1::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5993,27 +6092,27 @@ int Sequence1::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6027,21 +6126,26 @@ int Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6056,7 +6160,7 @@ int Sequence1::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -6106,37 +6210,37 @@ int Sequence2::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6150,27 +6254,34 @@ int Sequence2::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6185,7 +6296,7 @@ int Sequence2::manipulateAttribute(
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -6241,37 +6352,37 @@ int Sequence2::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6285,27 +6396,34 @@ int Sequence2::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -6320,7 +6438,7 @@ int Sequence2::accessAttribute(
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -6419,7 +6537,7 @@ int Topchoice::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
       default:
         BSLS_ASSERT(Topchoice::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -6517,7 +6635,7 @@ int Topchoice::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -6836,11 +6954,11 @@ bool bsctst::operator==(
             return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -6879,11 +6997,11 @@ bool bsctst::operator==(
             return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -6922,11 +7040,11 @@ bool bsctst::operator==(
             return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -7104,11 +7222,11 @@ bool bsctst::operator==(
             return lhs.selection8() == rhs.selection8();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -7128,7 +7246,7 @@ bsl::ostream& bsctst::operator<<(
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // GENERATED BY BLP_BAS_CODEGEN_3.6.7 Wed Sep 14 14:32:44 2011
 // ----------------------------------------------------------------------------
@@ -7154,7 +7272,7 @@ namespace bsctst {
 int CustomInt::checkRestrictions(const int& value)
 {
     if (1000 < value) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -7175,7 +7293,7 @@ const char CustomInt::CLASS_NAME[] = "CustomInt";
 int CustomString::checkRestrictions(const bsl::string& value)
 {
     if (8 < bdlde::Utf8Util::numCharacters(value.c_str(), value.length())) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -7225,9 +7343,9 @@ int Enumerated::fromInt(Enumerated::Value *result, int number)
       case Enumerated::NEW_JERSEY:
       case Enumerated::LONDON:
         *result = (Enumerated::Value)number;
-        return 0;
+        return 0;                                                     // RETURN
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7246,7 +7364,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[5]=='N')
             {
                 *result = Enumerated::LONDON;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
         case 8: {
@@ -7260,7 +7378,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[7]=='K')
             {
                 *result = Enumerated::NEW_YORK;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
         case 10: {
@@ -7276,7 +7394,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[9]=='Y')
             {
                 *result = Enumerated::NEW_JERSEY;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
     }
@@ -7288,13 +7406,13 @@ const char *Enumerated::toString(Enumerated::Value value)
 {
     switch (value) {
       case NEW_YORK: {
-        return "NEW_YORK";
+        return "NEW_YORK";                                            // RETURN
       } break;
       case NEW_JERSEY: {
-        return "NEW_JERSEY";
+        return "NEW_JERSEY";                                          // RETURN
       } break;
       case LONDON: {
-        return "LONDON";
+        return "LONDON";                                              // RETURN
       } break;
     }
 
@@ -7376,21 +7494,27 @@ const bdeat_AttributeInfo *Sequence3::lookupAttributeInfo(
                 switch(name[7]) {
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                                                                      // RETURN
                     } break;
                     case '6': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -7654,24 +7778,31 @@ const bdeat_AttributeInfo *Sequence5::lookupAttributeInfo(
                 switch(name[7]) {
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                                                                      // RETURN
                     } break;
                     case '6': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                                                                      // RETURN
                     } break;
                     case '7': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -8009,30 +8140,39 @@ const bdeat_AttributeInfo *Sequence6::lookupAttributeInfo(
                 switch(name[7]) {
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                                                                      // RETURN
                     } break;
                     case '6': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                                                                      // RETURN
                     } break;
                     case '7': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                                                                      // RETURN
                     } break;
                     case '8': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+                                                                      // RETURN
                     } break;
                     case '9': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -8050,21 +8190,27 @@ const bdeat_AttributeInfo *Sequence6::lookupAttributeInfo(
                 switch(name[8]) {
                     case '0': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+                                                                      // RETURN
                     } break;
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -8447,15 +8593,19 @@ const bdeat_SelectionInfo *Choice3::lookupSelectionInfo(
                 switch(name[9]) {
                     case '1': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -8580,7 +8730,7 @@ int Choice3::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
     return 0;
 }
@@ -8590,7 +8740,7 @@ int Choice3::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return -1;
+       return -1;                                                     // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -8819,7 +8969,7 @@ const char *Choice3::selectionName() const
         return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return "(* UNDEFINED *)";
+        return "(* UNDEFINED *)";                                     // RETURN
     }
 }
 
@@ -8883,15 +9033,19 @@ const bdeat_SelectionInfo *Choice1::lookupSelectionInfo(
                 switch(name[9]) {
                     case '1': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -9014,7 +9168,7 @@ int Choice1::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
     return 0;
 }
@@ -9024,7 +9178,7 @@ int Choice1::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return -1;
+       return -1;                                                     // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -9253,7 +9407,7 @@ const char *Choice1::selectionName() const
         return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return "(* UNDEFINED *)";
+        return "(* UNDEFINED *)";                                     // RETURN
     }
 }
 
@@ -9317,15 +9471,19 @@ const bdeat_SelectionInfo *Choice2::lookupSelectionInfo(
                 switch(name[9]) {
                     case '1': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -9450,7 +9608,7 @@ int Choice2::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
     return 0;
 }
@@ -9460,7 +9618,7 @@ int Choice2::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return -1;
+       return -1;                                                     // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -9689,7 +9847,7 @@ const char *Choice2::selectionName() const
         return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return "(* UNDEFINED *)";
+        return "(* UNDEFINED *)";                                     // RETURN
     }
 }
 
@@ -9856,30 +10014,39 @@ const bdeat_AttributeInfo *Sequence4::lookupAttributeInfo(
                 switch(name[7]) {
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                                                                      // RETURN
                     } break;
                     case '6': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                                                                      // RETURN
                     } break;
                     case '7': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                                                                      // RETURN
                     } break;
                     case '8': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+                                                                      // RETURN
                     } break;
                     case '9': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -9897,33 +10064,43 @@ const bdeat_AttributeInfo *Sequence4::lookupAttributeInfo(
                 switch(name[8]) {
                     case '0': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+                                                                      // RETURN
                     } break;
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+                                                                      // RETURN
                     } break;
                     case '6': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16];
+                                                                      // RETURN
                     } break;
                     case '7': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17];
+                                                                      // RETURN
                     } break;
                     case '8': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18];
+                                                                      // RETURN
                     } break;
                     case '9': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -10376,18 +10553,23 @@ const bdeat_AttributeInfo *Sequence1::lookupAttributeInfo(
                 switch(name[7]) {
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -10636,24 +10818,31 @@ const bdeat_AttributeInfo *Sequence2::lookupAttributeInfo(
                 switch(name[7]) {
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                                                                      // RETURN
                     } break;
                     case '6': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                                                                      // RETURN
                     } break;
                     case '7': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -10934,27 +11123,35 @@ const bdeat_SelectionInfo *Topchoice::lookupSelectionInfo(
                 switch(name[9]) {
                     case '1': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                     case '3': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                                                                      // RETURN
                     } break;
                     case '4': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                                                                      // RETURN
                     } break;
                     case '5': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
+                                                                      // RETURN
                     } break;
                     case '6': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
+                                                                      // RETURN
                     } break;
                     case '7': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
+                                                                      // RETURN
                     } break;
                     case '8': {
                         return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -11144,7 +11341,7 @@ int Topchoice::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
     return 0;
 }
@@ -11154,7 +11351,7 @@ int Topchoice::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return -1;
+       return -1;                                                     // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -11555,13 +11752,13 @@ const char *Topchoice::selectionName() const
         return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8].name();
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return "(* UNDEFINED *)";
+        return "(* UNDEFINED *)";                                     // RETURN
     }
 }
 
 }  // close namespace bsctst
 
-}
+}  // close enterprise namespace
 
 namespace baexml_Decoder_TestNamespace {
 
@@ -11707,13 +11904,13 @@ struct TestChoice1 {
 bool operator==(const TestChoice1& lhs, const TestChoice1& rhs)
 {
     if (lhs.d_choice != rhs.d_choice) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     switch (rhs.d_choice) {
       case 0: {
         if (lhs.d_selection1 != rhs.d_selection1) {
-            return 0;
+            return 0;                                                 // RETURN
         }
       } break;
       default: {
@@ -11778,18 +11975,18 @@ struct TestChoice2 {
 bool operator==(const TestChoice2& lhs, const TestChoice2& rhs)
 {
     if (lhs.d_choice != rhs.d_choice) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     switch (rhs.d_choice) {
       case 0: {
         if (lhs.d_selection1 != rhs.d_selection1) {
-            return 0;
+            return 0;                                                 // RETURN
         }
       } break;
       case 1: {
         if (lhs.d_selection2 != rhs.d_selection2) {
-            return 0;
+            return 0;                                                 // RETURN
         }
       } break;
       default: {
@@ -11946,7 +12143,7 @@ namespace bdeat_SequenceFunctions {
     };
 
     // MANIPULATORS
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequence0 *object,
                             MANIPULATOR&   manipulator,
                             const char    *attributeName,
@@ -11955,7 +12152,7 @@ namespace bdeat_SequenceFunctions {
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequence0 *object,
                             MANIPULATOR&   manipulator,
                             int            attributeId)
@@ -11963,7 +12160,7 @@ namespace bdeat_SequenceFunctions {
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(TestSequence0 *object,
                              MANIPULATOR&   manipulator)
     {
@@ -11971,7 +12168,7 @@ namespace bdeat_SequenceFunctions {
     }
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequence0&  object,
                         ACCESSOR&             accessor,
                         const char           *attributeName,
@@ -11980,7 +12177,7 @@ namespace bdeat_SequenceFunctions {
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequence0& object,
                         ACCESSOR&            accessor,
                         int                  attributeId)
@@ -11988,7 +12185,7 @@ namespace bdeat_SequenceFunctions {
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(const TestSequence0& object,
                          ACCESSOR&            accessor)
     {
@@ -12008,8 +12205,8 @@ namespace bdeat_SequenceFunctions {
         return false;
     }
 
-}  // close namespace bdeat_SequenceFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_SequenceFunctions
+}  // close enterprise namespace
 
             // ===================================================
             // bdeat_SequenceFunctions Overrides For TestSequence1
@@ -12023,7 +12220,7 @@ namespace bdeat_SequenceFunctions {
     };
 
     // MANIPULATORS
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequence1 *object,
                             MANIPULATOR&   manipulator,
                             const char    *attributeName,
@@ -12033,12 +12230,13 @@ namespace bdeat_SequenceFunctions {
                           == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
             return manipulator(&object->d_element1,
                                TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequence1 *object,
                             MANIPULATOR&   manipulator,
                             int            attributeId)
@@ -12046,25 +12244,26 @@ namespace bdeat_SequenceFunctions {
         if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
             return manipulator(&object->d_element1,
                                TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(TestSequence1 *object,
                              MANIPULATOR&   manipulator)
     {
         if (0 == manipulator(&object->d_element1,
                              TestSequence1::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
     }
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequence1&  object,
                         ACCESSOR&             accessor,
                         const char           *attributeName,
@@ -12073,32 +12272,32 @@ namespace bdeat_SequenceFunctions {
         if (bsl::string(attributeName, attributeNameLength)
                           == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
             return accessor(object.d_element1,
-                            TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);
+                            TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
         }
 
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequence1& object,
                         ACCESSOR&            accessor,
                         int                  attributeId)
     {
         if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
             return accessor(object.d_element1,
-                            TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);
+                            TestSequence1::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
         }
 
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(const TestSequence1& object,
                          ACCESSOR&            accessor)
     {
         if (0 == accessor(object.d_element1,
                           TestSequence1::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
@@ -12110,7 +12309,7 @@ namespace bdeat_SequenceFunctions {
     {
         if (bsl::string(attributeName, attributeNameLength)
                           == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
@@ -12119,13 +12318,13 @@ namespace bdeat_SequenceFunctions {
                       int                  attributeId)
     {
         if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
 
-}  // close namespace bdeat_SequenceFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_SequenceFunctions
+}  // close enterprise namespace
 
             // ===================================================
             // bdeat_SequenceFunctions Overrides For TestSequence2
@@ -12139,7 +12338,7 @@ namespace bdeat_SequenceFunctions {
     };
 
     // MANIPULATORS
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequence2 *object,
                             MANIPULATOR&   manipulator,
                             const char    *attributeName,
@@ -12149,17 +12348,19 @@ namespace bdeat_SequenceFunctions {
                           == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
             return manipulator(&object->d_element1,
                                TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
         if (bsl::string(attributeName, attributeNameLength)
                           == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
             return manipulator(&object->d_element2,
                                TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequence2 *object,
                             MANIPULATOR&   manipulator,
                             int            attributeId)
@@ -12167,16 +12368,18 @@ namespace bdeat_SequenceFunctions {
         if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
             return manipulator(&object->d_element1,
                                TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
         if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
             return manipulator(&object->d_element2,
                                TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(TestSequence2 *object,
                              MANIPULATOR&   manipulator)
     {
@@ -12184,14 +12387,14 @@ namespace bdeat_SequenceFunctions {
                              TestSequence2::ATTRIBUTE_INFO_ARRAY[0])
          && 0 == manipulator(&object->d_element2,
                              TestSequence2::ATTRIBUTE_INFO_ARRAY[1])) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
     }
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequence2&  object,
                         ACCESSOR&             accessor,
                         const char           *attributeName,
@@ -12200,35 +12403,35 @@ namespace bdeat_SequenceFunctions {
         if (bsl::string(attributeName, attributeNameLength)
                           == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
             return accessor(object.d_element1,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);
+                            TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
         }
         if (bsl::string(attributeName, attributeNameLength)
                           == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
             return accessor(object.d_element2,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);
+                            TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);  // RETURN
         }
 
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequence2& object,
                         ACCESSOR&            accessor,
                         int                  attributeId)
     {
         if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
             return accessor(object.d_element1,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);
+                            TestSequence2::ATTRIBUTE_INFO_ARRAY[0]);  // RETURN
         }
         if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
             return accessor(object.d_element2,
-                            TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);
+                            TestSequence2::ATTRIBUTE_INFO_ARRAY[1]);  // RETURN
         }
 
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(const TestSequence2& object,
                          ACCESSOR&            accessor)
     {
@@ -12236,7 +12439,7 @@ namespace bdeat_SequenceFunctions {
                           TestSequence2::ATTRIBUTE_INFO_ARRAY[0])
          && 0 == accessor(object.d_element2,
                           TestSequence2::ATTRIBUTE_INFO_ARRAY[1])) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
@@ -12248,11 +12451,11 @@ namespace bdeat_SequenceFunctions {
     {
         if (bsl::string(attributeName, attributeNameLength)
                           == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
-            return true;
+            return true;                                              // RETURN
         }
         if (bsl::string(attributeName, attributeNameLength)
                           == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_name_p) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
@@ -12261,15 +12464,15 @@ namespace bdeat_SequenceFunctions {
                       int                  attributeId)
     {
         if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
-            return true;
+            return true;                                              // RETURN
         }
         if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[1].d_id) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
-}  // close namespace bdeat_SequenceFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_SequenceFunctions
+}  // close enterprise namespace
 
               // ===============================================
               // bdeat_ChoiceFunctions Overrides For TestChoice0
@@ -12293,14 +12496,14 @@ namespace bdeat_ChoiceFunctions {
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(TestChoice0 *object, MANIPULATOR& manipulator)
     {
         return -1;
     }
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(const TestChoice0& object, ACCESSOR& accessor)
     {
         return -1;
@@ -12321,8 +12524,8 @@ namespace bdeat_ChoiceFunctions {
         return false;
     }
 
-}  // close namespace bdeat_ChoiceFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_ChoiceFunctions
+}  // close enterprise namespace
 
               // ===============================================
               // bdeat_ChoiceFunctions Overrides For TestChoice1
@@ -12351,30 +12554,30 @@ namespace bdeat_ChoiceFunctions {
         if ("S1" == bsl::string(name, nameLength)) {
             object->d_selection1 = 0;
             object->d_choice = 0;
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(TestChoice1 *object, MANIPULATOR& manipulator)
     {
         if (0 == object->d_choice) {
             return manipulator(&object->d_selection1,
-                               TestChoice1::SELECTION_INFO_ARRAY[0]);
+                               TestChoice1::SELECTION_INFO_ARRAY[0]); // RETURN
         }
 
         return -1;
     }
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(const TestChoice1& object, ACCESSOR& accessor)
     {
         if (0 == object.d_choice) {
             return accessor(object.d_selection1,
-                            TestChoice1::SELECTION_INFO_ARRAY[0]);
+                            TestChoice1::SELECTION_INFO_ARRAY[0]);    // RETURN
         }
 
         return -1;
@@ -12389,7 +12592,7 @@ namespace bdeat_ChoiceFunctions {
                                                  int nameLength)
     {
         if ("S1" == bsl::string(name, nameLength)) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
@@ -12397,13 +12600,13 @@ namespace bdeat_ChoiceFunctions {
     bool hasSelection(const TestChoice1& object, int id)
     {
         if (0 == id) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
 
-}  // close namespace bdeat_ChoiceFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_ChoiceFunctions
+}  // close enterprise namespace
 
               // ===============================================
               // bdeat_ChoiceFunctions Overrides For TestChoice2
@@ -12433,43 +12636,43 @@ namespace bdeat_ChoiceFunctions {
         if ("S1" == bsl::string(name, nameLength)) {
             object->d_selection1 = 0;
             object->d_choice = 0;
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if ("S2" == bsl::string(name, nameLength)) {
             object->d_selection2 = "";
             object->d_choice = 1;
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateSelection(TestChoice2 *object, MANIPULATOR& manipulator)
     {
         if (0 == object->d_choice) {
             return manipulator(&object->d_selection1,
-                               TestChoice2::SELECTION_INFO_ARRAY[0]);
+                               TestChoice2::SELECTION_INFO_ARRAY[0]); // RETURN
         }
         if (1 == object->d_choice) {
             return manipulator(&object->d_selection2,
-                               TestChoice2::SELECTION_INFO_ARRAY[1]);
+                               TestChoice2::SELECTION_INFO_ARRAY[1]); // RETURN
         }
 
         return -1;
     }
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessSelection(const TestChoice2& object, ACCESSOR& accessor)
     {
         if (0 == object.d_choice) {
             return accessor(object.d_selection1,
-                            TestChoice2::SELECTION_INFO_ARRAY[0]);
+                            TestChoice2::SELECTION_INFO_ARRAY[0]);    // RETURN
         }
         if (1 == object.d_choice) {
             return accessor(object.d_selection2,
-                            TestChoice2::SELECTION_INFO_ARRAY[1]);
+                            TestChoice2::SELECTION_INFO_ARRAY[1]);    // RETURN
         }
 
         return -1;
@@ -12484,10 +12687,10 @@ namespace bdeat_ChoiceFunctions {
                                                  int nameLength)
     {
         if ("S1" == bsl::string(name, nameLength)) {
-            return true;
+            return true;                                              // RETURN
         }
         if ("S2" == bsl::string(name, nameLength)) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
@@ -12495,16 +12698,16 @@ namespace bdeat_ChoiceFunctions {
     bool hasSelection(const TestChoice2& object, int id)
     {
         if (0 == id) {
-            return true;
+            return true;                                              // RETURN
         }
         if (1 == id) {
-            return true;
+            return true;                                              // RETURN
         }
         return false;
     }
 
-}  // close namespace bdeat_ChoiceFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_ChoiceFunctions
+}  // close enterprise namespace
 
         // ============================================================
         // bdeat_SequenceFunctions Overrides For TestSequenceWithVector
@@ -12518,7 +12721,7 @@ namespace bdeat_SequenceFunctions {
     };
 
     // MANIPULATORS
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequenceWithVector *object,
                             MANIPULATOR&            manipulator,
                             const char             *attributeName,
@@ -12529,12 +12732,13 @@ namespace bdeat_SequenceFunctions {
             return manipulator(
                               &object->d_vector,
                               TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttribute(TestSequenceWithVector *object,
                             MANIPULATOR&            manipulator,
                             int                     attributeId)
@@ -12544,26 +12748,27 @@ namespace bdeat_SequenceFunctions {
             return manipulator(
                               &object->d_vector,
                               TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateAttributes(TestSequenceWithVector *object,
                              MANIPULATOR&            manipulator)
     {
         if (0 == manipulator(
                             &object->d_vector,
                             TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
     }
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequenceWithVector&  object,
                         ACCESSOR&                      accessor,
                         const char                    *attributeName,
@@ -12573,12 +12778,13 @@ namespace bdeat_SequenceFunctions {
                  == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_name_p) {
             return accessor(object.d_vector,
                             TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttribute(const TestSequenceWithVector& object,
                         ACCESSOR&                     accessor,
                         int                           attributeId)
@@ -12587,25 +12793,26 @@ namespace bdeat_SequenceFunctions {
                      == TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0].d_id) {
             return accessor(object.d_vector,
                             TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0]);
+                                                                      // RETURN
         }
 
         return -1;
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(const TestSequenceWithVector& object,
                          ACCESSOR&                     accessor)
     {
         if (0 == accessor(object.d_vector,
                           TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[0])) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         return -1;
     }
 
-}  // close namespace bdeat_SequenceFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_SequenceFunctions
+}  // close enterprise namespace
 
 #include <balxml_decoder.h>
 
@@ -12712,7 +12919,7 @@ int TestContext::startElement(balxml::Decoder *decoder)
     d_isInsideElement = true;
 
     if ("failOnStart" == d_elementName) {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     return 0;
@@ -12727,7 +12934,7 @@ int TestContext::endElement(balxml::Decoder *decoder)
     d_isInsideElement = false;
 
     if ("failOnEnd" == d_elementName) {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     return 0;
@@ -12745,7 +12952,7 @@ int TestContext::addCharacters(const char                 *chars,
         << strChars << ", ...)";
 
     if ("failHere" == strChars) {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     return 0;
@@ -12778,7 +12985,7 @@ int TestContext::parseSubElement(const char            *elementName,
 
     if (bsl::strcmp("failHere" , elementName) == 0)
     {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     TestContext subContext(d_callSequence, elementName, d_allocator_p);
@@ -12895,7 +13102,7 @@ int TestVectorElemTypeContext::startElement(
     d_object_p->addCall("startElement(...)");
 
     if (3 == d_currentDepth) {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     ++d_currentDepth;
@@ -12910,7 +13117,7 @@ int TestVectorElemTypeContext::endElement(balxml::Decoder *decoder)
     --d_currentDepth;
 
     if (2 == d_currentDepth) {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     return 0;
@@ -12925,7 +13132,7 @@ int TestVectorElemTypeContext::addCharacters(const char * chars,
     d_object_p->addCall("addCharacters(" + strChars + ", ...)");
 
     if ("failHere" == strChars) {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     return 0;
@@ -12958,7 +13165,7 @@ TestVectorElemTypeContext::parseSubElement(const char       *elementName,
     d_object_p->addCall("purseSubElement(" + strElementName + ", ...)");
 
     if ("failHere" == strElementName) {
-        return -1;  // trigger failure in parser
+        return -1;  // trigger failure in parser                      // RETURN
     }
 
     return 0;
@@ -12973,7 +13180,7 @@ TestVectorElemTypeContext::createSubContext(const char      *elementName,
     d_object_p->addCall("createSubContext(" + strElementName + ", ...)");
 
     if ("failHere" == strElementName) {
-        return 0;  // trigger failure in parser
+        return 0;  // trigger failure in parser                       // RETURN
     }
 
     return this;
@@ -12995,7 +13202,7 @@ namespace balxml {
         typedef TestVectorElemTypeContext Type;
     };
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
                               // ================
                               // DummyEnumeration
@@ -13016,8 +13223,8 @@ namespace bdeat_EnumFunctions {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdeat_EnumFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_EnumFunctions
+}  // close enterprise namespace
 
                             // ===================
                             // DummyCustomizedType
@@ -13048,8 +13255,8 @@ namespace bdeat_CustomizedTypeFunctions {
         typedef int Type;
     };
 
-}  // close namespace bdeat_CustomizedTypeFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_CustomizedTypeFunctions
+}  // close enterprise namespace
 
 // To test the facilities in this component, we generate a number of types
 // using the command 'bas_codegen.pl test.xsd -m msg -p test'.  The input
@@ -15488,7 +15695,7 @@ int MySequenceWithAttributes::manipulateAttribute(MANIPULATOR& manipulator,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -15594,7 +15801,7 @@ int MySequenceWithAttributes::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -15738,7 +15945,7 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -15824,7 +16031,7 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -15948,7 +16155,7 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -16022,7 +16229,7 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -16155,7 +16362,7 @@ int MySimpleContent::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -16246,7 +16453,7 @@ int MySimpleContent::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -16385,7 +16592,7 @@ int MySimpleIntContent::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -16476,7 +16683,7 @@ int MySimpleIntContent::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -16719,7 +16926,7 @@ int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
         BSLS_ASSERT_SAFE(
                 MySequenceWithAnonymousChoiceChoice::SELECTION_ID_UNDEFINED
                 == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -16760,7 +16967,7 @@ int MySequenceWithAnonymousChoiceChoice::accessSelection(
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);    // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -16897,7 +17104,7 @@ int MySequenceWithNullables::manipulateAttribute(MANIPULATOR&  manipulator,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -16988,7 +17195,7 @@ int MySequenceWithNullables::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -17126,7 +17333,7 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -17213,7 +17420,7 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -17355,7 +17562,7 @@ int MySequenceWithAnonymousChoice::manipulateAttribute(
         return manipulator(&d_mySequenceWithAnonymousChoiceChoice,
                   ATTRIBUTE_INFO_ARRAY[
                       ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-                  ]);
+                  ]);                                                 // RETURN
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
@@ -17364,7 +17571,7 @@ int MySequenceWithAnonymousChoice::manipulateAttribute(
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -17452,7 +17659,7 @@ int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR&  accessor,
         return accessor(d_mySequenceWithAnonymousChoiceChoice,
               ATTRIBUTE_INFO_ARRAY[
                   ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-              ]);
+              ]);                                                     // RETURN
                                                                       // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
@@ -17461,7 +17668,7 @@ int MySequenceWithAnonymousChoice::accessAttribute(ACCESSOR&  accessor,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -17605,7 +17812,7 @@ int MySequenceWithNillables::manipulateAttribute(MANIPULATOR&  manipulator,
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -17696,7 +17903,7 @@ int MySequenceWithNillables::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -17899,11 +18106,11 @@ bool test::operator==(
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                               == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -18037,7 +18244,7 @@ bsl::ostream& test::operator<<(
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 #endif
 
 // GENERATED BY BLP_BAS_CODEGEN_2.0.2_DEV_LATEST Thu Dec 28 20:58:29 2006
@@ -18126,9 +18333,11 @@ const bdeat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
                 switch(bdlb::CharType::toUpper(name[7])) {
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -18148,12 +18357,12 @@ const bdeat_AttributeInfo *MySequenceWithAttributes::lookupAttributeInfo(
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];
+                               ];                                     // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];
+                               ];                                     // RETURN
                     } break;
                 }
             }
@@ -18300,7 +18509,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='T'
              && bdlb::CharType::toUpper(name[3])=='Y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];   // RETURN
             }
         } break;
         case 5: {
@@ -18310,7 +18519,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[3])=='T'
              && bdlb::CharType::toUpper(name[4])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];  // RETURN
             }
         } break;
         case 6: {
@@ -18321,7 +18530,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[4])=='E'
              && bdlb::CharType::toUpper(name[5])=='T')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]; // RETURN
             }
         } break;
     }
@@ -18455,12 +18664,12 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[
                             ATTRIBUTE_INDEX_ATTRIBUTE1
-                        ];
+                        ];                                            // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[
                             ATTRIBUTE_INDEX_ATTRIBUTE2
-                        ];
+                        ];                                            // RETURN
                     } break;
                 }
             }
@@ -18595,12 +18804,12 @@ const bdeat_AttributeInfo *MySimpleContent::lookupAttributeInfo(
                             case '1': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                             ATTRIBUTE_INDEX_ATTRIBUTE1
-                                       ];
+                                       ];                             // RETURN
                             } break;
                             case '2': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                             ATTRIBUTE_INDEX_ATTRIBUTE2
-                                       ];
+                                       ];                             // RETURN
                             } break;
                         }
                     }
@@ -18618,7 +18827,7 @@ const bdeat_AttributeInfo *MySimpleContent::lookupAttributeInfo(
                     {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_THE_CONTENT
-                               ];
+                               ];                                     // RETURN
                     }
                 } break;
             }
@@ -18765,12 +18974,12 @@ const bdeat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(
                             case '1': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                             ATTRIBUTE_INDEX_ATTRIBUTE1
-                                       ];
+                                       ];                             // RETURN
                             } break;
                             case '2': {
                                 return &ATTRIBUTE_INFO_ARRAY[
                                             ATTRIBUTE_INDEX_ATTRIBUTE2
-                                       ];
+                                       ];                             // RETURN
                             } break;
                         }
                     }
@@ -18788,7 +18997,7 @@ const bdeat_AttributeInfo *MySimpleIntContent::lookupAttributeInfo(
                     {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_THE_CONTENT
-                               ];
+                               ];                                     // RETURN
                     }
                 } break;
             }
@@ -18926,12 +19135,12 @@ MySequenceWithAnonymousChoiceChoice::lookupSelectionInfo(
                     case '1': {
                         return &SELECTION_INFO_ARRAY[
                                     SELECTION_INDEX_MY_CHOICE1
-                               ];
+                               ];                                     // RETURN
                     } break;
                     case '2': {
                         return &SELECTION_INFO_ARRAY[
                                     SELECTION_INDEX_MY_CHOICE2
-                               ];
+                               ];                                     // RETURN
                     } break;
                 }
             }
@@ -19073,17 +19282,17 @@ const bdeat_AttributeInfo *MySequenceWithNullables::lookupAttributeInfo(
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];
+                               ];                                     // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];
+                               ];                                     // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE3
-                               ];
+                               ];                                     // RETURN
                     } break;
                 }
             }
@@ -19216,7 +19425,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[1])=='G'
              && bdlb::CharType::toUpper(name[2])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
             }
         } break;
         case 4: {
@@ -19225,7 +19434,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='M'
              && bdlb::CharType::toUpper(name[3])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
             }
         } break;
         case 11: {
@@ -19242,6 +19451,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[10])=='S')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
+                                                                      // RETURN
             }
         } break;
     }
@@ -19373,13 +19583,13 @@ const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
     if (bdlb::String::areEqualCaseless("MyChoice1", name, nameLength)) {
         return &ATTRIBUTE_INFO_ARRAY[
                     ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-               ];
+               ];                                                     // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("MyChoice2", name, nameLength)) {
         return &ATTRIBUTE_INFO_ARRAY[
                     ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-               ];
+               ];                                                     // RETURN
     }
 
     switch(nameLength) {
@@ -19398,12 +19608,12 @@ const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];
+                               ];                                     // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];
+                               ];                                     // RETURN
                     } break;
                 }
             }
@@ -19448,7 +19658,7 @@ const bdeat_AttributeInfo *MySequenceWithAnonymousChoice::lookupAttributeInfo(
                 return
                     &ATTRIBUTE_INFO_ARRAY[
                        ATTRIBUTE_INDEX_MY_SEQUENCE_WITH_ANONYMOUS_CHOICE_CHOICE
-                    ];
+                    ];                                                // RETURN
             }
         } break;
     }
@@ -19595,17 +19805,17 @@ const bdeat_AttributeInfo *MySequenceWithNillables::lookupAttributeInfo(
                     case '1': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE1
-                               ];
+                               ];                                     // RETURN
                     } break;
                     case '2': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE2
-                               ];
+                               ];                                     // RETURN
                     } break;
                     case '3': {
                         return &ATTRIBUTE_INFO_ARRAY[
                                     ATTRIBUTE_INDEX_ATTRIBUTE3
-                               ];
+                               ];                                     // RETURN
                     } break;
                 }
             }
@@ -19693,8 +19903,8 @@ bsl::ostream& MySequenceWithNillables::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
 // GENERATED BY BLP_BAS_CODEGEN_2.0.2_DEV_LATEST Thu Dec 28 20:58:29 2006
 // ----------------------------------------------------------------------------
@@ -28148,7 +28358,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(X.numUnknownElementsSkipped(),
                         1 == X.numUnknownElementsSkipped());
         }
- 
+
         {
             // This test, from baea_serializableobjectproxyutil.t.cpp, used to
             // fail a safe assert there.
@@ -31567,11 +31777,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

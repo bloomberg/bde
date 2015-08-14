@@ -234,26 +234,26 @@ class Decoder {
     friend struct Decoder_ElementVisitor;
 
     // PRIVATE MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::DynamicType);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Sequence);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Choice);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Enumeration);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::CustomizedType);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Simple);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Array);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::NullableValue);
     int decodeImp(bsl::vector<char> *value,
                   int                mode,
                   bdeat_TypeCategory::Array);
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int decodeImp(TYPE *value, ANY_CATEGORY category);
         // Decode into the specified 'value', of a (template parameter) 'TYPE'
         // corresponding to the specified 'bdeat' 'category', the JSON data
@@ -277,7 +277,7 @@ class Decoder {
         // is used.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::streambuf               *streamBuf,
                TYPE                         *value,
                const DecoderOptions&  options);
@@ -291,7 +291,7 @@ class Decoder {
         // attempt to update the input position of 'streambuf' to the last
         // unprocessed byte.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::istream&                 stream,
                TYPE                         *value,
                const DecoderOptions&  options);
@@ -305,7 +305,7 @@ class Decoder {
         // attempt to update the input position of 'stream' to the last
         // unprocessed byte.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
         // Decode an object of (template parameter) 'TYPE' from the specified
         // 'streamBuf' and load the result into the specified modifiable
@@ -314,7 +314,7 @@ class Decoder {
         // DEPRECATED: Use the 'decode' function passed a reference to a
         // non-modifiable 'DecoderOptions' object instead.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::istream& stream, TYPE *value);
         // Decode an object of (template parameter) 'TYPE' from the specified
         // 'stream' and load the result into the specified modifiable
@@ -351,12 +351,12 @@ struct Decoder_ElementVisitor {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *value);
         // Decode into the specified 'value' the data in the JSON format.
         // Return 0 on success and a non-zero value otherwise.
 
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(TYPE *value, const INFO& info);
         // Decode into the specified 'value' using the specified 'info' the
         // data in the JSON format.  Return 0 on success and a non-zero value
@@ -382,10 +382,10 @@ struct Decoder_DecodeImpProxy {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *, bslmf::Nil);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int operator()(TYPE *object, ANY_CATEGORY category);
         // Dencode into the specified 'value' of the specified 'bdeat'
         // 'category' from the data in the JSON format.  Return 0 on success
@@ -401,7 +401,7 @@ struct Decoder_DecodeImpProxy {
                         // --------------------
 
 // PRIVATE MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
@@ -411,7 +411,7 @@ int Decoder::decodeImp(TYPE *value,
     return bdeat_TypeCategoryUtil::manipulateByCategory(value, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdeat_TypeCategory::Sequence)
@@ -543,7 +543,7 @@ int Decoder::decodeImp(TYPE *value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdeat_TypeCategory::Choice)
@@ -686,7 +686,7 @@ int Decoder::decodeImp(TYPE *value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int,
                               bdeat_TypeCategory::Enumeration)
@@ -720,7 +720,7 @@ int Decoder::decodeImp(TYPE *value,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int,
                               bdeat_TypeCategory::CustomizedType)
@@ -757,7 +757,7 @@ int Decoder::decodeImp(TYPE *value,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int,
                               bdeat_TypeCategory::Simple)
@@ -799,7 +799,7 @@ int Decoder::decodeImp(bsl::vector<char> *value,
     return ParserUtil::getValue(value, dataValue);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdeat_TypeCategory::Array)
@@ -852,7 +852,7 @@ int Decoder::decodeImp(TYPE *value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdeat_TypeCategory::NullableValue)
@@ -881,7 +881,7 @@ int Decoder::decodeImp(TYPE *value,
     return bdeat_NullableValueFunctions::manipulateValue(value, visitor);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 {
@@ -903,7 +903,7 @@ Decoder::Decoder(bslma::Allocator *basicAllocator)
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::streambuf               *streamBuf,
                            TYPE                         *value,
                            const DecoderOptions&  options)
@@ -949,7 +949,7 @@ int Decoder::decode(bsl::streambuf               *streamBuf,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::istream&                 stream,
                            TYPE                         *value,
                            const DecoderOptions&  options)
@@ -966,14 +966,14 @@ int Decoder::decode(bsl::istream&                 stream,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::streambuf *streamBuf, TYPE *value)
 {
     const DecoderOptions options;
     return decode(streamBuf, value, options);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::istream& stream, TYPE *value)
 {
     const DecoderOptions options;
@@ -991,7 +991,7 @@ bsl::string Decoder::loggedMessages() const
                     // struct Decoder_ElementVisitor
                     // ------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ElementVisitor::operator()(TYPE *value)
 {
@@ -999,7 +999,7 @@ int Decoder_ElementVisitor::operator()(TYPE *value)
     return d_decoder_p->decodeImp(value, d_mode, TypeCategory());
 }
 
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 inline
 int Decoder_ElementVisitor::operator()(TYPE *value, const INFO& info)
 {
@@ -1014,7 +1014,7 @@ int Decoder_ElementVisitor::operator()(TYPE *value, const INFO& info)
                     // ------------------------------------
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_DecodeImpProxy::operator()(TYPE *, bslmf::Nil)
 {
@@ -1023,7 +1023,7 @@ int Decoder_DecodeImpProxy::operator()(TYPE *, bslmf::Nil)
     return -1;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder_DecodeImpProxy::operator()(TYPE         *object,
                                               ANY_CATEGORY  category)
@@ -1032,15 +1032,22 @@ int Decoder_DecodeImpProxy::operator()(TYPE         *object,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

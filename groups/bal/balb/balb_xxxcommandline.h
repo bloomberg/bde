@@ -1,4 +1,4 @@
-// balb_xxxcommandline.h                                                 -*-C++-*-
+// balb_xxxcommandline.h                                              -*-C++-*-
 #ifndef INCLUDED_BALB_XXXCOMMANDLINE
 #define INCLUDED_BALB_XXXCOMMANDLINE
 
@@ -834,17 +834,17 @@ namespace BloombergLP {
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 
 namespace balb {class CommandLine_Constraint;
@@ -2461,9 +2461,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CommandLine& rhs);
     // specified output 'stream' in a (multi-line) human readable format.  Note
     // that the last line is *not* terminated by a newline character.
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------
                         // class CommandLine
@@ -2561,15 +2561,15 @@ CommandLine::CommandLine(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

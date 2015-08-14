@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class PerformanceHint;
-    }
+    }  // close namespace bsls
 
     typedef bsls::PerformanceHint bsls_PerformanceHint;
-}
+}  // close enterprise namespace
 
 #else
 

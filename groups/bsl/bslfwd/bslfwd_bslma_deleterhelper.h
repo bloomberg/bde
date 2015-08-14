@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class DeleterHelper;
-    }
+    }  // close namespace bslma
 
     typedef bslma::DeleterHelper bslma_DeleterHelper;
-}
+}  // close enterprise namespace
 
 #else
 

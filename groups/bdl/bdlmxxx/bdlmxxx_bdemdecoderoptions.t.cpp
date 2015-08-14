@@ -1,4 +1,4 @@
-// bdlmxxx_bdemdecoderoptions.t.cpp   -*-C++-*-
+// bdlmxxx_bdemdecoderoptions.t.cpp                                   -*-C++-*-
 #include <bdlmxxx_bdemdecoderoptions.h>
 
 #include <bsl_cstdlib.h>

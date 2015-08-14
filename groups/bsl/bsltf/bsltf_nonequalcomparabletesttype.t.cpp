@@ -193,7 +193,7 @@ struct op_not_equal_exist
     enum { value = (sizeof(*(T*)(0) != *(T*)(0)) != sizeof(no)) };
 };
 
-}  // close operator check namespace
+}  // close namespace check
 
 }  // close unnamed namespace
 

@@ -1,4 +1,4 @@
-// bdlde_base64decoder.t.cpp            -*-C++-*-
+// bdlde_base64decoder.t.cpp                                          -*-C++-*-
 
 #include <bdlde_base64decoder.h>
 
@@ -198,9 +198,9 @@ using namespace bsl;  // automatically added by script
 //*[10] STRESS TEST: The decoder properly decodes all encoded output.
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -212,7 +212,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
@@ -1039,7 +1039,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
                                            input,   inputEnd,
                                            outputEnd - output);
             if (status < 0) {
-                return ENCODE_ERROR;                               // RETURN
+                return ENCODE_ERROR;                                  // RETURN
             }
 
             output += numOut;
@@ -1048,7 +1048,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
             if (output == outputEnd) {  // output buffer full; write data
                 os.write(outputBuffer, sizeof outputBuffer);
                 if (os.fail()) {
-                    return IO_ERROR;                               // RETURN
+                    return IO_ERROR;                                  // RETURN
                 }
                 output = outputBuffer;
             }
@@ -1061,7 +1061,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
 
         int more = converter.endConvert(output, &numOut, outputEnd-output);
         if (more < 0) {
-            return ENCODE_ERROR;                                   // RETURN
+            return ENCODE_ERROR;                                      // RETURN
         }
 
         output += numOut;
@@ -1074,7 +1074,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
 
         os.write (outputBuffer, sizeof outputBuffer);  // write buffer
         if (os.fail()) {
-            return IO_ERROR;                                       // RETURN
+            return IO_ERROR;                                          // RETURN
         }
         output = outputBuffer;
     }
@@ -1121,7 +1121,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
                                            input,   inputEnd,
                                            outputEnd - output);
             if (status < 0) {
-                return DECODE_ERROR;                               // RETURN
+                return DECODE_ERROR;                                  // RETURN
             }
 
             output += numOut;
@@ -1130,7 +1130,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
             if (output == outputEnd) {  // output buffer full; write data
                 os.write(outputBuffer, sizeof outputBuffer);
                 if (os.fail()) {
-                    return IO_ERROR;                               // RETURN
+                    return IO_ERROR;                                  // RETURN
                 }
                 output = outputBuffer;
             }
@@ -1143,7 +1143,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
         int more = converter.endConvert(output, &numOut, outputEnd-output);
         if (more < 0) {
-            return DECODE_ERROR;                                   // RETURN
+            return DECODE_ERROR;                                      // RETURN
         }
 
         output += numOut;
@@ -1156,7 +1156,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
         os.write (outputBuffer, sizeof outputBuffer);  // write buffer
         if (os.fail()) {
-            return IO_ERROR;                                       // RETURN
+            return IO_ERROR;                                          // RETURN
         }
         output = outputBuffer;
     }
@@ -1168,7 +1168,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
     return is.eof() && os.good() ? SUCCESS : IO_ERROR;
 }
 
-} // Close namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                              TEST CASES
@@ -5552,11 +5552,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

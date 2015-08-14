@@ -1,4 +1,4 @@
-// balb_xxxcommandline.cpp                                               -*-C++-*-
+// balb_xxxcommandline.cpp                                            -*-C++-*-
 #include <balb_xxxcommandline.h>
 
 #include <bsls_ident.h>
@@ -78,9 +78,9 @@ enum {
     INVALID_COMMAND_LINE_SPEC = 0  // must be 0 to trigger an assert
 };
 
-// ===========================================================================
+// ============================================================================
 //                       LOCAL CLASS AND FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 namespace {
 
@@ -109,7 +109,7 @@ void format(int                             start,
     // or exceed 'end' characters on a single line.
 {
     if (0 == strings.size()) {
-        return;
+        return;                                                       // RETURN
     }
 
     if (col < start) {
@@ -549,7 +549,7 @@ ScalarConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
         stream << elemTypeToString(elemType)
                << " value was expected, instead of \""
                << input << "\"" << bsl::endl;
-        return false;
+        return false;                                                 // RETURN
     }
     const bdlmxxx::Descriptor *desc = bdlmxxx::ElemAttrLookup::lookupTable()[elemType];
     element.replaceValue(bdlmxxx::ConstElemRef(&value, desc));
@@ -721,11 +721,11 @@ ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::parse(
         stream << elemTypeToString(scalarType)
                << " value was expected, instead of \""
                << input << "\"" << bsl::endl;
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (d_constraint && !d_constraint(&value, stream)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (element.isNull()) {
@@ -767,7 +767,7 @@ ArrayConstraint<TYPE, CONSTRAINT_TYPE, ELEM_TYPE>::validate(
                        << balb::Ordinal(i)
                        << " element of the vector."
                        << bsl::endl;
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -1298,7 +1298,7 @@ CommandLineOccurrenceInfo::print(bsl::ostream& stream,
     // BSLS_ASSERT(0 <= spacesPerLevel);
 
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (level < 0) {
@@ -2399,7 +2399,7 @@ CommandLineTypeInfo::print(bsl::ostream& stream,
     BSLS_ASSERT(0 <= spacesPerLevel);
 
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (level < 0) {
@@ -2626,12 +2626,12 @@ namespace balb {
 CommandLineOptionInfo::ArgType CommandLineOption::argType() const
 {
     if (d_optionInfo.object().d_tag.empty()) {
-        return CommandLineOptionInfo::BAEA_NON_OPTION;
+        return CommandLineOptionInfo::BAEA_NON_OPTION;                // RETURN
     }
 
     if (bdlmxxx::ElemType::BDEM_BOOL ==
                        d_optionInfo.object().d_typeInfo.constraint()->type()) {
-        return CommandLineOptionInfo::BAEA_FLAG;
+        return CommandLineOptionInfo::BAEA_FLAG;                      // RETURN
     }
 
     return CommandLineOptionInfo::BAEA_OPTION;
@@ -2679,9 +2679,9 @@ bool CommandLineOption::isTagValid(bsl::ostream& stream) const
         if (bdlmxxx::ElemType::BDEM_BOOL ==
                                      d_optionInfo.object().d_typeInfo.type()) {
             stream << "Flags cannot have an empty tag." << bsl::endl;
-            return false;
+            return false;                                             // RETURN
         }
-        return true;
+        return true;                                                  // RETURN
     }
 
     if (0 != bsl::strchr(str, ' ')) {  // for all tag types
@@ -2694,6 +2694,7 @@ bool CommandLineOption::isTagValid(bsl::ostream& stream) const
         // no '|' in the name.
 
         return isLongTagValid(str, stream) && result;  // no short-circuit!
+                                                                      // RETURN
     }
 
     // Short tag: must be specified as "s|long", where 's' is not '|'.
@@ -2707,6 +2708,7 @@ bool CommandLineOption::isTagValid(bsl::ostream& stream) const
             result = false;
         }
         return isLongTagValid(str + 1, stream) && result;  // no short-circuit!
+                                                                      // RETURN
     }
 
     if ('-' == *str) {
@@ -2717,12 +2719,12 @@ bool CommandLineOption::isTagValid(bsl::ostream& stream) const
     if ('|' != str[1]) {
         stream << "Short tag must be exactly one character, followed by '|'."
                << bsl::endl;
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (0 == str[1]) {
         stream << "Short tag must have associated long tag." << bsl::endl;
-        return false;
+        return false;                                                 // RETURN
     }
 
     return result && isLongTagValid(str + 2, stream);
@@ -2732,7 +2734,7 @@ bool CommandLineOption::isDescriptionValid(bsl::ostream& stream) const
 {
     if (d_optionInfo.object().d_description.empty()) {
         stream << "Description cannot be an empty string." << bsl::endl;
-        return false;
+        return false;                                                 // RETURN
     }
     return true;
 }
@@ -2741,7 +2743,7 @@ bool CommandLineOption::isNameValid(bsl::ostream& stream) const
 {
     if (d_optionInfo.object().d_name.empty()) {
         stream << "Name cannot be an empty string." << bsl::endl;
-        return false;
+        return false;                                                 // RETURN
     }
     return true;
 }
@@ -2792,7 +2794,7 @@ CommandLineOption::print(bsl::ostream& stream,
     BSLS_ASSERT(0 <= spacesPerLevel);
 
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (level < 0) {
@@ -2891,7 +2893,7 @@ int CommandLine::parse(bsl::ostream& stream)
                 stream << "The argument \"" << d_arguments[i]
                        << "\" was unexpected." << bsl::endl;
                 location(stream, i);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             int nonOptionIndex = d_nonOptionIndices[nonOptionRank];
@@ -2902,7 +2904,7 @@ int CommandLine::parse(bsl::ostream& stream)
                                                      stream,
                                                      d_arguments[i].c_str())) {
                 location(stream, i);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Check for multiple values for the non-option.  (Note that it
@@ -2922,7 +2924,7 @@ int CommandLine::parse(bsl::ostream& stream)
         if (0 == d_arguments[i][1]) {  // -
             stream << "The character \"-\" was unexpected." << bsl::endl;
             location(stream, i);
-            return -1;
+            return -1;                                                // RETURN
         }
 
         // 3. Parse non-options following "--" :
@@ -2933,7 +2935,7 @@ int CommandLine::parse(bsl::ostream& stream)
             if ((int)d_nonOptionIndices.size() == nonOptionRank) {
                 stream << "The argument \"--\" was unexpected." << bsl::endl;
                 location(stream, i);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Error if missing required option.  Note that we still have a
@@ -2945,7 +2947,7 @@ int CommandLine::parse(bsl::ostream& stream)
                 stream << "No value supplied for the option \""
                        << d_options[missingIndex].tagString()
                        << "\"." << bsl::endl;
-                return -1;
+                return -1;                                            // RETURN
             }
 
             for (++i; i < d_arguments.size(); ++i) {
@@ -2955,7 +2957,7 @@ int CommandLine::parse(bsl::ostream& stream)
                                                      stream,
                                                      d_arguments[i].c_str())) {
                     location(stream, i);
-                    return -1;
+                    return -1;                                        // RETURN
                 }
                 d_positions[nonOptionIndex].push_back(i);
 
@@ -2977,7 +2979,7 @@ int CommandLine::parse(bsl::ostream& stream)
                           "(Note: long options may not begin with '-'.)"
                        << bsl::endl;
                 location(stream, i);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Find syntax used: "--option=value" or "--option value".
@@ -3003,7 +3005,7 @@ int CommandLine::parse(bsl::ostream& stream)
                 stream << "The string \"" << bsl::string(start, s - start)
                        << "\" does not match any long tag." << bsl::endl;
                 location(stream, i, 2, s - start + 1);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Only now, compute string holding argument value.
@@ -3021,7 +3023,7 @@ int CommandLine::parse(bsl::ostream& stream)
                                   "for the option \""
                                << thisOption.tagString()
                                << "\"." << bsl::endl;
-                        return -1;
+                        return -1;                                    // RETURN
                     }
                     str = d_arguments[j = i + 1].c_str();
                 } else {
@@ -3040,7 +3042,7 @@ int CommandLine::parse(bsl::ostream& stream)
                        << thisOption.tagString()
                        << "\"." << bsl::endl;
                 location(stream, i, 2, s - &d_arguments[i][0] - 1);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Parse value for (non-flag) option, using either syntax.
@@ -3052,7 +3054,7 @@ int CommandLine::parse(bsl::ostream& stream)
                          i,
                          (s+1) - &d_arguments[i][0],
                          d_arguments[i].size() - 1);
-                return -1;
+                return -1;                                            // RETURN
             }
             d_positions[index].push_back(i);
 
@@ -3082,7 +3084,7 @@ int CommandLine::parse(bsl::ostream& stream)
                                                   d_data[index], stream, "")) {
                 BSLS_ASSERT(0);
 
-                return -1;
+                return -1;                                            // RETURN
             }
             d_positions[index].push_back(i);
             ++s;
@@ -3098,7 +3100,7 @@ int CommandLine::parse(bsl::ostream& stream)
                        << "\" does not match any short tag."
                        << bsl::endl;
                 location(stream, i, s - d_arguments[i].c_str());
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Process last short option, which has a value, using either
@@ -3114,7 +3116,7 @@ int CommandLine::parse(bsl::ostream& stream)
                               "the option \""
                            << thisOption.tagString()
                            << "\"." << bsl::endl;
-                    return -1;
+                    return -1;                                        // RETURN
                 }
                 str = d_arguments[j = i + 1].c_str();
             }
@@ -3131,7 +3133,7 @@ int CommandLine::parse(bsl::ostream& stream)
                        << thisOption.tagString()
                        << "\"." << bsl::endl;
                 location(stream, j, str - d_arguments[j].c_str());
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Parse value for (non-flag) option, using either syntax.  (Note:
@@ -3144,7 +3146,7 @@ int CommandLine::parse(bsl::ostream& stream)
                          j,
                          str - d_arguments[j].c_str(),
                          d_arguments[j].size() - 1);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             d_positions[index].push_back(i);
@@ -3171,7 +3173,7 @@ int CommandLine::postParse(bsl::ostream& stream)
                    << thisOption.tagString()
                    << "\"." << bsl::endl;
         }
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bdlmxxx::RecordDef *record = d_schema.createRecord(recordName);
@@ -3414,7 +3416,7 @@ int CommandLine::findTag(const char *longTag, int tagLength) const
                                     CommandLineOptionInfo::BAEA_NON_OPTION
          && !bsl::strncmp(d_options[i].longTag(), longTag, tagLength)
          && bsl::strlen(d_options[i].longTag()) == (unsigned int)tagLength) {
-            return i;
+            return i;                                                 // RETURN
         }
     }
     return -1;
@@ -3426,7 +3428,7 @@ int CommandLine::findTag(char shortTag) const
         if (d_options[i].argType() !=
                                     CommandLineOptionInfo::BAEA_NON_OPTION
          && d_options[i].shortTag() == shortTag) {
-            return i;
+            return i;                                                 // RETURN
         }
     }
     return -1;
@@ -3436,7 +3438,7 @@ int CommandLine::findName(const bsl::string& name) const
 {
     for (unsigned int i = 0; i < d_options.size(); ++i) {
         if (d_options[i].name() == name) {
-            return i;
+            return i;                                                 // RETURN
         }
     }
     return -1;
@@ -3498,7 +3500,7 @@ int CommandLine::missing(bool checkAlsoNonOptions) const
          && d_options[i].occurrenceInfo().isRequired()
          && (CommandLineOptionInfo::BAEA_OPTION == argType ||
                                                         checkAlsoNonOptions)) {
-            return i;
+            return i;                                                 // RETURN
         }
     }
     return -1;
@@ -3634,7 +3636,7 @@ int CommandLine::parse(int argc, const char * const argv[],
 
     if (parse(stream)) {
         d_state = BAEA_INVALID;
-        return -1;
+        return -1;                                                    // RETURN
     }
     d_state = BAEA_PARSED;
     return 0;
@@ -3896,7 +3898,7 @@ void CommandLine::printUsage(bsl::ostream& stream) const
                 latest.append(2, '-');
             }
             latest.append(d_options[i].longTag());
-            if (CommandLineOptionInfo::BAEA_FLAG != 
+            if (CommandLineOptionInfo::BAEA_FLAG !=
                                                       d_options[i].argType()) {
                 latest.append(1, ' ');
                 latest.append(1, '<');
@@ -3918,7 +3920,7 @@ void CommandLine::printUsage(bsl::ostream& stream) const
                 start = '[';
                 end = ']';
             }
-            
+
             if (d_options[i].isArray()) {
                 multiIndicator =
                       !d_options[i].occurrenceInfo().isRequired() ? '*' : '+';
@@ -4069,13 +4071,13 @@ bsl::ostream& balb::operator<<(bsl::ostream& stream, const CommandLine& rhs)
     return rhs.print(stream);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

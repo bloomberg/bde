@@ -471,9 +471,9 @@ class Allocator {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::Allocator bslma_Allocator;
     // This alias is defined for backward compatibility.
@@ -590,9 +590,9 @@ void Allocator::deleteObjectRaw(const TYPE *object)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::Allocator bslma_Allocator;
     // This alias is defined for backward compatibility.

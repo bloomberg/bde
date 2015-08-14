@@ -1,4 +1,4 @@
-// bdlmxxx_table.t.cpp                                                   -*-C++-*-
+// bdlmxxx_table.t.cpp                                                -*-C++-*-
 
 #include <bdlmxxx_table.h>
 
@@ -236,9 +236,9 @@ using namespace bsl;  // automatically added by script
 // [19] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -250,7 +250,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
@@ -922,7 +922,7 @@ bsl::ostream& operator<<(bsl::ostream& stream,
     };
     return stream;
 }
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
                         // ==============
                         // loadReferenceA
@@ -1401,10 +1401,10 @@ bdlmxxx::Table g(const char *spec)
         }
     }
     if (types.size()) {
-        return bdlmxxx::Table(&types.front(), types.size());              // RETURN
+        return bdlmxxx::Table(&types.front(), types.size());          // RETURN
     }
     else {
-        return bdlmxxx::Table();                                          // RETURN
+        return bdlmxxx::Table();                                      // RETURN
     }
 }
 
@@ -11194,11 +11194,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

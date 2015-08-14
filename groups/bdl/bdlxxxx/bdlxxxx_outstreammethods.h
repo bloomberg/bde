@@ -1,4 +1,4 @@
-// bdlxxxx_outstreammethods.h                                            -*-C++-*-
+// bdlxxxx_outstreammethods.h                                         -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_OUTSTREAMMETHODS
 #define INCLUDED_BDLXXXX_OUTSTREAMMETHODS
 
@@ -681,7 +681,7 @@ class GenericOutStreamMethods {
                        // class bdex_OutStreamMethods
                        // ===========================
 
-template <typename TYPE>
+template <class TYPE>
 class bdex_OutStreamMethods : public bdlxxxx::GenericOutStreamMethods {
     // DEPRECATED: New code should not use or specialize this class.  Use and
     // specialize the functions in 'bdex_OutStreamFunctions' instead.
@@ -705,7 +705,7 @@ class bdex_OutStreamMethods : public bdlxxxx::GenericOutStreamMethods {
         return bdex_VersionFunctions::maxSupportedVersion(*p);
     }
 
-    template <typename STREAM>
+    template <class STREAM>
     static
     STREAM& bdexStreamOut(STREAM& stream, const TYPE& value, int version)
         // Write the specified 'value' to the specified output 'stream' using
@@ -731,7 +731,7 @@ struct OutStreamMethodsUtil {
     // directly by clients.
 
   public:
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     static STREAM& streamOutVersionAndObject(STREAM&     stream,
                                              const TYPE& object) {
@@ -760,30 +760,31 @@ struct OutStreamMethodsUtil {
         if (isNotSpecialized) {
             return bdex_OutStreamFunctions::streamOutVersionAndObject(stream,
                                                                       object);
+                                                                      // RETURN
         }
         else {
             const int version = methodsClass::maxSupportedBdexVersion();
             stream.putVersion(version);
             return methodsClass::bdexStreamOut(stream,
                                                object,
-                                               version);
+                                               version);              // RETURN
         }
     }
 
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

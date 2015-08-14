@@ -1,4 +1,4 @@
-// bdlmxxx_listimp.cpp                                                   -*-C++-*-
+// bdlmxxx_listimp.cpp                                                -*-C++-*-
 #include <bdlmxxx_listimp.h>
 
 #include <bsls_ident.h>
@@ -423,7 +423,7 @@ void *ListImp::insertElement(int                    dstIndex,
         ListImp& list = insertList(
                                    dstIndex,
                                   *((const ListImp *)value)->d_rowData_p);
-        return (void *) &list;
+        return (void *) &list;                                        // RETURN
     }
 }
 
@@ -609,13 +609,13 @@ void ListImp::swap(ListImp& rhs)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

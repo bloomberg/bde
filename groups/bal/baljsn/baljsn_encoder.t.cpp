@@ -160,7 +160,7 @@ typedef bsls::Types::Int64                   Int64;
 typedef bsls::Types::Uint64                  Uint64;
 
 // ============================================================================
-//                  GLOBAL DATA FOR TESTING
+//                          GLOBAL DATA FOR TESTING
 // ----------------------------------------------------------------------------
 
 const char XML_SCHEMA[] =
@@ -29141,7 +29141,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='T'
              && bdlb::CharType::toUpper(name[3])=='Y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];   // RETURN
             }
         } break;
         case 5: {
@@ -29151,7 +29151,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[3])=='T'
              && bdlb::CharType::toUpper(name[4])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];  // RETURN
             }
         } break;
         case 6: {
@@ -29162,7 +29162,7 @@ const bdeat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[4])=='E'
              && bdlb::CharType::toUpper(name[5])=='T')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]; // RETURN
             }
         } break;
     }
@@ -29366,7 +29366,7 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -29466,7 +29466,7 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -29792,7 +29792,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[1])=='G'
              && bdlb::CharType::toUpper(name[2])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
             }
         } break;
         case 4: {
@@ -29801,7 +29801,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='M'
              && bdlb::CharType::toUpper(name[3])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
             }
         } break;
         case 11: {
@@ -29818,6 +29818,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[10])=='S')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
+                                                                      // RETURN
             }
         } break;
     }
@@ -30020,7 +30021,7 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -30121,7 +30122,7 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -30163,12 +30164,12 @@ const int& Employee::age() const
 
 }  // close namespace test
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
 namespace {
 
 // ============================================================================
-//                  GLOBAL DATA FOR TESTING
+//                          GLOBAL DATA FOR TESTING
 // ----------------------------------------------------------------------------
 
 void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
@@ -30185,7 +30186,7 @@ void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
             cout << '\'' << rhs[i] << '\'' << endl;
             P(bsl::string(lhs.begin(), lhs.begin() + i));
             P(bsl::string(rhs.begin(), rhs.begin() + i));
-            return;
+            return;                                                   // RETURN
         }
     }
 }
@@ -30228,7 +30229,7 @@ void constructFeatureTestMessage(
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 int populateTestObject(TYPE *object, const bsl::string& xmlString)
 {
     bsl::istringstream ss(xmlString);
@@ -30293,7 +30294,7 @@ void testNumber()
     }
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -32582,10 +32583,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

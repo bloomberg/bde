@@ -1,3 +1,4 @@
+// bslstl_referencewrapper.cpp                                        -*-C++-*-
 
 // bslstl_referencewrapper.cpp                                         -*-C++-*-
 #include <bslstl_referencewrapper.h>

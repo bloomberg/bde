@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
 // The following snippets of code illustrate how to create and use a
 // 'ball::UserFieldValue' object.  Note that 'ball::UserFieldValue' objects
 // are typically used in a description of a sequence of user fields (see
-// 'ball_userfields'). 
+// 'ball_userfields').
 //
 // First, we create a default 'ball::UserFieldValue', 'valueA', and observe
 // that it is in the unset state, meaning that 'isUnset' is true and its type
@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

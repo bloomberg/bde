@@ -1,4 +1,4 @@
-// bdlmxxx_bdemencoderutil.h                                             -*-C++-*-
+// bdlmxxx_bdemencoderutil.h                                          -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_BDEMENCODERUTIL
 #define INCLUDED_BDLMXXX_BDEMENCODERUTIL
 
@@ -279,9 +279,9 @@ struct BdemEncoderUtil {
     // 'bdeat' types to an outgoing stream in a 'bdem' wire format.
 
     // MANIPULATORS
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     static STREAM& encode(STREAM& stream, const TYPE& value);
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     static STREAM& encode(STREAM&                        stream,
                           const TYPE&                    value,
                           const BdemEncoderOptions& options);
@@ -290,9 +290,9 @@ struct BdemEncoderUtil {
         // 'options'.  Return a reference to 'stream'.  Note that 'stream' will
         // be invalidated if the encoding fails.
 
-    template <typename TYPE>
+    template <class TYPE>
     static int encode(bsl::streambuf *buffer, const TYPE& value);
-    template <typename TYPE>
+    template <class TYPE>
     static int encode(bsl::streambuf                 *buffer,
                       const TYPE&                     value,
                       const BdemEncoderOptions&  options);
@@ -300,9 +300,9 @@ struct BdemEncoderUtil {
         // 'buffer' using the optionally specified 'options'.  Return 0 on
         // success, and a non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& encode(bsl::ostream& stream, const TYPE& value);
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& encode(bsl::ostream&                  stream,
                                 const TYPE&                    value,
                                 const BdemEncoderOptions& options);
@@ -317,7 +317,7 @@ struct BdemEncoderUtil {
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 
 
-namespace bdlmxxx {template <typename STREAM>
+namespace bdlmxxx {template <class STREAM>
 class BdemEncoderUtil_Encoder;
 
 struct BdemEncoderUtil_NativeBdemArrayCategory;
@@ -330,7 +330,7 @@ struct BdemEncoderUtil_OtherArrayCategory;
            // private class BdemEncoderUtil_BindEncodeSelection
            // ======================================================
 
-template <typename STREAM>
+template <class STREAM>
 class BdemEncoderUtil_BindEncodeSelection {
     // This class is used to bind the 'encodeSelection' method in the
     // 'BdemEncoderUtil_Encoder' class with the visited object.
@@ -354,7 +354,7 @@ class BdemEncoderUtil_BindEncodeSelection {
     // ~BdemEncoderUtil_BindEncodeSelection();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(const TYPE&      object,
                    const INFO_TYPE& info);
 };
@@ -374,10 +374,10 @@ class BdemEncoderUtil_BuildBitmaps {
     unsigned int              d_mask;
 
     // PRIVATE MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     void addMask(const TYPE& object, bdeat_TypeCategory::NullableValue);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     void addMask(const TYPE& object, ANY_CATEGORY);
 
   private:
@@ -395,7 +395,7 @@ class BdemEncoderUtil_BuildBitmaps {
     // ~BdemEncoderUtil_BuildBitmaps();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& object,
                    const INFO&);
 
@@ -431,7 +431,7 @@ class BdemEncoderUtil_BuildElemTypes {
     // ~BdemEncoderUtil_BuildElemTypes();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO&);
         // Append the 'bdem' element type corresponding to the specified non-
         // modifiable 'value' of parameterized 'TYPE' to the array of element
@@ -463,7 +463,7 @@ struct BdemEncoderUtil_Constants {
         // private class BdemEncoderUtil_EncodeAttributesWithMask
         // ===========================================================
 
-template <typename STREAM>
+template <class STREAM>
 class BdemEncoderUtil_EncodeAttributesWithMask {
     // This class is used to encode a sequence of attributes, preceding every
     // 32 attributes with a 32-bit bitmap.  If a bit is reset, that means that
@@ -494,11 +494,11 @@ class BdemEncoderUtil_EncodeAttributesWithMask {
     // ~BdemEncoderUtil_EncodeAttributesWithMask();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(const TYPE& object,
                    const INFO_TYPE&);
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(const TYPE& object);
 };
 
@@ -506,7 +506,7 @@ class BdemEncoderUtil_EncodeAttributesWithMask {
                  // private class BdemEncoderUtil_Encoder
                  // ==========================================
 
-template <typename STREAM>
+template <class STREAM>
 class BdemEncoderUtil_Encoder {
     // This class contains the logic for encoding each of the supported types.
     // It is parameterized with the 'bdex' stream type.
@@ -523,14 +523,14 @@ class BdemEncoderUtil_Encoder {
     struct TypeHasNoBdetuNullValue { };
 
     // PRIVATE MANIPULATORS
-    template <typename BDEM_TYPE>
+    template <class BDEM_TYPE>
     int encodeNullValue(TypeHasBdetuNullValue);
         // Encode the null representation of the parameterized 'BDEM_TYPE'.
         // Return 0 on success, and a non-zero value otherwise.  Note that the
         // argument is used for overloading purposes and indicates that
         // 'BDEM_TYPE' has a defined 'bdetu' null value (see 'bdltuxxx_unset').
 
-    template <typename BDEM_TYPE>
+    template <class BDEM_TYPE>
     int encodeNullValue(TypeHasNoBdetuNullValue);
         // Encode the null representation of the parameterized 'BDEM_TYPE'.
         // Return 0 on success, and a non-zero value otherwise.  Note that the
@@ -538,21 +538,21 @@ class BdemEncoderUtil_Encoder {
         // 'BDEM_TYPE' does *not* have a defined 'bdetu' null value (i.e.,
         // arrays, list, and table).
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value, bdeat_TypeCategory::Array);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
         // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Array'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value, bdeat_TypeCategory::Choice);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
         // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Choice'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value, bdeat_TypeCategory::CustomizedType);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
@@ -560,7 +560,7 @@ class BdemEncoderUtil_Encoder {
         // indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::CustomizedType'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value, bdeat_TypeCategory::Enumeration);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
@@ -568,7 +568,7 @@ class BdemEncoderUtil_Encoder {
         // indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::Enumeration'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value, bdeat_TypeCategory::NullableValue);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
@@ -576,7 +576,7 @@ class BdemEncoderUtil_Encoder {
         // indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::NullableValue'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value, bdeat_TypeCategory::Sequence);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
@@ -584,14 +584,14 @@ class BdemEncoderUtil_Encoder {
         // indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::Sequence'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value, bdeat_TypeCategory::Simple);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is used for overloading purposes and
         // indicates that 'TYPE' must fall under 'bdeat_TypeCategory::Simple'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeArrayImp(const TYPE& value,
                        BdemEncoderUtil_NativeBdemArrayCategory);
         // Encode the specified non-modifiable 'value' to the stream held by
@@ -599,7 +599,7 @@ class BdemEncoderUtil_Encoder {
         // Note that second argument is used for overloading purposes and
         // indicates that 'TYPE' must be a native 'bdem' array.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeArrayImp(const TYPE& value,
                        BdemEncoderUtil_ChoiceArrayCategory);
         // Encode the specified non-modifiable 'value' to the stream held by
@@ -609,7 +609,7 @@ class BdemEncoderUtil_Encoder {
         // and must contain elements that fall under
         // 'bdeat_TypeCategory::Choice'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeArrayImp(const TYPE& value,
                        BdemEncoderUtil_ExtendedBdemArrayCategory);
         // Encode the specified non-modifiable 'value' to the stream held by
@@ -619,7 +619,7 @@ class BdemEncoderUtil_Encoder {
         // and must contain extended types ('bdlt::DateTz', 'bdlt::DatetimeTz',
         // and 'bdlt::TimeTz').
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeArrayImp(const TYPE& value,
                        BdemEncoderUtil_SequenceArrayCategory);
         // Encode the specified non-modifiable 'value' to the stream held by
@@ -629,7 +629,7 @@ class BdemEncoderUtil_Encoder {
         // and must contain elements that fall under
         // 'bdeat_TypeCategory::Sequence'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeArrayImp(const TYPE& value,
                        BdemEncoderUtil_OtherArrayCategory);
         // Encode the specified non-modifiable 'value' to the stream held by
@@ -654,7 +654,7 @@ class BdemEncoderUtil_Encoder {
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeSelectionImp(const TYPE&        value,
                            const bsl::string& name,
                            bdeat_TypeCategory::NullableValue);
@@ -664,7 +664,7 @@ class BdemEncoderUtil_Encoder {
         // for overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::NullableValue'.
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int encodeSelectionImp(const TYPE&        value,
                            const bsl::string& name,
                            ANY_CATEGORY);
@@ -674,13 +674,13 @@ class BdemEncoderUtil_Encoder {
         // for overloading purposes and indicates that 'TYPE' does not fall
         // under any of the other overloads of 'encodeSelectionImp'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeSequenceAttributes(const TYPE& value);
         // Encode the attributes of the specified 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that 'TYPE' must fall under 'bdeat_TypeCategory::Sequence'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeSequenceElemTypes(const TYPE& value);
         // Encode, to the stream held by this encoder, an 'bsl::vector<char>'
         // that contains the 'bdem' element types that correspond to the 'bdem'
@@ -704,19 +704,19 @@ class BdemEncoderUtil_Encoder {
     // ~BdemEncoderUtil_Encoder();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO&);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
         // Note that the second argument is passed by the accessor methods of
         // 'bdeat' types but is ignored by this visitor.
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& value);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(const TYPE& value);
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
@@ -727,7 +727,7 @@ class BdemEncoderUtil_Encoder {
         // Encode the specified non-modifiable 'value' to the stream held by
         // this encoder.  Return 0 on success, and a non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeSelection(const TYPE& value, const bsl::string& name);
         // Encode the specified 'value' as a selection (of a type that falls
         // under 'bdeat_TypeCategory::Choice') using the specified 'name' to
@@ -771,7 +771,7 @@ struct BdemEncoderUtil_SequenceArrayCategory     { };
 struct BdemEncoderUtil_ChoiceArrayCategory       { };
 struct BdemEncoderUtil_OtherArrayCategory        { };
 
-template <typename TYPE>
+template <class TYPE>
 struct BdemEncoderUtil_SelectArrayTypeCategory {
     // This meta-function is used to obtain the array type category for the
     // parameterized 'TYPE'.
@@ -826,9 +826,9 @@ struct BdemEncoderUtil_SelectArrayTypeCategory {
                            BdemEncoderUtil_OtherArrayCategory>::Type Type;
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------------
                         // struct BdemEncoderUtil
@@ -836,20 +836,20 @@ struct BdemEncoderUtil_SelectArrayTypeCategory {
 
 // MANIPULATORS
 
-template <typename STREAM, typename TYPE>
+template <class STREAM, class TYPE>
 inline
 STREAM& BdemEncoderUtil::encode(STREAM& stream, const TYPE& value)
 {
     return encode(stream, value, BdemEncoderOptions());
 }
 
-template <typename STREAM, typename TYPE>
+template <class STREAM, class TYPE>
 STREAM& BdemEncoderUtil::encode(STREAM&                        stream,
                                      const TYPE&                    value,
                                      const BdemEncoderOptions& options)
 {
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     int bdemVersion = options.bdemVersion();
@@ -857,7 +857,7 @@ STREAM& BdemEncoderUtil::encode(STREAM&                        stream,
     if (1 != bdemVersion && 2 != bdemVersion) {
         stream.invalidate();
 
-        return stream;
+        return stream;                                                // RETURN
     }
 
     BdemEncoderUtil_Encoder<STREAM> encoder(&stream, bdemVersion);
@@ -869,14 +869,14 @@ STREAM& BdemEncoderUtil::encode(STREAM&                        stream,
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BdemEncoderUtil::encode(bsl::streambuf *buffer, const TYPE& value)
 {
     return encode(buffer, value, BdemEncoderOptions());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BdemEncoderUtil::encode(bsl::streambuf                 *buffer,
                                  const TYPE&                     value,
@@ -891,7 +891,7 @@ int BdemEncoderUtil::encode(bsl::streambuf                 *buffer,
     return formatter ? BDEM_SUCCESS : BDEM_FAILURE;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& BdemEncoderUtil::encode(bsl::ostream& stream,
                                            const TYPE&   value)
@@ -899,7 +899,7 @@ bsl::ostream& BdemEncoderUtil::encode(bsl::ostream& stream,
     return encode(stream, value, BdemEncoderOptions());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& BdemEncoderUtil::encode(
                                         bsl::ostream&                  stream,
@@ -907,7 +907,7 @@ bsl::ostream& BdemEncoderUtil::encode(
                                         const BdemEncoderOptions& options)
 {
     if (!stream.good()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (0 != encode(stream.rdbuf(), value, options)) {
@@ -923,7 +923,7 @@ bsl::ostream& BdemEncoderUtil::encode(
 
 // CREATORS
 
-template <typename STREAM>
+template <class STREAM>
 inline
 BdemEncoderUtil_BindEncodeSelection<STREAM>::
                                       BdemEncoderUtil_BindEncodeSelection(
@@ -934,8 +934,8 @@ BdemEncoderUtil_BindEncodeSelection<STREAM>::
 
 // MANIPULATORS
 
-template <typename STREAM>
-template <typename TYPE, typename INFO_TYPE>
+template <class STREAM>
+template <class TYPE, class INFO_TYPE>
 inline
 int BdemEncoderUtil_BindEncodeSelection<STREAM>::operator()(
                                                        const TYPE&      object,
@@ -950,7 +950,7 @@ int BdemEncoderUtil_BindEncodeSelection<STREAM>::operator()(
 
 // PRIVATE MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void BdemEncoderUtil_BuildBitmaps::addMask(
                                              const TYPE& object,
@@ -963,7 +963,7 @@ void BdemEncoderUtil_BuildBitmaps::addMask(
     }
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 void BdemEncoderUtil_BuildBitmaps::addMask(const TYPE&, ANY_CATEGORY)
 {
@@ -982,7 +982,7 @@ BdemEncoderUtil_BuildBitmaps::BdemEncoderUtil_BuildBitmaps()
 
 // MANIPULATORS
 
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 int BdemEncoderUtil_BuildBitmaps::operator()(const TYPE& object,
                                                   const INFO&)
 {
@@ -1028,7 +1028,7 @@ BdemEncoderUtil_BuildElemTypes::BdemEncoderUtil_BuildElemTypes()
 
 // MANIPULATORS
 
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 inline
 int BdemEncoderUtil_BuildElemTypes::operator()(const TYPE&, const INFO&)
 {
@@ -1053,7 +1053,7 @@ const bsl::vector<char>& BdemEncoderUtil_BuildElemTypes::elemTypes() const
 
 // CREATORS
 
-template <typename STREAM>
+template <class STREAM>
 inline
 BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::
                                  BdemEncoderUtil_EncodeAttributesWithMask(
@@ -1069,8 +1069,8 @@ BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::
 
 // MANIPULATORS
 
-template <typename STREAM>
-template <typename TYPE, typename INFO_TYPE>
+template <class STREAM>
+template <class TYPE, class INFO_TYPE>
 inline
 int BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::operator()(
                                                             const TYPE& object,
@@ -1079,8 +1079,8 @@ int BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::operator()(
     return execute(object);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::execute(
                                                             const TYPE& object)
 {
@@ -1100,7 +1100,7 @@ int BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::execute(
 
     if (0 == bit) {
         if (!d_stream_p->putUint32(bitmap)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1114,7 +1114,7 @@ int BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::execute(
     if (0 == (bitmap & mask)) {
         // Compress attribute out of the stream.
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     return d_encoder_p->encode(object);
@@ -1126,8 +1126,8 @@ int BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::execute(
 
 // PRIVATE MANIPULATORS
 
-template <typename STREAM>
-template <typename BDEM_TYPE>
+template <class STREAM>
+template <class BDEM_TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeNullValue(
                                                          TypeHasBdetuNullValue)
@@ -1140,14 +1140,14 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeNullValue(
                                           *d_stream_p,
                                           bdltuxxx::Unset<BDEM_TYPE>::unsetValue(),
                                           BDEX_VERSION)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename BDEM_TYPE>
+template <class STREAM>
+template <class BDEM_TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeNullValue(
                                                        TypeHasNoBdetuNullValue)
@@ -1161,7 +1161,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeNullValue(
     if (bdeat_ArrayFunctions::IsArray<BDEM_TYPE>::VALUE
      || bslmf::IsSame<BDEM_TYPE, List>::VALUE) {
         if (!d_stream_p->putLength(0)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
     else {
@@ -1170,15 +1170,15 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeNullValue(
         //       encodeArrayImp for sequence arrays)
 
         if (d_stream_p->putLength(0) && d_stream_p->putLength(0)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
                                                     bdeat_TypeCategory::Array)
@@ -1189,8 +1189,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
     return encodeArrayImp(value, ArrayTypeCategory());
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
                                                     bdeat_TypeCategory::Choice)
 {
@@ -1223,8 +1223,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
     return bdeat_ChoiceFunctions::accessSelection(value, encodeSelection);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                             const TYPE& value,
@@ -1233,8 +1233,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
     return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value));
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                                const TYPE& value,
@@ -1247,8 +1247,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
     return encode(intValue);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                              const TYPE& value,
@@ -1256,6 +1256,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
 {
     if (!bdeat_NullableValueFunctions::isNull(value)) {
         return bdeat_NullableValueFunctions::accessValue(value, *this);
+                                                                      // RETURN
     }
 
     // If 2 == d_bdemVersion and 1 == d_level, we should never arrive here!
@@ -1273,8 +1274,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
     return encodeNullValue<BdemType>(Toggle());
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                                   const TYPE& value,
@@ -1284,14 +1285,14 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(
 
     // Note: ambiguous with null sequence if numAttributes = 0
     if (0 != encodeSequenceElemTypes(value)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return encodeSequenceAttributes(value);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
                                                     bdeat_TypeCategory::Simple)
@@ -1317,15 +1318,15 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeImp(const TYPE& value,
     if (!bdex_OutStreamFunctions::streamOut(*d_stream_p,
                                             static_cast<BdemType>(value),
                                             BDEX_VERSION)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 #endif
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
                                   const TYPE& value,
@@ -1338,14 +1339,14 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
     if (!bdex_OutStreamFunctions::streamOut(*d_stream_p,
                                             value,
                                             BDEX_VERSION)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
                                       const TYPE& value,
                                       BdemEncoderUtil_ChoiceArrayCategory)
@@ -1368,15 +1369,15 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
            && !d_stream_p->putUint32(
                           BdemEncoderUtil_Constants::BDEM_FIRST_BIT_MASK))
          || 0 != bdeat_ArrayFunctions::accessElement(value, *this, i)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
                                 const TYPE& value,
                                 BdemEncoderUtil_ExtendedBdemArrayCategory)
@@ -1394,7 +1395,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
 
     if (0 != encodeExtendedTypeElemTypes((ElementType*)0)
      || !d_stream_p->putLength(numRows)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     typedef BdemEncoderUtil_Encoder<STREAM> ThisClass;
@@ -1416,8 +1417,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
                                     const TYPE& value,
                                     BdemEncoderUtil_SequenceArrayCategory)
@@ -1471,8 +1472,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
                                        const TYPE& value,
                                        BdemEncoderUtil_OtherArrayCategory)
@@ -1494,7 +1495,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeArrayImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeElemTypes(
                                                                  bdlt::DateTz *)
@@ -1507,13 +1508,13 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeElemTypes(
 
     if (!d_stream_p->putLength(NUM_ELEMENTS)
      || !d_stream_p->putArrayInt8(ELEM_TYPES, NUM_ELEMENTS)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeElemTypes(
                                                              bdlt::DatetimeTz *)
@@ -1526,13 +1527,13 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeElemTypes(
 
     if (!d_stream_p->putLength(NUM_ELEMENTS)
      || !d_stream_p->putArrayInt8(ELEM_TYPES, NUM_ELEMENTS)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeElemTypes(
                                                                  bdlt::TimeTz *)
@@ -1545,13 +1546,13 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeElemTypes(
 
     if (!d_stream_p->putLength(NUM_ELEMENTS)
      || !d_stream_p->putArrayInt8(ELEM_TYPES, NUM_ELEMENTS)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeValue(
                                                       const bdlt::DateTz& value)
@@ -1561,19 +1562,19 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeValue(
     if (2 == d_bdemVersion && 1 == d_level) {
         if (!d_stream_p->putUint32(
                    BdemEncoderUtil_Constants::BDEM_FIRST_TWO_BITS_MASK)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
     if (0 != encode(value.localDate())
      || 0 != encode(value.offset())) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeValue(
                                                   const bdlt::DatetimeTz& value)
@@ -1583,19 +1584,19 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeValue(
     if (2 == d_bdemVersion && 1 == d_level) {
         if (!d_stream_p->putUint32(
                    BdemEncoderUtil_Constants::BDEM_FIRST_TWO_BITS_MASK)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
     if (0 != encode(value.localDatetime())
      || 0 != encode(value.offset())) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeValue(
                                                       const bdlt::TimeTz& value)
@@ -1605,20 +1606,20 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeExtendedTypeValue(
     if (2 == d_bdemVersion && 1 == d_level) {
         if (!d_stream_p->putUint32(
                    BdemEncoderUtil_Constants::BDEM_FIRST_TWO_BITS_MASK)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
     if (0 != encode(value.localTime())
      || 0 != encode(value.offset())) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
                                              const TYPE&        value,
                                              const bsl::string& name,
@@ -1636,10 +1637,10 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
          || !d_stream_p->putUint32(
                            BdemEncoderUtil_Constants::BDEM_FIRST_BIT_MASK)
          || !d_stream_p->putString(name)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     // If control flows here, that means 2 != d_bdemVersion OR 1 != d_level OR
@@ -1663,8 +1664,8 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
     return bdeat_NullableValueFunctions::accessValue(value, encodeFunctor);
 }
 
-template <typename STREAM>
-template <typename TYPE, typename ANY_CATEGORY>
+template <class STREAM>
+template <class TYPE, class ANY_CATEGORY>
 int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
                                                       const TYPE&        value,
                                                       const bsl::string& name,
@@ -1683,14 +1684,14 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSelectionImp(
                      BdemEncoderUtil_Constants::BDEM_FIRST_TWO_BITS_MASK))
      || !d_stream_p->putString(name)
      || 0 != encode(value)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceAttributes(
                                                              const TYPE& value)
 {
@@ -1703,7 +1704,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceAttributes(
     if (2 == d_bdemVersion && 1 == d_level) {
         if (0 != bdeat_SequenceFunctions::accessAttributes(value,
                                                            buildBitmaps)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
         const bsl::vector<unsigned int>& bitmaps = buildBitmaps.bitmaps();
 
@@ -1715,14 +1716,16 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceAttributes(
         return bdeat_SequenceFunctions::accessAttributes(
                                                      value,
                                                      encodeAttributesWithMask);
+                                                                      // RETURN
     }
     else {
         return bdeat_SequenceFunctions::accessAttributes(value, *this);
+                                                                      // RETURN
     }
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceElemTypes(
                                                              const TYPE& value)
@@ -1733,11 +1736,11 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceElemTypes(
 
     if (0 != bdeat_SequenceFunctions::accessAttributes(value,
                                                        buildElemTypes)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (0 != encode(buildElemTypes.elemTypes())) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
@@ -1745,7 +1748,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encodeSequenceElemTypes(
 
 // CREATORS
 
-template <typename STREAM>
+template <class STREAM>
 inline
 BdemEncoderUtil_Encoder<STREAM>::BdemEncoderUtil_Encoder(
                                                            STREAM *stream,
@@ -1758,8 +1761,8 @@ BdemEncoderUtil_Encoder<STREAM>::BdemEncoderUtil_Encoder(
 
 // MANIPULATORS
 
-template <typename STREAM>
-template <typename TYPE, typename INFO>
+template <class STREAM>
+template <class TYPE, class INFO>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::operator()(const TYPE& value,
                                                      const INFO&)
@@ -1767,16 +1770,16 @@ int BdemEncoderUtil_Encoder<STREAM>::operator()(const TYPE& value,
     return encode(value);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::operator()(const TYPE& value)
 {
     return encode(value);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encode(const TYPE& value)
 {
@@ -1786,7 +1789,7 @@ int BdemEncoderUtil_Encoder<STREAM>::encode(const TYPE& value)
     return encodeImp(value, TypeCategory());
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encode(const bdlt::DateTz& value)
 {
@@ -1796,13 +1799,13 @@ int BdemEncoderUtil_Encoder<STREAM>::encode(const bdlt::DateTz& value)
 
     if (0 != encodeExtendedTypeElemTypes((bdlt::DateTz*)0)
      || 0 != encodeExtendedTypeValue(value)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encode(const bdlt::DatetimeTz& value)
 {
@@ -1812,13 +1815,13 @@ int BdemEncoderUtil_Encoder<STREAM>::encode(const bdlt::DatetimeTz& value)
 
     if (0 != encodeExtendedTypeElemTypes((bdlt::DatetimeTz*)0)
      || 0 != encodeExtendedTypeValue(value)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encode(const bdlt::TimeTz& value)
 {
@@ -1828,14 +1831,14 @@ int BdemEncoderUtil_Encoder<STREAM>::encode(const bdlt::TimeTz& value)
 
     if (0 != encodeExtendedTypeElemTypes((bdlt::TimeTz*)0)
      || 0 != encodeExtendedTypeValue(value)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemEncoderUtil_Encoder<STREAM>::encodeSelection(
                                                       const TYPE&        value,
@@ -1869,15 +1872,15 @@ BdemEncoderUtil_NewLevelGuard::~BdemEncoderUtil_NewLevelGuard()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

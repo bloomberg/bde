@@ -1,4 +1,4 @@
-// bdlmxxx_binding.h                                                     -*-C++-*-
+// bdlmxxx_binding.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_BINDING
 #define INCLUDED_BDLMXXX_BINDING
 
@@ -3962,9 +3962,9 @@ class bdem_ChoiceArrayBinding : public bdem_ConstChoiceArrayBinding {
         // record constrains a 'bdlmxxx::Table'.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------------
                         // class bdem_ConstRowBinding
@@ -10367,15 +10367,15 @@ bdem_TableBinding bdem_ChoiceArrayBinding::tableBinding(int itemIndex) const
                 d_constraint_p->field(selector(itemIndex)).recordConstraint());
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

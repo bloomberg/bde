@@ -2021,7 +2021,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
@@ -2052,7 +2052,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
@@ -2086,7 +2086,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
@@ -2123,7 +2123,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
@@ -2163,7 +2163,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
@@ -2206,7 +2206,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
     BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     enum {
@@ -5244,9 +5244,9 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
     // This alias is defined for backward compatibility.

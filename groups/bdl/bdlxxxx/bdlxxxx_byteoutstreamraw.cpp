@@ -1,4 +1,4 @@
-// bdlxxxx_byteoutstreamraw.cpp                                          -*-C++-*-
+// bdlxxxx_byteoutstreamraw.cpp                                       -*-C++-*-
 #include <bdlxxxx_byteoutstreamraw.h>
 
 #include <bsls_ident.h>
@@ -31,20 +31,20 @@ bsl::ostream& bdlxxxx::operator<<(bsl::ostream&                stream,
         for (int j = 7; j >= 0; j--) {
             array[7-j] = static_cast<char>('0' + ((data[i] >> j) & 0x01));
         }
-        
+
         stream.write(array, sizeof array);
     }
     stream.flags(flags);  // reset stream format flags
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

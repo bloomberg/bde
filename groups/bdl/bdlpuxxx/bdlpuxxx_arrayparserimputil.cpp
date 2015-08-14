@@ -1,4 +1,4 @@
-// bdlpuxxx_arrayparserimputil.cpp                                       -*-C++-*-
+// bdlpuxxx_arrayparserimputil.cpp                                    -*-C++-*-
 #include <bdlpuxxx_arrayparserimputil.h>
 
 #include <bsls_ident.h>
@@ -100,27 +100,27 @@ int bdlpuxxx::ArrayParserImpUtil::PARSE_FUNC_ARRAY(FUNC_NAME)(                  
     return BDEPU_SUCCESS;                                                     \
 }
 
-PARSE_ARRAY(Char, char)
-PARSE_ARRAY(Date, bdlt::Date)
-PARSE_ARRAY(Datetime, bdlt::Datetime)
-PARSE_ARRAY(DatetimeTz, bdlt::DatetimeTz)
-PARSE_ARRAY(DateTz, bdlt::DateTz)
-PARSE_ARRAY(Double, double)
-PARSE_ARRAY(Float, float)
-PARSE_ARRAY(Int, int)
-PARSE_ARRAY(Int64, bsls::Types::Int64)
-PARSE_ARRAY(Short, short)
-PARSE_ARRAY(String, bsl::string)
-PARSE_ARRAY(Time, bdlt::Time)
-PARSE_ARRAY(TimeTz, bdlt::TimeTz)
+PARSE_ARRAY(Char, char)                                               // RETURN
+PARSE_ARRAY(Date, bdlt::Date)                                         // RETURN
+PARSE_ARRAY(Datetime, bdlt::Datetime)                                 // RETURN
+PARSE_ARRAY(DatetimeTz, bdlt::DatetimeTz)                             // RETURN
+PARSE_ARRAY(DateTz, bdlt::DateTz)                                     // RETURN
+PARSE_ARRAY(Double, double)                                           // RETURN
+PARSE_ARRAY(Float, float)                                             // RETURN
+PARSE_ARRAY(Int, int)                                                 // RETURN
+PARSE_ARRAY(Int64, bsls::Types::Int64)                                // RETURN
+PARSE_ARRAY(Short, short)                                             // RETURN
+PARSE_ARRAY(String, bsl::string)                                      // RETURN
+PARSE_ARRAY(Time, bdlt::Time)                                         // RETURN
+PARSE_ARRAY(TimeTz, bdlt::TimeTz)                                     // RETURN
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

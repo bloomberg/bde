@@ -26,7 +26,7 @@ const char *bblscm::Version::s_buildInfo         = "";
 const char *bblscm::Version::s_timestamp         = "";
 const char *bblscm::Version::s_sourceControlInfo = "";
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

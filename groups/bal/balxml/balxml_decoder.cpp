@@ -1,4 +1,4 @@
-// balxml_decoder.cpp              -*-C++-*-
+// balxml_decoder.cpp                                                 -*-C++-*-
 #include <balxml_decoder.h>
 
 #include <bsls_ident.h>
@@ -264,7 +264,7 @@ Decoder::open(bsl::streambuf *buffer, const char *uri)
         BALXML_DECODER_LOG_ERROR(this)
                      << "Unable to open reader for input stream."
                      << BALXML_DECODER_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
     return readTopElement();
 }
@@ -280,7 +280,7 @@ Decoder::open(const char *buffer, size_t length, const char *uri)
         BALXML_DECODER_LOG_ERROR(this)
                      << "Unable to open reader for input string."
                      << BALXML_DECODER_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
     return readTopElement();
 }
@@ -295,7 +295,7 @@ Decoder::open(const char *filename)
         BALXML_DECODER_LOG_ERROR(this)
                      << "Unable to open reader for input file."
                      << BALXML_DECODER_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
     return readTopElement();
 }
@@ -314,7 +314,7 @@ Decoder::readTopElement()
                      << "Fatal error while looking for root-level element."
                      << BALXML_DECODER_LOG_END;
 
-            return -1;
+            return -1;                                                // RETURN
         }
 
     } while (d_reader->nodeType() != Reader::BAEXML_NODE_TYPE_ELEMENT);
@@ -347,7 +347,7 @@ Decoder::checkForErrors(const ErrorInfo& errInfo)
 {
     switch (errInfo.severity()) {
       case ErrorInfo::BAEXML_NO_ERROR:
-        return 0;
+        return 0;                                                     // RETURN
 
       case ErrorInfo::BAEXML_WARNING:
         ++d_warningCount;
@@ -388,7 +388,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
     int numAttr = d_reader->numAttributes();
 
     if (d_reader->isEmptyElement() && 0 == numAttr) {
-        return BAEXML_SUCCESS; // According to Shezan's advice
+        return BAEXML_SUCCESS; // According to Shezan's advice        // RETURN
     }
 
     // Auto Decrement on enter and Increment on exit
@@ -400,7 +400,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
             << "Reached maximum depth allowed."
             << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     if (0 != elementContext->startElement(this)) {
@@ -529,13 +529,13 @@ bsl::ostream& Decoder::logStream()
 ErrorInfo::Severity Decoder::errorSeverity() const
 {
     if (d_fatalError) {
-        return ErrorInfo::BAEXML_FATAL_ERROR;
+        return ErrorInfo::BAEXML_FATAL_ERROR;                         // RETURN
     }
     if (d_errorCount != 0) {
-        return ErrorInfo::BAEXML_ERROR;
+        return ErrorInfo::BAEXML_ERROR;                               // RETURN
     }
     if (d_warningCount != 0) {
-        return ErrorInfo::BAEXML_WARNING;
+        return ErrorInfo::BAEXML_WARNING;                             // RETURN
     }
 
     return ErrorInfo::BAEXML_NO_ERROR;
@@ -545,7 +545,7 @@ bslstl::StringRef Decoder::loggedMessages() const
 {
     if (d_logStream) {
         return bslstl::StringRef(d_logStream->data(),
-                               d_logStream->length());
+                               d_logStream->length());                // RETURN
     }
     return bslstl::StringRef();
 }
@@ -585,7 +585,7 @@ int Decoder_NillableContext::endElement(
     BSLS_ASSERT(d_elementContext_p);
 
     if (d_isNil) {
-        return BAEXML_SUCCESS;
+        return BAEXML_SUCCESS;                                        // RETURN
     }
 
     return d_elementContext_p->endElement(decoder);
@@ -794,7 +794,7 @@ Decoder_StdVectorCharContext::Decoder_StdVectorCharContext(
     if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
         new (d_listContext.buffer()) ListContext(object, formattingMode);
         d_context_p = &d_listContext.object();
-        return;
+        return;                                                       // RETURN
     }
 
     switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
@@ -871,7 +871,7 @@ int Decoder_ParseObject::executeImp(bsl::vector<char> *object,
     if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
         return executeArrayImp(object,
                                formattingMode,
-                               CanBeListOrRepetition());
+                               CanBeListOrRepetition());              // RETURN
     }
 
     switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
@@ -882,22 +882,29 @@ int Decoder_ParseObject::executeImp(bsl::vector<char> *object,
         Decoder_StdVectorCharContext stdVectorCharContext(object,
                                                               formattingMode);
 
-        return stdVectorCharContext.beginParse(d_decoder);
+        return stdVectorCharContext.beginParse(d_decoder);            // RETURN
       }
       default: {
-        return executeArrayRepetitionImp(object, formattingMode);
+        return executeArrayRepetitionImp(object, formattingMode);     // RETURN
       }
     }
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlb_functionoutputiterator.t.cpp                                 -*-C++-*-
+// bdlb_functionoutputiterator.t.cpp                                  -*-C++-*-
 #include <bdlb_functionoutputiterator.h>
 
 #include <bdlf_memfn.h>
@@ -119,7 +119,7 @@ static bool verbose = 0;
 static bool veryVerbose = 0;
 static bool veryVeryVerbose = 0;
 
-template<typename TYPE>
+template<class TYPE>
 class Value {
   public:
     typedef TYPE value_type;
@@ -182,10 +182,10 @@ class Value {
     Setter createSetter() { return Setter(this); };
 };
 
-template<typename TYPE>
+template<class TYPE>
 Value<TYPE> Value<TYPE>::singleton;
 
-template<typename TYPE>
+template<class TYPE>
 int Value<TYPE>::Setter::instanceCount = 0;
 
 namespace {
@@ -673,7 +673,7 @@ int main(int argc, char *argv[])
               bdlb::FunctionOutputIterator<IntValue::Setter> it(setter);
 
               *it = valueA;
-              
+
               // check that copy of the functional object 'setter' was
               // actually invoked
               ASSERT((setter.getId() + 1) == value.getLastSetterId());
@@ -683,7 +683,7 @@ int main(int argc, char *argv[])
               ASSERT(valueA == value.get());
 
               *it = valueB;
-              
+
               // check that copy of the functional object 'setter' was
               // actually invoked
               ASSERT((setter.getId() + 1) == value.getLastSetterId());
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
           }
 
           if (veryVerbose) {
-              bsl::cout << "\tSupply a function pointer at construction" 
+              bsl::cout << "\tSupply a function pointer at construction"
                         << bsl::endl;
           }
           {
@@ -710,17 +710,17 @@ int main(int argc, char *argv[])
 
 
               *it = valueA;
-              
+
               // check that function was invoked and 'simpleFunctionValue' was
               // set to 'valueA'.
               ASSERT(valueA == simpleFunctionValue);
 
               *it = valueB;
-              
+
               // check that function was invoked and 'simpleFunctionValue' was
               // set to 'valueB'.
               ASSERT(valueB == simpleFunctionValue);
-              
+
           }
       } break;
       case 3: {
@@ -891,11 +891,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

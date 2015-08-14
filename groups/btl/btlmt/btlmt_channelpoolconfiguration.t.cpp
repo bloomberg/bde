@@ -160,7 +160,7 @@ const bool COLLECTMETRICS[NUM_VALUES] =
                         // class GetValue<LVALUE_TYPE>
                         // ===========================
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 class GetValue {
     // This visitor assigns the value of the visited member to
     // 'd_destination_p'.
@@ -173,12 +173,12 @@ class GetValue {
     explicit GetValue(LVALUE_TYPE *lValue);
 
     // ACCESSORS
-    template <typename INFO_TYPE>
+    template <class INFO_TYPE>
     int operator()(const LVALUE_TYPE& object,
                    const INFO_TYPE&   info) const;
         // Assign 'object' to '*d_destination_p'.
 
-    template <typename RVALUE_TYPE, typename INFO_TYPE>
+    template <class RVALUE_TYPE, class INFO_TYPE>
     int operator()(const RVALUE_TYPE& object,
                    const INFO_TYPE&   info) const;
         // Do nothing.
@@ -188,7 +188,7 @@ class GetValue {
                        // class AssignValue<RVALUE_TYPE>
                        // ==============================
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 class AssignValue {
     // This visitor assigns 'd_value' to the visited member.
 
@@ -200,12 +200,12 @@ class AssignValue {
     explicit AssignValue(const RVALUE_TYPE& value);
 
     // ACCESSORS
-    template <typename INFO_TYPE>
+    template <class INFO_TYPE>
     int operator()(RVALUE_TYPE      *object,
                    const INFO_TYPE&  info) const;
         // Assign 'd_value' to '*object'.
 
-    template <typename LVALUE_TYPE, typename INFO_TYPE>
+    template <class LVALUE_TYPE, class INFO_TYPE>
     int operator()(LVALUE_TYPE      *object,
                    const INFO_TYPE&  info) const;
         // Do nothing.
@@ -217,7 +217,7 @@ class AssignValue {
 
 // CREATORS
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 : d_lValue_p(lValue)
 {
@@ -225,8 +225,8 @@ GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 
 // ACCESSORS
 
-template <typename LVALUE_TYPE>
-template <typename INFO_TYPE>
+template <class LVALUE_TYPE>
+template <class INFO_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object,
                                       const INFO_TYPE&   info) const
 {
@@ -234,8 +234,8 @@ int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object,
     return 0;
 }
 
-template <typename LVALUE_TYPE>
-template <typename RVALUE_TYPE, typename INFO_TYPE>
+template <class LVALUE_TYPE>
+template <class RVALUE_TYPE, class INFO_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object,
                                       const INFO_TYPE&   info) const
 {
@@ -248,7 +248,7 @@ int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object,
 
 // CREATORS
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 : d_value(value)
 {
@@ -256,8 +256,8 @@ AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 
 // ACCESSORS
 
-template <typename RVALUE_TYPE>
-template <typename INFO_TYPE>
+template <class RVALUE_TYPE>
+template <class INFO_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object,
                                          const INFO_TYPE&) const
 {
@@ -265,8 +265,8 @@ int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object,
     return 0;
 }
 
-template <typename RVALUE_TYPE>
-template <typename LVALUE_TYPE, typename INFO_TYPE>
+template <class RVALUE_TYPE>
+template <class LVALUE_TYPE, class INFO_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object,
                                          const INFO_TYPE&) const
 {
@@ -2048,11 +2048,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

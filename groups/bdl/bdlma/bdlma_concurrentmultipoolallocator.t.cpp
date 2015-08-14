@@ -772,7 +772,7 @@ void my_DoubleStack::increaseSize()
      d_size = proposedNewSize;                        // we're committed
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 //           Additional Functionality Need to Complete Usage Test Case
 
 class my_DoubleStackIter {

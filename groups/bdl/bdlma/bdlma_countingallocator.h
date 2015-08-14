@@ -258,7 +258,7 @@
 // which displays the following on a 32-bit platform:
 //..
 //  ----------------------------------------
-//          Counting Allocator State
+//                          Counting Allocator State
 //  ----------------------------------------
 //  Allocator name: 'DoubleStack' Allocator
 //  Bytes in use:   16

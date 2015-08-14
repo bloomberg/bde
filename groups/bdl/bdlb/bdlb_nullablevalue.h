@@ -1,4 +1,4 @@
-// bdlb_nullablevalue.h                                              -*-C++-*-
+// bdlb_nullablevalue.h                                               -*-C++-*-
 #ifndef INCLUDED_BDLB_NULLABLEVALUE
 #define INCLUDED_BDLB_NULLABLEVALUE
 
@@ -140,7 +140,7 @@ class NullableValue_WithoutAllocator;
                       // class NullableValue<TYPE>
                       // ===============================
 
-template <typename TYPE>
+template <class TYPE>
 class NullableValue {
     // This is a template extends the set of values of its parameterized
     // value-semantic 'TYPE' to include the notion of a "null" value.
@@ -230,7 +230,7 @@ class NullableValue {
         // 'ValueType' that does not take an optional allocator at construction
         // will fail to compile.
 
-    template <typename BDE_OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     explicit
     NullableValue(const NullableValue<BDE_OTHER_TYPE>& original);
         // Create a nullable object that is initially null if the specified
@@ -240,7 +240,7 @@ class NullableValue {
         // to call this method with incompatible underlying types will fail to
         // compile.
 
-    template <typename BDE_OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     NullableValue(
                    const NullableValue<BDE_OTHER_TYPE>&  original,
                    bslma::Allocator                           *basicAllocator);
@@ -264,7 +264,7 @@ class NullableValue {
         // object is null, and otherwise the (non-null) value (of parameterized
         // 'TYPE') of 'rhs'.  Return a reference to this modifiable object.
 
-    template <typename BDE_OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>&
                      operator=(const NullableValue<BDE_OTHER_TYPE>& rhs);
         // Assign to this nullable object a null value if the specified 'rhs'
@@ -279,7 +279,7 @@ class NullableValue {
         // 'rhs' object of parameterized 'TYPE'.  Return a reference to this
         // modifiable nullable object.
 
-    template <typename BDE_OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
         // Assign to this nullable object the *(non-null) value of
         // parameterized 'TYPE' converted from the value of the specified
@@ -301,7 +301,7 @@ class NullableValue {
         // parameterized 'TYPE'.  Return a reference to the modifiable
         // 'ValueType' of this nullable object.
 
-    template <typename BDE_OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     TYPE& makeValue(const BDE_OTHER_TYPE& value);
         // Assign to this nullable object the value of parameterized 'TYPE'
         // converted from the specified 'value' of parameterized
@@ -391,7 +391,7 @@ class NullableValue {
 };
 
 // FREE OPERATORS
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
@@ -399,7 +399,7 @@ bool operator==(const NullableValue<LHS_TYPE>& lhs,
     // if they are either both null or neither is null and their respective
     // underlying types are equality comparable and compare equal.
 
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
@@ -408,10 +408,10 @@ bool operator!=(const NullableValue<LHS_TYPE>& lhs,
     // respective underlying type values are equality comparable and do not
     // compare equal.
 
-template <typename TYPE>
+template <class TYPE>
 bool operator==(const NullableValue<TYPE>& lhs,
                 const TYPE&                      rhs);
-template <typename TYPE>
+template <class TYPE>
 bool operator==(const TYPE&                      lhs,
                 const NullableValue<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
@@ -419,10 +419,10 @@ bool operator==(const TYPE&                      lhs,
     // underlying type have the same value if the nullable object is not null
     // and its underlying value compares equal to the other value.
 
-template <typename TYPE>
+template <class TYPE>
 bool operator!=(const NullableValue<TYPE>& lhs,
                 const TYPE&                      rhs);
-template <typename TYPE>
+template <class TYPE>
 bool operator!=(const TYPE&                      lhs,
                 const NullableValue<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
@@ -431,7 +431,7 @@ bool operator!=(const TYPE&                      lhs,
     // object is null, or its underlying value does not compare equal to the
     // other value.
 
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&                    stream,
                          const NullableValue<TYPE>& rhs);
     // Print the specified 'rhs' to the specified 'stream' in some
@@ -439,7 +439,7 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
     // modifiable 'stream'.
 
 // FREE FUNCTIONS
-template <typename TYPE>
+template <class TYPE>
 void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
     // Swap the values of the specified 'a' and 'b' objects.  This method
     // provides the no-throw guarantee if the 'TYPE' template parameter has a
@@ -456,7 +456,7 @@ void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
                // class NullableValue_WithAllocator<TYPE>
                // =============================================
 
-template <typename TYPE>
+template <class TYPE>
 class NullableValue_WithAllocator {
     // This class provides the implementation for a nullable object that
     // augments a type that DOES take an optional 'bslma::Allocator'.
@@ -512,7 +512,7 @@ class NullableValue_WithAllocator {
         // Set the value of this object to be that of the specified 'value' of
         // parameterized 'TYPE'.
 
-    template <typename BDE_OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     void makeValue(const BDE_OTHER_TYPE& value);
         // Assign to this nullable object the value of parameterized 'TYPE'
         // converted from the specified 'value' of parameterized
@@ -546,7 +546,7 @@ class NullableValue_WithAllocator {
               // class NullableValue_WithoutAllocator<TYPE>
               // ================================================
 
-template <typename TYPE>
+template <class TYPE>
 class NullableValue_WithoutAllocator {
     // This class provides the implementation for a nullable object that
     // augments a type that does NOT take an optional 'bslma::Allocator'.
@@ -594,7 +594,7 @@ class NullableValue_WithoutAllocator {
         // Set the value of this object to be that of the specified 'value' of
         // parameterized 'TYPE'.
 
-    template <typename BDE_OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     void makeValue(const BDE_OTHER_TYPE& value);
         // Assign to this nullable object the value of parameterized 'TYPE'
         // converted from the specified 'value' of parameterized
@@ -633,13 +633,13 @@ class NullableValue_WithoutAllocator {
                       // -------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue()
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                                               bslma::Allocator *basicAllocator)
@@ -647,7 +647,7 @@ NullableValue<TYPE>::NullableValue(
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                                            const NullableValue& original)
@@ -655,7 +655,7 @@ NullableValue<TYPE>::NullableValue(
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                                     const NullableValue&  original,
@@ -664,14 +664,14 @@ NullableValue<TYPE>::NullableValue(
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const TYPE& value)
 {
     d_imp.makeValue(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                                               const TYPE&       value,
@@ -681,8 +681,8 @@ NullableValue<TYPE>::NullableValue(
     d_imp.makeValue(value);
 }
 
-template <typename TYPE>
-template <typename BDE_OTHER_TYPE>
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                            const NullableValue<BDE_OTHER_TYPE>& original)
@@ -692,8 +692,8 @@ NullableValue<TYPE>::NullableValue(
     }
 }
 
-template <typename TYPE>
-template <typename BDE_OTHER_TYPE>
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                     const NullableValue<BDE_OTHER_TYPE>&  original,
@@ -706,7 +706,7 @@ NullableValue<TYPE>::NullableValue(
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>&
 NullableValue<TYPE>::operator=(const NullableValue& rhs)
@@ -716,8 +716,8 @@ NullableValue<TYPE>::operator=(const NullableValue& rhs)
     return *this;
 }
 
-template <typename TYPE>
-template <typename BDE_OTHER_TYPE>
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>&
 NullableValue<TYPE>::operator=(
                                 const NullableValue<BDE_OTHER_TYPE>& rhs)
@@ -731,7 +731,7 @@ NullableValue<TYPE>::operator=(
     return *this;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue<TYPE>&
 NullableValue<TYPE>::operator=(const TYPE& rhs)
@@ -741,8 +741,8 @@ NullableValue<TYPE>::operator=(const TYPE& rhs)
     return *this;
 }
 
-template <typename TYPE>
-template <typename BDE_OTHER_TYPE>
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>&
 NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
@@ -752,14 +752,14 @@ NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
     return *this;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void NullableValue<TYPE>::swap(NullableValue<TYPE>& other)
 {
     d_imp.swap(other.d_imp);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TYPE& NullableValue<TYPE>::makeValue(const TYPE& value)
 {
@@ -768,8 +768,8 @@ TYPE& NullableValue<TYPE>::makeValue(const TYPE& value)
     return d_imp.value();
 }
 
-template <typename TYPE>
-template <typename BDE_OTHER_TYPE>
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
 inline
 TYPE& NullableValue<TYPE>::makeValue(const BDE_OTHER_TYPE& value)
 {
@@ -778,7 +778,7 @@ TYPE& NullableValue<TYPE>::makeValue(const BDE_OTHER_TYPE& value)
     return d_imp.value();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TYPE& NullableValue<TYPE>::makeValue()
 {
@@ -787,7 +787,7 @@ TYPE& NullableValue<TYPE>::makeValue()
     return d_imp.value();
 }
 
-template <typename TYPE>
+template <class TYPE>
 template <class STREAM>
 STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 {
@@ -809,14 +809,14 @@ STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void NullableValue<TYPE>::reset()
 {
     d_imp.reset();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TYPE& NullableValue<TYPE>::value()
 {
@@ -824,7 +824,7 @@ TYPE& NullableValue<TYPE>::value()
 }
 
 // ACCESSORS
-template <typename TYPE>
+template <class TYPE>
 template <class STREAM>
 STREAM& NullableValue<TYPE>::bdexStreamOut(STREAM& stream,
                                                  int     version) const
@@ -840,21 +840,21 @@ STREAM& NullableValue<TYPE>::bdexStreamOut(STREAM& stream,
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bool NullableValue<TYPE>::isNull() const
 {
     return d_imp.isNull();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int NullableValue<TYPE>::maxSupportedBdexVersion() const
 {
     return bdex_VersionFunctions::maxSupportedVersion(d_imp.d_buffer.object());
 }
 
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream& NullableValue<TYPE>::print(
                                             bsl::ostream& stream,
                                             int           level,
@@ -871,28 +871,28 @@ bsl::ostream& NullableValue<TYPE>::print(
                                     spacesPerLevel);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE& NullableValue<TYPE>::value() const
 {
     return d_imp.value();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE *NullableValue<TYPE>::valueOrNull() const
 {
     return d_imp.isNull() ? 0 : &d_imp.value();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TYPE NullableValue<TYPE>::valueOr(const TYPE& defaultValue) const
 {
     return d_imp.isNull() ? defaultValue : d_imp.value();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE *NullableValue<TYPE>::valueOr(const TYPE *defaultValue) const
 {
@@ -903,7 +903,7 @@ const TYPE *NullableValue<TYPE>::valueOr(const TYPE *defaultValue) const
 
 // FREE OPERATORS
 
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs)
@@ -915,7 +915,7 @@ bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
     return lhs.isNull() == rhs.isNull();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bool bdlb::operator==(const NullableValue<TYPE>& lhs,
                 const TYPE&                      rhs)
@@ -923,7 +923,7 @@ bool bdlb::operator==(const NullableValue<TYPE>& lhs,
     return !lhs.isNull() && lhs.value() == rhs;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bool bdlb::operator==(const TYPE&                      lhs,
                 const NullableValue<TYPE>& rhs)
@@ -931,7 +931,7 @@ bool bdlb::operator==(const TYPE&                      lhs,
     return !rhs.isNull() && rhs.value() == lhs;
 }
 
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs)
@@ -943,7 +943,7 @@ bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
     return lhs.isNull() != rhs.isNull();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bool bdlb::operator!=(const NullableValue<TYPE>& lhs,
                 const TYPE&                      rhs)
@@ -951,7 +951,7 @@ bool bdlb::operator!=(const NullableValue<TYPE>& lhs,
     return lhs.isNull() || lhs.value() != rhs;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bool bdlb::operator!=(const TYPE&                      lhs,
                 const NullableValue<TYPE>& rhs)
@@ -959,7 +959,7 @@ bool bdlb::operator!=(const TYPE&                      lhs,
     return rhs.isNull() || rhs.value() != lhs;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& bdlb::operator<<(bsl::ostream&                    stream,
                          const NullableValue<TYPE>& rhs)
@@ -969,7 +969,7 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&                    stream,
 
 
 // FREE FUNCTIONS
-template <typename TYPE>
+template <class TYPE>
 inline
 void bdlb::swap(bdlb::NullableValue<TYPE>& a, bdlb::NullableValue<TYPE>& b)
 {
@@ -983,7 +983,7 @@ namespace bdlb {
                // ---------------------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
                                               bslma::Allocator *basicAllocator)
@@ -992,7 +992,7 @@ NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
                       const NullableValue_WithAllocator&  original,
@@ -1005,7 +1005,7 @@ NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue_WithAllocator<TYPE>::~NullableValue_WithAllocator()
 {
@@ -1013,7 +1013,7 @@ NullableValue_WithAllocator<TYPE>::~NullableValue_WithAllocator()
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 NullableValue_WithAllocator<TYPE>&
 NullableValue_WithAllocator<TYPE>::operator=(
                                   const NullableValue_WithAllocator& rhs)
@@ -1028,7 +1028,7 @@ NullableValue_WithAllocator<TYPE>::operator=(
     return *this;
 }
 
-template <typename TYPE>
+template <class TYPE>
 void NullableValue_WithAllocator<TYPE>::swap(
                                       NullableValue_WithAllocator& other)
 {
@@ -1070,7 +1070,7 @@ void NullableValue_WithAllocator<TYPE>::swap(
     nonNullObj->reset();
 }
 
-template <typename TYPE>
+template <class TYPE>
 void NullableValue_WithAllocator<TYPE>::makeValue(const TYPE& value)
 {
     if (d_isNull) {
@@ -1082,8 +1082,8 @@ void NullableValue_WithAllocator<TYPE>::makeValue(const TYPE& value)
     }
 }
 
-template <typename TYPE>
-template <typename BDE_OTHER_TYPE>
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
 void NullableValue_WithAllocator<TYPE>::makeValue(
                                                    const BDE_OTHER_TYPE& value)
 {
@@ -1096,7 +1096,7 @@ void NullableValue_WithAllocator<TYPE>::makeValue(
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void NullableValue_WithAllocator<TYPE>::makeValue()
 {
@@ -1119,7 +1119,7 @@ void NullableValue_WithAllocator<TYPE>::makeValue()
     //..
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void NullableValue_WithAllocator<TYPE>::reset()
 {
@@ -1129,7 +1129,7 @@ void NullableValue_WithAllocator<TYPE>::reset()
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TYPE& NullableValue_WithAllocator<TYPE>::value()
 {
@@ -1139,14 +1139,14 @@ TYPE& NullableValue_WithAllocator<TYPE>::value()
 }
 
 // ACCESSORS
-template <typename TYPE>
+template <class TYPE>
 inline
 bool NullableValue_WithAllocator<TYPE>::isNull() const
 {
     return d_isNull;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE& NullableValue_WithAllocator<TYPE>::value() const
 {
@@ -1160,7 +1160,7 @@ const TYPE& NullableValue_WithAllocator<TYPE>::value() const
               // ------------------------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue_WithoutAllocator<TYPE>
                                        ::NullableValue_WithoutAllocator()
@@ -1168,7 +1168,7 @@ NullableValue_WithoutAllocator<TYPE>
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue_WithoutAllocator<TYPE>::
 NullableValue_WithoutAllocator(
@@ -1180,7 +1180,7 @@ NullableValue_WithoutAllocator(
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 NullableValue_WithoutAllocator<TYPE>
                                       ::~NullableValue_WithoutAllocator()
@@ -1189,7 +1189,7 @@ NullableValue_WithoutAllocator<TYPE>
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 NullableValue_WithoutAllocator<TYPE>&
 NullableValue_WithoutAllocator<TYPE>::operator=(
                                const NullableValue_WithoutAllocator& rhs)
@@ -1204,7 +1204,7 @@ NullableValue_WithoutAllocator<TYPE>::operator=(
     return *this;
 }
 
-template <typename TYPE>
+template <class TYPE>
 void NullableValue_WithoutAllocator<TYPE>::swap(
                                    NullableValue_WithoutAllocator& other)
 {
@@ -1242,7 +1242,7 @@ void NullableValue_WithoutAllocator<TYPE>::swap(
     nonNullObj->reset();
 }
 
-template <typename TYPE>
+template <class TYPE>
 void NullableValue_WithoutAllocator<TYPE>::makeValue(const TYPE& value)
 {
     if (d_isNull) {
@@ -1254,8 +1254,8 @@ void NullableValue_WithoutAllocator<TYPE>::makeValue(const TYPE& value)
     }
 }
 
-template <typename TYPE>
-template <typename BDE_OTHER_TYPE>
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
 void NullableValue_WithoutAllocator<TYPE>::makeValue(
                                                    const BDE_OTHER_TYPE& value)
 {
@@ -1268,7 +1268,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValue(
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void NullableValue_WithoutAllocator<TYPE>::makeValue()
 {
@@ -1291,7 +1291,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValue()
     //..
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void NullableValue_WithoutAllocator<TYPE>::reset()
 {
@@ -1301,7 +1301,7 @@ void NullableValue_WithoutAllocator<TYPE>::reset()
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TYPE& NullableValue_WithoutAllocator<TYPE>::value()
 {
@@ -1311,14 +1311,14 @@ TYPE& NullableValue_WithoutAllocator<TYPE>::value()
 }
 
 // ACCESSORS
-template <typename TYPE>
+template <class TYPE>
 inline
 bool NullableValue_WithoutAllocator<TYPE>::isNull() const
 {
     return d_isNull;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE& NullableValue_WithoutAllocator<TYPE>::value() const
 {
@@ -1329,15 +1329,22 @@ const TYPE& NullableValue_WithoutAllocator<TYPE>::value() const
 
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

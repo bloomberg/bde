@@ -1,4 +1,4 @@
-// bdlmxxx_enumerationdef.t.cpp                  -*-C++-*-
+// bdlmxxx_enumerationdef.t.cpp                                       -*-C++-*-
 
 #include <bdlmxxx_enumerationdef.h>
 
@@ -94,7 +94,7 @@ class bdlmxxx::Schema {
         // Dummy type.
 };
 
-}
+}  // close enterprise namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -283,11 +283,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

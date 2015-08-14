@@ -144,7 +144,7 @@ struct ConvertibleToAny
                       bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type {
     };
 
-    } // close package namespace
+    }  // close namespace abcd
 //..
 // Notice that 'RequiresLockTrait' derives from
 // 'bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type' using the
@@ -219,7 +219,7 @@ struct ConvertibleToAny
 
     };
 
-    } // close package namespace
+    }  // close namespace xyza
 //..
 // Then, we associate 'RequiresLockTypeB' with 'abcd::RequiresLockTrait' by
 // directly specializing 'abcd::RequiresLockTrait<xyza::RequiresLockTypeB>'.
@@ -231,7 +231,7 @@ struct ConvertibleToAny
     struct RequiresLockTrait<xyza::RequiresLockTypeB> : bsl::true_type {
     };
 
-    } // close namespace abcd
+    }  // close namespace abcd
 //..
 // Now, we can write a function that inspects
 // 'abcd::RequiresLockTrait<TYPE>::value' to test whether or not various types

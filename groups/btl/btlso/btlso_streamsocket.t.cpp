@@ -1,4 +1,4 @@
-// btlso_streamsocket.t.cpp        -*-C++-*-
+// btlso_streamsocket.t.cpp                                           -*-C++-*-
 
 #include <btlso_streamsocket.h>
 
@@ -200,7 +200,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
     if (rc) {
         if (verbose)
             bsl::cout << "Failed to connect to server: " << rc << bsl::endl;
-        return;
+        return;                                                       // RETURN
     }
 
     const char word[] = "socket";
@@ -214,7 +214,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
             bsl::cout << "Error writing request header to server: "
                       << rc << bsl::endl;
         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-        return;
+        return;                                                       // RETURN
     }
     rc = client->write(word, sizeof word);
     if (rc != length) {
@@ -222,7 +222,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
             bsl::cout << "Error writing request body to server: "
                       << rc << bsl::endl;
         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-        return;
+        return;                                                       // RETURN
     }
 
     rc = client->read((char*)&length, sizeof length);
@@ -230,7 +230,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
         if (verbose)
             bsl::cout << "Error reading from server: " << rc << bsl::endl;
         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-        return;
+        return;                                                       // RETURN
     }
 
     length = ntohl(length);
@@ -241,7 +241,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
         if (verbose)
             bsl::cout << "Error reading from server: " << rc << bsl::endl;
         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
-        return;
+        return;                                                       // RETURN
     }
     if (verbose)
         bsl::cout << definition << bsl::endl;
@@ -269,14 +269,14 @@ void dictionary_server(btlso::StreamSocket<btlso::IPv4Address> *server)
     if (rc != 0) {
         if (verbose)
             bsl::cout << "Failed to bind socket: " << rc << bsl::endl;
-        return;
+        return;                                                       // RETURN
     }
 
     rc = server->listen(MAX_LISTEN_QUEUE_DEPTH);
     if (rc != 0) {
         if (verbose)
             bsl::cout << "Failed to listen on socket: " << rc << bsl::endl;
-        return;
+        return;                                                       // RETURN
     }
     do {
         btlso::StreamSocket<btlso::IPv4Address> *client = 0;
@@ -336,7 +336,7 @@ void dictionary_server(btlso::StreamSocket<btlso::IPv4Address> *server)
 }
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -535,11 +535,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

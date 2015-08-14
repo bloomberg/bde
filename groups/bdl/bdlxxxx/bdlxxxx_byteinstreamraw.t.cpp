@@ -1,4 +1,4 @@
-// bdlxxxx_byteinstreamraw.t.cpp                                         -*-C++-*-
+// bdlxxxx_byteinstreamraw.t.cpp                                      -*-C++-*-
 
 #include <bdlxxxx_byteinstreamraw.h>
 #include <bdlxxxx_byteoutstreamraw.h>              // for testing only
@@ -281,18 +281,18 @@ const int SIZEOF_FLOAT32 = 4;
                  if (!stream) {
                      d_firstName = "stream error";  // *might* be corrupted;
                                                     //  value for testing
-                     return stream;
+                     return stream;                                   // RETURN
                  }
                  stream.getString(d_lastName);
                  if (!stream) {
                      d_lastName = "stream error";  // *might* be corrupted;
                                                    //  value for testing
-                     return stream;
+                     return stream;                                   // RETURN
                  }
                  stream.getInt32(d_age);
                  if (!stream) {
                      d_age = 1;      // *might* be corrupted; value for testing
-                     return stream;
+                     return stream;                                   // RETURN
                  }
              } break;
              default: {
@@ -3608,11 +3608,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

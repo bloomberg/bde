@@ -176,7 +176,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
-// Usage
+//                                  Usage
 // -----
 
  class my_WordStreamer {
@@ -221,7 +221,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
                  word.assign(&(stream.d_currentLine[stream.d_cursor]),
                               i - stream.d_cursor);
                  stream.d_cursor = i + 1;
-                 return stream;
+                 return stream;                                       // RETURN
              }
          }
      }
@@ -234,7 +234,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
          stream.d_cursor = 0;
          if (0 == stream.d_lineLength) {
              word.clear();
-             return stream;
+             return stream;                                           // RETURN
          }
 
          for (int i = 0; i < stream.d_lineLength; ++i) {
@@ -243,7 +243,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
              if (' ' == stream.d_currentLine[i]) {
                  word.append(stream.d_currentLine, i - 1);
                  stream.d_cursor = i + 1;
-                 return stream;
+                 return stream;                                       // RETURN
              }
              // Else copy and, after forcing an underflow, continue.
              word.append(stream.d_currentLine, stream.d_lineLength);

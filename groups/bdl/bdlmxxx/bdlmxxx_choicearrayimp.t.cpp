@@ -1,4 +1,4 @@
-// bdlmxxx_choicearrayimp.t.cpp                                          -*-C++-*-
+// bdlmxxx_choicearrayimp.t.cpp                                       -*-C++-*-
 
 #include <bdlmxxx_choicearrayimp.h>
 
@@ -154,9 +154,9 @@ using namespace bsl;  // automatically added by script
 // [17] USAGE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -168,7 +168,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -850,45 +850,60 @@ static int compare(const void *cp, const void *cq, char spec)
     void * q = const_cast<void *>(cq);
 
     switch (spec) {
-      case 'A': return *(char *) p == *(char *) q;
-      case 'B': return *(short *) p == *(short *) q;
-      case 'C': return *(int *) p == *(int *) q;
-      case 'D': return *(Int64 *) p == *(Int64 *) q;
-      case 'E': return *(float *) p == *(float *) q;
-      case 'F': return *(double *) p == *(double *) q;
-      case 'G': return *(bsl::string *) p == *(bsl::string *) q;
-      case 'H': return *(Datetime *) p == *(Datetime *) q;
-      case 'I': return *(Date *) p == *(Date *) q;
-      case 'J': return *(Time *) p == *(Time *) q;
+      case 'A': return *(char *) p == *(char *) q;                    // RETURN
+      case 'B': return *(short *) p == *(short *) q;                  // RETURN
+      case 'C': return *(int *) p == *(int *) q;                      // RETURN
+      case 'D': return *(Int64 *) p == *(Int64 *) q;                  // RETURN
+      case 'E': return *(float *) p == *(float *) q;                  // RETURN
+      case 'F': return *(double *) p == *(double *) q;                // RETURN
+      case 'G': return *(bsl::string *) p == *(bsl::string *) q;      // RETURN
+      case 'H': return *(Datetime *) p == *(Datetime *) q;            // RETURN
+      case 'I': return *(Date *) p == *(Date *) q;                    // RETURN
+      case 'J': return *(Time *) p == *(Time *) q;                    // RETURN
       case 'K': return *(bsl::vector<char> *) p == *(bsl::vector<char> *) q;
+                                                                      // RETURN
       case 'L': return *(bsl::vector<short> *) p == *(bsl::vector<short> *) q;
+                                                                      // RETURN
       case 'M': return *(bsl::vector<int> *) p == *(bsl::vector<int> *) q;
+                                                                      // RETURN
       case 'N': return *(bsl::vector<Int64> *) p == *(bsl::vector<Int64> *) q;
+                                                                      // RETURN
       case 'O': return *(bsl::vector<float> *) p == *(bsl::vector<float> *) q;
+                                                                      // RETURN
       case 'P': return
                      *(bsl::vector<double> *) p == *(bsl::vector<double> *) q;
+                                                                      // RETURN
       case 'Q': return *(bsl::vector<bsl::string> *) p
                                             == *(bsl::vector<bsl::string> *) q;
+                                                                      // RETURN
       case 'R': return *(bsl::vector<Datetime> *) p
                                             == *(bsl::vector<Datetime> *) q;
+                                                                      // RETURN
       case 'S': return *(bsl::vector<Date> *) p == *(bsl::vector<Date> *) q;
+                                                                      // RETURN
       case 'T': return *(bsl::vector<Time> *) p == *(bsl::vector<Time> *) q;
-      case 'U': ASSERT(0); return 1; // Comparing bdlmxxx::List
-      case 'V': ASSERT(0); return 1; // Comparing bdlmxxx::Table
-      case 'W': return *(bool *) p == *(bool *) q;
-      case 'X': return *(DatetimeTz *) p == *(DatetimeTz *) q;
-      case 'Y': return *(DateTz *) p == *(DateTz *) q;
-      case 'Z': return *(TimeTz *) p == *(TimeTz *) q;
+                                                                      // RETURN
+      case 'U': ASSERT(0); return 1; // Comparing bdlmxxx::List       // RETURN
+      case 'V': ASSERT(0); return 1; // Comparing bdlmxxx::Table      // RETURN
+      case 'W': return *(bool *) p == *(bool *) q;                    // RETURN
+      case 'X': return *(DatetimeTz *) p == *(DatetimeTz *) q;        // RETURN
+      case 'Y': return *(DateTz *) p == *(DateTz *) q;                // RETURN
+      case 'Z': return *(TimeTz *) p == *(TimeTz *) q;                // RETURN
       case 'a': return *(bsl::vector<bool> *) p == *(bsl::vector<bool> *) q;
+                                                                      // RETURN
       case 'b': return *(bsl::vector<DatetimeTz> *) p
                                              == *(bsl::vector<DatetimeTz> *) q;
+                                                                      // RETURN
       case 'c': return *(bsl::vector<DateTz> *) p
                                              == *(bsl::vector<DateTz> *) q;
+                                                                      // RETURN
       case 'd': return *(bsl::vector<TimeTz> *) p
                                              == *(bsl::vector<TimeTz> *) q;
-      case 'e': ASSERT(0); return 1; // Comparing bdlmxxx::Choice
+                                                                      // RETURN
+      case 'e': ASSERT(0); return 1; // Comparing bdlmxxx::Choice     // RETURN
       case 'f': ASSERT(0); return 1; // Comparing bdlmxxx::ChoiceArray
-      default: ASSERT(0); return 0;
+                                                                      // RETURN
+      default: ASSERT(0); return 0;                                   // RETURN
     }
 }
 
@@ -930,8 +945,8 @@ static void assign(void *clhs, const void *crhs, char spec)
                                             *(bsl::vector<Date> *) rhs; break;
       case 'T': *(bsl::vector<Time> *) lhs =
                                             *(bsl::vector<Time> *) rhs; break;
-      case 'U': ASSERT(0); return; // Assigning bdlmxxx::List
-      case 'V': ASSERT(0); return; // Assigning bdlmxxx::Table
+      case 'U': ASSERT(0); return; // Assigning bdlmxxx::List         // RETURN
+      case 'V': ASSERT(0); return; // Assigning bdlmxxx::Table        // RETURN
       case 'W': *(bool *) lhs = *(bool *) rhs; break;
       case 'X': *(DatetimeTz *) lhs = *(DatetimeTz *) rhs; break;
       case 'Y': *(DateTz *) lhs = *(DateTz *) rhs; break;
@@ -943,9 +958,9 @@ static void assign(void *clhs, const void *crhs, char spec)
                                           *(bsl::vector<DateTz> *) rhs; break;
       case 'd': *(bsl::vector<TimeTz> *) lhs =
                                           *(bsl::vector<TimeTz> *) rhs; break;
-      case 'e': ASSERT(0); return; // Comparing bdlmxxx::Choice
-      case 'f': ASSERT(0); return; // Comparing bdlmxxx::ChoiceArray
-      default: ASSERT(0); return;
+      case 'e': ASSERT(0); return; // Comparing bdlmxxx::Choice       // RETURN
+      case 'f': ASSERT(0); return; // Comparing bdlmxxx::ChoiceArray  // RETURN
+      default: ASSERT(0); return;                                     // RETURN
     }
 }
 
@@ -5493,11 +5508,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

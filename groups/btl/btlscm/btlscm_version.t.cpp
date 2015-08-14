@@ -13,7 +13,7 @@ using namespace bsl;  // automatically added by script
 static int testStatus = 0;
 
 //=============================================================================
-//                  MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

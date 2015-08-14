@@ -68,7 +68,7 @@ bsl::streampos OverflowMemOutput::pubseekoff(bsl::streamoff     offset,
     bool pseek = which & bsl::ios_base::out;
 
     if (!pseek || gseek) {
-        return bsl::streampos(-1);
+        return bsl::streampos(-1);                                    // RETURN
     }
 
     int totalSize = d_initialBufferSize + d_overflowBufferSize;
@@ -84,14 +84,14 @@ bsl::streampos OverflowMemOutput::pubseekoff(bsl::streamoff     offset,
         newoff = totalSize;
       } break;
       default: {
-        return bsl::streampos(-1);
+        return bsl::streampos(-1);                                    // RETURN
       }
     }
 
     newoff += offset;
 
     if (0 > newoff) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     BSLS_ASSERT(0 <= newoff);

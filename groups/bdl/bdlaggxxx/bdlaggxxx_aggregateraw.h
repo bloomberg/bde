@@ -1,4 +1,4 @@
-// bdlaggxxx_aggregateraw.h                                                -*-C++-*-
+// bdlaggxxx_aggregateraw.h                                           -*-C++-*-
 #ifndef INCLUDED_BDLAGGXXX_AGGREGATERAW
 #define INCLUDED_BDLAGGXXX_AGGREGATERAW
 
@@ -217,7 +217,7 @@ class AggregateRaw_ArrayIndexer {
     }
 
     // MANIPULATORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array)
     {
         int rc;
@@ -247,7 +247,7 @@ struct AggregateRaw_ArraySizer {
     // This class defines a function object to return the size of a sequence.
 
     // ACCESSORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array) const
     {
         return (int)array->size();
@@ -362,7 +362,7 @@ class AggregateRaw {
         // description of the failure and return a nonzero value.
 
     // PRIVATE ACCESSORS
-    template <typename TYPE>
+    template <class TYPE>
     int assignToNillableScalarArrayImp(const TYPE& value) const;
         // Assign the specified 'value' to this aggregate.  Return 0 on
         // success, and a non-zero value otherwise.  The behavior is undefined
@@ -373,9 +373,9 @@ class AggregateRaw {
         // The parameterized 'TYPE' shall be either 'bdlmxxx::ElemRef' or
         // 'bdlmxxx::ConstElemRef'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int assignToNillableScalarArray(const TYPE& value) const;
-    template <typename TYPE>
+    template <class TYPE>
     int assignToNillableScalarArray(const bsl::vector<TYPE>& value) const;
         // Assign the specified 'value' to this aggregate.  Return 0 on
         // success, and a non-zero value otherwise.  The behavior is undefined
@@ -418,10 +418,10 @@ class AggregateRaw {
         // a nonzero value otherwise with the specified 'errorDescription'
         // loaded with details.
 
-    template <typename VALUETYPE>
+    template <class VALUETYPE>
     int toEnum(ErrorAttributes *errorDescription,
                const VALUETYPE&      value) const;
-    template <typename VALUETYPE>
+    template <class VALUETYPE>
     int toEnum(ErrorAttributes *errorDescription,
                const VALUETYPE&      value,
                bslmf::MetaInt<0>     direct) const;
@@ -481,7 +481,7 @@ class AggregateRaw {
         // 'bdlmxxx::ElemType::BDEM_VOID == rhs.dataType()', then 'false' is
         // returned.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bdlmxxx::ElemType::Type getBdemType(const TYPE& value);
         // Return the 'bdlmxxx::ElemType::Type' corresponding to the parameterized
         // 'value'.
@@ -635,7 +635,7 @@ class AggregateRaw {
         // 'ostream' printing of the underlying data value.
 
     // TBD: Remove
-    template <typename TOTYPE>
+    template <class TOTYPE>
     TOTYPE convertScalar() const;
         // Return the scalar value stored in this aggregate converted to the
         // parameterized 'TOTYPE'.  Return an "unset" 'TOTYPE' value (see
@@ -896,7 +896,7 @@ class AggregateRaw {
         // this print function prepend's each field with the name of the field.
 
     // REFERENCED-VALUE MANIPULATORS
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int insertItem(AggregateRaw    *newItem,
                    ErrorAttributes *errorDescription,
                    int                   index,
@@ -959,7 +959,7 @@ class AggregateRaw {
         // nonzero error and populate the specified 'errorDescription' with no
         // effect on this object.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int makeSelection(AggregateRaw    *result,
                       ErrorAttributes *errorDescription,
                       const char           *newSelector,
@@ -987,7 +987,7 @@ class AggregateRaw {
         // nonzero error and populate the specified 'errorDescription' with no
         // effect on this object.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int makeSelectionById(AggregateRaw    *result,
                           ErrorAttributes *errorDescription,
                           int                   newSelectorId,
@@ -1015,7 +1015,7 @@ class AggregateRaw {
         // populate the specified 'errorDescription' with no effect on this
         // object.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int makeSelectionByIndex(AggregateRaw    *field,
                              ErrorAttributes *errorDescription,
                              int                   index,
@@ -1077,25 +1077,25 @@ class AggregateRaw {
         // specified 'errorDescription'; otherwise, load a description of the
         // error into 'errorDescription' and return a nonzero value.
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
                  FieldSelector    fieldSelector2,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
                  FieldSelector    fieldSelector2,
                  FieldSelector    fieldSelector3,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
@@ -1103,7 +1103,7 @@ class AggregateRaw {
                  FieldSelector    fieldSelector3,
                  FieldSelector    fieldSelector4,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
@@ -1112,7 +1112,7 @@ class AggregateRaw {
                  FieldSelector    fieldSelector4,
                  FieldSelector    fieldSelector5,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
@@ -1122,7 +1122,7 @@ class AggregateRaw {
                  FieldSelector    fieldSelector5,
                  FieldSelector    fieldSelector6,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
@@ -1133,7 +1133,7 @@ class AggregateRaw {
                  FieldSelector    fieldSelector6,
                  FieldSelector    fieldSelector7,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
@@ -1145,7 +1145,7 @@ class AggregateRaw {
                  FieldSelector    fieldSelector7,
                  FieldSelector    fieldSelector8,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
@@ -1158,7 +1158,7 @@ class AggregateRaw {
                  FieldSelector    fieldSelector8,
                  FieldSelector    fieldSelector9,
                  const VALTYPE&        value) const;
-    template <typename VALTYPE>
+    template <class VALTYPE>
     int setField(AggregateRaw    *field,
                  ErrorAttributes *errorDescription,
                  FieldSelector    fieldSelector1,
@@ -1187,7 +1187,7 @@ class AggregateRaw {
         // nonzero value and load a description into the specified
         // 'errorDescription'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int setValue(ErrorAttributes *errorDescription,
                  const TYPE&           value) const;
         // Set the value referenced by this aggregate to the specified 'value',
@@ -1277,7 +1277,7 @@ struct AggregateRaw_Util {
         // 'recordDef' has no name, or "(unconstrained)" if 'recordDef' is
         // null.
 
-    template <typename VISITOR>
+    template <class VISITOR>
     static
     int visitArray(void                *array,
                    bdlmxxx::ElemType::Type  arrayType,
@@ -1296,9 +1296,9 @@ struct AggregateRaw_Util {
         // is undefined unless 'array' is of 'arrayType'.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      'bdeat' INTEGRATION
-// ===========================================================================
+// ============================================================================
 
                 // ==================================
                 // struct AggregateRaw_BdeatInfo
@@ -1418,7 +1418,7 @@ struct AggregateRaw_BdeatUtil {
         // the specified 'name' of the specified 'nameLength' or a non-zero
         // value if no such field exists.
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     static
     int manipulateField(AggregateRaw *parent,
                         MANIPULATOR&       manipulator,
@@ -1427,7 +1427,7 @@ struct AggregateRaw_BdeatUtil {
         // corresponding to the specified 'fieldIndex' in the specified
         // 'parent'.  Return 0 on success and a non-zero value otherwise.
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     static
     int accessField(const AggregateRaw& parent,
                     ACCESSOR&                accessor,
@@ -1437,16 +1437,16 @@ struct AggregateRaw_BdeatUtil {
         // 'parent'.  Return 0 on success and a non-zero value otherwise.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                            //------------------------
                            // class AggregateRaw
                            //------------------------
 
 // PRIVATE ACCESSORS
-template <typename TYPE>
+template <class TYPE>
 int AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
 {
     bdlmxxx::ElemType::Type srcType = value.type();
@@ -1460,7 +1460,7 @@ int AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
     bdlmxxx::ElemType::Type baseType = bdlmxxx::ElemType::fromArrayType(srcType);
     if (!bdlmxxx::ElemType::isScalarType(baseType)
       || baseType != recordConstraint()->field(0).elemType()) {
-        return ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
+        return ErrorCode::BCEM_NON_CONFORMANT;                        // RETURN
     }
 
     if (value.isNull()) {
@@ -1493,7 +1493,7 @@ int AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int AggregateRaw::assignToNillableScalarArray(const TYPE&) const
 {
     BSLS_ASSERT_OPT("Invalid Type for Nillable Type" && 0);
@@ -1506,7 +1506,7 @@ int AggregateRaw::assignToNillableScalarArray(
                                                  const bdlmxxx::Table& value) const
 {
     if (!AggregateRaw_Util::isConformant(&value, recordConstraint())) {
-        return ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
+        return ErrorCode::BCEM_NON_CONFORMANT;                        // RETURN
     }
 
     *(bdlmxxx::Table *)d_value_p = value;
@@ -1529,7 +1529,7 @@ int AggregateRaw::assignToNillableScalarArray(
     return assignToNillableScalarArrayImp(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int AggregateRaw::assignToNillableScalarArray(
                                           const bsl::vector<TYPE>& value) const
 {
@@ -1537,7 +1537,7 @@ int AggregateRaw::assignToNillableScalarArray(
                         (bdlmxxx::ElemType::Type) bdlmxxx::SelectBdemType<TYPE>::VALUE;
 
     if (baseType != recordConstraint()->field(0).elemType()) {
-        return ErrorCode::BCEM_NON_CONFORMANT;                   // RETURN
+        return ErrorCode::BCEM_NON_CONFORMANT;                        // RETURN
     }
 
     const int length = static_cast<int>(value.size());
@@ -1560,7 +1560,7 @@ int AggregateRaw::assignToNillableScalarArray(
     return 0;
 }
 
-template <typename VALUETYPE>
+template <class VALUETYPE>
 inline
 int AggregateRaw::toEnum(ErrorAttributes *errorDescription,
                               const VALUETYPE&      value) const
@@ -1573,7 +1573,7 @@ int AggregateRaw::toEnum(ErrorAttributes *errorDescription,
     return toEnum(errorDescription, value, bslmf::MetaInt<IS_DIRECT>());
 }
 
-template <typename VALUETYPE>
+template <class VALUETYPE>
 int AggregateRaw::toEnum(ErrorAttributes *errorDescription,
                               const VALUETYPE&      value,
                               bslmf::MetaInt<0>     direct) const
@@ -1608,7 +1608,7 @@ int AggregateRaw::maxSupportedBdexVersion()
     return 3;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bdlmxxx::ElemType::Type AggregateRaw::getBdemType(const TYPE&)
 {
@@ -1784,7 +1784,7 @@ int AggregateRaw::getArrayItem(AggregateRaw    *item,
     return item->descendIntoArrayItem(errorDescription, index, false);
 }
 
-template <typename TOTYPE>
+template <class TOTYPE>
 TOTYPE AggregateRaw::convertScalar() const
 {
     TOTYPE result;
@@ -1823,7 +1823,7 @@ TOTYPE AggregateRaw::convertScalar() const
 
         // Conversion failed.
 
-        return bdltuxxx::Unset<TOTYPE>::unsetValue();                     // RETURN
+        return bdltuxxx::Unset<TOTYPE>::unsetValue();                 // RETURN
     }
 
     return result;
@@ -1945,7 +1945,7 @@ STREAM& AggregateRaw::bdexStreamOut(STREAM& stream, int version) const
 }
 
 // REFERENCED-VALUE MANIPULATORS
-template <typename VALTYPE>
+template <class VALTYPE>
 int AggregateRaw::insertItem(AggregateRaw    *newItem,
                                   ErrorAttributes *description,
                                   int                   index,
@@ -1963,7 +1963,7 @@ int AggregateRaw::insertItem(AggregateRaw    *newItem,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::makeSelection(AggregateRaw    *field,
                                      ErrorAttributes *errorDescription,
@@ -1978,7 +1978,7 @@ int AggregateRaw::makeSelection(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::makeSelectionById(
                                         AggregateRaw    *field,
@@ -1994,7 +1994,7 @@ int AggregateRaw::makeSelectionById(
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::makeSelectionByIndex(
                                         AggregateRaw    *field,
@@ -2010,7 +2010,7 @@ int AggregateRaw::makeSelectionByIndex(
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2024,7 +2024,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2043,7 +2043,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2064,7 +2064,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2087,7 +2087,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2112,7 +2112,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2139,7 +2139,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2168,7 +2168,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2199,7 +2199,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2232,7 +2232,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename VALTYPE>
+template <class VALTYPE>
 inline
 int AggregateRaw::setField(AggregateRaw    *field,
                                 ErrorAttributes *errorDescription,
@@ -2267,7 +2267,7 @@ int AggregateRaw::setField(AggregateRaw    *field,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int AggregateRaw::setValue(ErrorAttributes *errorDescription,
                                 const TYPE&           value) const
 {
@@ -2456,7 +2456,7 @@ bool AggregateRaw_BdeatInfo::isNullable() const
                 // ----------------------------------
 
 // MANIPULATORS
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int AggregateRaw_BdeatUtil::manipulateField(
                                                 AggregateRaw *parent,
                                                 MANIPULATOR&       manipulator,
@@ -2484,7 +2484,7 @@ int AggregateRaw_BdeatUtil::manipulateField(
 }
 
 // ACCESSORS
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int AggregateRaw_BdeatUtil::accessField(
                                            const AggregateRaw& parent,
                                            ACCESSOR&                accessor,
@@ -2532,7 +2532,7 @@ bool AggregateRaw_Util::isConformant(const void           *,
     return 0 == recordDef;
 }
 
-template <typename VISITOR>
+template <class VISITOR>
 int
 AggregateRaw_Util::visitArray(void                *array,
                                    bdlmxxx::ElemType::Type  arrayType,
@@ -2587,7 +2587,7 @@ namespace bdeat_ChoiceFunctions {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdeat_ChoiceFunctions
+}  // close namespace bdlat_ChoiceFunctions
 
 namespace bdlaggxxx {
 inline
@@ -2617,7 +2617,7 @@ int bdeat_choiceMakeSelection(AggregateRaw  *object,
     // 'selectionNameLength' as the selection in the specified 'object'.
     // Return 0 on success and a non-zero value otherwise.
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_choiceManipulateSelection(AggregateRaw *object,
                                     MANIPULATOR&       manipulator)
@@ -2634,7 +2634,7 @@ int bdeat_choiceManipulateSelection(AggregateRaw *object,
                                                         fieldIndex);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_choiceAccessSelection(const AggregateRaw& object,
                                 ACCESSOR&             accessor)
@@ -2682,7 +2682,7 @@ namespace bdeat_ArrayFunctions {
         typedef bdlaggxxx::AggregateRaw Type;
     };
 
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace bdlat_ArrayFunctions
 
 namespace bdlaggxxx {
 inline
@@ -2703,7 +2703,7 @@ bsl::size_t bdeat_arraySize(const AggregateRaw& array)
     return array.length();
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_arrayAccessElement(const AggregateRaw& array,
                              ACCESSOR&                accessor,
                              int                      index)
@@ -2728,7 +2728,7 @@ int bdeat_arrayAccessElement(const AggregateRaw& array,
     }
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_arrayManipulateElement(AggregateRaw *array,
                                  MANIPULATOR&       manipulator,
                                  int                index)
@@ -2765,7 +2765,7 @@ namespace bdeat_EnumFunctions {
     struct IsEnumeration<bdlaggxxx::AggregateRaw> {
         enum { VALUE = 1 };
     };
-}  // close namespace bdeat_EnumFunctions
+}  // close namespace bdlat_EnumFunctions
 
 namespace bdlaggxxx {
 int bdeat_enumFromString(AggregateRaw *result,
@@ -2856,10 +2856,10 @@ namespace bdeat_SequenceFunctions {
     struct IsSequence<bdlaggxxx::AggregateRaw> {
         enum { VALUE = 1 };
     };
-}  // close namespace bdeat_SequenceFunctions
+}  // close namespace bdlat_SequenceFunctions
 
 namespace bdlaggxxx {
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_sequenceManipulateAttribute(AggregateRaw *object,
                                       MANIPULATOR&       manipulator,
                                       const char        *attributeName,
@@ -2887,7 +2887,7 @@ int bdeat_sequenceManipulateAttribute(AggregateRaw *object,
                                                         fieldIndex);
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_sequenceManipulateAttribute(AggregateRaw *object,
                                       MANIPULATOR&       manipulator,
                                       int                attributeId)
@@ -2910,7 +2910,7 @@ int bdeat_sequenceManipulateAttribute(AggregateRaw *object,
                                                         fieldIndex);
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_sequenceManipulateAttributes(AggregateRaw *object,
                                        MANIPULATOR&       manipulator)
     // Use the specified 'manipulator' to change the value of all fields in the
@@ -2931,7 +2931,7 @@ int bdeat_sequenceManipulateAttributes(AggregateRaw *object,
     return ret;
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_sequenceAccessAttribute(
                                  const AggregateRaw&  object,
                                  ACCESSOR&                 accessor,
@@ -2960,7 +2960,7 @@ int bdeat_sequenceAccessAttribute(
                                                     fieldIndex);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_sequenceAccessAttribute(const AggregateRaw& object,
                                   ACCESSOR&                accessor,
                                   int                      attributeId)
@@ -2983,7 +2983,7 @@ int bdeat_sequenceAccessAttribute(const AggregateRaw& object,
                                                     fieldIndex);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_sequenceAccessAttributes(const AggregateRaw& object,
                                    ACCESSOR&                accessor)
     // Use the specified 'accessor' to access the value of all fields in the
@@ -3050,7 +3050,7 @@ namespace bdeat_NullableValueFunctions {
         typedef bdlaggxxx::AggregateRaw Type;
     };
 
-}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace bdlat_NullableValueFunctions
 
 namespace bdlaggxxx {
 inline
@@ -3070,7 +3070,7 @@ void bdeat_nullableValueMakeValue(
     object->d_element_p->makeValue();
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 inline
 int bdeat_nullableValueManipulateValue(
                      AggregateRaw_BdeatUtil::NullableAdapter *object,
@@ -3081,7 +3081,7 @@ int bdeat_nullableValueManipulateValue(
     return manipulator(object->d_element_p);
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 inline
 int bdeat_nullableValueAccessValue(
                   const AggregateRaw_BdeatUtil::NullableAdapter& object,
@@ -3102,7 +3102,7 @@ bdeat_typeCategorySelect(const AggregateRaw& object);
     // example, if 'object' contains an 'INT', return 'SIMPLE_CATEGORY'; if
     // 'object' contains a 'LIST', return 'SEQUENCE_CATEGORY', etc.
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_typeCategoryAccessArray(const AggregateRaw& object,
                                   ACCESSOR&                accessor)
     // Use the specified 'accessor' to access the value of the specified array
@@ -3114,15 +3114,15 @@ int bdeat_typeCategoryAccessArray(const AggregateRaw& object,
     typedef bdeat_TypeCategory::Array Tag;
 
     if (bdlmxxx::ElemType::BDEM_CHAR_ARRAY == object.dataType()) {
-        return accessor(object.asElemRef().theCharArray(), Tag());
+        return accessor(object.asElemRef().theCharArray(), Tag());    // RETURN
     }
     if (bdlmxxx::ElemType::isArrayType(object.dataType())) {
-        return accessor(object, Tag());
+        return accessor(object, Tag());                               // RETURN
     }
     return accessor(object, bslmf::Nil());
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_typeCategoryManipulateArray(AggregateRaw *object,
                                       MANIPULATOR&       manipulator)
     // Use the specified 'manipulator' to change the value of the specified
@@ -3135,16 +3135,16 @@ int bdeat_typeCategoryManipulateArray(AggregateRaw *object,
 
     if (bdlmxxx::ElemType::BDEM_CHAR_ARRAY == object->dataType()) {
         return manipulator(&object->asElemRef().theModifiableCharArray(),
-                           Tag());
+                           Tag());                                    // RETURN
     }
     if (bdlmxxx::ElemType::isArrayType(object->dataType())) {
-        return manipulator(object, Tag());
+        return manipulator(object, Tag());                            // RETURN
     }
 
     return manipulator(object, bslmf::Nil());
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_typeCategoryManipulateSimple(AggregateRaw *object,
                                        MANIPULATOR&       manipulator)
     // Use the specified 'manipulator' to change the value of the specified
@@ -3211,7 +3211,7 @@ int bdeat_typeCategoryManipulateSimple(AggregateRaw *object,
     return result;
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_typeCategoryAccessSimple(const AggregateRaw& object,
                                    ACCESSOR&                accessor)
     // Use the specified 'accessor' to access the value of the specified simple
@@ -3273,15 +3273,15 @@ int bdeat_typeCategoryAccessSimple(const AggregateRaw& object,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

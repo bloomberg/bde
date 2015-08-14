@@ -1,4 +1,4 @@
-// bdlmt_fixedthreadpool.t.cpp          -*-C++-*-
+// bdlmt_fixedthreadpool.t.cpp                                        -*-C++-*-
 #include <bdlmt_fixedthreadpool.h>
 #include <bslma_testallocator.h>
 
@@ -124,7 +124,7 @@ typedef bdlmt::FixedThreadPool Obj;
 bslma::TestAllocator taDefault;
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 #define STARTPOOL(x) \
@@ -339,7 +339,7 @@ static void  myFastSearch( const string&         word,
     if (0 != pool.start()) {
         cout << "Thread start() failed.  Thread quota exceeded?" << endl;
         ASSERT(false);
-        return; // things are SNAFU
+        return; // things are SNAFU                                   // RETURN
     }
 
     int count = fileList.size();
@@ -402,7 +402,7 @@ static void  myFastFunctorSearch( const string& word,
         cout << "Thread start() failed.  Thread quota exceeded?"
              << bsl::endl;
         ASSERT(false);
-        return; // things are SNAFU
+        return; // things are SNAFU                                   // RETURN
     }
 
     int count = fileList.size();
@@ -477,7 +477,7 @@ void ConcurrencyTest::runTest()
     d_pool.drain();
 }
 
-} // close namespace BCEP_FIXEDTHREADPOOL_CASE_14
+}  // close namespace BCEP_FIXEDTHREADPOOL_CASE_14
 
 //=============================================================================
 //                         CASE 11 RELATED ENTITIES
@@ -1724,11 +1724,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

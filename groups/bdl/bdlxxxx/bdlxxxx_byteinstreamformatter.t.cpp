@@ -1,4 +1,4 @@
-// bdlxxxx_byteinstreamformatter.t.cpp              -*-C++-*-
+// bdlxxxx_byteinstreamformatter.t.cpp                                -*-C++-*-
 
 #include <bdlxxxx_byteinstreamformatter.h>
 #include <bdlxxxx_byteoutstreamformatter.h>        // for testing only
@@ -129,7 +129,7 @@ const int SIZEOF_FLOAT64 = 8;
 const int SIZEOF_FLOAT32 = 4;
 
 //=============================================================================
-//                  USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 class my_Person {
     bsl::string d_firstName;
@@ -250,18 +250,18 @@ STREAM& my_Person::bdexStreamIn(STREAM& stream, int version)
               if (!stream) {
                   d_firstName = "stream error";  // *might* be corrupted;
                                                  //  value for testing
-                  return stream;
+                  return stream;                                      // RETURN
               }
               stream.getString(d_lastName);
               if (!stream) {
                   d_lastName = "stream error";  // *might* be corrupted;
                                                 //  value for testing
-                  return stream;
+                  return stream;                                      // RETURN
               }
               stream.getInt32(d_age);
               if (!stream) {
                  d_age = 1;      // *might* be corrupted; value for testing
-                  return stream;
+                  return stream;                                      // RETURN
               }
           } break;
           default: {
@@ -291,7 +291,7 @@ inline
 bool operator==(const my_Person& lhs, const my_Person& rhs)
 {
     if(&lhs == &rhs) {
-       return true;
+       return true;                                                   // RETURN
     }
 
     return( (lhs.d_firstName == rhs.d_firstName) &&
@@ -3535,7 +3535,7 @@ int main(int argc, char *argv[])
                  << "\tand numOutIters  = number of ctor+putInt8+dtor in"
                                                             " outer loop\n"
                  << "\t(default values to 1000 and 1000000, resp.)\n";
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if (verbose) cout << "\nWith bdlsb::FixedMemOutput" << endl;
@@ -3601,11 +3601,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

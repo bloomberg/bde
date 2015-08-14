@@ -1,4 +1,4 @@
-// bdlcfxxxi_vfunc0.h               -*-C++-*-
+// bdlcfxxxi_vfunc0.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLCFXXXI_VFUNC0
 #define INCLUDED_BDLCFXXXI_VFUNC0
 
@@ -3116,15 +3116,15 @@ Vfunc0M9<OBJ, M, D1, D2, D3, D4, D5, D6, D7, D8, D9>::execute() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

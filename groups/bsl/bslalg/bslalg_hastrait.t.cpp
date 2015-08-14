@@ -114,7 +114,7 @@ const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
 const unsigned TRAIT_EQPOD = (TRAIT_POD |
                               TRAIT_BITWISEEQUALITYCOMPARABLE);
 
-template <typename TYPE>
+template <class TYPE>
 unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
@@ -152,7 +152,7 @@ unsigned traitBits()
     return result;
 }
 
-template <typename TYPE>
+template <class TYPE>
 struct Identity
 {
     // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
@@ -197,7 +197,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 
-}  // close bslma namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 template <class T>
@@ -230,12 +230,12 @@ struct ConvertibleToAnyNoTraits
     // the "convert to anything" operator shouldn't interfere with the nested
     // trait logic.
 {
-    template <typename T>
+    template <class T>
     operator T() const { return T(); }
 };
 
 struct ConvertibleToAnyWithTraits {
-    template <typename T>
+    template <class T>
     operator T() const { return T(); }
 };
 
@@ -249,8 +249,8 @@ struct UsesBslmaAllocator<ConvertibleToAnyWithTraits> : bsl::true_type {
     // work.
 };
 
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 //=============================================================================
 //                              MAIN PROGRAM

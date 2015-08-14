@@ -231,13 +231,13 @@ int PipeControlChannel::readNamedPipe()
                                                    '\n');
         if (it != d_buffer.end()) {
             dispatchMessageUpTo(it);
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
 
     if (d_impl.d_unix.d_readFd == 0) {
         // Pipe was closed before read was issued.
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     pollfd fds;
@@ -266,7 +266,7 @@ int PipeControlChannel::readNamedPipe()
                            << d_pipeName << "', rc = " << rc
                            << ", errno = " << savedErrno << ": "
                            << bsl::strerror(savedErrno) << BALL_LOG_END;
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if ((fds.revents & POLLERR) || (fds.revents & POLLNVAL)) {
@@ -274,7 +274,7 @@ int PipeControlChannel::readNamedPipe()
                               "descriptor of pipe '"
                            << d_pipeName << "', errno = " << savedErrno << ": "
                            << bsl::strerror(savedErrno) << BALL_LOG_END;
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if (fds.revents & POLLIN) {
@@ -295,7 +295,7 @@ int PipeControlChannel::readNamedPipe()
                                << d_pipeName
                                << "', errno = " << savedErrno << ": "
                                << bsl::strerror(savedErrno) << BALL_LOG_END;
-                return -1;
+                return -1;                                            // RETURN
             }
             else {
                BALL_LOG_TRACE << "Read data from pipe: '";
@@ -311,7 +311,7 @@ int PipeControlChannel::readNamedPipe()
 
                if (it != d_buffer.end()) {
                    dispatchMessageUpTo(it);
-                   return 0;
+                   return 0;                                          // RETURN
                }
             }
         }
@@ -334,7 +334,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 //  BSLS_ASSERT(0 == d_impl.d_unix.d_readFd);
 
     if (0 != d_impl.d_unix.d_readFd) {
-        return -7;
+        return -7;                                                    // RETURN
     }
 
     if (bdlsu::FilesystemUtil::exists(pipeName)) {
@@ -346,7 +346,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                              "'" << pipeName << "' "
                              "is already in use by another process"
                           << BALL_LOG_END;
-           return -2;
+           return -2;                                                 // RETURN
        }
        bdlsu::FilesystemUtil::remove(pipeName.c_str());
     }
@@ -359,7 +359,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                               "'" << dirname << "' "
                               "does not exist"
                            << BALL_LOG_END;
-            return -3;
+            return -3;                                                // RETURN
         }
     }
 
@@ -375,7 +375,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                           ": errno = " << savedErrno                << " "
                           "("          << bsl::strerror(savedErrno) << ")"
                        << BALL_LOG_END;
-        return -4;
+        return -4;                                                    // RETURN
     }
 
     d_impl.d_unix.d_readFd = open(rawPipeName, O_RDONLY | O_NONBLOCK);
@@ -389,7 +389,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                           ": errno = "  << savedErrno                << " "
                           "("           << bsl::strerror(savedErrno) << ")"
                        << BALL_LOG_END;
-        return -5;
+        return -5;                                                    // RETURN
     }
 
     d_impl.d_unix.d_writeFd = open(rawPipeName, O_WRONLY);
@@ -402,7 +402,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                           ": errno = "  << savedErrno                << " "
                           "("           << bsl::strerror(savedErrno) << ")"
                        << BALL_LOG_END;
-        return -6;
+        return -6;                                                    // RETURN
     }
 
     BALL_LOG_TRACE << "Created named pipe '" << rawPipeName << "'"
@@ -453,7 +453,7 @@ void PipeControlChannel::backgroundProcessor()
                              "unable to read from named pipe '"
                           << d_pipeName << "'"
                           << BALL_LOG_END;
-            return;
+            return;                                                   // RETURN
         }
     }
 
@@ -466,7 +466,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
 
 // BSLS_ASSERT(!d_isRunningFlag); // TBD: DOES createNamedPipe FAIL???
     if (d_isRunningFlag) {
-        return 2;
+        return 2;                                                     // RETURN
     }
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // See test driver case 9, on windows, createNamedPipe does not
@@ -480,7 +480,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
     if (0 != createNamedPipe(pipeName)) {
          BALL_LOG_ERROR << "Unable to create named pipe '" << pipeName << "'"
                         << BALL_LOG_END;
-         return 1;
+         return 1;                                                    // RETURN
     }
 
     d_pipeName      = pipeName;
@@ -494,7 +494,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
         BALL_LOG_ERROR << "Cannot create processing thread, rc = " << rc
                        << BALL_LOG_END;
         d_isRunningFlag = false;
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     return 0;
@@ -505,14 +505,14 @@ void PipeControlChannel::shutdown()
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     if (!d_isRunningFlag) {
-        return;
+        return;                                                       // RETURN
     }
 
     if (bdlqq::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
         // thread perform a synchronous shutdown.
         d_isRunningFlag = false;
-        return;
+        return;                                                       // RETURN
     }
 
     // The background thread is blocked on a call to 'ReadFile'.  Shutdown the
@@ -565,13 +565,20 @@ void PipeControlChannel::stop()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007, 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

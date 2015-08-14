@@ -77,9 +77,9 @@ struct TypeTraitBitwiseMoveable {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::TypeTraitBitwiseMoveable bslalg_TypeTraitBitwiseMoveable;
     // This alias is defined for backward compatibility.

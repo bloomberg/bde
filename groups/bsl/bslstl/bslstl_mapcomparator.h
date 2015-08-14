@@ -251,9 +251,9 @@ void swap(MapComparator<KEY, VALUE, COMPARATOR>& a,
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                     // -------------------
                     // class MapComparator
@@ -353,8 +353,8 @@ void swap(MapComparator<KEY, VALUE, COMPARATOR>& a,
     a.swap(b);
 }
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

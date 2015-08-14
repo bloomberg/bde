@@ -576,9 +576,9 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_AutoRawDeleter
 #undef bslma_AutoRawDeleter

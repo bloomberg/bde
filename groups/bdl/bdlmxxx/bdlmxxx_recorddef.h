@@ -1,4 +1,4 @@
-// bdlmxxx_recorddef.h                                                   -*-C++-*-
+// bdlmxxx_recorddef.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_RECORDDEF
 #define INCLUDED_BDLMXXX_RECORDDEF
 
@@ -439,7 +439,7 @@ class RecordDef {
 
   private:
     // PRIVATE MANIPULATORS
-    template <typename CONSTRAINT_TYPE>
+    template <class CONSTRAINT_TYPE>
     FieldDef *append(const FieldDefAttributes&  attributes,
                           const CONSTRAINT_TYPE          *constraint,
                           const char                     *name,
@@ -927,15 +927,15 @@ const Schema& RecordDef::schema() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

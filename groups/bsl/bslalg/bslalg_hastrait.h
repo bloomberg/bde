@@ -62,7 +62,7 @@ namespace bslalg {
                        // struct HasTrait
                        // ===============
 
-template <typename TYPE, typename TRAIT>
+template <class TYPE, class TRAIT>
 struct HasTrait {
     // This meta-function evaluates to 'bslmf::MetaInt<1>' if the parameterized
     // type 'TYPE' has the parameterized 'TRAIT', and to 'bslmf::MetaInt<0>'
@@ -80,9 +80,9 @@ struct HasTrait {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslalg_HasTrait
 #undef bslalg_HasTrait

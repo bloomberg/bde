@@ -111,10 +111,10 @@ public:
    double getRatePerThread()
    {
       if (d_run) {
-         return d_ratePerThread;
+         return d_ratePerThread;                                      // RETURN
       }
       else {
-         return -1;
+         return -1;                                                   // RETURN
       }
    }
 };
@@ -333,10 +333,10 @@ public:
    double getRatePerThread()
    {
       if (d_run) {
-         return d_ratePerThread;
+         return d_ratePerThread;                                      // RETURN
       }
       else {
-         return -1;
+         return -1;                                                   // RETURN
       }
    }
 };

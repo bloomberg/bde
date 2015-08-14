@@ -329,9 +329,9 @@ class TreeNodePool {
 
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 template <class VALUE, class ALLOCATOR>
@@ -427,7 +427,7 @@ TreeNodePool<VALUE, ALLOCATOR>::allocator() const
     return d_pool.allocator();
 }
 
-}  // close namespace bslstl
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

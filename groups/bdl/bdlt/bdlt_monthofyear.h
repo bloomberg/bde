@@ -432,7 +432,7 @@ STREAM& streamIn(STREAM&                  stream,
     return bdlt::MonthOfYear::bdexStreamIn(stream, variable, version);
 }
 
-}  // close namespace bdex_InStreamFunctions;
+}  // close namespace bdex_InStreamFunctions
 
 namespace bdex_OutStreamFunctions {
 
@@ -455,7 +455,7 @@ int maxSupportedVersion(bdlt::MonthOfYear::Enum)
     return bdlt::MonthOfYear::maxSupportedBdexVersion(0);
 }
 
-}  // close namespace bdex_VersionFunctions;
+}  // close namespace bdex_VersionFunctions
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 

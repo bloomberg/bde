@@ -1,4 +1,4 @@
-// bdlmxxx_schema.h                                                      -*-C++-*-
+// bdlmxxx_schema.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_SCHEMA
 #define INCLUDED_BDLMXXX_SCHEMA
 
@@ -1479,11 +1479,11 @@ STREAM& Schema::bdexStreamIn(STREAM& stream, int version)
                 break;
               default:
                 stream.invalidate();
-                return stream;
+                return stream;                                        // RETURN
             }
 
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
 
             const int detailedVersion = 1000 * version + minorVersion;
@@ -1722,15 +1722,15 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream, const Schema& schema)
     return schema.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

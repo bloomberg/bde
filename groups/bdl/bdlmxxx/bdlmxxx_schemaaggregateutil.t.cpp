@@ -1,4 +1,4 @@
-// bdlmxxx_schemaaggregateutil.t.cpp                                     -*-C++-*-
+// bdlmxxx_schemaaggregateutil.t.cpp                                  -*-C++-*-
 
 #include <bdlmxxx_schemaaggregateutil.h>
 
@@ -38,7 +38,7 @@ using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 //=============================================================================
-//                   TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 // [11] int canSatisfyRecord(const bdlmxxx::Row&, bdlmxxx::RecordDef&);
 // [11] int canSatisfyRecord(const bdlmxxx::List&, bdlmxxx::RecordDef&);
@@ -283,9 +283,9 @@ int strCmp(const char* lhs, const char* rhs)
     // equal, a negative value if lhs < rhs, and a positive value if lhs > rhs.
     // Note that the behavior is well-defined for null-pointer arguments.
 {
-    if (0 == lhs && 0 == rhs) return 0;
-    if (0 == lhs) return -1;
-    if (0 == rhs) return 1;
+    if (0 == lhs && 0 == rhs) return 0;                               // RETURN
+    if (0 == lhs) return -1;                                          // RETURN
+    if (0 == rhs) return 1;                                           // RETURN
     return bsl::strcmp(lhs, rhs);
 }
 
@@ -748,7 +748,7 @@ const RecDef *getRecordConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->record(token - '0');
+        return &object->record(token - '0');                          // RETURN
     }
 
     // else constrained by name
@@ -759,7 +759,7 @@ const EnumDef *getEnumConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->enumeration(token - '0');
+        return &object->enumeration(token - '0');                     // RETURN
     }
 
     // else constrained by name
@@ -1081,7 +1081,7 @@ bool containsAggregate(const RecDef& rec)
 
     for (int i = 0; i < length; ++i) {
         if (bdlmxxx::ElemType::isAggregateType(rec.field(i).elemType())) {
-            return true;
+            return true;                                              // RETURN
         }
     }
 
@@ -1207,7 +1207,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
     getElemTypes(&listElemTypes, list);
     if (listElemTypes != elemTypes) {
         cout << "list.elemTypes() != elemTypes" << endl;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     for (int i = 0; i < list.length(); ++i) {
@@ -1222,12 +1222,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     if (!list[i].isNull()) {
                         cout << "schema is null, element is not" << endl;
                         P_(list[i]);
-                        return 0;
+                        return 0;                                     // RETURN
                     }
                 }
                 else if (list[i].isNonNull()) {
                     cout << "schema has no default value, list is set" << endl;
-                    return 0;
+                    return 0;                                         // RETURN
                 }
             }
             else {
@@ -1235,7 +1235,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     cout << "scalar element is not set to default value" <<
                                                                           endl;
                     P(list[i]); P(pFld->defaultValue());
-                    return 0;
+                    return 0;                                         // RETURN
                 }
             }
         }
@@ -1244,7 +1244,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                 if (!list[i].isNull()) {
                     cout << "schema is null, element is not" << endl;
                     P_(list[i]);
-                    return 0;
+                    return 0;                                         // RETURN
                 }
 
                 continue;
@@ -1255,7 +1255,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                 //       unconstrained;
                 if (list[i].isNonNull()) {
                     cout << "unconstrained sub-list not unset" << endl;
-                    return 0;
+                    return 0;                                         // RETURN
                 }
 
                 continue;                                           // CONTINUE
@@ -1271,13 +1271,13 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                 if(pConstraint == &recDef) {
                     if (list[i].isNonNull()) {
                         cout << "self-constrained sub-list not unset" << endl;
-                        return 0;
+                        return 0;                                     // RETURN
                     }
                 }
                 else {
                     if (!verifyDeepInitList(list.theList(i), *pConstraint)) {
                         cout << "sub-list not deep-conformant" << endl;
-                        return 0;
+                        return 0;                                     // RETURN
                     }
                 }
               } break;
@@ -1292,12 +1292,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     cout << "sub-table does not have proper column types"
                          << endl;
                     P(list.theTable(i)); P(bdlmxxx::Table(constraintTypes));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
                 if (0 != list.theTable(i).numRows()) {
                     cout << "sub-table does not have zero rows" << endl;
                     P(list.theTable(i));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
               } break;
               case EType::BDEM_CHOICE: {
@@ -1311,12 +1311,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     cout << "sub-choice does not have the proper type catalog"
                          << endl;
                     P(list.theChoice(i)); P(bdlmxxx::Choice(constraintTypes));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
                 if (-1 != list.theChoice(i).selector()) {
                     cout << "sub-choice is not null" << endl;
                     P(list.theChoice(i));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
               } break;
               case EType::BDEM_CHOICE_ARRAY: {
@@ -1332,12 +1332,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                          << endl;
                     P(list.theChoiceArray(i));
                     P(bdlmxxx::ChoiceArray(constraintTypes));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
                 if (0 != list.theChoiceArray(i).length()) {
                     cout << "sub-choice-array is not empty" << endl;
                     P(list.theChoiceArray(i));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
               } break;
               default: {
@@ -1629,7 +1629,7 @@ static const struct {
 
 static const int NUM_INDENT_DATA = SIZEOF_ARRAY(INDENT_DATA);
 
-template <typename AGG_TYPE>
+template <class AGG_TYPE>
 void printTest(int                   LINE,
                const AGG_TYPE&       agg,
                EType::Type           type,
@@ -8040,11 +8040,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

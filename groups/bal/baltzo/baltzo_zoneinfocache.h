@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
- 
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

@@ -1,4 +1,4 @@
-// balm_collectorrepository.cpp      -*-C++-*-
+// balm_collectorrepository.cpp                                       -*-C++-*-
 #include <balm_collectorrepository.h>
 
 #include <bsls_ident.h>
@@ -40,7 +40,7 @@ void combine(balm::MetricRecord *record, const balm::MetricRecord& value)
 
 namespace balm {
 
-template <typename COLLECTOR>
+template <class COLLECTOR>
 class CollectorRepository_Collectors {
     // This implementation class provides a container mechanism for managing a
     // set of objects of templatized type 'COLLECTOR' that are all associated
@@ -143,7 +143,7 @@ class CollectorRepository_Collectors {
               // -------------------------------------------------
 
 // CREATORS
-template <typename COLLECTOR>
+template <class COLLECTOR>
 CollectorRepository_Collectors<COLLECTOR>::
       CollectorRepository_Collectors(const MetricId&  metricId,
                                     bslma::Allocator     *basicAllocator)
@@ -153,7 +153,7 @@ CollectorRepository_Collectors<COLLECTOR>::
 {
 }
 
-template <typename COLLECTOR>
+template <class COLLECTOR>
 inline
 CollectorRepository_Collectors<COLLECTOR>::
 ~CollectorRepository_Collectors()
@@ -161,7 +161,7 @@ CollectorRepository_Collectors<COLLECTOR>::
 }
 
 // MANIPULATORS
-template <typename COLLECTOR>
+template <class COLLECTOR>
 inline
 COLLECTOR *
 CollectorRepository_Collectors<COLLECTOR>::defaultCollector()
@@ -169,7 +169,7 @@ CollectorRepository_Collectors<COLLECTOR>::defaultCollector()
     return &d_defaultCollector;
 }
 
-template <typename COLLECTOR>
+template <class COLLECTOR>
 bsl::shared_ptr<COLLECTOR>
 CollectorRepository_Collectors<COLLECTOR>::addCollector()
 {
@@ -180,7 +180,7 @@ CollectorRepository_Collectors<COLLECTOR>::addCollector()
     return collectorPtr;
 }
 
-template <typename COLLECTOR>
+template <class COLLECTOR>
 int CollectorRepository_Collectors<COLLECTOR>::removeCollector(
                                                           COLLECTOR *collector)
 {
@@ -189,7 +189,7 @@ int CollectorRepository_Collectors<COLLECTOR>::removeCollector(
     return rc > 0 ? 0 : -1;
 }
 
-template <typename COLLECTOR>
+template <class COLLECTOR>
 void
 CollectorRepository_Collectors<COLLECTOR>::collectAndReset(
                                                      MetricRecord *record)
@@ -203,7 +203,7 @@ CollectorRepository_Collectors<COLLECTOR>::collectAndReset(
     }
 }
 
-template <typename COLLECTOR>
+template <class COLLECTOR>
 void
 CollectorRepository_Collectors<COLLECTOR>::collect(MetricRecord *record)
 {
@@ -217,7 +217,7 @@ CollectorRepository_Collectors<COLLECTOR>::collect(MetricRecord *record)
 }
 
 // ACCESSORS
-template <typename COLLECTOR>
+template <class COLLECTOR>
 int
 CollectorRepository_Collectors<COLLECTOR>::getAddedCollectors(
                     bsl::vector<bsl::shared_ptr<COLLECTOR> > *collectors) const
@@ -230,7 +230,7 @@ CollectorRepository_Collectors<COLLECTOR>::getAddedCollectors(
     return d_addedCollectors.size();
 }
 
-template <typename COLLECTOR>
+template <class COLLECTOR>
 inline
 const MetricId&
 CollectorRepository_Collectors<COLLECTOR>::metricId() const
@@ -498,7 +498,7 @@ Collector *CollectorRepository::getDefaultCollector(
         bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
         Collectors::iterator it = d_collectors.find(metricId);
         if (it != d_collectors.end()) {
-            return it->second->collectors().defaultCollector();
+            return it->second->collectors().defaultCollector();       // RETURN
         }
     }
 
@@ -517,7 +517,7 @@ IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
         bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
         Collectors::iterator it = d_collectors.find(metricId);
         if (it != d_collectors.end()) {
-            return it->second->intCollectors().defaultCollector();
+            return it->second->intCollectors().defaultCollector();    // RETURN
         }
     }
 
@@ -558,13 +558,20 @@ int CollectorRepository::getAddedCollectors(
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

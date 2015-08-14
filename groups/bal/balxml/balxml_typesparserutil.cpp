@@ -1,4 +1,4 @@
-// balxml_typesparserutil.cpp                  -*-C++-*-
+// balxml_typesparserutil.cpp                                         -*-C++-*-
 #include <balxml_typesparserutil.h>
 
 #include <bsls_ident.h>
@@ -35,11 +35,11 @@ int parseBoolean(bool *result, const char *input, int inputLength)
       case 1: {
         if ('1' == input[0]) {
             *result = true;
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
         else if ('0' == input[0]) {
             *result = false;
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
       } break;
       case 4: {
@@ -48,7 +48,7 @@ int parseBoolean(bool *result, const char *input, int inputLength)
          && ('u' == input[2] || 'U' == input[2])
          && ('e' == input[3] || 'E' == input[3])) {
             *result = true;
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
       } break;
       case 5: {
@@ -58,7 +58,7 @@ int parseBoolean(bool *result, const char *input, int inputLength)
          && ('s' == input[3] || 'S' == input[3])
          && ('e' == input[4] || 'E' == input[4])) {
             *result = false;
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
       } break;
     }
@@ -82,32 +82,32 @@ int parseDoubleImpl(double     *result,
 
     if (formatDecimal && input[bsl::strspn(input, decimalChars)] != '\0') {
         // Non-decimal character (i.e., potential INF, NaN, or exponent) found.
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     switch (input[0]) {
       case 'N':
         if (bsl::strcmp(input + 1, "aN") == 0) {
             *result = bsl::numeric_limits<double>::quiet_NaN();
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
         break;
       case 'I':
         if (bsl::strcmp(input + 1, "NF") == 0) {
             *result = bsl::numeric_limits<double>::infinity();
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
         break;
       case '+':
         if (bsl::strcmp(input + 1, "INF") == 0) {
             *result = bsl::numeric_limits<double>::infinity();
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
         break;
       case '-':
         if (bsl::strcmp(input + 1, "INF") == 0) {
             *result = -bsl::numeric_limits<double>::infinity();
-            return BAEXML_SUCCESS;
+            return BAEXML_SUCCESS;                                    // RETURN
         }
         break;
 
@@ -121,7 +121,7 @@ int parseDoubleImpl(double     *result,
 
     if (end == input || *end != '\0') {  // nothing was consumed or not all
                                          // characters were consumed
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     // We ignore underflow errors.  If strtod sets errno to ERANGE, then it
@@ -129,14 +129,15 @@ int parseDoubleImpl(double     *result,
     // very small number (or zero) for underflow -- exactly what we want.
     if (ERANGE == errno) {
         if (*result < -1.0 || 1.0 < *result) {
-            return BAEXML_FAILURE; // Overflow is an error.
+            return BAEXML_FAILURE; // Overflow is an error.           // RETURN
         }
         else {
             return BAEXML_SUCCESS; // Underflow is OK (very small number).
+                                                                      // RETURN
         }
     }
     else if (errno != 0) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return BAEXML_SUCCESS;
@@ -157,7 +158,7 @@ int parseDouble(double     *result,
     enum { BUFLEN = 80 };
 
     if (0 == inputLength) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     if (inputLength < BUFLEN) {
@@ -166,13 +167,13 @@ int parseDouble(double     *result,
         bsl::memcpy(buffer, input, inputLength);
         buffer[inputLength] = '\0';
 
-        return parseDoubleImpl(result, buffer, formatDecimal);
+        return parseDoubleImpl(result, buffer, formatDecimal);        // RETURN
 
     }
     else {
         // Use a string for dynamic allocation.
         bsl::string tmp(input, inputLength);
-        return parseDoubleImpl(result, tmp.c_str(), formatDecimal);
+        return parseDoubleImpl(result, tmp.c_str(), formatDecimal);   // RETURN
     }
 }
 
@@ -185,7 +186,7 @@ int parseInt(int *result, const char *input, int inputLength)
     int consumed = 0;
 
     if (0 == inputLength) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
     else if (inputLength < BUFLEN) {
         // Use a fixed-length buffer for efficiency.
@@ -210,7 +211,7 @@ int parseInt(int *result, const char *input, int inputLength)
     }
 
     if (errno != 0 || consumed != inputLength) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return BAEXML_SUCCESS;
@@ -227,7 +228,7 @@ int parseUnsignedInt(unsigned int *result,
     int consumed = 0;
 
     if (0 == inputLength) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
     else if (inputLength < BUFLEN) {
         // Use a fixed-length buffer for efficiency.
@@ -252,13 +253,13 @@ int parseUnsignedInt(unsigned int *result,
     }
 
     if (errno != 0 || consumed != inputLength) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return BAEXML_SUCCESS;
 }
 
-template <typename INT_TYPE>
+template <class INT_TYPE>
 inline
 int parseSignedDecimal(INT_TYPE *result, const char *input, int inputLength)
     // Parse a signed integral value as decimal.
@@ -270,14 +271,14 @@ int parseSignedDecimal(INT_TYPE *result, const char *input, int inputLength)
     if (0 != parseInt(&temp, input, inputLength) ||
         temp < bsl::numeric_limits<INT_TYPE>::min() ||
         temp > bsl::numeric_limits<INT_TYPE>::max()) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     *result = static_cast<INT_TYPE>(temp);
     return BAEXML_SUCCESS;
 }
 
-template <typename INT_TYPE>
+template <class INT_TYPE>
 inline
 int parseUnsignedDecimal(INT_TYPE *result, const char *input, int inputLength)
     // Parse an unsigned integral value as decimal.
@@ -288,14 +289,14 @@ int parseUnsignedDecimal(INT_TYPE *result, const char *input, int inputLength)
 
     if (0 != parseUnsignedInt(&temp, input, inputLength) ||
         temp > bsl::numeric_limits<INT_TYPE>::max()) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     *result = static_cast<INT_TYPE>(temp);
     return BAEXML_SUCCESS;
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 namespace balxml {
                          // ---------------------------------
@@ -314,11 +315,11 @@ int TypesParserUtil_Imp::parseBase64(bsl::string *result,
     Base64Parser<bsl::string> base64Parser;
 
     if (0 != base64Parser.beginParse(result)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     if (0 != base64Parser.pushCharacters(input, input + inputLength)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return base64Parser.endParse();
@@ -334,11 +335,11 @@ int TypesParserUtil_Imp::parseBase64(bsl::vector<char> *result,
     Base64Parser<bsl::vector<char> > base64Parser;
 
     if (0 != base64Parser.beginParse(result)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     if (0 != base64Parser.pushCharacters(input, input + inputLength)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return base64Parser.endParse();
@@ -399,7 +400,7 @@ TypesParserUtil_Imp::parseDecimal(
     bsls::Types::Uint64 temp = 0;
     int rc = parseDecimal(&temp, input, inputLength, sc);
     if (rc != 0) {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     // TBD Microsoft is warning that -temp is still an unsigned value.
@@ -446,7 +447,7 @@ int TypesParserUtil_Imp::parseDecimal(
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     if (0 == inputLength) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     bsls::Types::Uint64 val = 0;
@@ -458,7 +459,7 @@ int TypesParserUtil_Imp::parseDecimal(
             val += c - '0';
         }
         else {
-            return BAEXML_FAILURE;
+            return BAEXML_FAILURE;                                    // RETURN
         }
     }
 
@@ -533,11 +534,11 @@ int TypesParserUtil_Imp::parseHex(bsl::string *result,
     HexParser<bsl::string> hexParser;
 
     if (0 != hexParser.beginParse(result)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     if (0 != hexParser.pushCharacters(input, input + inputLength)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return hexParser.endParse();
@@ -553,11 +554,11 @@ int TypesParserUtil_Imp::parseHex(bsl::vector<char> *result,
     HexParser<bsl::vector<char> > hexParser;
 
     if (0 != hexParser.beginParse(result)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     if (0 != hexParser.pushCharacters(input, input + inputLength)) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     return hexParser.endParse();
@@ -581,7 +582,7 @@ int TypesParserUtil_Imp::parseText(char       *result,
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
     if (1 != inputLength) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     *result = *input;
@@ -614,13 +615,20 @@ int TypesParserUtil_Imp::parseText(bsl::vector<char> *result,
 }
 }  // close package namespace
 
-} // Close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

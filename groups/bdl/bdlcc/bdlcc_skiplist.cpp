@@ -276,7 +276,7 @@ void *SkipList_PoolManager::allocate(Pool *pool)
 
         if (pool->d_freeList.testAndSwap(0,0) == p
          && pool->d_freeList.testAndSwap(p,p->d_next_p) == p) {
-            return p;
+            return p;                                                 // RETURN
         }
         else {
             int controlBits;
@@ -288,7 +288,7 @@ void *SkipList_PoolManager::allocate(Pool *pool)
                                 controlBits^k_RELEASE_FLAG_MASK)) {
                         // The node is now free but not on the free list.  Take
                         // it.
-                        return p;
+                        return p;                                     // RETURN
                     }
                 }
                 else if (controlBits == p->d_control.d_cw.testAndSwap(
@@ -324,7 +324,7 @@ void SkipList_PoolManager::deallocate(Pool *pool, void *node)
                   (controlBits - k_ACQUIRE_COUNT_INC) | k_RELEASE_FLAG_MASK)) {
             // Someone else is still trying to pop this item.  Just let them
             // have it.
-            return;
+            return;                                                   // RETURN
         }
     }
 

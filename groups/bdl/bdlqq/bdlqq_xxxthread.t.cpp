@@ -34,7 +34,7 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 //                              Usage Examples
-// --------------
+//                              ----------------------------------------------------------------------------
 // [ 9] Windows specific example
 // [ 5] Basic thread utilities example
 // [ 6] Small stack example

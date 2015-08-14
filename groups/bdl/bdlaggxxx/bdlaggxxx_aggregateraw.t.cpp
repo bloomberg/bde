@@ -1,4 +1,4 @@
-// bdlaggxxx_aggregateraw.t.cpp                                            -*-C++-*-
+// bdlaggxxx_aggregateraw.t.cpp                                       -*-C++-*-
 
 #include <bdlaggxxx_aggregateraw.h>
 
@@ -320,17 +320,18 @@ const char *errorNm(int errorCode) {
     };
 
     if (0 == errorCode) {
-        return "NO_ERROR";
+        return "NO_ERROR";                                            // RETURN
     }
     else if (BCEM_ERR_TBD == errorCode) {
-        return "BCEM_ERR_TBD";
+        return "BCEM_ERR_TBD";                                        // RETURN
     }
     else if (ErrorCode::BCEM_UNKNOWN_ERROR <= errorCode &&
              errorCode <= ErrorCode::BCEM_AMBIGUOUS_ANON) {
         return ERROR_NAMES[errorCode - ErrorCode::BCEM_UNKNOWN_ERROR];
+                                                                      // RETURN
     }
     else {
-        return "<unexpected error code>";
+        return "<unexpected error code>";                             // RETURN
     }
 }
 
@@ -1229,7 +1230,7 @@ const RecDef *getRecordConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->record(token - '0');
+        return &object->record(token - '0');                          // RETURN
     }
 
     // else constrained by name
@@ -1240,7 +1241,7 @@ const EnumDef *getEnumConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->enumeration(token - '0');
+        return &object->enumeration(token - '0');                     // RETURN
     }
 
     // else constrained by name
@@ -1262,17 +1263,17 @@ int getFormattingMode(char fmtCode)
     //..
 {
     switch (fmtCode) {
-      case '0': return Format::BDEAT_DEFAULT;
-      case 'B': return Format::BDEAT_BASE64;
-      case 'D': return Format::BDEAT_DEC;
-      case 'T': return Format::BDEAT_TEXT;
-      case 'X': return Format::BDEAT_HEX;
-      case 'A': return Format::BDEAT_ATTRIBUTE;
-      case 'L': return Format::BDEAT_LIST;
+      case '0': return Format::BDEAT_DEFAULT;                         // RETURN
+      case 'B': return Format::BDEAT_BASE64;                          // RETURN
+      case 'D': return Format::BDEAT_DEC;                             // RETURN
+      case 'T': return Format::BDEAT_TEXT;                            // RETURN
+      case 'X': return Format::BDEAT_HEX;                             // RETURN
+      case 'A': return Format::BDEAT_ATTRIBUTE;                       // RETURN
+      case 'L': return Format::BDEAT_LIST;                            // RETURN
       case 'N':
-      case 'n': return Format::BDEAT_NILLABLE;
-      case 'S': return Format::BDEAT_SIMPLE_CONTENT;
-      case 'U': return Format::BDEAT_UNTAGGED;
+      case 'n': return Format::BDEAT_NILLABLE;                        // RETURN
+      case 'S': return Format::BDEAT_SIMPLE_CONTENT;                  // RETURN
+      case 'U': return Format::BDEAT_UNTAGGED;                        // RETURN
       default: {
         P(fmtCode);  ASSERT("Invalid formatting mode used in gg script" && 0);
       } break;
@@ -1369,46 +1370,46 @@ bool verifyDefaultValueForType(CERef ref, bool other = false)
 {
     switch (ref.type()) {
       case EType::BDEM_CHAR: {
-        return (other ? B00 : A00) == ref.theChar();
+        return (other ? B00 : A00) == ref.theChar();                  // RETURN
       } break;
       case EType::BDEM_SHORT: {
-        return (other ? B01 : A01) == ref.theShort();
+        return (other ? B01 : A01) == ref.theShort();                 // RETURN
       } break;
       case EType::BDEM_INT: {
-        return (other ? B02 : A02) == ref.theInt();
+        return (other ? B02 : A02) == ref.theInt();                   // RETURN
       } break;
       case EType::BDEM_INT64: {
-        return (other ? B03 : A03) == ref.theInt64();
+        return (other ? B03 : A03) == ref.theInt64();                 // RETURN
       } break;
       case EType::BDEM_FLOAT: {
-        return (other ? B04 : A04) == ref.theFloat();
+        return (other ? B04 : A04) == ref.theFloat();                 // RETURN
       } break;
       case EType::BDEM_DOUBLE: {
-        return (other ? B05 : A05) == ref.theDouble();
+        return (other ? B05 : A05) == ref.theDouble();                // RETURN
       } break;
       case EType::BDEM_STRING: {
-        return (other ? B06 : A06) == ref.theString();
+        return (other ? B06 : A06) == ref.theString();                // RETURN
       } break;
       case EType::BDEM_DATETIME: {
-        return (other ? B07 : A07) == ref.theDatetime();
+        return (other ? B07 : A07) == ref.theDatetime();              // RETURN
       } break;
       case EType::BDEM_DATE: {
-        return (other ? B08 : A08) == ref.theDate();
+        return (other ? B08 : A08) == ref.theDate();                  // RETURN
       } break;
       case EType::BDEM_TIME: {
-        return (other ? B09 : A09) == ref.theTime();
+        return (other ? B09 : A09) == ref.theTime();                  // RETURN
       } break;
       case EType::BDEM_BOOL: {
-        return (other ? B22 : A22) == ref.theBool();
+        return (other ? B22 : A22) == ref.theBool();                  // RETURN
       } break;
       case EType::BDEM_DATETIMETZ: {
-        return (other ? B23 : A23) == ref.theDatetimeTz();
+        return (other ? B23 : A23) == ref.theDatetimeTz();            // RETURN
       } break;
       case EType::BDEM_DATETZ: {
-        return (other ? B24 : A24) == ref.theDateTz();
+        return (other ? B24 : A24) == ref.theDateTz();                // RETURN
       } break;
       case EType::BDEM_TIMETZ: {
-        return (other ? B25 : A25) == ref.theTimeTz();
+        return (other ? B25 : A25) == ref.theTimeTz();                // RETURN
       } break;
       default: {
         ASSERT("Invalid element passed to 'verifyDefaultValueForType'" && 0);
@@ -1937,7 +1938,7 @@ struct SetFieldFunctor
     , d_index(index)
     { }
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     void operator()(const VALTYPE& value)
     {
         Obj   subAgg;
@@ -1963,7 +1964,7 @@ struct SetValueFunctor
     : d_obj(obj)
     { }
 
-    template <typename VALTYPE>
+    template <class VALTYPE>
     void operator()(const VALTYPE& value)
     {
         Error error;
@@ -1972,7 +1973,7 @@ struct SetValueFunctor
     }
 };
 
-template <typename VISITOR>
+template <class VISITOR>
 void funcVisitor(VISITOR *vPtr, const CERef& VALUE)
 {
     VISITOR& visitor = *vPtr;
@@ -2176,58 +2177,58 @@ static void assignToNillableTable(bdlaggxxx::AggregateRaw *agg,
       case bdlmxxx::ElemType::BDEM_CHAR_ARRAY:
         rc = agg->setValue(&err, arrayRef.theCharArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_SHORT_ARRAY:
         rc = agg->setValue(&err, arrayRef.theShortArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_INT_ARRAY:
         rc = agg->setValue(&err, arrayRef.theIntArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_INT64_ARRAY:
         rc = agg->setValue(&err, arrayRef.theInt64Array());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_FLOAT_ARRAY:
         rc = agg->setValue(&err, arrayRef.theFloatArray());
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_DOUBLE_ARRAY:
         rc = agg->setValue(&err, arrayRef.theDoubleArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_STRING_ARRAY:
         rc = agg->setValue(&err, arrayRef.theStringArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_DATETIME_ARRAY:
         rc = agg->setValue(&err, arrayRef.theDatetimeArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_DATE_ARRAY:
         rc = agg->setValue(&err, arrayRef.theDateArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_TIME_ARRAY:
         rc = agg->setValue(&err, arrayRef.theTimeArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_BOOL_ARRAY:
         rc = agg->setValue(&err, arrayRef.theBoolArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_DATETIMETZ_ARRAY:
         rc = agg->setValue(&err, arrayRef.theDatetimeTzArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_DATETZ_ARRAY:
         rc = agg->setValue(&err, arrayRef.theDateTzArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       case bdlmxxx::ElemType::BDEM_TIMETZ_ARRAY:
         rc = agg->setValue(&err, arrayRef.theTimeTzArray());
         ASSERT(!rc);
-        return;
+        return;                                                       // RETURN
       default:
         ASSERT(0);
     }
@@ -2280,7 +2281,7 @@ static bool compareNillableTable(bdlaggxxx::AggregateRaw agg, const CERef& elemR
     ASSERT(bdlmxxx::ElemType::BDEM_TABLE == agg.dataType());
     const int LEN = getLength(elemRef);
     if (LEN != agg.length()) {
-        return false;
+        return false;                                                 // RETURN
     }
     for (int i = 0; i < LEN; ++i) {
         Obj   tmp;
@@ -2288,7 +2289,7 @@ static bool compareNillableTable(bdlaggxxx::AggregateRaw agg, const CERef& elemR
         int rc = agg.getArrayItem(&tmp, &err, i);
         ASSERT(!rc);
         if (!compareNillableElement(tmp, elemRef, i)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -2298,21 +2299,23 @@ static bool compareCERefs(const CERef& lhs, const CERef& rhs)
 {
     // Special Handling of list/row and choice/choice-array-item combinations:
     if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
-        return *(const Row *) lhs.data() == rhs.theList().row();
+        return *(const Row *) lhs.data() == rhs.theList().row();      // RETURN
     }
     else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
-        return lhs.theList().row() == *(const Row *) rhs.data();
+        return lhs.theList().row() == *(const Row *) rhs.data();      // RETURN
     }
     else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
           && ET::BDEM_CHOICE            == rhs.type()) {
         return *(const ChoiceItem *) lhs.data() == rhs.theChoice().item();
+                                                                      // RETURN
     }
     else if (ET::BDEM_CHOICE            == lhs.type()
           && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
         return lhs.theChoice().item() == *(const ChoiceItem *) rhs.data();
+                                                                      // RETURN
     }
     else {
-        return lhs == rhs;
+        return lhs == rhs;                                            // RETURN
     }
 }
 
@@ -2627,7 +2630,7 @@ void ggList(bdlmxxx::List            *list,
     // values.  works with ggTable, ggChoice, ggChoiceArray
 {
     if (!record) {  // 'record' will be 0 in case of UNCONSTRAINED LIST
-        return;
+        return;                                                       // RETURN
     }
 
     for (int i = 0; i < record->numFields(); ++i) {
@@ -2680,7 +2683,7 @@ void ggTable(bdlmxxx::Table           *table,
     // works with ggList, ggCHoice,ggChoiceArray
 {
     if (!constraint) {  // UNCONSTRAINED TABLE
-        return;
+        return;                                                       // RETURN
     }
 
     bsl::vector<ET::Type> existingTypes;
@@ -2753,7 +2756,7 @@ void ggChoice(bdlmxxx::Choice          *choice,
     // works with ggList, ggChoiceArray, ggTable
 {
     if (!constraint) {
-        return;
+        return;                                                       // RETURN
 
     }
 
@@ -2799,7 +2802,7 @@ void ggChoiceArray(bdlmxxx::ChoiceArray     *choiceArray,
 {
     if (!constraint) {
 
-        return;
+        return;                                                       // RETURN
     }
 
     bsl::vector<ET::Type> existingTypes;
@@ -2844,13 +2847,13 @@ static bool streq(const char *a, const char *b)
     // not both, are null.
 {
     if (a == b) {
-        return true;
+        return true;                                                  // RETURN
     }
     else if (0 == a || 0 == b) {
-        return false;
+        return false;                                                 // RETURN
     }
     else {
-        return 0 == bsl::strcmp(a, b);
+        return 0 == bsl::strcmp(a, b);                                // RETURN
     }
 }
 
@@ -2871,28 +2874,28 @@ class AggAccessor {
         // Construct an accessor object
 
     // MANIPULATORS
-    template <typename T>
+    template <class T>
     int operator()(const T& value);
-    template <typename T, typename INFO>
+    template <class T, class INFO>
     int operator()(const T& value, const INFO& info);
         // Convert 'value' to a series of integers and push onto value stack.
 
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Array&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Choice&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::CustomizedType&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Enumeration&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::NullableValue&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Sequence&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Simple&);
 
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const bslmf::Nil&);
         // Illegal call: prevent recursive calls to the 'INFO' version of
         // 'operator()' in case of incorrect overload selection by the
@@ -2923,7 +2926,7 @@ class AggAccessor {
         // the string -1 if 'n < 0 || numValues() < n'.
 };
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const TC::Array&)
 {
@@ -2933,7 +2936,7 @@ int AggAccessor::operator()(const T& value, const TC::Array&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const TC::Choice&)
 {
@@ -2942,7 +2945,7 @@ int AggAccessor::operator()(const T& value, const TC::Choice&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const TC::CustomizedType&)
 {
@@ -2950,7 +2953,7 @@ int AggAccessor::operator()(const T& value, const TC::CustomizedType&)
     return -1;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const TC::Enumeration&)
 {
@@ -2963,7 +2966,7 @@ int AggAccessor::operator()(const T& value, const TC::Enumeration&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const TC::NullableValue&)
 {
@@ -2978,7 +2981,7 @@ int AggAccessor::operator()(const T& value, const TC::NullableValue&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const TC::Sequence&)
 {
@@ -2987,7 +2990,7 @@ int AggAccessor::operator()(const T& value, const TC::Sequence&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const TC::Simple&)
 {
@@ -3000,7 +3003,7 @@ int AggAccessor::operator()(const T& value, const TC::Simple&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value, const bslmf::Nil&)
 {
@@ -3009,7 +3012,7 @@ int AggAccessor::operator()(const T& value, const bslmf::Nil&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggAccessor::operator()(const T& value) {
     bdeat_TypeCategoryUtil::accessByCategory(value, *this);
@@ -3017,7 +3020,7 @@ int AggAccessor::operator()(const T& value) {
     return 0;
 }
 
-template <typename T, typename INFO>
+template <class T, class INFO>
 int AggAccessor::operator()(const T& value, const INFO& info) {
     return operator()(value);
 }
@@ -3049,10 +3052,10 @@ bool AggAccessor::matchValues(int v0, int v1, int v2)
 int AggAccessor::value(int n) const
 {
     if (0 <= n && (unsigned) n < d_values.size()) {
-        return d_values[n];
+        return d_values[n];                                           // RETURN
     }
     else {
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -3070,28 +3073,28 @@ class NewAggAccessor {
         // Construct an accessor object
 
     // MANIPULATORS
-    template <typename T>
+    template <class T>
     int operator()(const T& value);
-    template <typename T, typename INFO>
+    template <class T, class INFO>
     int operator()(const T& value, const INFO& info);
         // Convert 'value' to a series of integers and push onto value stack.
 
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Array&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Choice&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::CustomizedType&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Enumeration&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::NullableValue&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Sequence&);
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const TC::Simple&);
 
-    template <typename T>
+    template <class T>
     int operator()(const T& value, const bslmf::Nil&);
         // Illegal call: prevent recursive calls to the 'INFO' version of
         // 'operator()' in case of incorrect overload selection by the
@@ -3105,7 +3108,7 @@ class NewAggAccessor {
     bsl::string value() const { return d_output.str(); }
 };
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const TC::Array&)
 {
@@ -3115,7 +3118,7 @@ int NewAggAccessor::operator()(const T& value, const TC::Array&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const TC::Choice&)
 {
@@ -3126,7 +3129,7 @@ int NewAggAccessor::operator()(const T& value, const TC::Choice&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const TC::CustomizedType&)
 {
@@ -3134,7 +3137,7 @@ int NewAggAccessor::operator()(const T& value, const TC::CustomizedType&)
     return -1;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const TC::Enumeration&)
 {
@@ -3147,7 +3150,7 @@ int NewAggAccessor::operator()(const T& value, const TC::Enumeration&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const TC::NullableValue&)
 {
@@ -3165,7 +3168,7 @@ int NewAggAccessor::operator()(const T& value, const TC::NullableValue&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const TC::Sequence&)
 {
@@ -3176,7 +3179,7 @@ int NewAggAccessor::operator()(const T& value, const TC::Sequence&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const TC::Simple&)
 {
@@ -3189,7 +3192,7 @@ int NewAggAccessor::operator()(const T& value, const TC::Simple&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value, const bslmf::Nil&)
 {
@@ -3198,14 +3201,14 @@ int NewAggAccessor::operator()(const T& value, const bslmf::Nil&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggAccessor::operator()(const T& value) {
     bdeat_TypeCategoryUtil::accessByCategory(value, *this);
     return 0;
 }
 
-template <typename T, typename INFO>
+template <class T, class INFO>
 int NewAggAccessor::operator()(const T& value, const INFO& info) {
     if (Format::BDEAT_NILLABLE & info.formattingMode()) {
         d_isNillable = true;
@@ -3227,26 +3230,26 @@ class NewAggManipulator {
         // Construct an manipulator object
 
     // MANIPULATORS
-    template <typename T>
+    template <class T>
     int operator()(T* value);
-    template <typename T, typename INFO>
+    template <class T, class INFO>
     int operator()(T* value, const INFO& info);
         // Set the specified 'value' to the current 'counter()' and increment
         // the counter.
 
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Array&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Choice&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::CustomizedType&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Enumeration&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::NullableValue&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Sequence&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Simple&);
 
     void reset() { d_elements.clear(); }
@@ -3254,7 +3257,7 @@ class NewAggManipulator {
     bsl::list<CERef>& elements() { return d_elements; }
 };
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value, const TC::Array&)
 {
@@ -3267,7 +3270,7 @@ int NewAggManipulator::operator()(T* value, const TC::Array&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value, const TC::Choice&)
 {
@@ -3276,7 +3279,7 @@ int NewAggManipulator::operator()(T* value, const TC::Choice&)
     for ( ; CF::hasSelection(*value, numSelections); ++numSelections);
 
     if (0 == numSelections) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     const CERef& selectorRef = d_elements.front();
@@ -3287,7 +3290,7 @@ int NewAggManipulator::operator()(T* value, const TC::Choice&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value, const TC::CustomizedType&)
 {
@@ -3295,7 +3298,7 @@ int NewAggManipulator::operator()(T* value, const TC::CustomizedType&)
     return -1;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value, const TC::Enumeration&)
 {
@@ -3307,7 +3310,7 @@ int NewAggManipulator::operator()(T* value, const TC::Enumeration&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value, const TC::NullableValue&)
 {
@@ -3315,7 +3318,7 @@ int NewAggManipulator::operator()(T* value, const TC::NullableValue&)
     if (!ref.isBound()) {
         bdeat_ValueTypeFunctions::reset(value);
         d_elements.pop_front();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     if (NVF::isNull(*value)) {
@@ -3326,7 +3329,7 @@ int NewAggManipulator::operator()(T* value, const TC::NullableValue&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value, const TC::Sequence&)
 {
@@ -3334,7 +3337,7 @@ int NewAggManipulator::operator()(T* value, const TC::Sequence&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value, const TC::Simple&)
 {
@@ -3344,14 +3347,14 @@ int NewAggManipulator::operator()(T* value, const TC::Simple&)
     return rc;
 }
 
-template <typename T>
+template <class T>
 inline
 int NewAggManipulator::operator()(T* value) {
     bdeat_TypeCategoryUtil::manipulateByCategory(value, *this);
     return 0;
 }
 
-template <typename T, typename INFO>
+template <class T, class INFO>
 int NewAggManipulator::operator()(T* value, const INFO& info)
 {
     return operator()(value);
@@ -3368,26 +3371,26 @@ class AggManipulator {
         // Construct an manipulator object
 
     // MANIPULATORS
-    template <typename T>
+    template <class T>
     int operator()(T* value);
-    template <typename T, typename INFO>
+    template <class T, class INFO>
     int operator()(T* value, const INFO& info);
         // Set the specified 'value' to the current 'counter()' and increment
         // the counter.
 
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Array&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Choice&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::CustomizedType&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Enumeration&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::NullableValue&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Sequence&);
-    template <typename T>
+    template <class T>
     int operator()(T* value, const TC::Simple&);
 
     void reset(int counter = 0) { d_counter = counter; }
@@ -3401,7 +3404,7 @@ class AggManipulator {
         // Return the current counter value.
 };
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::Array&)
 {
@@ -3411,7 +3414,7 @@ int AggManipulator::operator()(T* value, const TC::Array&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::Choice&)
 {
@@ -3423,7 +3426,7 @@ int AggManipulator::operator()(T* value, const TC::Choice&)
         ;
 
     if (0 == numSelections)
-        return 0;
+        return 0;                                                     // RETURN
 
     int selector = counter() % numSelections;
     CF::makeSelection(value, selector);
@@ -3431,7 +3434,7 @@ int AggManipulator::operator()(T* value, const TC::Choice&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::CustomizedType&)
 {
@@ -3439,7 +3442,7 @@ int AggManipulator::operator()(T* value, const TC::CustomizedType&)
     return -1;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::Enumeration&)
 {
@@ -3447,7 +3450,7 @@ int AggManipulator::operator()(T* value, const TC::Enumeration&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::NullableValue&)
 {
@@ -3461,7 +3464,7 @@ int AggManipulator::operator()(T* value, const TC::NullableValue&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::Sequence&)
 {
@@ -3470,7 +3473,7 @@ int AggManipulator::operator()(T* value, const TC::Sequence&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value, const TC::Simple&)
 {
@@ -3482,7 +3485,7 @@ int AggManipulator::operator()(T* value, const TC::Simple&)
     return 0;
 }
 
-template <typename T>
+template <class T>
 inline
 int AggManipulator::operator()(T* value) {
     bdeat_TypeCategoryUtil::manipulateByCategory(value, *this);
@@ -3490,7 +3493,7 @@ int AggManipulator::operator()(T* value) {
     return 0;
 }
 
-template <typename T, typename INFO>
+template <class T, class INFO>
 int AggManipulator::operator()(T* value, const INFO& info) {
     return operator()(value);
 }
@@ -3517,7 +3520,7 @@ struct Accumulator {
         return 0;
     }
 
-    template<typename TYPE>
+    template<class TYPE>
     int operator()(const TYPE& value) {
         return -1;
     }
@@ -15644,11 +15647,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ---------------------------- END-OF-FILE ---------------------------------
+// ---------------------------- END-OF-FILE -----------------------------------

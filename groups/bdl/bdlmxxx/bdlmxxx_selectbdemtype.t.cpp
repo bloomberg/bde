@@ -1,4 +1,4 @@
-// bdlmxxx_selectbdemtype.t.cpp                                          -*-C++-*-
+// bdlmxxx_selectbdemtype.t.cpp                                       -*-C++-*-
 
 #include <bdlmxxx_selectbdemtype.h>
 
@@ -103,61 +103,61 @@ enum my_Enum {};
 // Note that 'DUMMY' template arguments are to workaround the "ambiguous
 // partial specialization" bug in Sun5.2.
 
-template <typename TYPE>
+template <class TYPE>
 class MyArray { };
 
 namespace BloombergLP {
     namespace bdeat_ArrayFunctions {
-        template <typename TYPE>
+        template <class TYPE>
         struct IsArray<MyArray<TYPE> > {
             enum { VALUE = 1 };
         };
 
-        template <typename TYPE>
+        template <class TYPE>
         struct ElementType<MyArray<TYPE> > {
             typedef TYPE Type;
         };
-    }
-}
+    }  // close namespace bdlat_ArrayFunctions
+}  // close enterprise namespace
 
-template <typename TYPE, typename DUMMY1=void>
+template <class TYPE, class DUMMY1=void>
 class MyCustomizedType { };
 
 namespace BloombergLP {
     namespace bdeat_CustomizedTypeFunctions {
-        template <typename TYPE, typename DUMMY1>
+        template <class TYPE, class DUMMY1>
         struct IsCustomizedType<MyCustomizedType<TYPE, DUMMY1> > {
             enum { VALUE = 1 };
         };
 
-        template <typename TYPE, typename DUMMY1>
+        template <class TYPE, class DUMMY1>
         struct BaseType<MyCustomizedType<TYPE, DUMMY1> > {
             typedef TYPE Type;
         };
-    }
-}
+    }  // close namespace bdlat_CustomizedTypeFunctions
+}  // close enterprise namespace
 
-template <typename TYPE, typename DUMMY1=void,
-                         typename DUMMY2=void>
+template <class TYPE, class DUMMY1=void,
+                         class DUMMY2=void>
 class MyNullableValue { };
 
 namespace BloombergLP {
     namespace bdeat_NullableValueFunctions {
-        template <typename TYPE, typename DUMMY1,
-                                 typename DUMMY2>
+        template <class TYPE, class DUMMY1,
+                                 class DUMMY2>
         struct IsNullableValue<MyNullableValue<TYPE, DUMMY1,
                                                      DUMMY2> > {
             enum { VALUE = 1 };
         };
 
-        template <typename TYPE, typename DUMMY1,
-                                 typename DUMMY2>
+        template <class TYPE, class DUMMY1,
+                                 class DUMMY2>
         struct ValueType<MyNullableValue<TYPE, DUMMY1,
                                                DUMMY2> > {
             typedef TYPE Type;
         };
-    }
-}
+    }  // close namespace bdlat_NullableValueFunctions
+}  // close enterprise namespace
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -1169,11 +1169,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

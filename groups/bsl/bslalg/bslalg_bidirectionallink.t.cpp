@@ -134,7 +134,7 @@ void debugprint(const Obj& val)
            val.nextLink());
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 }  // close enterprise namespace
 
 static Obj& gg(Obj *result, Obj *prev, Obj *next)

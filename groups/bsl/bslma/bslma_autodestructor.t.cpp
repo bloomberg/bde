@@ -229,7 +229,7 @@ static bool areEqual(const int *array1, const int *array2, int numElements)
 
     for (int i = 0; i < numElements; ++i) {
         if (array1[i] != array2[i]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
 

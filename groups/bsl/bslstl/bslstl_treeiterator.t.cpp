@@ -314,7 +314,7 @@ namespace UsageExample {
 //  Node value: 4
 //..
 
-} // close namespace UsageExample
+}  // close namespace UsageExample
 
 //=============================================================================
 //                                 MAIN PROGRAM

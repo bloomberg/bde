@@ -1,4 +1,4 @@
-// bdlmxxx_listimp.h                                                     -*-C++-*-
+// bdlmxxx_listimp.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_LISTIMP
 #define INCLUDED_BDLMXXX_LISTIMP
 
@@ -598,9 +598,9 @@ bool operator!=(const ListImp& lhs, const ListImp& rhs);
     // corresponding elements at some index position that do not have the same
     // type or value.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ------------------
                         // class ListImp
@@ -863,15 +863,15 @@ bool bdlmxxx::operator!=(const ListImp& lhs, const ListImp& rhs)
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

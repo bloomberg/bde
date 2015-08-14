@@ -181,7 +181,7 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
         d_lock.lock();
         if (d_queue.empty()) {
             d_lock.unlock();
-            return -1;
+            return -1;                                                // RETURN
         }
         Job *jobPtr = d_queue.front();
         d_queue.pop_front();
@@ -292,7 +292,7 @@ void *workerThread(void *arg) {
 }
 
 //=============================================================================
-//                     BENCHMARKS
+//                              BENCHMARKS
 //-----------------------------------------------------------------------------
 
 namespace bench {
@@ -375,7 +375,7 @@ void runtest(int numIterations, int numObjects, int numThreads,
 
     tg.joinAll();
 }
-}
+}  // close namespace bench
 
 //=============================================================================
 //                    fill and release concurrently
@@ -453,7 +453,7 @@ void runtest(int numIterations, int numObjects, int numThreads)
 
     tg.joinAll();
 }
-}
+}  // close namespace fill_and_release
 
 //=============================================================================
 //                                MAIN PROGRAM

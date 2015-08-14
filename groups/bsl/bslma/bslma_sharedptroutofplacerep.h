@@ -844,8 +844,8 @@ struct UsesBslmaAllocator<SharedPtrOutofplaceRep_InitProctor<TYPE, DELETER> >
 {
 };
 
-}  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

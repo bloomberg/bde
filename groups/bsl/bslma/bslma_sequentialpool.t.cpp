@@ -192,7 +192,7 @@ static int calculateNextSize(int currSize, int size, int maxSize = INT_MAX)
     ASSERT(0 <= size);
 
     if (0 == currSize) {
-        return INITIAL_SIZE;
+        return INITIAL_SIZE;                                          // RETURN
     }
 
     do {

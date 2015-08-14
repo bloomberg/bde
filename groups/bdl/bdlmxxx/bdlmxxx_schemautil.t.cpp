@@ -1,4 +1,4 @@
-// bdlmxxx_schemautil.t.cpp                                              -*-C++-*-
+// bdlmxxx_schemautil.t.cpp                                           -*-C++-*-
 
 #include <bdlmxxx_schemautil.h>
 
@@ -230,9 +230,9 @@ int strCmp(const char* lhs, const char* rhs)
     // equal, a negative value if lhs < rhs, and a positive value if lhs > rhs.
     // Note that the behavior is well-defined for null-pointer arguments.
 {
-    if (0 == lhs && 0 == rhs) return 0;
-    if (0 == lhs) return -1;
-    if (0 == rhs) return 1;
+    if (0 == lhs && 0 == rhs) return 0;                               // RETURN
+    if (0 == lhs) return -1;                                          // RETURN
+    if (0 == rhs) return 1;                                           // RETURN
     return bsl::strcmp(lhs, rhs);
 }
 
@@ -695,7 +695,7 @@ const RecDef *getRecordConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->record(token - '0');
+        return &object->record(token - '0');                          // RETURN
     }
 
     // else constrained by name
@@ -706,7 +706,7 @@ const EnumDef *getEnumConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->enumeration(token - '0');
+        return &object->enumeration(token - '0');                     // RETURN
     }
 
     // else constrained by name
@@ -6646,11 +6646,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

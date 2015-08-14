@@ -71,7 +71,7 @@ namespace bsl
     using native_std::unexpected_handler;
     using native_std::use_facet;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-}
+}  // close package namespace
 
 #endif
 

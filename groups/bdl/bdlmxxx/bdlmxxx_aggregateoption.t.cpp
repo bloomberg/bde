@@ -1,4 +1,4 @@
-// bdlmxxx_aggregateoption.t.cpp                   -*-C++-*-
+// bdlmxxx_aggregateoption.t.cpp                                      -*-C++-*-
 
 #include <bdlmxxx_aggregateoption.h>
 
@@ -39,7 +39,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
@@ -95,11 +95,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

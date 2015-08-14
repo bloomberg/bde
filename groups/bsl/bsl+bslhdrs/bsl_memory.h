@@ -64,7 +64,7 @@ namespace bsl
     using native_std::set_new_handler;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-}
+}  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's

@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class SequentialAllocator;
-    }
+    }  // close namespace bslma
 
     typedef bslma::SequentialAllocator bslma_SequentialAllocator;
-}
+}  // close enterprise namespace
 
 #else
 

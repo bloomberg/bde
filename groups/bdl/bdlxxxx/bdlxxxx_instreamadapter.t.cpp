@@ -1,4 +1,4 @@
-// bdlxxxx_instreamadapter.t.cpp              -*-C++-*-
+// bdlxxxx_instreamadapter.t.cpp                                      -*-C++-*-
 
 #include <bdlxxxx_instreamadapter.h>
 
@@ -42,7 +42,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD DOC
+//                                  TBD DOC
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] virtual bdlxxxx::InStreamAdapter<STREAM>(STREAM *stream);
@@ -108,9 +108,9 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 
-//==========================================================================
+//=============================================================================
 //                      GLOBAL CLASS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 class MyInStream {
     // Test class used to test the template instantiation.
@@ -212,9 +212,9 @@ class MyInStream {
         // Return descriptive code for the function called.
 };
 
-//==========================================================================
+//=============================================================================
 //                       USAGE EXAMPLE HELPER CLASS
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 class bdex_OutStream_Test {
     // Test out stream protocol class.
@@ -257,9 +257,9 @@ class bdex_OutStream_TestAdapter : public bdex_OutStream_Test {
     virtual operator const void *() const { return d_stream_p; }
 };
 
-//==========================================================================
-//                       USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 // The 'bdlxxxx::InStreamAdapter' input stream interface provided in this
 // component is most commonly used to implement the stream-in functionality
@@ -528,7 +528,7 @@ int myCircle::y() const
  {
      if (!stream) {
          stream.invalidate();
-         return stream;
+         return stream;                                               // RETURN
      }
 
      switch (version) { // switch on the schema version
@@ -788,11 +788,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

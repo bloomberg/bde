@@ -1,4 +1,4 @@
-// bdlxxxx_testoutstreamformatter.h                                      -*-C++-*-
+// bdlxxxx_testoutstreamformatter.h                                   -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_TESTOUTSTREAMFORMATTER
 #define INCLUDED_BDLXXXX_TESTOUTSTREAMFORMATTER
 
@@ -486,7 +486,7 @@ class TestOutStreamFormatter {
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 TestOutStreamFormatter& operator<<(TestOutStreamFormatter& stream,
                                         const OBJECT&       object);
@@ -501,9 +501,9 @@ TestOutStreamFormatter& operator<<(TestOutStreamFormatter& stream,
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 inline
@@ -537,7 +537,7 @@ bdlxxxx::TestOutStreamFormatter::operator const void *() const
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename VALUE>
+template <class VALUE>
 inline
 bdlxxxx::TestOutStreamFormatter& bdlxxxx::operator<<(TestOutStreamFormatter& stream,
                                         const VALUE&                 value)
@@ -547,15 +547,15 @@ bdlxxxx::TestOutStreamFormatter& bdlxxxx::operator<<(TestOutStreamFormatter& str
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

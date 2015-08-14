@@ -104,9 +104,9 @@ bool operator!=(const NonDefaultConstructibleTestType& lhs,
     // 'NonDefaultConstructibleTestType' objects do not have the same value if
     // 'data' attributes are not the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------------------------
                         // class NonDefaultConstructibleTestType

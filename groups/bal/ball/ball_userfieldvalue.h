@@ -1,4 +1,4 @@
-// ball_userfieldvalue.h                                             -*-C++-*-
+// ball_userfieldvalue.h                                              -*-C++-*-
 #ifndef INCLUDED_BALL_USERFIELDVALUE
 #define INCLUDED_BALL_USERFIELDVALUE
 
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code illustrate how to create and use a
 // 'ball::UserFieldValue' object.  Note that 'ball::UserFieldValue' objects
 // are typically used in a description of a sequence of user fields (see
-// 'ball_userfields'). 
+// 'ball_userfields').
 //
 // First, we create a default 'ball::UserFieldValue', 'valueA', and observe
 // that it is in the unset state, meaning that 'isUnset' is true and its type
@@ -104,9 +104,9 @@ class UserFieldValue {
     // 'ball::UserFieldType::e_VOID').
 
     // TYPES
-    typedef bdlb::Variant<int64_t, 
-                          double, 
-                          bsl::string, 
+    typedef bdlb::Variant<int64_t,
+                          double,
+                          bsl::string,
                           bdlt::DatetimeTz> ValueVariant;
 
     // DATA
@@ -127,13 +127,13 @@ class UserFieldValue {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    explicit UserFieldValue(int64_t                  value, 
+    explicit UserFieldValue(int64_t                  value,
                             bslma::Allocator        *basicAllocator = 0);
-    explicit UserFieldValue(double                   value, 
+    explicit UserFieldValue(double                   value,
                             bslma::Allocator        *basicAllocator = 0);
-    explicit UserFieldValue(bslstl::StringRef        value, 
+    explicit UserFieldValue(bslstl::StringRef        value,
                             bslma::Allocator        *basicAllocator = 0);
-    explicit UserFieldValue(const bdlt::DatetimeTz&  value, 
+    explicit UserFieldValue(const bdlt::DatetimeTz&  value,
                             bslma::Allocator        *basicAllocator = 0);
         // Create a user field value having the specified 'value'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -171,7 +171,7 @@ class UserFieldValue {
     UserFieldValue& operator=(const UserFieldValue& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
-        
+
     void reset();
         // Set this object to the unset value.  After this operation 'type'
         // will be 'ball::UserFieldType::e_VOID'.
@@ -200,7 +200,7 @@ class UserFieldValue {
         // guarantee if 'type' is the same as 'other.type()';  otherwise it
         // provides the basic guarantee.
 
-    // ACCESSORS       
+    // ACCESSORS
     bool isUnset() const;
         // Return 'true' if this object has the unset value, and 'false'
         // otehrwise.  Note that if 'isUnset' is 'true', then 'type' is
@@ -209,7 +209,7 @@ class UserFieldValue {
     ball::UserFieldType::Enum type() const;
         // Return the type of this user field value.  The type
         // 'ball::UserFieldValue::e_VOID' represents the unset value.
-    
+
     const int64_t& theInt64() const;
         // Return a reference providing non-modifiable access to the 64-bit
         // integer value of this object.  The behavior is undefined unless
@@ -228,7 +228,7 @@ class UserFieldValue {
     const bdlt::DatetimeTz& theDatetimeTz() const;
         // Return a reference providing non-modifiable access to the
         // 'DatetimeTz' value of this object.  The behavior is undefined
-        // unless 'type' is 'ball::UserFieldType::e_DATETIMETZ'.       
+        // unless 'type' is 'ball::UserFieldType::e_DATETIMETZ'.
 
 
                                   // Aspects
@@ -299,34 +299,34 @@ void swap(ball::UserFieldValue& a, ball::UserFieldValue& b);
 inline
 UserFieldValue::UserFieldValue(bslma::Allocator *basicAllocator)
 : d_value(basicAllocator)
-{   
+{
 }
 
 inline
 UserFieldValue::UserFieldValue(int64_t value, bslma::Allocator *basicAllocator)
 : d_value(value, basicAllocator)
-{   
+{
 }
 
 inline
 UserFieldValue::UserFieldValue(double value, bslma::Allocator *basicAllocator)
 : d_value(value, basicAllocator)
-{   
+{
 }
 
 inline
-UserFieldValue::UserFieldValue(bslstl::StringRef  value, 
+UserFieldValue::UserFieldValue(bslstl::StringRef  value,
                                bslma::Allocator  *basicAllocator)
 : d_value(basicAllocator)
-{   
+{
     d_value.assign<bsl::string>(value);
 }
 
 inline
-UserFieldValue::UserFieldValue(const bdlt::DatetimeTz&  value, 
+UserFieldValue::UserFieldValue(const bdlt::DatetimeTz&  value,
                                bslma::Allocator        *basicAllocator)
 : d_value(value, basicAllocator)
-{   
+{
 }
 
 inline
@@ -349,7 +349,7 @@ void UserFieldValue::reset()
 {
     d_value.reset();
 }
-   
+
 inline
 void UserFieldValue::setInt64(int64_t value)
 {
@@ -399,25 +399,25 @@ ball::UserFieldType::Enum UserFieldValue::type() const
     switch (d_value.typeIndex()) {
       case 0: {
           BSLS_ASSERT_SAFE(d_value.isUnset());
-          return ball::UserFieldType::e_VOID;
+          return ball::UserFieldType::e_VOID;                         // RETURN
       } break;
       case 1: {
           BSLS_ASSERT_SAFE(d_value.is<int64_t>());
-          return ball::UserFieldType::e_INT64;
+          return ball::UserFieldType::e_INT64;                        // RETURN
       } break;
       case 2: {
           BSLS_ASSERT_SAFE(d_value.is<double>());
-          return ball::UserFieldType::e_DOUBLE;
+          return ball::UserFieldType::e_DOUBLE;                       // RETURN
       } break;
 
       case 3: {
           BSLS_ASSERT_SAFE(d_value.is<bsl::string>());
-          return ball::UserFieldType::e_STRING;
+          return ball::UserFieldType::e_STRING;                       // RETURN
       } break;
 
       case 4: {
           BSLS_ASSERT_SAFE(d_value.is<bdlt::DatetimeTz>());
-          return ball::UserFieldType::e_DATETIMETZ;
+          return ball::UserFieldType::e_DATETIMETZ;                   // RETURN
       } break;
       default: {
           BSLS_ASSERT_OPT(false);
@@ -454,7 +454,7 @@ const bdlt::DatetimeTz& UserFieldValue::theDatetimeTz() const
     BSLS_ASSERT_SAFE(d_value.is<bdlt::DatetimeTz>());
     return d_value.the<bdlt::DatetimeTz>();
 }
-        
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -471,7 +471,7 @@ bool ball::operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs)
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&          stream, 
+bsl::ostream& ball::operator<<(bsl::ostream&          stream,
                                const UserFieldValue& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -485,16 +485,23 @@ void swap(ball::UserFieldValue& a, ball::UserFieldValue& b)
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

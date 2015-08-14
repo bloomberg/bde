@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class SequentialPool;
-    }
+    }  // close namespace bslma
 
     typedef bslma::SequentialPool bslma_SequentialPool;
-}
+}  // close enterprise namespace
 
 #else
 

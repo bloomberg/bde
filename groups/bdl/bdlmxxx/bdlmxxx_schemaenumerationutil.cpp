@@ -1,4 +1,4 @@
-// bdlmxxx_schemaenumerationutil.cpp         -*-C++-*-
+// bdlmxxx_schemaenumerationutil.cpp                                  -*-C++-*-
 #include <bdlmxxx_schemaenumerationutil.h>
 
 #include <bsls_ident.h>
@@ -23,7 +23,7 @@ bool SchemaEnumerationUtil::isConformant(
     Iterator end = value.end();
     for (Iterator it = value.begin(); it != end; ++it) {
         if (!isConformant(*it, enumeration)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
 
@@ -39,7 +39,7 @@ bool SchemaEnumerationUtil::isConformant(
     Iterator end = value.end();
     for (Iterator it = value.begin(); it != end; ++it) {
         if (!isConformant(*it, enumeration)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
 
@@ -47,13 +47,13 @@ bool SchemaEnumerationUtil::isConformant(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

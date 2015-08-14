@@ -1,4 +1,4 @@
-// bdlxxxx_testoutstream.h                                               -*-C++-*-
+// bdlxxxx_testoutstream.h                                            -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_TESTOUTSTREAM
 #define INCLUDED_BDLXXXX_TESTOUTSTREAM
 
@@ -169,7 +169,7 @@ class TestOutStream {
         // Format the specified 'version' as an 8-bit unsigned integer to this
         // output stream and return a reference to this modifiable stream.
 
-    template <typename TYPE>
+    template <class TYPE>
     TestOutStream& put(const TYPE& variable);
         // TBD
 
@@ -440,14 +440,14 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
     // Write the specified 'obj' to the specified output 'stream' in some
     // reasonable (multi-line) format, and return a reference to 'stream'
 
-template <typename VALUE>
+template <class VALUE>
 inline
 TestOutStream& operator<<(TestOutStream& stream, const VALUE& value);
     // TBD doc
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ------------------------
                         // class TestOutStream
@@ -467,7 +467,7 @@ TestOutStream& TestOutStream::putString(const bsl::string& str)
     return *this;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TestOutStream& TestOutStream::put(const TYPE& variable)
 {
@@ -508,22 +508,22 @@ int TestOutStream::length() const
 }  // close package namespace
 
 // FREE OPERATORS
-template <typename VALUE>
+template <class VALUE>
 inline
 bdlxxxx::TestOutStream& bdlxxxx::operator<<(TestOutStream& stream, const VALUE& value)
 {
     return stream.put(value);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

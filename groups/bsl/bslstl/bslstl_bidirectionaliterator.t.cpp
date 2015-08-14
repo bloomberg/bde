@@ -131,7 +131,7 @@ static void aSsErT(int c, const char *s, int i)
 namespace
 {
 
-template<typename Iter>
+template<class Iter>
 int testDistance( Iter first, Iter last )
 {
     //  A basic algorithm to verify the iterator can type walk the range
@@ -158,7 +158,7 @@ enum iter_tag_type {
     random_access_iterator
 };
 
-template<typename Iter>
+template<class Iter>
 iter_tag_type
 testTagDispatch( Iter, Iter, std::output_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
@@ -166,7 +166,7 @@ testTagDispatch( Iter, Iter, std::output_iterator_tag* =
     return output_iterator;
 }
 
-template<typename Iter>
+template<class Iter>
 iter_tag_type
 testTagDispatch( Iter, Iter, std::input_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
@@ -174,7 +174,7 @@ testTagDispatch( Iter, Iter, std::input_iterator_tag* =
     return input_iterator;
 }
 
-template<typename Iter>
+template<class Iter>
 iter_tag_type
 testTagDispatch( Iter, Iter, std::forward_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
@@ -182,7 +182,7 @@ testTagDispatch( Iter, Iter, std::forward_iterator_tag* =
     return forward_iterator;
 }
 
-template<typename Iter>
+template<class Iter>
 iter_tag_type
 testTagDispatch( Iter, Iter, std::bidirectional_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
@@ -190,7 +190,7 @@ testTagDispatch( Iter, Iter, std::bidirectional_iterator_tag* =
     return bidirectional_iterator;
 }
 
-template<typename Iter>
+template<class Iter>
 iter_tag_type
 testTagDispatch( Iter, Iter, std::random_access_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
@@ -204,50 +204,50 @@ testTagDispatch( Iter, Iter, std::random_access_iterator_tag* =
 //  To an extend this is duplicating work that should be part of the
 //  bslstl_iterator test driver, consider moving as appropriate.
 
-template<typename Iter>
+template<class Iter>
 bool testOutputTag( Iter, Iter ) { return true; }
 
-template<typename Iter>
+template<class Iter>
 bool testOutputTag( Iter, Iter, std::output_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
 {
     return false;
 }
 
-template<typename Iter>
+template<class Iter>
 bool testInputTag( Iter, Iter ) { return false; }
 
-template<typename Iter>
+template<class Iter>
 bool testInputTag( Iter, Iter, std::input_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
 {
     return true;
 }
 
-template<typename Iter>
+template<class Iter>
 bool testForwardTag( Iter, Iter ) { return false; }
 
-template<typename Iter>
+template<class Iter>
 bool testForwardTag( Iter, Iter, std::forward_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
 {
     return true;
 }
 
-template<typename Iter>
+template<class Iter>
 bool testBidirectionalTag( Iter, Iter ) { return true; }
 
-template<typename Iter>
+template<class Iter>
 bool testBidirectionalTag( Iter, Iter, std::bidirectional_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
 {
     return false;
 }
 
-template<typename Iter>
+template<class Iter>
 bool testRandomAccessTag( Iter, Iter ) { return true; }
 
-template<typename Iter>
+template<class Iter>
 bool testRandomAccessTag( Iter, Iter, std::random_access_iterator_tag* =
                                          (typename Iter::iterator_category*)0 )
 {

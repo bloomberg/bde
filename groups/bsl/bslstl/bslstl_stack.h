@@ -315,9 +315,9 @@ class Stack_HasAllocatorType {
     struct NoType { char a[2]; };
 
     // CLASS METHODS
-    template <typename TYPE>
+    template <class TYPE>
     static YesType match(const typename TYPE::allocator_type *);
-    template <typename TYPE>
+    template <class TYPE>
     static NoType match(...);
         // The return type of 'match' is 'YesType' if 'TYPE' has an allocator
         // type, and 'NoType' otherwise.

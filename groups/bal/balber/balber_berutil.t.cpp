@@ -1,4 +1,4 @@
-// balber_berutil.t.cpp                  -*-C++-*-
+// balber_berutil.t.cpp                                               -*-C++-*-
 #include <balber_berutil.h>
 
 #include <balber_berconstants.h>
@@ -46,9 +46,9 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -60,7 +60,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -142,11 +142,11 @@ int numOctets(const char *s)
 int getIntValue(char c)
 {
     if (c >= '0' && c <= '9') {
-        return c - '0';
+        return c - '0';                                               // RETURN
     }
     c = toupper(c);
     if (c >= 'A' && c <= 'F') {
-        return c - 'A' + 10;
+        return c - 'A' + 10;                                          // RETURN
     }
     ASSERT(0);
     return -1;
@@ -165,7 +165,7 @@ int compareBuffers(const char *stream, const char *buffer)
         ++buffer;
         temp |= (char) getIntValue(*buffer);
         if (*stream != temp) {
-           return -1;
+           return -1;                                                 // RETURN
         }
         ++stream;
         ++buffer;
@@ -6341,11 +6341,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

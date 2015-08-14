@@ -1,4 +1,4 @@
-// bdlxxxx_outstreamadapter.t.cpp             -*-C++-*-
+// bdlxxxx_outstreamadapter.t.cpp                                     -*-C++-*-
 
 #include <bdlxxxx_outstreamadapter.h>
 
@@ -111,9 +111,9 @@ static void aSsErT(int c, const char *s, int i)
 
 
 
-//==========================================================================
+//=============================================================================
 //                       GLOBAL CLASS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 class MyOutStream {
     // Test class used to test the template instantiation.
@@ -221,9 +221,9 @@ class MyOutStream {
         // Return descriptive code for the function called.
 };
 
-//==========================================================================
+//=============================================================================
 //                       USAGE EXAMPLE HELPER CLASS
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 class bdex_InStream_Test {
     // Test in stream protocol class.
@@ -266,9 +266,9 @@ class bdex_InStream_TestAdapter : public bdex_InStream_Test {
     virtual operator const void *() const { return d_stream_p; }
 };
 
-//==========================================================================
-//                       USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 // The 'bdlxxxx::OutStreamAdapter' output stream interface provided in this
 // component is most commonly used to implement the stream-out functionality
@@ -538,7 +538,7 @@ int myCircle::y() const
  {
      if (!stream) {
          stream.invalidate();
-         return stream;
+         return stream;                                               // RETURN
      }
 
      switch (version) { // switch on the schema version
@@ -557,7 +557,7 @@ int myCircle::y() const
 //..
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -775,11 +775,11 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

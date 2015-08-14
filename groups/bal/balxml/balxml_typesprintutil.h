@@ -243,32 +243,32 @@ namespace BloombergLP {
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace balxml {                           // ============================
                            // struct TypesPrintUtil
@@ -278,7 +278,7 @@ struct TypesPrintUtil {
     // This 'struct' contains functions for printing objects to output streams
     // using various formatting modes.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& print(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -291,7 +291,7 @@ struct TypesPrintUtil {
         // 'formattingMode' combination is supported (supported combinations
         // are listed in the component-level documentation).
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printBase64(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -301,7 +301,7 @@ struct TypesPrintUtil {
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -311,7 +311,7 @@ struct TypesPrintUtil {
         // optionally provided 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -321,7 +321,7 @@ struct TypesPrintUtil {
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printHex(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -331,7 +331,7 @@ struct TypesPrintUtil {
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printList(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -341,7 +341,7 @@ struct TypesPrintUtil {
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -369,14 +369,14 @@ struct TypesPrintUtil_Imp {
     // this component.
 
     // BASE64 FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -400,28 +400,28 @@ struct TypesPrintUtil_Imp {
                                    bdeat_TypeCategory::Array);
 
     // DECIMAL FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Enumeration);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::CustomizedType);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -497,28 +497,28 @@ struct TypesPrintUtil_Imp {
                                    bdeat_TypeCategory::Simple);
 
     // DEFAULT FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Enumeration);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::CustomizedType);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                                    bsl::ostream&          stream,
                                    const TYPE&            object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -642,13 +642,13 @@ struct TypesPrintUtil_Imp {
                                    bdeat_TypeCategory::Array);
 
     // HEX FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printHex(bsl::ostream&                stream,
                                   const TYPE&                  object,
                                   const EncoderOptions *encoderOptions,
                                   bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printHex(bsl::ostream&                stream,
                                   const TYPE&                  object,
                                   const EncoderOptions *encoderOptions,
@@ -668,43 +668,43 @@ struct TypesPrintUtil_Imp {
                                   bdeat_TypeCategory::Array);
 
     // LIST FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printList(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Array);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printList(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printList(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    ANY_CATEGORY);
     // TEXT FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Enumeration);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::CustomizedType);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
@@ -756,7 +756,7 @@ struct TypesPrintUtil_printDefaultProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE& object)
     {
@@ -783,7 +783,7 @@ struct TypesPrintUtil_Imp_printBase64Proxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -791,7 +791,7 @@ struct TypesPrintUtil_Imp_printBase64Proxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -819,7 +819,7 @@ struct TypesPrintUtil_Imp_printDecimalProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -827,7 +827,7 @@ struct TypesPrintUtil_Imp_printDecimalProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -855,7 +855,7 @@ struct TypesPrintUtil_Imp_printDefaultProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -863,7 +863,7 @@ struct TypesPrintUtil_Imp_printDefaultProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -891,7 +891,7 @@ struct TypesPrintUtil_Imp_printHexProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -899,7 +899,7 @@ struct TypesPrintUtil_Imp_printHexProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -927,7 +927,7 @@ struct TypesPrintUtil_Imp_printListProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -935,7 +935,7 @@ struct TypesPrintUtil_Imp_printListProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -963,7 +963,7 @@ struct TypesPrintUtil_Imp_printTextProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -971,7 +971,7 @@ struct TypesPrintUtil_Imp_printTextProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -991,7 +991,7 @@ struct TypesPrintUtil_Imp_printTextProxy {
                            // struct TypesPrintUtil
                            // ----------------------------
 
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream& TypesPrintUtil::print(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -1004,7 +1004,7 @@ bsl::ostream& TypesPrintUtil::print(
         return TypesPrintUtil_Imp::printList(stream,
                                                     object,
                                                     encoderOptions,
-                                                    Tag());
+                                                    Tag());           // RETURN
     }
 
     switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
@@ -1012,43 +1012,43 @@ bsl::ostream& TypesPrintUtil::print(
         return TypesPrintUtil_Imp::printBase64(stream,
                                                       object,
                                                       encoderOptions,
-                                                      Tag());
+                                                      Tag());         // RETURN
       }
       case bdeat_FormattingMode::BDEAT_DEC: {
         return TypesPrintUtil_Imp::printDecimal(stream,
                                                        object,
                                                        encoderOptions,
-                                                       Tag());
+                                                       Tag());        // RETURN
       }
       case bdeat_FormattingMode::BDEAT_DEFAULT: {
         return TypesPrintUtil_Imp::printDefault(stream,
                                                        object,
                                                        encoderOptions,
-                                                       Tag());
+                                                       Tag());        // RETURN
       }
       case bdeat_FormattingMode::BDEAT_HEX: {
         return TypesPrintUtil_Imp::printHex(stream,
                                                    object,
                                                    encoderOptions,
-                                                   Tag());
+                                                   Tag());            // RETURN
       }
       case bdeat_FormattingMode::BDEAT_TEXT: {
         return TypesPrintUtil_Imp::printText(stream,
                                                     object,
                                                     encoderOptions,
-                                                    Tag());
+                                                    Tag());           // RETURN
       }
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
         stream.setstate(bsl::ios_base::failbit);
 
-        return stream;
+        return stream;                                                // RETURN
       }
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printBase64(
                                    bsl::ostream&                stream,
@@ -1063,7 +1063,7 @@ bsl::ostream& TypesPrintUtil::printBase64(
                                                   Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printDecimal(
                                    bsl::ostream&                stream,
@@ -1078,7 +1078,7 @@ bsl::ostream& TypesPrintUtil::printDecimal(
                                                    Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printDefault(
                                    bsl::ostream&                stream,
@@ -1093,7 +1093,7 @@ bsl::ostream& TypesPrintUtil::printDefault(
                                                    Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printHex(
                                    bsl::ostream&                stream,
@@ -1108,7 +1108,7 @@ bsl::ostream& TypesPrintUtil::printHex(
                                                Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printList(
                                    bsl::ostream&                stream,
@@ -1123,7 +1123,7 @@ bsl::ostream& TypesPrintUtil::printList(
                                                 Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printText(
                                    bsl::ostream&                stream,
@@ -1144,7 +1144,7 @@ bsl::ostream& TypesPrintUtil::printText(
 
 // BASE64 FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printBase64(
                                    bsl::ostream&                stream,
@@ -1158,7 +1158,7 @@ bsl::ostream& TypesPrintUtil_Imp::printBase64(
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printBase64(
                                          bsl::ostream&               stream,
@@ -1178,7 +1178,7 @@ bsl::ostream& TypesPrintUtil_Imp::printBase64(
 
 // DECIMAL FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                    bsl::ostream&                stream,
@@ -1195,7 +1195,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                                encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                    bsl::ostream&                stream,
@@ -1209,7 +1209,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                      encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                    bsl::ostream&                stream,
@@ -1223,7 +1223,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&               stream,
@@ -1353,7 +1353,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
 
 // DEFAULT FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
@@ -1368,7 +1368,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
     return TypesPrintUtil::printText(stream, stringVal, encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
@@ -1382,7 +1382,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                      encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
@@ -1396,7 +1396,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          bsl::ostream&                stream,
@@ -1668,7 +1668,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 
 // HEX FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printHex(
                                    bsl::ostream&                stream,
@@ -1682,7 +1682,7 @@ bsl::ostream& TypesPrintUtil_Imp::printHex(
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printHex(
                                          bsl::ostream&                stream,
@@ -1702,7 +1702,7 @@ bsl::ostream& TypesPrintUtil_Imp::printHex(
 
 // LIST FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream& TypesPrintUtil_Imp::printList(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -1712,7 +1712,7 @@ bsl::ostream& TypesPrintUtil_Imp::printList(
     int size = (int)bdeat_ArrayFunctions::size(object);
 
     if (0 == size) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     TypesPrintUtil_printDefaultProxy proxy = { &stream,
@@ -1728,7 +1728,7 @@ bsl::ostream& TypesPrintUtil_Imp::printList(
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printList(
                                    bsl::ostream&                stream,
@@ -1742,7 +1742,7 @@ bsl::ostream& TypesPrintUtil_Imp::printList(
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printList(
                                          bsl::ostream&                stream,
@@ -1758,7 +1758,7 @@ bsl::ostream& TypesPrintUtil_Imp::printList(
 }
 // TEXT FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                    bsl::ostream&                stream,
@@ -1773,7 +1773,7 @@ bsl::ostream& TypesPrintUtil_Imp::printText(
     return TypesPrintUtil::printText(stream, stringVal, encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                    bsl::ostream&                stream,
@@ -1787,7 +1787,7 @@ bsl::ostream& TypesPrintUtil_Imp::printText(
                      encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                    bsl::ostream&                stream,
@@ -1801,7 +1801,7 @@ bsl::ostream& TypesPrintUtil_Imp::printText(
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                          bsl::ostream&                stream,
@@ -1827,15 +1827,22 @@ bsl::ostream& TypesPrintUtil_Imp::printText(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

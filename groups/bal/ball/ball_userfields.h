@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // one described by the 'ball::LoggerManagerConfiguration'
 // 'UserFieldsPopulatorCallback'.
 //..
-//  void populateLoggingFields(ball::UserFields              *fields, 
+//  void populateLoggingFields(ball::UserFields              *fields,
 //                             const ball::UserFieldsSchema&  fieldsSchema)
 //      // Populate the specifield 'fields' with the user name and current
 //      // task identifier so that in matches the specified 'fieldsSchema'.
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 //      // called "taskId".
 //  {
 //..
-// Notice that we have decided for this application the schema for the custom 
+// Notice that we have decided for this application the schema for the custom
 // logging fields are fixed at compile time.
 //
 // Next, we assert that the schema matches the preconditions for this function:
@@ -113,7 +113,7 @@ class UserFields {
 
   private:
     // DATA
-    bsl::vector<ball::UserFieldValue> d_values;  // sequence of values    
+    bsl::vector<ball::UserFieldValue> d_values;  // sequence of values
 
     // FRIENDS
     friend bool operator==(const UserFields&, const UserFields&);
@@ -202,7 +202,7 @@ class UserFields {
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.       
+        // installed default allocator is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -295,7 +295,7 @@ void UserFields::appendNull()
 {
     d_values.emplace_back();
 }
-        
+
 inline
 void UserFields::appendInt64(int64_t value)
 {
@@ -391,7 +391,7 @@ bool ball::operator!=(const UserFields& lhs, const UserFields& rhs)
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&     stream, 
+bsl::ostream& ball::operator<<(bsl::ostream&     stream,
                                const UserFields& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -405,16 +405,23 @@ void swap(ball::UserFields& a, ball::UserFields& b)
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

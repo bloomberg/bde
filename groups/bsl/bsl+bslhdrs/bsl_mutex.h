@@ -42,7 +42,7 @@ namespace bsl {
     using native_std::lock;
     using native_std::call_once;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

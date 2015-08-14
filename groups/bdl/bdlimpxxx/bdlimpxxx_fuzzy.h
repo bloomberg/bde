@@ -1,4 +1,4 @@
-// bdlimpxxx_fuzzy.h               -*-C++-*-
+// bdlimpxxx_fuzzy.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLIMPXXX_FUZZY
 #define INCLUDED_BDLIMPXXX_FUZZY
 
@@ -489,15 +489,15 @@ int Fuzzy::fuzzyCompare(double a,
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

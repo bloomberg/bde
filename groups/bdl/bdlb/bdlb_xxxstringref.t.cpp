@@ -1,4 +1,4 @@
-// bdlb_xxxstringref.t.cpp           -*-C++-*-
+// bdlb_xxxstringref.t.cpp                                            -*-C++-*-
 
 namespace BloombergLP {
 namespace bdlb {
@@ -117,7 +117,7 @@ using bsl::flush;
 // [ 7] operator+(const char *lhs, const StringRef& rhs);
 // [ 7] operator+(const StringRef& lhs, const char *rhs);
 // [ 8] bsl::hash<BloombergLP::bdlb::StringRef>
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] TESTING: conversions from 'bslstl::StringRef'
 // [10] USAGE
@@ -189,9 +189,9 @@ struct StringRefProducer {
 typedef BloombergLP::bdlb::StringProducer    StringProducer;
 typedef BloombergLP::bdlb::StringRefProducer StringRefProducer;
 
-//==========================================================================
+//=============================================================================
 //              HELPER FUNCTIONS FOR TESTING USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -2999,11 +2999,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

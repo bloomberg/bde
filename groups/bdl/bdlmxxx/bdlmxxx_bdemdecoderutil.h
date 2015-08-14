@@ -1,4 +1,4 @@
-// bdlmxxx_bdemdecoderutil.h                                             -*-C++-*-
+// bdlmxxx_bdemdecoderutil.h                                          -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_BDEMDECODERUTIL
 #define INCLUDED_BDLMXXX_BDEMDECODERUTIL
 
@@ -300,9 +300,9 @@ struct BdemDecoderUtil {
     // types.
 
     // MANIPULATORS
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     static STREAM& decode(STREAM& stream, TYPE *variable);
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     static STREAM& decode(STREAM&                         stream,
                           TYPE                           *variable,
                           const BdemDecoderOptions&  options);
@@ -312,9 +312,9 @@ struct BdemDecoderUtil {
         // 'variable'.  Return a reference to 'stream'.  Note that 'stream'
         // will be invalidated if the decoding fails.
 
-    template <typename TYPE>
+    template <class TYPE>
     static int decode(bsl::streambuf *buffer, TYPE *variable);
-    template <typename TYPE>
+    template <class TYPE>
     static int decode(bsl::streambuf                 *buffer,
                       TYPE                           *variable,
                       const BdemDecoderOptions&  options);
@@ -323,9 +323,9 @@ struct BdemDecoderUtil {
         // the specified modifiable 'variable'.  Return 0 on success, and a
         // non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::istream& decode(bsl::istream& stream, TYPE *variable);
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::istream& decode(bsl::istream&                   stream,
                                 TYPE                           *variable,
                                 const BdemDecoderOptions&  options);
@@ -347,7 +347,7 @@ struct BdemDecoderUtil_SequenceArrayCategory;
 struct BdemDecoderUtil_ChoiceArrayCategory;
 struct BdemDecoderUtil_OtherArrayCategory;
 
-template <typename STREAM>
+template <class STREAM>
 class BdemDecoderUtil_Decoder;
 
              // =================================================
@@ -379,7 +379,7 @@ class BdemDecoderUtil_BuildElemTypes {
     // ~BdemDecoderUtil_BuildElemTypes();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO&);
         // Append the 'bdem' element type corresponding to the specified non-
         // modifiable 'value' of parameterized 'TYPE' to the array of element
@@ -411,7 +411,7 @@ struct BdemDecoderUtil_Constants {
         // private class BdemDecoderUtil_DecodeAttributesWithMask
         // ===========================================================
 
-template <typename STREAM>
+template <class STREAM>
 class BdemDecoderUtil_DecodeAttributesWithMask {
     // This class is used to decode a sequence of attributes, preceding every
     // 32 attributes with a 32-bit bitmap.  If a bit is reset, that means that
@@ -441,11 +441,11 @@ class BdemDecoderUtil_DecodeAttributesWithMask {
     // ~BdemDecoderUtil_DecodeAttributesWithMask();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(TYPE *object,
                    const INFO_TYPE&);
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(TYPE *object);
 };
 
@@ -453,7 +453,7 @@ class BdemDecoderUtil_DecodeAttributesWithMask {
                  // private class BdemDecoderUtil_Decoder
                  // ==========================================
 
-template <typename STREAM>
+template <class STREAM>
 class BdemDecoderUtil_Decoder {
     // This class contains the logic for decoding each of the supported types.
     // It is parameterized with the 'bdex' stream type.
@@ -471,12 +471,12 @@ class BdemDecoderUtil_Decoder {
     struct NotBdemTypeCategory      { };
 
     // PRIVATE MANIPULATORS
-    template <typename DEST_TYPE, typename BDEM_TYPE>
+    template <class DEST_TYPE, class BDEM_TYPE>
     int convertFromBdemType(DEST_TYPE *variable, const BDEM_TYPE& value);
         // Convert (using a static cast) the specified 'value' to the specified
         // 'variable'.  Note that this function always returns 0.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *variable, bdeat_TypeCategory::Array);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -484,7 +484,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::Array'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *variable, bdeat_TypeCategory::Choice);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -492,7 +492,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::Choice'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *variable, bdeat_TypeCategory::CustomizedType);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -500,7 +500,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::CustomizedType'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *variable, bdeat_TypeCategory::Enumeration);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -508,7 +508,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::Enumeration'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *variable, bdeat_TypeCategory::NullableValue);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -516,7 +516,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::NullableValue'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *variable, bdeat_TypeCategory::Sequence);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -524,7 +524,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::Sequence'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeImp(TYPE *variable, bdeat_TypeCategory::Simple);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -532,10 +532,10 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must fall under
         // 'bdeat_TypeCategory::Simple'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeArrayChoiceImp(TYPE *variable, int numRows);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeArrayImp(TYPE *variable,
                        BdemDecoderUtil_NativeBdemArrayCategory);
         // Decode an object from the stream held by this decoder into the
@@ -544,7 +544,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' must be a native
         // 'bdem' array.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeArrayImp(TYPE *variable,
                        BdemDecoderUtil_ChoiceArrayCategory);
         // Decode an object from the stream held by this decoder into the
@@ -554,7 +554,7 @@ class BdemDecoderUtil_Decoder {
         // 'bdeat_TypeCategory::Array' and must contain elements that fall
         // under 'bdeat_TypeCategory::Choice'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeArrayImp(TYPE *variable,
                        BdemDecoderUtil_ExtendedBdemArrayCategory);
         // Decode an object from the stream held by this decoder into the
@@ -564,7 +564,7 @@ class BdemDecoderUtil_Decoder {
         // 'bdeat_TypeCategory::Array' and must contain extended types
         // ('bdlt::DateTz', 'bdlt::DatetimeTz', and 'bdlt::TimeTz').
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeArrayImp(TYPE *variable,
                        BdemDecoderUtil_SequenceArrayCategory);
         // Decode an object from the stream held by this decoder into the
@@ -574,7 +574,7 @@ class BdemDecoderUtil_Decoder {
         // 'bdeat_TypeCategory::Array' and must contain elements that fall
         // under 'bdeat_TypeCategory::Sequence'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeArrayImp(TYPE *variable,
                        BdemDecoderUtil_OtherArrayCategory);
         // Decode an object from the stream held by this decoder into the
@@ -584,7 +584,7 @@ class BdemDecoderUtil_Decoder {
         // 'bdeat_TypeCategory::Array' but not fall under any of the other
         // overloads of 'decodeArrayImp'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeChoiceImp(TYPE               *variable,
                         char                selectionType,
                         const bsl::string&  selectionName);
@@ -593,7 +593,7 @@ class BdemDecoderUtil_Decoder {
     int decodeExtendedTypeValue(bdlt::DatetimeTz *variable);
     int decodeExtendedTypeValue(bdlt::TimeTz *variable);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableArrayImp(TYPE *variable,
                                bdeat_TypeCategory::Choice);
         // Decode an object from the stream held by this decoder into the
@@ -602,7 +602,7 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' contains elements
         // that fall under 'bdeat_TypeCategory::Choice'.
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int decodeNullableArrayImp(TYPE *variable, ANY_CATEGORY);
         // Decode an object from the stream held by this decoder into the
         // specified modifiable 'variable'.  Return 0 on success, and a
@@ -610,43 +610,43 @@ class BdemDecoderUtil_Decoder {
         // overloading purposes and indicates that 'TYPE' does not fall under
         // any of the other overloads of 'decodeNullableArrayImp'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableImp(TYPE *variable,
                           bdeat_TypeCategory::Array);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableImp(TYPE *variable,
                           bdeat_TypeCategory::Choice);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableImp(TYPE *variable,
                           bdeat_TypeCategory::Enumeration);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableImp(TYPE *variable,
                           bdeat_TypeCategory::Sequence);
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableImp(TYPE *variable,
                           bdeat_TypeCategory::Simple);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableSimpleImp(TYPE *variable,
                                 NativeBdemTypeCategory);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableSimpleImp(TYPE *variable,
                                 ExtendedBdemTypeCategory);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeNullableSimpleImp(TYPE *variable,
                                 NotBdemTypeCategory);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeSequenceImp(TYPE                     *variable,
                           const bsl::vector<char>&  attributeElemTypes);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeSimpleImp(TYPE *variable,
                         NativeBdemTypeCategory);
 
-    template <typename TYPE>
+    template <class TYPE>
     int decodeSimpleImp(TYPE *variable,
                         NotBdemTypeCategory);
 
@@ -668,19 +668,19 @@ class BdemDecoderUtil_Decoder {
     // ~BdemDecoderUtil_Decoder();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(TYPE *variable, const INFO&);
         // Decode an object of parameterized 'TYPE' from the stream held by
         // this decoder into the specified modifiable 'variable'.  Return 0 on
         // success, and a non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *variable);
         // Decode an object of parameterized 'TYPE' from the stream held by
         // this decoder into the specified modifiable 'variable'.  Return 0 on
         // success, and a non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(TYPE *variable);
         // Decode an object of parameterized 'TYPE' from the stream held by
         // this decoder into the specified modifiable 'variable'.  Return 0 on
@@ -735,10 +735,10 @@ class BdemDecoderUtil_IsNull {
     // ~BdemDecoderUtil_IsNull();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO&);
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& value);
 
     // ACCESSORS
@@ -781,7 +781,7 @@ struct BdemDecoderUtil_SequenceArrayCategory     { };
 struct BdemDecoderUtil_ChoiceArrayCategory       { };
 struct BdemDecoderUtil_OtherArrayCategory        { };
 
-template <typename TYPE>
+template <class TYPE>
 struct BdemDecoderUtil_SelectArrayTypeCategory {
     // This meta-function is used to obtain the array type category for the
     // parameterized 'TYPE'.
@@ -836,29 +836,29 @@ struct BdemDecoderUtil_SelectArrayTypeCategory {
                            BdemDecoderUtil_OtherArrayCategory>::Type Type;
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------------
                         // struct BdemDecoderUtil
                         // ---------------------------
 
 // MANIPULATORS
-template <typename STREAM, typename TYPE>
+template <class STREAM, class TYPE>
 inline
 STREAM& BdemDecoderUtil::decode(STREAM& stream, TYPE *variable)
 {
     return decode(stream, variable, BdemDecoderOptions());
 }
 
-template <typename STREAM, typename TYPE>
+template <class STREAM, class TYPE>
 STREAM& BdemDecoderUtil::decode(STREAM&                         stream,
                                      TYPE                           *variable,
                                      const BdemDecoderOptions&  options)
 {
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     BSLS_ASSERT_SAFE(0 < options.maxDepth());
@@ -868,7 +868,7 @@ STREAM& BdemDecoderUtil::decode(STREAM&                         stream,
     if (1 != bdemVersion && 2 != bdemVersion) {
         stream.invalidate();
 
-        return stream;
+        return stream;                                                // RETURN
     }
 
     BdemDecoderUtil_Decoder<STREAM> decoder(&stream,
@@ -884,14 +884,14 @@ STREAM& BdemDecoderUtil::decode(STREAM&                         stream,
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BdemDecoderUtil::decode(bsl::streambuf *buffer, TYPE *variable)
 {
     return decode(buffer, variable, BdemDecoderOptions());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BdemDecoderUtil::decode(bsl::streambuf                 *buffer,
                                  TYPE                           *variable,
@@ -906,7 +906,7 @@ int BdemDecoderUtil::decode(bsl::streambuf                 *buffer,
     return formatter ? BDEM_SUCCESS : BDEM_FAILURE;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::istream& BdemDecoderUtil::decode(bsl::istream&  stream,
                                            TYPE          *variable)
@@ -914,7 +914,7 @@ bsl::istream& BdemDecoderUtil::decode(bsl::istream&  stream,
     return decode(stream, variable, BdemDecoderOptions());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::istream& BdemDecoderUtil::decode(
                                       bsl::istream&                   stream,
@@ -922,7 +922,7 @@ bsl::istream& BdemDecoderUtil::decode(
                                       const BdemDecoderOptions&  options)
 {
     if (!stream.good()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (0 != decode(stream.rdbuf(), variable, options)) {
@@ -945,7 +945,7 @@ BdemDecoderUtil_BuildElemTypes(int numElements)
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 inline
 int BdemDecoderUtil_BuildElemTypes::operator()(const TYPE&, const INFO&)
 {
@@ -969,7 +969,7 @@ BdemDecoderUtil_BuildElemTypes::elemTypes() const
         // -----------------------------------------------------------
 
 // CREATORS
-template <typename STREAM>
+template <class STREAM>
 inline
 BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::
                                  BdemDecoderUtil_DecodeAttributesWithMask(
@@ -983,8 +983,8 @@ BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::
 }
 
 // MANIPULATORS
-template <typename STREAM>
-template <typename TYPE, typename INFO_TYPE>
+template <class STREAM>
+template <class TYPE, class INFO_TYPE>
 inline
 int BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::operator()(
                                                               TYPE *object,
@@ -993,8 +993,8 @@ int BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::operator()(
     return execute(object);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::execute(
                                                                   TYPE *object)
 {
@@ -1006,7 +1006,7 @@ int BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::execute(
 
     if (0 == bit) {
         if (!d_stream_p->getUint32(d_bitmap)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1020,7 +1020,7 @@ int BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::execute(
     if (0 == (d_bitmap & mask)) {
         // Attribute was compressed out of the stream.
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     return d_decoder_p->decode(object);
@@ -1031,8 +1031,8 @@ int BdemDecoderUtil_DecodeAttributesWithMask<STREAM>::execute(
                  // ------------------------------------------
 
 // PRIVATE MANIPULATORS
-template <typename STREAM>
-template <typename DEST_TYPE, typename BDEM_TYPE>
+template <class STREAM>
+template <class DEST_TYPE, class BDEM_TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::convertFromBdemType(
                                                     DEST_TYPE        *variable,
@@ -1045,8 +1045,8 @@ int BdemDecoderUtil_Decoder<STREAM>::convertFromBdemType(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
                                                     bdeat_TypeCategory::Array)
@@ -1057,8 +1057,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
     return decodeArrayImp(variable, ArrayTypeCategory());
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
                                                     bdeat_TypeCategory::Choice)
 {
@@ -1097,7 +1097,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
            && 1 == d_level
            && (!d_stream_p->getUint32(bitmap) || bitmap != EXPECTED_BITMAP))
          || !d_stream_p->getString(selectionName)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
       } break;
       case 2: {
@@ -1121,19 +1121,19 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
            && (!d_stream_p->getUint32(bitmap) || bitmap != EXPECTED_BITMAP))
          || !d_stream_p->getString(selectionName)
          || selectionName.empty()) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
       } break;
       default: {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
       } break;
     };
 
     return decodeChoiceImp(variable, selectionType, selectionName);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                             TYPE *variable,
@@ -1149,14 +1149,14 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
     BaseType base;
 
     if (0 != decode(&base)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return bdeat_CustomizedTypeFunctions::convertFromBaseType(variable, base);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                                TYPE *variable,
@@ -1171,14 +1171,14 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
     int intValue;
 
     if (0 != decode(&intValue)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return bdeat_EnumFunctions::fromInt(variable, intValue);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                              TYPE *variable,
@@ -1195,8 +1195,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
     return decodeNullableImp(variable, TypeCategory());
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
                                                   TYPE *variable,
@@ -1211,14 +1211,14 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(
     bsl::vector<char> types;
 
     if (0 != decode(&types)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return decodeSequenceImp(variable, types);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
                                                     bdeat_TypeCategory::Simple)
@@ -1236,8 +1236,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeImp(TYPE *variable,
     return decodeSimpleImp(variable, Toggle());
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeArrayChoiceImp(TYPE *variable,
                                                                int   numRows)
 {
@@ -1246,7 +1246,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayChoiceImp(TYPE *variable,
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
     if (d_level == d_maxDepth) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     bdeat_ArrayFunctions::resize(variable, numRows);
@@ -1263,7 +1263,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayChoiceImp(TYPE *variable,
             unsigned int bitmap;
 
             if (!d_stream_p->getUint32(bitmap) || bitmap != EXPECTED_BITMAP) {
-                return BDEM_FAILURE;
+                return BDEM_FAILURE;                                  // RETURN
             }
         }
 
@@ -1275,8 +1275,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayChoiceImp(TYPE *variable,
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
                                   TYPE *variable,
@@ -1291,14 +1291,14 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     if (!bdex_InStreamFunctions::streamIn(*d_stream_p,
                                           *variable,
                                           BDEX_VERSION)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
                                 TYPE *variable,
                                 BdemDecoderUtil_ExtendedBdemArrayCategory)
@@ -1340,8 +1340,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
                                       TYPE *variable,
                                       BdemDecoderUtil_ChoiceArrayCategory)
@@ -1365,8 +1365,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     return decodeArrayChoiceImp(variable, numRows);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
                                     TYPE *variable,
                                     BdemDecoderUtil_SequenceArrayCategory)
@@ -1413,8 +1413,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
                                        TYPE *variable,
                                        BdemDecoderUtil_OtherArrayCategory)
@@ -1440,8 +1440,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeArrayImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeChoiceImp(
                                              TYPE               *variable,
                                              char                selectionType,
@@ -1452,7 +1452,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeChoiceImp(
     if (selectionName.empty()) {
         bdeat_ValueTypeFunctions::reset(variable);
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     if (0 != bdeat_ChoiceFunctions::makeSelection(
@@ -1465,7 +1465,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeChoiceImp(
     if (SELECTION_NOT_PRESENT == selectionType) {
         // The selection data has been compressed out of the stream.
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     BdemDecoderUtil_BuildElemTypes buildElemType(1);
@@ -1478,7 +1478,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeChoiceImp(
     return bdeat_ChoiceFunctions::manipulateSelection(variable, *this);
 }
 
-template <typename STREAM>
+template <class STREAM>
 int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
                                                          bdlt::DateTz *variable)
 {
@@ -1497,7 +1497,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
         unsigned int bitmap;
 
         if (!d_stream_p->getUint32(bitmap) || EXPECTED_BITMAP != bitmap) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1506,7 +1506,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
 
     if (0 != decode(&localDate)
      || 0 != decode(&offset)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     variable->setDateTz(localDate, offset);
@@ -1514,7 +1514,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
                                                      bdlt::DatetimeTz *variable)
 {
@@ -1533,7 +1533,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
         unsigned int bitmap;
 
         if (!d_stream_p->getUint32(bitmap) || EXPECTED_BITMAP != bitmap) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1542,7 +1542,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
 
     if (0 != decode(&localDatetime)
      || 0 != decode(&offset)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     variable->setDatetimeTz(localDatetime, offset);
@@ -1550,7 +1550,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
+template <class STREAM>
 int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
                                                          bdlt::TimeTz *variable)
 {
@@ -1569,7 +1569,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
         unsigned int bitmap;
 
         if (!d_stream_p->getUint32(bitmap) || EXPECTED_BITMAP != bitmap) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1578,7 +1578,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
 
     if (0 != decode(&localTime)
      || 0 != decode(&offset)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     variable->setTimeTz(localTime, offset);
@@ -1586,8 +1586,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeExtendedTypeValue(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
                                                     TYPE *variable,
                                                     bdeat_TypeCategory::Choice)
@@ -1603,17 +1603,17 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
     int numCols, numRows;
 
     if (!d_stream_p->getLength(numCols)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (0 == numCols) {
         if (!d_stream_p->getLength(numRows) || 0 != numRows) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
 
         bdeat_ValueTypeFunctions::reset(variable);  // make object null
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     bdeat_NullableValueFunctions::makeValue(variable);
@@ -1646,8 +1646,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
                                                          decodeFunctor);
 }
 
-template <typename STREAM>
-template <typename TYPE, typename ANY_CATEGORY>
+template <class STREAM>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
                                                                 TYPE *variable,
@@ -1678,8 +1678,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableArrayImp(
                                                          decodeMemFn);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                      TYPE *variable,
@@ -1707,8 +1707,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
     return decodeNullableArrayImp(variable, Toggle());
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                     TYPE *variable,
                                                     bdeat_TypeCategory::Choice)
@@ -1748,7 +1748,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
            && 1 == d_level
            && (!d_stream_p->getUint32(bitmap) || bitmap != EXPECTED_BITMAP))
          || !d_stream_p->getString(selectionName)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
 
         break;
@@ -1774,7 +1774,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
            && (!d_stream_p->getUint32(bitmap) || bitmap != EXPECTED_BITMAP))
          || !d_stream_p->getString(selectionName)
          || selectionName.empty()) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
 
         break;
@@ -1782,7 +1782,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
       default: {
         bdeat_ValueTypeFunctions::reset(variable);  // make object null
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
       }
     };
 
@@ -1811,8 +1811,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                          decodeChoiceFunctor);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                TYPE *variable,
                                                bdeat_TypeCategory::Enumeration)
@@ -1822,13 +1822,13 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
     int proxy;
 
     if (0 != decode(&proxy)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (bdltuxxx::Unset<int>::isUnset(proxy)) {
         bdeat_ValueTypeFunctions::reset(variable);  // make object null
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     bdeat_NullableValueFunctions::makeValue(variable);
@@ -1848,8 +1848,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                          convertFunctor);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                   TYPE *variable,
                                                   bdeat_TypeCategory::Sequence)
@@ -1863,7 +1863,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
     bsl::vector<char> types;
 
     if (0 != decode(&types)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (0 == types.size()) {
@@ -1875,7 +1875,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
 
         bdeat_ValueTypeFunctions::reset(variable);  // make object null
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     bdeat_NullableValueFunctions::makeValue(variable);
@@ -1900,8 +1900,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                         decodeSequenceFunctor);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
                                                     TYPE *variable,
@@ -1937,8 +1937,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableImp(
     return decodeNullableSimpleImp(variable, Switch());
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
                                                         TYPE *variable,
                                                         NativeBdemTypeCategory)
@@ -1953,13 +1953,13 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     bdeat_NullableValueFunctions::makeValue(variable);
 
     if (0 != bdeat_NullableValueFunctions::manipulateValue(variable, *this)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     BdemDecoderUtil_IsNull isNull;
 
     if (0 != bdeat_NullableValueFunctions::accessValue(*variable, isNull)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (isNull.result() == true) {
@@ -1969,8 +1969,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
                                                       TYPE *variable,
                                                       ExtendedBdemTypeCategory)
@@ -1984,13 +1984,13 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     bsl::vector<char> types;
 
     if (0 != decode(&types)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (0 == types.size()) {
         bdeat_ValueTypeFunctions::reset(variable);  // make object null
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     // Check if the elemtypes are valid.
@@ -2001,7 +2001,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     if (!BdemDecoderUtil_ExtendedBdemTypeUtil::areElemTypesValid(
                                                                  (ValueType*)0,
                                                                  types)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     // Object is not null and elemtypes are valid, so make a value and stream
@@ -2018,8 +2018,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     return bdeat_NullableValueFunctions::manipulateValue(variable, memFn);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
                                                            TYPE *variable,
                                                            NotBdemTypeCategory)
@@ -2036,13 +2036,13 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
     BdemType proxy;
 
     if (!decode(&proxy)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (bdltuxxx::Unset<BdemType>::isUnset(proxy)) {
         bdeat_ValueTypeFunctions::reset(variable);  // make object null
 
-        return BDEM_SUCCESS;
+        return BDEM_SUCCESS;                                          // RETURN
     }
 
     bdeat_NullableValueFunctions::makeValue(variable);
@@ -2064,8 +2064,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeNullableSimpleImp(
                                                          convertFunctor);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 int BdemDecoderUtil_Decoder<STREAM>::decodeSequenceImp(
                                   TYPE                     *variable,
                                   const bsl::vector<char>&  attributeElemTypes)
@@ -2079,7 +2079,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeSequenceImp(
      || 0 != bdeat_SequenceFunctions::accessAttributes(*variable,
                                                        buildElemTypes)
      || attributeElemTypes != buildElemTypes.elemTypes()) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     BdemDecoderUtil_NewLevelGuard newLevelGuard(&d_level);
@@ -2092,14 +2092,16 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeSequenceImp(
         return bdeat_SequenceFunctions::manipulateAttributes(
                                                      variable,
                                                      decodeAttributesWithMask);
+                                                                      // RETURN
     }
     else {
         return bdeat_SequenceFunctions::manipulateAttributes(variable, *this);
+                                                                      // RETURN
     }
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeSimpleImp(
                                                         TYPE *variable,
@@ -2120,8 +2122,8 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeSimpleImp(
     return BDEM_SUCCESS;
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decodeSimpleImp(TYPE *variable,
                                                           NotBdemTypeCategory)
@@ -2150,7 +2152,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decodeSimpleImp(TYPE *variable,
 }
 
 // CREATORS
-template <typename STREAM>
+template <class STREAM>
 inline
 BdemDecoderUtil_Decoder<STREAM>::BdemDecoderUtil_Decoder(
                                                            STREAM *stream,
@@ -2164,8 +2166,8 @@ BdemDecoderUtil_Decoder<STREAM>::BdemDecoderUtil_Decoder(
 }
 
 // MANIPULATORS
-template <typename STREAM>
-template <typename TYPE, typename INFO>
+template <class STREAM>
+template <class TYPE, class INFO>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::operator()(TYPE *variable,
                                                      const INFO&)
@@ -2173,16 +2175,16 @@ int BdemDecoderUtil_Decoder<STREAM>::operator()(TYPE *variable,
     return decode(variable);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::operator()(TYPE *variable)
 {
     return decode(variable);
 }
 
-template <typename STREAM>
-template <typename TYPE>
+template <class STREAM>
+template <class TYPE>
 inline
 int BdemDecoderUtil_Decoder<STREAM>::decode(TYPE *variable)
 {
@@ -2194,7 +2196,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decode(TYPE *variable)
     return decodeImp(variable, TypeCategory());
 }
 
-template <typename STREAM>
+template <class STREAM>
 int BdemDecoderUtil_Decoder<STREAM>::decode(bdlt::DateTz *variable)
 {
     enum { BDEM_FAILURE = -1 };
@@ -2213,7 +2215,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decode(bdlt::DateTz *variable)
     return decodeExtendedTypeValue(variable);
 }
 
-template <typename STREAM>
+template <class STREAM>
 int BdemDecoderUtil_Decoder<STREAM>::decode(bdlt::DatetimeTz *variable)
 {
     enum { BDEM_FAILURE = -1 };
@@ -2232,7 +2234,7 @@ int BdemDecoderUtil_Decoder<STREAM>::decode(bdlt::DatetimeTz *variable)
     return decodeExtendedTypeValue(variable);
 }
 
-template <typename STREAM>
+template <class STREAM>
 int BdemDecoderUtil_Decoder<STREAM>::decode(bdlt::TimeTz *variable)
 {
     enum { BDEM_FAILURE = -1 };
@@ -2295,14 +2297,14 @@ BdemDecoderUtil_IsNull::BdemDecoderUtil_IsNull()
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 inline
 int BdemDecoderUtil_IsNull::operator()(const TYPE& value, const INFO&)
 {
     return (*this)(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BdemDecoderUtil_IsNull::operator()(const TYPE& value)
 {
@@ -2343,15 +2345,15 @@ BdemDecoderUtil_NewLevelGuard::~BdemDecoderUtil_NewLevelGuard()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

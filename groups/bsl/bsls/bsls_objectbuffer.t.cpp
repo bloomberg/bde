@@ -28,9 +28,9 @@ using namespace BloombergLP;
 // [3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
@@ -43,7 +43,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -297,10 +297,10 @@ struct my_Type
             if (INT == d_type) {
                 char temp[15];
                 sprintf(temp, "%d", d_int);
-                return my_String(temp);
+                return my_String(temp);                               // RETURN
             }
             else {
-                return d_string.object();
+                return d_string.object();                             // RETURN
             }
         }
     };

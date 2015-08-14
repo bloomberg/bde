@@ -1,4 +1,4 @@
-// bdlmxxx_schema.t.cpp                                                  -*-C++-*-
+// bdlmxxx_schema.t.cpp                                               -*-C++-*-
 
 #include <bdlmxxx_schema.h>
 
@@ -412,9 +412,9 @@ int strCmp(const char* lhs, const char* rhs)
     // equal, a negative value if lhs < rhs, and a positive value if lhs > rhs.
     // Note that the behavior is well-defined for null-pointer arguments.
 {
-    if (lhs == 0 && rhs == 0) return 0;
-    if (lhs == 0) return -1;
-    if (rhs == 0) return 1;
+    if (lhs == 0 && rhs == 0) return 0;                               // RETURN
+    if (lhs == 0) return -1;                                          // RETURN
+    if (rhs == 0) return 1;                                           // RETURN
     return bsl::strcmp(lhs, rhs);
 }
 
@@ -982,7 +982,7 @@ const RecDef *getRecordConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->record(token - '0');
+        return &object->record(token - '0');                          // RETURN
     }
 
     // else constrained by name
@@ -993,7 +993,7 @@ const EnumDef *getEnumConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->enumeration(token - '0');
+        return &object->enumeration(token - '0');                     // RETURN
     }
 
     // else constrained by name
@@ -1130,46 +1130,46 @@ bool verifyDefaultValueForType(CERef ref, bool other = false)
 
     switch (elemType) {
       case EType::BDEM_CHAR: {
-        return (other ? B00 : A00) == ref.theChar();
+        return (other ? B00 : A00) == ref.theChar();                  // RETURN
       } break;
       case EType::BDEM_SHORT: {
-        return (other ? B01 : A01) == ref.theShort();
+        return (other ? B01 : A01) == ref.theShort();                 // RETURN
       } break;
       case EType::BDEM_INT: {
-        return (other ? B02 : A02) == ref.theInt();
+        return (other ? B02 : A02) == ref.theInt();                   // RETURN
       } break;
       case EType::BDEM_INT64: {
-        return (other ? B03 : A03) == ref.theInt64();
+        return (other ? B03 : A03) == ref.theInt64();                 // RETURN
       } break;
       case EType::BDEM_FLOAT: {
-        return (other ? B04 : A04) == ref.theFloat();
+        return (other ? B04 : A04) == ref.theFloat();                 // RETURN
       } break;
       case EType::BDEM_DOUBLE: {
-        return (other ? B05 : A05) == ref.theDouble();
+        return (other ? B05 : A05) == ref.theDouble();                // RETURN
       } break;
       case EType::BDEM_STRING: {
-        return (other ? B06 : A06) == ref.theString();
+        return (other ? B06 : A06) == ref.theString();                // RETURN
       } break;
       case EType::BDEM_DATETIME: {
-        return (other ? B07 : A07) == ref.theDatetime();
+        return (other ? B07 : A07) == ref.theDatetime();              // RETURN
       } break;
       case EType::BDEM_DATE: {
-        return (other ? B08 : A08) == ref.theDate();
+        return (other ? B08 : A08) == ref.theDate();                  // RETURN
       } break;
       case EType::BDEM_TIME: {
-        return (other ? B09 : A09) == ref.theTime();
+        return (other ? B09 : A09) == ref.theTime();                  // RETURN
       } break;
       case EType::BDEM_BOOL: {
-        return (other ? B22 : A22) == ref.theBool();
+        return (other ? B22 : A22) == ref.theBool();                  // RETURN
       } break;
       case EType::BDEM_DATETIMETZ: {
-        return (other ? B23 : A23) == ref.theDatetimeTz();
+        return (other ? B23 : A23) == ref.theDatetimeTz();            // RETURN
       } break;
       case EType::BDEM_DATETZ: {
-        return (other ? B24 : A24) == ref.theDateTz();
+        return (other ? B24 : A24) == ref.theDateTz();                // RETURN
       } break;
       case EType::BDEM_TIMETZ: {
-        return (other ? B25 : A25) == ref.theTimeTz();
+        return (other ? B25 : A25) == ref.theTimeTz();                // RETURN
       } break;
       default: {
         ASSERT("Invalid element passed to 'verifyDefaultValueForType'" && 0);
@@ -1685,7 +1685,7 @@ if (veryVerbose)
 // interpreted as having the schema's default 'quantity' value of 1.
 //
 //Creating a Schema:
-//- - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We now examine how to create a 'bdlmxxx::Schema' for the schema described in
 // the previous section.  We start by creating a 'bdlmxxx::Schema' object, and
 // adding an enumeration named "CREDIT_CARD_TYPE":
@@ -9132,11 +9132,11 @@ if (veryVerbose)
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

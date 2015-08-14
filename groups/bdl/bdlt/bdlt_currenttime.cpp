@@ -28,7 +28,7 @@ DatetimeTz CurrentTime::asDatetimeTz()
     bsls::TimeInterval offset = LocalTimeOffset::localTimeOffset(now);
     now.addSeconds(offset.totalSeconds());
 
-    BSLS_ASSERT((-1440                 < offset.totalMinutes()) && 
+    BSLS_ASSERT((-1440                 < offset.totalMinutes()) &&
                 (offset.totalMinutes() < 1440));
     return DatetimeTz(now, static_cast<int>(offset.totalMinutes()));
 }

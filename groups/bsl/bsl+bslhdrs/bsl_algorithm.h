@@ -122,7 +122,7 @@ namespace bsl {
     using native_std::random_access_iterator_tag;
     using native_std::return_temporary_buffer;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-}  // close namespace bsl
+}  // close package namespace
 
 
 // Include Bloomberg's implementation, unless compilation is configured to

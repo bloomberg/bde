@@ -40,7 +40,7 @@ namespace bsl {
 using native_std::initializer_list;
 #endif
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

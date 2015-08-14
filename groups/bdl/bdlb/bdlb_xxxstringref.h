@@ -1,4 +1,4 @@
-// bdlb_xxxstringref.h                                                  -*-C++-*-
+// bdlb_xxxstringref.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLB_XXXSTRINGREF
 #define INCLUDED_BDLB_XXXSTRINGREF
 
@@ -1133,7 +1133,7 @@ struct hash<BloombergLP::bdlb::StringRef> {
         // the empty string will produce the same hash.
 };
 
-}  // close bsl namespace
+}  // close namespace bsl
 
 #endif
 

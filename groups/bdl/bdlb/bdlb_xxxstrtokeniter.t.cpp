@@ -1,4 +1,4 @@
-// bdlb_xxxstrtokeniter.t.cpp     -*-C++-*-
+// bdlb_xxxstrtokeniter.t.cpp                                         -*-C++-*-
 
 #include <bdlb_xxxstrtokeniter.h>
 
@@ -24,7 +24,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD
+//                                  TBD
 //-----------------------------------------------------------------------------
 // 'bdlb::StrTokenIter' public interface:
 // [ 3] bdlb::StrTokenIter(const char*, const char*, ba* = 0);
@@ -45,9 +45,9 @@ using namespace bsl;  // automatically added by script
 // [ 8] USAGE EXAMPLE
 // [ 7] CONCERN: Precondition violations are detected when enabled.
 
-//==========================================================================
+//=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -131,7 +131,7 @@ class donotusethis_FatalAllocator : public bslma::Allocator {
 static char *stringRepeat(int reps, const char *string)
 {
     int len = strlen(string);
-    if (0 == reps || 0 == len) return 0;
+    if (0 == reps || 0 == len) return 0;                              // RETURN
     char *str = (char *) new char[reps * len + 1];
     for (int i = 0; i < reps; ++i) {
         bsl::memcpy(str + (i*len), string, len);
@@ -182,7 +182,7 @@ static int checkDateFormat(const char *input)
     Obj mI(input, " \t", "/");  const Obj& I = mI;
                                      // generate iterator outside 'for' loop
     for (; I; ++mI) {
-        if (!*I()) return BAD;       // empty token
+        if (!*I()) return BAD;       // empty token                   // RETURN
     }
     return I.isHard() ? BAD : GOOD;  // check last delimiter buffer only
 }
@@ -192,9 +192,9 @@ static int restrictiveCheckDateFormat(const char *input)
     enum { GOOD = 0, BAD = 1 };
     Obj mI(input, " \t", "/");  const Obj& I = mI;
                                      // generate iterator outside 'for' loop
-    if (*I.previousDelimiter()) return BAD;
+    if (*I.previousDelimiter()) return BAD;                           // RETURN
     for (; I; ++mI) {
-        if (!*I()) return BAD;       // empty token
+        if (!*I()) return BAD;       // empty token                   // RETURN
     }
     return *I.delimiter() ? BAD : GOOD;
 }
@@ -2563,11 +2563,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

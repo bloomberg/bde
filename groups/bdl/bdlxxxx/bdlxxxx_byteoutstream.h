@@ -1,4 +1,4 @@
-// bdlxxxx_byteoutstream.h                                               -*-C++-*-
+// bdlxxxx_byteoutstream.h                                            -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_BYTEOUTSTREAM
 #define INCLUDED_BDLXXXX_BYTEOUTSTREAM
 
@@ -259,7 +259,7 @@ class ByteOutStream {
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     ByteOutStream& put(const TYPE& variable);
         // Format the specified 'value' to this output stream and return a
         // reference to this modifiable stream.  If the user has provided
@@ -627,7 +627,7 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 ByteOutStream& operator<<(ByteOutStream& stream,
                                const OBJECT&       object);
@@ -643,9 +643,9 @@ ByteOutStream& operator<<(ByteOutStream& stream,
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 inline
@@ -1094,7 +1094,7 @@ ByteOutStream::putArrayFloat32(const float *array, int count)
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename TYPE>
+template <class TYPE>
 inline
 ByteOutStream& ByteOutStream::put(const TYPE& variable)
 {
@@ -1130,7 +1130,7 @@ int ByteOutStream::length() const
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 bdlxxxx::ByteOutStream& bdlxxxx::operator<<(ByteOutStream& stream,
                                const OBJECT&       object)
@@ -1140,15 +1140,15 @@ bdlxxxx::ByteOutStream& bdlxxxx::operator<<(ByteOutStream& stream,
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

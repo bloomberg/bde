@@ -30,9 +30,9 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
@@ -45,7 +45,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -82,7 +82,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     static void *allocateFromBuffer(int size)
     {
         if (size > my_AllocEnd - my_AllocPtr)
-            return 0;       // Out of buffer space
+            return 0;       // Out of buffer space                    // RETURN
 
         void *result = my_AllocPtr;
         my_AllocPtr += size;
@@ -123,7 +123,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         if (!charPtr || !shortPtr || !objPtr) {
             fprintf(stderr, "Global buffer is not large enough.\n");
-            return -1;
+            return -1;                                                // RETURN
         }
 
         // ...
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
                             "\n========================\n");
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define ASSERT_ALIGN(TYPE, ALIGNMENT) ASSERT(__alignof(TYPE) == ALIGNMENT);
-#else 
+#else
 #define ASSERT_ALIGN(TYPE, ALIGNMENT) ASSERT(__alignof__(TYPE) == ALIGNMENT);
 #endif
 

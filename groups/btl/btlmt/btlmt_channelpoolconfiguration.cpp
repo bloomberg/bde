@@ -1,4 +1,4 @@
-// btlmt_channelpoolconfiguration.cpp  -*-C++-*-
+// btlmt_channelpoolconfiguration.cpp                                 -*-C++-*-
 #include <btlmt_channelpoolconfiguration.h>
 
 #include <bsls_ident.h>
@@ -150,6 +150,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[8])=='D' &&
                 bsl::toupper(name[9])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS];
+                                                                      // RETURN
             }
         } break;
         case 11: {
@@ -165,6 +166,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[9])=='U' &&
                 bsl::toupper(name[10])=='T') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT];
+                                                                      // RETURN
             }
         } break;
         case 14: {
@@ -183,6 +185,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[12])=='N' &&
                 bsl::toupper(name[13])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS];
+                                                                      // RETURN
             }
         } break;
         case 15: {
@@ -204,6 +207,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='L') {
                         return
                        &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL];
+                                                                      // RETURN
                     }
                 } break;
                 case 'W': {
@@ -223,6 +227,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='T') {
                         return
                      &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
+                                                                      // RETURN
                     }
                 } break;
                 case 'T': {
@@ -242,6 +247,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='E') {
                         return
                      &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -267,6 +273,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[15])=='N') {
                                return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN];
+                                                                      // RETURN
                             }
                         } break;
                         case 'I': {
@@ -286,6 +293,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[15])=='N') {
                                 return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN];
+                                                                      // RETURN
                             }
                         } break;
                     }
@@ -308,6 +316,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[15])=='N') {
                         return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN];
+                                                                      // RETURN
                     }
                 } break;
                 case 'W': {
@@ -328,6 +337,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[15])=='T') {
                         return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -354,6 +364,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[16])=='T') {
                                 return
                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT];
+                                                                      // RETURN
                             }
                         } break;
                         case 'I': {
@@ -374,6 +385,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[16])=='T') {
                                 return
                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT];
+                                                                      // RETURN
                             }
                         } break;
                     }
@@ -397,6 +409,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[16])=='T') {
                         return
                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -422,6 +435,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[17])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[
                                          ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
+                                                                      // RETURN
             }
 
         } break;
@@ -615,13 +629,20 @@ bsl::ostream& btlmt::operator<<(bsl::ostream&                         output,
     return output;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

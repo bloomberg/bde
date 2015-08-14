@@ -544,8 +544,8 @@ namespace bslma {
         bsl::is_convertible<bslma::Allocator*, ALLOC>::type
     {
     };
-} // namespace bslma
-} // namespace BloombergLP
+}  // close namespace bslma
+}  // close enterprise namespace
 
 class AttribClass5bslma
 {
@@ -692,7 +692,7 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
     struct HasStlIterators<MyContainer<TYPE, ALLOC> > : bsl::true_type
     {};
 
-    } // namespace bslalg
+    }  // close namespace bslalg
 
     namespace bslmf {
 
@@ -701,7 +701,7 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
         : IsBitwiseMoveable<ALLOC>
     {};
 
-    } // namespace bslmf
+    }  // close namespace bslmf
 
     namespace bslma {
 
@@ -710,8 +710,8 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
         : bsl::is_convertible<Allocator*, ALLOC>
     {};
 
-    }  // namespace bslma
-    }  // namespace BloombergLP
+    }  // close namespace bslma
+    }  // close enterprise namespace
 //..
 // Then we implement the constructors, which allocate memory and construct a
 // 'TYPE' object in the allocated memory.  Because the allocation and

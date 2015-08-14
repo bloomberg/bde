@@ -266,7 +266,7 @@ class Encoder {
         // Destroy this object.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::streambuf               *streamBuf,
                const TYPE&                   value,
                const EncoderOptions&  options);
@@ -277,7 +277,7 @@ class Encoder {
         // type referring to one of those types.  Return 0 on success, and a
         // non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::ostream&                stream,
                const TYPE&                  value,
                const EncoderOptions& options);
@@ -288,7 +288,7 @@ class Encoder {
         // referring to one of those types.  Return 0 on success, and a
         // non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
@@ -297,7 +297,7 @@ class Encoder {
         // DEPRECATED: Use the 'encode' function passed a reference to a
         // non-modifiable 'EncoderOptions' object instead.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
@@ -438,35 +438,35 @@ class Encoder_EncodeImpl {
     int encodeImp(const bsl::vector<char>& value,
                   int,
                   bdeat_TypeCategory::Array);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
                   bdeat_TypeCategory::Array);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
                   bdeat_TypeCategory::Choice);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
                   bdeat_TypeCategory::CustomizedType);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
                   bdeat_TypeCategory::DynamicType);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
                   bdeat_TypeCategory::Enumeration);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
                   bdeat_TypeCategory::NullableValue);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
                   bdeat_TypeCategory::Sequence);
-    template <typename TYPE>
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int,
                   bdeat_TypeCategory::Simple);
@@ -495,7 +495,7 @@ class Encoder_EncodeImpl {
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of the document.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(const TYPE& value, int mode);
         // Encode the specified 'value' in the JSON format using the specified
         // formatting 'mode'.  Return 0 on success and a non-zero value
@@ -531,12 +531,12 @@ struct Encoder_ElementVisitor {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& value);
         // Encode the specified 'value' in the JSON format.  Return 0 on
         // success and a non-zero value otherwise.
 
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO& info);
         // Encode the specified 'value' using the specified 'info' in the JSON
         // format.  Return 0 on success and a non-zero value otherwise.
@@ -587,7 +587,7 @@ class Encoder_SequenceVisitor {
         // specified 'encoder'.
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO &info);
         // Encode the specified 'value' using the specified 'info' in the JSON
         // format.  Return 0 on success and a non-zero value otherwise.
@@ -613,9 +613,9 @@ struct Encoder_DynamicTypeDispatcher {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE&, bslmf::Nil);
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int operator()(const TYPE& value, ANY_CATEGORY category);
         // Encode the specified 'value' of the specified 'bdeat' 'category' in
         // the JSON format.  Return 0 on success and a non-zero value
@@ -645,7 +645,7 @@ Encoder::Encoder(bslma::Allocator *basicAllocator)
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
 {
@@ -653,7 +653,7 @@ int Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
     return encode(streamBuf, value, options);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder::encode(bsl::ostream& stream, const TYPE& value)
 {
@@ -661,7 +661,7 @@ int Encoder::encode(bsl::ostream& stream, const TYPE& value)
     return encode(stream, value, options);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder::encode(bsl::streambuf               *streamBuf,
                            const TYPE&                   value,
                            const EncoderOptions&  options)
@@ -697,7 +697,7 @@ int Encoder::encode(bsl::streambuf               *streamBuf,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder::encode(bsl::ostream&                stream,
                            const TYPE&                  value,
                            const EncoderOptions& options)
@@ -752,7 +752,7 @@ bsl::ostream& Encoder_EncodeImpl::logStream()
     return d_encoder_p->logStream();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
@@ -762,7 +762,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                   mode);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
@@ -772,7 +772,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return bdeat_TypeCategoryUtil::accessByCategory(value, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
@@ -783,7 +783,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return encode(valueString, mode);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int,
@@ -793,7 +793,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return PrintUtil::printValue(d_outputStream, value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
                                          bdeat_TypeCategory::Sequence)
@@ -822,7 +822,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
                                          bdeat_TypeCategory::Choice)
@@ -857,7 +857,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
                                          bdeat_TypeCategory::Array)
@@ -895,7 +895,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
                                          bdeat_TypeCategory::NullableValue)
@@ -910,7 +910,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return bdeat_NullableValueFunctions::accessValue(value, visitor);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encode(const TYPE& value, int mode)
 {
@@ -1022,7 +1022,7 @@ Encoder_SequenceVisitor::Encoder_SequenceVisitor(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 int Encoder_SequenceVisitor::operator()(const TYPE& value,
                                                const INFO& info)
 {
@@ -1050,14 +1050,14 @@ int Encoder_SequenceVisitor::operator()(const TYPE& value,
                     // struct Encoder_ElementVisitor
                     // ------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_ElementVisitor::operator()(const TYPE &value)
 {
     return d_encoder_p->encode(value, d_mode);
 }
 
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 int Encoder_ElementVisitor::operator()(const TYPE& value,
                                               const INFO& info)
 {
@@ -1089,7 +1089,7 @@ int Encoder_ElementVisitor::operator()(const TYPE& value,
                     // -------------------------------------------
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_DynamicTypeDispatcher::operator()(const TYPE&, bslmf::Nil)
 {
@@ -1098,7 +1098,7 @@ int Encoder_DynamicTypeDispatcher::operator()(const TYPE&, bslmf::Nil)
     return -1;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
                                                      ANY_CATEGORY category)
@@ -1109,15 +1109,22 @@ int Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
 }  // close package namespace
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

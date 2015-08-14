@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class Stopwatch;
-    }
+    }  // close namespace bsls
 
     typedef bsls::Stopwatch bsls_Stopwatch;
-}
+}  // close enterprise namespace
 
 #else
 

@@ -1,4 +1,4 @@
-// bdlmxxx_convert.cpp                                                   -*-C++-*-
+// bdlmxxx_convert.cpp                                                -*-C++-*-
 #include <bdlmxxx_convert.h>
 
 #include <bsls_ident.h>
@@ -758,10 +758,10 @@ int Convert::fromBdemType(ElemRef        *dstAddr,
         // Void-to-void conversion is legal, but void to anything else is not.
         return ElemType::BDEM_VOID == srcType
                ? BDEM_SUCCESS
-               : BDEM_FAILURE;
+               : BDEM_FAILURE;                                        // RETURN
       } break;
       default: {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
       } break;
     }
 
@@ -984,13 +984,13 @@ int Convert::convertBdemTypes(void                *dstAddr,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

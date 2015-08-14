@@ -1,4 +1,4 @@
-// bsl_cfenv.h                                                         -*-C++-*-
+// bsl_cfenv.h                                                        -*-C++-*-
 #ifndef INCLUDED_BSL_CFENV
 #define INCLUDED_BSL_CFENV
 
@@ -39,7 +39,7 @@ namespace bsl {
     using native_std::fenv_t;
     using native_std::fexcept_t;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 
