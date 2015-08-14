@@ -8997,7 +8997,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -9218,7 +9218,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -9302,7 +9302,8 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP3_ASSERT(LINE, LEN, osb.length(), LEN == osb.length());
+                LOOP3_ASSERT(LINE, LEN, osb.length(),
+                             LEN == (int)osb.length());
                 LOOP3_ASSERT(LINE, osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -9464,7 +9465,8 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP3_ASSERT(LINE, LEN, osb.length(), LEN == osb.length());
+                LOOP3_ASSERT(LINE, LEN, osb.length(),
+                             LEN == (int)osb.length());
                 LOOP3_ASSERT(LINE, osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -9849,7 +9851,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -10305,7 +10307,7 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);
                 ASSERT(0 == encoder.encode(&osb, VALUE));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -11153,7 +11155,7 @@ int main(int argc, char *argv[])
             const          bool   XO1 = true;
 
             const bsl::string     XP1("This is a really long line");
-            bsl::string           XP2;
+                  bsl::string     XP2;
 
             const float        XQ1 = 99.234;
             const float        XR1 = -100.987;
@@ -11491,8 +11493,8 @@ int main(int argc, char *argv[])
         }
         stopwatch.stop();
 
-        ASSERT(minOutputSize <= osb.length());
-        ASSERT(osb.length() <= MAX_BUF_SIZE);
+        ASSERT(minOutputSize     <= (int)osb.length());
+        ASSERT((int)osb.length() <= MAX_BUF_SIZE);
         elapsed = stopwatch.elapsedTime();
         ASSERT(elapsed > 0);
 

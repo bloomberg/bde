@@ -1089,7 +1089,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1319,7 +1319,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1413,7 +1413,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1590,7 +1590,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1992,7 +1992,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -2458,7 +2458,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -3986,7 +3986,7 @@ int main(int argc, char *argv[])
                                                                       CLASS,
                                                                       TYPE,
                                                                       NUMBER));
-                LOOP_ASSERT(LINE, EXP_LEN == osb.length());
+                LOOP_ASSERT(LINE, EXP_LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0       == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4165,7 +4165,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4206,7 +4206,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4247,7 +4247,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4289,7 +4289,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4329,7 +4329,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4370,7 +4370,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4454,7 +4454,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
-                LOOP_ASSERT(LINE, LEN == osb.length());
+                LOOP_ASSERT(LINE, LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4529,7 +4529,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
-                LOOP_ASSERT(LINE, LEN == osb.length());
+                LOOP_ASSERT(LINE, LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4607,7 +4607,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 LOOP_ASSERT(LINE, SUCCESS  == Util::putLength(&osb, LEN));
-                LOOP_ASSERT(LINE, EXP_LEN  == osb.length());
+                LOOP_ASSERT(LINE, EXP_LEN  == (int)osb.length());
                 LOOP_ASSERT(LINE, 0        == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4730,7 +4730,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS  ==
                                                Imp::putDoubleValue(&osb, VAL));
-                    LOOP_ASSERT(LINE, LEN      == osb.length());
+                    LOOP_ASSERT(LINE, LEN      == (int)osb.length());
                     LOOP_ASSERT(LINE, 0        ==
                                               compareBuffers(osb.data(), EXP));
 
@@ -4776,7 +4776,7 @@ int main(int argc, char *argv[])
                                                            &isb, &f,
                                                            &numBytesConsumed));
                     LOOP3_ASSERT(LINE, F, f, F == f);
-                    LOOP_ASSERT(LINE, osb.length() == numBytesConsumed);
+                    LOOP_ASSERT(LINE, (int)osb.length() == numBytesConsumed);
                 }
             }
 
@@ -4836,7 +4836,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, RESULT == Imp::putDoubleValue(&osb,
                                                                     outVal));
                     if (SUCCESS == RESULT) {
-                        LOOP_ASSERT(LINE, LEN == osb.length());
+                        LOOP_ASSERT(LINE, LEN == (int)osb.length());
                         LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(),
                                                                 EXP));
                     }
@@ -4960,7 +4960,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, LL));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -4997,7 +4997,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VI));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5033,7 +5033,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, L));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5071,7 +5071,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, S));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5109,7 +5109,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, C));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5218,7 +5218,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, LL));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5255,7 +5255,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VI));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5290,7 +5290,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, L));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5327,7 +5327,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, S));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5364,7 +5364,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, C));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5446,7 +5446,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, LL, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5481,7 +5481,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, VI, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5515,7 +5515,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                      Imp::putIntegerGivenLength(&osb, L, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
