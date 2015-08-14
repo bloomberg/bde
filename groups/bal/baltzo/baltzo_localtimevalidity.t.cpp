@@ -274,11 +274,11 @@ if (veryVerbose)
 
         if (verbose) cout << "\nTesting '<<' operator." << endl;
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(Obj::BAETZO_VALID_UNIQUE    == Obj::BALTZO_VALID_UNIQUE);
         ASSERT(Obj::BAETZO_VALID_AMBIGUOUS == Obj::BALTZO_VALID_AMBIGUOUS);
         ASSERT(Obj::BAETZO_INVALID         == Obj::BALTZO_INVALID);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE  = DATA[ti].d_lineNum;

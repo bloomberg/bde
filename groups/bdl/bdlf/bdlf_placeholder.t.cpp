@@ -115,11 +115,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting `bdlf::PlaceHolder<I>'"
                             "\n=============================\n");
 
-        ASSERT(-2 == bdlf::PlaceHolder<-2>::VALUE);
-        ASSERT(-1 == bdlf::PlaceHolder<-1>::VALUE);
-        ASSERT( 0 == bdlf::PlaceHolder< 0>::VALUE);
-        ASSERT( 1 == bdlf::PlaceHolder< 1>::VALUE);
-        ASSERT( 2 == bdlf::PlaceHolder< 2>::VALUE);
+        ASSERT(-2 == bdlf::PlaceHolder<-2>::value);
+        ASSERT(-1 == bdlf::PlaceHolder<-1>::value);
+        ASSERT( 0 == bdlf::PlaceHolder< 0>::value);
+        ASSERT( 1 == bdlf::PlaceHolder< 1>::value);
+        ASSERT( 2 == bdlf::PlaceHolder< 2>::value);
 
       } break;
       default: {
