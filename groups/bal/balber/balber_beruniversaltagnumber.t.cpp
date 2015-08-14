@@ -2099,33 +2099,54 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
-        //   This will test 'Usage 1'.
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example must work as expected.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Copy the usage example from the header file, replacing 'assert'
-        //   with 'ASSERT', and verify that it compiles and runs as expected.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   Usage 1
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting Usage 1"
                                << "\n===============" << bsl::endl;
 
-        balber::BerUniversalTagNumber::Value tagNumber
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Exercise1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// 'balber::BerUniversalTagNumber' operation.
+//
+// First, create a variable 'tagNumber' of type
+// 'balber::BerUniversalTagNumber::Value' and initialize it to the value
+// 'balber::BerUniversalTagNumber::e_BER_INT':
+//..
+    balber::BerUniversalTagNumber::Value tagNumber
                                     = balber::BerUniversalTagNumber::e_BER_INT;
-
-        const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
-        ASSERT(0 == strcmp(rep, "INT"));
-
-        bsl::stringstream ss;
-        ss << tagNumber;
-        ASSERT("INT" == ss.str());
-
+//..
+// Next, store its representation in a variable 'rep' of type 'const char *':
+//..
+    const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
+    ASSERT(0 == strcmp(rep, "INT"));
+//..
+// Finally, print the value of 'tagNumber' to 'bsl::cout':
+//..
+    bsl::cout << tagNumber << bsl::endl;
+//..
+// This statement produces the following output on 'bsl::cout':
+//..
+//  INT
+//..
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
       case 3: {
