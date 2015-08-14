@@ -529,7 +529,7 @@ namespace bdlat_ChoiceFunctions {
         // for further information.
 
         enum {
-//ARB:ENUM 531
+//ARB:VALUE
             VALUE = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isChoiceMetaFunction(

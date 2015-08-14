@@ -320,7 +320,7 @@ namespace bdlat_NullableValueFunctions {
         // documentation for further information.
 
         enum {
-//ARB:ENUM 323
+//ARB:VALUE
             VALUE = 0
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isNullableValueMetaFunction(
@@ -402,10 +402,8 @@ namespace bdlat_NullableValueFunctions {
     template <typename TYPE>
     struct IsNullableValue<bdlb::NullableValue<TYPE> > {
         enum {
-//ARB:ENUM 403
+//ARB:VALUE
             VALUE = 1
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 
@@ -444,10 +442,8 @@ namespace bdlat_NullableValueFunctions {
     template <typename TYPE>
     struct IsNullableValue<bdlb::NullableAllocatedValue<TYPE> > {
         enum {
-//ARB:ENUM 440
+//ARB:VALUE
             VALUE = 1
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 

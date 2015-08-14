@@ -642,7 +642,7 @@ namespace bdlat_SequenceFunctions {
         // documentation for further information.
 
         enum {
-//ARB:ENUM 645
+//ARB:VALUE
             VALUE = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isSequenceMetaFunction(

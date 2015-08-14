@@ -317,16 +317,10 @@ class MiniReader :  public Reader {
   private:
     // PRIVATE TYPES
     enum {
-//ARB:ENUM 320
         k_MIN_BUFSIZE     = 1024,        // MIN - 1 KB
-//ARB:ENUM 321
         k_MAX_BUFSIZE     = 1024 * 128,  // MAX - 128 KB
-//ARB:ENUM 322
         k_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
-//ARB:ENUM 323
         k_DEFAULT_DEPTH   = 20           // Average expected deep
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };                                        // to minimize allocations
 
     typedef ElementAttribute Attribute;
@@ -337,12 +331,8 @@ class MiniReader :  public Reader {
     struct Node
     {
         enum {
-//ARB:ENUM 334
             k_NODE_NO_FLAGS = 0x0000,
-//ARB:ENUM 335
             k_NODE_EMPTY    = 0x0001
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         };
 
         NodeType         d_type;

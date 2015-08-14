@@ -311,17 +311,11 @@ class Formatter {
     typedef bsls::Types::Int64 Int64;
 
     enum State {
-//ARB:ENUM 310
         e_AT_START,
-//ARB:ENUM 311
         e_AFTER_START_NO_TAG,
-//ARB:ENUM 312
         e_IN_TAG,
-//ARB:ENUM 313
         e_BETWEEN_TAGS,
         e_AT_END
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     class ElemContext;
@@ -335,10 +329,7 @@ class Formatter {
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
         enum {
-//ARB:ENUM 327
             k_TRUNCATED_TAG_LEN = 15
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         };
 
         unsigned char d_tagLen;  // actual tag length, up to 255

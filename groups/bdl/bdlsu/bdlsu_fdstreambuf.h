@@ -649,30 +649,23 @@ class FdStreamBuf : public bsl::streambuf {
     enum { k_PBACK_BUF_SIZE = 8 }; // size of d_pBackBuf
 
     enum FdStreamBufMode  {
-//ARB:ENUM 652
         e_NULL_MODE          = 0,  // empty state, when not in any other
                                        // mode; the object is constructed in
                                        // this state
 
-//ARB:ENUM 656
         e_INPUT_MODE         = 1,  // doing input
 
-//ARB:ENUM 658
         e_INPUT_PUTBACK_MODE = 2,  // input putback mode is a form of input
                                        // mode where chars that have been
                                        // stuffed back into the input buffer
                                        // are kept in 'd_pBackBuf'.
 
-//ARB:ENUM 663
         e_OUTPUT_MODE        = 3,  // doing output
 
-//ARB:ENUM 665
         e_ERROR_MODE         = 4   // An error has occured.  Note that
                                        // error mode is sticky -- subsequent
                                        // I/O won't work until error mode is
                                        // cleared by a 'reset' or a seek.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

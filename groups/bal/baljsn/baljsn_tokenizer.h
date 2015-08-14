@@ -194,23 +194,15 @@ class Tokenizer {
         // This 'enum' lists the possible contexts that the tokenizer can be
         // in.
 
-//ARB:ENUM 187
         e_OBJECT_CONTEXT = 1,         // object context
-//ARB:ENUM 188
         e_ARRAY_CONTEXT               // array context
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // Intermediate data buffer used for reading data from the stream.
 
     enum {
-//ARB:ENUM 194
         k_BUFSIZE = 1024 * 8,
-//ARB:ENUM 195
         k_MAX_STRING_SIZE = k_BUFSIZE - 1
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
