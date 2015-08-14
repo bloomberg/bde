@@ -152,6 +152,8 @@ int bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::getValue() const
 
 #endif  // BSLS_PLATFORM_OS_DARWIN
 
+#endif
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

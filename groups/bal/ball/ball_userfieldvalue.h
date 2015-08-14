@@ -123,9 +123,8 @@ class UserFieldValue {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(UserFieldValue,
-                                   bslma::UsesBslmaAllocator);
-
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFieldValue, bslma::UsesBslmaAllocator);
+        
     // CREATORS
     explicit UserFieldValue(bslma::Allocator *basicAllocator = 0);
         // Create a user field value having the unset value.  Optionally

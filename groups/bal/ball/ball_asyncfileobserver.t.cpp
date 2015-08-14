@@ -19,9 +19,11 @@
 #include <bdlt_datetimeutil.h>
 #include <bdlt_currenttime.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -310,11 +312,12 @@ bsl::string tempFileName(bool verboseFlag)
 }
 
 bsl::string readPartialFile(bsl::string& fileName, int startOffset)
-    // read everything after offset 'startOffset' from a file and return it
-    // as a string.
+    // read everything after offset 'startOffset' from a file and return it as
+    // a string.
 {
     bsl::string result;
-    result.reserve(bdlsu::FilesystemUtil::getFileSize(fileName) + 1 - startOffset);
+    result.reserve(
+        bdlsu::FilesystemUtil::getFileSize(fileName) + 1 - startOffset);
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
@@ -446,6 +449,7 @@ class LogRotationCallbackTester {
     bsl::shared_ptr<Rep> d_rep;
 
   public:
+
     // PUBLIC CONSTANTS
 
     enum {
@@ -519,7 +523,7 @@ void executeInParallel(int                               numThreads,
    // Create the specified 'numThreads', each executing the specified 'func'.
 {
     bdlqq::ThreadUtil::Handle *threads =
-                                      new bdlqq::ThreadUtil::Handle[numThreads];
+                                     new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
@@ -535,7 +539,7 @@ void executeInParallel(int                               numThreads,
 extern "C" void *workerThread(void *arg)
 {
     BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
-    (void *)arg;
+    (void)arg;
 
     for (int i = 0;i < 10000; ++i) {
         BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test "
@@ -867,10 +871,10 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                    ball::Severity::BAEL_OFF,
+                                                    ball::Severity::BAEL_TRACE,
+                                                    ball::Severity::BAEL_OFF,
+                                                    ball::Severity::BAEL_OFF));
         ball::LoggerManager::initSingleton(&mX, configuration);
 
         mX.enableFileLogging(fileName.c_str());
@@ -879,8 +883,8 @@ int main(int argc, char *argv[])
 
         int numThreads = 4;
 
-        // First test if concurrent publish is correct, check the total
-        // number of lines afterwards
+        // First test if concurrent publish is correct, check the total number
+        // of lines afterwards
 
         if (verbose)
             cout << "Running first concurrency test." << endl;
@@ -932,10 +936,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                    ball::Severity::BAEL_OFF,
+                                                    ball::Severity::BAEL_TRACE,
+                                                    ball::Severity::BAEL_OFF,
+                                                    ball::Severity::BAEL_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -991,8 +995,8 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
 
-            ASSERT(1 ==
-                   bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == bdlsu::FilesystemUtil::exists(
+                                                cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"
@@ -1048,8 +1052,8 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
-        // Don't run this if we're in the debugger because the debugger
-        // stops and refuses to continue when we hit the file size limit.
+        // Don't run this if we're in the debugger because the debugger stops
+        // and refuses to continue when we hit the file size limit.
 
         if (verbose) cerr << "Testing output when the stream fails"
                           << " (UNIX only)."
@@ -1095,11 +1099,11 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
 
-            // We want to capture the error message that will be
-            // written to stderr (not cerr).  Redirect stderr to a
-            // file.  We can't redirect it back; we'll have to use
-            // 'ASSERT2' (which outputs to cout, not cerr) from now on
-            // and report a summary to to cout at the end of this case.
+            // We want to capture the error message that will be written to
+            // stderr (not cerr).  Redirect stderr to a file.  We can't
+            // redirect it back; we'll have to use 'ASSERT2' (which outputs to
+            // cout, not cerr) from now on and report a summary to to cout at
+            // the end of this case.
 
             bsl::string stderrFN = tempFileName(veryVerbose);
             ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
@@ -1171,8 +1175,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                                   ball::Severity::BAEL_OFF,
@@ -1423,9 +1427,12 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
-                ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) == 
+                       X.rotationLifetime());
+
                 mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
-                ASSERT(bdlt::DatetimeInterval(0,0,0,3) == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0,0,0,3) == 
+                       X.rotationLifetime());
                 bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -1948,9 +1955,9 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
             int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
-            // these two lines are a desperate kludge to make windows
-            // work -- this test driver works everywhere else without
-            // them.
+            // these two lines are a desperate kludge to make windows work --
+            // this test driver works everywhere else without them.
+
             (void) readPartialFile(fileName, 0);
             fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
@@ -2374,9 +2381,6 @@ int main(int argc, char *argv[])
                     // UTC and local time are on the same day
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
 
-                    // skong: This is a bug, you can not figure out if they
-                    // are on the same day with only two hour numbers.
-                    //ASSERT(dos.str() == coutS);
                 }
                 else if (coutS.length() >= 11) {
                     // UTC and local time are on different days.  Ignore
@@ -3048,8 +3052,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
 
-            // Now see what happens with customized format.  Notice that
-            // we intentionally use the default short format.
+            // Now see what happens with customized format.  Notice that we
+            // intentionally use the default short format.
 
             const char *newLogFileFormat = "\n%s %f:%l %c %m %u\n";
             const char *newStdoutFormat  = "\n%s %f:%l %c %m %u\n";
@@ -3068,8 +3072,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
 
             // stdoutFormat should change, since even if we are now using
-            // customized formats, the format happens to be the same as
-            // the default short format.
+            // customized formats, the format happens to be the same as the
+            // default short format.
         }
 
         if (verbose) cerr << "Testing publication shutdown."

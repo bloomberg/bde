@@ -284,9 +284,12 @@ bsl::size_t ArrayUtil::length(TYPE (&)[LENGTH])
 {
     return LENGTH;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

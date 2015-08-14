@@ -98,6 +98,8 @@ bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::wait()
 
 }  // close namespace BloombergLP
 
+#endif  // BSLS_PLATFORM_OS_DARWIN
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

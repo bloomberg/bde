@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // utilities that are used to create categories, and to set and access their
 // threshold levels.
 //
-// First we initializate the logger manager (for the purposes of this example,
+// First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
 //     ball::DefaultObserver observer(cout);
@@ -54,18 +54,18 @@ BSLS_IDENT("$Id: $")
 // of category names.
 //
 // In the following, the 'addCategory' method is used to define a category for
-// each of the category names in 'equityCategories'.  The threshold levels
-// for each of the categories are set to slightly different values to help
+// each of the category names in 'equityCategories'.  The threshold levels for
+// each of the categories are set to slightly different values to help
 // distinguish them when they are printed later.  The 'addCategory' method
 // returns the address of the new category:
 //..
 //     for (int i = 0; i < NUM_CATEGORIES; ++i) {
 //         int retValue = ball::Administration::addCategory(
-//                                              equityCategories[i],
-//                                              ball::Severity::BAEL_TRACE + i,
-//                                              ball::Severity::BAEL_WARN  + i,
-//                                              ball::Severity::BAEL_ERROR + i,
-//                                              ball::Severity::BAEL_FATAL + i);
+//                                             equityCategories[i],
+//                                             ball::Severity::BAEL_TRACE + i,
+//                                             ball::Severity::BAEL_WARN  + i,
+//                                             ball::Severity::BAEL_ERROR + i,
+//                                             ball::Severity::BAEL_FATAL + i);
 //         assert(0 == retValue);  // added new category
 //     }
 //..
@@ -122,11 +122,11 @@ BSLS_IDENT("$Id: $")
 //     for (int i = 0; i < NUM_CATEGORIES; ++i) {
 //         const int returnValue =
 //                   ball::Administration::setThresholdLevels(
-//                                              equityCategories[i],
-//                                              ball::Severity::BAEL_TRACE - i,
-//                                              ball::Severity::BAEL_WARN  - i,
-//                                              ball::Severity::BAEL_ERROR - i,
-//                                              ball::Severity::BAEL_FATAL - i);
+//                                             equityCategories[i],
+//                                             ball::Severity::BAEL_TRACE - i,
+//                                             ball::Severity::BAEL_WARN  - i,
+//                                             ball::Severity::BAEL_ERROR - i,
+//                                             ball::Severity::BAEL_FATAL - i);
 //         assert(1 == returnValue);  // modified one category
 //     }
 //..
@@ -175,9 +175,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                      // ==========================
+                      // =====================
                       // struct Administration
-                      // ==========================
+                      // =====================
 
 struct Administration {
     // This struct provides a namespace for a suite of utility functions that
@@ -316,7 +316,7 @@ struct Administration {
 }  // close package namespace
 
 // ============================================================================
-//                       INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
 // NONE BY DESIGN

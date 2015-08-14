@@ -134,6 +134,8 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
+#endif  // INCLUDED_BDLAT_BDEATOVERRIDES
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

@@ -4,36 +4,38 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 
-#ifdef FOR_TESTING_ONLY
 #include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
-#endif
 
 #include <bdlqq_lockguard.h>
+#include <bdlqq_threadattributes.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlsu_processutil.h>
-#include <bdlt_currenttime.h>
 
+#include <bdlt_currenttime.h>
 #include <bslma_default.h>
+#include <bsls_assert.h>
+
 #include <bsl_iostream.h>
 
 // IMPLEMENTATION NOTE: 'shutdownThread' clears the queue in order to simplify
 // the implementation.  To guarantee that a thread sees the
-// 'd_shuttingDownFlag' a ('ball::Transmission::BAEL_END') record is
-// appended to the queue, otherwise the publication thread may be blocked
-// indefinitely on 'popFront'.  Unfortunately that potentially leaves a bogus
-// record in the queue after the publication thread is shutdown -- to avoid
-// dealing with that record (when the thread is restarted) the queue is
-// cleared.  Alternative designs are possible, but are not perceived to be
-// worth the added complexity.
+// 'd_shuttingDownFlag' a ('ball::Transmission::BAEL_END') record is appended
+// to the queue, otherwise the publication thread may be blocked indefinitely
+// on 'popFront'.  Unfortunately that potentially leaves a bogus record in the
+// queue after the publication thread is shutdown -- to avoid dealing with that
+// record (when the thread is restarted) the queue is cleared.  Alternative
+// designs are possible, but are not perceived to be worth the added
+// complexity.
 
 namespace BloombergLP {
+namespace ball {
 
                        // ----------------------------
                        // class ball::AsyncFileObserver
@@ -42,15 +44,15 @@ namespace BloombergLP {
 namespace {
 
 enum {
-    DEFAULT_FIXED_QUEUE_SIZE     =  8192,
-    FORCE_WARN_THRESHOLD         =  5000
+    DEFAULT_FIXED_QUEUE_SIZE = 8192,
+    FORCE_WARN_THRESHOLD     = 5000
 };
 
-const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
+static const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
 
-static void populateWarnRecord(ball::Record         *record,
-                               int                  lineNumber,
-                               int                  numDropped)
+static void populateWarnRecord(ball::Record *record,
+                               int           lineNumber,
+                               int           numDropped)
     // Load the specified 'record' with a warning message indicating the
     // specified 'numDropped' records have been dropped as recorded at the
     // specified 'lineNumber'.
@@ -64,7 +66,7 @@ static void populateWarnRecord(ball::Record         *record,
 
 }  // close unnamed namespace
 
-namespace ball {
+
 // PRIVATE METHODS
 void AsyncFileObserver::logDroppedMessageWarning(int numDropped)
 {
@@ -190,9 +192,8 @@ void AsyncFileObserver::construct()
 }
 
 // CREATORS
-AsyncFileObserver::AsyncFileObserver(
-                                         Severity::Level  stdoutThreshold,
-                                         bslma::Allocator     *basicAllocator)
+AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
+                                     bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
@@ -203,10 +204,9 @@ AsyncFileObserver::AsyncFileObserver(
     construct();
 }
 
-AsyncFileObserver::AsyncFileObserver(
-                                      Severity::Level  stdoutThreshold,
-                                      bool                  publishInLocalTime,
-                                      bslma::Allocator     *basicAllocator)
+AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
+                                     bool              publishInLocalTime,
+                                     bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
@@ -218,11 +218,10 @@ AsyncFileObserver::AsyncFileObserver(
 }
 
 
-AsyncFileObserver::AsyncFileObserver(
-                                      Severity::Level  stdoutThreshold,
-                                      bool                  publishInLocalTime,
-                                      int                   maxRecordQueueSize,
-                                      bslma::Allocator     *basicAllocator)
+AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
+                                     bool              publishInLocalTime,
+                                     int               maxRecordQueueSize,
+                                     bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_shuttingDownFlag(0)
@@ -234,11 +233,11 @@ AsyncFileObserver::AsyncFileObserver(
 }
 
 AsyncFileObserver::AsyncFileObserver(
-                         Severity::Level  stdoutThreshold,
-                         bool                  publishInLocalTime,
-                         int                   maxRecordQueueSize,
-                         Severity::Level  dropRecordsOnFullQueueThreshold,
-                         bslma::Allocator     *basicAllocator)
+                             Severity::Level   stdoutThreshold,
+                             bool              publishInLocalTime,
+                             int               maxRecordQueueSize,
+                             Severity::Level   dropRecordsOnFullQueueThreshold,
+                             bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_shuttingDownFlag(0)
@@ -267,9 +266,8 @@ void AsyncFileObserver::releaseRecords()
     }
 }
 
-void AsyncFileObserver::publish(
-                const bsl::shared_ptr<const Record>& record,
-                const Context&                       context)
+void AsyncFileObserver::publish(const bsl::shared_ptr<const Record>& record,
+                                const Context&                       context)
 {
     AsyncRecord asyncRecord;
     asyncRecord.d_record  = record;

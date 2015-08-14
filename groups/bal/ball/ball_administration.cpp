@@ -11,6 +11,8 @@ BSLS_IDENT_RCSID(ball_administration_cpp,"$Id$ $CSID$")
 #include <ball_defaultobserver.h>         // for testing only
 #include <ball_testobserver.h>            // for testing only
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 
 namespace ball {
@@ -21,22 +23,22 @@ namespace ball {
 // CLASS METHODS
 
 int Administration::addCategory(const char *categoryName,
-                                     int         recordLevel,
-                                     int         passLevel,
-                                     int         triggerLevel,
-                                     int         triggerAllLevel)
+                                int         recordLevel,
+                                int         passLevel,
+                                int         triggerLevel,
+                                int         triggerAllLevel)
 {
     return 0 == LoggerManager::singleton().addCategory(categoryName,
-                                                            recordLevel,
-                                                            passLevel,
-                                                            triggerLevel,
-                                                            triggerAllLevel);
+                                                       recordLevel,
+                                                       passLevel,
+                                                       triggerLevel,
+                                                       triggerAllLevel);
 }
 
 int Administration::setAllThresholdLevels(int recordLevel,
-                                               int passLevel,
-                                               int triggerLevel,
-                                               int triggerAllLevel)
+                                          int passLevel,
+                                          int triggerLevel,
+                                          int triggerAllLevel)
 {
     int rc = setDefaultThresholdLevels(recordLevel,
                                        passLevel,
@@ -61,9 +63,9 @@ int Administration::setAllThresholdLevels(int recordLevel,
 }
 
 int Administration::setDefaultThresholdLevels(int recordLevel,
-                                                   int passLevel,
-                                                   int triggerLevel,
-                                                   int triggerAllLevel)
+                                              int passLevel,
+                                              int triggerLevel,
+                                              int triggerAllLevel)
 {
     return LoggerManager::singleton().setDefaultThresholdLevels(
                                                               recordLevel,
@@ -73,10 +75,10 @@ int Administration::setDefaultThresholdLevels(int recordLevel,
 }
 
 int Administration::setThresholdLevels(const char *regularExpression,
-                                            int         recordLevel,
-                                            int         passLevel,
-                                            int         triggerLevel,
-                                            int         triggerAllLevel)
+                                       int         recordLevel,
+                                       int         passLevel,
+                                       int         triggerLevel,
+                                       int         triggerAllLevel)
 {
     return LoggerCategoryUtil::setThresholdLevels(
                                               &LoggerManager::singleton(),
