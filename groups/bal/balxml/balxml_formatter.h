@@ -276,19 +276,15 @@ class Formatter {
         // This describes options available when outputting textual data
         // of an element between its pair of opening and closing tags.
 
-//ARB:ENUM 279
         e_PRESERVE_WHITESPACE,  // data is output as is
 
-//ARB:ENUM 281
         e_WORDWRAP,             // data may be wrapped if output otherwise
                                      // exceeds the wrap column
 
-//ARB:ENUM 284
         e_WORDWRAP_INDENT,      // in addition to allowing wrapping,
                                      // indent properly before continuing to
                                      // output on the next line after wrapping
 
-//ARB:ENUM 288
         e_NEWLINE_INDENT        // in addition to allowing wrapping and
                                      // indentation, the tags do not share
                                      // their respective lines with data

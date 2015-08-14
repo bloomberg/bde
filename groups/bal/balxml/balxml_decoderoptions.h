@@ -71,11 +71,8 @@ class DecoderOptions {
   public:
     // TYPES
     enum {
-//ARB:ENUM 74
         e_ATTRIBUTE_ID_MAX_DEPTH             = 0
-//ARB:ENUM 75
       , e_ATTRIBUTE_ID_FORMATTING_MODE       = 1
-//ARB:ENUM 76
       , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 2
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_MAX_DEPTH = e_ATTRIBUTE_ID_MAX_DEPTH
@@ -85,7 +82,6 @@ class DecoderOptions {
     };
 
     enum {
-//ARB:ENUM 80
         k_NUM_ATTRIBUTES = 3
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
@@ -93,11 +89,8 @@ class DecoderOptions {
     };
 
     enum {
-//ARB:ENUM 84
         e_ATTRIBUTE_INDEX_MAX_DEPTH             = 0
-//ARB:ENUM 85
       , e_ATTRIBUTE_INDEX_FORMATTING_MODE       = 1
-//ARB:ENUM 86
       , e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 2
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_MAX_DEPTH = e_ATTRIBUTE_INDEX_MAX_DEPTH

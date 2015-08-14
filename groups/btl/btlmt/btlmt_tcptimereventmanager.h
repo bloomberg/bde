@@ -366,11 +366,9 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // DEPRECATED: The enumerated hints are not supported and will be
         // ignored by this component.
 
-//ARB:ENUM 369
         e_NO_HINT,                 // The (de)registrations will likely be
                                        // frequent.
 
-//ARB:ENUM 372
         e_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
                                        // infrequent.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

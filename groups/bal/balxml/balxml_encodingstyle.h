@@ -63,9 +63,7 @@ struct EncodingStyle {
   public:
     // TYPES
     enum Value {
-//ARB:ENUM 66
         e_COMPACT = 0
-//ARB:ENUM 67
       , e_PRETTY  = 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEXML_COMPACT = e_COMPACT
@@ -76,7 +74,6 @@ struct EncodingStyle {
     };
 
     enum {
-//ARB:ENUM 75
         k_NUM_ENUMERATORS = 2
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ENUMERATORS = k_NUM_ENUMERATORS

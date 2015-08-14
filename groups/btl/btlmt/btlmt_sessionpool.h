@@ -623,25 +623,15 @@ class SessionPool {
     enum SessionState{
         // Result code passed to the session callback.
 
-//ARB:ENUM 626
         e_SESSION_UP = 1              // new session has been allocated
-//ARB:ENUM 627
       , e_SESSION_DOWN = 2            // session went down
-//ARB:ENUM 628
       , e_SESSION_ALLOC_FAILED = 3    // session allocation failed
-//ARB:ENUM 629
       , e_SESSION_STARTUP_FAILED = 4  // the call to 'start' failed
-//ARB:ENUM 630
       , e_WRITE_CACHE_LOWWAT = 5      // write cache low watermark reached
-//ARB:ENUM 631
       , e_WRITE_CACHE_HIWAT = 6       // write cache high watermark reached
-//ARB:ENUM 632
       , e_ACCEPT_FAILED = 7           // accept failed
-//ARB:ENUM 633
       , e_CONNECT_ATTEMPT_FAILED = 8  // a connection attempt failed
-//ARB:ENUM 634
       , e_CONNECT_FAILED = 9          // the connection initiation failed
-//ARB:ENUM 635
       , e_CONNECT_ABORTED = 10        // session was shutdown before the
                                     // connection could be established
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -662,11 +652,9 @@ class SessionPool {
         // Mode indicating whether to perform name resolution at each connect
         // attempt in 'connect'.
 
-//ARB:ENUM 643
         e_RESOLVE_ONCE            = 0,  // perform resolution once prior to the
                                       // first connect attempt
 
-//ARB:ENUM 646
         e_RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
                                       // connect attempt
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -681,7 +669,6 @@ class SessionPool {
         // 'ACCEPT_FAILED' are passed to both the session and the pool
         // callbacks.
 
-//ARB:ENUM 656
         e_SESSION_LIMIT_REACHED = 1   // cannot create more sessions
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SESSION_LIMIT_REACHED = e_SESSION_LIMIT_REACHED

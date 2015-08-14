@@ -411,15 +411,10 @@ class Base64Decoder {
     enum {
         // Symbolic state values.
 
-//ARB:ENUM 414
         e_ERROR_STATE      = -1, // input is irreparably invalid
-//ARB:ENUM 415
         e_INPUT_STATE      =  0, // general input state
-//ARB:ENUM 416
         e_NEED_EQUAL_STATE =  1, // need an '='
-//ARB:ENUM 417
         e_SOFT_DONE_STATE  =  2, // only ignorable input and 'endConvert'
-//ARB:ENUM 418
         e_DONE_STATE       =  3  // any additional input is an error
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEDE_ERROR_STATE = e_ERROR_STATE

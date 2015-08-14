@@ -112,11 +112,8 @@ struct LocalTimeValidity {
   public:
     // TYPES
     enum Enum {
-//ARB:ENUM 115
         e_VALID_UNIQUE,     // Local time is *valid* and *unique*.
-//ARB:ENUM 116
         e_VALID_AMBIGUOUS,  // Local time is *valid*, but *ambiguous*.
-//ARB:ENUM 117
         e_INVALID           // Local time is *invalid*.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

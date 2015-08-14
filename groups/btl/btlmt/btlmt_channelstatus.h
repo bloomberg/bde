@@ -152,12 +152,10 @@ struct ChannelStatus {
   public:
     // TYPES
     enum Enum {
-//ARB:ENUM 155
         e_SUCCESS            =  0,  // The write request was successfully
                                         // enqueued or has been successfully
                                         // written synchronously.
 
-//ARB:ENUM 159
         e_CACHE_OVERFLOW     = -1,  // The write request failed because the
                                         // existing write cache size (not
                                         // including the size of the message
@@ -168,24 +166,20 @@ struct ChannelStatus {
                                         // modified after construction of the
                                         // object managing the channels.
 
-//ARB:ENUM 169
         e_CACHE_HIGHWATER    = -2,  // The write request failed because the
                                         // existing write cache size after the
                                         // current message gets enqueued will
                                         // be greater than the write cache
                                         // high-water mark.
 
-//ARB:ENUM 175
         e_READ_CHANNEL_DOWN  = -6,  // The read request falied because the
                                         // read part of the channel had already
                                         // been closed.
 
-//ARB:ENUM 179
         e_WRITE_CHANNEL_DOWN = -3,  // The write request failed because the
                                         // write part of the channel had
                                         // already been closed.
 
-//ARB:ENUM 183
         e_ENQUEUE_HIGHWATER  = -4,  // The write request failed because the
                                         // existing write cache size (not
                                         // including the size of the message
@@ -193,7 +187,6 @@ struct ChannelStatus {
                                         // enqueued cache high-water mark
                                         // provided as a function argument.
 
-//ARB:ENUM 190
         e_UNKNOWN_ID         = -5,  // The write request failed because the
                                         // channel identified by an specified
                                         // id does not exist.

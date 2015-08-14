@@ -288,7 +288,6 @@ class ChannelPoolConfiguration {
   public:
     // TYPES
     enum {
-//ARB:ENUM 291
         k_NUM_ATTRIBUTES = 14 // the number of attributes in this class
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
@@ -296,46 +295,32 @@ class ChannelPoolConfiguration {
     };
 
     enum {
-//ARB:ENUM 295
         e_ATTRIBUTE_INDEX_MAX_CONNECTIONS      = 0,
             // index for 'MaxConnections' attribute
-//ARB:ENUM 297
         e_ATTRIBUTE_INDEX_MAX_THREADS          = 1,
             // index for 'MaxThreads' attribute
-//ARB:ENUM 299
         e_ATTRIBUTE_INDEX_READ_TIMEOUT         = 2,
             // index for 'ReadTimeout' attribute
-//ARB:ENUM 301
         e_ATTRIBUTE_INDEX_METRICS_INTERVAL     = 3,
             // index for 'MetricsInterval' attribute
-//ARB:ENUM 303
         e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = 4,
             // index for 'MinMessageSizeOut' attribute
-//ARB:ENUM 305
         e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = 5,
             // index for 'TypMessageSizeOut' attribute
-//ARB:ENUM 307
         e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = 6,
             // index for 'MaxMessageSizeOut' attribute
-//ARB:ENUM 309
         e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN  = 7,
             // index for 'MinMessageSizeIn' attribute
-//ARB:ENUM 311
         e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN  = 8,
             // index for 'TypMessageSizeIn' attribute
-//ARB:ENUM 313
         e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  = 9,
             // index for 'MaxMessageSizeIn' attribute
-//ARB:ENUM 315
         e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  = 10,
             // index for 'WriteCacheLowWat' attribute
-//ARB:ENUM 317
         e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   = 11,
             // index for 'WriteCacheHiWat' attribute
-//ARB:ENUM 319
         e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
             // index for 'ThreadStackSize' attribute
-//ARB:ENUM 321
         e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
             // index for 'CollectTimeMetrics' attribute
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -357,46 +342,32 @@ class ChannelPoolConfiguration {
     };
 
     enum {
-//ARB:ENUM 326
         e_ATTRIBUTE_ID_MAX_CONNECTIONS         = 1,
             // id for 'MaxConnections' attribute
-//ARB:ENUM 328
         e_ATTRIBUTE_ID_MAX_THREADS             = 2,
             // id for 'MaxThreads' attribute
-//ARB:ENUM 330
         e_ATTRIBUTE_ID_READ_TIMEOUT            = 3,
             // id for 'ReadTimeout' attribute
-//ARB:ENUM 332
         e_ATTRIBUTE_ID_METRICS_INTERVAL        = 4,
             // id for 'MetricsInterval' attribute
-//ARB:ENUM 334
         e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT    = 5,
             // id for 'MinMessageSizeOut' attribute
-//ARB:ENUM 336
         e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT    = 6,
             // id for 'TypMessageSizeOut' attribute
-//ARB:ENUM 338
         e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT    = 7,
             // id for 'MaxMessageSizeOut' attribute
-//ARB:ENUM 340
         e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN     = 8,
             // id for 'MinMessageSizeIn' attribute
-//ARB:ENUM 342
         e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN     = 9,
             // id for 'TypMessageSizeIn' attribute
-//ARB:ENUM 344
         e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN     = 10,
             // id for 'MaxMessageSizeIn' attribute
-//ARB:ENUM 346
         e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT     = 11,
             // id for 'WriteCacheLowWat' attribute
-//ARB:ENUM 348
         e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT      = 12,
             // id for 'WriteCacheHiWat' attribute
-//ARB:ENUM 350
         e_ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
             // id for 'ThreadStackSize' attribute
-//ARB:ENUM 352
         e_ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
             // id for 'CollectTimeMetrics' attribute
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

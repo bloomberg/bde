@@ -75,31 +75,19 @@ struct bdlat_FormattingMode {
     // CONSTANTS
     enum {
         // bit-field: original type (i.e., schema type)
-//ARB:ENUM 78
         e_DEFAULT   = 0x0,  // default formatting mode
-//ARB:ENUM 79
         e_DEC       = 0x1,  // use decimal format
-//ARB:ENUM 80
         e_HEX       = 0x2,  // use hexadecimal format
-//ARB:ENUM 81
         e_BASE64    = 0x3,  // use base64 format
-//ARB:ENUM 82
         e_TEXT      = 0x4,  // use text format
-//ARB:ENUM 83
         k_TYPE_MASK = 0x7,  // mask for type bit-field
 
         // formatting flags
-//ARB:ENUM 86
         k_UNTAGGED       = 0x00010000,  // use untagged formatting
-//ARB:ENUM 87
         k_ATTRIBUTE      = 0x00020000,  // use attribute formatting
-//ARB:ENUM 88
         k_SIMPLE_CONTENT = 0x00040000,  // use simple content formatting
-//ARB:ENUM 89
         k_NILLABLE       = 0x00080000,  // use nillable formatting
-//ARB:ENUM 90
         k_LIST           = 0x00100000,  // use list format (for arrays)
-//ARB:ENUM 91
         k_FLAGS_MASK     = 0x001F0000   // mask for formatting flags
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

@@ -1025,7 +1025,6 @@ struct VariantImp_Traits {
 
   public:
     enum {
-//ARB:ENUM 1026
         k_VARIANT_USES_BSLMA_ALLOCATOR = (
             bslma::UsesBslmaAllocator< Type1>::value
          || bslma::UsesBslmaAllocator< Type2>::value
@@ -1048,7 +1047,6 @@ struct VariantImp_Traits {
          || bslma::UsesBslmaAllocator<Type19>::value
          || bslma::UsesBslmaAllocator<Type20>::value),
 
-//ARB:ENUM 1048
         k_VARIANT_IS_BITWISE_COPYABLE = (
             bsl::is_trivially_copyable< Type1>::value
          && bsl::is_trivially_copyable< Type2>::value
@@ -1071,7 +1069,6 @@ struct VariantImp_Traits {
          && bsl::is_trivially_copyable<Type19>::value
          && bsl::is_trivially_copyable<Type20>::value),
 
-//ARB:ENUM 1070
         k_VARIANT_IS_BITWISE_MOVEABLE = (
             bslmf::IsBitwiseMoveable< Type1>::value
          && bslmf::IsBitwiseMoveable< Type2>::value

@@ -409,11 +409,8 @@ class Base64Encoder {
     enum {
         // Symbolic state values.
 
-//ARB:ENUM 412
         k_ERROR_STATE     = -1, // Input is irreparably invalid.
-//ARB:ENUM 413
         e_INITIAL_STATE   =  0, // Ready to accept input.
-//ARB:ENUM 414
         e_DONE_STATE      =  1  // Any additional input is an error.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEDE_ERROR_STATE = k_ERROR_STATE

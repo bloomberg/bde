@@ -168,21 +168,13 @@ class Tokenizer {
     enum TokenType {
         // This 'enum' lists all the possible token types.
 
-//ARB:ENUM 171
         e_BEGIN = 1,                  // starting token
-//ARB:ENUM 172
         e_ELEMENT_NAME,               // element name
-//ARB:ENUM 173
         e_START_OBJECT,               // start of an object ('{')
-//ARB:ENUM 174
         e_END_OBJECT,                 // end of an object   ('}')
-//ARB:ENUM 175
         e_START_ARRAY,                // start of an array  ('[')
-//ARB:ENUM 176
         e_END_ARRAY,                  // end of an array    (']')
-//ARB:ENUM 177
         e_ELEMENT_VALUE,              // element value of a simple type
-//ARB:ENUM 178
         e_ERROR                       // error token
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEJSN_BEGIN = e_BEGIN

@@ -174,15 +174,10 @@ struct Float {
         // bit-patterns to make it easy to create a "set" of classifications
         // using bit-wise OR.
 
-//ARB:ENUM 177
         k_ZERO      = 0x01, // positive or negative zero
-//ARB:ENUM 178
         k_NORMAL    = 0x02, // full-precision, non-zero, normal number
-//ARB:ENUM 179
         k_SUBNORMAL = 0x04, // reduced-precision numb with a small abs value
-//ARB:ENUM 180
         k_INFINITE  = 0x08, // positive or negative infinity
-//ARB:ENUM 181
         k_NAN       = 0x10  // not a number
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDES_ZERO = k_ZERO
@@ -199,30 +194,18 @@ struct Float {
         // from signaling NaNs.  Every floating-point number belongs to
         // exactly one of these classifications.
 
-//ARB:ENUM 190
         k_NEGATIVE           = 0x8000,  // Bit for negative floats
-//ARB:ENUM 191
         k_SIGNALING          = 0x4000,  // Bit for signaling NaNs
 
-//ARB:ENUM 193
         k_POSITIVE_INFINITY  = BDES_INFINITE,
-//ARB:ENUM 194
         k_NEGATIVE_INFINITY  = BDES_INFINITE | BDES_NEGATIVE,
-//ARB:ENUM 195
         k_QNAN               = BDES_NAN,
-//ARB:ENUM 196
         k_SNAN               = BDES_NAN | BDES_SIGNALING,
-//ARB:ENUM 197
         k_POSITIVE_NORMAL    = BDES_NORMAL,
-//ARB:ENUM 198
         k_NEGATIVE_NORMAL    = BDES_NORMAL | BDES_NEGATIVE,
-//ARB:ENUM 199
         k_POSITIVE_SUBNORMAL = BDES_SUBNORMAL,
-//ARB:ENUM 200
         k_NEGATIVE_SUBNORMAL = BDES_SUBNORMAL | BDES_NEGATIVE,
-//ARB:ENUM 201
         k_POSITIVE_ZERO      = BDES_ZERO,
-//ARB:ENUM 202
         k_NEGATIVE_ZERO      = BDES_ZERO | BDES_NEGATIVE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDES_NEGATIVE = k_NEGATIVE

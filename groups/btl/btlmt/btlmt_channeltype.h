@@ -63,13 +63,9 @@ struct ChannelType {
   public:
     // TYPES
     enum Value {
-//ARB:ENUM 66
         e_LISTENING_CHANNEL = 1,
-//ARB:ENUM 67
         e_ACCEPTED_CHANNEL,
-//ARB:ENUM 68
         e_CONNECTING_CHANNEL,
-//ARB:ENUM 69
         e_CONNECTED_CHANNEL,
         BTEMT_IMPORTED_CHANNEL
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -86,7 +82,6 @@ struct ChannelType {
     };
 
     enum {
-//ARB:ENUM 80
         e_LENGTH = BTEMT_IMPORTED_CHANNEL
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTEMT_LENGTH = e_LENGTH

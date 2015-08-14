@@ -73,21 +73,13 @@ struct MemoryUtil {
 
     // TYPES
     enum Access {
-//ARB:ENUM 76
         k_ACCESS_NONE          = 0,
-//ARB:ENUM 77
         k_ACCESS_READ          = 0x1,
-//ARB:ENUM 78
         k_ACCESS_WRITE         = 0x2,
-//ARB:ENUM 79
         k_ACCESS_EXECUTE       = 0x4,
-//ARB:ENUM 80
         k_ACCESS_READ_WRITE    = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE,
-//ARB:ENUM 81
         k_ACCESS_READ_EXECUTE  = BDESU_ACCESS_READ | BDESU_ACCESS_EXECUTE,
-//ARB:ENUM 82
         k_ACCESS_WRITE_EXECUTE = BDESU_ACCESS_WRITE | BDESU_ACCESS_EXECUTE,
-//ARB:ENUM 84
         k_ACCESS_READ_WRITE_EXECUTE
                                    = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE
                                    | BDESU_ACCESS_EXECUTE

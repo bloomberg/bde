@@ -65,11 +65,9 @@ struct CharConvertStatus {
   public:
     // TYPES
     enum Enum {
-//ARB:ENUM 68
         k_INVALID_CHARS_BIT = 0x1,      // Invalid characters or sequences
                                             // of characters were encountered
                                             // in the input.
-//ARB:ENUM 71
         k_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the
                                             // output was insufficient for the
                                             // translation.

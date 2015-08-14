@@ -122,7 +122,6 @@ class RuleSet {
         // indicate rule subsets compactly.
 
     enum {
-//ARB:ENUM 125
         e_MAX_NUM_RULES = 8 * sizeof(MaskType)
            // The maximum number of rules managed by this object.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

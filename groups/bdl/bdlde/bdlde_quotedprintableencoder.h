@@ -440,15 +440,10 @@ class QuotedPrintableEncoder {
     enum States {
         // symbolic state values for the encoder
 
-//ARB:ENUM 443
         e_ERROR_STATE   = -1,  // input is irreparably invalid
-//ARB:ENUM 444
         e_INITIAL_STATE = 0,   // require no more input
-//ARB:ENUM 445
         e_INPUT_STATE   = 1,   // general input state
-//ARB:ENUM 446
         e_DONE_STATE    = 2,   // accepting; any additional input is error
-//ARB:ENUM 447
         e_SAW_CR_STATE  = 3    // TBD doc
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEDE_ERROR_STATE = e_ERROR_STATE
@@ -460,7 +455,6 @@ class QuotedPrintableEncoder {
     };
 
     enum {
-//ARB:ENUM 451
         e_DEFAULT_MAX_LINELEN = -1   // a flag to indicate that the default
                                    // s_defaultMaxLineLength is to be used;
                                    // this device prevents recompilation of the
@@ -477,15 +471,10 @@ class QuotedPrintableEncoder {
     enum EquivalenceClass {
         // The input equivalence classes
 
-//ARB:ENUM 464
         e_PC = 0,  // printable character - copy straight to output
-//ARB:ENUM 465
         e_CR,      // carriage return     - wait for more input
-//ARB:ENUM 466
         e_LF,      // line feed           - complete linebreak
-//ARB:ENUM 467
         e_WS,      // whitespace          - buffer; wait for more input
-//ARB:ENUM 468
         e_CC       // control character   - encode to Quoted Printable
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEDE_PC = e_PC
@@ -500,14 +489,11 @@ class QuotedPrintableEncoder {
         // Configuration governing how various forms of line breaks are to be
         // interpreted
 
-//ARB:ENUM 475
         e_CRLF_MODE = 0,  // only allow "\r\n" linebreaks
 
-//ARB:ENUM 477
         e_LF_MODE,        // only allow '\n' linebreaks (without the '\r'
                               // prefix)
 
-//ARB:ENUM 480
         e_MIXED_MODE      // allow both "\r\n" and '\n'
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEDE_CRLF_MODE = e_CRLF_MODE

@@ -87,7 +87,6 @@ struct ErrorCode {
   public:
     // TYPES
     enum Enum {
-//ARB:ENUM 90
         e_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

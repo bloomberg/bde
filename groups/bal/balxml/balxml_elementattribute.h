@@ -262,22 +262,18 @@ class ElementAttribute {
     // The flags property should be set to the bitwise-OR of one or more of
     // the following values:
     enum {
-//ARB:ENUM 265
         k_ATTR_NO_FLAGS   = 0x0000,
             // No flags set.
 
-//ARB:ENUM 268
         k_ATTR_IS_DEFAULT = 0x0001,
             // Set this bit if the value for this attribute object was
             // generated from the default attribute value in the DTD or
             // schema.
 
-//ARB:ENUM 273
         k_ATTR_IS_NSDECL  = 0x0002,
             // Set this bit if this attribute represents a namespace
             // declaration.
 
-//ARB:ENUM 277
         k_ATTR_IS_XSIDECL = 0x0004
             // Set this bit if this attribute represents a XML schema instance
             // declaration.

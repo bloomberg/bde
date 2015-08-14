@@ -239,39 +239,22 @@ class Reader {
         // syntactic construct within a document.  Note: Not every
         // implementation of 'Reader' will distinguish among all of the
         // node types.
-//ARB:ENUM 242
         e_NODE_TYPE_NONE                   = 0,
-//ARB:ENUM 243
         e_NODE_TYPE_ELEMENT                = 1,
-//ARB:ENUM 244
         e_NODE_TYPE_TEXT                   = 2,
-//ARB:ENUM 245
         e_NODE_TYPE_CDATA                  = 3,
-//ARB:ENUM 246
         e_NODE_TYPE_ENTITY_REFERENCE       = 4,
-//ARB:ENUM 247
         e_NODE_TYPE_ENTITY                 = 5,
-//ARB:ENUM 248
         e_NODE_TYPE_PROCESSING_INSTRUCTION = 6,
-//ARB:ENUM 249
         e_NODE_TYPE_COMMENT                = 7,
-//ARB:ENUM 250
         e_NODE_TYPE_DOCUMENT               = 8,
-//ARB:ENUM 251
         e_NODE_TYPE_DOCUMENT_TYPE          = 9,
-//ARB:ENUM 252
         e_NODE_TYPE_DOCUMENT_FRAGMENT      = 10,
-//ARB:ENUM 253
         e_NODE_TYPE_NOTATION               = 11,
-//ARB:ENUM 254
         e_NODE_TYPE_WHITESPACE             = 12,
-//ARB:ENUM 255
         e_NODE_TYPE_SIGNIFICANT_WHITESPACE = 13,
-//ARB:ENUM 256
         e_NODE_TYPE_END_ELEMENT            = 14,
-//ARB:ENUM 257
         e_NODE_TYPE_END_ENTITY             = 15,
-//ARB:ENUM 258
         e_NODE_TYPE_XML_DECLARATION        = 16
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEXML_NODE_TYPE_NONE = e_NODE_TYPE_NONE

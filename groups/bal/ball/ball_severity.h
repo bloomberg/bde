@@ -130,21 +130,13 @@ struct Severity {
 
   public:
     enum Level {
-//ARB:ENUM 133
         e_OFF   =   0,  // disable generation of corresponding message
-//ARB:ENUM 134
         e_FATAL =  32,  // a condition that will (likely) cause a *crash*
-//ARB:ENUM 135
         e_ERROR =  64,  // a condition that *will* cause incorrect behavior
-//ARB:ENUM 136
         e_WARN  =  96,  // a *potentially* problematic condition
-//ARB:ENUM 137
         e_INFO  = 128,  // data about the running process
-//ARB:ENUM 138
         e_DEBUG = 160,  // information useful while debugging
-//ARB:ENUM 139
         e_TRACE = 192,  // execution trace data
-//ARB:ENUM 140
         e_NONE  = 224   // !DEPRECATED! Do not use
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -168,7 +160,6 @@ struct Severity {
     };
 
     enum {
-//ARB:ENUM 154
         e_LENGTH = 8
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEL_LENGTH = e_LENGTH

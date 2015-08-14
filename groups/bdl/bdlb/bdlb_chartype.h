@@ -328,37 +328,21 @@ struct CharType {
     enum Category {
         // Set of character categories supported by this component.
 
-//ARB:ENUM 331
         e_UPPER,          // [A-Z]
-//ARB:ENUM 332
         e_LOWER,          // [a-z]
-//ARB:ENUM 333
         e_ALPHA,          // [A-Za-z]
-//ARB:ENUM 334
         e_DIGIT,          // [0-9]
-//ARB:ENUM 335
         e_XDIGIT,         // [0-9A-Fa-f]
-//ARB:ENUM 336
         e_ALNUM,          // [0-9A-Za-z]
-//ARB:ENUM 337
         e_SPACE,          // [space|tab|CR|NL|VT|FF]
-//ARB:ENUM 338
         e_PRINT,          // any printable character including SPACE
-//ARB:ENUM 339
         e_GRAPH,          // any printable character except SPACE
-//ARB:ENUM 340
         e_PUNCT,          // any printable character except SPACE or ALNUM
-//ARB:ENUM 341
         e_CNTRL,          // [\1-\37] and \177
-//ARB:ENUM 342
         e_ASCII,          // [\0-\177]
-//ARB:ENUM 343
         e_IDENT,          // [ALNUM|_]
-//ARB:ENUM 344
         e_ALUND,          // [ALPHA|_]
-//ARB:ENUM 345
         e_ALL,            // [\0-\377]
-//ARB:ENUM 346
         e_NONE            // []
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -398,7 +382,6 @@ struct CharType {
     };
 
     enum {
-//ARB:ENUM 368
         k_NUM_CATEGORIES = BDEU_NONE + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEU_NUM_CATEGORIES = k_NUM_CATEGORIES

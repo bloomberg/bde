@@ -469,21 +469,13 @@ struct bdlat_TypeCategory {
 
     // ENUMERATIONS
     enum Value {
-//ARB:ENUM 469
         e_DYNAMIC_CATEGORY         = 0,
-//ARB:ENUM 470
         e_ARRAY_CATEGORY           = 1,
-//ARB:ENUM 471
         e_CHOICE_CATEGORY          = 2,
-//ARB:ENUM 472
         e_CUSTOMIZED_TYPE_CATEGORY = 3,
-//ARB:ENUM 473
         e_ENUMERATION_CATEGORY     = 4,
-//ARB:ENUM 474
         e_NULLABLE_VALUE_CATEGORY  = 5,
-//ARB:ENUM 475
         e_SEQUENCE_CATEGORY        = 6,
-//ARB:ENUM 476
         e_SIMPLE_CATEGORY          = 7
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -544,7 +536,6 @@ struct bdlat_TypeCategory {
 
       public:
         enum {
-//ARB:ENUM 531
             k_SELECTION =
                       BDLAT_IS_DYNAMIC         ? BDLAT_DYNAMIC_CATEGORY
                     : k_IS_ARRAY           ? BDLAT_ARRAY_CATEGORY

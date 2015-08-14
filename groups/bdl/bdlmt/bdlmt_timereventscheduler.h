@@ -352,7 +352,6 @@ class TimerEventScheduler {
 
     // CONSTANTS
     enum {
-//ARB:ENUM 355
         e_INVALID_HANDLE = -1  // value of an invalid event or clock handle
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BCEP_INVALID_HANDLE = e_INVALID_HANDLE
