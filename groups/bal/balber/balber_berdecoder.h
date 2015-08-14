@@ -438,10 +438,10 @@ class BerDecoder_Node {
     template <typename TYPE>
     int decode(TYPE *variable, bdlat_TypeCategory::DynamicType);
         // Family of methods to decode current element into the specified
-        // 'variable' of category 'bdlat_TypeCategory'.  Return zero on success,
-        // and a non-zero value otherwise. the tag header is already read at
-        // the moment of call and input stream is positioned at the first byte
-        // of the body field.
+        // 'variable' of category 'bdlat_TypeCategory'.  Return zero on
+        // success, and a non-zero value otherwise. the tag header is already
+        // read at the moment of call and input stream is positioned at the
+        // first byte of the body field.
 
     template <typename TYPE>
     int decodeArray(TYPE *variable);
@@ -497,7 +497,7 @@ class BerDecoder_Node {
         // the decoder's log, and return a non-zero value.
 
     int readTagHeader();
-        // Read the node tag field  containing tag class, tag type and tag
+        // Read the node tag field containing tag class, tag type and tag
         // number, and the node length field.  Return zero on success, and a
         // non-zero value otherwise.
 
@@ -559,9 +559,9 @@ class BerDecoder_NodeVisitor {
     BerDecoder_Node *d_node;  // current node, held, not owned
 
     // NOT IMPLEMENTED
-    BerDecoder_NodeVisitor(const BerDecoder_NodeVisitor&);          // = delete;
+    BerDecoder_NodeVisitor(const BerDecoder_NodeVisitor&);         // = delete;
     BerDecoder_NodeVisitor& operator=(const BerDecoder_NodeVisitor&);
-                                                                    // = delete;
+                                                                   // = delete;
 
   public:
     // CREATORS
@@ -590,10 +590,12 @@ class BerDecoder_UniversalElementVisitor {
     // NOT IMPLEMENTED
     BerDecoder_UniversalElementVisitor(
                                const BerDecoder_UniversalElementVisitor&);
-                                                                    // = delete;
+                                                                    // =
+                                                                    // delete;
     BerDecoder_UniversalElementVisitor& operator=(
                                const BerDecoder_UniversalElementVisitor&);
-                                                                    // = delete;
+                                                                    // =
+                                                                    // delete;
 
   public:
     // CREATORS
@@ -643,7 +645,8 @@ class BerDecoder_Zeroer {
 
 // CREATORS
 inline
-balber::BerDecoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
+balber::BerDecoder::MemOutStream::MemOutStream(
+                                              bslma::Allocator *basicAllocator)
 : bsl::ostream(0)
 , d_sb(bslma::Default::allocator(basicAllocator))
 {

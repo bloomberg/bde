@@ -107,8 +107,7 @@ void BerDecoder_Node::print(bsl::ostream&  out,
 {
     static const char indentLine [] =
         "                                        ";
-    //  "1234567890123456789012345678901234567890"
-    //            1         2         3         4
+    // "1234567890123456789012345678901234567890" 1 2 3 4
 
     static const int  maxSpaces = sizeof(indentLine) - 1;
 

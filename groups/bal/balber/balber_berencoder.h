@@ -319,80 +319,79 @@ class BerEncoder {
                            int                     tagNumber,
                            const char             *name  = 0,
                            int                     index = -1);
-        // Log error and upgrade the severity level.  Return
-        // 'errorSeverity()'.
+        // Log error and upgrade the severity level.  Return 'errorSeverity()'.
 
     bsl::ostream& logStream();
         // Return the stream for logging.  Note the if stream has not been
         // created yet, it will be created during this call.
 
-    int encodeImpl(const bsl::vector<char>& value,
-               BerConstants::TagClass       tagClass,
-               int                          tagNumber,
-               int                          formattingMode,
-               bdlat_TypeCategory::Array    );
+    int encodeImpl(const bsl::vector<char>&  value,
+                   BerConstants::TagClass    tagClass,
+                   int                       tagNumber,
+                   int                       formattingMode,
+                   bdlat_TypeCategory::Array );
 
     template <typename TYPE>
-    int encodeArrayImpl(const TYPE&    value,
-               BerConstants::TagClass  tagClass,
-               int                     tagNumber,
-               int                     formattingMode);
+    int encodeArrayImpl(const TYPE&            value,
+                        BerConstants::TagClass tagClass,
+                        int                    tagNumber,
+                        int                    formattingMode);
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&            value,
-               BerConstants::TagClass     tagClass,
-               int                        tagNumber,
-               int                        formattingMode,
-               bdlat_TypeCategory::Choice );
+    int encodeImpl(const TYPE&                value,
+                   BerConstants::TagClass     tagClass,
+                   int                        tagNumber,
+                   int                        formattingMode,
+                   bdlat_TypeCategory::Choice );
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&                   value,
-               BerConstants::TagClass            tagClass,
-               int                               tagNumber,
-               int                               formattingMode,
-               bdlat_TypeCategory::NullableValue );
+    int encodeImpl(const TYPE&                       value,
+                   BerConstants::TagClass            tagClass,
+                   int                               tagNumber,
+                   int                               formattingMode,
+                   bdlat_TypeCategory::NullableValue );
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&                    value,
-               BerConstants::TagClass             tagClass,
-               int                                tagNumber,
-               int                                formattingMode,
-               bdlat_TypeCategory::CustomizedType );
+    int encodeImpl(const TYPE&                        value,
+                   BerConstants::TagClass             tagClass,
+                   int                                tagNumber,
+                   int                                formattingMode,
+                   bdlat_TypeCategory::CustomizedType );
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&                 value,
-               BerConstants::TagClass          tagClass,
-               int                             tagNumber,
-               int                             formattingMode,
-               bdlat_TypeCategory::Enumeration );
+    int encodeImpl(const TYPE&                     value,
+                   BerConstants::TagClass          tagClass,
+                   int                             tagNumber,
+                   int                             formattingMode,
+                   bdlat_TypeCategory::Enumeration );
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&              value,
-               BerConstants::TagClass       tagClass,
-               int                          tagNumber,
-               int                          formattingMode,
-               bdlat_TypeCategory::Sequence );
+    int encodeImpl(const TYPE&                  value,
+                   BerConstants::TagClass       tagClass,
+                   int                          tagNumber,
+                   int                          formattingMode,
+                   bdlat_TypeCategory::Sequence );
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&            value,
-               BerConstants::TagClass     tagClass,
-               int                        tagNumber,
-               int                        formattingMode,
-               bdlat_TypeCategory::Simple );
+    int encodeImpl(const TYPE&                value,
+                   BerConstants::TagClass     tagClass,
+                   int                        tagNumber,
+                   int                        formattingMode,
+                   bdlat_TypeCategory::Simple );
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&           value,
-               BerConstants::TagClass    tagClass,
-               int                       tagNumber,
-               int                       formattingMode,
-               bdlat_TypeCategory::Array );
+    int encodeImpl(const TYPE&               value,
+                   BerConstants::TagClass    tagClass,
+                   int                       tagNumber,
+                   int                       formattingMode,
+                   bdlat_TypeCategory::Array );
 
     template <typename TYPE>
-    int encodeImpl(const TYPE&                 value,
-               BerConstants::TagClass          tagClass,
-               int                             tagNumber,
-               int                             formattingMode,
-               bdlat_TypeCategory::DynamicType );
+    int encodeImpl(const TYPE&                     value,
+                   BerConstants::TagClass          tagClass,
+                   int                             tagNumber,
+                   int                             formattingMode,
+                   bdlat_TypeCategory::DynamicType );
 
   public:
     // CREATORS
@@ -507,7 +506,7 @@ class BerEncoder_UniversalElementVisitor {
   public:
     // CREATORS
     BerEncoder_UniversalElementVisitor(BerEncoder *encoder,
-                                            int             formattingMode);
+                                       int         formattingMode);
 
     ~BerEncoder_UniversalElementVisitor();
 

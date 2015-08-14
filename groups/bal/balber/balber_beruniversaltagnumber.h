@@ -222,9 +222,9 @@ struct BerUniversalTagNumber {
         // enumerator).
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 
     template <typename TYPE>
     static Value select(const TYPE&  object,
@@ -235,10 +235,9 @@ struct BerUniversalTagNumber {
         // 'alternateTag' any alternative tag numbers corresponding to
         // 'object'.  The behavior is undefined if the type category of
         // 'object' and the 'formattingMode' does not permit a universal tag
-        // number (see {DESCRRIPTON} for allowed type
-        // categories and formatting modes).  Note that if an alternate tag
-        // number does not exist for 'object' then 'alternateTag' is not
-        // modified.
+        // number (see {DESCRRIPTON} for allowed type categories and formatting
+        // modes).  Note that if an alternate tag number does not exist for
+        // 'object' then 'alternateTag' is not modified.
 
     template <typename TYPE>
     static Value select(const TYPE&              object,
@@ -248,16 +247,15 @@ struct BerUniversalTagNumber {
         // specified 'formattingMode' using the specified 'options'.  The
         // behavior is undefined if the type category of 'object' and the
         // 'formattingMode' do not permit a universal tag number (see
-        // {DESCRIPTON} for allowed type categories and
-        // formatting modes).
+        // {DESCRIPTON} for allowed type categories and formatting modes).
 };
 
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          BerUniversalTagNumber::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference providing modifiable access to 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference providing modifiable access to 'stream'.
 
 
                  // ====================================
@@ -265,8 +263,8 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
                  // ====================================
 
 class BerUniversalTagNumber_Imp {
-    // Component-private class.  Do not use.
-    // This class contains implementation details for this component.
+    // Component-private class.  Do not use.  This class contains
+    // implementation details for this component.
 
     typedef bdlat_FormattingMode         FMode;   // shorthand
     typedef BerUniversalTagNumber::Value TagVal;  // shorthand
@@ -278,8 +276,8 @@ class BerUniversalTagNumber_Imp {
     // PRIVATE MANIPULATORS
     TagVal selectForDateAndTimeTypes();
         // Return the universal tag number for date and time types and load
-        // into the internal 'alternateTag' data member the any alternative
-        // tag numbers corresponding to those types.
+        // into the internal 'alternateTag' data member the any alternative tag
+        // numbers corresponding to those types.
 
   public:
     BerUniversalTagNumber_Imp(int                      fm,
@@ -837,8 +835,8 @@ BerUniversalTagNumber_Imp::select(const TYPE&                ,
     BSLS_ASSERT_SAFE(
           FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
-    // According to X.694 (clause 20.4), an XML choice element is encoded
-    // as a sequence with 1 element.
+    // According to X.694 (clause 20.4), an XML choice element is encoded as a
+    // sequence with 1 element.
 
     return BerUniversalTagNumber::e_BER_SEQUENCE;
 }

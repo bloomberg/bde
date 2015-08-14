@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 // The next part of the function will read the identifier octets from the
 // stream and verify its contents:
 //..
-//      bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());     // NO COPY
+//      bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());  // NO COPY
 //
 //      balber::BerConstants::TagClass tagClassIn;
 //      balber::BerConstants::TagType  tagTypeIn;
