@@ -1,4 +1,4 @@
-// balber_berdecoder.cpp                                                -*-C++-*-
+// balber_berdecoder.cpp                                              -*-C++-*-
 #include <balber_berdecoder.h>
 
 #include <bsls_ident.h>
@@ -154,8 +154,8 @@ void BerDecoder_Node::print(bsl::ostream&  out,
     }
 
     switch(d_tagType) {
-      case BerConstants::e_BDEM_CONSTRUCTED:  out << "C-";  break;
-      case BerConstants::e_BDEM_PRIMITIVE:    out << "P-";  break;
+      case BerConstants::e_CONSTRUCTED:       out << "C-";  break;
+      case BerConstants::e_PRIMITIVE:         out << "P-";  break;
       default:                                out << "*-";  break;
     }
 
@@ -291,7 +291,7 @@ int BerDecoder_Node::skipField()
     }
 
     // must be CONSTRUCTED, so recursively skip sub-fields
-    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_CONSTRUCTED) {
         return logError(
             "Only CONSTRUCTED fields with INDEFINITE length can be skipped");
                                                                       // RETURN
@@ -325,7 +325,7 @@ int BerDecoder_Node::skipField()
 
 int BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
 {
-    if (d_tagType != BerConstants::e_BDEM_PRIMITIVE) {
+    if (d_tagType != BerConstants::e_PRIMITIVE) {
         return logError("Expected PRIMITIVE tag type for 'vector<char>'");
                                                                       // RETURN
     }
@@ -361,7 +361,7 @@ int BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

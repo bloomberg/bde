@@ -1,4 +1,4 @@
-// balber_beruniversaltagnumber.t.cpp                                   -*-C++-*-
+// balber_beruniversaltagnumber.t.cpp                                 -*-C++-*-
 #include <balber_beruniversaltagnumber.h>
 
 #include <bdlat_arrayfunctions.h>
@@ -18,18 +18,18 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -47,9 +47,9 @@ void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -61,9 +61,9 @@ void aSsErT(int c, const char *s, int i)
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -71,9 +71,9 @@ void aSsErT(int c, const char *s, int i)
 #define NL "\n"
 #define T_ cout << "\t" << flush; // tab
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // test_customizedstring.h   -*-C++-*-
 #ifndef INCLUDED_TEST_CUSTOMIZEDSTRING
@@ -118,7 +118,6 @@ void aSsErT(int c, const char *s, int i)
 #endif
 
 namespace BloombergLP {
-
 namespace test {
 
 class CustomizedString {
@@ -293,7 +292,7 @@ const bsl::string& CustomizedString::toString() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -322,18 +321,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_customizedstring.cpp  -*-C++-*-
 
@@ -365,17 +364,17 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mychoice.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYCHOICE
@@ -432,7 +431,6 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 #endif
 
 namespace BloombergLP {
-
 namespace test {
 
 class MyChoice {
@@ -867,7 +865,7 @@ const bsl::string& MyChoice::selection2() const
     return d_selection2.object();
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(test::MyChoice)
@@ -1080,17 +1078,17 @@ bsl::ostream& MyChoice::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_myenumeration.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYENUMERATION
@@ -1232,7 +1230,7 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
     return 0;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
@@ -1342,17 +1340,17 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mysequence.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYSEQUENCE
@@ -2048,9 +2046,9 @@ const int                                 NUM_ENUMS = Class::k_LENGTH;
 typedef bdeat_FormattingMode              FM;
 typedef bdeat_TypeCategory                TC;
 
-//=============================================================================
+// ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define TEST_SELECT_WITH_OPTIONS(type, formattingMode, expected, options) {   \
         type object;                                                          \
@@ -2070,12 +2068,14 @@ typedef bdeat_TypeCategory                TC;
 #define TEST_SELECT_WITH_ALT_TAG(type, formattingMode, expected, otherTag) {  \
         type object;                                                          \
         int  altTag = -1;                                                     \
-        const balber::BerUniversalTagNumber::Value expectedResult = expected;    \
-        balber::BerUniversalTagNumber::Value result =                            \
-         balber::BerUniversalTagNumber::select(object, formattingMode, &altTag); \
+        const balber::BerUniversalTagNumber::Value expectedResult = expected; \
+        balber::BerUniversalTagNumber::Value result =                         \
+        balber::BerUniversalTagNumber::select(object,                         \
+                                              formattingMode,                 \
+                                              &altTag);                       \
         LOOP2_ASSERT(expectedResult, result, expectedResult == result);       \
-        balber::BerUniversalTagNumber::Value result2 =                           \
-            balber::BerUniversalTagNumber::select(object,                        \
+        balber::BerUniversalTagNumber::Value result2 =                        \
+            balber::BerUniversalTagNumber::select(object,                     \
                                          formattingMode | FM::BDEAT_UNTAGGED, \
                                                &altTag);                      \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
@@ -2084,16 +2084,15 @@ typedef bdeat_TypeCategory                TC;
     // Test select() function, both with unadorned 'formattingMode' and with
     // an extra bit set in 'formattingMode'.
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-//    int veryVeryVerbose = argc > 4;
+    int         test = argc > 1 ? atoi(argv[1]) : 0;
+    bool     verbose = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -2895,11 +2894,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

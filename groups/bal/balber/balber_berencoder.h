@@ -18,13 +18,13 @@ BSLS_IDENT("$Id: $")
 //         Shezan Baig (sbaig),
 //         Alexander Libman (alibman1)
 //
-//@DESCRIPTION: This component defines a single class, 'balber::BerEnecoder',   
-// that contains a parameterized 'encode' function.  The 'encode' function      
-// encodes data read from a specified stream and loads the corresponding object 
-// to an object of the parameterized type.  The 'encode' method is overloaded   
-// for two types of input streams:                                              
-//: o 'bsl::streambuf'                                                          
-//: o 'bsl::istream'       
+//@DESCRIPTION: This component defines a single class, 'balber::BerEncoder',
+// that contains a parameterized 'encode' function.  The 'encode' function
+// encodes data read from a specified stream and loads the corresponding object
+// to an object of the parameterized type.  The 'encode' method is overloaded
+// for two types of input streams:
+//: o 'bsl::streambuf'
+//: o 'bsl::istream'
 //
 // This component encodes objects based on the X.690 BER specification.  It can
 // only be used with types supported by the 'bdlat' framework.  In particular,
@@ -247,11 +247,9 @@ class BerEncoder {
       public:
         // CREATORS
         MemOutStream(bslma::Allocator *basicAllocator = 0);
-            // Create a 'MemOutStream' object
-            // Optionally
-            // specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator is
-            // used.
+            // Create a 'MemOutStream' object Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
 
         virtual ~MemOutStream();
             // Destroy this stream and release memory back to the allocator.
@@ -266,9 +264,9 @@ class BerEncoder {
 
         // ACCESSORS
         const char *data() const;
-            // Return the address of the memory containing the values
-            // formatted to this stream.  The data is not null-terminated
-            // unless a null character was appended onto this stream.
+            // Return the address of the memory containing the values formatted
+            // to this stream.  The data is not null-terminated unless a null
+            // character was appended onto this stream.
 
         int length() const;
             // Return the length of of the formatted data, including null
@@ -296,8 +294,8 @@ class BerEncoder {
         // placeholder for MemOutStream
 
     MemOutStream                     *d_logStream;
-        // if not zero, log stream was created at the moment of first
-        // logging and must be destroyed
+        // if not zero, log stream was created at the moment of first logging
+        // and must be destroyed
 
     ErrorSeverity                     d_severity;       // error severity
 
@@ -314,18 +312,19 @@ class BerEncoder {
                          int                     tagNumber,
                          const char             *name  = 0,
                          int                     index = -1);
-        // Log 'msg' and return the 'errorSeverity()'.
+        // Log the specified 'msg' using the specified 'tagClass', 'tagNumber',
+        // name, and 'index', and return 'errorSeverity()'.
 
     ErrorSeverity logError(BerConstants::TagClass  tagClass,
                            int                     tagNumber,
                            const char             *name  = 0,
                            int                     index = -1);
-        // Log error and upgrade the severity level.  Return the
-        // 'this->ErrorSeverity()'.
+        // Log error and upgrade the severity level.  Return
+        // 'errorSeverity()'.
 
     bsl::ostream& logStream();
-        // Return the stream for logging.  Note the if stream has not
-        // been created yet, it will be created during this call.
+        // Return the stream for logging.  Note the if stream has not been
+        // created yet, it will be created during this call.
 
     int encodeImpl(const bsl::vector<char>& value,
                BerConstants::TagClass       tagClass,
@@ -417,10 +416,10 @@ class BerEncoder {
     template <typename TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
         // Encode the specified non-modifiable 'value' to the specified
-        // 'stream'.   Return 0 on success, and a non-zero value otherwise.
-        // If the encoding fails 'stream' will be invalidated.
+        // 'stream'.  Return 0 on success, and a non-zero value otherwise.  If
+        // the encoding fails 'stream' will be invalidated.
 
-    //ACCESSORS
+    // ACCESSORS
     const BerEncoderOptions *options() const;
         // Return address of the options.
 
@@ -440,8 +439,8 @@ class BerEncoder {
         // ===================================
 
 class BerEncoder_LevelGuard {
-    // This class serves the purpose to automatically increment-decrement
-    // the current depth level.
+    // This class serves the purpose to automatically increment-decrement the
+    // current depth level.
 
     // DATA
     BerEncoder *d_encoder;
@@ -517,18 +516,17 @@ class BerEncoder_UniversalElementVisitor {
     int operator()(const TYPE& value);
 };
 
-// ===========================================================================
+// ============================================================================
 //                               PROXY CLASSES
-// ===========================================================================
+// ============================================================================
 
                  // =============================
                  // struct BerEncoder_encodeProxy
                  // =============================
 
 struct BerEncoder_encodeProxy {
-    // Component-private struct.  Provides accessor that
-    // that keeps current context and can be used in
-    // different 'bdlat' Category Functions.
+    // Component-private struct.  Provides accessor that that keeps current
+    // context and can be used in different 'bdlat' Category Functions.
 
     // DATA MEMBERS
     BerEncoder             *d_encoder;
@@ -536,9 +534,8 @@ struct BerEncoder_encodeProxy {
     int                     d_tagNumber;
     int                     d_formattingMode;
 
-    // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+    // CREATORS Creators have been omitted to allow simple static
+    // initialization of this struct.
 
     // FUNCTIONS
     template <typename TYPE>
@@ -553,9 +550,9 @@ struct BerEncoder_encodeProxy {
 
 }  // close package namespace
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                      INLINE DEFINITIONS
+// ============================================================================
 
                          // --------------------------------------
                          // class balber::BerEncoder::MemOutStream
@@ -587,17 +584,17 @@ const char *balber::BerEncoder::MemOutStream::data() const
 inline
 int balber::BerEncoder::MemOutStream::length() const
 {
-    return (int)d_sb.length();
+    return static_cast<int>(d_sb.length());
 }
 
 namespace balber {
-              // ---------------------------------
+
+              // ----------------------------
               // class BerEncoder::LevelGuard
-              // ---------------------------------
+              // ----------------------------
 
 inline
-BerEncoder_LevelGuard::BerEncoder_LevelGuard(
-                                                      BerEncoder *encoder)
+BerEncoder_LevelGuard::BerEncoder_LevelGuard(BerEncoder *encoder)
 : d_encoder (encoder)
 {
     ++d_encoder->d_currentDepth;
@@ -609,9 +606,9 @@ BerEncoder_LevelGuard::~BerEncoder_LevelGuard()
     --d_encoder->d_currentDepth;
 }
 
-              // ----------------------------------
+              // -----------------------------
               // struct BerEncoder_encodeProxy
-              // ----------------------------------
+              // -----------------------------
 
 template <typename TYPE>
 inline
@@ -624,7 +621,7 @@ int BerEncoder_encodeProxy::operator()(const TYPE&, bslmf::Nil)
 template <typename TYPE, typename ANY_CATEGORY>
 inline
 int BerEncoder_encodeProxy::operator()(const TYPE&  object,
-                                            ANY_CATEGORY category)
+                                       ANY_CATEGORY category)
 {
     return d_encoder->encodeImpl(object,
                                  d_tagClass,
@@ -643,9 +640,9 @@ int BerEncoder_encodeProxy::operator()(const TYPE& object)
     return this->operator()(object, TypeCategory());
 }
 
-                         // ---------------------
+                         // ----------------
                          // class BerEncoder
-                         // ---------------------
+                         // ----------------
 
 // ACCESSORS
 inline
@@ -733,21 +730,20 @@ int BerEncoder::encode(bsl::ostream& stream, const TYPE& value)
 
 // PRIVATE MANIPULATORS
 template <typename TYPE>
-int BerEncoder::encodeImpl(const TYPE&                  value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          formattingMode,
-                                bdlat_TypeCategory::Choice)
+int BerEncoder::encodeImpl(const TYPE&                value,
+                           BerConstants::TagClass     tagClass,
+                           int                        tagNumber,
+                           int                        formattingMode,
+                           bdlat_TypeCategory::Choice )
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    const BerConstants::TagType tagType =
-                                           BerConstants::e_BDEM_CONSTRUCTED;
+    const BerConstants::TagType tagType = BerConstants::e_CONSTRUCTED;
 
     int rc = BerUtil::putIdentifierOctets(d_streamBuf,
-                                               tagClass,
-                                               tagType,
-                                               tagNumber);
+                                          tagClass,
+                                          tagType,
+                                          tagNumber);
     if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
         return k_FAILURE;                                             // RETURN
     }
@@ -759,11 +755,10 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
         // According to X.694 (clause 20.4), an XML choice (not anonymous)
         // element is encoded as a sequence with 1 element.
 
-        rc = BerUtil::putIdentifierOctets(
-                                      d_streamBuf,
-                                      BerConstants::e_CONTEXT_SPECIFIC,
-                                      tagType,
-                                      0);
+        rc = BerUtil::putIdentifierOctets(d_streamBuf,
+                                          BerConstants::e_CONTEXT_SPECIFIC,
+                                          tagType,
+                                          0);
         if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
             return k_FAILURE;
         }
@@ -794,11 +789,11 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 }
 
 template <typename TYPE>
-int BerEncoder::encodeImpl(const TYPE&                  value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          formattingMode,
-                                bdlat_TypeCategory::NullableValue)
+int BerEncoder::encodeImpl(const TYPE&                       value,
+                           BerConstants::TagClass            tagClass,
+                           int                               tagNumber,
+                           int                               formattingMode,
+                           bdlat_TypeCategory::NullableValue )
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -811,7 +806,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
         int rc = BerUtil::putIdentifierOctets(
                                            d_streamBuf,
                                            tagClass,
-                                           BerConstants::e_BDEM_CONSTRUCTED,
+                                           BerConstants::e_CONSTRUCTED,
                                            tagNumber);
         if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
             return k_FAILURE;
@@ -822,7 +817,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
             BerEncoder_encodeProxy proxy1 = {
                 this,
                 BerConstants::e_CONTEXT_SPECIFIC, // tagClass
-                0,                                   // tagNumber
+                0,                                // tagNumber
                 formattingMode
             };
 
@@ -838,9 +833,9 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
     if (!bdlat_NullableValueFunctions::isNull(value)) {
 
         BerEncoder_encodeProxy proxy2 = { this,
-                                              tagClass,
-                                              tagNumber,
-                                              formattingMode };
+                                          tagClass,
+                                          tagNumber,
+                                          formattingMode };
 
         if (0 != bdlat_NullableValueFunctions::accessValue(value, proxy2)) {
                 return k_FAILURE;
@@ -852,11 +847,11 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 }
 
 template <typename TYPE>
-int BerEncoder::encodeImpl(const TYPE&                  value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          formattingMode,
-                                bdlat_TypeCategory::CustomizedType)
+int BerEncoder::encodeImpl(const TYPE&                        value,
+                           BerConstants::TagClass             tagClass,
+                           int                                tagNumber,
+                           int                                formattingMode,
+                           bdlat_TypeCategory::CustomizedType )
 {
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
@@ -875,17 +870,16 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 }
 
 template <typename TYPE>
-int BerEncoder::encodeImpl(const TYPE&                  value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          ,
-                                bdlat_TypeCategory::Enumeration)
+int BerEncoder::encodeImpl(const TYPE&                     value,
+                           BerConstants::TagClass          tagClass,
+                           int                             tagNumber,
+                           int                             ,
+                           bdlat_TypeCategory::Enumeration )
 {
-    int rc = BerUtil::putIdentifierOctets(
-                                             d_streamBuf,
-                                             tagClass,
-                                             BerConstants::e_BDEM_PRIMITIVE,
-                                             tagNumber);
+    int rc = BerUtil::putIdentifierOctets(d_streamBuf,
+                                          tagClass,
+                                          BerConstants::e_PRIMITIVE,
+                                          tagNumber);
 
     int intValue;
     bdlat_EnumFunctions::toInt(&intValue, value);
@@ -897,18 +891,17 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 
 template <typename TYPE>
 int BerEncoder::encodeImpl(const TYPE&                  value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          ,
-                                bdlat_TypeCategory::Sequence)
+                           BerConstants::TagClass       tagClass,
+                           int                          tagNumber,
+                           int                          ,
+                           bdlat_TypeCategory::Sequence )
 {
     BerEncoder_Visitor visitor(this);
 
-    int rc = BerUtil::putIdentifierOctets(
-                                           d_streamBuf,
-                                           tagClass,
-                                           BerConstants::e_BDEM_CONSTRUCTED,
-                                           tagNumber);
+    int rc = BerUtil::putIdentifierOctets(d_streamBuf,
+                                          tagClass,
+                                          BerConstants::e_CONSTRUCTED,
+                                          tagNumber);
     rc |= BerUtil::putIndefiniteLengthOctet(d_streamBuf);
     if (rc) {
         return rc;
@@ -921,17 +914,16 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 }
 
 template <typename TYPE>
-int BerEncoder::encodeImpl(const TYPE&                  value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          ,
-                                bdlat_TypeCategory::Simple)
+int BerEncoder::encodeImpl(const TYPE&                     value,
+                                BerConstants::TagClass     tagClass,
+                                int                        tagNumber,
+                                int                        ,
+                                bdlat_TypeCategory::Simple )
 {
-    int rc = BerUtil::putIdentifierOctets(
-                                             d_streamBuf,
-                                             tagClass,
-                                             BerConstants::e_BDEM_PRIMITIVE,
-                                             tagNumber);
+    int rc = BerUtil::putIdentifierOctets(d_streamBuf,
+                                          tagClass,
+                                          BerConstants::e_PRIMITIVE,
+                                          tagNumber);
     rc |= BerUtil::putValue(d_streamBuf, value, d_options);
 
     return rc;
@@ -939,11 +931,11 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 
 template <typename TYPE>
 inline
-int BerEncoder::encodeImpl(const TYPE& value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          formattingMode,
-                                bdlat_TypeCategory::Array)
+int BerEncoder::encodeImpl(const TYPE&               value,
+                           BerConstants::TagClass    tagClass,
+                           int                       tagNumber,
+                           int                       formattingMode,
+                           bdlat_TypeCategory::Array )
 {
     enum { k_SUCCESS = 0,  k_FAILURE = -1 };
 
@@ -959,33 +951,31 @@ int BerEncoder::encodeImpl(const TYPE& value,
 
 template <typename TYPE>
 int
-BerEncoder::encodeArrayImpl(const TYPE&                  value,
-                                 BerConstants::TagClass  tagClass,
-                                 int                          tagNumber,
-                                 int                          formattingMode)
+BerEncoder::encodeArrayImpl(const TYPE&             value,
+                            BerConstants::TagClass  tagClass,
+                            int                     tagNumber,
+                            int                     formattingMode)
 {
     enum { k_FAILURE = -1, k_SUCCESS = 0 };
 
-    const int size = (int) bdlat_ArrayFunctions::size(value);
+    const int size = static_cast<int>(bdlat_ArrayFunctions::size(value));
 
     if (0 == size && d_options && !d_options->encodeEmptyArrays()) {
-        return k_SUCCESS;                                          // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
 
-    const BerConstants::TagType tagType =
-                                           BerConstants::e_BDEM_CONSTRUCTED;
+    const BerConstants::TagType tagType = BerConstants::e_CONSTRUCTED;
 
     int rc = BerUtil::putIdentifierOctets(d_streamBuf,
-                                               tagClass,
-                                               tagType,
-                                               tagNumber);
+                                          tagClass,
+                                          tagType,
+                                          tagNumber);
     rc |= BerUtil::putIndefiniteLengthOctet(d_streamBuf);
     if (rc) {
         return k_FAILURE;                                             // RETURN
     }
 
-    BerEncoder_UniversalElementVisitor visitor(this,
-                                                    formattingMode);
+    BerEncoder_UniversalElementVisitor visitor(this, formattingMode);
 
     for (int i = 0; i < size; ++i) {
         if (0 != bdlat_ArrayFunctions::accessElement(value, visitor, i)) {
@@ -1004,11 +994,11 @@ BerEncoder::encodeArrayImpl(const TYPE&                  value,
 
 template <typename TYPE>
 inline
-int BerEncoder::encodeImpl(const TYPE&                  value,
-                                BerConstants::TagClass  tagClass,
-                                int                          tagNumber,
-                                int                          formattingMode,
-                                bdlat_TypeCategory::DynamicType)
+int BerEncoder::encodeImpl(const TYPE&                          value,
+                                BerConstants::TagClass          tagClass,
+                                int                             tagNumber,
+                                int                             formattingMode,
+                                bdlat_TypeCategory::DynamicType )
 {
     BerEncoder_encodeProxy proxy = {
         this,
@@ -1020,9 +1010,9 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
     return bdlat_TypeCategoryUtil::accessByCategory(value, proxy);
 }
 
-                 // -------------------------------------
+                 // --------------------------------
                  // private class BerEncoder_Visitor
-                 // -------------------------------------
+                 // --------------------------------
 
 // CREATORS
 inline
@@ -1045,12 +1035,11 @@ int BerEncoder_Visitor::operator()(const TYPE& value, const INFO& info)
     typedef typename
     bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    int rc = d_encoder->encodeImpl(
-                              value,
-                              BerConstants::e_CONTEXT_SPECIFIC,
-                              info.id(),
-                              info.formattingMode(),
-                              TypeCategory());
+    int rc = d_encoder->encodeImpl(value,
+                                   BerConstants::e_CONTEXT_SPECIFIC,
+                                   info.id(),
+                                   info.formattingMode(),
+                                   TypeCategory());
 
     if (rc) {
         d_encoder->logError(BerConstants::e_CONTEXT_SPECIFIC,
@@ -1061,15 +1050,15 @@ int BerEncoder_Visitor::operator()(const TYPE& value, const INFO& info)
     return rc;
 }
 
-         // -----------------------------------------------------
+         // ------------------------------------------------
          // private class BerEncoder_UniversalElementVisitor
-         // -----------------------------------------------------
+         // ------------------------------------------------
 
 // CREATORS
 inline
 BerEncoder_UniversalElementVisitor::
 BerEncoder_UniversalElementVisitor(BerEncoder *encoder,
-                                        int              formattingMode)
+                                   int         formattingMode)
 : d_encoder(encoder)
 , d_formattingMode(formattingMode)
 , d_levelGuard(encoder)
@@ -1091,10 +1080,10 @@ int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
     typedef typename
     bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    BerUniversalTagNumber::Value tagNumber
-           = BerUniversalTagNumber::select(value,
-                                                d_formattingMode,
-                                                d_encoder->options());
+    BerUniversalTagNumber::Value tagNumber = BerUniversalTagNumber::select(
+                                                         value,
+                                                         d_formattingMode,
+                                                         d_encoder->options());
 
     if (d_encoder->encodeImpl(value,
                               BerConstants::e_UNIVERSAL,
@@ -1110,17 +1099,16 @@ int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
 
     return k_SUCCESS;
 }
+
 }  // close package namespace
-
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ------------------------------ END-OF-FILE ---------------------------------

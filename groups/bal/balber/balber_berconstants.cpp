@@ -1,4 +1,4 @@
-// balber_berconstants.cpp                  -*-C++-*-
+// balber_berconstants.cpp                                            -*-C++-*-
 #include <balber_berconstants.h>
 
 #include <bsls_ident.h>
@@ -17,13 +17,13 @@ bsl::ostream& balber::operator<<(bsl::ostream&          stream,
 {
     switch (tagClass) {
       case BerConstants::e_UNIVERSAL:
-          return stream << "UNIVERSAL";
+        return stream <<  "UNIVERSAL";                                // RETURN
       case BerConstants::e_APPLICATION:
-          return stream << "APPLICATION";
+        return stream <<  "APPLICATION";                              // RETURN
       case BerConstants::e_CONTEXT_SPECIFIC:
-          return stream << "CONTEXT_SPECIFIC";
+        return stream <<  "CONTEXT_SPECIFIC";                         // RETURN
       case BerConstants::e_PRIVATE:
-          return stream << "PRIVATE";
+        return stream <<  "PRIVATE";                                  // RETURN
     }
 
     BSLS_ASSERT(!"encountered out-of-bound enumerated value");
@@ -35,10 +35,10 @@ bsl::ostream& balber::operator<<(bsl::ostream&         stream,
                                  BerConstants::TagType tagType)
 {
     switch (tagType) {
-      case BerConstants::e_BDEM_PRIMITIVE:
-          return stream << "PRIMITIVE";
-      case BerConstants::e_BDEM_CONSTRUCTED:
-          return stream << "CONSTRUCTED";
+      case BerConstants::e_PRIMITIVE:
+        return stream <<  "PRIMITIVE";                                // RETURN
+      case BerConstants::e_CONSTRUCTED:
+        return stream <<  "CONSTRUCTED";                              // RETURN
     }
 
     BSLS_ASSERT(!"encountered out-of-bound enumerated value");
@@ -46,13 +46,13 @@ bsl::ostream& balber::operator<<(bsl::ostream&         stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

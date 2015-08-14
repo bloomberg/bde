@@ -1,4 +1,4 @@
-// balber_beruniversaltagnumber.h                                       -*-C++-*-
+// balber_beruniversaltagnumber.h                                     -*-C++-*-
 #ifndef INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 #define INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 
@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of 'BER' universal tag numbers.
+//@PURPOSE: Enumerate the set of BER universal tag numbers.
 //
 //@CLASSES:
 //  balber::BerUniversalTagNumber: namespace universal tag number enumeration
@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'balber::BerUniversalTagNumber::Value'.  'Value' enumerates the set of 'BER'
-// universal tag numbers used by the 'BER' encoder and decoder.  The universal
+// 'balber::BerUniversalTagNumber::Value'.  'Value' enumerates the set of BER
+// universal tag numbers used by the BER encoder and decoder.  The universal
 // tag numbers are defined in the X.680 standard, in section 8.
 //
 // In addition, this component supports functions that convert the 'Value'
@@ -162,7 +162,7 @@ namespace balber {
 
 struct BerUniversalTagNumber {
     // This 'struct' contains an enumeration of the universal tag numbers for
-    // 'BER' encoding.
+    // BER encoding.
 
     // TYPES
     enum Value {
@@ -875,15 +875,14 @@ BerUniversalTagNumber_Imp::select(const TYPE&, ANY_CATEGORY)
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ------------------------------ END-OF-FILE ---------------------------------

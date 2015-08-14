@@ -1,4 +1,4 @@
-// balber_beruniversaltagnumber.cpp                                     -*-C++-*-
+// balber_beruniversaltagnumber.cpp                                   -*-C++-*-
 #include <balber_beruniversaltagnumber.h>
 
 #include <bsls_ident.h>
@@ -7,15 +7,14 @@ BSLS_IDENT_RCSID(balber_beruniversaltagnumber_cpp,"$Id$ $CSID$")
 #include <bdlb_string.h>
 
 namespace BloombergLP {
-
 namespace balber {
-                     // ---------------------------------
+
+                     // ----------------------------
                      // struct BerUniversalTagNumber
-                     // ---------------------------------
+                     // ----------------------------
 
 // CLASS METHODS
-const char *BerUniversalTagNumber::toString(
-                                       BerUniversalTagNumber::Value value)
+const char *BerUniversalTagNumber::toString(BerUniversalTagNumber::Value value)
 {
 #ifdef CASE
 #undef CASE
@@ -40,20 +39,20 @@ const char *BerUniversalTagNumber::toString(
 }
 
 int BerUniversalTagNumber::fromString(
-                               BerUniversalTagNumber::Value *result,
-                               const char                        *string,
-                               int                                stringLength)
+                                    BerUniversalTagNumber::Value *result,
+                                    const char                   *string,
+                                    int                           stringLength)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_NOT_FOUND = 1 };
+    enum { k_SUCCESS = 0, k_NOT_FOUND = 1 };
 
 #ifdef CHECK
 #undef CHECK
 #endif
 
-#define CHECK(STRING, VALUE)                                                 \
+#define CHECK(STRING, VALUE)                                                  \
         if (bdlb::String::areEqualCaseless(string, stringLength, #STRING)) {  \
-            *result = VALUE;                                                 \
-            return BDEM_SUCCESS;                                             \
+            *result = VALUE;                                                  \
+            return k_SUCCESS;                                                 \
         }
 
     CHECK(BOOL,           e_BER_BOOL)
@@ -65,17 +64,17 @@ int BerUniversalTagNumber::fromString(
     CHECK(SEQUENCE,       e_BER_SEQUENCE)
     CHECK(VISIBLE_STRING, e_BER_VISIBLE_STRING)
 
-    return BDEM_NOT_FOUND;
+    return k_NOT_FOUND;
 }
+
 }  // close package namespace
+}  // close enterprise namespace
 
-}  // close namespace BloombergLP;
-
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

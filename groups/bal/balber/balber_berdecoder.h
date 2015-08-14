@@ -1,4 +1,4 @@
-// balber_berdecoder.h                  -*-C++-*-
+// balber_berdecoder.h                                                -*-C++-*-
 #ifndef INCLUDED_BALBER_BERDECODER
 #define INCLUDED_BALBER_BERDECODER
 
@@ -800,7 +800,7 @@ BerDecoder_Node::BerDecoder_Node(BerDecoder *decoder)
 : d_decoder            (decoder)
 , d_parent             (d_decoder->d_topNode)
 , d_tagClass           (BerConstants::e_UNIVERSAL)
-, d_tagType            (BerConstants::e_BDEM_PRIMITIVE)
+, d_tagType            (BerConstants::e_PRIMITIVE)
 , d_tagNumber          (0)
 , d_expectedLength     (0)
 , d_consumedHeaderBytes(0)
@@ -834,7 +834,7 @@ inline
 bool
 BerDecoder_Node::hasMore()
 {
-    BSLS_ASSERT_SAFE(d_tagType == BerConstants::e_BDEM_CONSTRUCTED);
+    BSLS_ASSERT_SAFE(d_tagType == BerConstants::e_CONSTRUCTED);
 
     if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
         return 0 != d_decoder->d_streamBuf->sgetc();
@@ -933,7 +933,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
     // However, if the element is anonymous (i.e., untagged), then there is no
     // inner tag.  This behavior is kept for backward compatibility.
 
-    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag type for choice");
     }
 
@@ -955,7 +955,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
                                "Expected CONTEXT tag class for tagged choice");
         }
 
-        if (innerNode.tagType() != BerConstants::e_BDEM_CONSTRUCTED) {
+        if (innerNode.tagType() != BerConstants::e_CONSTRUCTED) {
             return innerNode.logError(
                             "Expected CONSTRUCTED tag type for tagged choice");
         }
@@ -993,7 +993,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
     if (d_formattingMode & bdlat_FormattingMode::BDEAT_NILLABLE) {
         // nillable is encoded in BER as a sequence with one optional element
 
-        if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+        if (d_tagType != BerConstants::e_CONSTRUCTED) {
             return logError("Expected CONSTRUCTED tag type for nullable");
         }
 
@@ -1085,7 +1085,7 @@ template <typename TYPE>
 inline
 int BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Simple)
 {
-    if (d_tagType != BerConstants::e_BDEM_PRIMITIVE) {
+    if (d_tagType != BerConstants::e_PRIMITIVE) {
         return logError("Expected PRIMITIVE tag type for simple type");
     }
 
@@ -1104,7 +1104,7 @@ template <typename TYPE>
 int
 BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
 {
-    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag type for sequence");
     }
 
@@ -1212,7 +1212,7 @@ template <typename TYPE>
 int
 BerDecoder_Node::decodeArray(TYPE *variable)
 {
-    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag class for array");
     }
 
@@ -1311,15 +1311,15 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ------------------------------ END-OF-FILE ---------------------------------

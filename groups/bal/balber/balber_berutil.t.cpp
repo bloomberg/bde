@@ -1,4 +1,4 @@
-// balber_berutil.t.cpp                  -*-C++-*-
+// balber_berutil.t.cpp                                               -*-C++-*-
 #include <balber_berutil.h>
 
 #include <balber_berconstants.h>
@@ -39,16 +39,16 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//==========================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -60,7 +60,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -91,18 +91,18 @@ static void aSsErT(int c, const char *s, int i) {
                          << L << "\t" << #M << ": " << M << "\t" << #N     \
                          << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
 #define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
 #define L_ __LINE__                                // current Line number
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 enum { SUCCESS = 0, FAILURE = -1 };
@@ -120,9 +120,9 @@ typedef bslstl::StringRef StringRef;
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
 typedef bdlt::PosixDateImpUtil  DateUtil;
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int numOctets(const char *s)
     // Return the number of octets contained in the specified 's'.  Note that
@@ -217,9 +217,9 @@ void ignoreAssertHandler(const char *, const char *, int)
 {
 }
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.  Due
 // to the low-level nature of this component, an extended usage example is not
@@ -247,15 +247,16 @@ void usageExample()
 {
     bdlsb::MemOutStreamBuf osb;
 
-    balber::BerConstants::TagClass tagClass =
-                                    balber::BerConstants::e_CONTEXT_SPECIFIC;
-    balber::BerConstants::TagType  tagType  = balber::BerConstants::e_BDEM_PRIMITIVE;
-    int                         tagNumber= 31;
+    balber::BerConstants::TagClass tagClass  =
+                                      balber::BerConstants::e_CONTEXT_SPECIFIC;
+    balber::BerConstants::TagType  tagType   =
+                                             balber::BerConstants::e_PRIMITIVE;
+    int                            tagNumber = 31;
 
     int retCode = balber::BerUtil::putIdentifierOctets(&osb,
-                                                    tagClass,
-                                                    tagType,
-                                                    tagNumber);
+                                                       tagClass,
+                                                       tagType,
+                                                       tagNumber);
     ASSERT(0    == retCode);
     ASSERT(2    == osb.length());
     ASSERT(0x9F == (unsigned char)osb.data()[0]);
@@ -268,14 +269,14 @@ void usageExample()
 
     balber::BerConstants::TagClass tagClassIn;
     balber::BerConstants::TagType  tagTypeIn;
-    int                         tagNumberIn;
-    int                         numBytesConsumed = 0;
+    int                            tagNumberIn;
+    int                            numBytesConsumed = 0;
 
     retCode = balber::BerUtil::getIdentifierOctets(&isb,
-                                                &tagClassIn,
-                                                &tagTypeIn,
-                                                &tagNumberIn,
-                                                &numBytesConsumed);
+                                                   &tagClassIn,
+                                                   &tagTypeIn,
+                                                   &tagNumberIn,
+                                                   &numBytesConsumed);
     ASSERT(0         == retCode);
     ASSERT(2         == numBytesConsumed);
     ASSERT(tagClass  == tagClassIn);
@@ -284,15 +285,15 @@ void usageExample()
 }
 //..
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
+    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
@@ -3840,8 +3841,8 @@ int main(int argc, char *argv[])
                 APPLICATION      = balber::BerConstants::e_APPLICATION,
                 CONTEXT_SPECIFIC = balber::BerConstants::e_CONTEXT_SPECIFIC,
                 PRIVATE          = balber::BerConstants::e_PRIVATE,
-                PRIMITIVE        = balber::BerConstants::e_BDEM_PRIMITIVE,
-                CONSTRUCTED      = balber::BerConstants::e_BDEM_CONSTRUCTED
+                PRIMITIVE        = balber::BerConstants::e_PRIMITIVE,
+                CONSTRUCTED      = balber::BerConstants::e_CONSTRUCTED
             };
 
             static const struct {
@@ -6341,11 +6342,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
