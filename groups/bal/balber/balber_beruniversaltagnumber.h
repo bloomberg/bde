@@ -483,7 +483,7 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::selectForDateAndTimeTypes()
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     if (d_options_p) {
         return d_options_p->encodeDateAndTimeTypesAsBinary()
@@ -504,9 +504,9 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const bool&, bdlat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_TEXT    == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_TEXT    == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_BOOL;
 }
@@ -515,13 +515,13 @@ inline
 BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const char&, bdlat_TypeCategory::Simple)
 {
-    if (FMode::BDEAT_TEXT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)) {
+    if (FMode::BDLAT_TEXT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)) {
         return BerUniversalTagNumber::e_BER_UTF8_STRING;
     }
 
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -531,13 +531,13 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const signed char&         ,
                                   bdlat_TypeCategory::Simple )
 {
-    if (FMode::BDEAT_TEXT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)) {
+    if (FMode::BDLAT_TEXT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)) {
         return BerUniversalTagNumber::e_BER_UTF8_STRING;
     }
 
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -548,8 +548,8 @@ BerUniversalTagNumber_Imp::select(const unsigned char&            ,
                                        bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -560,8 +560,8 @@ BerUniversalTagNumber_Imp::select(const short&                    ,
                                        bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -572,8 +572,8 @@ BerUniversalTagNumber_Imp::select(const unsigned short&           ,
                                        bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -583,8 +583,8 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const int&, bdlat_TypeCategory::Simple)
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -595,8 +595,8 @@ BerUniversalTagNumber_Imp::select(const unsigned int&        ,
                                   bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -607,8 +607,8 @@ BerUniversalTagNumber_Imp::select(const long&                ,
                                   bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -619,8 +619,8 @@ BerUniversalTagNumber_Imp::select(const unsigned long&       ,
                                   bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -631,8 +631,8 @@ BerUniversalTagNumber_Imp::select(const bsls::Types::Int64&  ,
                                   bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -643,8 +643,8 @@ BerUniversalTagNumber_Imp::select(const bsls::Types::Uint64& ,
                                   bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_INT;
 }
@@ -655,8 +655,8 @@ BerUniversalTagNumber_Imp::select(const float&               ,
                                   bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_REAL;
 }
@@ -667,8 +667,8 @@ BerUniversalTagNumber_Imp::select(const double&              ,
                                   bdlat_TypeCategory::Simple )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_REAL;
 }
@@ -678,14 +678,14 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const bsl::string&        ,
                                   bdlat_TypeCategory::Simple)
 {
-    if (FMode::BDEAT_BASE64 == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-     || FMode::BDEAT_HEX    == (d_formattingMode & FMode::BDEAT_TYPE_MASK)) {
+    if (FMode::BDLAT_BASE64 == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+     || FMode::BDLAT_HEX    == (d_formattingMode & FMode::BDLAT_TYPE_MASK)) {
         return BerUniversalTagNumber::e_BER_OCTET_STRING;
     }
 
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_TEXT    == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_TEXT    == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_UTF8_STRING;
 }
@@ -759,14 +759,14 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const bsl::vector<char>&  ,
                                   bdlat_TypeCategory::Array )
 {
-    if (FMode::BDEAT_TEXT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)) {
+    if (FMode::BDLAT_TEXT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)) {
         return BerUniversalTagNumber::e_BER_UTF8_STRING;
     }
 
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_BASE64  == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_HEX     == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_BASE64  == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_HEX     == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_OCTET_STRING;
 }
@@ -797,9 +797,9 @@ BerUniversalTagNumber_Imp::select(const TYPE&                     ,
                                   bdlat_TypeCategory::Enumeration )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_DEC     == (d_formattingMode & FMode::BDEAT_TYPE_MASK)
-       || FMode::BDEAT_TEXT    == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_DEC     == (d_formattingMode & FMode::BDLAT_TYPE_MASK)
+       || FMode::BDLAT_TEXT    == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_ENUMERATION;
 }
@@ -811,7 +811,7 @@ BerUniversalTagNumber_Imp::select(const TYPE&               ,
                                   bdlat_TypeCategory::Array )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_SEQUENCE;
 }
@@ -823,7 +823,7 @@ BerUniversalTagNumber_Imp::select(const TYPE&                  ,
                                   bdlat_TypeCategory::Sequence )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_SEQUENCE;
 }
@@ -835,7 +835,7 @@ BerUniversalTagNumber_Imp::select(const TYPE&                ,
                                   bdlat_TypeCategory::Choice )
 {
     BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
+          FMode::BDLAT_DEFAULT == (d_formattingMode & FMode::BDLAT_TYPE_MASK));
 
     // According to X.694 (clause 20.4), an XML choice element is encoded
     // as a sequence with 1 element.
@@ -849,7 +849,7 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const TYPE&                       ,
                                   bdlat_TypeCategory::NullableValue )
 {
-    if (d_formattingMode & FMode::BDEAT_NILLABLE) {
+    if (d_formattingMode & FMode::BDLAT_NILLABLE) {
         return BerUniversalTagNumber::e_BER_SEQUENCE;
     }
 

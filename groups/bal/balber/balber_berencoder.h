@@ -696,14 +696,14 @@ int BerEncoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
         BerEncoderOptions options;  // temporary options object
         d_options = &options;
         BerEncoder_UniversalElementVisitor
-                            visitor(this, bdlat_FormattingMode::BDEAT_DEFAULT);
+                            visitor(this, bdlat_FormattingMode::BDLAT_DEFAULT);
 
         rc = visitor(value);
         d_options = 0;
     }
     else {
         BerEncoder_UniversalElementVisitor
-                            visitor(this, bdlat_FormattingMode::BDEAT_DEFAULT);
+                            visitor(this, bdlat_FormattingMode::BDLAT_DEFAULT);
         rc = visitor(value);
     }
 
@@ -749,7 +749,7 @@ int BerEncoder::encodeImpl(const TYPE&                value,
     }
 
     const bool isUntagged =
-                         formattingMode & bdlat_FormattingMode::BDEAT_UNTAGGED;
+                         formattingMode & bdlat_FormattingMode::BDLAT_UNTAGGED;
 
     if (!isUntagged) {
         // According to X.694 (clause 20.4), an XML choice (not anonymous)
@@ -766,7 +766,7 @@ int BerEncoder::encodeImpl(const TYPE&                value,
 
     const int selectionId = bdlat_ChoiceFunctions::selectionId(value);
 
-    if (bdlat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID != selectionId) {
+    if (bdlat_ChoiceFunctions::BDLAT_UNDEFINED_SELECTION_ID != selectionId) {
 
         BerEncoder_Visitor visitor(this);
 
@@ -797,7 +797,7 @@ int BerEncoder::encodeImpl(const TYPE&                       value,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    bool isNillable = formattingMode & bdlat_FormattingMode::BDEAT_NILLABLE;
+    bool isNillable = formattingMode & bdlat_FormattingMode::BDLAT_NILLABLE;
 
     if (isNillable) {
 

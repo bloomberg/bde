@@ -459,7 +459,7 @@ template <class MANIPULATOR>
 inline
 int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
@@ -486,7 +486,7 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
                                                                       // RETURN
       } break;
       default:
-        return k_BDEM_NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -496,12 +496,12 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR&  manipulator,
                                            const char   *name,
                                            int           nameLength)
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
-        return k_BDEM_NOT_FOUND;                                      // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -590,7 +590,7 @@ template <class ACCESSOR>
 inline
 int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
@@ -616,7 +616,7 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return k_BDEM_NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -626,12 +626,12 @@ int BerDecoderOptions::accessAttribute(ACCESSOR&   accessor,
                                        const char *name,
                                        int         nameLength) const
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (!attributeInfo) {
-       return k_BDEM_NOT_FOUND;                                       // RETURN
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

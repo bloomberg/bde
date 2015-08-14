@@ -806,7 +806,7 @@ BerDecoder_Node::BerDecoder_Node(BerDecoder *decoder)
 , d_consumedHeaderBytes(0)
 , d_consumedBodyBytes  (0)
 , d_consumedTailBytes  (0)
-, d_formattingMode     (bdlat_FormattingMode::BDEAT_DEFAULT)
+, d_formattingMode     (bdlat_FormattingMode::BDLAT_DEFAULT)
 , d_fieldName          (0)
 {
     ++d_decoder->d_currentDepth;
