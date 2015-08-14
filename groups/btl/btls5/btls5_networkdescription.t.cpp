@@ -1640,7 +1640,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'baltzo::ZoneinfoTransition' PRINT AND OUTPUT OPERATOR
+        // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
         //   on an 'ostream' in some standard, human-readable form.
         //
