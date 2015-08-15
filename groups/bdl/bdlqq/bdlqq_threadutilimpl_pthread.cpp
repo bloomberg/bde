@@ -54,7 +54,7 @@ int localPthreadsPolicy(int policy)
       case Attr::e_SCHED_FIFO:    return SCHED_FIFO;              // RETURN
       case Attr::e_SCHED_RR:      return SCHED_RR;                // RETURN
 #if defined(BSLS_PLATFORM_OS_HPUX)
-      case Attr::BCEMT_SCHED_DEFAULT:
+      case Attr::e_SCHED_DEFAULT:
       default:                        return SCHED_HPUX;              // RETURN
 #else
       case Attr::e_SCHED_DEFAULT:

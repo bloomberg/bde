@@ -407,14 +407,14 @@ inline
 int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
     getMinSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
-    return ThreadAttributes::BCEMT_UNSET_PRIORITY;
+    return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline
 int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
     getMaxSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
-    return ThreadAttributes::BCEMT_UNSET_PRIORITY;
+    return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline

@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
                           << "\n=====================" << endl;
 
 // First, create a variable 'channelType' of type 'btlmt::ChannelType::Value'
-// and initialize it to the value 'btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL'.
+// and initialize it to the value 'btlmt::ChannelType::e_CONNECTED_CHANNEL'.
 //..
     btlmt::ChannelType::Value channelType =
                                     btlmt::ChannelType::e_CONNECTED_CHANNEL;

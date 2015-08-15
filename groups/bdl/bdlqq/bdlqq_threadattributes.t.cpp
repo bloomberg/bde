@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
                 3, 0, 300000, 0, 5 },
 #else
-           {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
                 3, 0, 80000, 0, 5 },
 #endif
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
@@ -235,17 +235,17 @@ int main(int argc, char *argv[])
 
         typedef bdlqq::ThreadAttributes::Imp Imp;
 
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE ==
-                                                   Imp::BCEMT_CREATE_JOINABLE);
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED ==
-                                                   Imp::BCEMT_CREATE_DETACHED);
+        ASSERT(bdlqq::ThreadAttributes::e_CREATE_JOINABLE ==
+                                                   Imp::e_CREATE_JOINABLE);
+        ASSERT(bdlqq::ThreadAttributes::e_CREATE_DETACHED ==
+                                                   Imp::e_CREATE_DETACHED);
 
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER ==
-                                                   Imp::BCEMT_SCHED_OTHER);
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_SCHED_FIFO  ==
-                                                   Imp::BCEMT_SCHED_FIFO);
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_SCHED_RR    ==
-                                                   Imp::BCEMT_SCHED_RR);
+        ASSERT(bdlqq::ThreadAttributes::e_SCHED_OTHER ==
+                                                   Imp::e_SCHED_OTHER);
+        ASSERT(bdlqq::ThreadAttributes::e_SCHED_FIFO  ==
+                                                   Imp::e_SCHED_FIFO);
+        ASSERT(bdlqq::ThreadAttributes::e_SCHED_RR    ==
+                                                   Imp::e_SCHED_RR);
 #endif
       } break;
       case -1: {

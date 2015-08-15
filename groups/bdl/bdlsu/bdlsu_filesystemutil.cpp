@@ -521,7 +521,7 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
 
     HANDLE hMap;
 
-    if (MemoryUtil::BDESU_ACCESS_NONE == mode) {
+    if (MemoryUtil::k_ACCESS_NONE == mode) {
         return -1;                                                    // RETURN
     }
     mode &= 7;

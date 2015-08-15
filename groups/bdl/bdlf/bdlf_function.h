@@ -441,11 +441,11 @@ class Function_Rep {
         // This enumeration provide values to identify operations to be
         // performed by the manager.
 
-        BDEF_MOVE_CONSTRUCT     = 0
-      , BDEF_COPY_CONSTRUCT     = 1
-      , BDEF_CONSTRUCT          = 2
-      , BDEF_DESTROY            = 3
-      , BDEF_IN_PLACE_DETECTION = 4
+        BDEF_MOVE_CONSTRUCT     = 0  //ARB:RENAME
+      , BDEF_COPY_CONSTRUCT     = 1  //ARB:RENAME
+      , BDEF_CONSTRUCT          = 2  //ARB:RENAME
+      , BDEF_DESTROY            = 3  //ARB:RENAME
+      , BDEF_IN_PLACE_DETECTION = 4  //ARB:RENAME
     };
 
     typedef bool (*Manager)(Function_Rep *rep,

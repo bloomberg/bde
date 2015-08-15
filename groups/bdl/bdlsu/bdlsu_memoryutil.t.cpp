@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         for (int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
             // do not try to set executable bit when on HP-UX
 #ifdef BSLS_PLATFORM_OS_HPUX
-            if (mode & bdlsu::MemoryUtil::BDESU_ACCESS_EXECUTE) {
+            if (mode & bdlsu::MemoryUtil::k_ACCESS_EXECUTE) {
                 continue;
             }
 #endif

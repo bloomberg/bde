@@ -1200,8 +1200,8 @@ int main(int argc, char *argv[])
 
 #if   defined(BSLS_PLATFORM_OS_SOLARIS)
             const int prioritiesWork = !isPost_5_10 ||
-                                           (Attr::BCEMT_SCHED_FIFO != POLICY &&
-                                            Attr::BCEMT_SCHED_RR   != POLICY);
+                                           (Attr::e_SCHED_FIFO != POLICY &&
+                                            Attr::e_SCHED_RR   != POLICY);
 #elif defined(BSLS_PLATFORM_OS_AIX)
             const int prioritiesWork = 1;
 #else
@@ -1412,8 +1412,8 @@ int main(int argc, char *argv[])
                                    Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
             const bool willFail = isPost_5_10 &&
-                                           (Attr::BCEMT_SCHED_FIFO == policy ||
-                                            Attr::BCEMT_SCHED_RR   == policy);
+                                           (Attr::e_SCHED_FIFO == policy ||
+                                            Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_DARWIN)
             const bool willFail = false;
 #else
@@ -1803,8 +1803,8 @@ int main(int argc, char *argv[])
             }
             else {
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-                ASSERT(Attr::BCEMT_SCHED_FIFO == POLICY ||
-                       Attr::BCEMT_SCHED_RR   == POLICY);
+                ASSERT(Attr::e_SCHED_FIFO == POLICY ||
+                       Attr::e_SCHED_RR   == POLICY);
 #elif !defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_OS_WINDOWS)
                 // This should only happen on Linux and Windows
                 ASSERT(0);

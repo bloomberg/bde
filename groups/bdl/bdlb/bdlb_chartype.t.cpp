@@ -1402,7 +1402,7 @@ int main(int argc, char *argv[])
             c = bdlb::CharType::e_NONE;    ASSERT(15 == c);
         }
 
-        if (verbose) cout << "\nVerify bdlb::CharType::BDEU_NUM_CATEGORIES."
+        if (verbose) cout << "\nVerify bdlb::CharType::k_NUM_CATEGORIES."
                           << endl;
         {
             ASSERT(16 == bdlb::CharType::k_NUM_CATEGORIES);
