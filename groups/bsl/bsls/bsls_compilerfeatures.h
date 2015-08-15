@@ -423,7 +423,7 @@ BSLS_IDENT("$Id: $")
 // gcc supports __attribute__((noreturn)) in earlier versions
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
-#if BSLS_PLATFORM_CMP_VERSION >= 40900
+#if BSLS_PLATFORM_CMP_VERSION >= 50000
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
 #endif
