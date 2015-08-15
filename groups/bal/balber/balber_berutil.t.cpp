@@ -217,6 +217,48 @@ void ignoreAssertHandler(const char *, const char *, int)
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
+
+// ============================================================================
+//                              MAIN PROGRAM
+// ----------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
+
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTesting Usage Example"
+                               << "\n=====================" << bsl::endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1:  Reading and Writing Identifier Octets
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.  Due
 // to the low-level nature of this component, an extended usage example is not
 // necessary.
@@ -232,15 +274,6 @@ void ignoreAssertHandler(const char *, const char *, int)
 // containing the values 0x9F and 0x1F.  The following function demonstrates
 // this:
 //..
-//  #include <balber_berconstants.h>
-//  #include <balber_berutil.h>
-//  #include <bdlsb_fixedmeminstreambuf.h>
-//  #include <bdlsb_memoutstreambuf.h>
-//
-//  using namespace BloombergLP;
-//
-void usageExample()
-{
     bdlsb::MemOutStreamBuf osb;
 
     balber::BerConstants::TagClass tagClass  =
@@ -278,38 +311,7 @@ void usageExample()
     ASSERT(tagClass  == tagClassIn);
     ASSERT(tagType   == tagTypeIn);
     ASSERT(tagNumber == tagNumberIn);
-}
 //..
-
-// ============================================================================
-//                              MAIN PROGRAM
-// ----------------------------------------------------------------------------
-
-int main(int argc, char *argv[])
-{
-    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
-
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
-
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "\nTesting Usage Example"
-                               << "\n=====================" << bsl::endl;
-
-        usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
