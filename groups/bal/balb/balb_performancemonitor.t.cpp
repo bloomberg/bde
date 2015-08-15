@@ -126,17 +126,17 @@ const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
             configuration, \
             &bslma::NewDeleteAllocator::singleton());\
 \
-    ball::Severity::Level passthrough = ball::Severity::BAEL_OFF;\
+    ball::Severity::Level passthrough = ball::Severity::e_OFF;\
 \
-    if (verbose) passthrough         = ball::Severity::BAEL_WARN;\
-    if (veryVerbose) passthrough     = ball::Severity::BAEL_INFO;\
-    if (veryVeryVerbose) passthrough = ball::Severity::BAEL_TRACE;\
+    if (verbose) passthrough         = ball::Severity::e_WARN;\
+    if (veryVerbose) passthrough     = ball::Severity::e_INFO;\
+    if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;\
 \
     ball::LoggerManager::singleton().setDefaultThresholdLevels(\
-                                       ball::Severity::BAEL_OFF,\
+                                       ball::Severity::e_OFF,\
                                        passthrough,\
-                                       ball::Severity::BAEL_OFF,\
-                                       ball::Severity::BAEL_OFF)
+                                       ball::Severity::e_OFF,\
+                                       ball::Severity::e_OFF)
 
 //=============================================================================
 //                              MAIN PROGRAM

@@ -748,7 +748,7 @@ class Decoder_ErrorLogger {
 #define BALXML_DECODER_LOG_ERROR(reporter)                     \
     do {                                                       \
         balxml::Decoder_ErrorLogger                             \
-            logger(balxml::ErrorInfo::BAEXML_ERROR, reporter);  \
+            logger(balxml::ErrorInfo::e_ERROR, reporter);  \
         logger.stream()
     // Usage: BAEXML_LOG_ERROR(myDecoder) << "Message"
     //                                    << value << BALXML_DECODER_LOG_END;
@@ -756,7 +756,7 @@ class Decoder_ErrorLogger {
 #define BALXML_DECODER_LOG_WARNING(reporter)                   \
     do {                                                       \
         balxml::Decoder_ErrorLogger                             \
-           logger(balxml::ErrorInfo::BAEXML_WARNING, reporter); \
+           logger(balxml::ErrorInfo::e_WARNING, reporter); \
         logger.stream()
     // Usage: BAEXML_LOG_WARNING(myDecoder) << "Message"
     //                                      << value << BALXML_DECODER_LOG_END;
