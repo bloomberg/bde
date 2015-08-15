@@ -1304,13 +1304,13 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(VariantImp,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(VariantImp,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(VariantImp,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(VariantImp, bdlb::HasPrintMethod);
 
     // CREATORS
@@ -2224,13 +2224,13 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant, bdlb::HasPrintMethod);
 
     // CREATORS
@@ -2386,13 +2386,13 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant2,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant2,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant2,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant2, bdlb::HasPrintMethod);
 
     // CREATORS
@@ -2518,13 +2518,13 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant3,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant3,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant3,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant3, bdlb::HasPrintMethod);
 
 
@@ -2654,13 +2654,13 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant4,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant4,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant4,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant4, bdlb::HasPrintMethod);
 
 
@@ -2790,13 +2790,13 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant5,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant5,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant5,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant5, bdlb::HasPrintMethod);
 
 
@@ -2926,13 +2926,13 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant6,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant6,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant6,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant6, bdlb::HasPrintMethod);
 
 
@@ -3063,13 +3063,13 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant7,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant7,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant7,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant7, bdlb::HasPrintMethod);
 
 
@@ -3202,13 +3202,13 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant8,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant8,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant8,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant8, bdlb::HasPrintMethod);
 
 
@@ -3347,13 +3347,13 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant9,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant9,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant9,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant9, bdlb::HasPrintMethod);
 
 
@@ -3493,13 +3493,13 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant10,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant10,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant10,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant10, bdlb::HasPrintMethod);
 
 
@@ -3639,13 +3639,13 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant11,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant11,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant11,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant11, bdlb::HasPrintMethod);
 
 
@@ -3787,13 +3787,13 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant12,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant12,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant12,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant12, bdlb::HasPrintMethod);
 
 
@@ -3936,13 +3936,13 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant13,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant13,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant13,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant13, bdlb::HasPrintMethod);
 
 
@@ -4087,13 +4087,13 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant14,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant14,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant14,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant14, bdlb::HasPrintMethod);
 
 
@@ -4244,13 +4244,13 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant15,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant15,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant15,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant15, bdlb::HasPrintMethod);
 
 
@@ -4410,13 +4410,13 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant16,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant16,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant16,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant16, bdlb::HasPrintMethod);
 
 
@@ -4577,13 +4577,13 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant17,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant17,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant17,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant17, bdlb::HasPrintMethod);
 
 
@@ -4743,13 +4743,13 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant18,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant18,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant18,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant18, bdlb::HasPrintMethod);
 
 
@@ -4911,13 +4911,13 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant19,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant19,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant19,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant19, bdlb::HasPrintMethod);
 
     // CREATORS
