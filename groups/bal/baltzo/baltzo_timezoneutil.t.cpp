@@ -13,6 +13,7 @@
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
 #include <bdlt_iso8601util.h>
@@ -24,10 +25,12 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
-#include <bsls_types.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -125,13 +128,13 @@ typedef baltzo::LocalTimeDescriptor Descriptor;
 //=============================================================================
 //                              GLOBAL CONSTANTS
 //-----------------------------------------------------------------------------
-const Dst::Enum      UNSP = Dst::BALTZO_UNSPECIFIED;
-const Dst::Enum      DST  = Dst::BALTZO_DST;
-const Dst::Enum      STD  = Dst::BALTZO_STANDARD;
-const Validity::Enum UNI  = Validity::BALTZO_VALID_UNIQUE;
-const Validity::Enum AMB  = Validity::BALTZO_VALID_AMBIGUOUS;
-const Validity::Enum INV  = Validity::BALTZO_INVALID;
-const Err::Enum      EUID = Err::BALTZO_UNSUPPORTED_ID;
+const Dst::Enum      UNSP = Dst::e_UNSPECIFIED;
+const Dst::Enum      DST  = Dst::e_DST;
+const Dst::Enum      STD  = Dst::e_STANDARD;
+const Validity::Enum UNI  = Validity::e_VALID_UNIQUE;
+const Validity::Enum AMB  = Validity::e_VALID_AMBIGUOUS;
+const Validity::Enum INV  = Validity::e_INVALID;
+const Err::Enum      EUID = Err::k_UNSUPPORTED_ID;
 
 const char *NY  = "America/New_York";
 const char *RY  = "Asia/Riyadh";
@@ -798,8 +801,8 @@ struct LogVerbosityGuard {
     int  d_defaultPassthrough;  // default passthrough log level
 
     LogVerbosityGuard(bool verbose = false)
-        // If the specified 'verbose' is 'false' disable logging util this
-        // guard is destroyed.
+        // If the optionally specified 'verbose' is 'false' disable logging
+        // until this guard is destroyed.
     {
         d_verbose = verbose;
         if (!d_verbose) {
@@ -821,7 +824,7 @@ struct LogVerbosityGuard {
         }
     }
 
-   ~LogVerbosityGuard()
+    ~LogVerbosityGuard()
         // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
@@ -1094,7 +1097,7 @@ int main(int argc, char *argv[])
 // New York (because it does not fall near a daylight-saving time
 // transition):
 //..
-    ASSERT(baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE == validity);
+    ASSERT(baltzo::LocalTimeValidity::e_VALID_UNIQUE == validity);
 //..
 // By contrast, if we call 'initLocalTime' for a time value that falls during a
 // during a daylight-saving time transition, the returned
@@ -1128,9 +1131,9 @@ int main(int argc, char *argv[])
     ASSERT( -4 * 60 == localTime.datetimeTz().offset());
 //..
 // Finally, we verify that the validity status returned for 'invalidTime' is
-// 'BALTZO_INVALID':
+// 'e_INVALID':
 //..
-    ASSERT(baltzo::LocalTimeValidity::BALTZO_INVALID == validity);
+    ASSERT(baltzo::LocalTimeValidity::e_INVALID == validity);
 //..
         }
 
@@ -1140,10 +1143,10 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to obtain additional information about a
 // local time in a given time zone using the 'loadLocalTimePeriod' method.
-// Using 'loadLocalTimePeriod' a client can determine, for a point in time,
-// the attributes that characterize local time in a given time zone (e.g.,
-// the offset from UTC, whether it is daylight-saving time) as well as the
-// interval over which those attributes apply (see 'baltzo_localtimeperiod').
+// Using 'loadLocalTimePeriod' a client can determine, for a point in time, the
+// attributes that characterize local time in a given time zone (e.g., the
+// offset from UTC, whether it is daylight-saving time) as well as the interval
+// over which those attributes apply (see 'baltzo_localtimeperiod').
 //
 // First, we create a 'baltzo::LocalDatetime' object for the New York local
 // time "Jul 31, 2010 15:00:00-04:00".  Note that this 'baltzo::LocalDatetime'
@@ -1338,7 +1341,7 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'convertLocalToLocal'
         //
         // Concerns:
-        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   supplied.
         //:
         //: 2 Resulting 'baltzo::LocalDatetime' has the same time zone as the
@@ -1347,13 +1350,13 @@ int main(int argc, char *argv[])
         //: 3 'baltzo::TimeZoneUtilImp::convertLocalToLocalTime' is invoked to
         //:   return the correct result.
         //:
-        //: 4 'dstPolicy' is default to 'BALTZO_UNSPECIFIED' if not specified.
+        //: 4 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that 'BALTZO_UNSUPPORTED_ID' is returned when given a time
-        //:   zone identifier that does not exist.  (C-1)
+        //: 1 Test that 'k_UNSUPPORTED_ID' is returned when given a time zone
+        //:   identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
         //:   verify that the method returns the expected result.  (C-2..3)
@@ -1742,8 +1745,8 @@ int main(int argc, char *argv[])
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
-        //:   supplied with a time zone identifier that does not exist.  (C-1)
+        //: 1 Test that the method returns 'k_UNSUPPORTED_ID' when supplied
+        //:   with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with interval that spans across: a) no
         //:   transition boundary, b) a single transition, and c) multiple
@@ -1871,7 +1874,7 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'convertUtcToLocalTime'
         //
         // Concerns:
-        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   supplied.
         //:
         //: 2 'baltzo::TimeZoneUtilImp::convertUtcToLocalTime' is invoked to
@@ -1883,8 +1886,8 @@ int main(int argc, char *argv[])
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
-        //:   supplied with a time zone identifier that does not exist.  (C-1)
+        //: 1 Test that the method returns 'k_UNSUPPORTED_ID' when supplied
+        //:   with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
         //:   verify that the method returns the expected result.  (C-2..3)
@@ -2034,19 +2037,19 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'convertLocalToUtc'
         //
         // Concerns:
-        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
         //: 2 'baltzo::TimeZoneUtilImp::convertLocalToUtc' is invoked return
         //:   the correct result.
         //:
-        //: 3 'dstPolicy' is default to 'BALTZO_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
-        //:   supplied with a time zone identifier that does not exist.  (C-1)
+        //: 1 Test that the method returns 'k_UNSUPPORTED_ID' when supplied
+        //:   with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
         //:   verify that the method returns the expected result.  (C-2)
@@ -2262,19 +2265,19 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'initLocalTime'
         //
         // Concerns:
-        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
         //: 2 'baltzo::TimeZoneUtilImp::initLocalTime' is invoked return the
         //:   correct result.
         //:
-        //: 3 'dstPolicy' is default to 'BALTZO_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' is default to 'e_UNSPECIFIED' if not specified.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
-        //:   supplied with a time zone identifier that does not exist.  (C-1)
+        //: 1 Test that the method returns 'k_UNSUPPORTED_ID' when supplied
+        //:   with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
         //:   verify that the method returns the expected result. (C-2)
@@ -2549,19 +2552,19 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'loadLocalTimePeriod'
         //
         // Concerns:
-        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'k_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
         //: 2 'loadLocalTimePeriodForUtc' is invoked to return the correct
         //:   result.
         //:
-        //: 3 'dstPolicy' is default to 'BALTZO_UNSPECIFIED'.
+        //: 3 'dstPolicy' is default to 'e_UNSPECIFIED'.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that 'BALTZO_UNSUPPORTED_ID' is returned when given a time
-        //:   zone identifier that does not exist.  (C-1)
+        //: 1 Test that 'k_UNSUPPORTED_ID' is returned when given a time zone
+        //:   identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
         //:   verify that the method returns the expected result.  (C-2..3)
@@ -2727,8 +2730,7 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'loadLocalTimePeriodForUtc'
         //
         // Concerns:
-        //: 1 returns 'BALTZO_UNSUPPORTED_ID' if 'timeZoneId' is not
-        //:   recognized.
+        //: 1 returns 'k_UNSUPPORTED_ID' if 'timeZoneId' is not recognized.
         //:
         //: 2 'baltzo::TimeZoneUtilImp::loadLocalTimePeriodForUtc' is correctly
         //:   called by this function.
@@ -2736,9 +2738,8 @@ int main(int argc, char *argv[])
         //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that 'loadLocalTimePeriodForUtc' returns
-        //:   'BALTZO_UNSUPPORTED_ID' when given a time zone identifier that
-        //:   does not exist. (C-1)
+        //: 1 Test that 'loadLocalTimePeriodForUtc' returns 'k_UNSUPPORTED_ID'
+        //:   when given a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
         //:   verify that the method returns the expected result.  (C-2)

@@ -1,4 +1,4 @@
-// bdlmxxx_convert.t.cpp                                                 -*-C++-*-
+// bdlmxxx_convert.t.cpp                                              -*-C++-*-
 
 #include <bdlmxxx_convert.h>
 
@@ -267,7 +267,7 @@ static const bdlt::DatetimeTz DATETIMETZ_V4(DATETIME_V2, 0);
 //                  GLOBAL HELPER ENTITIES FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <typename CPPTYPE>
+template <class CPPTYPE>
 struct BdemEnum {
     // Return the 'bdlmxxx::ElemType' enumeration for a C++ type.
     enum { VALUE = ET::BDEM_VOID };
@@ -344,7 +344,7 @@ template <> struct BdemEnum<bdlmxxx::Row>
 template <> struct BdemEnum<bdlmxxx::ChoiceArrayItem>
 { enum { VALUE = ET::BDEM_CHOICE_ARRAY_ITEM }; };
 
-template <typename T>
+template <class T>
 class ConvertibleTo {
     // Object that's convertible to 'T'.
     T d_value;
@@ -358,7 +358,7 @@ class ConvertibleTo {
     }
 };
 
-template <typename T>
+template <class T>
 class ConvertibleFrom {
     // Object that's convertible From 'T'.
     T d_value;
@@ -377,13 +377,13 @@ class ConvertibleFrom {
     }
 };
 
-template <typename T>
+template <class T>
 bsl::ostream& operator<<(bsl::ostream& os, const ConvertibleFrom<T>& v)
 {
     return os << v.value();
 }
 
-template <typename T>
+template <class T>
 class TestValue {
     // This class hold an object of type 'T' which can be modified then
     // "reloaded" with an initial value.  The test driver obtains a modifiable
@@ -439,7 +439,7 @@ class TestValue<bdlmxxx::ChoiceArrayItem> {
     bool isChanged() const { return d_current != d_initial; }
 };
 
-template <typename T, bsl::size_t NUM_ELEMS>
+template <class T, bsl::size_t NUM_ELEMS>
 class TestValue<T[NUM_ELEMS]> {
     // This class hold an object of type 'T' which can be modified then
     // "reloaded" with an initial value.  The test driver obtains a modifiable
@@ -462,7 +462,7 @@ class TestValue<T[NUM_ELEMS]> {
     bool isChanged() const { return false; }
 };
 
-template <typename FROMTYPE, typename TOTYPE>
+template <class FROMTYPE, class TOTYPE>
 void testConversions(int             line,
                      bool            expectedSuccess,
                      const TOTYPE&   initial,
@@ -820,7 +820,7 @@ void testConversions(int             line,
 #define TEST_BAD_CONVERSIONS(line, initial, from) \
     testConversions((line), false, (initial), (from), (initial))
 
-template <typename FROMTYPE>
+template <class FROMTYPE>
 void testNumericConv(const FROMTYPE& fromValue, bool isNull)
 {
     const bool           initBoolF  = false;
@@ -874,7 +874,7 @@ void testNumericConv(const FROMTYPE& fromValue, bool isNull)
     TEST_GOOD_CONVERSIONS(L_, initCvtFt,  fromValue, expectedCvtFt);
 }
 
-template <typename FROMTYPE>
+template <class FROMTYPE>
 void testTimeConv(int                    line,
                   const FROMTYPE&        fromValue,
                   const bdlt::Date       *expD,
@@ -904,7 +904,7 @@ void testTimeConv(int                    line,
     TEST_GOOD_CONVERSIONS(line, initTo, fromValue, expTo);
 }
 
-template <typename OTHER_TYPE>
+template <class OTHER_TYPE>
 void testStringConv(int               line,
                     const OTHER_TYPE& initOther,
                     const char*       strVal,
@@ -1015,7 +1015,7 @@ void testStringConv(int               line,
 // meta-programming.  Using these functions, we can re-write 'setValue' like
 // this:
 //..
-    template <typename VALTYPE>
+    template <class VALTYPE>
     void setValue(const bdlmxxx::ElemRef& elem, const VALTYPE& value) {
         bdlmxxx::ElemType::Type elemType = elem.type();
         void *elemData = elem.data();
@@ -2156,11 +2156,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

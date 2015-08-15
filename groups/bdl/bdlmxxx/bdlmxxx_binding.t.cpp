@@ -1,4 +1,4 @@
-// bdlmxxx_binding.t.cpp                                                 -*-C++-*-
+// bdlmxxx_binding.t.cpp                                              -*-C++-*-
 
 #include <bdlmxxx_binding.h>
 
@@ -861,9 +861,9 @@ int strCmp(const char* lhs, const char* rhs)
     // equal, a negative value if lhs < rhs, and a positive value if lhs > rhs.
     // Note that the behavior is well-defined for null-pointer arguments.
 {
-    if (0 == lhs && 0 == rhs) { return 0; }
-    if (0 == lhs) { return -1; }
-    if (0 == rhs) { return 1; }
+    if (0 == lhs && 0 == rhs) { return 0; }                           // RETURN
+    if (0 == lhs) { return -1; }                                      // RETURN
+    if (0 == rhs) { return 1; }                                       // RETURN
     return strcmp(lhs, rhs);
 }
 
@@ -1326,6 +1326,7 @@ const bdlmxxx::RecordDef *getConstraint(bdlmxxx::Schema *object, char token)
 {
     if (strchr(indexStr, token)) {
         return &object->record(token - '0');      // constrained by index
+                                                                      // RETURN
     }
     return object->lookupRecord(getName(token));  // else constrained by name
 }
@@ -1416,9 +1417,9 @@ const char *csName(int index)
     return index < NUM_CS_NAMES ? getName(name[index]) : 0;
 }
 
-//---------------------------------------------------
-// Data arrays of standard and vocabulary data types
-//---------------------------------------------------
+//-----------------------------------------------------------------------------
+//              Data arrays of standard and vocabulary data types
+//-----------------------------------------------------------------------------
 
 static const char        charData[]   = {  'a',  'b', 'c', 'd',  'e'    };
 static const short       shortData[]  = {   15,   25, 100, 999, 1999    };
@@ -1466,7 +1467,7 @@ static const DatetimeTz datetimeTzData[] = {
      DatetimeTz(Datetime(),0)
 };
 
-// ------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Functions and data to fill vectors of standard and vocabulary data types
 // ------------------------------------------------------------------------
 
@@ -1611,9 +1612,9 @@ static void createTimeTzVec() {
     }
 }
 
-// ------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Function to create a vector of 'bdlmxxx::List' and 'bdlmxxx::Table'
-// ------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 const int numList = 3;
 static bsl::vector<List> listData(numList);
@@ -1709,8 +1710,8 @@ static void createTableVec()
     table3.appendRow(list6);
 }
 
-// -------------------------------------------
-// Function to initialize all the data vectors
+// ----------------------------------------------------------------------------
+//              Function to initialize all the data vectors
 // -------------------------------------------
 
 static void initVectors()
@@ -1848,7 +1849,7 @@ void createList(bdlmxxx::List *list, const bdlmxxx::RecordDef *record)
     // values.  Works with createTable, createChoice, createChoiceArray
 {
     if (!record) {  // 'record' will be 0 in case of UNCONSTRAINED LIST
-        return;
+        return;                                                       // RETURN
     }
     for (int i = 0; i < record->numFields(); ++i) {
         ElemType::Type type = record->field(i).elemType();
@@ -1886,7 +1887,7 @@ void createTable(bdlmxxx::Table *table, const bdlmxxx::RecordDef *constraint)
     // works with createList, createCHoice,createChoiceArray
 {
     if (!constraint) {  // UNCONSTRAINED TABLE
-        return;
+        return;                                                       // RETURN
     }
 
     bsl::vector<bdlmxxx::ElemType::Type> existingTypes;
@@ -1956,7 +1957,7 @@ void createChoice(bdlmxxx::Choice *choice, const bdlmxxx::RecordDef *constraint)
     // randomly.  Works with createList, createChoiceArray, createTable
 {
     if (!constraint) {
-        return;
+        return;                                                       // RETURN
 
     }
 
@@ -2000,7 +2001,7 @@ void createChoiceArray(bdlmxxx::ChoiceArray *choiceArray,
 {
     if (!constraint) {
 
-        return;
+        return;                                                       // RETURN
     }
 
     bsl::vector<bdlmxxx::ElemType::Type> existingTypes;
@@ -11710,11 +11711,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlmxxx_schemaaggregateutil.cpp                                       -*-C++-*-
+// bdlmxxx_schemaaggregateutil.cpp                                    -*-C++-*-
 #include <bdlmxxx_schemaaggregateutil.h>
 
 #include <bsls_ident.h>
@@ -1298,7 +1298,7 @@ SchemaAggregateUtil::print(bsl::ostream&             stream,
 {
     if (element.isNull()) {
         stream << "NULL";
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (constraint) {
@@ -1311,42 +1311,42 @@ SchemaAggregateUtil::print(bsl::ostream&             stream,
                          *(const Row*)element.data(),
                          *constraint,
                          level,
-                         spacesPerLevel);
+                         spacesPerLevel);                             // RETURN
           }
           case ElemType::BDEM_CHOICE_ARRAY_ITEM: {
             return print(stream,
                          *(const ChoiceArrayItem*)element.data(),
                          *constraint,
                          level,
-                         spacesPerLevel);
+                         spacesPerLevel);                             // RETURN
           }
           case ElemType::BDEM_LIST: {
             return print(stream,
                          element.theList(),
                          *constraint,
                          level,
-                         spacesPerLevel);
+                         spacesPerLevel);                             // RETURN
           }
           case ElemType::BDEM_CHOICE: {
             return print(stream,
                          element.theChoice(),
                          *constraint,
                          level,
-                         spacesPerLevel);
+                         spacesPerLevel);                             // RETURN
           }
           case ElemType::BDEM_TABLE: {
             return print(stream,
                          element.theTable(),
                          *constraint,
                          level,
-                         spacesPerLevel);
+                         spacesPerLevel);                             // RETURN
           }
           case ElemType::BDEM_CHOICE_ARRAY: {
             return print(stream,
                          element.theChoiceArray(),
                          *constraint,
                          level,
-                         spacesPerLevel);
+                         spacesPerLevel);                             // RETURN
           }
           default: {
             BSLS_ASSERT("record constraint on non-aggregate" && 0);
@@ -1365,7 +1365,7 @@ SchemaAggregateUtil::print(bsl::ostream&         stream,
                                 int                   spacesPerLevel)
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (level < 0) {
@@ -1387,7 +1387,7 @@ SchemaAggregateUtil::print(bsl::ostream&         stream,
     }
 
     if (0 == row.length() && 0 != record.numFields()) {
-        return stream << "NULL" << endOfField;
+        return stream << "NULL" << endOfField;                        // RETURN
     }
 
     stream << '[' << endOfField;
@@ -1438,7 +1438,7 @@ SchemaAggregateUtil::print(bsl::ostream&               stream,
                                 int                         spacesPerLevel)
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (level < 0) {
@@ -1461,7 +1461,7 @@ SchemaAggregateUtil::print(bsl::ostream&               stream,
     }
 
     if (0 == item.numSelections() && 0 != record.numFields()) {
-        return stream << "NULL" << endOfField;
+        return stream << "NULL" << endOfField;                        // RETURN
     }
 
     stream << '[' << endOfField;
@@ -1513,7 +1513,7 @@ SchemaAggregateUtil::print(bsl::ostream&         stream,
                                 int                   spacesPerLevel)
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (level < 0) {
@@ -1536,7 +1536,7 @@ SchemaAggregateUtil::print(bsl::ostream&         stream,
     }
 
     if (0 == table.numColumns() && 0 != record.numFields()) {
-        return stream << "NULL" << endOfField;
+        return stream << "NULL" << endOfField;                        // RETURN
     }
 
     stream << '[' << endOfField;
@@ -1560,7 +1560,7 @@ SchemaAggregateUtil::print(bsl::ostream&           stream,
                                 int                     spacesPerLevel)
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (level < 0) {
@@ -1583,7 +1583,7 @@ SchemaAggregateUtil::print(bsl::ostream&           stream,
     }
 
     if (0 == array.numSelections() && 0 != record.numFields()) {
-        return stream << "NULL" << endOfField;
+        return stream << "NULL" << endOfField;                        // RETURN
     }
 
     stream << '[' << endOfField;
@@ -1600,13 +1600,13 @@ SchemaAggregateUtil::print(bsl::ostream&           stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

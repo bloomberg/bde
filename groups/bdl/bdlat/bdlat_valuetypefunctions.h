@@ -23,8 +23,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a 'namespace',
 // 'bdlat_ValueTypeFunctions', defining functions that may be called on "value
 // types".  This namespace contains two functions: 'assign' that performs a
-// value assignment from 'rhs' to an object pointed to by 'lhs' (i.e., as if
-// by using the assignment operator '*lhs = rhs';) and 'reset' that puts an
+// value assignment from 'rhs' to an object pointed to by 'lhs' (i.e., as if by
+// using the assignment operator '*lhs = rhs';) and 'reset' that puts an
 // object's black-box state to its default state (i.e., as if the object was
 // just constructed using its default constructor).
 //
@@ -150,6 +150,7 @@ namespace bdlat_ValueTypeFunctions {
         // Reset the value of the specified 'object' to its default value.
 
     // OVERLOADABLE FUNCTIONS
+
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
     // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
@@ -183,72 +184,76 @@ struct bdlat_ValueTypeFunctions_Imp {
 
     // FUNCTIONS
     template <class LHS_TYPE>
-    static int assign(LHS_TYPE    *lhs,
+    static int assign(LHS_TYPE                        *lhs,
                       bdlat_TypeCategory::Enumeration,
-                      const char&  rhs,
+                      const char&                      rhs,
                       bdlat_TypeCategory::Simple);
 
     template <class LHS_TYPE>
-    static int assign(LHS_TYPE     *lhs,
+    static int assign(LHS_TYPE                        *lhs,
                       bdlat_TypeCategory::Enumeration,
-                      const short&  rhs,
+                      const short&                     rhs,
                       bdlat_TypeCategory::Simple);
 
     template <class LHS_TYPE>
-    static int assign(LHS_TYPE   *lhs,
+    static int assign(LHS_TYPE                        *lhs,
                       bdlat_TypeCategory::Enumeration,
-                      const int&  rhs,
+                      const int&                       rhs,
                       bdlat_TypeCategory::Simple);
 
     template <class LHS_TYPE>
-    static int assign(LHS_TYPE           *lhs,
+    static int assign(LHS_TYPE                        *lhs,
                       bdlat_TypeCategory::Enumeration,
-                      const bsl::string&  rhs,
+                      const bsl::string&               rhs,
                       bdlat_TypeCategory::Simple);
 
     template <class RHS_TYPE>
-    static int assign(char            *lhs,
+    static int assign(char                            *lhs,
                       bdlat_TypeCategory::Simple,
-                      const RHS_TYPE&  rhs,
+                      const RHS_TYPE&                  rhs,
                       bdlat_TypeCategory::Enumeration);
 
     template <class RHS_TYPE>
-    static int assign(short           *lhs,
+    static int assign(short                           *lhs,
                       bdlat_TypeCategory::Simple,
-                      const RHS_TYPE&  rhs,
+                      const RHS_TYPE&                  rhs,
                       bdlat_TypeCategory::Enumeration);
 
     template <class RHS_TYPE>
-    static int assign(int             *lhs,
+    static int assign(int                             *lhs,
                       bdlat_TypeCategory::Simple,
-                      const RHS_TYPE&  rhs,
+                      const RHS_TYPE&                  rhs,
                       bdlat_TypeCategory::Enumeration);
 
     template <class RHS_TYPE>
-    static int assign(bsl::string     *lhs,
+    static int assign(bsl::string                     *lhs,
                       bdlat_TypeCategory::Simple,
-                      const RHS_TYPE&  rhs,
+                      const RHS_TYPE&                  rhs,
                       bdlat_TypeCategory::Enumeration);
 
     template <class LHS_TYPE, class RHS_TYPE>
-    static int assign(LHS_TYPE        *lhs,
+    static int assign(LHS_TYPE                   *lhs,
                       bdlat_TypeCategory::Simple,
-                      const RHS_TYPE&  rhs,
+                      const RHS_TYPE&             rhs,
                       bdlat_TypeCategory::Simple);
 
-    template <class LHS_TYPE, class LHS_CATEGORY,
-              class RHS_TYPE, class RHS_CATEGORY>
+    template <class LHS_TYPE,
+              class LHS_CATEGORY,
+              class RHS_TYPE,
+              class RHS_CATEGORY>
     static int assign(LHS_TYPE        *lhs,
                       LHS_CATEGORY,
                       const RHS_TYPE&  rhs,
                       RHS_CATEGORY);
 
     template <class LHS_TYPE, class RHS_TYPE>
-    static int assignSimpleTypes(LHS_TYPE *lhs, const RHS_TYPE& rhs,
+    static int assignSimpleTypes(LHS_TYPE        *lhs,
+                                 const RHS_TYPE&  rhs,
                                  IsConvertible);
 
     template <class LHS_TYPE, class RHS_TYPE>
-    static int assignSimpleTypes(LHS_TYPE *lhs, const RHS_TYPE& rhs,
+    static int assignSimpleTypes(LHS_TYPE         *lhs,
+                                 const RHS_TYPE&   rhs,
                                  IsNotConvertible);
 
     template <class TYPE>
@@ -300,9 +305,9 @@ void bdlat_ValueTypeFunctions::reset(TYPE *object)
 #if defined(BSLS_PLATFORM_CMP_IBM)
 namespace bdlat_ValueTypeFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
-    // being called has already been declared in some scope at the point of
-    // the template function *definition* (not instantiation).  We work around
-    // this bug by not declaring these functions until *after* the template
+    // being called has already been declared in some scope at the point of the
+    // template function *definition* (not instantiation).  We work around this
+    // bug by not declaring these functions until *after* the template
     // definitions that call them.
 
     template <typename LHS_TYPE, typename RHS_TYPE>
@@ -340,45 +345,45 @@ void bdlat_ValueTypeFunctions::bdlat_valueTypeReset(TYPE *object)
                     // -----------------------------------
 
 template <class LHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                        *lhs,
                                          bdlat_TypeCategory::Enumeration,
-                                         const char&                       rhs,
+                                         const char&                      rhs,
                                          bdlat_TypeCategory::Simple)
 {
     return bdlat_EnumFunctions::fromInt(lhs, rhs);
 }
 
 template <class LHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                        *lhs,
                                          bdlat_TypeCategory::Enumeration,
-                                         const short&                      rhs,
+                                         const short&                     rhs,
                                          bdlat_TypeCategory::Simple)
 {
     return bdlat_EnumFunctions::fromInt(lhs, rhs);
 }
 
 template <class LHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                        *lhs,
                                          bdlat_TypeCategory::Enumeration,
-                                         const int&                        rhs,
+                                         const int&                       rhs,
                                          bdlat_TypeCategory::Simple)
 {
     return bdlat_EnumFunctions::fromInt(lhs, rhs);
 }
 
 template <class LHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                        *lhs,
                                          bdlat_TypeCategory::Enumeration,
-                                         const bsl::string&                rhs,
+                                         const bsl::string&               rhs,
                                          bdlat_TypeCategory::Simple)
 {
     return bdlat_EnumFunctions::fromString(lhs, rhs.data(), (int)rhs.length());
 }
 
 template <class RHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(char                             *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(char                            *lhs,
                                          bdlat_TypeCategory::Simple,
-                                         const RHS_TYPE&                   rhs,
+                                         const RHS_TYPE&                  rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
@@ -391,7 +396,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(char                             *lhs,
     bdlat_EnumFunctions::toInt(&proxy, rhs);
 
     if (proxy < MIN_CHAR || proxy > MAX_CHAR) {
-        return k_FAILURE;                                         // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     *lhs = static_cast<char>(proxy);
@@ -400,9 +405,9 @@ int bdlat_ValueTypeFunctions_Imp::assign(char                             *lhs,
 }
 
 template <class RHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(short                            *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(short                           *lhs,
                                          bdlat_TypeCategory::Simple,
-                                         const RHS_TYPE&                   rhs,
+                                         const RHS_TYPE&                  rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
@@ -415,7 +420,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(short                            *lhs,
     bdlat_EnumFunctions::toInt(&proxy, rhs);
 
     if (proxy < MIN_SHORT || proxy > MAX_SHORT) {
-        return k_FAILURE;                                         // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     *lhs = static_cast<short>(proxy);
@@ -424,9 +429,9 @@ int bdlat_ValueTypeFunctions_Imp::assign(short                            *lhs,
 }
 
 template <class RHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(int                              *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(int                             *lhs,
                                          bdlat_TypeCategory::Simple,
-                                         const RHS_TYPE&                   rhs,
+                                         const RHS_TYPE&                  rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
     enum { k_SUCCESS = 0 };
@@ -437,9 +442,9 @@ int bdlat_ValueTypeFunctions_Imp::assign(int                              *lhs,
 }
 
 template <class RHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(bsl::string                      *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(bsl::string                     *lhs,
                                          bdlat_TypeCategory::Simple,
-                                         const RHS_TYPE&                   rhs,
+                                         const RHS_TYPE&                  rhs,
                                          bdlat_TypeCategory::Enumeration)
 {
     enum { k_SUCCESS = 0 };
@@ -450,32 +455,32 @@ int bdlat_ValueTypeFunctions_Imp::assign(bsl::string                      *lhs,
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
-int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                    *lhs,
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                   *lhs,
                                          bdlat_TypeCategory::Simple,
-                                         const RHS_TYPE&              rhs,
+                                         const RHS_TYPE&             rhs,
                                          bdlat_TypeCategory::Simple)
 {
     enum {
-        k_IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
+        IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
     };
 
     typedef typename
-    bslmf::If<k_IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
+    bslmf::If<IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
 
     return assignSimpleTypes(lhs, rhs, Selector());
 }
 
-template <class LHS_TYPE, class LHS_CATEGORY,
-          class RHS_TYPE, class RHS_CATEGORY>
-int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE        *lhs,
+template <class LHS_TYPE,
+          class LHS_CATEGORY,
+          class RHS_TYPE,
+          class RHS_CATEGORY>
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE        *,
                                          LHS_CATEGORY,
-                                         const RHS_TYPE&  rhs,
+                                         const RHS_TYPE&,
                                          RHS_CATEGORY)
 {
     enum { k_FAILURE = -1 };
 
-    (void)lhs;  // quell warning
-    (void)rhs;  // quell warning
     return k_FAILURE;
 }
 
@@ -494,14 +499,12 @@ int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
-int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
-                                                    const RHS_TYPE&  rhs,
+int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *,
+                                                    const RHS_TYPE&,
                                                     IsNotConvertible)
 {
     enum { k_FAILURE = -1 };
 
-    (void)lhs;  // quell warning
-    (void)rhs;  // quell warning
     return k_FAILURE;
 }
 
@@ -510,14 +513,14 @@ inline
 void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object)
 {
     enum {
-        k_HAS_TRAIT = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
+        HAS_TRAIT = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
                  || bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
                  || bslalg::HasTrait<TYPE,
                                     bdlat_TypeTraitBasicCustomizedType>::VALUE
     };
 
     typedef typename
-    bslmf::If<k_HAS_TRAIT,
+    bslmf::If<HAS_TRAIT,
              bdlat_ValueTypeFunctions_Imp::UseResetMethod,
              bdlat_ValueTypeFunctions_Imp::UseDefaultCtor>::Type Selector;
 
@@ -548,16 +551,14 @@ void bdlat_ValueTypeFunctions_Imp::reset(
 
 template <class TYPE>
 inline
-void bdlat_ValueTypeFunctions_Imp::reset(TYPE            *object,
-                                         UseResetMethod)
+void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object, UseResetMethod)
 {
     object->reset();
 }
 
 template <class TYPE>
 inline
-void bdlat_ValueTypeFunctions_Imp::reset(TYPE            *object,
-                                         UseDefaultCtor)
+void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object, UseDefaultCtor)
 {
     *object = TYPE();
 }
@@ -567,10 +568,17 @@ void bdlat_ValueTypeFunctions_Imp::reset(TYPE            *object,
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

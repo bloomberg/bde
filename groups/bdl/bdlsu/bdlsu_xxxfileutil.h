@@ -1,4 +1,4 @@
-// bdlsu_xxxfileutil.h                                                   -*-C++-*-
+// bdlsu_xxxfileutil.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLSU_XXXFILEUTIL
 #define INCLUDED_BDLSU_XXXFILEUTIL
 
@@ -197,7 +197,7 @@ namespace BloombergLP {
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlsu {
                        // =====================

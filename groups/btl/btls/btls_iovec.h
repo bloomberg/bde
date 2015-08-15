@@ -398,7 +398,7 @@ int Ovec::length() const
 }
 
 }  // close package namespace
-}  // closeenterprise  namespace
+}  // close enterprise namespace
 
 #endif
 

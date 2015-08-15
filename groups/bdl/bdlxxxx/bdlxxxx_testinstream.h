@@ -1,4 +1,4 @@
-// bdlxxxx_testinstream.h                                                -*-C++-*-
+// bdlxxxx_testinstream.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_TESTINSTREAM
 #define INCLUDED_BDLXXXX_TESTINSTREAM
 
@@ -655,7 +655,7 @@ class TestInStream {
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     TestInStream& get(TYPE& variable);
         // TBD
 
@@ -1121,7 +1121,7 @@ class TestInStream {
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename VALUE>
+template <class VALUE>
 inline
 TestInStream& operator>>(TestInStream& stream, VALUE& value);
     // Read from the specified 'stream' a 'bdex' version and assign to the
@@ -1148,7 +1148,7 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
     // reasonable (multi-line) format, and return a reference to 'stream'
 
 //=============================================================================
-// STANDARD BDEX EXCEPTION TEST MACROS
+//                  STANDARD BDEX EXCEPTION TEST MACROS
 //-----------------------------------------------------------------------------
 
 #ifdef BDE_BUILD_TARGET_EXC
@@ -1218,9 +1218,9 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
 #endif  // BDE_BUILD_TARGET_EXC
 
 namespace bdlxxxx {
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 inline
@@ -1261,7 +1261,7 @@ void TestInStream::reset()
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename TYPE>
+template <class TYPE>
 inline
 TestInStream& TestInStream::get(TYPE& variable)
 {
@@ -1318,7 +1318,7 @@ int TestInStream::inputLimit() const
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename VALUE>
+template <class VALUE>
 inline
 bdlxxxx::TestInStream& bdlxxxx::operator>>(TestInStream& stream, VALUE& value)
 {
@@ -1327,15 +1327,15 @@ bdlxxxx::TestInStream& bdlxxxx::operator>>(TestInStream& stream, VALUE& value)
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

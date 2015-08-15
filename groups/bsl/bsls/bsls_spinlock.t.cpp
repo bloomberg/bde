@@ -1,8 +1,8 @@
-// bsls_spinlock.t.cpp
+// bsls_spinlock.t.cpp                                                -*-C++-*-
 #include <bsls_spinlock.h>
 
-#include <bsls_asserttest.h>   
-#include <bsls_bsltestutil.h>  
+#include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 
 #include <stdlib.h>  // atoi
 #include <stdio.h>   // printf
@@ -167,13 +167,13 @@ extern "C" void *usageExampleFn(void *arg) {
     // Next, by creating a 'MaxConcurrencyCounter' object, each thread
     // entering the block of code uses the 'SpinLock' to synchronize
     // manipulation of the static count variables:
-    
+
     MaxConcurrencyCounter counter(&usageExampleThreadCount,
                                   &usageExampleMaxThreads,
                                   &usageExampleThreadLock);
-    
+
     sleepSeconds(1);
-    
+
     // Finally, closing the block synchronizes on the 'SpinLock' again
     // to decrement the thread count. Any intervening code can run in
     // parallel.
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
         // Concern:
         //: 1 The usage example provided in the component header file compiles,
         //:   links, and runs as shown.
-        // 
+        //
         // Plan:
         //: 1 Place the block of code from the usage example in a function
         //:   to be executed by N threads. In the parallelizable region, sleep
@@ -216,18 +216,18 @@ int main(int argc, char *argv[])
         enum { NUM_THREADS = 10 };
 
         ThreadId threads[NUM_THREADS];
-        
+
         for (int i = 0; i < NUM_THREADS; ++i) {
             threads[i] = createThread(&usageExampleFn, 0);
         }
         for (int i = 0; i < NUM_THREADS; ++i) {
             joinThread(threads[i]);
         }
-        
+
         ASSERTV(usageExampleThreadCount, 0 == usageExampleThreadCount);
         ASSERTV(usageExampleMaxThreads, NUM_THREADS == usageExampleMaxThreads);
     } break;
-        
+
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

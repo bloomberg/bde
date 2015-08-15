@@ -375,7 +375,7 @@ bsl::streamsize FixedMemInStreamBuf::showmanyc()
 {
     int numChars = (int)(egptr() - gptr());
     if (0 == numChars) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return numChars;
 }
@@ -450,7 +450,7 @@ bsl::streamsize FixedMemInStreamBuf::length() const
 }
 }  // close package namespace
 
-}  // end namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

@@ -1,4 +1,4 @@
-// bdlxxxx_byteinstreamraw.h                                             -*-C++-*-
+// bdlxxxx_byteinstreamraw.h                                          -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_BYTEINSTREAMRAW
 #define INCLUDED_BDLXXXX_BYTEINSTREAMRAW
 
@@ -462,7 +462,7 @@ class ByteInStreamRaw {
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     ByteInStreamRaw& get(TYPE& variable);
         // TBD
 
@@ -861,7 +861,7 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 ByteInStreamRaw& operator>>(ByteInStreamRaw& stream, OBJECT& object);
     // Read from the specified 'stream' a 'bdex' version and assign to the
@@ -881,9 +881,9 @@ ByteInStreamRaw& operator>>(ByteInStreamRaw& stream, OBJECT& object);
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 inline
@@ -1321,7 +1321,7 @@ ByteInStreamRaw& ByteInStreamRaw::getArrayFloat32(float *array,
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename TYPE>
+template <class TYPE>
 inline
 ByteInStreamRaw& ByteInStreamRaw::get(TYPE& variable)
 {
@@ -1368,7 +1368,7 @@ int ByteInStreamRaw::cursor() const
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 bdlxxxx::ByteInStreamRaw& bdlxxxx::operator>>(ByteInStreamRaw& stream, OBJECT& object)
 {
@@ -1377,15 +1377,15 @@ bdlxxxx::ByteInStreamRaw& bdlxxxx::operator>>(ByteInStreamRaw& stream, OBJECT& o
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

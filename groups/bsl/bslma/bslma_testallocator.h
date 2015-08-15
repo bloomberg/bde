@@ -1029,9 +1029,9 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::TestAllocator bslma_TestAllocator;
     // This alias is defined for backward compatibility.

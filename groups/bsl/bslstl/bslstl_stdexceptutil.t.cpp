@@ -20,9 +20,9 @@ using namespace std;
 //
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
@@ -35,7 +35,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -68,7 +68,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
   # include <bslstl_stdexceptutil.h>
 
-  template<typename T>
+  template<class T>
   void testFunction(int selector)
       //  Throw a standard exception according to the specified 'selector'.
   {

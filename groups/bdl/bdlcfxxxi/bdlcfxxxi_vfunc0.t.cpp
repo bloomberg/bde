@@ -1,4 +1,4 @@
-// bdlcfxxxi_vfunc0.t.cpp              -*-C++-*-
+// bdlcfxxxi_vfunc0.t.cpp                                             -*-C++-*-
 
 #include <bdlcfxxxi_vfunc0.h>
 
@@ -183,9 +183,9 @@ using namespace bsl;  // automatically added by script
 // [11] USAGE EXAMPLE
 // [10] ARGUMENT LENGTH LIMIT TEST
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -2906,11 +2906,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

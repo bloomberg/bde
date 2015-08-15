@@ -1,4 +1,4 @@
-// ball_attributecontainerlist.t.cpp            -*-C++-*-
+// ball_attributecontainerlist.t.cpp                                  -*-C++-*-
 
 #include <ball_attributecontainerlist.h>
 
@@ -150,10 +150,11 @@ bslma::TestAllocator testAllocator;
             {
                 int cmp = bsl::strcmp(lhs.name(), rhs.name());
                 if (0 != cmp) {
-                    return cmp < 0;
+                    return cmp < 0;                                   // RETURN
                 }
                 if (lhs.value().typeIndex() != rhs.value().typeIndex()) {
                     return lhs.value().typeIndex() < rhs.value().typeIndex();
+                                                                      // RETURN
                 }
                 switch (lhs.value().typeIndex()) {
                   case 0: // unset
@@ -350,7 +351,7 @@ bool stringDiff(const bsl::string& expectedValue,
     for (; *exp && (*exp == *act); ++exp, ++act, ++index) {
     }
     if (*exp == *act) {
-        return true;
+        return true;                                                  // RETURN
     }
     bsl::cout << "expcetedValue[" << index << "] = " << (int)*exp
               << " (" << *exp << ")" << bsl::endl
@@ -386,7 +387,7 @@ bool stringDiff(const bsl::string& expectedValue,
 //                  supplied sequence of containers
 //-----------------------------------------------------------------------------
 
-template <typename T>
+template <class T>
 static Obj& gg(Obj                   *obj,
                const char            *spec,
                const bsl::vector<T>&  containers)
@@ -1838,11 +1839,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

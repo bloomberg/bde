@@ -1,4 +1,4 @@
-// bdlmxxx_schema.h                                                      -*-C++-*-
+// bdlmxxx_schema.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_SCHEMA
 #define INCLUDED_BDLMXXX_SCHEMA
 
@@ -228,13 +228,13 @@ BSLS_IDENT("$Id: $")
 //..
 // We verify the properties of a single field.  By default, a field will not
 // be nullable, it will not have a default value, and its formatting
-// mode will be 'bdeat_FormattingMode::BDEAT_DEFAULT':
+// mode will be 'bdlat_FormattingMode::e_DEFAULT':
 //..
 //  assert(0 == bsl::strcmp("date", dateFldDef->fieldName()));
 //  assert(bdlmxxx::ElemType::BDEM_DATE == dateFldDef->elemType());
 //  assert(false                    == dateFldDef->hasDefaultValue());
 //  assert(false                    == dateFldDef->isNullable());
-//  assert(bdeat_FormattingMode::BDEAT_DEFAULT ==
+//  assert(bdlat_FormattingMode::e_DEFAULT ==
 //                                     dateFldDef->formattingMode());
 //..
 // We can write this schema to the console:
@@ -1169,7 +1169,7 @@ STREAM& Schema::bdexStreamInRecordDef(
             // constraint on the list (i.e., a recursively defined record
             // definition).
 
-            int  formattingMode = bdeat_FormattingMode::BDEAT_DEFAULT;
+            int  formattingMode = bdlat_FormattingMode::e_DEFAULT;
             bool isNullable     = ElemType::BDEM_LIST != elemType ||
                                   recordDef->recordIndex() == constraintIndex;
             if (detailedVersion >= 1001) {
@@ -1479,11 +1479,11 @@ STREAM& Schema::bdexStreamIn(STREAM& stream, int version)
                 break;
               default:
                 stream.invalidate();
-                return stream;
+                return stream;                                        // RETURN
             }
 
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
 
             const int detailedVersion = 1000 * version + minorVersion;
@@ -1722,15 +1722,15 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream, const Schema& schema)
     return schema.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

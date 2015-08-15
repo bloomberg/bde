@@ -61,7 +61,7 @@ const char *BufferBuf<Size>::str()
     return this->pbase();
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool isFinite(TYPE value)
 {
     return value == value
@@ -69,17 +69,17 @@ bool isFinite(TYPE value)
         && value != -std::numeric_limits<TYPE>::infinity();
 }
 
-template <typename TYPE>
+template <class TYPE>
 const char *nonFiniteToString(TYPE value)
     // Return a string for the non finite specified 'value'.  The behavior
     // is undefined unless 'value' not finite.
 {
     BSLS_ASSERT(!isFinite(value));
     if (bsl::numeric_limits<TYPE>::infinity() == value) {
-        return "inf";
+        return "inf";                                                 // RETURN
     }
     if (-bsl::numeric_limits<TYPE>::infinity() == value) {
-        return "-inf";
+        return "-inf";                                                // RETURN
     }
     BSLS_ASSERT(value != value);  // isnan
     return "nan";

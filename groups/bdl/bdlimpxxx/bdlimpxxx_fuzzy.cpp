@@ -1,4 +1,4 @@
-// bdlimpxxx_fuzzy.cpp          -*-C++-*-
+// bdlimpxxx_fuzzy.cpp                                                -*-C++-*-
 #include <bdlimpxxx_fuzzy.h>
 
 #include <bsls_ident.h>
@@ -68,13 +68,13 @@ int Fuzzy::compare(double a, double b, double relTol, double absTol)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

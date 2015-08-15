@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
-//	BSLS_CPP11_CONSTEXPR: C++11 'constexpr' keyword
+// BSLS_CPP11_CONSTEXPR: C++11 'constexpr' keyword
 //  BSLS_CPP11_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_CPP11_FINAL: C++11 'final' keyword
 //  BSLS_CPP11_NOEXCEPT: C++11 'noexcept' keyword

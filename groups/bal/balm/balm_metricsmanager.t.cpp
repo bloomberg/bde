@@ -645,7 +645,7 @@ void TestPublisher::publish(const balm::MetricSample& sample)
 
     d_sample.setTimeStamp(sample.timeStamp());
     if (0 == sample.numRecords()) {
-        return;
+        return;                                                       // RETURN
     }
 
     // We *must* reserve memory to avoid re-allocating data while building
@@ -717,7 +717,7 @@ int TestPublisher::indexOf(const balm::MetricId& id) const
                                                     d_sortedRecords.end(),
                                                     searchRecord, recordLess);
     if (it == d_sortedRecords.end()) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     return (it->metricId() == id) ? it - d_sortedRecords.begin() : -1;
 }
@@ -732,7 +732,7 @@ bool TestPublisher::contains(const balm::MetricId& id) const
                       // class CombinationIterator
                       // =========================
 
-template <typename T>
+template <class T>
 class CombinationIterator {
     // This class provides an iterator over the set of possible combinations
     // of elements.  A 'CombinationIterator' object is supplied a vector of
@@ -787,7 +787,7 @@ class CombinationIterator {
                       // -------------------------
 
 // PRIVATE MANIPULATORS
-template <typename T>
+template <class T>
 void CombinationIterator<T>::createCurrentCombination()
 {
     d_currentCombination.clear();
@@ -799,7 +799,7 @@ void CombinationIterator<T>::createCurrentCombination()
 }
 
 // CREATORS
-template <typename T>
+template <class T>
 CombinationIterator<T>::CombinationIterator(const bsl::vector<T>&  values,
                                             bslma::Allocator      *allocator)
 : d_values(values, allocator)
@@ -814,12 +814,12 @@ CombinationIterator<T>::CombinationIterator(const bsl::vector<T>&  values,
 }
 
 // MANIPULATORS
-template <typename T>
+template <class T>
 inline
 bool CombinationIterator<T>::next()
 {
     if (d_bits >= d_maxBits) {
-        return false;
+        return false;                                                 // RETURN
     }
     ++d_bits;
     createCurrentCombination();
@@ -827,14 +827,14 @@ bool CombinationIterator<T>::next()
 }
 
 // ACCESSORS
-template <typename T>
+template <class T>
 inline
 const typename bsl::vector<T>& CombinationIterator<T>::current() const
 {
     return d_currentCombination;
 }
 
-template <typename T>
+template <class T>
 inline
 bool CombinationIterator<T>::includesElement(int index) const
 {
@@ -1353,7 +1353,7 @@ void ConcurrencyTest::runTest()
 
     const char *METRIC_CATEGORY = "MyCategory";
 
-    }
+    }  // close unnamed namespace
 
 //..
 // The callback creates metric records and populates them with data collected
@@ -4610,10 +4610,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

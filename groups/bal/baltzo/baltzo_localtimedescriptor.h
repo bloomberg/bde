@@ -105,8 +105,8 @@ BSLS_IDENT("$Id: $")
 //  bdlt::Datetime romeDatetime = utcDatetime;
 //  romeDatetime.addSeconds(romeDst.utcOffsetInSeconds());
 //..
-// Notice that, when converting from UTC time to local time, the signed
-// offset from UTC is *added* to UTC time rather than subtracted.
+// Notice that, when converting from UTC time to local time, the signed offset
+// from UTC is *added* to UTC time rather than subtracted.
 //
 // Finally, we verify that the result corresponds to the expected local time,
 // "Jul 20, 2010 17:00":
@@ -170,8 +170,8 @@ class LocalTimeDescriptor {
     // DATA
     int         d_utcOffsetInSeconds;  // *signed* offset *from* UTC
 
-    bool        d_dstInEffectFlag;     // 'true' if Daylight-Saving Time
-                                       // is in effect, and 'false' otherwise
+    bool        d_dstInEffectFlag;     // 'true' if Daylight-Saving Time is in
+                                       // effect, and 'false' otherwise
 
     bsl::string d_description;         // *non-canonical* identifier for this
                                        // descriptor
@@ -217,10 +217,10 @@ class LocalTimeDescriptor {
 
     LocalTimeDescriptor(const LocalTimeDescriptor&  original,
                         bslma::Allocator           *basicAllocator = 0);
-        // Create a 'LocalTimeDescriptor' object having the same value
-        // as the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create a 'LocalTimeDescriptor' object having the same value as the
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~LocalTimeDescriptor();
         // Destroy this object.
@@ -278,46 +278,46 @@ class LocalTimeDescriptor {
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to 'stream'.
         // Optionally specify an initial indentation 'level', whose absolute
         // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute
-        // value indicates the number of spaces per indentation level for this
-        // and all of its nested objects.  If 'level' is negative, suppress
+        // specified, optionally specify 'spacesPerLevel', whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If 'level' is negative, suppress
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
 bool operator==(const LocalTimeDescriptor& lhs,
                 const LocalTimeDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'LocalTimeDescriptor' objects
-    // have the same value if all of the corresponding values of their
+    // value, and 'false' otherwise.  Two 'LocalTimeDescriptor' objects have
+    // the same value if all of the corresponding values of their
     // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description' attributes
     // are the same.
 
 bool operator!=(const LocalTimeDescriptor& lhs,
                 const LocalTimeDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'LocalTimeDescriptor'
-    // objects do not have the same value if any of the corresponding values of
-    // their 'utcOffsetInSeconds', 'dstInEffectFlag', or 'description'
-    // attributes are not the same.
+    // same value, and 'false' otherwise.  Two 'LocalTimeDescriptor' objects do
+    // not have the same value if any of the corresponding values of their
+    // 'utcOffsetInSeconds', 'dstInEffectFlag', or 'description' attributes are
+    // not the same.
 
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const LocalTimeDescriptor& object);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.  Note that this human-readable
-    // format is not fully specified and can change without notice.  Also note
-    // that this method has the same behavior as 'object.print(stream, 0, -1)',
-    // but with the attribute names elided.
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as 'object.print(stream, 0, -1)', but with
+    // the attribute names elided.
 
 // FREE FUNCTIONS
 void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
@@ -329,7 +329,7 @@ void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                         // -------------------------
@@ -337,7 +337,7 @@ void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
                         // -------------------------
 
 // CLASS METHODS
-inline
+    inline
 bool baltzo::LocalTimeDescriptor::isValidUtcOffsetInSeconds(int value)
 {
     return value >= -86399 && value <= 86399;

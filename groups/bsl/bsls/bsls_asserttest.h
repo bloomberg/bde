@@ -813,9 +813,9 @@ class AssertTestHandlerGuard {
         // the current assertion handler.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 inline
 AssertTestHandlerGuard::AssertTestHandlerGuard()
@@ -826,9 +826,9 @@ AssertTestHandlerGuard::AssertTestHandlerGuard()
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bsls::AssertTestHandlerGuard bsls_AssertTestHandlerGuard;
     // This alias is defined for backward compatibility.

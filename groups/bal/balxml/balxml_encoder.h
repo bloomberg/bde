@@ -297,21 +297,21 @@ class Encoder {
         // Destroy this object.  This destruction has no effect on objects
         // pointed-to by the pointers provided at construction.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::streambuf *buffer, const TYPE& object);
         // Encode the specified non-modifiable 'object' to the specified
         // 'buffer'.  Return 0 on success, and a non-zero value otherwise.
         // Note that the encoder will use encoder options, error and warning
         // streams specified at the construction time.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encodeToStream(bsl::ostream& stream, const TYPE& object);
         // Encode the specified non-modifiable 'object' to the specified
         // 'stream'.  Return 0 on success, and a non-zero value otherwise.
         // Note that the encoder will use encoder options, error and warning
         // streams specified at the construction time.
 
-    template <typename TYPE>
+    template <class TYPE>
     bsl::ostream& encode(bsl::ostream& stream, const TYPE& object);
         // Encode the specified non-modifiable 'object' to the specified
         // 'stream'.  Return a reference to 'stream'.  If an encoding error is
@@ -326,7 +326,7 @@ class Encoder {
         // state.  To avoid these issues, we recommend that you use use
         // 'encodeToStream', above, instead of this version of 'encode'.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(Formatter& formatter, const TYPE& object);
         // Encode the specified non-modifiable 'object' to the specified
         // 'formatter'.  Return 0 on success, and a non-zero value otherwise.
@@ -413,11 +413,11 @@ class Encoder_Context {
         return d_encoder->logError(text, tag, formattingMode, index);
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     static void encode(const TYPE& object);
 
     // HELPER FUNCTIONS
-    template<typename NAME_TYPE, typename VALUE_TYPE>
+    template<class NAME_TYPE, class VALUE_TYPE>
     void addAttribute(const NAME_TYPE&  name,
                       const VALUE_TYPE& value,
                       int               formattingMode)
@@ -425,22 +425,22 @@ class Encoder_Context {
         d_formatter->addAttribute(name, value, formattingMode);
     }
 
-    template<typename NAME_TYPE, typename VALUE_TYPE>
+    template<class NAME_TYPE, class VALUE_TYPE>
     void addAttribute(const NAME_TYPE&  name,
                       const VALUE_TYPE& value)
     {
         d_formatter->addAttribute(name,
                                   value,
-                                  bdeat_FormattingMode::BDEAT_DEFAULT);
+                                  bdlat_FormattingMode::e_DEFAULT);
     }
 
-    template <typename NAME_TYPE>
+    template <class NAME_TYPE>
     void openElement(const NAME_TYPE& name)
     {
         d_formatter->openElement(name);
     }
 
-    template <typename NAME_TYPE>
+    template <class NAME_TYPE>
     void closeElement(const NAME_TYPE& name)
     {
         d_formatter->closeElement(name);
@@ -477,25 +477,25 @@ class Encoder_EncodeObject {
 
   public:
     // IMPLEMENTATION MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(const TYPE&            object,
                    const bslstl::StringRef& tag,
                    int                    formattingMode,
-                   bdeat_TypeCategory::Array);
+                   bdlat_TypeCategory::Array);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(const TYPE&            object,
                    const bslstl::StringRef& tag,
                    int                    formattingMode,
-                   bdeat_TypeCategory::NullableValue);
+                   bdlat_TypeCategory::NullableValue);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(const TYPE&            object,
                    const bslstl::StringRef& tag,
                    int                    formattingMode,
-                   bdeat_TypeCategory::DynamicType);
+                   bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int executeImp(const TYPE&            object,
                    const bslstl::StringRef& tag,
                    int                    formattingMode,
@@ -504,13 +504,13 @@ class Encoder_EncodeObject {
     int executeImp(const bsl::vector<char>&  object,
                    const bslstl::StringRef&    tag,
                    int                       formattingMode,
-                   bdeat_TypeCategory::Array);
+                   bdlat_TypeCategory::Array);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeArrayListImp(const TYPE&            object,
                             const bslstl::StringRef& tag);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeArrayRepetitionImp(const TYPE&            object,
                                   const bslstl::StringRef& tag,
                                   int                    formattingMode);
@@ -528,10 +528,10 @@ class Encoder_EncodeObject {
     // ~Encoder_EncodeObject();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(const TYPE& object, const INFO_TYPE& info);
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(const TYPE&            object,
                 const bslstl::StringRef& tag,
                 int                    formattingMode);
@@ -550,22 +550,22 @@ class Encoder_EncodeValue {
 
   public:
     // IMPLEMENTATION MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(const TYPE& object,
                    int         formattingMode,
-                   bdeat_TypeCategory::Sequence);
+                   bdlat_TypeCategory::Sequence);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(const TYPE& object,
                    int         formattingMode,
-                   bdeat_TypeCategory::Choice);
+                   bdlat_TypeCategory::Choice);
 
-    template <typename TYPE>
+    template <class TYPE>
     int executeImp(const TYPE& object,
                    int         formattingMode,
-                   bdeat_TypeCategory::DynamicType);
+                   bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int executeImp(const TYPE& object,
                    int         formattingMode,
                    ANY_CATEGORY);
@@ -583,10 +583,10 @@ class Encoder_EncodeValue {
     // ~Encoder_EncodeValue();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(const TYPE& object, const INFO_TYPE& info);
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(const TYPE& object, int formattingMode);
 };
 
@@ -599,10 +599,10 @@ class Encoder_SequenceFirstPass {
     // This class is used as the first pass when encoding elements of a
     // sequence.  It basically does two things:
     //     o encode elements with the
-    //       'bdeat_FormattingMode::BDEAT_IS_ATTRIBUTE' flag using the
+    //       'bdlat_FormattingMode::e_IS_ATTRIBUTE' flag using the
     //       'Formatter::addAttribute' method.
     //     o looks for an element with the
-    //       'bdeat_FormattingMode::BDEAT_IS_SIMPLE_CONTENT' flag and, if
+    //       'bdlat_FormattingMode::e_IS_SIMPLE_CONTENT' flag and, if
     //       found, provides accessors to obtain the 'id' of the element.
     //       Note that the behavior is undefined unless there is only one
     //       element with 'IS_SIMPLE_CONTENT' flag and, if this element exist,
@@ -620,17 +620,17 @@ class Encoder_SequenceFirstPass {
 
   public:
     // IMPLEMENTATION MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int addAttributeImp(const TYPE&            object,
                         const bslstl::StringRef& name,
                         int                    formattingMode,
-                        bdeat_TypeCategory::NullableValue);
-    template <typename TYPE>
+                        bdlat_TypeCategory::NullableValue);
+    template <class TYPE>
     int addAttributeImp(const TYPE&            object,
                         const bslstl::StringRef& name,
                         int                    formattingMode,
-                        bdeat_TypeCategory::DynamicType);
-    template <typename TYPE, typename ANY_CATEGORY>
+                        bdlat_TypeCategory::DynamicType);
+    template <class TYPE, class ANY_CATEGORY>
     int addAttributeImp(const TYPE&            object,
                         const bslstl::StringRef& name,
                         int                    formattingMode,
@@ -639,7 +639,7 @@ class Encoder_SequenceFirstPass {
         // specified 'object', using the specified 'formattingMode'.  Note that
         // the last argument is used for overloading purposes only.
 
-    template <typename TYPE>
+    template <class TYPE>
     int addAttribute(const TYPE&            object,
                      const bslstl::StringRef& name,
                      int                    formattingMode);
@@ -661,7 +661,7 @@ class Encoder_SequenceFirstPass {
     // ~Encoder_SequenceFirstPass();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(const TYPE& object, const INFO_TYPE& info);
         // Called back when an element is visited.
 
@@ -706,7 +706,7 @@ class Encoder_SequenceSecondPass {
     // ~Encoder_SequenceSecondPass();
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO_TYPE>
+    template <class TYPE, class INFO_TYPE>
     int operator()(const TYPE& object, const INFO_TYPE& info);
         // Called back when an element is visited.
 };
@@ -732,7 +732,7 @@ struct Encoder_EncodeObject_executeProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE& object)
     {
@@ -757,7 +757,7 @@ struct Encoder_EncodeObject_executeImpProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -765,7 +765,7 @@ struct Encoder_EncodeObject_executeImpProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -792,7 +792,7 @@ struct Encoder_EncodeValue_executeImpProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -800,7 +800,7 @@ struct Encoder_EncodeValue_executeImpProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -827,7 +827,7 @@ struct Encoder_SequenceFirstPass_addAttributeProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE& object)
     {
@@ -854,7 +854,7 @@ struct Encoder_SequenceFirstPass_addAttributeImpProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -862,7 +862,7 @@ struct Encoder_SequenceFirstPass_addAttributeImpProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -950,6 +950,7 @@ bslstl::StringRef Encoder::loggedMessages() const
 {
     if (d_logStream) {
         return bslstl::StringRef(d_logStream->data(), d_logStream->length());
+                                                                      // RETURN
     }
     return bslstl::StringRef();
 }
@@ -963,7 +964,7 @@ bsl::ostream& Encoder::logStream()
     return *d_logStream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder::encode(bsl::streambuf *buffer, const TYPE& object)
 {
@@ -981,14 +982,14 @@ int Encoder::encode(bsl::streambuf *buffer, const TYPE& object)
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder::encodeToStream(bsl::ostream& stream, const TYPE& object)
 {
     return encode(stream.rdbuf(), object);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& Encoder::encode(bsl::ostream& stream, const TYPE& object)
 {
@@ -1006,7 +1007,7 @@ bsl::ostream& Encoder::encode(bsl::ostream& stream, const TYPE& object)
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder::encode(Formatter& formatter, const TYPE& object)
 {
     d_severity = ErrorInfo::BAEXML_NO_ERROR;
@@ -1021,7 +1022,7 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
     }
 
     const char *tag = d_options->tag().empty()
-                    ? bdeat_TypeName::xsdName(object,
+                    ? bdlat_TypeName::xsdName(object,
                                               d_options->formattingMode())
                     : d_options->tag().c_str();
 
@@ -1087,16 +1088,16 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
                        // ---------------------------------
 
 // IMPLEMENTATION MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int
 Encoder_EncodeObject::executeImp(const TYPE&            object,
                                         const bslstl::StringRef& tag,
                                         int                    formattingMode,
-                                        bdeat_TypeCategory::Array)
+                                        bdlat_TypeCategory::Array)
 {
-    if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
-        return executeArrayListImp(object, tag);
+    if (formattingMode & bdlat_FormattingMode::e_LIST) {
+        return executeArrayListImp(object, tag);                      // RETURN
     }
     // else { return ... } removed, to prevent warning with gcc-4.1.1
     // (reach end of non-void function), instead, have unconditional:
@@ -1104,18 +1105,18 @@ Encoder_EncodeObject::executeImp(const TYPE&            object,
     return executeArrayRepetitionImp(object, tag, formattingMode);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int
 Encoder_EncodeObject::executeImp(const TYPE&            object,
                                         const bslstl::StringRef& tag,
                                         int                    formattingMode,
-                                        bdeat_TypeCategory::NullableValue)
+                                        bdlat_TypeCategory::NullableValue)
 {
     enum { k_SUCCESS = 0 };
 
-    if (bdeat_NullableValueFunctions::isNull(object)) {
-        if (formattingMode & bdeat_FormattingMode::BDEAT_NILLABLE) {
+    if (bdlat_NullableValueFunctions::isNull(object)) {
+        if (formattingMode & bdlat_FormattingMode::e_NILLABLE) {
             d_context_p->openElement(tag);
             if (!d_context_p->encoderOptions().objectNamespace().empty()
              && d_context_p->encoderOptions().outputXSIAlias()) {
@@ -1126,7 +1127,7 @@ Encoder_EncodeObject::executeImp(const TYPE&            object,
             d_context_p->closeElement(tag);
         }
 
-        return d_context_p->status();
+        return d_context_p->status();                                 // RETURN
     }
 
     Encoder_EncodeObject_executeProxy proxy = {
@@ -1135,16 +1136,16 @@ Encoder_EncodeObject::executeImp(const TYPE&            object,
         formattingMode
     };
 
-    return bdeat_NullableValueFunctions::accessValue(object, proxy);
+    return bdlat_NullableValueFunctions::accessValue(object, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeObject::executeImp(
                                          const TYPE&            object,
                                          const bslstl::StringRef& tag,
                                          int                    formattingMode,
-                                         bdeat_TypeCategory::DynamicType)
+                                         bdlat_TypeCategory::DynamicType)
 {
     Encoder_EncodeObject_executeImpProxy proxy = {
         this,
@@ -1152,10 +1153,10 @@ int Encoder_EncodeObject::executeImp(
         formattingMode
     };
 
-    return bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    return bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 int Encoder_EncodeObject::executeImp(
                                          const TYPE&            object,
                                          const bslstl::StringRef& tag,
@@ -1164,7 +1165,7 @@ int Encoder_EncodeObject::executeImp(
 {
     enum { k_FAILURE = -1 };
 
-    bool isUntagged = formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED;
+    bool isUntagged = formattingMode & bdlat_FormattingMode::e_UNTAGGED;
 
     if (!isUntagged) {
         d_context_p->openElement(tag);
@@ -1177,7 +1178,7 @@ int Encoder_EncodeObject::executeImp(
         d_context_p->logError("Unable to encode value",
                               tag,
                               formattingMode);
-        return k_FAILURE;
+        return k_FAILURE;                                             // RETURN
     }
 
     if (!isUntagged) {
@@ -1195,7 +1196,7 @@ int Encoder_EncodeObject::executeImp(
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeObject::executeArrayListImp(
                                                  const TYPE&            object,
                                                  const bslstl::StringRef& tag)
@@ -1221,7 +1222,7 @@ int Encoder_EncodeObject::executeArrayListImp(
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeObject::executeArrayRepetitionImp(
                                          const TYPE&            object,
                                          const bslstl::StringRef& tag,
@@ -1229,7 +1230,7 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    const int size = (int)bdeat_ArrayFunctions::size(object);
+    const int size = (int)bdlat_ArrayFunctions::size(object);
 
     Encoder_EncodeObject_executeProxy proxy = {
         this,
@@ -1238,7 +1239,7 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
     };
 
     for (int i = 0; i < size; ++i) {
-        if (0 != bdeat_ArrayFunctions::accessElement(object, proxy, i)) {
+        if (0 != bdlat_ArrayFunctions::accessElement(object, proxy, i)) {
 
             d_context_p->logError(
                 "Error while encoding array element",
@@ -1246,7 +1247,7 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
                 formattingMode,
                 i);
 
-            return k_FAILURE;
+            return k_FAILURE;                                         // RETURN
         }
     }
 
@@ -1263,7 +1264,7 @@ Encoder_EncodeObject::Encoder_EncodeObject(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 inline
 int Encoder_EncodeObject::operator()(const TYPE&      object,
                                             const INFO_TYPE& info)
@@ -1273,14 +1274,14 @@ int Encoder_EncodeObject::operator()(const TYPE&      object,
     return execute(object, name, info.formattingMode());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeObject::execute(const TYPE&            object,
                                          const bslstl::StringRef& tag,
                                          int                    formattingMode)
 {
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     return executeImp(object, tag, formattingMode, TypeCategory());
 }
@@ -1290,18 +1291,18 @@ int Encoder_EncodeObject::execute(const TYPE&            object,
                        // --------------------------------
 
 // IMPLEMENTATION MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
-                                           bdeat_TypeCategory::Sequence)
+                                           bdlat_TypeCategory::Sequence)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
-    int type = formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK;
+    int type = formattingMode & bdlat_FormattingMode::e_TYPE_MASK;
 
-    BSLS_ASSERT_SAFE(bdeat_FormattingMode::BDEAT_DEFAULT == type);
+    BSLS_ASSERT_SAFE(bdlat_FormattingMode::e_DEFAULT == type);
 #else
     (void) formattingMode;
 #endif
@@ -1309,70 +1310,75 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
     Encoder_SequenceFirstPass firstPass(d_context_p);
 
     if (0 != bdeat_SequenceFunctions::accessAttributes(object, firstPass)) {
-        return k_FAILURE;
+        return k_FAILURE;                                             // RETURN
+    }
+
+    if (!firstPass.simpleContentId().isNull()) {
     }
 
     if (!firstPass.simpleContentId().isNull()) {
         Encoder_EncodeValue encodeValue(d_context_p);
 
-        return bdeat_SequenceFunctions::accessAttribute(
+        return bdlat_SequenceFunctions::accessAttribute(
                                           object,
                                           encodeValue,
                                           firstPass.simpleContentId().value());
+                                                                      // RETURN
     }
 
     if (firstPass.hasSubElements()) {
         Encoder_SequenceSecondPass secondPass(d_context_p);
 
-        return bdeat_SequenceFunctions::accessAttributes(object, secondPass);
+        return bdlat_SequenceFunctions::accessAttributes(object, secondPass);
+                                                                      // RETURN
     }
 
     return k_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
-                                           bdeat_TypeCategory::Choice)
+                                           bdlat_TypeCategory::Choice)
 {
     enum { k_FAILURE = -1 };
 
 #if defined(BDE_BUILD_TARGET_SAFE)
-    int type = formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK;
+    int type = formattingMode & bdlat_FormattingMode::e_TYPE_MASK;
 
-    BSLS_ASSERT_SAFE(bdeat_FormattingMode::BDEAT_DEFAULT == type);
+    BSLS_ASSERT_SAFE(bdlat_FormattingMode::e_DEFAULT == type);
 #endif
 
-    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID
-                               == bdeat_ChoiceFunctions::selectionId(object)) {
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID
+                               == bdlat_ChoiceFunctions::selectionId(object)) {
 
         d_context_p->logError("Undefined selection is not allowed ",
                               "???",
                               formattingMode);
-        return k_FAILURE;
+        return k_FAILURE;                                             // RETURN
     }
 
     Encoder_EncodeObject encodeObject(d_context_p);
 
-    return bdeat_ChoiceFunctions::accessSelection(object, encodeObject);
+    return bdlat_ChoiceFunctions::accessSelection(object, encodeObject);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
-                                           bdeat_TypeCategory::DynamicType)
+                                           bdlat_TypeCategory::DynamicType)
 {
     Encoder_EncodeValue_executeImpProxy proxy = {
         this,
         formattingMode
     };
 
-    return bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    return bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            int         formattingMode,
@@ -1396,24 +1402,24 @@ Encoder_EncodeValue::Encoder_EncodeValue(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 inline
 int Encoder_EncodeValue::operator()(const TYPE&      object,
                                            const INFO_TYPE& info)
 {
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     return executeImp(object, info.formattingMode(), TypeCategory());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeValue::execute(const TYPE& object,
                                         int         formattingMode)
 {
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     return executeImp(object, formattingMode, TypeCategory());
 }
@@ -1423,18 +1429,18 @@ int Encoder_EncodeValue::execute(const TYPE& object,
                     // --------------------------------------
 
 // IMPLEMENTATION MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_SequenceFirstPass::addAttributeImp(
                                          const TYPE&            object,
                                          const bslstl::StringRef& name,
                                          int                    formattingMode,
-                                         bdeat_TypeCategory::NullableValue)
+                                         bdlat_TypeCategory::NullableValue)
 {
     enum { k_SUCCESS = 0 };
 
     if (bdeat_NullableValueFunctions::isNull(object)) {
-        return k_SUCCESS;
+        return k_SUCCESS;                                             // RETURN
     }
 
     Encoder_SequenceFirstPass_addAttributeProxy proxy = {
@@ -1443,16 +1449,16 @@ int Encoder_SequenceFirstPass::addAttributeImp(
         formattingMode
     };
 
-    return bdeat_NullableValueFunctions::accessValue(object, proxy);
+    return bdlat_NullableValueFunctions::accessValue(object, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_SequenceFirstPass::addAttributeImp(
                                          const TYPE&            object,
                                          const bslstl::StringRef& name,
                                          int                    formattingMode,
-                                         bdeat_TypeCategory::DynamicType)
+                                         bdlat_TypeCategory::DynamicType)
 {
     Encoder_SequenceFirstPass_addAttributeImpProxy proxy = {
         this,
@@ -1460,11 +1466,11 @@ int Encoder_SequenceFirstPass::addAttributeImp(
         formattingMode
     };
 
-    return bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    return bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
 
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Encoder_SequenceFirstPass::addAttributeImp(
                                          const TYPE&            object,
@@ -1485,7 +1491,7 @@ int Encoder_SequenceFirstPass::addAttributeImp(
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_SequenceFirstPass::addAttribute(
                                          const TYPE&            object,
@@ -1493,7 +1499,7 @@ int Encoder_SequenceFirstPass::addAttribute(
                                          int                    formattingMode)
 {
     typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     return addAttributeImp(object, name, formattingMode, TypeCategory());
 }
@@ -1510,7 +1516,7 @@ Encoder_SequenceFirstPass::Encoder_SequenceFirstPass(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
                                                  const INFO_TYPE& info)
 {
@@ -1518,9 +1524,9 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
 
     int  formattingMode  = info.formattingMode();
     bool isSimpleContent = formattingMode
-                         & bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT;
+                         & bdlat_FormattingMode::e_SIMPLE_CONTENT;
     bool isAttribute     =
-                        formattingMode & bdeat_FormattingMode::BDEAT_ATTRIBUTE;
+                        formattingMode & bdlat_FormattingMode::e_ATTRIBUTE;
 
     if (isSimpleContent) {
         BSLS_ASSERT_SAFE(!isAttribute);
@@ -1532,7 +1538,7 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
     else if (isAttribute) {
         bslstl::StringRef name(info.name(), info.nameLength());
 
-        return addAttribute(object, name, formattingMode);
+        return addAttribute(object, name, formattingMode);            // RETURN
     }
     else {
         BSLS_ASSERT_SAFE(d_simpleContentId.isNull());
@@ -1570,7 +1576,7 @@ Encoder_SequenceSecondPass::Encoder_SequenceSecondPass(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO_TYPE>
+template <class TYPE, class INFO_TYPE>
 int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
                                                   const INFO_TYPE& info)
 {
@@ -1579,25 +1585,32 @@ int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
     int formattingMode = info.formattingMode();
 
     BSLS_ASSERT_SAFE(
-               !(formattingMode & bdeat_FormattingMode::BDEAT_SIMPLE_CONTENT));
+               !(formattingMode & bdlat_FormattingMode::e_SIMPLE_CONTENT));
 
-    if (!(formattingMode & bdeat_FormattingMode::BDEAT_ATTRIBUTE)) {
-        return d_encodeObjectFunctor(object, info);
+    if (!(formattingMode & bdlat_FormattingMode::e_ATTRIBUTE)) {
+        return d_encodeObjectFunctor(object, info);                   // RETURN
     }
 
     return k_SUCCESS;
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006, 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

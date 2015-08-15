@@ -1,4 +1,4 @@
-// bdlmxxx_recorddef.cpp                                                 -*-C++-*-
+// bdlmxxx_recorddef.cpp                                              -*-C++-*-
 #include <bdlmxxx_recorddef.h>
 
 #include <bsls_ident.h>
@@ -135,7 +135,7 @@ const int bdlmxxx::RecordDef::NullFieldId = INT_MIN;
 
 namespace bdlmxxx {
 // PRIVATE MANIPULATORS
-template <typename CONSTRAINT_TYPE>
+template <class CONSTRAINT_TYPE>
 FieldDef *
 RecordDef::append(const FieldDefAttributes&  attributes,
                        const CONSTRAINT_TYPE          *constraint,
@@ -214,11 +214,11 @@ bool RecordDef::isValidConstraint(const RecordDef& constraint,
     switch (type) {
       case ElemType::BDEM_LIST:
       case ElemType::BDEM_TABLE: {
-        return BDEM_SEQUENCE_RECORD == constraint.recordType();
+        return BDEM_SEQUENCE_RECORD == constraint.recordType();       // RETURN
       } break;
       case ElemType::BDEM_CHOICE:
       case ElemType::BDEM_CHOICE_ARRAY: {
-        return BDEM_CHOICE_RECORD == constraint.recordType();
+        return BDEM_CHOICE_RECORD == constraint.recordType();         // RETURN
       } break;
       default: {
       } break;
@@ -270,7 +270,7 @@ const FieldDef *RecordDef::appendField(
         return appendField(fieldSpec.fieldAttributes(),
                            fieldSpec.enumerationConstraint(),
                            name,
-                           id);
+                           id);                                       // RETURN
     }
     return appendField(fieldSpec.fieldAttributes(),
                        fieldSpec.recordConstraint(),
@@ -439,13 +439,13 @@ bsl::ostream& RecordDef::print(bsl::ostream& stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

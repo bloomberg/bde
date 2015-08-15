@@ -1,4 +1,4 @@
-// bdlxxxx_testinstreamformatter.h                                       -*-C++-*-
+// bdlxxxx_testinstreamformatter.h                                    -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_TESTINSTREAMFORMATTER
 #define INCLUDED_BDLXXXX_TESTINSTREAMFORMATTER
 
@@ -1302,7 +1302,7 @@ class TestInStreamFormatter {
 // FREE FUNCTIONS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename VALUE>
+template <class VALUE>
 inline
 TestInStreamFormatter& operator>>(TestInStreamFormatter& stream,
                                        VALUE&                      value);
@@ -1323,9 +1323,9 @@ TestInStreamFormatter& operator>>(TestInStreamFormatter& stream,
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------------------
                         // class TestInStreamFormatter
@@ -1412,7 +1412,7 @@ int TestInStreamFormatter::inputLimit() const
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename VALUE>
+template <class VALUE>
 inline
 bdlxxxx::TestInStreamFormatter& bdlxxxx::operator>>(TestInStreamFormatter& stream,
                                        VALUE&                      value)
@@ -1422,15 +1422,15 @@ bdlxxxx::TestInStreamFormatter& bdlxxxx::operator>>(TestInStreamFormatter& strea
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -111,7 +111,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -544,13 +544,13 @@ static int buildChannelHelper(
             btlso::SocketOptUtil::k_SOCKETLEVEL,
             btlso::SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     ret = btlso::SocketOptUtil::getOption(&rcvBufferSize, socketPair[1],
             btlso::SocketOptUtil::k_SOCKETLEVEL,
             btlso::SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     if (verbose) {
         P_T(sndBufferSize);
@@ -572,15 +572,14 @@ void fillBuffers(VECBUFFER *vecBuffers, int numBuffers, char ch)
     }
 }
 
-static int testExecutionHelper(
-                      btlsos::TcpChannel                     *channel,
-                      TestCommand                           *command,
-                      btlso::SocketHandle::Handle            *socketPair,
-                      bdlqq::ThreadUtil::Handle              *threadHandle,
-                      char                                  *buffer,
-                      const btls::Iovec                      *ioBuffer,
-                      const btls::Ovec                       *oBuffer,
-                      int                                   *idx)
+static int testExecutionHelper(btlsos::TcpChannel          *channel,
+                               TestCommand                 *command,
+                               btlso::SocketHandle::Handle *socketPair,
+                               bdlqq::ThreadUtil::Handle   *threadHandle,
+                               char                        *buffer,
+                               const btls::Iovec           *ioBuffer,
+                               const btls::Ovec            *oBuffer,
+                               int                         *idx)
     // Process the specified 'command' to invoke some operation of the
     // specified 'channel', or the 'helperSocket' which is the control endpoint
     // of the socket pair.  For a read operation, load either 'buffer' or
@@ -993,7 +992,7 @@ int processTest(btlsos::TcpChannel          *channel,
 }
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -1089,8 +1088,10 @@ int main(int argc, char *argv[]) {
                 char writeBuf[k_LEN] = "abcdefghij1234567890",
                      readBuf[k_LEN];
                 int numBytes = 0, augStatus = -1, interruptFlag = 1;
-                int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
-                                               strlen(writeBuf));
+                int len = btlso::SocketImpUtil::write(
+                                           handles[1],
+                                           writeBuf,
+                                           static_cast<int>(strlen(writeBuf)));
 
                 ASSERT(len == (int)strlen(writeBuf));
                 // Read 5 bytes from the channel.

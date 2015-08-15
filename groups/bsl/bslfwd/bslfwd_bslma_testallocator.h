@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class TestAllocator;
-    }
+    }  // close namespace bslma
 
     typedef bslma::TestAllocator bslma_TestAllocator;
-}
+}  // close enterprise namespace
 
 #else
 

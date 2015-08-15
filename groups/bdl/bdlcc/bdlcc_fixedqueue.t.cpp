@@ -136,7 +136,7 @@ typedef void Element;
 typedef bdlcc::FixedQueue<Element*> Obj;
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace Backoff {
@@ -719,7 +719,7 @@ void runtest(int numIterations, int numThreads, int queueSize, int pushCount)
     ASSERT(control.d_numPushed >= numIterations);
     ASSERT(control.d_numPopped == numIterations);
 }
-}
+}  // close namespace nonblocktst
 
 namespace disabletst {
 
@@ -787,7 +787,7 @@ void runtest(int numPushers, int queueSize, bool doDrain, bool doSleep = false)
     }
     ASSERT(!queue.isEnabled());
 }
-}
+}  // close namespace disabletst
 
 namespace seqtst {
 
@@ -888,7 +888,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
     tg.joinAll();
     ASSERT(queue.isEmpty());
 }
-}
+}  // close namespace seqtst
 
 namespace zerotst {
 
@@ -965,7 +965,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
     tg.joinAll();
     ASSERT(queue.isEmpty());
 }
-}
+}  // close namespace zerotst
 
 ///Usage
 ///-----

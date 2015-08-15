@@ -1,4 +1,4 @@
-// bdlxxxx_instreamfunctions.h                                           -*-C++-*-
+// bdlxxxx_instreamfunctions.h                                        -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
 #define INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
 
@@ -558,7 +558,7 @@ namespace bdex_InStreamFunctions {
         // that underlie 'operator<<'.  The deprecated functions are inline and
         // cannot always be found in object files.
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamIn_Imp(STREAM&                                  stream,
                          TYPE&                                    object,
@@ -582,7 +582,7 @@ namespace bdex_InStreamFunctions {
         return stream;
     }
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamIn_Imp(STREAM&                                     stream,
                          TYPE&                                       object,
@@ -605,7 +605,7 @@ namespace bdex_InStreamFunctions {
         return object.bdexStreamIn(stream, version);
     }
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamIn(STREAM& stream, TYPE& object, int version)
         // Assign to the specified 'object' the value read from the specified
@@ -636,7 +636,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'bool'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, bool& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -656,7 +656,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'char'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, char& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -671,7 +671,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'signed' 'char'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, signed char& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -686,7 +686,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'unsigned' 'char'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, unsigned char& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -701,7 +701,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'short'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, short& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -716,7 +716,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'unsigned' 'short'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, unsigned short& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -731,7 +731,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'int'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, int& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -746,7 +746,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'unsigned' 'int'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, unsigned int& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -761,7 +761,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'long'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, long& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -781,7 +781,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'unsigned long'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, unsigned long& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -802,7 +802,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'bsls::Types::Int64'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, bsls::Types::Int64& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -818,7 +818,7 @@ namespace bdex_InStreamFunctions {
     // This specialization implements 'streamIn' for
     // 'bsls::Types::Uint64'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, bsls::Types::Uint64& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -833,7 +833,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'float'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, float& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -848,7 +848,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'double'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, double& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -863,7 +863,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'bsl::string'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamIn(STREAM& stream, bsl::string& variable, int)
         // Assign to the specified 'variable' the value read from the specified
@@ -879,7 +879,7 @@ namespace bdex_InStreamFunctions {
     // This specialization implements 'streamIn' for 'bsl::vector<char,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamIn(STREAM&                   stream,
                      bsl::vector<char, ALLOC>& variable,
@@ -895,7 +895,7 @@ namespace bdex_InStreamFunctions {
         stream.getLength(length);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         variable.resize(length);
@@ -907,7 +907,7 @@ namespace bdex_InStreamFunctions {
     // This specialization implements 'streamIn' for 'bsl::vector<short,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamIn(STREAM&                    stream,
                      bsl::vector<short, ALLOC>& variable,
@@ -923,7 +923,7 @@ namespace bdex_InStreamFunctions {
         stream.getLength(length);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         variable.resize(length);
@@ -934,7 +934,7 @@ namespace bdex_InStreamFunctions {
 
     // This specialization implements 'streamIn' for 'bsl::vector<int, ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamIn(STREAM&                  stream,
                      bsl::vector<int, ALLOC>& variable,
@@ -950,7 +950,7 @@ namespace bdex_InStreamFunctions {
         stream.getLength(length);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         variable.resize(length);
@@ -962,7 +962,7 @@ namespace bdex_InStreamFunctions {
     // This specialization implements 'streamIn' for
     // 'bsl::vector<bsls::Types::Int64, ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamIn(STREAM&                                 stream,
                      bsl::vector<bsls::Types::Int64, ALLOC>& variable,
@@ -978,7 +978,7 @@ namespace bdex_InStreamFunctions {
         stream.getLength(length);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         variable.resize(length);
@@ -990,7 +990,7 @@ namespace bdex_InStreamFunctions {
     // This specialization implements 'streamIn' for 'bsl::vector<float,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamIn(STREAM&                    stream,
                      bsl::vector<float, ALLOC>& variable,
@@ -1006,7 +1006,7 @@ namespace bdex_InStreamFunctions {
         stream.getLength(length);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         variable.resize(length);
@@ -1018,7 +1018,7 @@ namespace bdex_InStreamFunctions {
     // This specialization implements 'streamIn' for 'bsl::vector<double,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamIn(STREAM&                     stream,
                      bsl::vector<double, ALLOC>& variable,
@@ -1034,7 +1034,7 @@ namespace bdex_InStreamFunctions {
         stream.getLength(length);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         variable.resize(length);
@@ -1046,7 +1046,7 @@ namespace bdex_InStreamFunctions {
     // This specialization implements 'streamIn' for 'bsl::vector<TYPE,
     // ALLOC>'.
 
-    template <typename STREAM, typename TYPE, typename ALLOC>
+    template <class STREAM, class TYPE, class ALLOC>
     STREAM& streamIn(STREAM&                   stream,
                      bsl::vector<TYPE, ALLOC>& variable,
                      int                       version)
@@ -1064,7 +1064,7 @@ namespace bdex_InStreamFunctions {
         stream.getLength(length);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         variable.resize(length);
@@ -1074,7 +1074,7 @@ namespace bdex_InStreamFunctions {
             streamIn(stream, *it, version);
 
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
         }
 
@@ -1083,7 +1083,7 @@ namespace bdex_InStreamFunctions {
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamInVersionAndObject(STREAM& stream, TYPE& object)
         // !DEPRECATED!: Use 'streamIn' instead.
@@ -1107,7 +1107,7 @@ namespace bdex_InStreamFunctions {
                 stream.getVersion(version);
 
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
             }
         }
@@ -1119,15 +1119,15 @@ namespace bdex_InStreamFunctions {
 
 }  // close namespace bdex_InStreamFunctions
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

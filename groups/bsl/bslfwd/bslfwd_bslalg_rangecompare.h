@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class RangeCompare;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::RangeCompare bslalg_RangeCompare;
-}
+}  // close enterprise namespace
 
 #else
 

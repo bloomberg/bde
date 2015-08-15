@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class MallocFreeAllocator;
-    }
+    }  // close namespace bslma
 
     typedef bslma::MallocFreeAllocator bslma_MallocFreeAllocator;
-}
+}  // close enterprise namespace
 
 #else
 

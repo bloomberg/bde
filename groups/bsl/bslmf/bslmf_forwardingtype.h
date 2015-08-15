@@ -575,7 +575,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 }  // close enterprise namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 

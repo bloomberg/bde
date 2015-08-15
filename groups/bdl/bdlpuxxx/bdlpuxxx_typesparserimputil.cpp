@@ -1,4 +1,4 @@
-// bdlpuxxx_typesparserimputil.cpp                                       -*-C++-*-
+// bdlpuxxx_typesparserimputil.cpp                                    -*-C++-*-
 #include <bdlpuxxx_typesparserimputil.h>
 
 #include <bsls_ident.h>
@@ -178,7 +178,7 @@ int parseRealAsDecimal(const char          **endPos,
 
     if (0 == hasDigit) {
         *endPos = inputString;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     while (frac && fracDigits < firstDigitPos) {
@@ -193,15 +193,15 @@ int parseRealAsDecimal(const char          **endPos,
         ++inputString;
         Int64 tmp = 0;
         if (bdlpuxxx::TypesParserImpUtil::parseInt64(endPos, &tmp, inputString)) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         if (tmp < -0x7FFFFFFF || tmp > 0x7FFFFFFF) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         inputString = *endPos;
         Int64 tmpExp = tmp + exp;
         if (tmpExp < -0x7FFFFFFF || tmpExp > 0x7FFFFFFF) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         exp = static_cast<int>(tmpExp);
     }
@@ -220,7 +220,7 @@ namespace {
 // minimize the overlap between the two implementations, however, we create the
 // following helper template.
 
-template <typename UNSIGNED, typename INTEGER>
+template <class UNSIGNED, class INTEGER>
 char *generateIntDecimalHelper(char *buffer, INTEGER value, int length)
     // Write into the specified 'buffer' of the specified 'length', the
     // representation of the specified 'value' in decimal representation,
@@ -237,7 +237,7 @@ char *generateIntDecimalHelper(char *buffer, INTEGER value, int length)
         for (; 0 != value; value /= 10) {
             *--buffer = static_cast<char>('0' + static_cast<int>(value % 10));
         }
-        return buffer;
+        return buffer;                                                // RETURN
     }
     if (0 > value) {
         UNSIGNED unsignedValue = -value;
@@ -246,13 +246,13 @@ char *generateIntDecimalHelper(char *buffer, INTEGER value, int length)
                                    '0' + static_cast<int>(unsignedValue % 10));
         }
         *--buffer = '-';
-        return buffer;
+        return buffer;                                                // RETURN
     }
     *--buffer = '0';
     return buffer;
 }
 
-template <typename UNSIGNED, typename INTEGER>
+template <class UNSIGNED, class INTEGER>
 char *generateIntHelper(char *buffer, INTEGER value, int length, int base)
     // Write into the specified 'buffer' of the specified 'length', the
     // representation of the specified 'value' in the specified 'base',
@@ -271,7 +271,7 @@ char *generateIntHelper(char *buffer, INTEGER value, int length, int base)
         for (; 0 != value; value /= base) {
             *--buffer = DIGITS[(int)(value % base)];
         }
-        return buffer;
+        return buffer;                                                // RETURN
     }
     if (0 > value) {
         UNSIGNED unsignedValue = -value;
@@ -279,7 +279,7 @@ char *generateIntHelper(char *buffer, INTEGER value, int length, int base)
             *--buffer = DIGITS[(int)(unsignedValue % base)];
         }
         *--buffer = '-';
-        return buffer;
+        return buffer;                                                // RETURN
     }
     *--buffer = '0';
     return buffer;
@@ -322,7 +322,7 @@ int copyBufRaw(char *dest, const char *src, int srcLen)
     return srcLen;
 }
 
-template <typename UNSIGNED, typename INTEGER>
+template <class UNSIGNED, class INTEGER>
 void generateIntHelper(bsl::vector<char> *buffer,
                        INTEGER            value,
                        int                base)
@@ -359,9 +359,9 @@ void generateIntHelper(bsl::vector<char> *buffer,
 
 }  // close unnamed namespace
 
-// ===========================================================================
+// ============================================================================
 //                             COMPONENT DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------------------
                         // struct bdlpuxxx::TypesParserImpUtil
@@ -393,21 +393,21 @@ int TypesParserImpUtil::parseChar(const char **endPos,
     BSLS_ASSERT(inputString);
 
     if (ParserImpUtil::skipRequiredToken(endPos, inputString, '\'')) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     char tmpRes;
     int flags;
     if (parseCharRaw(endPos, &tmpRes, *endPos, &flags)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (!(BDEPU_HAS_ESCAPE & flags) && '\'' == tmpRes) {
         --*endPos;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     if (**endPos != '\'') {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     ++*endPos;
@@ -537,16 +537,16 @@ int TypesParserImpUtil::parseDate(const char **endPos,
                                                        10,
                                                        9999,
                                                        4)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     int year = static_cast<int>(tmp);
     if (0 == year) {    // Year "0000" is invalid.
         --*endPos;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     if (**endPos != '/') {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     ++*endPos;
 
@@ -556,20 +556,20 @@ int TypesParserImpUtil::parseDate(const char **endPos,
                                                        10,
                                                        99,
                                                        2)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     int month = static_cast<int>(tmp);
     if (0 == month) {    // Month "00" is invalid.
         --*endPos;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (month > 12) {
         --*endPos;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     if (**endPos != '/') {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     ++*endPos;
 
@@ -580,23 +580,23 @@ int TypesParserImpUtil::parseDate(const char **endPos,
                                                        10,
                                                        99,
                                                        2)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     int day = static_cast<int>(tmp);
     if (0 == day) {    // Day "00" is invalid.
         --*endPos;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (day > 31) {
         --*endPos;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (!bdlt::Date::isValidYearMonthDay(year, month, day)) {
         // Only the 'day' part of the date can be invalid, and this can
         // only be a result of the second digit's value, so set 'endPos' to
         // point to that second digit.
         *endPos = startPos + 1;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     result->setYearMonthDay(year, month, day);
     return BDEPU_SUCCESS;
@@ -614,16 +614,16 @@ int TypesParserImpUtil::parseDatetime(const char    **endPos,
     bdlt::Time resultTime;
 
     if (parseDate(endPos, &resultDate, inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     if (**endPos != ' ' && **endPos != '_') {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     ++*endPos;
 
     if (parseTime(endPos, &resultTime, *endPos)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     *result = bdlt::Datetime(resultDate, resultTime);
@@ -641,13 +641,13 @@ int TypesParserImpUtil::parseDatetimeTz(const char      **endPos,
     bdlt::Datetime resultDatetime;
 
     if (parseDatetime(endPos, &resultDatetime, inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     int resultOffset;
 
     if (parseTz(endPos, &resultOffset, *endPos)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     *result = bdlt::DatetimeTz(resultDatetime, resultOffset);
@@ -666,13 +666,13 @@ int TypesParserImpUtil::parseDateTz(const char  **endPos,
     bdlt::Date resultDate;
 
     if (parseDate(endPos, &resultDate, inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     int resultOffset;
 
     if (parseTz(endPos, &resultOffset, *endPos)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     *result = bdlt::DateTz(resultDate, resultOffset);
@@ -693,7 +693,7 @@ int TypesParserImpUtil::parseDouble(const char **endPos,
     int    decExp  = 0;
 
     if (parseRealAsDecimal(endPos, &decSign, &decFrac, &decExp, inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     Uint64 binFrac = 0;
@@ -708,7 +708,7 @@ int TypesParserImpUtil::parseDouble(const char **endPos,
                                                         &binExp,
                                                         decFrac,
                                                         decExp)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     return RealParserImpUtil::convertBinaryToDouble(result,
                                                           decSign,
@@ -729,7 +729,7 @@ int TypesParserImpUtil::parseFloat(const char **endPos,
     int    decExp  = 0;
 
     if (parseRealAsDecimal(endPos, &decSign, &decFrac, &decExp, inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     Uint64 binFrac = 0;
@@ -738,14 +738,14 @@ int TypesParserImpUtil::parseFloat(const char **endPos,
                                                         &binExp,
                                                         decFrac,
                                                         decExp)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (binExp > 128) {        // overflow
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     else if (binExp < -126) {  // underflow
         *result = 0.0;
-        return BDEPU_SUCCESS;
+        return BDEPU_SUCCESS;                                         // RETURN
     }
 
     // Note that 'RealParserImpUtil::convertDecimalToBinary' converts and
@@ -846,7 +846,7 @@ int TypesParserImpUtil::parseDelimitedString(
 
     if (leftDelimiter) {  // 0 delimiter means don't look for one
         if (leftDelimiter != **endPos) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         ++*endPos;
         ++inputString;
@@ -857,12 +857,12 @@ int TypesParserImpUtil::parseDelimitedString(
     while ('\0' != **endPos && rightDelimiter != **endPos) {
         int tmpFlags = 0;
         if (parseCharRaw(endPos, &charResult, *endPos, &tmpFlags)) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         flags |= tmpFlags;
     }
     if (rightDelimiter != **endPos) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     ++*endPos;
 
@@ -890,13 +890,13 @@ int TypesParserImpUtil::parseSpaceDelimitedString(
                   && 0 == bsl::isspace(static_cast<unsigned char>(**endPos))) {
         int tmpFlags = 0;
         if (parseCharRaw(endPos, &charResult, *endPos, &tmpFlags)) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         flags |= tmpFlags;
     }
 
     if (*endPos == inputString) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     // Copy into return result
@@ -923,13 +923,13 @@ int TypesParserImpUtil::parseUnquotedString(const char  **endPos,
                   && 0 == bsl::isspace(static_cast<unsigned char>(**endPos))) {
         int tmpFlags = 0;
         if (parseCharRaw(endPos, &charResult, *endPos, &tmpFlags)) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         flags |= tmpFlags;
     }
 
     if (*endPos == inputString) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     // Copy into return result
@@ -956,15 +956,15 @@ int TypesParserImpUtil::parseTime(const char **endPos,
                                                        10,
                                                        99,
                                                        2)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     int hour = static_cast<int>(tmp);
     if (hour > 24) {
         *endPos -= 2;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (**endPos != ':') {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     ++*endPos;
 
@@ -975,19 +975,19 @@ int TypesParserImpUtil::parseTime(const char **endPos,
                                                        10,
                                                        99,
                                                        2)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     int minute = static_cast<int>(tmp);
     if (minute > 59) {
         *endPos -= 2;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if ( 2 != (*endPos - start)) { // minutes MUST have 2 digits
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (24 == hour && minute) {
         *endPos = start + (minute < 10 ? 1 : 0);
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     int second      = 0;
@@ -1001,19 +1001,19 @@ int TypesParserImpUtil::parseTime(const char **endPos,
                                                            10,
                                                            99,
                                                            2)) {
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         second = static_cast<int>(tmp);
         if (second > 59) {
             *endPos -= 2;
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         if ( 2 != (*endPos - start)) { // seconds MUST have 2 digits
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
         if (24 == hour && second) {
             *endPos = start + (second < 10 ? 1 : 0);
-            return BDEPU_FAILURE;
+            return BDEPU_FAILURE;                                     // RETURN
         }
 
         if ('.' == **endPos) {
@@ -1025,7 +1025,7 @@ int TypesParserImpUtil::parseTime(const char **endPos,
                                                                10,
                                                                999,
                                                                3)) {
-                return BDEPU_FAILURE;
+                return BDEPU_FAILURE;                                 // RETURN
             }
             millisecond = static_cast<int>(tmp);
             if (2 == *endPos - start) {
@@ -1042,7 +1042,7 @@ int TypesParserImpUtil::parseTime(const char **endPos,
                         ++*endPos;
                     }
                 }
-                return BDEPU_FAILURE;
+                return BDEPU_FAILURE;                                 // RETURN
             }
         }
     }
@@ -1062,13 +1062,13 @@ int TypesParserImpUtil::parseTimeTz(const char  **endPos,
     bdlt::Time resultTime;
 
     if (parseTime(endPos, &resultTime, inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     int resultOffset;
 
     if (parseTz(endPos, &resultOffset, *endPos)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     *result = bdlt::TimeTz(resultTime, resultOffset);
@@ -1094,7 +1094,7 @@ int TypesParserImpUtil::parseTz(const char **endPos,
         sign = -1;
     }
     else {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     ++*endPos;
@@ -1106,21 +1106,21 @@ int TypesParserImpUtil::parseTz(const char **endPos,
                                                   10,
                                                   99,
                                                   2)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     // Ensure that exactly 2 digits have been read.
     if (3 != (*endPos - inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     if (hours >= 30) {
         *endPos = inputString + 1;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     else if (hours >= 24) {
         *endPos = inputString + 2;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     Uint64 minutes = 0;
@@ -1130,16 +1130,16 @@ int TypesParserImpUtil::parseTz(const char **endPos,
                                                   10,
                                                   99,
                                                   2)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     // Ensure that exactly 2 digits have been read.
     if (5 != (*endPos - inputString)) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if (minutes >= 60) {
         *endPos = inputString + 4;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     *result = static_cast<int>(hours * 60 + minutes);
@@ -1735,13 +1735,13 @@ void TypesParserImpUtil::generateTz(bsl::vector<char> *buffer,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

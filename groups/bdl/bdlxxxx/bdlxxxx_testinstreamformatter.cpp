@@ -1,4 +1,4 @@
-// bdlxxxx_testinstreamformatter.cpp                                     -*-C++-*-
+// bdlxxxx_testinstreamformatter.cpp                                  -*-C++-*-
 #include <bdlxxxx_testinstreamformatter.h>
 
 #include <bsls_ident.h>
@@ -94,7 +94,7 @@ void TestInStreamFormatter::checkScalar(int                  *validFlag_p,
     BSLS_ASSERT(0 < scalarSize);
 
     if (!*validFlag_p) {
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
     if (length() - cursor() >= SIZEOF_CODE) {
@@ -109,16 +109,16 @@ void TestInStreamFormatter::checkScalar(int                  *validFlag_p,
                              code,
                              (FieldCode::Type) codeFound);
             }
-            return;                                                 // RETURN
+            return;                                                   // RETURN
         }
     } else {
         *validFlag_p = 0; // Incomplete stream.  Invalidate silently.
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
     if (length() - cursor() < scalarSize) {
         *validFlag_p = 0; // Incomplete stream.  Invalidate silently.
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 }
 
@@ -133,7 +133,7 @@ void TestInStreamFormatter::checkArray(int                  *validFlag_p,
     BSLS_ASSERT(0 <= numElements);
 
     if (!*validFlag_p) {
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
     if (length() - cursor() >= SIZEOF_CODE) {
@@ -148,11 +148,11 @@ void TestInStreamFormatter::checkArray(int                  *validFlag_p,
                              code,
                              (FieldCode::Type) codeFound);
             }
-            return;                                                 // RETURN
+            return;                                                   // RETURN
         }
     } else {
         *validFlag_p = 0; // Incomplete stream.  Invalidate silently.
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
     if (length() - cursor() >= SIZEOF_ARRLEN) {
@@ -167,16 +167,16 @@ void TestInStreamFormatter::checkArray(int                  *validFlag_p,
                              numElements,
                              numElemFound);
             }
-            return;                                                 // RETURN
+            return;                                                   // RETURN
         }
     } else {
         *validFlag_p = 0; // Incomplete stream.  Invalidate silently.
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
     if (length() - cursor() < scalarSize * numElements) {
         *validFlag_p = 0; // Incomplete stream.  Invalidate silently.
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 }
 
@@ -187,7 +187,7 @@ void TestInStreamFormatter::checkVersion(int *validFlag_p,
     BSLS_ASSERT(validFlag_p);
 
     if (!*validFlag_p || suppressVersionCheckFlag) {
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
     unsigned char codeFound;  // 'unsigned' to support type values >= 128
@@ -204,11 +204,11 @@ void TestInStreamFormatter::checkVersion(int *validFlag_p,
                              FieldCode::BDEX_INT8,
                              (FieldCode::Type) codeFound);
             }
-            return;                                                 // RETURN
+            return;                                                   // RETURN
         }
     } else {
         *validFlag_p = 0; // Incomplete stream.  Invalidate silently.
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 
     if (length() - SIZEOF_CODE >= SIZEOF_VERSION) {
@@ -225,7 +225,7 @@ void TestInStreamFormatter::checkVersion(int *validFlag_p,
         }
     } else {
         *validFlag_p = 0; // Incomplete stream.  Invalidate silently.
-        return;                                                     // RETURN
+        return;                                                       // RETURN
     }
 }
 
@@ -1340,13 +1340,13 @@ int TestInStreamFormatter::cursor() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

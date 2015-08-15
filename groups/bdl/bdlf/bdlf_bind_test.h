@@ -1088,21 +1088,21 @@ struct Bind_TestFunctionsAlloc {
                       // -----------------------------
 
 // PRIVATE CLASS DATA
-template <typename VALUE>
+template <class VALUE>
 VALUE
 bdlf::Bind_TestSlotsBase<VALUE>::s_slots[bdlf::Bind_TestSlotsBase<VALUE>::
                                                                     k_NUM_SLOTS];
 
 namespace bdlf {
 // CLASS METHODS
-template <typename VALUE>
+template <class VALUE>
 inline
 VALUE Bind_TestSlotsBase<VALUE>::getSlot(int index)
 {
     return s_slots[index];
 }
 
-template <typename VALUE>
+template <class VALUE>
 void Bind_TestSlotsBase<VALUE>::resetSlots(VALUE value)
 {
     for (int i = 0; i < k_NUM_SLOTS; ++i) {
@@ -1110,7 +1110,7 @@ void Bind_TestSlotsBase<VALUE>::resetSlots(VALUE value)
     }
 }
 
-template <typename VALUE>
+template <class VALUE>
 inline
 void Bind_TestSlotsBase<VALUE>::setSlot(VALUE value, int index)
 {
@@ -1124,7 +1124,7 @@ void Bind_TestSlotsBase<VALUE>::setSlot(VALUE value, int index)
                                   // for MSVC
 #endif
 
-namespace bdlf {template <typename VALUE>
+namespace bdlf {template <class VALUE>
 bool Bind_TestSlotsBase<VALUE>::verifySlots(const VALUE *EXPECTED,
                                                  bool         verboseFlag)
 {
@@ -1812,53 +1812,53 @@ int Bind_TestFunctionsNoAlloc::func14(Bind_TestTypeNoAlloc *object,
                       // ----------------------------------
 
 // CLASS DATA
-template <typename AllocPtr>
+template <class AllocPtr>
 AllocPtr bdlf::Bind_TestSlotsAllocBase<AllocPtr>::s_Z0 = 0;
 
-template <typename AllocPtr>
+template <class AllocPtr>
 AllocPtr bdlf::Bind_TestSlotsAllocBase<AllocPtr>::s_Z1 = 0;
 
-template <typename AllocPtr>
+template <class AllocPtr>
 AllocPtr bdlf::Bind_TestSlotsAllocBase<AllocPtr>::s_Z2 = 0;
 
 namespace bdlf {
 // CLASS METHODS
-template <typename AllocPtr>
+template <class AllocPtr>
 inline
 void Bind_TestSlotsAllocBase<AllocPtr>::setZ0(AllocPtr Z0)
 {
     s_Z0 = Z0;
 }
 
-template <typename AllocPtr>
+template <class AllocPtr>
 inline
 void Bind_TestSlotsAllocBase<AllocPtr>::setZ1(AllocPtr Z1)
 {
     s_Z1 = Z1;
 }
 
-template <typename AllocPtr>
+template <class AllocPtr>
 inline
 void Bind_TestSlotsAllocBase<AllocPtr>::setZ2(AllocPtr Z2)
 {
     s_Z2 = Z2;
 }
 
-template <typename AllocPtr>
+template <class AllocPtr>
 inline
 AllocPtr Bind_TestSlotsAllocBase<AllocPtr>::getZ0()
 {
     return s_Z0;
 }
 
-template <typename AllocPtr>
+template <class AllocPtr>
 inline
 AllocPtr Bind_TestSlotsAllocBase<AllocPtr>::getZ1()
 {
     return s_Z1;
 }
 
-template <typename AllocPtr>
+template <class AllocPtr>
 inline
 AllocPtr Bind_TestSlotsAllocBase<AllocPtr>::getZ2()
 {
@@ -2610,15 +2610,22 @@ int Bind_TestFunctionsAlloc::func14(Bind_TestTypeAlloc *o,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

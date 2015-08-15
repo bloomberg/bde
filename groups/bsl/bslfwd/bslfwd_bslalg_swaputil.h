@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class SwapUtil;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::SwapUtil bslalg_SwapUtil;
-}
+}  // close enterprise namespace
 
 #else
 

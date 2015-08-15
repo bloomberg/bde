@@ -239,9 +239,9 @@ RawDeleterGuard<TYPE, ALLOCATOR>::~RawDeleterGuard()
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_RawDeleterGuard
 #undef bslma_RawDeleterGuard

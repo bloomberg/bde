@@ -41,12 +41,13 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code illustrate a typical use of the 'bdlde::Md5'
 // class.  Each function would typically execute in separate processes or
 // potentially on separate machines.  The 'senderExample' function below
-// demonstrates how a message sender can write a message and its MD5 digest to
-// a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
-// that implements the 'bdlxxxx::OutStream' protocol:
+// demonstrates how a message sender can write a message and its MD5 digest
+// to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
+// that implements the 'bslx::OutStream' protocol:
 //..
 //  void senderExample(Out& output)
-//      // Write a message and its MD5 digest to the specified 'output' stream.
+//      // Write a message and its MD5 digest to the specified 'output'
+//      // stream.
 //  {
 //      // Prepare a message.
 //      bsl::string message = "This is a test message.";
@@ -55,18 +56,18 @@ BSLS_IDENT("$Id: $")
 //      bdlde::Md5 digest(message.data(), message.length());
 //
 //      // Write the message to 'output'.
-//      bdex_OutStreamFunctions::streamOut(output, message, 0);
+//      output << message;
 //
 //      // Write the digest to 'output'.
 //      const int VERSION = 1;
-//      bdex_OutStreamFunctions::streamOut(output, digest, VERSION);
+//      digest.bdexStreamOut(output, VERSION);
 //  }
 //..
 // The 'receiverExample' function below illustrates how a message receiver can
 // read a message and its MD5 digest from a 'bdex' input stream, then perform a
 // local MD5 computation to verify that the message was received intact.  Note
 // that 'In' may be a 'typedef' of any class that implements the
-// 'bdlxxxx::InStream' protocol:
+// 'bslx::InStream' protocol:
 //..
 //  void receiverExample(In& input)
 //      // Read a message and its MD5 digest from the specified 'input' stream,
@@ -74,12 +75,12 @@ BSLS_IDENT("$Id: $")
 //  {
 //      // Read the message from 'input'.
 //      bsl::string message;
-//      bdex_InStreamFunctions::streamIn(input, message, 0);
+//      input >> message;
 //
 //      // Read the digest from 'input'.
 //      bdlde::Md5 digest;
 //      const int VERSION = 1;
-//      bdex_InStreamFunctions::streamIn(input, digest, VERSION);
+//      digest.bdexStreamIn(input, VERSION);
 //
 //      // Locally compute the digest of the received 'message'.
 //      bdlde::Md5 digestLocal;
@@ -160,10 +161,13 @@ class Md5 {
         // digest.
 
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+    static int maxSupportedBdexVersion(int);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that the 'versionSelector' is expected to be formatted
+        // as 'yyyymmdd', a date representation.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     // CREATORS
     Md5();
@@ -241,6 +245,14 @@ class Md5 {
     void loadDigest(Md5Digest *result) const;
         // Load the current value of this MD5 digest into the specified
         // 'result'.
+
+#ifndef BDE_OMIT_DEPRECATED
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
+#endif
 };
 
 // FREE OPERATORS
@@ -262,9 +274,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Md5& digest);
     // Write to the specified output 'stream' the specified MD5 'digest' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                             // ---------------
                             // class Md5
@@ -272,7 +284,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Md5& digest);
 
 // CLASS METHODS
 inline
-int Md5::maxSupportedBdexVersion()
+int Md5::maxSupportedBdexVersion(int)
 {
     return 1;
 }
@@ -288,20 +300,23 @@ STREAM& Md5::bdexStreamIn(STREAM& stream, int version)
         bsls::Types::Int64 length;
 
         // first the state
+
         for (int i = 0; i < 4; i++) {
             stream.getUint32(state[i]);
         }
 
         // then the length
+
         stream.getInt64(length);
 
         // finally the buffer
+
         for (int i = 0; i < 64; i++) {
             stream.getUint8(buf[i]);
         }
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         d_length = length;
@@ -324,14 +339,17 @@ STREAM& Md5::bdexStreamOut(STREAM& stream, int version) const
         switch (version) {
           case 1: {
             // first the state
+
             for (int i = 0; i < 4; ++i) {
                 stream.putUint32(d_state[i]);
             }
 
             // then the length
+
             stream.putInt64(d_length);
 
             // finally the buffer
+
             for (int i = 0; i < 64; ++i) {
                 stream.putUint8(d_buffer[i]);
             }
@@ -344,30 +362,48 @@ STREAM& Md5::bdexStreamOut(STREAM& stream, int version) const
     }
     return stream;
 }
-}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool bdlde::operator!=(const Md5& lhs, const Md5& rhs)
+bool operator!=(const Md5& lhs, const Md5& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Md5& digest)
+bsl::ostream& operator<<(bsl::ostream& stream, const Md5& digest)
 {
     return digest.print(stream);
 }
 
-}  // close namespace BloombergLP
+#ifndef BDE_OMIT_DEPRECATED
+
+// ACCESSORS
+inline
+int Md5::maxSupportedBdexVersion()
+{
+    return maxSupportedBdexVersion(0);
+}
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

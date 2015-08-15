@@ -40,12 +40,12 @@ BSLS_IDENT("$Id: $")
 // This component specializes all of these functions for types that have the
 // 'bdlat_TypeTraitBasicChoice' trait.
 //
-// Types that do not have the 'bdlat_TypeTraitBasicChoice' trait can be
-// plugged into the bdlat framework.  This is done by overloading the
-// 'bdlat_choice*' functions inside the namespace of the plugged in type.
-// For example, suppose there is a type called 'mine::MyChoice'.  In order to
-// plug this type into the 'bdlat' framework as a "Choice", the following
-// functions must be declared and implemented in the 'mine' namespace:
+// Types that do not have the 'bdlat_TypeTraitBasicChoice' trait can be plugged
+// into the 'bdlat' framework.  This is done by overloading the 'bdlat_choice*'
+// functions inside the namespace of the plugged in type.  For example, suppose
+// there is a type called 'mine::MyChoice'.  In order to plug this type into
+// the 'bdlat' framework as a "Choice", the following functions must be
+// declared and implemented in the 'mine' namespace:
 //..
 //  // MANIPULATORS
 //  int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
@@ -497,16 +497,13 @@ namespace bdlat_ChoiceFunctions {
 
     // CONSTANTS
     enum {
-        e_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
+        k_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDLAT_UNDEFINED_SELECTION_ID = e_UNDEFINED_SELECTION_ID
-      , UNDEFINED_SELECTION_ID = BDLAT_UNDEFINED_SELECTION_ID
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+      , UNDEFINED_SELECTION_ID = k_UNDEFINED_SELECTION_ID
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      , BDEAT_UNDEFINED_SELECTION_ID = BDLAT_UNDEFINED_SELECTION_ID
-#endif  // BDE_OPENSOURCE_PUBLICATION
+      , k_UNDEFINED_SELECTION_ID = k_UNDEFINED_SELECTION_ID
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // META-FUNCTIONS
@@ -529,7 +526,6 @@ namespace bdlat_ChoiceFunctions {
         // for further information.
 
         enum {
-//ARB:VALUE
             VALUE = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isChoiceMetaFunction(
@@ -562,7 +558,7 @@ namespace bdlat_ChoiceFunctions {
         // 'manipulator' with the corresponding selection information
         // structure.  Return the value returned from the invocation of
         // 'manipulator'.  The behavior is undefined unless
-        // 'BDLAT_UNDEFINED_SELECTION_ID != selectionId(*object)'.
+        // 'k_UNDEFINED_SELECTION_ID != selectionId(*object)'.
 
     // ACCESSORS
     template <class TYPE, class ACCESSOR>
@@ -571,7 +567,7 @@ namespace bdlat_ChoiceFunctions {
         // the specified 'object', supplying 'accessor' with the corresponding
         // selection information structure.  Return the value returned from the
         // invocation of 'accessor'.  The behavior is undefined unless
-        // 'BDLAT_UNDEFINED_SELECTION_ID != selectionId(object)'.
+        // 'k_UNDEFINED_SELECTION_ID != selectionId(object)'.
 
     template <class TYPE>
     bool hasSelection(const TYPE&  object,
@@ -590,10 +586,11 @@ namespace bdlat_ChoiceFunctions {
     template <class TYPE>
     int selectionId(const TYPE& object);
         // Return the id of the current selection if the selection is defined,
-        // and BDLAT_UNDEFINED_SELECTION_ID otherwise.
+        // and k_UNDEFINED_SELECTION_ID otherwise.
 
 #if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
+
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
     // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
@@ -659,7 +656,7 @@ inline
 int bdlat_ChoiceFunctions::manipulateSelection(TYPE         *object,
                                                MANIPULATOR&  manipulator)
 {
-    BSLS_ASSERT_SAFE(BDLAT_UNDEFINED_SELECTION_ID
+    BSLS_ASSERT_SAFE(k_UNDEFINED_SELECTION_ID
                                           != bdlat_choiceSelectionId(*object));
 
     return bdlat_choiceManipulateSelection(object, manipulator);
@@ -672,7 +669,7 @@ inline
 int bdlat_ChoiceFunctions::accessSelection(const TYPE& object,
                                            ACCESSOR&   accessor)
 {
-    BSLS_ASSERT_SAFE(BDLAT_UNDEFINED_SELECTION_ID
+    BSLS_ASSERT_SAFE(k_UNDEFINED_SELECTION_ID
                                            != bdlat_choiceSelectionId(object));
 
     return bdlat_choiceAccessSelection(object, accessor);
@@ -835,10 +832,17 @@ int bdlat_ChoiceFunctions::bdlat_choiceSelectionId(const TYPE& object)
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

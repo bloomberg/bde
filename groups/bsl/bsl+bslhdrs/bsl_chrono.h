@@ -41,8 +41,8 @@ namespace bsl {
         using native_std::chrono::milliseconds;
         using native_std::chrono::microseconds;
         using native_std::chrono::nanoseconds;
-    }
-}  // close namespace bsl
+    }  // close namespace chrono
+}  // close package namespace
 
 #endif
 

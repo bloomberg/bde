@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class TypeTraitHasTrivialDefaultConstructor;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::TypeTraitHasTrivialDefaultConstructor bslalg_TypeTraitHasTrivialDefaultConstructor;
-}
+}  // close enterprise namespace
 
 #else
 

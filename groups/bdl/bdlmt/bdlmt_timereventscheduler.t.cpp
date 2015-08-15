@@ -1,4 +1,4 @@
-// bdlmt_timereventscheduler.t.cpp                                     -*-C++-*-
+// bdlmt_timereventscheduler.t.cpp                                    -*-C++-*-
 #include <bdlmt_timereventscheduler.h>
 
 #include <bslma_testallocator.h>
@@ -296,7 +296,7 @@ void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
 {
     for (int i = 0; i < numAttempts; ++i) {
         if (numExecuted + 1 <= testObject.numExecuted()) {
-            return;
+            return;                                                   // RETURN
         }
         sleepUntilMs(microSeconds / 1000);
         bdlqq::ThreadUtil::yield();
@@ -747,7 +747,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
                               int                   length)
 {
     if (d_scheduler.cancelEvent(connection->d_timerId)) {
-        return;
+        return;                                                       // RETURN
     }
 
     connection->d_session_p->processData(data, length);
@@ -757,7 +757,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
       bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
 
 //=============================================================================
 //                         CASE 20 RELATED ENTITIES
@@ -772,7 +772,7 @@ void dispatcherFunction(bdlf::Function<void(*)()> functor)
     functor();
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_24
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_24
 //=============================================================================
 //                         CASE 20 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -786,21 +786,21 @@ void dispatcherFunction(bdlf::Function<void(*)()> functor)
     functor();
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_23
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_23
 //=============================================================================
 //                         CASE 22 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_22
 {
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_22
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_22
 //=============================================================================
 //                         CASE 21 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_21
 {
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_21
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_21
 //=============================================================================
 //                         CASE 20 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -814,14 +814,14 @@ void dispatcherFunction(bdlf::Function<void(*)()> functor)
     functor();
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_20
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_20
 //=============================================================================
 //                         CASE 19 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_19
 {
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_19
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_19
 //=============================================================================
 //                         CASE 17 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -856,7 +856,7 @@ void Func::operator()()
     }
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_18
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_18
 
 //=============================================================================
 //                         CASE 17 RELATED ENTITIES
@@ -879,7 +879,7 @@ struct Func {
 const Obj *Func::s_scheduler;
 int Func::s_numEvents;
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_17
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_17
 
 //=============================================================================
 //                         CASE 16 RELATED ENTITIES
@@ -925,7 +925,7 @@ struct Recurser {
 };
 bool Recurser::s_finished = false;
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_16
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_16
 
 //=============================================================================
 //                         CASE 15 RELATED ENTITIES
@@ -981,12 +981,12 @@ namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14
     };
     const double Fastfunctor::TOLERANCE = Slowfunctor::SLEEP_SECONDS * 3;
 
-    template<typename _Tp>
+    template<class _Tp>
     inline const _Tp
     abs(const _Tp& __a) {
         return 0 <= __a ? __a : - __a;
     }
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14
 
 //-----------------------------------------------------------------------------
 //                          CASE 13 RELATED ENTITIES
@@ -1044,7 +1044,7 @@ void startClock(Obj            *scheduler,
 // 'maxValue'.
 int numBitsRequired(int maxValue)
 {
-    ASSERT(0 <= maxValue);                                               
+    ASSERT(0 <= maxValue);
 
     return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
                                                    &maxValue,
@@ -1057,7 +1057,7 @@ int maxNodeIndex(int numBits)
     return (1 << numBits) - 2;
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_13
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_13
 
 //=============================================================================
 //                         CASE 12 RELATED ENTITIES
@@ -1065,7 +1065,7 @@ int maxNodeIndex(int numBits)
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_12
 {
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_12
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_12
 //=============================================================================
 //                         CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1142,7 +1142,7 @@ void *workerThread11(void *arg)
 }
 } // extern "C"
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_11
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_11
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1240,14 +1240,14 @@ void *workerThread10(void *arg)
 }
 } // extern "C"
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_10
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_10
 //=============================================================================
 //                         CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_9
 {
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_9
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_9
 //=============================================================================
 //                         CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1261,7 +1261,7 @@ void dispatcherFunction(bdlf::Function<void(*)()> functor)
     functor();
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_8
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_8
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1512,11 +1512,11 @@ void test7_f()
     ASSERT( 1 == testObj.numExecuted() );
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_7
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_7
 
-//==========================================================================
+//=============================================================================
 //                         CASE 6 RELATED ENTITIES
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_6
 {
 
@@ -1682,21 +1682,21 @@ void test6_c()
     ASSERT( numExecuted[3] == testObj3.numExecuted() );
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_6
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_6
 //=============================================================================
 //                         CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_5
 {
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_5
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_5
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_4
 {
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_4
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_4
 //=============================================================================
 //                         CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1943,7 +1943,7 @@ void test3_g()
     ASSERT( 0 == testObj.numExecuted() );
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_3
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_3
 //=============================================================================
 //                         CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -2069,7 +2069,7 @@ bool testCallbacks(int *failures, const float totalTime,
     return result;
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_2
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_2
 //=============================================================================
 //                         CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -2647,7 +2647,7 @@ void test1_k()
     ASSERT(0 == x.numClocks());
 }
 
-} // namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_1
+}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_1
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -2683,20 +2683,20 @@ int main(int argc, char *argv[])
                 INT_MAX
         };
         const int NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
-        
+
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             const int VALUE = ARRAY[i];
         //  const int ret0 = bdlb::BitUtil::find1AtLargestIndex(VALUE);
             const int ret1 = bdlb::BitstringUtil::find1AtLargestIndex(
                                                       &VALUE,
                                                       CHAR_BIT * sizeof VALUE);
-                                                          
+
             P_(VALUE)
             //P_(ret0)
             P(ret1)
             // ASSERT(ret1 == ret0);
         }
-    
+
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -5078,11 +5078,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

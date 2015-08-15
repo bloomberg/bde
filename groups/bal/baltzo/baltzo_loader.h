@@ -233,14 +233,14 @@ class Loader {
         // Load into the specified 'result' the time zone information for the
         // time zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
-        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' is not recognized.  If an error occurs during this
-        // operation, 'result' will be left in a valid, but otherwise
-        // unspecified state.  On return, 'result' will be well-formed (see
-        // 'ZoneinfoUtil::isWellFormed') and 'result->identifier()'
-        // will be 'timeZoneId' (concrete implementations not meeting those
-        // constraints will not be usable by other other components in this
-        // package -- e.g., 'baltzo_zoneinfocache').
+        // 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId' is not
+        // recognized.  If an error occurs during this operation, 'result' will
+        // be left in a valid, but otherwise unspecified state.  On return,
+        // 'result' will be well-formed (see 'ZoneinfoUtil::isWellFormed') and
+        // 'result->identifier()' will be 'timeZoneId' (concrete
+        // implementations not meeting those constraints will not be usable by
+        // other other components in this package -- e.g.,
+        // 'baltzo_zoneinfocache').
 };
 
 }  // close package namespace

@@ -1,4 +1,4 @@
-// bdlmxxx_properties.cpp                                                -*-C++-*-
+// bdlmxxx_properties.cpp                                             -*-C++-*-
 #include <bdlmxxx_properties.h>
 
 #include <bsls_ident.h>
@@ -266,13 +266,13 @@ const bdlmxxx::Descriptor& bdlmxxx::Properties::d_stringAttr =
 const bdlmxxx::Descriptor& bdlmxxx::Properties::d_charArrayAttr =
                                               bdlmxxx::Properties::s_charArrayAttr;
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

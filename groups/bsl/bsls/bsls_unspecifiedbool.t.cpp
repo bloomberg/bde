@@ -185,7 +185,7 @@ namespace USAGE_EXAMPLE {
 }  // close namespace USAGE_EXAMPLE
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {

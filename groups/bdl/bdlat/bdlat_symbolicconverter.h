@@ -293,12 +293,11 @@ struct bdlat_SymbolicConverter {
     // from one type to another compatible type.
 
     template <class LHS_TYPE, class RHS_TYPE>
-    static int convert(LHS_TYPE        *lhs,
-                       const RHS_TYPE&  rhs);
+    static
+    int convert(LHS_TYPE *lhs, const RHS_TYPE &rhs);
     template <class LHS_TYPE, class RHS_TYPE>
-    static int convert(LHS_TYPE        *lhs,
-                       const RHS_TYPE&  rhs,
-                       bsl::ostream&    errorStream);
+    static
+    int convert(LHS_TYPE *lhs, const RHS_TYPE &rhs, bsl::ostream &errorStream);
         // Convert the value of the specified 'rhs' object to the specified
         // (modifiable) 'lhs' object.  Optionally specify an 'errorStream' to
         // print error messages.  Return 0 on success and a non-zero value
@@ -430,8 +429,10 @@ class bdlat_SymbolicConverter_Imp {
         // Convert to simple from simple of the same type.  Note that this just
         // evaluates to an assignment using the assignment operator.
 
-    template <class LHS_TYPE, class LHS_CATEGORY,
-              class RHS_TYPE, class RHS_CATEGORY>
+    template <class LHS_TYPE,
+              class LHS_CATEGORY,
+              class RHS_TYPE,
+              class RHS_CATEGORY>
     int convert(LHS_TYPE        *lhs,
                 LHS_CATEGORY     lhsCategory,
                 const RHS_TYPE&  rhs,
@@ -445,19 +446,23 @@ class bdlat_SymbolicConverter_Imp {
                             const RHS_TYPE&                  rhs,
                             bdlat_TypeCategory::DynamicType  rhsCategory);
     template <class LHS_TYPE,
-              class RHS_TYPE, class RHS_CATEGORY>
+              class RHS_TYPE,
+              class RHS_CATEGORY>
     int resolveDynamicTypes(LHS_TYPE                        *lhs,
                             bdlat_TypeCategory::DynamicType  lhsCategory,
                             const RHS_TYPE&                  rhs,
                             RHS_CATEGORY                     rhsCategory);
-    template <class LHS_TYPE, class LHS_CATEGORY,
+    template <class LHS_TYPE,
+              class LHS_CATEGORY,
               class RHS_TYPE>
     int resolveDynamicTypes(LHS_TYPE                        *lhs,
                             LHS_CATEGORY                     lhsCategory,
                             const RHS_TYPE&                  rhs,
                             bdlat_TypeCategory::DynamicType  rhsCategory);
-    template <class LHS_TYPE, class LHS_CATEGORY,
-              class RHS_TYPE, class RHS_CATEGORY>
+    template <class LHS_TYPE,
+              class LHS_CATEGORY,
+              class RHS_TYPE,
+              class RHS_CATEGORY>
     int resolveDynamicTypes(LHS_TYPE        *lhs,
                             LHS_CATEGORY     lhsCategory,
                             const RHS_TYPE&  rhs,
@@ -511,11 +516,11 @@ class bdlat_SymbolicConverter_StoreValue {
     template <class RVALUE_TYPE, class INFO_TYPE>
     int operator()(const RVALUE_TYPE& object,
                    const INFO_TYPE&) const;
-        // Assign 'object' to '*d_lValue_p'.
+        // Assign the specified 'object' to '*d_lValue_p'.
 
     template <class RVALUE_TYPE>
     int operator()(const RVALUE_TYPE& object) const;
-        // Assign 'object' to '*d_lValue_p'.
+        // Assign the specified 'object' to '*d_lValue_p'.
 };
 
             // ====================================================
@@ -540,11 +545,11 @@ class bdlat_SymbolicConverter_LoadValue {
     template <class LVALUE_TYPE, class INFO_TYPE>
     int operator()(LVALUE_TYPE *object,
                    const INFO_TYPE&) const;
-        // Assign 'd_value' to '*object'.
+        // Assign 'd_value' to the specified '*object'.
 
     template <class LVALUE_TYPE>
     int operator()(LVALUE_TYPE *object) const;
-        // Assign 'd_value' to '*object'.
+        // Assign 'd_value' to the specified '*object'.
 };
 
         // ============================================================
@@ -666,8 +671,9 @@ struct bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy {
     LHS_TYPE                    *d_lhs_p;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -702,8 +708,9 @@ struct bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy {
     const RHS_TYPE              *d_rhs_p;
 
     // CREATORS
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
 
     // FUNCTIONS
     template <class TYPE>
@@ -726,7 +733,7 @@ struct bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                      // ---------------------------------
@@ -757,11 +764,11 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                    *lhs,
 
     bdlat_SymbolicConverter_StoreInChoice<LHS_TYPE> storeInLhs(lhs, this);
 
-    if (bdlat_ChoiceFunctions::BDLAT_UNDEFINED_SELECTION_ID
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID
                                   == bdlat_ChoiceFunctions::selectionId(rhs)) {
         bdlat_ValueTypeFunctions::reset(lhs);
 
-        return k_SUCCESS;                                         // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
 
     return bdlat_ChoiceFunctions::accessSelection(rhs, storeInLhs);
@@ -784,7 +791,7 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                   *lhs,
                                                       storeInLhs(lhs, i, this);
 
         if (0 != bdlat_ArrayFunctions::accessElement(rhs, storeInLhs, i)) {
-            return k_FAILURE;                                     // RETURN
+            return k_FAILURE;                                         // RETURN
         }
     }
 
@@ -839,7 +846,7 @@ int bdlat_SymbolicConverter_Imp::convert(
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
         bdlat_ValueTypeFunctions::reset(lhs);
 
-        return k_SUCCESS;                                         // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
 
     bdlat_SymbolicConverter_StoreInNullable<LHS_TYPE> storeInLhs(lhs, this);
@@ -870,9 +877,8 @@ int bdlat_SymbolicConverter_Imp::convert(
     enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
-        return k_SUCCESS;  // ignore the value and let '*lhs' contain its
-                                                                      // RETURN
-                         // *default* value
+        // ignore the value and let '*lhs' contain its *default* value
+        return k_SUCCESS;                                             // RETURN
     }
 
     bdlat_SymbolicConverter_StoreValue<LHS_TYPE> storeIntoLhs(lhs, this);
@@ -890,9 +896,8 @@ int bdlat_SymbolicConverter_Imp::convert(
     enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
-        return k_SUCCESS;  // ignore the value and let '*lhs' contain its
-                                                                      // RETURN
-                         // *default* value
+        // ignore the value and let '*lhs' contain its *default* value
+        return k_SUCCESS;                                             // RETURN
     }
 
     bdlat_SymbolicConverter_StoreValue<LHS_TYPE> storeIntoLhs(lhs, this);
@@ -927,7 +932,7 @@ int bdlat_SymbolicConverter_Imp::convert(
     LhsBaseType lhsBaseValue;
 
     if (0 != convert(&lhsBaseValue, rhs)) {
-        return k_FAILURE;                                         // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(lhs,
@@ -968,18 +973,18 @@ int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                    *lhs,
     return bdlat_ValueTypeFunctions::assign(lhs, rhs);
 }
 
-template <class LHS_TYPE, class LHS_CATEGORY,
-          class RHS_TYPE, class RHS_CATEGORY>
+template <class LHS_TYPE,
+          class LHS_CATEGORY,
+          class RHS_TYPE,
+          class RHS_CATEGORY>
 inline
-int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE        *lhs,
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE        *,
                                          LHS_CATEGORY,
-                                         const RHS_TYPE&  rhs,
+                                         const RHS_TYPE&,
                                          RHS_CATEGORY)
 {
     enum { k_FAILURE = -6 };
 
-    (void)lhs;  // quell warning
-    (void)rhs;  // quell warning
     return k_FAILURE;
 }
 
@@ -998,8 +1003,7 @@ int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
     return bdlat_TypeCategoryUtil::accessByCategory(rhs, proxy);
 }
 
-template <class LHS_TYPE,
-          class RHS_TYPE, class RHS_CATEGORY>
+template <class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY>
 inline
 int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
                                           LHS_TYPE                        *lhs,
@@ -1014,8 +1018,7 @@ int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
     return bdlat_TypeCategoryUtil::manipulateByCategory(lhs, proxy);
 }
 
-template <class LHS_TYPE, class LHS_CATEGORY,
-          class RHS_TYPE>
+template <class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE>
 inline
 int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
                                          LHS_TYPE                         *lhs,
@@ -1030,8 +1033,10 @@ int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
     return bdlat_TypeCategoryUtil::accessByCategory(rhs, proxy);
 }
 
-template <class LHS_TYPE, class LHS_CATEGORY,
-          class RHS_TYPE, class RHS_CATEGORY>
+template <class LHS_TYPE,
+          class LHS_CATEGORY,
+          class RHS_TYPE,
+          class RHS_CATEGORY>
 inline
 int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
                                                   LHS_TYPE        *lhs,
@@ -1183,11 +1188,10 @@ int bdlat_SymbolicConverter_StoreInSequence<SEQUENCE_TYPE>::operator()(
                                                           info.name(),
                                                           info.nameLength())) {
         d_imp_p->errorStream()
-                             << "Failed to convert attribute '"
-                             << bslstl::StringRef(info.name(), info.nameLength())
-                             << "'" << bsl::endl;
+                 << "Failed to convert attribute '"
+                 << bslstl::StringRef(info.name(), info.nameLength()) << "'\n";
 
-        return k_FAILURE;                                         // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return k_SUCCESS;
@@ -1225,11 +1229,10 @@ int bdlat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>::operator()(
                                                   info.name(),
                                                   info.nameLength())) {
         d_imp_p->errorStream()
-                             << "Failed to make selection '"
-                             << bslstl::StringRef(info.name(), info.nameLength())
-                             << "'" << bsl::endl;
+                 << "Failed to make selection '"
+                 << bslstl::StringRef(info.name(), info.nameLength()) << "'\n";
 
-        return k_FAILURE;                                         // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     // Assign the value.
@@ -1241,11 +1244,10 @@ int bdlat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>::operator()(
     if (0 != bdlat_ChoiceFunctions::manipulateSelection(d_destination_p,
                                                         loadSourceValue)) {
         d_imp_p->errorStream()
-                             << "Failed to convert selection '"
-                             << bslstl::StringRef(info.name(), info.nameLength())
-                             << "'" << bsl::endl;
+                 << "Failed to convert selection '"
+                 << bslstl::StringRef(info.name(), info.nameLength()) << "'\n";
 
-        return k_FAILURE;                                         // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return k_SUCCESS;
@@ -1353,10 +1355,17 @@ int bdlat_SymbolicConverter::convert(LHS_TYPE        *lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

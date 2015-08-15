@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 // identifier is not supported:
 //..
 //  assert(0 == cache.getZoneinfo(&rc, "badId"));
-//  assert(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+//  assert(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -174,6 +174,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -260,14 +264,14 @@ class ZoneinfoCache {
         // populate this object using the 'loader' supplied at construction.
         // Optionally specify the address of an integer, 'rc', in which to load
         // the return code for this operation.  If 'rc' is specified, load 0
-        // into 'rc' if the operation succeeds,
-        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' if the time-zone identifier is
-        // not supported, and a negative value if the operation does not
-        // succeed for any other reason.  If the returned address is non-zero,
-        // the Zoneinfo object returned is guaranteed to be well-formed (i.e.,
-        // 'ZoneinfoUtil::isWellFormed' will return 'true' if called with the
-        // returned value), and remain valid for the lifetime of this object.
-        // The behavior is undefined if 'rc' is 0.
+        // into 'rc' if the operation succeeds, 'ErrorCode::k_UNSUPPORTED_ID'
+        // if the time-zone identifier is not supported, and a negative value
+        // if the operation does not succeed for any other reason.  If the
+        // returned address is non-zero, the Zoneinfo object returned is
+        // guaranteed to be well-formed (i.e., 'ZoneinfoUtil::isWellFormed'
+        // will return 'true' if called with the returned value), and remain
+        // valid for the lifetime of this object.  The behavior is undefined if
+        // 'rc' is 0.
 
     // ACCESSORS
     const Zoneinfo *lookupZoneinfo(const char *timeZoneId) const;
@@ -283,7 +287,7 @@ class ZoneinfoCache {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                         // -------------------

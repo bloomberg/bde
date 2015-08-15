@@ -97,7 +97,7 @@ void aSsErT(int c, const char *s, int i) {
     }
 }
 
-}
+}  // close unnamed namespace
 
 #define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0)
 
@@ -133,9 +133,9 @@ ProtocolClass::~ProtocolClass()
 // automatically from 'ProtocolClass').  This special base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
-// ========================================================================
+// ============================================================================
 //                  GLOBAL CLASSES/TYPEDEFS FOR TESTING
-// ------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     const char *bar(char const *, char const *) { return markDone(); }

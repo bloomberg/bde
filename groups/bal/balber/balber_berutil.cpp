@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 // IMPLEMENTATION NOTES:
 //
 // The IEEE 754 single precision floating point representation is:
-//
+//..
 // 31  30 - 23         22 - 0
 // +-+--------+----------------------+
 // |S|EEEEEEEE|MMMMMMMMMMMMMMMMMMMMMM|
@@ -17,22 +17,24 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 //  S - sign bit (0 - positive, 1 for negative numbers)
 //  E - exponent bits (0 - 255)
 //  M - mantissa bits
+//..
 //
 // The value corresponding to a floating point number is calculated by the
-// following formulas
+// following formulas;
 //
-//  1. If 0 < E < 255, then V = (-1) ** S * 2 ** (E - bias) * (1.F),
-//       where 1.F is intended to represent the binary number created by
-//       prefixing F with an implicit leading 1 and a binary point. bias = 127.
-//  2. If E = 0, F is non-zero, then V = (-1) ** S * 2 ** (-bias + 1) * (0.F),
-//       where 0.F is called the denormalized value.
-//  3. If E = 255, F is non-zero, then V = NaN (not a number).
-//  4. If E = 255, F = 0 and S = 1, then V = -Infinity.
-//  5. If E = 255, F = 0 and S = 0, then V = Infinity.
-//  6. IF E =   0, F = 0 AND S = X, then V = 0.
+//: 1 If '0 < E < 255', then 'V = (-1) ** S * 2 ** (E - bias) * (1.F)', where
+//:   '1.F' is intended to represent the binary number created by prefixing 'F'
+//:   with an implicit leading 1 and a binary point. 'bias = 127'.
+//: 2 If 'E = 0', 'F' is non-zero, then
+//:   'V = (-1) ** S * 2 ** (-bias + 1) * (0.F)', where '0.F' is called the
+//:   denormalized value.
+//: 3 If 'E = 255', 'F' is non-zero, then 'V = NaN' (not a number).
+//: 4 If 'E = 255', 'F = 0', and 'S = 1', then 'V = -Infinity'.
+//: 5 If 'E = 255', 'F = 0', and 'S = 0', then 'V = Infinity'.
+//: 6 IF 'E =   0', 'F = 0', AND 'S = X', then 'V = 0'.
 //
 // For double precision floating point numbers the representation is
-//
+//..
 // 63   62 - 52                          51 - 0
 // +-+-----------+----------------------------------------------------+
 // |S|EEEEEEEEEEE|MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM|
@@ -42,64 +44,66 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 //  S - sign bit (0 - positive, 1 for negative numbers)
 //  E - exponent bits (0 - 2047)
 //  M - mantissa bits
+//..
 //
 // The value corresponding to a floating point number is calculated by the
 // following formulas
 //
-//  1. If 0 < E < 2047, then V = (-1) ** S * 2 ** (E - bias) * (1.F),
-//       where 1.F is intended to represent the binary number created by
-//       prefixing F with an implicit leading 1 and a binary point, and
-//       bias = 1023.
-//  2. If E = 0, F is non-zero, then V = (-1) ** S * 2 ** (-bias + 1) * (0.F),
-//       where 0.F is called the unnormalized value.
-//  3. If E = 2047, F is non-zero then V = NaN (not a number).
-//  4. If E = 2047, F = 0 and S = 1, then V = -Infinity.
-//  5. If E = 2047, F = 0 and S = 0, then V = Infinity.
-//  6. IF E =    0, F = 0 AND S = X, then V = 0.
+//: 1 If '0 < E < 2047', then 'V = (-1) ** S * 2 ** (E - bias) * (1.F)', where
+//:   '1.F' is intended to represent the binary number created by prefixing 'F'
+//:   with an implicit leading 1 and a binary point, and 'bias = 1023'.
+//: 2 If 'E = 0', 'F' is non-zero, then
+//:   'V = (-1) ** S * 2 ** (-bias + 1) * (0.F)', where '0.F' is called the
+//:   unnormalized value.
+//: 3 If 'E = 2047', 'F' is non-zero then V = NaN (not a number).
+//: 4 If 'E = 2047', 'F = 0', and 'S = 1', then 'V = -Infinity'.
+//: 5 If 'E = 2047', 'F = 0', and 'S = 0', then 'V = Infinity'.
+//: 6 IF 'E =    0', 'F = 0', AND 'S = X', then V = 0'.
 //
 // The general algorithm for streaming out real data in BER format:
 //
-// 1. Extract the mantissa, exponent and sign values from the floating point
-//    number, following the IEEE 754 representation.
-// 2. Check the values for special values like positive and negative infinity,
-//    and NaN value.  Numbers having exponent value zero are identified as
-//    denormalized numbers.
-// 3. Stream out the header information associated with that real value in the
-//    first octet.  Essentially this entails specifying the base used, a
-//    scaling factor for adjusting the position of the implicit decimal, sign,
-//    and the length of exponent octets.  If the number is a special value,
-//    then a specific format is used for the first octet.
-// 4. Normalize the mantissa value by prefixing the implicit 1 and positioning
-//    the implicit decimal point after the rightmost 1 bit.  Also adjust the
-//    exponent accordingly, that is decrement it for each right shift of the
-//    decimal point.  This provides the normalized mantissa and adjusted
-//    exponent values.  Note that for denormalized numbers the implicit leading
-//    1 is not prefixed to the mantissa.
-// 5. Stream out the exponent - bias value.
-// 6. Stream out the normalized mantissa value.
+//: 1 Extract the mantissa, exponent and sign values from the floating point
+//:   number, following the IEEE 754 representation.
+//: 2 Check the values for special values like positive and negative infinity,
+//:   and NaN value.  Numbers having exponent value zero are identified as
+//:   denormalized numbers.
+//: 3 Stream out the header information associated with that real value in the
+//:   first octet.  Essentially this entails specifying the base used, a
+//:   scaling factor for adjusting the position of the implicit decimal, sign,
+//:   and the length of exponent octets.  If the number is a special value,
+//:   then a specific format is used for the first octet.
+//: 4 Normalize the mantissa value by prefixing the implicit 1 and positioning
+//:   the implicit decimal point after the rightmost 1 bit.  Also adjust the
+//:   exponent accordingly, that is decrement it for each right shift of the
+//:   decimal point.  This provides the normalized mantissa and adjusted
+//:   exponent values.  Note that for denormalized numbers the implicit leading
+//:   1 is not prefixed to the mantissa.
+//: 5 Stream out the exponent - bias value.
+//: 6 Stream out the normalized mantissa value.
 //
 // Nothing needs to be done for negative numbers.  Only the sign will signify
 // that the number under consideration is negative.
 //
 // The general algorithm for streaming in real data in BER format:
 //
-// 1. Read the length and the first octet from the stream.
-// 2. The combination of the length and the first octet will identify if the
-//    value is one of zero, positive infinity, or negative infinity.  Extract
-//    the sign, base, scale factor, and the number of exponent octets from the
-//    first octet.
-// 3. Read the exponent from the stream.  Convert the exponent into base 2.
-//    Subtract the scale factor from the exponent.  Note that the scale factor
-//    needs to be subtracted as this amount will be accounted for later in the
-//    algorithm.
-// 4. Calculate the amount the mantissa should be left shifted to convert it
-//    into IEEE representation.  This varies depending on whether the number is
-//    being streamed in is a normalized/denormalized number.  The exponent of a
-//    denormalized will have an extremely low exponent value (less than -1022
-//    to be precise).  If a number is denormalized, 'NUM_MANTISSA_BITS - shift'
-//    is added to the exponent and the mantissa shifted by the opposite amount.
-// 5. The bias value is added to the exponent to get its final value.
-// 6. Assemble the double value from the mantissa, exponent, and sign values.
+//: 1 Read the length and the first octet from the stream.
+//: 2 The combination of the length and the first octet will identify if the
+//:   value is one of zero, positive infinity, or negative infinity.  Extract
+//:   the sign, base, scale factor, and the number of exponent octets from the
+//:   first octet.
+//: 3 Read the exponent from the stream.  Convert the exponent into base 2.
+//:   Subtract the scale factor from the exponent.  Note that the scale factor
+//:   needs to be subtracted as this amount will be accounted for later in the
+//:   algorithm.
+//: 4 Calculate the amount the mantissa should be left shifted to convert it
+//:   into IEEE representation.  This varies depending on whether the number is
+//:   being streamed in is a normalized/denormalized number.  The exponent of a
+//:   denormalized will have an extremely low exponent value (less than -1022
+//:   to be precise).  If a number is denormalized, 'NUM_MANTISSA_BITS - shift'
+//:   is added to the exponent and the mantissa shifted by the opposite amount.
+//: 5 The bias value is added to the exponent to get its final value.
+//: 6 Assemble the double value from the mantissa, exponent, and sign values.
+
 #include <bdlt_serialdateimputil.h>
 
 #include <bdlt_iso8601util.h>
@@ -132,68 +136,68 @@ BSLMF_ASSERT(sizeof(long long) == sizeof(double));
 
 const bsls::Types::Uint64 DOUBLE_EXPONENT_MASK = 0x7ff0000000000000ULL;
 const bsls::Types::Uint64 DOUBLE_MANTISSA_MASK = 0x000fffffffffffffULL;
-const bsls::Types::Uint64
-                     DOUBLE_MANTISSA_IMPLICIT_ONE_MASK = 0x0010000000000000ULL;
+const bsls::Types::Uint64 DOUBLE_MANTISSA_IMPLICIT_ONE_MASK
+                                               = 0x0010000000000000ULL;
 const bsls::Types::Uint64 DOUBLE_SIGN_MASK     = 0x8000000000000000ULL;
 
 enum {
     // These constants are used by the implementation of this component.
 
-    TAG_CLASS_MASK  = 0xC0,   // mask for tag class from first octet
-    TAG_TYPE_MASK   = 0x20,   // mask for tag type from first octet
+    TAG_CLASS_MASK  = 0xC0,   // mask for tag class  from first octet
+    TAG_TYPE_MASK   = 0x20,   // mask for tag type   from first octet
     TAG_NUMBER_MASK = 0x1f,   // mask for tag number from first octet
 
-    MAX_TAG_NUMBER_IN_ONE_OCTET        = 30,    // the maximum tag number if
-                                                // the tag has one octet
+    MAX_TAG_NUMBER_IN_ONE_OCTET        =    30,  // the maximum tag number if
+                                                 // the tag has one octet
 
-    NUM_VALUE_BITS_IN_TAG_OCTET        = 7,     // number of bits used for the
-                                                // tag number in multi-octet
-                                                // tags
+    NUM_VALUE_BITS_IN_TAG_OCTET        =     7,  // number of bits used for the
+                                                 // tag number in multi-octet
+                                                 // tags
 
-    LONG_FORM_LENGTH_FLAG_MASK         = 0x80,  // mask that indicates a
-                                                // "long-form" length
+    LONG_FORM_LENGTH_FLAG_MASK         =  0x80,  // mask that indicates a
+                                                 // "long-form" length
 
-    LONG_FORM_LENGTH_VALUE_MASK        = 0x7f,  // mask for value from
-                                                // "long-form" length
+    LONG_FORM_LENGTH_VALUE_MASK        =  0x7f,  // mask for value from
+                                                 // "long-form" length
 
-    NUM_BITS_IN_ONE_TAG_OCTET          = 7,
+    NUM_BITS_IN_ONE_TAG_OCTET          =     7,
 
-    MAX_TAG_NUMBER_OCTETS              = (sizeof(int) *
-                                              balber::BerUtil_Imp::e_BITS_PER_OCTET)
-                                             / NUM_VALUE_BITS_IN_TAG_OCTET + 1,
+    MAX_TAG_NUMBER_OCTETS              =
+                          (sizeof(int) * balber::BerUtil_Imp::e_BITS_PER_OCTET)
+                         / NUM_VALUE_BITS_IN_TAG_OCTET + 1,
 
-    REAL_BINARY_ENCODING               = 0x80,  // value that indicates that
-                                                // real encoding is used
+    REAL_BINARY_ENCODING               =  0x80,  // value that indicates that
+                                                 // real encoding is used
 
-    DOUBLE_EXPONENT_SHIFT              = 52,
-    DOUBLE_OUTPUT_LENGTH               = 10,
+    DOUBLE_EXPONENT_SHIFT              =    52,
+    DOUBLE_OUTPUT_LENGTH               =    10,
     DOUBLE_EXPONENT_MASK_FOR_TWO_BYTES = 0x7ff,
-    DOUBLE_NUM_EXPONENT_BITS           = 11,
-    DOUBLE_NUM_MANTISSA_BITS           = 52,
-    DOUBLE_NUM_EXPONENT_BYTES          = 2,
-    DOUBLE_NUM_MANTISSA_BYTES          = 7,
-    DOUBLE_BIAS                        = 1023,
+    DOUBLE_NUM_EXPONENT_BITS           =    11,
+    DOUBLE_NUM_MANTISSA_BITS           =    52,
+    DOUBLE_NUM_EXPONENT_BYTES          =     2,
+    DOUBLE_NUM_MANTISSA_BYTES          =     7,
+    DOUBLE_BIAS                        =  1023,
 
-    CHAR_MSB_MASK                      = 0x80,
-    INT_MSB_MASK                       = 1 << (sizeof(int) *
-                                         balber::BerUtil_Imp::e_BITS_PER_OCTET - 1),
-    SEVEN_BITS_MASK                    = 0x7f,
+    CHAR_MSB_MASK                      =  0x80,
+    INT_MSB_MASK                       =  1 <<
+                     (sizeof(int) * balber::BerUtil_Imp::e_BITS_PER_OCTET - 1),
+    SEVEN_BITS_MASK                    =  0x7f,
 
-    POSITIVE_INFINITY_ID               = 0x40,
-    NEGATIVE_INFINITY_ID               = 0x41,
-    NAN_ID                             = 0x42,
+    POSITIVE_INFINITY_ID               =  0x40,
+    NEGATIVE_INFINITY_ID               =  0x41,
+    NAN_ID                             =  0x42,
 
     DOUBLE_INFINITY_EXPONENT_ID        = 0x7ff,
 
-    INFINITY_MANTISSA_ID               = 0,
+    INFINITY_MANTISSA_ID               =     0,
 
-    BINARY_POSITIVE_NUMBER_ID          = 0x80,
-    BINARY_NEGATIVE_NUMBER_ID          = 0xc0,
+    BINARY_POSITIVE_NUMBER_ID          =  0x80,
+    BINARY_NEGATIVE_NUMBER_ID          =  0xc0,
 
-    REAL_SIGN_MASK                     = 0x40,
-    REAL_BASE_MASK                     = 0x20,
-    REAL_SCALE_FACTOR_MASK             = 0x0c,
-    REAL_EXPONENT_LENGTH_MASK          = 0x03,
+    REAL_SIGN_MASK                     =  0x40,
+    REAL_BASE_MASK                     =  0x20,
+    REAL_SCALE_FACTOR_MASK             =  0x0c,
+    REAL_EXPONENT_LENGTH_MASK          =  0x03,
 
     BER_RESERVED_BASE                  = 3,
     REAL_MULTIPLE_EXPONENT_OCTETS      = 4,
@@ -207,14 +211,16 @@ enum {
     MINUTES_PER_HOUR                   = 60,
     SECONDS_PER_MINUTE                 = 60,
 
-    MILLISECS_PER_SEC                  = 1000,
-    MILLISECS_PER_MIN                 = SECONDS_PER_MINUTE * MILLISECS_PER_SEC,
-    MILLISECS_PER_HOUR                 = MINUTES_PER_HOUR * MILLISECS_PER_MIN,
+    MILLISECS_PER_SEC                  =    1000,
+    MILLISECS_PER_MIN                  = SECONDS_PER_MINUTE
+                                       * MILLISECS_PER_SEC,
+    MILLISECS_PER_HOUR                 = MINUTES_PER_HOUR
+                                       * MILLISECS_PER_MIN,
     MILLISECS_PER_DAY                  = 86400000,
 
-    TIMEZONE_LENGTH                    = 2,
+    TIMEZONE_LENGTH                    =     2,
     MIN_OFFSET                         = -1439,
-    MAX_OFFSET                         = 1439
+    MAX_OFFSET                         =  1439
 };
 
 // HELPER FUNCTIONS
@@ -356,7 +362,6 @@ void putChars(bsl::streambuf *streamBuf, char value, int numChars)
     // having the specified 'value'.  The behavior is undefined unless
     // '0 <= numChars'.
 {
-//     BSLS_ASSERT(0 == padChar || ((char) -1) == padChar);
     BSLS_ASSERT(0 <= numChars);
 
     const int k_MIN_BINARY_DATETIMETZ_LENGTH = 7;
@@ -406,16 +411,16 @@ bsls::Types::Int64 getSerialDatetimeValue(const bdlt::Datetime& value)
 }  // close unnamed namespace
 
 namespace balber {
-                            // -------------------
+                            // --------------
                             // struct BerUtil
-                            // -------------------
+                            // --------------
 
 int BerUtil::getIdentifierOctets(
-                            bsl::streambuf              *streamBuf,
+                            bsl::streambuf         *streamBuf,
                             BerConstants::TagClass *tagClass,
                             BerConstants::TagType  *tagType,
-                            int                         *tagNumber,
-                            int                         *accumNumBytesConsumed)
+                            int                    *tagNumber,
+                            int                    *accumNumBytesConsumed)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
@@ -464,8 +469,8 @@ int BerUtil::getIdentifierOctets(
 int BerUtil::putIdentifierOctets(bsl::streambuf              *streamBuf,
                                       BerConstants::TagClass  tagClass,
                                       BerConstants::TagType   tagType,
-                                      int                          tagNumber)
-    // Write the specified 'tag' to the specified 'streamBuf'.
+                                      int                     tagNumber)
+    // Write the specified 'tag*' to the specified 'streamBuf'.
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
@@ -542,13 +547,13 @@ int BerUtil::putIdentifierOctets(bsl::streambuf              *streamBuf,
            : FAILURE;
 }
 
-                          // -----------------------
+                          // ------------------
                           // struct BerUtil_Imp
-                          // -----------------------
+                          // ------------------
 
-int BerUtil_Imp::getBinaryDateValue(bsl::streambuf *streamBuf,
-                                         bdlt::Date      *value,
-                                         int             length)
+int BerUtil_Imp::getBinaryDateValue(bsl::streambuf  *streamBuf,
+                                    bdlt::Date      *value,
+                                    int              length)
 {
     bsls::Types::Int64 serialDate;
     getIntegerValue(streamBuf, &serialDate, length);
@@ -564,8 +569,8 @@ int BerUtil_Imp::getBinaryDateValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getBinaryTimeValue(bsl::streambuf *streamBuf,
-                                         bdlt::Time      *value,
-                                         int             length)
+                                    bdlt::Time     *value,
+                                    int             length)
 {
     bsls::Types::Int64 serialTime;
     getIntegerValue(streamBuf, &serialTime, length);
@@ -586,8 +591,8 @@ int BerUtil_Imp::getBinaryTimeValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
-                                             bdlt::Datetime  *value,
-                                             int             length)
+                                        bdlt::Datetime *value,
+                                        int             length)
 {
     if (length > k_MIN_BINARY_DATETIMETZ_LENGTH) {
         short offset;
@@ -645,8 +650,8 @@ int BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getBinaryDateTzValue(bsl::streambuf *streamBuf,
-                                           bdlt::DateTz    *value,
-                                           int             length)
+                                      bdlt::DateTz   *value,
+                                      int             length)
 {
     short offset = 0;
     if (length >= k_MIN_BINARY_DATETZ_LENGTH) {
@@ -667,8 +672,8 @@ int BerUtil_Imp::getBinaryDateTzValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getBinaryTimeTzValue(bsl::streambuf *streamBuf,
-                                           bdlt::TimeTz    *value,
-                                           int             length)
+                                      bdlt::TimeTz   *value,
+                                      int             length)
 {
     short offset = 0;
     if (length >= k_MIN_BINARY_TIMETZ_LENGTH) {
@@ -688,9 +693,9 @@ int BerUtil_Imp::getBinaryTimeTzValue(bsl::streambuf *streamBuf,
     return value->validateAndSetTimeTz(localTime, offset);
 }
 
-int BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
-                                               bdlt::DatetimeTz *value,
-                                               int              length)
+int BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf   *streamBuf,
+                                          bdlt::DatetimeTz *value,
+                                          int               length)
 {
     short offset = 0;
     if (length >= k_MIN_BINARY_DATETIMETZ_LENGTH) {
@@ -709,11 +714,11 @@ int BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
     return value->validateAndSetDatetimeTz(localDatetime, offset);
 }
 
-int BerUtil_Imp::putBinaryDateValue(bsl::streambuf   *streamBuf,
-                                         const bdlt::Date&  value)
+int BerUtil_Imp::putBinaryDateValue(bsl::streambuf    *streamBuf,
+                                    const bdlt::Date&  value)
 {
     const bsls::Types::Int64 serialDate = getSerialDateValue(value);
-    const int               length     = numBytesToStream(serialDate);
+    const int                length     = numBytesToStream(serialDate);
 
     BSLS_ASSERT(length <= k_MAX_BINARY_DATE_LENGTH);
 
@@ -721,8 +726,8 @@ int BerUtil_Imp::putBinaryDateValue(bsl::streambuf   *streamBuf,
     return putIntegerGivenLength(streamBuf, serialDate, length);
 }
 
-int BerUtil_Imp::putBinaryTimeValue(bsl::streambuf   *streamBuf,
-                                         const bdlt::Time&  value)
+int BerUtil_Imp::putBinaryTimeValue(bsl::streambuf    *streamBuf,
+                                    const bdlt::Time&  value)
 {
     const bsls::Types::Int64 serialTime = getSerialTimeValue(value);
     const int               length     = numBytesToStream(serialTime);
@@ -733,8 +738,8 @@ int BerUtil_Imp::putBinaryTimeValue(bsl::streambuf   *streamBuf,
     return putIntegerGivenLength(streamBuf, serialTime, length);
 }
 
-int BerUtil_Imp::putBinaryDatetimeValue(bsl::streambuf       *streamBuf,
-                                             const bdlt::Datetime&  value)
+int BerUtil_Imp::putBinaryDatetimeValue(bsl::streambuf        *streamBuf,
+                                        const bdlt::Datetime&  value)
 {
     const bsls::Types::Int64 serialDatetime = getSerialDatetimeValue(value);
     int                     length         = numBytesToStream(serialDatetime);
@@ -780,8 +785,8 @@ int BerUtil_Imp::putBinaryDateTzValue(bsl::streambuf     *streamBuf,
                                  length - TIMEZONE_LENGTH);
 }
 
-int BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
-                                           const bdlt::TimeTz&  value)
+int BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf      *streamBuf,
+                                      const bdlt::TimeTz&  value)
 {
     const bdlt::Time& time   = value.localTime();
     short            offset = static_cast<short>(value.offset());
@@ -810,9 +815,8 @@ int BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
                                  length - TIMEZONE_LENGTH);
 }
 
-int BerUtil_Imp::putBinaryDatetimeTzValue(
-                                             bsl::streambuf         *streamBuf,
-                                             const bdlt::DatetimeTz&  value)
+int BerUtil_Imp::putBinaryDatetimeTzValue(bsl::streambuf          *streamBuf,
+                                          const bdlt::DatetimeTz&  value)
 {
     const bdlt::Datetime& datetime = value.localDatetime();
     short                offset   = static_cast<short>(value.offset());
@@ -843,8 +847,8 @@ int BerUtil_Imp::putBinaryDatetimeTzValue(
 }
 
 int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
-                                     double         *value,
-                                     int             length)
+                                double         *value,
+                                int             length)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
@@ -960,8 +964,8 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
 }
 
 int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
-                                      long long      *value,
-                                      int             length)
+                                 long long      *value,
+                                 int             length)
 {
     // IMPLEMENTATION NOTE: This overload of the 'getIntegerValue' function
     // template, for 'long long', is warranted solely for performance reasons:
@@ -1019,8 +1023,8 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getLength(bsl::streambuf *streamBuf,
-                                int            *result,
-                                int            *accumNumBytesConsumed)
+                           int            *result,
+                           int            *accumNumBytesConsumed)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
@@ -1071,8 +1075,8 @@ int BerUtil_Imp::getLength(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               bsl::string    *value,
-                               int             length)
+                          bsl::string    *value,
+                          int             length)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
@@ -1097,8 +1101,8 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               bdlt::Date      *value,
-                               int             length)
+                          bdlt::Date      *value,
+                          int             length)
 {
     return length > k_MAX_BINARY_DATE_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
@@ -1106,8 +1110,8 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               bdlt::Datetime  *value,
-                               int             length)
+                          bdlt::Datetime  *value,
+                          int             length)
 {
     return length > k_MAX_BINARY_DATETIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
@@ -1115,8 +1119,8 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getValue(bsl::streambuf  *streamBuf,
-                               bdlt::DatetimeTz *value,
-                               int              length)
+                          bdlt::DatetimeTz *value,
+                          int              length)
 {
     return length > k_MAX_BINARY_DATETIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
@@ -1124,8 +1128,8 @@ int BerUtil_Imp::getValue(bsl::streambuf  *streamBuf,
 }
 
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               bdlt::DateTz    *value,
-                               int             length)
+                          bdlt::DateTz    *value,
+                          int             length)
 {
     return length > k_MAX_BINARY_DATETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
@@ -1133,8 +1137,8 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               bdlt::Time      *value,
-                               int             length)
+                          bdlt::Time      *value,
+                          int             length)
 {
     return length > k_MAX_BINARY_TIME_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
@@ -1142,8 +1146,8 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 }
 
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               bdlt::TimeTz    *value,
-                               int             length)
+                          bdlt::TimeTz    *value,
+                          int             length)
 {
     return length > k_MAX_BINARY_TIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
@@ -1161,19 +1165,23 @@ int BerUtil_Imp::numBytesToStream(short value)
     int numBits;
     if (value > 0) {
         // For positive values, all but one 0 bits on the left are redundant.
-        // - 'find1AtLargestIndex' returns 0 .. 14 (since bit 15 is 0).
-        // - Add 1 to convert from an index to a count in range 1 .. 15.
-        // - Add 1 to preserve the sign bit, for a value in range 2 .. 16.
+        //: o 'find1AtLargestIndex' returns '[0 .. 14]' (since bit 15 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 15]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
 
-        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value) + 2;
+        numBits = 31
+                - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value)
+                + 2;
     }
     else {
-        // For negative values, all but one 1 bits on the left are redundant.
-        // - 'find0AtLargestIndex' returns 0 .. 14 (since bit 15 is 1).
-        // - Add 1 to convert from an index to a count in range 1 .. 15.
-        // - Add 1 to preserve the sign bit, for a value in range 2 .. 16.
+        // For negative values, all but: one 1 bits on the left are redundant.
+        //: o 'find0AtLargestIndex' returns '[0 .. 14]' (since bit 15 is 1).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 15]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
 
-        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value) + 2;
+        numBits = 31
+                - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value)
+                + 2;
     }
 
     // Round up to correct number of bytes:
@@ -1192,17 +1200,17 @@ int BerUtil_Imp::numBytesToStream(int value)
     int numBits;
     if (value > 0) {
         // For positive values, all but one 0 bits on the left are redundant.
-        // - 'find1AtLargestIndex' returns 0 .. 30 (since bit 31 is 0).
-        // - Add 1 to convert from an index to a count in range 1 .. 31.
-        // - Add 1 to preserve the sign bit, for a value in range 2 .. 32.
+        //: o 'find1AtLargestIndex' returns '[0 .. 30]' (since bit 31 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
 
         numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value) + 2;
     }
     else {
         // For negative values, all but one 1 bits on the left are redundant.
-        // - 'find0AtLargestIndex' returns 0 .. 30 (since bit 31 is 1).
-        // - Add 1 to convert from an index to a count in range 1 .. 31.
-        // - Add 1 to preserve the sign bit, for a value in range 2 .. 32.
+        //: o 'find0AtLargestIndex' returns '[0 .. 30]' (since bit 31 is 1).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
 
         numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value) + 2;
     }
@@ -1223,19 +1231,23 @@ int BerUtil_Imp::numBytesToStream(long long value)
     int numBits;
     if (value > 0) {
         // For positive values, all but one 0 bits on the left are redundant.
-        // - 'find1AtLargestIndex64' returns 0 .. 62 (since bit 63 is 0).
-        // - Add 1 to convert from an index to a count in range 1 .. 63.
-        // - Add 1 to preserve the sign bit, for a value in range 2 .. 64.
+        //: o 'find1AtLargestIndex64' returns '[0 .. 62]' (since bit 63 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 63]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
 
-        numBits = 63 - bdlb::BitUtil::numLeadingUnsetBits((uint64_t) value) + 2;
+        numBits = 63
+                - bdlb::BitUtil::numLeadingUnsetBits((uint64_t) value)
+                + 2;
     }
     else {
         // For negative values, all but one 1 bits on the left are redundant.
-        // - 'find1AtLargestIndex64' returns 0 .. 62 (since bit 63 is 0).
-        // - Add 1 to convert from an index to a count in range 1 .. 63.
-        // - Add 1 to preserve the sign bit, for a value in range 2 .. 64.
+        //: o 'find1AtLargestIndex64' returns '[0 .. 62]' (since bit 63 is 0).
+        //: o Add 1 to convert from an index to a count in range '[1 .. 63]'.
+        //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
 
-        numBits = 63 - bdlb::BitUtil::numLeadingUnsetBits(~ (uint64_t) value) + 2;
+        numBits = 63
+                - bdlb::BitUtil::numLeadingUnsetBits(~ (uint64_t) value)
+                + 2;
     }
 
     // Round up to correct number of bytes:
@@ -1268,7 +1280,7 @@ int BerUtil_Imp::putDoubleValue(bsl::streambuf *stream, double value)
                            ? NEGATIVE_INFINITY_ID
                            : POSITIVE_INFINITY_ID;
 
-            return (1         == stream->sputc(1)
+            return (1        == stream->sputc(1)
                 && signOctet == stream->sputc(signOctet))
                  ? SUCCESS
                  : FAILURE;                                           // RETURN
@@ -1334,8 +1346,9 @@ int BerUtil_Imp::putLength(bsl::streambuf *streamBuf, int length)
 
     if (length <= 127) {
         const char lengthChar = static_cast<char>(length);
-        return length == streamBuf->sputc(lengthChar) ? SUCCESS
-                                                      : FAILURE;      // RETURN
+        return length == streamBuf->sputc(lengthChar)
+             ? SUCCESS
+             : FAILURE;                                               // RETURN
     }
 
     // length > 127.
@@ -1356,9 +1369,9 @@ int BerUtil_Imp::putLength(bsl::streambuf *streamBuf, int length)
     return putIntegerGivenLength(streamBuf, length, numOctets);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bdlt::Date&              value,
-                               const BerEncoderOptions *options)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const bdlt::Date&        value,
+                          const BerEncoderOptions *options)
 {
     // Applications can create invalid 'bdlt::Date' objects in optimized build
     // modes.  As this function assumes that 'value' is valid, it is possible
@@ -1376,9 +1389,9 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
          : putValueUsingIso8601(streamBuf, value);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bdlt::Datetime&          value,
-                               const BerEncoderOptions *options)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const bdlt::Datetime&    value,
+                          const BerEncoderOptions *options)
 {
     // Applications can create invalid 'bdlt::Datetime' objects in optimized
     // build modes.  As this function assumes that 'value' is valid, it is
@@ -1401,9 +1414,9 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
          : putValueUsingIso8601(streamBuf, value);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bdlt::DatetimeTz&        value,
-                               const BerEncoderOptions *options)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const bdlt::DatetimeTz&  value,
+                          const BerEncoderOptions *options)
 {
     // Applications can create invalid 'bdlt::DatetimeTz' objects in optimized
     // build modes.  As this function assumes that 'value' is valid, it is
@@ -1416,7 +1429,7 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
     const bdlt::TimeTz& timeTz = value.timeTz();
     if (0 != dateTz.localDate().addDaysIfValid(0)
      || !bdlt::DateTz::isValid(dateTz.localDate(), dateTz.offset())
-     || !bdlt::TimeTz::isValid(timeTz.utcTime(), timeTz.offset())) {
+     || !bdlt::TimeTz::isValid(timeTz.utcTime(),   timeTz.offset())) {
         return -1;                                                    // RETURN
     }
 
@@ -1425,9 +1438,9 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
          : putValueUsingIso8601(streamBuf, value);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bdlt::DateTz&            value,
-                               const BerEncoderOptions *options)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const bdlt::DateTz&      value,
+                          const BerEncoderOptions *options)
 {
     // Applications can create invalid 'bdlt::DateTz' objects in optimized build
     // modes.  As this function assumes that 'value' is valid, it is possible
@@ -1446,32 +1459,39 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
          : putValueUsingIso8601(streamBuf, value);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bdlt::Time&              value,
-                               const BerEncoderOptions *options)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const bdlt::Time&        value,
+                          const BerEncoderOptions *options)
 {
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryTimeValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
 
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bdlt::TimeTz&            value,
-                               const BerEncoderOptions *options)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const bdlt::TimeTz&      value,
+                          const BerEncoderOptions *options)
 {
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryTimeTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

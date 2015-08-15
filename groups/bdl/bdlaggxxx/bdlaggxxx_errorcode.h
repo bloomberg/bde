@@ -1,4 +1,4 @@
-// bdlaggxxx_errorcode.h                                                   -*-C++-*-
+// bdlaggxxx_errorcode.h                                              -*-C++-*-
 #ifndef INCLUDED_BDLAGGXXX_ERRORCODE
 #define INCLUDED_BDLAGGXXX_ERRORCODE
 
@@ -208,9 +208,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, ErrorCode::Code value);
     //  bdlaggxxx::ErrorCode::print(stream, value, 0, -1);
     //..
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                      // ---------------------
                      // struct bdlaggxxx::ErrorCode
@@ -223,7 +223,7 @@ bsl::ostream& bdlaggxxx::operator<<(bsl::ostream& stream, ErrorCode::Code value)
     return ErrorCode::print(stream, value, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

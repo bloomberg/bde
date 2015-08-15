@@ -1,4 +1,4 @@
-// bdlxxxx_outstream.h             -*-C++-*-
+// bdlxxxx_outstream.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_OUTSTREAM
 #define INCLUDED_BDLXXXX_OUTSTREAM
 
@@ -492,9 +492,9 @@ OutStream& operator<<(OutStream& stream, const OBJECT& object);
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
@@ -509,15 +509,15 @@ bdlxxxx::OutStream& bdlxxxx::operator<<(OutStream& stream, const OBJECT& object)
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

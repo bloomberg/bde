@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btls5_negotiator
 //
 //@DESCRIPTION: This component provides a single, complex-constrained
-// (value-semantic) attribute class, 'bteso::Credentials', that is used to
-// describe user credentials to authenticate a connection with a SOCSK5 proxy
-// using the "Username/Password" method as defined in RFC 1929.
+// (value-semantic) attribute class, 'btls5::Credentials', that is used to
+// describe user credentials used to authenticate a connection with a SOCSK5
+// proxy using the "Username/Password" method as defined in RFC 1929.
 //
 ///Attributes
 ///----------
@@ -79,10 +79,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -93,10 +89,12 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
+
 namespace btls5 {
-                         // =======================
+                         // =================
                          // class Credentials
-                         // =======================
+                         // =================
 
 class Credentials {
     // This complex-constrained (value-semantic) type describes the username
@@ -120,21 +118,21 @@ class Credentials {
         // used.
 
     Credentials(const bslstl::StringRef&  username,
-                      const bslstl::StringRef&  password,
-                      bslma::Allocator         *basicAllocator = 0);
-        // Create a 'Credentials' object having the specified 'username'
-        // and 'password'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless both
-        // 'username' and 'password' are empty, or the lengths of both
-        // 'username' and 'password' are between 1 and 255 inclusive.
+                const bslstl::StringRef&  password,
+                bslma::Allocator         *basicAllocator = 0);
+        // Create a 'Credentials' object having the specified 'username' and
+        // 'password'.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless both 'username'
+        // and 'password' are empty, or the lengths of both 'username' and
+        // 'password' are between 1 and 255 characters inclusive.
 
     Credentials(const Credentials&  original,
-                      bslma::Allocator         *basicAllocator = 0);
-        // Create a 'Credentials' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+                bslma::Allocator   *basicAllocator = 0);
+        // Create a 'Credentials' object having the same value as the specified
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     //! ~Credentials() = default;
         // Destroy this object.
@@ -149,7 +147,7 @@ class Credentials {
         // Set the attributes of this object to the specified 'username' and
         // 'password'.  The behavior is undefined unless both 'username' and
         // 'password' are empty, or the lengths of both 'username' and
-        // 'password' are between 1 and 255 inclusive.
+        // 'password' are between 1 and 255 characters inclusive.
 
                                   // Aspects
 
@@ -193,23 +191,19 @@ class Credentials {
 };
 
 // FREE OPERATORS
-bool operator==(const Credentials& lhs,
-                const Credentials& rhs);
+bool operator==(const Credentials& lhs, const Credentials& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Credentials' objects have the
-    // same value if both of the corresponding values of their 'username' and
+    // value, and 'false' otherwise.  Two 'Credentials' objects have the same
+    // value if both of the corresponding values of their 'username' and
     // 'password' attributes are the same.
 
-bool operator!=(const Credentials& lhs,
-                const Credentials& rhs);
+bool operator!=(const Credentials& lhs, const Credentials& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'Credentials' objects do
-    // not have the same value if either of the corresponding values of their
+    // same value, and 'false' otherwise.  Two 'Credentials' objects do not
+    // have the same value if either of the corresponding values of their
     // 'username' and 'password' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&            stream,
-                         const Credentials& object);
-}  // close package namespace
+bsl::ostream& operator<<(bsl::ostream& stream, const Credentials& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
@@ -218,8 +212,7 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
 
 // FREE FUNCTIONS
 void swap(btls5::Credentials& a, btls5::Credentials& b);
-
-namespace btls5 {    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
@@ -228,9 +221,9 @@ namespace btls5 {    // Efficiently exchange the values of the specified 'a' and
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -----------------------
+                        // -----------------
                         // class Credentials
-                        // -----------------------
+                        // -----------------
 
 // CREATORS
 inline
@@ -242,17 +235,16 @@ Credentials::Credentials(bslma::Allocator *basicAllocator)
 
 inline
 Credentials::Credentials(const Credentials&  original,
-                                     bslma::Allocator         *basicAllocator)
+                         bslma::Allocator   *basicAllocator)
 : d_username(original.d_username, basicAllocator)
 , d_password(original.d_password, basicAllocator)
 {
 }
 
 inline
-Credentials::Credentials(
-    const bslstl::StringRef&  username,
-    const bslstl::StringRef&  password,
-    bslma::Allocator         *basicAllocator)
+Credentials::Credentials(const bslstl::StringRef&  username,
+                         const bslstl::StringRef&  password,
+                         bslma::Allocator         *basicAllocator)
 : d_username(basicAllocator)
 , d_password(basicAllocator)
 {
@@ -292,29 +284,29 @@ bslma::Allocator *Credentials::allocator() const
 {
     return d_username.get_allocator().mechanism();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 inline
-bool btls5::operator==(const Credentials& lhs,
-                const Credentials& rhs)
+bool btls5::operator==(const btls5::Credentials& lhs,
+                       const btls5::Credentials& rhs)
 {
     return lhs.username() == rhs.username()
         && lhs.password() == rhs.password();
 }
 
 inline
-bool btls5::operator!=(const Credentials& lhs,
-                const Credentials& rhs)
+bool btls5::operator!=(const btls5::Credentials& lhs,
+                       const btls5::Credentials& rhs)
 {
     return lhs.username() != rhs.username()
         || lhs.password() != rhs.password();
 }
 
-
 // FREE FUNCTIONS
 inline
-void swap(btls5::Credentials& a, btls5::Credentials& b)
+void btls5::swap(btls5::Credentials& a, btls5::Credentials& b)
 {
     a.swap(b);
 }
@@ -333,10 +325,17 @@ struct UsesBslmaAllocator<btls5::Credentials> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

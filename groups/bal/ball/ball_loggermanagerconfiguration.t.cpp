@@ -1,4 +1,4 @@
-// ball_loggermanagerconfiguration.t.cpp  -*-C++-*-
+// ball_loggermanagerconfiguration.t.cpp                              -*-C++-*-
 
 #include <ball_loggermanagerconfiguration.h>
 
@@ -26,8 +26,8 @@ using namespace bsl;  // automatically added by script
 //..
 //    bael::LMC   ball::LoggerManagerConfiguration
 //    bael::LMD   ball::LoggerManagerDefaults
-//    Descriptors ball::UserFieldDescriptors
-//    Populator   bdlf::Function<void(*)(UserFieldValues*,const Descriptors&)>
+//    Descriptors ball::UserFieldsSchema
+//    Populator   bdlf::Function<void(*)(UserFields*,const Descriptors&)>
 //    CNF         bdlf::Function<void (*)(bsl::string *, const char *)>
 //    DTC         bdlf::Function<
 //                           void (*)(int *, int *, int *, int *, const char*)>
@@ -41,12 +41,12 @@ using namespace bsl;  // automatically added by script
 // [ 1] void setDefaultValues(const bael::LMD& defaults);
 // [ 5] void setLogOrder(LogOrder value);
 // [ 6] void setTriggerMarkers(TriggerMarkers value);
-// [ 1] void setUserFieldDescriptors(const Schema& schema, const Populator& populator);
+// [ 1] void setUserFieldsSchema(const Schema& schema, const Populator& populator);
 // [ 1] void setCategoryNameFilterCallback(const CNF& nameFilter);
 // [ 1] void setDefaultThresholdLevelsCallback(const DTC& );
 // [ 2] void setDefaultThresholdLevelsIfValid(int)
 // [ 1] const bael::LMD& defaults() const;
-// [ 1] const ball::UserFieldDescriptors& userFieldDescriptors() const;
+// [ 1] const ball::UserFieldsSchema& userFieldsSchema() const;
 // [ 5] const LogOrder logOrder() const;
 // [ 6] const TriggerMarkers triggerMarkers() const;
 // [ 1] const Populator& userFieldsPopulatorCallback() const;
@@ -106,12 +106,12 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef ball::LoggerManagerConfiguration Obj;
 typedef ball::LoggerManagerDefaults      Defs;
-typedef ball::UserFieldDescriptors       Descriptors;
+typedef ball::UserFieldsSchema       Descriptors;
 
 
 // Functor typedefs
-typedef bdlf::Function<void (*)(ball::UserFieldValues *, 
-                                const ball::UserFieldDescriptors&)> PopCb;
+typedef bdlf::Function<void (*)(ball::UserFields *,
+                                const ball::UserFieldsSchema&)> PopCb;
 
 typedef bdlf::Function<void (*)(bsl::string *, const char *)> CnfCb;
 typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
@@ -119,7 +119,7 @@ typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
 //-----------------------------------------------------------------------------
 //          Dummy functions to populate each of the three functors
 //-----------------------------------------------------------------------------
-void pop(ball::UserFieldValues *, ball::UserFieldDescriptors )
+void pop(ball::UserFields *, ball::UserFieldsSchema )
 {
 }
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     d1.setDefaultThresholdLevelsIfValid(RECORD_LEVEL[1], PASS_LEVEL[1],
                                         TRIGGER_LEVEL[1],TRIGGER_ALL_LEVEL[1]);
 
-    // Build up a non-default 'ball::UserFieldDescriptors'.
+    // Build up a non-default 'ball::UserFieldsSchema'.
     Descriptors s1;
 
     // Populate the three functors (from functions defined above)
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 // Also, to illustrate a non-null functor, we will create a trivial function
 // payload 'pop' for the populator functor attribute:
 //..
-//    void pop(ball::UserFieldValues *list, ball::UserFieldDescriptors schema);
+//    void pop(ball::UserFields *list, ball::UserFieldsSchema schema);
 //    {
 //    }
 //..
@@ -262,9 +262,9 @@ int main(int argc, char *argv[])
 // need a schema and three functors, two of which will be default-constructed
 // and not populated, resulting in "null" functors:
 //..
-       ball::UserFieldDescriptors descriptors;
+       ball::UserFieldsSchema descriptors;
 //
-       bdlf::Function<void (*)(ball::UserFieldValues *, ball::UserFieldDescriptors)>    populator(&pop);
+       bdlf::Function<void (*)(ball::UserFields *, ball::UserFieldsSchema)>    populator(&pop);
        bdlf::Function<void (*)(bsl::string *, const char *)> nameFilter;
        bdlf::Function<void (*)(int *, int *, int *, int *, const char*)>
                                                             defaultThresholds;
@@ -279,14 +279,14 @@ int main(int argc, char *argv[])
 // that the "set" methods called in this example cannot fail, so they return
 // 'void':
 //..
-       config.setUserFieldDescriptors(descriptors, populator);
+       config.setUserFieldsSchema(descriptors, populator);
        config.setCategoryNameFilterCallback(nameFilter);
        config.setDefaultThresholdLevelsCallback(defaultThresholds);
        config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
        config.setTriggerMarkers(
                       ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
 //
-       ASSERT(           descriptors == config.userFieldDescriptors());
+       ASSERT(           descriptors == config.userFieldsSchema());
 //       ASSERT(        populator == config.userFieldsPopulatorCallback());
 //       ASSERT(       nameFilter == config.categoryNameFilterCallback());
 //       ASSERT(defaultThresholds == config.defaultThresholdLevelsCallback());
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
         //   const TriggerMarkers triggerMarkers() const;
         // --------------------------------------------------------------------
 
-        if (verbose) 
+        if (verbose)
             cout << "\nTESTING  'setTriggerMarkers' AND 'triggerMarkers'"
                  << "\n=================================================\n";
 
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
         //:   the 'setDefaultThresholdLevels' returns a non-zero value
         //
         // Plan:
-        //: 1 Manually call method with valid values and verify the expected 
+        //: 1 Manually call method with valid values and verify the expected
         //:   configuration and the return value is 0.  (C-1, C-2)
         //:
         //: 2 Manually call method with invalid values and verify the
@@ -403,13 +403,13 @@ int main(int argc, char *argv[])
         //   int setDefaultThresholdLevels(int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout 
+        if (verbose) cout
             << endl
             << "TESTING: setDefaultThresholdLevelsIfValid" << endl
             << "=========================================" << endl;
 
 
-        if (verbose) cout 
+        if (verbose) cout
             << "\nTest successful call to 'setDefaultThresholdLevelsIfValid'."
             << endl;
         {
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
             ASSERT(0   == X.defaultTriggerLevel());
             ASSERT(0   == X.defaultTriggerAllLevel());
         }
-        if (verbose) cout 
+        if (verbose) cout
             << "\nTest incorrect call to 'setDefaultThresholdLevelsIfValid'."
             << endl;
 
@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCheck default ctor. " << endl;
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldDescriptors());
+        ASSERT(    S0 == X1.userFieldsSchema());
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -612,12 +612,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tSetting default values explicitly." <<endl;
 
         mX1.setDefaultValues(D0);
-        mX1.setUserFieldDescriptors(S0, PCB0);
+        mX1.setUserFieldsSchema(S0, PCB0);
         mX1.setCategoryNameFilterCallback(CNFCB0);
         mX1.setDefaultThresholdLevelsCallback(DTCB0);
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldDescriptors());
+        ASSERT(    S0 == X1.userFieldsSchema());
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D1 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldDescriptors());
+        ASSERT(    S0 == X1.userFieldsSchema());
         ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
         ASSERT(!X1.defaultThresholdLevelsCallback());
@@ -667,12 +667,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tChange attribute 1." << endl;
 
-        mX1.setUserFieldDescriptors(S1, PCB1);
+        mX1.setUserFieldsSchema(S1, PCB1);
 
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S1 == X1.userFieldDescriptors());
+        ASSERT(    S1 == X1.userFieldsSchema());
 
         ASSERT(X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
@@ -692,7 +692,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y1 == X1));          ASSERT(0 == (Y1 != X1));
         ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
 
-        mX1.setUserFieldDescriptors(S0, PCB0);
+        mX1.setUserFieldsSchema(S0, PCB0);
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldDescriptors());
+        ASSERT(    S0 == X1.userFieldsSchema());
 
         ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(X1.categoryNameFilterCallback());
@@ -752,7 +752,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldDescriptors());
+        ASSERT(    S0 == X1.userFieldsSchema());
 
         ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing output operator<<." << endl;
 
         mY1.setDefaultValues(D1);
-        mY1.setUserFieldDescriptors(S1, PCB1);
+        mY1.setUserFieldsSchema(S1, PCB1);
         mY1.setCategoryNameFilterCallback(CNFCB1);
         mY1.setDefaultThresholdLevelsCallback(DTCB1);
 
@@ -806,11 +806,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

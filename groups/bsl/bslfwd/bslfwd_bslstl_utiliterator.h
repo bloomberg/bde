@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslstl {
         class UtilIterator;
-    }
+    }  // close namespace bslstl
 
     typedef bslstl::UtilIterator bslstl_UtilIterator;
-}
+}  // close enterprise namespace
 
 #else
 

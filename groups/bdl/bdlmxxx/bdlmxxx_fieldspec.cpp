@@ -1,4 +1,4 @@
-// bdlmxxx_fieldspec.cpp              -*-C++-*-
+// bdlmxxx_fieldspec.cpp                                              -*-C++-*-
 #include <bdlmxxx_fieldspec.h>
 
 #include <bsls_ident.h>
@@ -34,7 +34,7 @@ int FieldSpec::reset(ElemType::Type   type,
             type != ElemType::BDEM_TABLE   &&
             type != ElemType::BDEM_CHOICE  &&
             type != ElemType::BDEM_CHOICE_ARRAY) {
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 
@@ -66,7 +66,7 @@ int FieldSpec::setConstraint(const RecordDef *constraint)
             elemType() != ElemType::BDEM_TABLE   &&
             elemType() != ElemType::BDEM_CHOICE  &&
             elemType() != ElemType::BDEM_CHOICE_ARRAY) {
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     d_recordConstraint_p = constraint;
@@ -164,13 +164,13 @@ FieldSpec::print(bsl::ostream& stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

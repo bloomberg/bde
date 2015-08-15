@@ -1,4 +1,4 @@
-// balxml_minireader.cpp                  -*-C++-*-
+// balxml_minireader.cpp                                              -*-C++-*-
 #include <balxml_minireader.h>
 
 #include <bsls_ident.h>
@@ -152,7 +152,7 @@ int unicodeToUtf8(char *output, unsigned val)
         *output++= toChar((val         & 0x3FU) | 0x80);
     }
     else {
-        return 0;  // out of Unicode range
+        return 0;  // out of Unicode range                            // RETURN
     }
 
     return output - start;
@@ -200,7 +200,7 @@ void replaceCharReferences(char *text)
     // Skip initial segment up to first ampersand.
     char *output = bsl::strchr(text, '&');
     if (! output) {
-        return; // No ampersands
+        return; // No ampersands                                      // RETURN
     }
 
     // Loop through rest of input, looking for ampersands.
@@ -599,11 +599,11 @@ MiniReader::open(const char *buffer,
                         const char *encoding)
 {
     if (d_state != ST_CLOSED) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (buffer == 0 || size == 0) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     d_memStream = buffer;
@@ -617,14 +617,14 @@ MiniReader::open(const char *filename,
                         const char *encoding)
 {
     if (d_state != ST_CLOSED) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     d_stream.open(nonNullStr(filename));
 
     if (!d_stream.is_open()) {
         close();
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return open(d_stream.rdbuf(), filename, encoding);
@@ -636,11 +636,11 @@ MiniReader::open(bsl::streambuf *streambuf,
                         const char     *encoding)
 {
     if (d_state != ST_CLOSED) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if  (streambuf == 0) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     d_streamBuf = streambuf;
@@ -727,7 +727,7 @@ MiniReader::nodeHasValue() const
       case BAEXML_NODE_TYPE_WHITESPACE:
       case BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE:
       case BAEXML_NODE_TYPE_XML_DECLARATION: {
-          return true;
+          return true;                                                // RETURN
       }
       default: {
       } break;
@@ -774,7 +774,7 @@ MiniReader::isEmptyElement() const
 {
     if (nodeType() != BAEXML_NODE_TYPE_ELEMENT)
     {
-        return false;
+        return false;                                                 // RETURN
     }
     return ((currentNode().d_flags & Node::k_NODE_EMPTY) != 0);
 }
@@ -788,7 +788,7 @@ MiniReader::lookupAttribute(
 
     if (((size_t) index) <  node.d_attrCount) {
         *attribute = node.d_attributes[index];
-        return 0; // success
+        return 0; // success                                          // RETURN
     }
 
     return 1; //not found
@@ -808,7 +808,7 @@ MiniReader::lookupAttribute(
 
         if (0 == bsl::strcmp(qname, (*it1).qualifiedName())) {
             *attribute = *it1;
-            return 0; // success;
+            return 0; // success;                                     // RETURN
         }
     }
 
@@ -832,7 +832,7 @@ MiniReader::lookupAttribute(
             0 == bsl::strcmp(namespaceUri, (*it1).namespaceUri()))
         {
             *attribute = *it1;
-            return 0; // success;
+            return 0; // success;                                     // RETURN
         }
     }
 
@@ -856,7 +856,7 @@ MiniReader::lookupAttribute(
             namespaceId == (*it1).namespaceId())
         {
             *attribute = *it1;
-            return 0; // success;
+            return 0; // success;                                     // RETURN
         }
     }
 
@@ -894,11 +894,11 @@ MiniReader::advanceToNextNode()
           } break;
           case ST_ERROR:
           case ST_CLOSED: {
-            return -1;
+            return -1;                                                // RETURN
           }
           default: {
             BSLS_ASSERT(0);
-            return -1;
+            return -1;                                                // RETURN
           }
         }
     } while (rc == 2);
@@ -909,23 +909,23 @@ MiniReader::advanceToNextNode()
 
             return setParseError("No End Element tags for the Element",
                     d_activeNodes[d_activeNodesCount-1].first.c_str(),
-                    0);
+                    0);                                               // RETURN
         }
 
         if ((d_flags & FLG_ROOT_CLOSED) == 0) {  // Root element not closed
 
             return setParseError("Root Element not found",
                     0,
-                    0);
+                    0);                                               // RETURN
         }
     }
 
     return rc;
 }
 
-//----------------------------------------------------------------------
-//   PRIVATE methods
-//----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//                              PRIVATE methods
+//-----------------------------------------------------------------------------
 int
 MiniReader::skipSpaces()
 {
@@ -945,7 +945,7 @@ MiniReader::skipSpaces()
         }
 
         if (readInput() == 0) {
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
     return *d_scanPtr;
@@ -962,7 +962,7 @@ MiniReader::scanForSymbol(char symbol)
         d_scanPtr +=len;
 
         if (symbol == *d_scanPtr) {
-            return symbol;
+            return symbol;                                            // RETURN
         }
 
         if (checkForNewLine()) {
@@ -975,7 +975,7 @@ MiniReader::scanForSymbol(char symbol)
         }
 
         if (readInput() == 0) {
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
 
@@ -997,7 +997,7 @@ MiniReader::scanForSymbolOrSpace(char symbol)
         }
 
         if (readInput() == 0) {
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
     return *d_scanPtr;
@@ -1020,7 +1020,7 @@ MiniReader::scanForSymbolOrSpace(char symbol1, char symbol2)
         }
 
         if (readInput() == 0) {
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
     return *d_scanPtr;
@@ -1033,14 +1033,14 @@ MiniReader::scanForString(const char *str)
     while(1) {
         int ch = scanForSymbol(str[0]);
         if (ch == 0) {
-            return ch;
+            return ch;                                                // RETURN
         }
 
         while ((d_endPtr - d_scanPtr) < (int)len ) {
 
             if (readInput()== 0) {
                 d_scanPtr = d_endPtr;
-                return 0;
+                return 0;                                             // RETURN
             }
         }
 
@@ -1059,13 +1059,13 @@ MiniReader::skipIfMatch(const char *str)
 
     while ((d_endPtr - d_scanPtr) < (int)len ) {
         if (readInput()== 0) {
-            return false;
+            return false;                                             // RETURN
         }
     }
 
     if (bsl::memcmp(d_scanPtr, str, len) == 0) {
         d_scanPtr += len;
-        return true;
+        return true;                                                  // RETURN
     }
 
     return false;
@@ -1118,11 +1118,11 @@ MiniReader::scanNode()
     switch(ch) {
       case 0: {
         d_state = ST_EOF;
-        return 1;
+        return 1;                                                     // RETURN
       }
       case '<': {        // open tag
         getChar();
-        return scanOpenTag();
+        return scanOpenTag();                                         // RETURN
       }
       default: {
       } break;
@@ -1151,18 +1151,18 @@ MiniReader::scanText()
         // this will make node value as C-string
         getCharAndSet(0);
         d_state = ST_TAG_BEGIN;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     if (d_state == ST_INITIAL) {
-        return setParseError("No root element", 0 , 0);
+        return setParseError("No root element", 0 , 0);               // RETURN
     }
 
     if (ch == 0) {
 
         node.d_endPos = getCurrentPosition();
         d_state = ST_EOF;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     ch = scanForSymbol('<');
@@ -1177,7 +1177,7 @@ MiniReader::scanText()
         d_state = ST_TAG_BEGIN;
 
         replaceCharReferences(const_cast<char *>(node.d_value));
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT(ch==0);
@@ -1187,7 +1187,7 @@ MiniReader::scanText()
         node.d_startPos = getCurrentPosition();
         node.d_endPos = getCurrentPosition();
         d_state = ST_EOF;
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     return setParseError("Text out of root element", d_scanPtr, 0);
@@ -1207,19 +1207,19 @@ MiniReader::scanOpenTag()
       case 0:           // End of Data
         setError(ErrorInfo::BAEXML_ERROR,
                  "Syntax error - Unexpected End of Data");
-        return -1;
+        return -1;                                                    // RETURN
 
       case '?':         // Processing Instruction
         getChar();
-        return scanProcessingInstruction();
+        return scanProcessingInstruction();                           // RETURN
 
       case '!':         // Comments, CDATA, DTD declarations
         getChar();
-        return scanExclaimConstruct();
+        return scanExclaimConstruct();                                // RETURN
 
       case '/':         // End Element
         getChar();
-        return scanEndElement();
+        return scanEndElement();                                      // RETURN
 
     default:
         break;
@@ -1228,13 +1228,13 @@ MiniReader::scanOpenTag()
     if (bsl::isspace(static_cast<unsigned char>(ch))) {
         return setParseError("Invalid tag character",
                              d_scanPtr,
-                             d_scanPtr+1);
+                             d_scanPtr+1);                            // RETURN
     }
 
     if ((d_flags & FLG_ROOT_CLOSED) != 0) {
         return setParseError("Only one root element is allowed",
                              d_scanPtr,
-                             d_scanPtr+1);
+                             d_scanPtr+1);                            // RETURN
     }
 
     return scanStartElement();
@@ -1255,7 +1255,7 @@ MiniReader::scanExclaimConstruct()
         if (scanForString("-->") == 0) { // not found
             return setParseError("No closing tag for comment",
                                  node.d_value,
-                                 d_scanPtr);
+                                 d_scanPtr);                          // RETURN
 
         }
         getCharAndSet(0);   // consume '-'
@@ -1264,7 +1264,7 @@ MiniReader::scanExclaimConstruct()
 
         node.d_endPos = getCurrentPosition();
         d_state = ST_TAG_END;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     if (skipIfMatch("[CDATA[")) { // CDATA section
@@ -1275,7 +1275,7 @@ MiniReader::scanExclaimConstruct()
         if (scanForString("]]>") == 0) { // not found
             return setParseError("No closing tag for CDATA",
                                  node.d_value,
-                                 d_scanPtr);
+                                 d_scanPtr);                          // RETURN
         }
         getCharAndSet(0);   // consume ']'
         getChar();          // consume ']'
@@ -1286,7 +1286,7 @@ MiniReader::scanExclaimConstruct()
 
         node.d_endPos = getCurrentPosition();
         d_state = ST_TAG_END;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     // here is the place to add support of
@@ -1302,14 +1302,14 @@ MiniReader::scanExclaimConstruct()
 
         return setParseError("Unrecognized construst" ,
                              node.d_value,
-                             d_scanPtr);
+                             d_scanPtr);                              // RETURN
 
     }
 
     if (scanForSymbol('>') == 0) { // not found
         return setParseError("No closing tag for " ,
                              node.d_value,
-                             d_scanPtr);
+                             d_scanPtr);                              // RETURN
     }
 
     getCharAndSet(0);   // consume '>'
@@ -1334,7 +1334,7 @@ MiniReader::scanProcessingInstruction()
     if (ch == 0) {  // not found
         return setParseError("Invalid PI name",
                              node.d_qualifiedName,
-                             0);
+                             0);                                      // RETURN
     }
 
     // consume separating character with replacing it by zero
@@ -1352,7 +1352,7 @@ MiniReader::scanProcessingInstruction()
         if (ch != '?') {       // not found , must be end
             return setParseError("Invalid PI value",
                                   node.d_value,
-                                  0);
+                                  0);                                 // RETURN
         }
 
         // consume separating character with replacing it by zero
@@ -1364,14 +1364,14 @@ MiniReader::scanProcessingInstruction()
     if (ch != '>') {            // Not closing tag
         return setParseError("No closing tag for PI",
                               node.d_qualifiedName,
-                              0);
+                              0);                                     // RETURN
     }
 
     if (bsl::strcmp("xml", node.d_qualifiedName) == 0) {
         node.d_type = BAEXML_NODE_TYPE_XML_DECLARATION;
         if (d_state != ST_INITIAL) {
             return setParseError("The XML declaration is unexpected",
-                                 0, 0);
+                                 0, 0);                               // RETURN
         }
     }
     node.d_endPos = getCurrentPosition();
@@ -1393,7 +1393,7 @@ MiniReader::scanEndElement()
     if (ch == 0) {
         return setParseError("Unexpected end of document, expected >",
                              node.d_qualifiedName,
-                             0);
+                             0);                                      // RETURN
     }
 
     // consume separating character with replacing it by zero
@@ -1408,7 +1408,7 @@ MiniReader::scanEndElement()
     if (ch != '>') {
         return setParseError("No '>' for Element",
                              node.d_qualifiedName,
-                             0);
+                             0);                                      // RETURN
     }
 
     node.d_endPos = getCurrentPosition();
@@ -1418,13 +1418,13 @@ MiniReader::scanEndElement()
 
         return setParseError("no opening tag for closing tag",
                              node.d_qualifiedName,
-                             0);
+                             0);                                      // RETURN
     }
 
     Element& elem = d_activeNodes[d_activeNodesCount-1];
 
     if (elem.first == node.d_qualifiedName) {
-        return updateElementInfo();
+        return updateElementInfo();                                   // RETURN
     }
 
     return setParseError("Opening and closing tag mismatch'",
@@ -1446,7 +1446,7 @@ MiniReader::scanStartElement()
     if (ch == 0) {
         return setParseError("Unexpected end of document, expected >",
                              node.d_qualifiedName,
-                             0);
+                             0);                                      // RETURN
     }
 
     // consume separating character with replacing it by zero
@@ -1457,7 +1457,7 @@ MiniReader::scanStartElement()
     if (bsl::isspace(static_cast<unsigned char>(ch))) {
         int rc = scanAttributes();
         if (rc != 0) {
-            return rc;
+            return rc;                                                // RETURN
         }
         ch = getChar();
     }
@@ -1470,7 +1470,7 @@ MiniReader::scanStartElement()
     if (ch != '>') {
         return setParseError("No '>' for Element",
                              node.d_qualifiedName,
-                             0);
+                             0);                                      // RETURN
     }
 
     node.d_endPos = getCurrentPosition();
@@ -1514,7 +1514,7 @@ MiniReader::updateElementInfo()
             //******************************************
             if (d_prefixes != &d_ownPrefixes) {
                 // user provided PrefixStack
-                return setError(ErrorInfo::BAEXML_ERROR, msg);
+                return setError(ErrorInfo::BAEXML_ERROR, msg);        // RETURN
             }
 
            // issue warning and continue
@@ -1537,7 +1537,7 @@ MiniReader::scanAttributes()
         if (ch == 0) {
             return setParseError("Unexpected end of document, expected >",
                                  currentNode().d_qualifiedName,
-                                 0);
+                                 0);                                  // RETURN
         }
 
         // must be '/', '>'  or attribute name
@@ -1551,12 +1551,12 @@ MiniReader::scanAttributes()
         if (ch == 0) {
             return setParseError("Invalid Attribute Name",
                                  d_attrNamePtr,
-                                 0);
+                                 0);                                  // RETURN
         }
 
         if (! bsl::isspace(static_cast<unsigned char>(separator))) {
             return setParseError("No space before attribute ",
-                                 d_attrNamePtr, d_scanPtr);
+                                 d_attrNamePtr, d_scanPtr);           // RETURN
         }
 
         // consume separating character with replacing it by zero
@@ -1574,7 +1574,7 @@ MiniReader::scanAttributes()
         if (ch != '=') {         // must be '=' after attribute name
             return setParseError("No '=' after Attribute Name",
                                  d_attrNamePtr,
-                                 0);
+                                 0);                                  // RETURN
         }
 
         ch = skipSpaces();      // ch must be (") or (')
@@ -1586,14 +1586,14 @@ MiniReader::scanAttributes()
           default:
             return setParseError(
                 "Attribute value must start with ' or \"",
-                0, 0);
+                0, 0);                                                // RETURN
         }
 
         d_attrValPtr = d_scanPtr;
         int ch2 = scanForSymbol(static_cast<char>(ch));
         if (ch2 != ch) {       // not the same delimiter
             return setParseError("Attribute value must end with ' or \"",
-                                 0, 0);
+                                 0, 0);                               // RETURN
         }
         // consume terminating character with replacing it by zero
         // this will make attribute qualified name as C-string
@@ -1661,7 +1661,7 @@ MiniReader::updateAttributes()
                 //******************************************
                 if (d_prefixes != &d_ownPrefixes) {
                     // user provided PrefixStack
-                    return setError(ErrorInfo::BAEXML_ERROR, msg);
+                    return setError(ErrorInfo::BAEXML_ERROR, msg);    // RETURN
                 }
 
                 // issue warning and continue
@@ -1816,7 +1816,7 @@ int
 MiniReader::readInput()
 {
     if ((d_flags & FLG_READ_EOF) != 0) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     size_t numConsumed = d_markPtr - d_startPtr;
@@ -1867,13 +1867,20 @@ MiniReader::readInput()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

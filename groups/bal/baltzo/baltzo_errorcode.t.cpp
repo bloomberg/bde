@@ -168,9 +168,9 @@ int main(int argc, char *argv[])
 //
 // First, we create a variable 'value' of type 'baltzo::ErrorCode::Enum' and
 // initialize it with the enumerator value
-// 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID':
+// 'baltzo::ErrorCode::k_UNSUPPORTED_ID':
 //..
-    baltzo::ErrorCode::Enum value = baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;
+    baltzo::ErrorCode::Enum value = baltzo::ErrorCode::k_UNSUPPORTED_ID;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -245,26 +245,22 @@ if (veryVerbose)
 #define NL "\n"
             //line level spl    enumerator value          expected result
             //---- ----- --- ---------------------------  ------------------
-            { L_,    0,   4, Obj::BALTZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
+            { L_,    0,   4, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
 
             { L_,    0,   4, (Enum)(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL  },
 
-            { L_,    0,  -1, Obj::BALTZO_UNSUPPORTED_ID, "UNSUPPORTED_ID"    },
-            { L_,    0,   0, Obj::BALTZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
-            { L_,    0,   2, Obj::BALTZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
-            { L_,    1,   1, Obj::BALTZO_UNSUPPORTED_ID,
-                                                        " UNSUPPORTED_ID" NL },
-            { L_,    1,   2, Obj::BALTZO_UNSUPPORTED_ID,
-                                                       "  UNSUPPORTED_ID" NL },
-            { L_,   -1,   2, Obj::BALTZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
-            { L_,   -2,   1, Obj::BALTZO_UNSUPPORTED_ID, "UNSUPPORTED_ID" NL },
-            { L_,    2,   1, Obj::BALTZO_UNSUPPORTED_ID,
-                                                       "  UNSUPPORTED_ID" NL },
-            { L_,    1,   3, Obj::BALTZO_UNSUPPORTED_ID,
-                                                      "   UNSUPPORTED_ID" NL },
+            { L_,    0,  -1, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID"    },
+            { L_,    0,   0, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
+            { L_,    0,   2, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
+            { L_,    1,   1, Obj::k_UNSUPPORTED_ID,     " UNSUPPORTED_ID" NL },
+            { L_,    1,   2, Obj::k_UNSUPPORTED_ID,    "  UNSUPPORTED_ID" NL },
+            { L_,   -1,   2, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
+            { L_,   -2,   1, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
+            { L_,    2,   1, Obj::k_UNSUPPORTED_ID,    "  UNSUPPORTED_ID" NL },
+            { L_,    1,   3, Obj::k_UNSUPPORTED_ID,   "   UNSUPPORTED_ID" NL },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -276,9 +272,9 @@ if (veryVerbose)
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        ASSERT(Obj::BAETZO_UNSUPPORTED_ID == Obj::BALTZO_UNSUPPORTED_ID);
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        ASSERT(Obj::e_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
         if (verbose) cout << "\nTesting 'print'." << endl;
 
@@ -396,7 +392,7 @@ if (veryVerbose)
         } DATA[] = {
             //line       enumerator value              expected result
             //----    ----------------------          -----------------
-            { L_,     Obj::BALTZO_UNSUPPORTED_ID,     "UNSUPPORTED_ID"   },
+            { L_,     Obj::k_UNSUPPORTED_ID,          "UNSUPPORTED_ID"   },
 
             { L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
             { L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
@@ -504,7 +500,7 @@ if (veryVerbose)
         } DATA[] = {
             // line         enumerator value            expected result
             // ----    ---------------------------     -----------------
-            {  L_,     Obj::BALTZO_UNSUPPORTED_ID,     "UNSUPPORTED_ID"   },
+            {  L_,     Obj::k_UNSUPPORTED_ID,          "UNSUPPORTED_ID"   },
 
             {  L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT     },

@@ -271,7 +271,7 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus      status,
 }
 
 // ============================================================================
-//                  USAGE EXAMPLE
+//                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 ///Example 1: Connect to a Server Through Two Proxy Levels
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -286,13 +286,13 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus      status,
 // passed to us:
 //..
     void connectCb(
-                  int                                           status,
-                  btlso::StreamSocket< btlso::IPv4Address>       *socket,
-                  btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
-                  const btls5::DetailedStatus&                   detailedStatus,
-                  bdlqq::Mutex                                  *stateLock,
-                  bdlqq::Condition                              *stateChanged,
-                  volatile int                                 *state)
+                int                                             status,
+                btlso::StreamSocket< btlso::IPv4Address>       *socket,
+                btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+                const btls5::DetailedStatus&                    detailedStatus,
+                bdlqq::Mutex                                   *stateLock,
+                bdlqq::Condition                               *stateChanged,
+                volatile int                                   *state)
     {
         if (0 == status) {
             // Success: conduct I/O operations with 'socket' ... and deallocate
@@ -327,7 +327,8 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus      status,
 // the proxies in the connection path requires that type of authentication:
 //..
         btls5::Credentials credentials("John.smith", "pass1");
-        btls5::NetworkDescriptionUtil::setAllCredentials(&proxies, credentials);
+        btls5::NetworkDescriptionUtil::setAllCredentials(&proxies,
+                                                         credentials);
 //..
 // Now we construct a 'btls5::NetworkConnector' that will be used to connect
 // to one or more destinations:
@@ -725,7 +726,9 @@ int main(int argc, char *argv[])
         btls5::NetworkConnector::ConnectionStateCallback
             cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
         {
-            btls5::NetworkConnector connector(proxies, &factory, &eventManager);
+            btls5::NetworkConnector connector(proxies,
+                                              &factory,
+                                              &eventManager);
             btls5::NetworkConnector::ConnectionAttemptHandle attempt
                 = connector.makeConnectionAttemptHandle(cb,
                                               bsls::TimeInterval(9), // proxy
@@ -1019,7 +1022,9 @@ int main(int argc, char *argv[])
             cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
         {
             if (verbose) cout << "\nUnresolvable proxy" << endl;
-            btls5::NetworkConnector connector(proxies, &factory, &eventManager);
+            btls5::NetworkConnector connector(proxies,
+                                              &factory,
+                                              &eventManager);
             btls5::NetworkConnector::ConnectionAttemptHandle attempt
                 = connector.makeConnectionAttemptHandle(cb,
                                               bsls::TimeInterval(1), // proxy
@@ -1103,7 +1108,9 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) { P_(destination) P(proxies) }
 
-            btls5::NetworkConnector connector(proxies, &factory, &eventManager);
+            btls5::NetworkConnector connector(proxies,
+                                              &factory,
+                                              &eventManager);
             btls5::NetworkConnector::ConnectionAttemptHandle attempt
                 = connector.makeConnectionAttemptHandle(cb,
                                               bsls::TimeInterval(0.5), // proxy
@@ -1167,7 +1174,9 @@ int main(int argc, char *argv[])
             cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
         {
             if (verbose) cout << "\nSingle Proxy Timeout" << endl;
-            btls5::NetworkConnector connector(proxies, &factory, &eventManager);
+            btls5::NetworkConnector connector(proxies,
+                                              &factory,
+                                              &eventManager);
             btls5::NetworkConnector::ConnectionAttemptHandle attempt
                 = connector.makeConnectionAttemptHandle(cb,
                                               bsls::TimeInterval(2), // proxy
@@ -1180,7 +1189,9 @@ int main(int argc, char *argv[])
 /***
         {
             if (verbose) cout << "\nTotal Attempt Timeout" << endl;
-            btls5::NetworkConnector connector(proxies, &factory, &eventManager);
+            btls5::NetworkConnector connector(proxies,
+                                              &factory,
+                                              &eventManager);
             btls5::NetworkConnector::ConnectionAttemptHandle attempt
                 = connector.makeConnectionAttemptHandle(cb,
                                               bsls::TimeInterval(5), // proxy
@@ -1200,7 +1211,9 @@ int main(int argc, char *argv[])
             btls5::TestServer goodServer(&proxy, &proxyArgs);
             proxies.addProxy(0, proxy);
 
-            btls5::NetworkConnector connector(proxies, &factory, &eventManager);
+            btls5::NetworkConnector connector(proxies,
+                                              &factory,
+                                              &eventManager);
             btls5::NetworkConnector::ConnectionAttemptHandle attempt
                 = connector.makeConnectionAttemptHandle(cb,
                                               bsls::TimeInterval(2), // proxy
@@ -1454,7 +1467,7 @@ int main(int argc, char *argv[])
             btls5::NetworkConnector::ConnectionStatus status;
             queue.popFront(&status);
             LOOP5_ASSERT(LINE, proxy, DESTINATION, status, SUCCESS,
-                     SUCCESS == (status == btls5::NetworkConnector::e_SUCCESS));
+                    SUCCESS == (status == btls5::NetworkConnector::e_SUCCESS));
         }
       } break;
       case -2: {
@@ -1628,10 +1641,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

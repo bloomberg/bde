@@ -1,11 +1,14 @@
-// ball_administration.t.cpp         -*-C++-*-
+// ball_administration.t.cpp                                          -*-C++-*-
 
 #include <ball_administration.h>
 
-#include <ball_loggermanager.h>      // for testing only
-#include <ball_severity.h>           // for testing only
-#include <ball_testobserver.h>       // for testing only
-#include <ball_defaultobserver.h>    // for testing only
+#include <ball_loggermanagerconfiguration.h> // for testing only
+#include <ball_loggermanager.h>              // for testing only
+#include <ball_severity.h>                   // for testing only
+#include <ball_testobserver.h>               // for testing only
+#include <ball_defaultobserver.h>            // for testing only
+
+#include <bdls_testutil.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -53,40 +56,60 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -156,7 +179,7 @@ int main(int argc, char *argv[])
 // utilities that are used to create categories, and to set and access their
 // threshold levels.
 //
-// First we initializate the logger manager (for the purposes of this example,
+// First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
      ball::DefaultObserver observer(cout);
@@ -324,7 +347,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Create a couple categories and call method with valid values and
         //:   verify the return is 0 and the default threshold levels as well
-        //:   the created threshold levels are set (C-2..4)) 
+        //:   the created threshold levels are set (C-2..4))
         //:
         //: 2 Call the method several times, supplying an invalid level
         //:   for a different threshold each time, verify the return value is
@@ -342,7 +365,7 @@ int main(int argc, char *argv[])
         ball::LoggerManager::initSingleton(TO);  // initialize logger manager
 
 
-        if (verbose) cout 
+        if (verbose) cout
             << "\nTest 'setAllThresholdLevels' sets the default threshold"
             << endl;
         {
@@ -355,7 +378,7 @@ int main(int argc, char *argv[])
             ASSERT(4 == Obj::defaultTriggerAllThresholdLevel());
         }
 
-        if (verbose) cout 
+        if (verbose) cout
             << "\nTest 'setAllThresholdLevels' updates existing categories"
             << endl;
         {
@@ -378,7 +401,7 @@ int main(int argc, char *argv[])
             ASSERT(7 == Obj::triggerLevel("B"));
             ASSERT(8 == Obj::triggerAllLevel("B"));
         }
-        if (verbose) cout 
+        if (verbose) cout
             << "\nTest 'setAllThresholdLevels' with invalid thresholds"
             << endl;
         {
@@ -386,7 +409,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == Obj::setThresholdLevels("A", 1, 1, 1, 1));
             ASSERT(1 == Obj::setThresholdLevels("B", 1, 1, 1, 1));
 
-          
+
             ASSERT(0 != Obj::setAllThresholdLevels(-1, 1, 1, 1));
 
             ASSERT(0 == Obj::defaultRecordThresholdLevel());
@@ -934,11 +957,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

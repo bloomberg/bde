@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a single, simply-constrained
+//@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'btls5::DetailedStatus', that is used to
 // describe the status of a SOCKS5 connection attempt.
 //
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //  Name           Type              Default             Simple Constraints
 //  -------------  -----------       -------             ------------------
 //  description    bsl::string       ""                  none
-//  address        btlso::Endpoint    btlso::Endpoint()    none
+//  address        btlso::Endpoint   btlso::Endpoint()   none
 //..
 //: o 'description': non-canonical, human-readable status information, suitable
 //:   for logging and diagnostics
@@ -62,12 +62,12 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
+#ifndef INCLUDED_BTLSO_ENDPOINT
+#include <btlso_endpoint.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -76,10 +76,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BTLSO_ENDPOINT
-#include <btlso_endpoint.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -92,24 +88,27 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
+
 namespace btls5 {
-                         // ==========================
+
+                         // ====================
                          // class DetailedStatus
-                         // ==========================
+                         // ====================
 
 class DetailedStatus {
     // This value-semantic class provides information about the status of a
     // connection attempt using SOCKS5.
 
     // DATA
-    bsl::string    d_description; // text message
+    bsl::string     d_description; // text message
     btlso::Endpoint d_address;     // address associated with this status
 
   public:
     // CREATORS
     explicit DetailedStatus(bslma::Allocator *basicAllocator = 0);
-        // Create a 'DetailedStatus' object having the (default)
-        // attribute values:
+        // Create a 'DetailedStatus' object having the (default) attribute
+        // values:
         //..
         //  description() == ""
         //  address()     == btlso::Endpoint()
@@ -118,25 +117,23 @@ class DetailedStatus {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    explicit DetailedStatus(
-                                 const bslstl::StringRef&  description,
-                                 bslma::Allocator         *basicAllocator = 0);
-        // Create a 'DetailedStatus' object having the specified
-        // 'description', and having a default-constructed address value.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+    explicit DetailedStatus(const bslstl::StringRef&  description,
+                            bslma::Allocator         *basicAllocator = 0);
+        // Create a 'DetailedStatus' object having the specified 'description',
+        // and having a default-constructed address value.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
-    DetailedStatus(const bslstl::StringRef& description,
-                         const btlso::Endpoint&    address,
-                         bslma::Allocator        *basicAllocator = 0);
-        // Create a 'DetailedStatus' object having the specified
-        // 'description' and 'address'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+    DetailedStatus(const bslstl::StringRef&  description,
+                   const btlso::Endpoint&    address,
+                   bslma::Allocator         *basicAllocator = 0);
+        // Create a 'DetailedStatus' object having the specified 'description'
+        // and 'address'.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
     DetailedStatus(const DetailedStatus&  original,
-                         bslma::Allocator            *basicAllocator = 0);
+                   bslma::Allocator      *basicAllocator = 0);
         // Create a 'DetailedStatus' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -146,17 +143,16 @@ class DetailedStatus {
         // Destroy this object.
 
     // MANIPULATORS
-    //! DetailedStatus& operator=(const DetailedStatus& rhs)
-    //      = default;
+    //! DetailedStatus& operator=(const DetailedStatus& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
     void setDescription(const bslstl::StringRef& value);
-        // Set the description attribute of this object to the specified
+        // Set the 'description' attribute of this object to the specified
         // 'value'.
 
     void setAddress(const btlso::Endpoint& value);
-        // Set the address attribute of this object to the specified 'value'.
+        // Set the 'address' attribute of this object to the specified 'value'.
 
                                   // Aspects
 
@@ -200,23 +196,20 @@ class DetailedStatus {
 };
 
 // FREE OPERATORS
-bool operator==(const DetailedStatus& lhs,
-                const DetailedStatus& rhs);
+bool operator==(const DetailedStatus& lhs, const DetailedStatus& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'DetailedStatus' objects have
-    // the same value if both of the corresponding values of their
-    // 'description' and 'address' attributes are the same.
+    // value, and 'false' otherwise.  Two 'DetailedStatus' objects have the
+    // same value if both of the corresponding values of their 'description'
+    // and 'address' attributes are the same.
 
-bool operator!=(const DetailedStatus& lhs,
-                const DetailedStatus& rhs);
+bool operator!=(const DetailedStatus& lhs, const DetailedStatus& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'DetailedStatus' objects
-    // do not have the same value if either of the corresponding values of
-    // their 'description' and 'address' attributes are not the same.
+    // same value, and 'false' otherwise.  Two 'DetailedStatus' objects do not
+    // have the same value if either of the corresponding values of their
+    // 'description' and 'address' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&               stream,
+bsl::ostream& operator<<(bsl::ostream&         stream,
                          const DetailedStatus& object);
-}  // close package namespace
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
@@ -225,8 +218,7 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
 
 // FREE FUNCTIONS
 void swap(btls5::DetailedStatus& a, btls5::DetailedStatus& b);
-
-namespace btls5 {    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
@@ -235,42 +227,38 @@ namespace btls5 {    // Efficiently exchange the values of the specified 'a' and
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
+                        // --------------------
                         // class DetailedStatus
-                        // --------------------------
+                        // --------------------
 
 // CREATORS
 inline
-DetailedStatus::DetailedStatus(
-                                      bslma::Allocator         *basicAllocator)
+DetailedStatus::DetailedStatus(bslma::Allocator *basicAllocator)
 : d_description(basicAllocator)
 , d_address(basicAllocator)
 {
 }
 
 inline
-DetailedStatus::DetailedStatus(
-                                      const bslstl::StringRef&  description,
-                                      bslma::Allocator         *basicAllocator)
+DetailedStatus::DetailedStatus(const bslstl::StringRef&  description,
+                               bslma::Allocator         *basicAllocator)
 : d_description(description, basicAllocator)
 , d_address(basicAllocator)
 {
 }
 
 inline
-DetailedStatus::DetailedStatus(
-                                      const bslstl::StringRef&  description,
-                                      const btlso::Endpoint&     address,
-                                      bslma::Allocator         *basicAllocator)
+DetailedStatus::DetailedStatus(const bslstl::StringRef&  description,
+                               const btlso::Endpoint&     address,
+                               bslma::Allocator         *basicAllocator)
 : d_description(description, basicAllocator)
 , d_address(address, basicAllocator)
 {
 }
 
 inline
-DetailedStatus::DetailedStatus(
-                                    const DetailedStatus&  original,
-                                    bslma::Allocator           *basicAllocator)
+DetailedStatus::DetailedStatus(const DetailedStatus&  original,
+                               bslma::Allocator      *basicAllocator)
 : d_description(original.d_description, basicAllocator)
 , d_address(original.d_address, basicAllocator)
 {
@@ -320,20 +308,19 @@ bslma::Allocator *DetailedStatus::allocator() const
 {
     return d_description.get_allocator().mechanism();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 inline
-bool btls5::operator==(const DetailedStatus& lhs,
-                const DetailedStatus& rhs)
+bool btls5::operator==(const DetailedStatus& lhs, const DetailedStatus& rhs)
 {
     return lhs.description() == rhs.description()
             && lhs.address() == rhs.address();
 }
 
 inline
-bool btls5::operator!=(const DetailedStatus& lhs,
-                const DetailedStatus& rhs)
+bool btls5::operator!=(const DetailedStatus& lhs, const DetailedStatus& rhs)
 {
     return lhs.description() != rhs.description()
             || lhs.address() != rhs.address();
@@ -341,7 +328,7 @@ bool btls5::operator!=(const DetailedStatus& lhs,
 
 // FREE FUNCTIONS
 inline
-void swap(btls5::DetailedStatus& a, btls5::DetailedStatus& b)
+void btls5::swap(btls5::DetailedStatus& a, btls5::DetailedStatus& b)
 {
     a.swap(b);
 }
@@ -360,10 +347,17 @@ struct UsesBslmaAllocator<btls5::DetailedStatus> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// balxml_errorinfo.t.cpp                  -*-C++-*-
+// balxml_errorinfo.t.cpp                                             -*-C++-*-
 
 #include <balxml_errorinfo.h>
 
@@ -60,9 +60,9 @@ using namespace BloombergLP;
 // [6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -74,7 +74,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -205,7 +205,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
                           TESTVECTORS_PER_SEVERITY * NUM_SEVERITIES);
 
     if (index >= numTestVectors) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     v->d_lineNumber = 5 * (index % NUM_LINE_NUMBERS);
@@ -299,7 +299,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 
         if (errorInfo->isAnyError()) {
             // Don't advance if errorInfo shows a previous error.
-            return -2;
+            return -2;                                                // RETURN
         }
 //..
 // The parser skips leading whitespace and lines containing only whitespace.
@@ -336,7 +336,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 //..
             else if (0 == len && d_input->eof()) {
                 // Encountered eof before any other characters.
-                return -1;
+                return -1;                                            // RETURN
             }
 
             // Skip leading whitespace
@@ -357,13 +357,13 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
             errorInfo->setError(balxml::ErrorInfo::BAEXML_ERROR,
                                 d_line, endColumn + 1, d_docName,
                                 "Bad input character");
-            return -2;
+            return -2;                                                // RETURN
         } else if (result < 0 || 100 < result) {
             // Range error.
             errorInfo->setError(balxml::ErrorInfo::BAEXML_ERROR,
                                 d_line, startColumn + 1, d_docName,
                                 "Value is not between 0 and 100");
-            return -2;
+            return -2;                                                // RETURN
         }
 //..
 // If there were no errors, return the result.  Note that the 'errorInfo'
@@ -1185,11 +1185,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

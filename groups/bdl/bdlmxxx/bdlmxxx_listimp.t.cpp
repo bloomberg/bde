@@ -1,4 +1,4 @@
-// bdlmxxx_listimp.t.cpp                                                 -*-C++-*-
+// bdlmxxx_listimp.t.cpp                                              -*-C++-*-
 
 #include <bdlmxxx_listimp.h>
 
@@ -114,7 +114,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 2] BOOTSTRAP: bdlmxxx::ListImp(AS, bslma::Allocator *);
 //=============================================================================
-//            STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
@@ -2703,11 +2703,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

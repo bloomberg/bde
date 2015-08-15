@@ -116,7 +116,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -353,7 +353,7 @@ static void* threadToCloseServer(void *arg)
         if (verbose) {
             QT("Error happens when the server socket to the thread.");
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
     bdlqq::ThreadUtil::microSleep(3 * k_SLEEP_TIME);
 
@@ -382,12 +382,12 @@ static int numChannelToBeEstablished(const TestCommand *commands,
     return total;
 }
 
-static int testExecutionHelper(btlsos::TcpTimedAcceptor     *acceptor,
-                               int                         *status,
-                               const TestCommand           *command,
-                               bsl::vector<btlsc::Channel*> *channels,
-                               btlsc::Channel              **newChannel,
-                               bdlqq::Barrier               * syncBarrier)
+static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
+                               int                           *status,
+                               const TestCommand             *command,
+                               bsl::vector<btlsc::Channel*>  *channels,
+                               btlsc::Channel               **newChannel,
+                               bdlqq::Barrier                * syncBarrier)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
@@ -553,7 +553,7 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
 }
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -618,7 +618,7 @@ int main(int argc, char *argv[]) {
     ASSERT(0 == acceptor.isInvalid());
     if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
         bsl::cout << "Can't open listening socket" << bsl::endl;
-        return -1;
+        return -1;                                                    // RETURN
     }
     ASSERT(acceptor.address() == serverAddress);
 //..
@@ -770,8 +770,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // A channel is established before "time" is reached.
   {L_, 'A',  e_CHANNEL, interruptible,   INFINITED,   0,       1,          1,
    0    },
@@ -994,8 +994,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          1,
    0    },
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          2,
@@ -1037,8 +1037,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1, existing + 1,
    0    },
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1, existing + 2,
@@ -1080,8 +1080,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   -2,      0,     existing,
    0    },
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   -2,      0,     existing,
@@ -1249,8 +1249,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // The "timeout" is reached for "allocate" operation: no channel is built.
   {L_, 'A', e_T_CHANNEL, interruptible,  &timeout,   0,        0,          0,
    0    },
@@ -1335,8 +1335,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A', e_T_CHANNEL,  non_interrupt, &time,      0,     1,   existing + 1,
    0    },
@@ -1385,8 +1385,8 @@ int main(int argc, char *argv[]) {
 // ===================>
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   {L_, 'A', e_CHANNEL,  non_interrupt, &time,    -3,      0,      existing,
    0    };
 // ===================>
@@ -1439,8 +1439,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A', e_T_CHANNEL,  non_interrupt, &time,       0,    1,   existing + 1,
    0    },
@@ -1616,8 +1616,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // The "timeout" is reached for "allocate" operation: no channel is built.
   {L_, 'A',  e_CHANNEL,  interruptible, &timeout,    0,       0,           0,
    0    },
@@ -1702,8 +1702,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A',  e_CHANNEL,  non_interrupt, &time,       0,     1,   existing + 1,
    0    },
@@ -1750,8 +1750,8 @@ int main(int argc, char *argv[]) {
 // ===================>
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   {L_, 'A',  e_CHANNEL,   non_interrupt, &time,     -3,      0,      existing,
    0    };
 // ===================>
@@ -1804,8 +1804,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A',  e_CHANNEL,  non_interrupt,  &time,    0,      1,    existing + 1,
    0    },
@@ -1981,8 +1981,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // Generate a 'SIGSYS' and no channel is established: concern (1).
   {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   1,        0,        0   ,
    1    },
@@ -2121,8 +2121,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,     1,   existing + 1,
    0    },
@@ -2227,8 +2227,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,   0,    1,   existing + 1,
    0    },
@@ -2408,8 +2408,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // Generate a 'SIGSYS' and no channel is established: concern (1).
   {L_, 'A',  e_CHANNEL, interruptible,  INFINITED,   1,        0,          0,
    1    },
@@ -2550,8 +2550,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
@@ -2655,8 +2655,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // New channels can still be established: concern (9).
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
@@ -2761,8 +2761,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // Each of the following command is to establish a channel.
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          1,
    0    },
@@ -2869,8 +2869,8 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//                                  signal
+//-----------------------------------------------------------------------------
   // Each of the following command is to establish a channel.
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           1,
    0    },

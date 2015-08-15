@@ -102,7 +102,7 @@ const unsigned TRAIT_EQPOD = (TRAIT_POD |
                               TRAIT_BITWISEEQUALITYCOMPARABLE);
 
 // Traits detection
-template <typename TYPE, typename TRAIT>
+template <class TYPE, class TRAIT>
 struct HasTrait {
     enum {
         VALUE = TRAIT::template Metafunction<TYPE>::value
@@ -112,7 +112,7 @@ struct HasTrait {
 };
 
 // Traits bit vector
-template <typename TYPE>
+template <class TYPE>
 unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
@@ -142,7 +142,7 @@ unsigned traitBits()
     return result;
 }
 
-template <typename TYPE>
+template <class TYPE>
 struct Identity {
     // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
     // into a named type (e.g., 'void (*Type)(int)').
@@ -185,7 +185,7 @@ namespace bslma {
 
 template <> struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 
-}  // close bslma namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 template <class T>
@@ -212,7 +212,7 @@ enum my_Enum
 };
 
 //=============================================================================
-//                  USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 
@@ -363,7 +363,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 // With these utilities, we can now implement 'MyGenericContainer'.
 //..
     // CREATORS
-    template <typename TYPE>
+    template <class TYPE>
     MyGenericContainer<TYPE>::MyGenericContainer(const TYPE&       object,
                                                  bslma::Allocator *allocator)
     {
@@ -372,7 +372,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
                                                allocator);
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     MyGenericContainer<TYPE>::MyGenericContainer(
                                           const MyGenericContainer&  container,
                                           bslma::Allocator          *allocator)
@@ -385,7 +385,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 // Note that all this machinery only affects the constructors, and not the
 // destructor which only invokes the destructor of 'd_object'.
 //..
-    template <typename TYPE>
+    template <class TYPE>
     MyGenericContainer<TYPE>::~MyGenericContainer()
     {
         (&d_object.object())->~TYPE();
@@ -394,14 +394,14 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 // To finish, the accessors and manipulators are trivially implemented.
 //..
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     TYPE& MyGenericContainer<TYPE>::object()
     {
         return d_object.object();
     }
 
     // ACCESSORS
-    template <typename TYPE>
+    template <class TYPE>
     const TYPE& MyGenericContainer<TYPE>::object() const
     {
         return d_object.object();
@@ -491,7 +491,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
     }
 //..
 
-} // close namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE
+}  // close namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

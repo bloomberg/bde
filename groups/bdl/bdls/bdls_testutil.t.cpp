@@ -204,7 +204,7 @@ namespace {
         return 42;
     }
 
-    }  // close package namespace
+    }  // close namespace bdlabc
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -239,7 +239,7 @@ namespace {
     #define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
     #define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
     #define ASSERTV      BDLS_TESTUTIL_ASSERTV
-    
+
     #define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
     #define P   BDLS_TESTUTIL_P   // Print identifier and value.
     #define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
@@ -344,7 +344,7 @@ bool tempFileName(char *result)
         result[PATH_BUFFER_SIZE - 1] = '\0';
         free(fn);
     } else {
-        return false;
+        return false;                                                 // RETURN
     }
 #endif
 

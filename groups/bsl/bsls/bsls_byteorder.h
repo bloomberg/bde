@@ -176,8 +176,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-// ======
-// MACROS
+// ============================================================================
+//                                  MACROS
 // ======
 
 // STANDARD NETWORK AND HOST CONVERSIONS
@@ -243,7 +243,7 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BSLS_PLATFORM_IS_BIG_ENDIAN
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ENDIAN CONVERSION MACROS
 

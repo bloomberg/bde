@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:  baltzo_localtimedescriptor, baltzo_zoneinfoutil
 //
 //@DESCRIPTION: This component provides a single, complex-constrained
-// (value-semantic) attribute class, 'baltzo::LocalTimerPeriod', that describes
+// (value-semantic) attribute class, 'baltzo::LocalTimePeriod', that describes
 // a period of time over which a local time description (UTC offset, DST
 // status, and a descriptive string) is in effect.
 //
@@ -217,8 +217,8 @@ class LocalTimePeriod {
 
     // CREATORS
     explicit LocalTimePeriod(bslma::Allocator *basicAllocator = 0);
-        // Create a 'LocalTimePeriod' object having the (default)
-        // attribute values:
+        // Create a 'LocalTimePeriod' object having the (default) attribute
+        // values:
         //..
         //  descriptor()   == LocalTimeDescriptor()
         //  utcStartTime() == bdlt::Datetime()
@@ -262,13 +262,13 @@ class LocalTimePeriod {
 
     void setUtcStartAndEndTime(const bdlt::Datetime& utcStartTime,
                                const bdlt::Datetime& utcEndTime);
-        // Set the 'utcStartTime' and 'utcEndTime' attributes of this object to
-        // the specified 'utcStartTime' and 'utcEndTime', respectively.  The
-        // behavior is undefined unless 'utcStartTime == utcEndTime', or if
-        // 'utcStartTime' and 'utcEndTime' are comparable (i.e., neither equals
-        // a default constructed 'bdlt::DateTime' object) unless
-        // 'utcStartTime < utcEndTime'.  (See the 'isValidUtcStartAndEndTime'
-        // method.)
+        // Use the specified 'utcStartTime' and 'utcEndTime' to set the
+        // 'utcStartTime' and 'utcEndTime' attributes of this object
+        // respectively.  The behavior is undefined unless
+        // 'utcStartTime == utcEndTime', or if 'utcStartTime' and 'utcEndTime'
+        // are comparable (i.e., neither equals a default constructed
+        // 'bdlt::DateTime' object) unless 'utcStartTime < utcEndTime'.  (See
+        // the 'isValidUtcStartAndEndTime' method.)
 
     void swap(LocalTimePeriod& other);
         // Efficiently exchange the value of this object with the value of the
@@ -316,16 +316,15 @@ class LocalTimePeriod {
 // FREE OPERATORS
 bool operator==(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'LocalTimePeriod' objects have
-    // the same value if each of their corresponding 'descriptor',
-    // 'utcStartTime', and 'utcEndTime' attributes have the same value.
+    // value, and 'false' otherwise.  Two 'LocalTimePeriod' objects have the
+    // same value if each of their corresponding 'descriptor', 'utcStartTime',
+    // and 'utcEndTime' attributes have the same value.
 
 bool operator!=(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'LocalTimePeriod' objects
-    // do not have the same value if the corresponding values of their
-    // 'descriptor', 'utcStartTime', or 'utcEndTime' attributes are not the
-    // same.
+    // same value, and 'false' otherwise.  Two 'LocalTimePeriod' objects do not
+    // have the same value if the corresponding values of their 'descriptor',
+    // 'utcStartTime', or 'utcEndTime' attributes are not the same.
 
 std::ostream& operator<<(bsl::ostream&          stream,
                          const LocalTimePeriod& localTimePeriod);
@@ -346,7 +345,7 @@ void swap(LocalTimePeriod& a, LocalTimePeriod& b);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------

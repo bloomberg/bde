@@ -1,4 +1,4 @@
-// bdlb_float.cpp                  -*-C++-*-
+// bdlb_float.cpp                                                     -*-C++-*-
 #include <bdlb_float.h>
 
 #include <bsls_ident.h>
@@ -82,22 +82,22 @@ bdlb::Float::Classification classifyImp(FloatRep_t number)
         // Zero exponent.  Number is either zero or subnormal.
         if (number & floatManMask) {
             // Zero exponent and non-zero mantissa.  Number is subnormal.
-            return bdlb::Float::BDES_SUBNORMAL;
+            return bdlb::Float::BDES_SUBNORMAL;                       // RETURN
         }
         else {
             // Zero exponent and zero mantissa.  Number is zero.
-            return bdlb::Float::BDES_ZERO;
+            return bdlb::Float::BDES_ZERO;                            // RETURN
         }
     }
     else if (floatExpMask == numberExp) {
         // Exponent is all ones: Number is either infinity or NaN
         if (number & floatManMask) {
             // Exponent is all ones and mantissa is non-zero.  Number is NaN.
-            return bdlb::Float::BDES_NAN;
+            return bdlb::Float::BDES_NAN;                             // RETURN
         }
         else {
             // Exponent is all ones and mantissa is zero.  Number is infinite.
-            return bdlb::Float::BDES_INFINITE;
+            return bdlb::Float::BDES_INFINITE;                        // RETURN
         }
     }
 
@@ -219,22 +219,22 @@ bdlb::Float::Classification classifyImp(DoubleRep_t number)
         // Zero exponent.  Number is either zero or subnormal.
         if (number & doubleManMask) {
             // Zero exponent and non-zero mantissa.  Number is subnormal.
-            return bdlb::Float::BDES_SUBNORMAL;
+            return bdlb::Float::BDES_SUBNORMAL;                       // RETURN
         }
         else {
             // Zero exponent and zero mantissa.  Number is zero.
-            return bdlb::Float::BDES_ZERO;
+            return bdlb::Float::BDES_ZERO;                            // RETURN
         }
     }
     else if (doubleExpMask == numberExp) {
         // Exponent is all ones: Number is either infinity or NaN
         if (number & doubleManMask) {
             // Exponent is all ones and mantissa is non-zero.  Number is NaN.
-            return bdlb::Float::BDES_NAN;
+            return bdlb::Float::BDES_NAN;                             // RETURN
         }
         else {
             // Exponent is all ones and mantissa is zero.  Number is infinite.
-            return bdlb::Float::BDES_INFINITE;
+            return bdlb::Float::BDES_INFINITE;                        // RETURN
         }
     }
 
@@ -323,13 +323,20 @@ bool Float::isSignalingNan(double number)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

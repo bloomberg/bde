@@ -1,4 +1,4 @@
-// balxml_typesprintutil.t.cpp                  -*-C++-*-
+// balxml_typesprintutil.t.cpp                                        -*-C++-*-
 
 #include <balxml_typesprintutil.h>
 
@@ -131,12 +131,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, TestEnum::Value rhs)
 using TestNamespace::TestEnum;
 
                  // ==========================================
-                 // bdeat_EnumFunctions Overrides for TestEnum
+                 // bdlat_EnumFunctions Overrides for TestEnum
                  // ==========================================
 
 namespace BloombergLP {
 
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
 
     template <>
     struct IsEnumeration<TestEnum::Value> : bslmf::MetaInt<1> {
@@ -168,8 +168,8 @@ namespace bdeat_EnumFunctions {
         }
     }
 
-}  // close namespace bdeat_EnumFunctions
-}  // close namespace BloombergLP
+}  // close namespace bdlat_EnumFunctions
+}  // close enterprise namespace
 
 // test_myenumeration.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYENUMERATION
@@ -229,7 +229,7 @@ struct MyEnumeration {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyEnumeration")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -263,9 +263,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 inline
 int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
@@ -276,9 +276,9 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
       case MyEnumeration::VALUE1:
       case MyEnumeration::VALUE2:
         *result = (MyEnumeration::Value)number;
-        return SUCCESS;                                         // RETURN
+        return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -289,7 +289,7 @@ bsl::ostream& MyEnumeration::print(bsl::ostream&      stream,
     return stream << toString(value);
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CLASS METHODS
 inline
@@ -297,10 +297,10 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
 {
     switch (value) {
       case VALUE1: {
-        return "VALUE1";
+        return "VALUE1";                                              // RETURN
       } break;
       case VALUE2: {
-        return "VALUE2";
+        return "VALUE2";                                              // RETURN
       } break;
       default:
         BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
@@ -309,7 +309,7 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
     return 0;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 
 // TRAITS
@@ -323,11 +323,11 @@ bsl::ostream& test::operator<<(bsl::ostream&              stream,
     return test::MyEnumeration::print(stream, rhs);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -350,7 +350,7 @@ namespace test {
 const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
     // the name of this class
 
-const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
     {
         MyEnumeration::VALUE1,
         "VALUE1",                      // name
@@ -413,10 +413,10 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -546,9 +546,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedInt& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -586,7 +586,7 @@ CustomizedInt& CustomizedInt::operator=(const CustomizedInt& rhs)
 inline
 void CustomizedInt::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -595,7 +595,7 @@ int CustomizedInt::fromInt(int value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -619,7 +619,7 @@ const int& CustomizedInt::toInt() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -648,11 +648,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -684,10 +684,10 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -832,9 +832,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -875,7 +875,7 @@ CustomizedString& CustomizedString::operator=(const CustomizedString& rhs)
 inline
 void CustomizedString::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -884,7 +884,7 @@ int CustomizedString::fromString(const bsl::string& value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -908,7 +908,7 @@ const bsl::string& CustomizedString::toString() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -937,11 +937,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -975,10 +975,10 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -987,7 +987,7 @@ bool testFloatPointResult(const char *result, const char *expected)
     int lenRes = bsl::strlen(result);
     int lenExp = bsl::strlen(expected);
     if (lenRes != lenExp) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     for (int i=0; i < lenExp; ++i) {
@@ -995,7 +995,7 @@ bool testFloatPointResult(const char *result, const char *expected)
             continue;
         }
         if (expected[i] != result[i]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1155,7 +1155,7 @@ int main(int argc, char *argv[])
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_BASE64);
+                Util::print(ss, X, bdlat_FormattingMode::e_BASE64);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_DEC);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_DEC);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1213,7 +1213,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_DEFAULT);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_DEFAULT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1247,7 +1247,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_DEFAULT);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_DEFAULT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_HEX);
+                Util::print(ss, X, bdlat_FormattingMode::e_HEX);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1327,14 +1327,14 @@ int main(int argc, char *argv[])
 
                 Type mX(INPUT, INPUT + NUM_INPUT);  const Type& X = mX;
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_LIST);
+                Util::print(ss, X, bdlat_FormattingMode::e_LIST);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
 
                 ss.str("");
 
-                Util::print(ss, X, bdeat_FormattingMode::BDEAT_LIST |
-                                   bdeat_FormattingMode::BDEAT_DEC);
+                Util::print(ss, X, bdlat_FormattingMode::e_LIST |
+                                   bdlat_FormattingMode::e_DEC);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream ss;
 
-                Util::print(ss, INPUT, bdeat_FormattingMode::BDEAT_TEXT);
+                Util::print(ss, INPUT, bdlat_FormattingMode::e_TEXT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
@@ -5134,7 +5134,7 @@ int main(int argc, char *argv[])
               bsl::stringstream ss;
 
               balxml::TypesPrintUtil::print(ss, TestEnum::VALUE2,
-                                    bdeat_FormattingMode::BDEAT_DEFAULT);
+                                    bdlat_FormattingMode::e_DEFAULT);
               LOOP_ASSERT(ss.str(), "VALUE2" == ss.str());
           }
 
@@ -5142,7 +5142,7 @@ int main(int argc, char *argv[])
               bsl::stringstream ss;
 
               balxml::TypesPrintUtil::print(ss, TestEnum::VALUE2,
-                                    bdeat_FormattingMode::BDEAT_DEC);
+                                    bdlat_FormattingMode::e_DEC);
               LOOP_ASSERT(ss.str(), "2" == ss.str());
           }
 
@@ -5187,11 +5187,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -40,9 +40,9 @@ int PublicationType::fromInt(PublicationType::Value *result,
       case PublicationType::e_BALM_RATE:
       case PublicationType::e_BALM_RATE_COUNT:
         *result = (PublicationType::Value)number;
-        return 0;
+        return 0;                                                     // RETURN
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -65,7 +65,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                          && string[7]=='G')
                         {
                             *result = PublicationType::e_BALM_AVG;
-                            return 0;
+                            return 0;                                 // RETURN
                         }
                     } break;
                     case 'M': {
@@ -74,14 +74,14 @@ int PublicationType::fromString(PublicationType::Value *result,
                                 if (string[7]=='X')
                                 {
                                     *result = PublicationType::e_BALM_MAX;
-                                    return 0;
+                                    return 0;                         // RETURN
                                 }
                             } break;
                             case 'I': {
                                 if (string[7]=='N')
                                 {
                                     *result = PublicationType::e_BALM_MIN;
-                                    return 0;
+                                    return 0;                         // RETURN
                                 }
                             } break;
                         }
@@ -101,7 +101,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[8]=='E')
             {
                 *result = PublicationType::e_BALM_RATE;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
         case 10: {
@@ -119,7 +119,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                          && string[9]=='T')
                         {
                             *result = PublicationType::e_BALM_COUNT;
-                            return 0;
+                            return 0;                                 // RETURN
                         }
                     } break;
                     case 'T': {
@@ -129,7 +129,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                          && string[9]=='L')
                         {
                             *result = PublicationType::e_BALM_TOTAL;
-                            return 0;
+                            return 0;                                 // RETURN
                         }
                     } break;
                 }
@@ -153,7 +153,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[14]=='T')
             {
                 *result = PublicationType::e_BALM_RATE_COUNT;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
         case 16: {
@@ -175,7 +175,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[15]=='D')
             {
                 *result = PublicationType::e_BALM_UNSPECIFIED;
-                return 0;
+                return 0;                                             // RETURN
             }
         } break;
     }
@@ -187,28 +187,28 @@ const char *PublicationType::toString(PublicationType::Value value)
 {
     switch (value) {
       case e_BALM_UNSPECIFIED: {
-        return "BALM_UNSPECIFIED";
+        return "BALM_UNSPECIFIED";                                    // RETURN
       } break;
       case e_BALM_TOTAL: {
-        return "BALM_TOTAL";
+        return "BALM_TOTAL";                                          // RETURN
       } break;
       case e_BALM_COUNT: {
-        return "BALM_COUNT";
+        return "BALM_COUNT";                                          // RETURN
       } break;
       case e_BALM_MIN: {
-        return "BALM_MIN";
+        return "BALM_MIN";                                            // RETURN
       } break;
       case e_BALM_MAX: {
-        return "BALM_MAX";
+        return "BALM_MAX";                                            // RETURN
       } break;
       case e_BALM_AVG: {
-        return "BALM_AVG";
+        return "BALM_AVG";                                            // RETURN
       } break;
       case e_BALM_RATE: {
-        return "BALM_RATE";
+        return "BALM_RATE";                                           // RETURN
       } break;
       case e_BALM_RATE_COUNT: {
-        return "BALM_RATE_COUNT";
+        return "BALM_RATE_COUNT";                                     // RETURN
       } break;
     }
 
@@ -217,14 +217,20 @@ const char *PublicationType::toString(PublicationType::Value value)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_3.3.x_DEV Tue Aug  4 13:07:24 2009
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

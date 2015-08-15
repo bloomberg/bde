@@ -11,7 +11,7 @@ namespace BloombergLP
 {
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

@@ -76,6 +76,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
 #endif
@@ -117,6 +121,7 @@ struct bdlat_SelectionInfo {
                                    bsl::is_trivially_default_constructible);
 
     // CREATORS
+
     // The following methods are not defined by design:
     //..
     //   bdlat_SelectionInfo();
@@ -126,6 +131,7 @@ struct bdlat_SelectionInfo {
     // The corresponding methods supplied by the compiler are sufficient.
 
     // MANIPULATORS
+
     // The following method is not defined by design:
     //..
     //   bdlat_SelectionInfo& operator=(const bdlat_SelectionInfo& rhs);
@@ -171,10 +177,14 @@ struct bdlat_SelectionInfo {
         // that the 0-terminator is not included in the length.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // FREE OPERATORS
 inline
 bool operator==(const bdlat_SelectionInfo& lhs,
-                                               const bdlat_SelectionInfo& rhs);
+                const bdlat_SelectionInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' selection info objects
     // have the same value, and 'false' otherwise.  Two selection info objects
     // have the same value if each of their respective properties are
@@ -182,7 +192,7 @@ bool operator==(const bdlat_SelectionInfo& lhs,
 
 inline
 bool operator!=(const bdlat_SelectionInfo& lhs,
-                                               const bdlat_SelectionInfo& rhs);
+                const bdlat_SelectionInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' selection info objects do
     // not have the same value, and 'false' otherwise.  Two selection info
     // objects do not have the same value if at least one of their respective
@@ -192,10 +202,6 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
                          const bdlat_SelectionInfo& selectionInfo);
     // Write the value of the specified 'selectionInfo' to the specified
     // 'stream'.
-
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
 
 // MANIPULATORS
 
@@ -284,10 +290,17 @@ bool operator!=(const bdlat_SelectionInfo& lhs, const bdlat_SelectionInfo& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

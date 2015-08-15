@@ -1,4 +1,4 @@
-// bdlmxxx_schemautil.cpp                                                -*-C++-*-
+// bdlmxxx_schemautil.cpp                                             -*-C++-*-
 #include <bdlmxxx_schemautil.h>
 
 #include <bsls_ident.h>
@@ -920,13 +920,13 @@ bool SchemaUtil::isSymbolicSuperset(const RecordDef& super,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

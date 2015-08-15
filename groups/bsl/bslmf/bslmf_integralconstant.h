@@ -151,8 +151,8 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 template <int> struct MetaInt;
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -224,9 +224,9 @@ typedef integral_constant<bool, true> true_type;
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // STATIC MEMBER VARIABLES
 template <class TYPE, TYPE VAL>

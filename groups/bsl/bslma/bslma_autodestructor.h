@@ -460,9 +460,9 @@ int AutoDestructor<TYPE>::length() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_AutoDestructor
 #undef bslma_AutoDestructor

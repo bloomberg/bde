@@ -381,6 +381,7 @@ Date DateUtil::addYearsNoEom(const Date& original, int numYears)
                     SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28);
 #else
                     DelegatingDateImpUtil::isLeapYear(newYear) ? 29 : 28);
+                                                                      // RETURN
 #endif
                                                                       // RETURN
     }

@@ -158,7 +158,7 @@ struct is_trivially_default_constructible<
                                      UserDefinedTdcTestType> : bsl::true_type {
 };
 
-} // close namespace bsl
+}  // close namespace bsl
 
 //=============================================================================
 //                              MAIN PROGRAM

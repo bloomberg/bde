@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class ManagedAllocator;
-    }
+    }  // close namespace bslma
 
     typedef bslma::ManagedAllocator bslma_ManagedAllocator;
-}
+}  // close enterprise namespace
 
 #else
 

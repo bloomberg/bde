@@ -1,4 +1,4 @@
-// bdlmxxx_list.t.cpp                                                    -*-C++-*-
+// bdlmxxx_list.t.cpp                                                 -*-C++-*-
 
 #include <bdlmxxx_list.h>
 
@@ -461,9 +461,9 @@ using namespace bsl;  // automatically added by script
 // [25] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -475,7 +475,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { P(I); aSsErT(1, #X, __LINE__); } }
 
@@ -740,7 +740,7 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream, const Table& rhs)
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1137,7 +1137,7 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
                         // ==============
                         // loadReferenceA
@@ -1341,7 +1341,7 @@ void makeElemRefUnset(bdlmxxx::ElemRef elemRef)
     desc->makeUnset(elemRef.data());
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool isAnySet(const TYPE& object)
     // Return 'true' if any element in the specified 'object' is "set", that is
     // it does not have the "unset" value, and 'false' otherwise.
@@ -1350,7 +1350,7 @@ bool isAnySet(const TYPE& object)
     for (int i = 0; i < len; ++i) {
         const bdlmxxx::ConstElemRef& elemRef = object[i];
         if (!elemRef.descriptor()->isUnset(elemRef.data())) {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;
@@ -11955,11 +11955,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

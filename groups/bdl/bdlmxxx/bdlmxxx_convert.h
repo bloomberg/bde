@@ -1,4 +1,4 @@
-// bdlmxxx_convert.h                                                     -*-C++-*-
+// bdlmxxx_convert.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_CONVERT
 #define INCLUDED_BDLMXXX_CONVERT
 
@@ -265,32 +265,32 @@ class Table;
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlmxxx {
                      // =======================================
@@ -331,7 +331,7 @@ operator<<(Convert_IsOstreamableImp::NonStream&,
                      // local struct Convert_IsOstreamable
                      // =======================================
 
-template <typename TESTTYPE>
+template <class TESTTYPE>
 struct Convert_IsOstreamable {
     // Meta-function to determine if a value, 'x', of parameterized 'TESTTYPE'
     // can be printed using the expression 'bsl::ostream << x'.  The
@@ -384,27 +384,27 @@ struct Convert {
 
     // Predicates, in priority order.
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     struct IsToElemRef : FalseType {
     };
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     struct IsFloatingToIntegral : FalseType {
     };
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     struct IsBdetNonTzToBdetTz : FalseType {
     };
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     struct IsFromString : FalseType {
     };
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     struct IsFromElemRef : FalseType {
     };
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     struct IsPrintableToString : FalseType {
     };
 
@@ -428,13 +428,13 @@ struct Convert {
     typedef bslmf::MetaInt<BDEM_FROM_ELEMREF>        AnyFromElemRef;
     typedef bslmf::MetaInt<BDEM_TO_STRING>           StringFromOstreamable;
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     struct ConversionCategory;
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     friend struct ConversionCategory;
 
     // PRIVATE CLASS METHODS
-    template <typename TESTTYPE>
+    template <class TESTTYPE>
     static bool isUnset(const TESTTYPE& value, const TrueType&);
         // Return 'true' if the specified 'value' of parameterized 'TESTTYPE'
         // is unset as defined by:
@@ -449,7 +449,7 @@ struct Convert {
         // Return 'false'.  Note that 'bool' and 'char' values are never
         // considered to be unset, contrary to 'bdltuxxx_unset'.
 
-    template <typename TESTTYPE>
+    template <class TESTTYPE>
     static bool isUnset(const TESTTYPE& value, const FalseType&);
         // Return 'false' indicating that parameterized 'TESTTYPE' does not
         // have an unset value as defined by:
@@ -457,7 +457,7 @@ struct Convert {
         //  bdltuxxx::Unset<TESTTYPE>::isUnset(value)
         //..
 
-    template <typename TESTTYPE>
+    template <class TESTTYPE>
     static void setUnset(TESTTYPE *value, const TrueType&);
         // Set the specified '*value' of parameterized 'TESTTYPE' to its unset
         // value as defined by:
@@ -465,7 +465,7 @@ struct Convert {
         //  bdltuxxx::Unset<TESTTYPE>::isUnset(value)
         //..
 
-    template <typename TESTTYPE>
+    template <class TESTTYPE>
     static void setUnset(TESTTYPE *value, const FalseType&);
         // This method has no effect.
 
@@ -495,7 +495,7 @@ struct Convert {
         // Note that this version of 'fromString' is called for any type that
         // is not convertible from a string.
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     static int doConvert(DSTTYPE        *dstAddr,
                          const SRCTYPE&  srcValue,
                          const NoConversion&);
@@ -503,7 +503,7 @@ struct Convert {
         // parameterized 'SRCTYPE' to parameterized 'DSTTYPE' with no effect on
         // the specified '*dstAddr'.
 
-    template <typename SRCTYPE>
+    template <class SRCTYPE>
     static int doConvert(bsl::string    *dstAddr,
                          const SRCTYPE&  srcValue,
                          const StringFromOstreamable&);
@@ -514,11 +514,11 @@ struct Convert {
         // otherwise.  Note that non-zero is returned if 'SRCTYPE' does not
         // satisfy the requirements of 'bdlb::PrintMethods::print'.
 
-    template <typename DSTTYPE>
+    template <class DSTTYPE>
     static int doConvert(DSTTYPE            *dstAddr,
                          const bsl::string&  srcValue,
                          const AnyFromString&);
-    template <typename DSTTYPE>
+    template <class DSTTYPE>
     static int doConvert(DSTTYPE            *dstAddr,
                          const char         *srcValue,
                          const AnyFromString&);
@@ -529,7 +529,7 @@ struct Convert {
         // success, and a non-zero value with no effect on '*dstAddr'
         // otherwise.  Note that initial white-space in 'srcValue' is skipped.
 
-    template <typename DSTTYPE>
+    template <class DSTTYPE>
     static int doConvert(DSTTYPE                  *dstAddr,
                          const ConstElemRef&  srcValue,
                          const AnyFromElemRef&);
@@ -538,7 +538,7 @@ struct Convert {
         // the specified '*dstAddr'.  Return 0 on success, and a non-zero value
         // otherwise.
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     static int doConvert(DSTTYPE        *dstAddr,
                          const SRCTYPE&  srcValue,
                          const IsConvertible&);
@@ -547,7 +547,7 @@ struct Convert {
         // the specified '*dstAddr'.  Return 0 on success, and a non-zero value
         // otherwise.
 
-    template <typename INTEGRALTYPE, typename FLOATINGTYPE>
+    template <class INTEGRALTYPE, class FLOATINGTYPE>
     static int doConvert(INTEGRALTYPE *dstAddr,
                          FLOATINGTYPE  srcValue,
                          const IntegralFromFloating&);
@@ -556,7 +556,7 @@ struct Convert {
         // value into the specified '*dstAddr', and return 0 (to indicate
         // success).
 
-    template <typename BDETNONTZTYPE, typename BDETTZTYPE>
+    template <class BDETNONTZTYPE, class BDETTZTYPE>
     static int doConvert(BDETTZTYPE           *dstAddr,
                          const BDETNONTZTYPE&  srcValue,
                          const BdetTzFromBdetNonTz&);
@@ -566,11 +566,11 @@ struct Convert {
         // that the timezone offset of '*dstAddr' following a call to this
         // method will be 0.
 
-    template <typename SRCTYPE>
+    template <class SRCTYPE>
     static int doConvert(ElemRef      *dstAddr,
                          const SRCTYPE&     srcValue,
                          const ElemRefFromAny&);
-    template <typename SRCTYPE>
+    template <class SRCTYPE>
     static int doConvert(ConstElemRef *dstAddr,
                          const SRCTYPE&     srcValue,
                          const ElemRefFromAny&);
@@ -579,7 +579,7 @@ struct Convert {
         // specified '*dstAddr, and load the resulting value into '*dstAddr'.
         // Return 0 on success, and a non-zero value otherwise.
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     static int constConvert(DSTTYPE *dstAddr, SRCTYPE& srcValue);
         // Convert the specified 'srcValue' of parameterized 'SRCTYPE' to a
         // value of parameterized 'DSTTYPE', and load the resulting value into
@@ -625,7 +625,7 @@ struct Convert {
         // 'dstAddr' is of 'dstType' and 'SRCARRAYSIZE > 0'.
 #endif
 
-    template <typename SRCTYPE>
+    template <class SRCTYPE>
     static int doToBdemType(void                *dstAddr,
                             ElemType::Type  dstType,
                             SRCTYPE&             srcValue);
@@ -637,7 +637,7 @@ struct Convert {
 
   public:
     // CLASS METHODS
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     static int convert(DSTTYPE *dstAddr, const SRCTYPE& srcValue);
 #ifdef BSLS_PLATFORM_CMP_SUN
     template <typename SRCTYPE, typename DSTTYPE>
@@ -652,7 +652,7 @@ struct Convert {
        // 'bsl::string' from a type that cannot be printed to an 'ostream'
        // (via 'operator<<' or 'bdlb::PrintMethods::print()').
 
-    template <typename SRCTYPE, typename DSTTYPE>
+    template <class SRCTYPE, class DSTTYPE>
     static int convert(const DSTTYPE            *dstAddr,
                        const SRCTYPE&            srcValue);
     static int convert(ConstElemRef        *dstAddr,
@@ -759,7 +759,7 @@ struct Convert {
 
 #ifndef BSLS_PLATFORM_CMP_SUN
 
-    template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE, typename DSTTYPE>
+    template <class SRCTYPE, bsl::size_t SRCARRAYSIZE, class DSTTYPE>
     static int convert(DSTTYPE *dstAddr, SRCTYPE (&srcValue)[SRCARRAYSIZE])
         // Convert the first element of the specified 'srcValue' array, whose
         // elements are of parameterized 'SRCTYPE', to a value of parameterized
@@ -771,7 +771,7 @@ struct Convert {
     {
         return Convert::convert(dstAddr, &srcValue[0]);
     }
-    template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE, typename DSTTYPE>
+    template <class SRCTYPE, bsl::size_t SRCARRAYSIZE, class DSTTYPE>
     static int convert(DSTTYPE       *dstAddr,
                        const SRCTYPE  (&srcValue)[SRCARRAYSIZE])
         // Convert the first element of the specified 'srcValue' array, whose
@@ -789,7 +789,7 @@ struct Convert {
 
     // *** 'bdem' type of destination is indicated explicitly ***
 
-    template <typename SRCTYPE>
+    template <class SRCTYPE>
     static int toBdemType(void                *dstAddr,
                           ElemType::Type  dstType,
                           const SRCTYPE&       srcValue);
@@ -801,7 +801,7 @@ struct Convert {
 
 #ifndef BSLS_PLATFORM_CMP_SUN
 
-    template <typename SRCTYPE, bsl::size_t SRCARRAYSIZE>
+    template <class SRCTYPE, bsl::size_t SRCARRAYSIZE>
     static int toBdemType(void                *dstAddr,
                           ElemType::Type  dstType,
                           const SRCTYPE        (&srcValue)[SRCARRAYSIZE])
@@ -831,7 +831,7 @@ struct Convert {
         // otherwise.  The behavior is undefined unless the type of the 'bdem'
         // element at 'dstAddr' is of 'dstType'.
 
-    template <typename SRCTYPE>
+    template <class SRCTYPE>
     static int toBdemType(const void          *dstAddr,
                           ElemType::Type  dstType,
                           const SRCTYPE&       srcValue);
@@ -841,7 +841,7 @@ struct Convert {
 
     // *** 'bdem' type of source is indicated explicitly ***
 
-    template <typename DSTTYPE>
+    template <class DSTTYPE>
     static int fromBdemType(DSTTYPE             *dstAddr,
                             const void          *srcAddr,
                             ElemType::Type  srcType);
@@ -861,7 +861,7 @@ struct Convert {
         // otherwise.  The behavior is undefined unless the type of the 'bdem'
         // element at 'srcAddr' is of 'srcType'.
 
-    template <typename DSTTYPE>
+    template <class DSTTYPE>
     static int fromBdemType(const DSTTYPE       *dstAddr,
                             const void          *srcAddr,
                             ElemType::Type  srcType);
@@ -895,85 +895,85 @@ struct Convert {
         // conversion to 'const' always fails.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                             // -------------------
                             // struct Convert
                             // -------------------
 
-template <typename SRCTYPE>
+template <class SRCTYPE>
 struct Convert::IsToElemRef<SRCTYPE, ElemRef>
                 : Convert::TrueType {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFloatingToIntegral<float, DSTTYPE>
                 : bslmf::IsConvertible<DSTTYPE, int> {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFloatingToIntegral<double, DSTTYPE>
                 : bslmf::IsConvertible<DSTTYPE, int> {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFloatingToIntegral<long double, DSTTYPE>
                 : bslmf::IsConvertible<DSTTYPE, int> {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsBdetNonTzToBdetTz<bdlt::Date, DSTTYPE>
                 : bslmf::IsSame<DSTTYPE, bdlt::DateTz> {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsBdetNonTzToBdetTz<bdlt::Time, DSTTYPE>
                 : bslmf::IsSame<DSTTYPE, bdlt::TimeTz> {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsBdetNonTzToBdetTz<bdlt::Datetime, DSTTYPE>
                 : bslmf::IsSame<DSTTYPE, bdlt::DatetimeTz> {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFromString<bsl::string, DSTTYPE>
                 : Convert::TrueType {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFromString<const char*, DSTTYPE>
                 : Convert::TrueType {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFromString<char*, DSTTYPE>
                 : Convert::TrueType {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFromElemRef<ElemRef, DSTTYPE>
                 : Convert::TrueType {
 };
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 struct Convert::IsFromElemRef<ConstElemRef, DSTTYPE>
                 : Convert::TrueType {
 };
 
-template <typename SRCTYPE>
+template <class SRCTYPE>
 struct Convert::IsPrintableToString<SRCTYPE, bsl::string>
                 : Convert_IsOstreamable<SRCTYPE> {
 };
 
-template <typename VECTOR_ITEM>
+template <class VECTOR_ITEM>
 struct Convert::IsPrintableToString<bsl::vector<VECTOR_ITEM>, bsl::string>
                 : Convert::IsPrintableToString<VECTOR_ITEM, bsl::string> {
 };
 
-template <typename SRCTYPE, typename DSTTYPE>
+template <class SRCTYPE, class DSTTYPE>
 struct Convert::ConversionCategory {
     enum {
         VALUE =
@@ -992,7 +992,7 @@ struct Convert::ConversionCategory {
 };
 
 // PRIVATE CLASS METHODS
-template <typename TESTTYPE>
+template <class TESTTYPE>
 inline
 bool Convert::isUnset(const TESTTYPE& value, const TrueType&)
 {
@@ -1011,14 +1011,14 @@ bool Convert::isUnset(const char&, const TrueType&)
     return false;  // 'char' is never considered to be unset.
 }
 
-template <typename TESTTYPE>
+template <class TESTTYPE>
 inline
 bool Convert::isUnset(const TESTTYPE&, const FalseType&)
 {
     return false;
 }
 
-template <typename TESTTYPE>
+template <class TESTTYPE>
 inline
 void Convert::setUnset(TESTTYPE *value, const TrueType&)
 {
@@ -1027,7 +1027,7 @@ void Convert::setUnset(TESTTYPE *value, const TrueType&)
     bdltuxxx::Unset<TESTTYPE>::makeUnset(value);
 }
 
-template <typename TESTTYPE>
+template <class TESTTYPE>
 inline
 void Convert::setUnset(TESTTYPE *, const FalseType&)
 {
@@ -1039,14 +1039,14 @@ int Convert::fromString(void *, const char *)
     return -1;
 }
 
-template <typename SRCTYPE, typename DSTTYPE>
+template <class SRCTYPE, class DSTTYPE>
 inline
 int Convert::doConvert(DSTTYPE *, const SRCTYPE&, const NoConversion&)
 {
     return -1;
 }
 
-template <typename SRCTYPE>
+template <class SRCTYPE>
 int Convert::doConvert(bsl::string    *dstAddr,
                             const SRCTYPE&  srcValue,
                             const StringFromOstreamable&)
@@ -1060,7 +1060,7 @@ int Convert::doConvert(bsl::string    *dstAddr,
     return 0;
 }
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 inline
 int Convert::doConvert(DSTTYPE            *dstAddr,
                             const bsl::string&  srcValue,
@@ -1071,7 +1071,7 @@ int Convert::doConvert(DSTTYPE            *dstAddr,
     return Convert::fromString(dstAddr, srcValue.c_str());
 }
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 inline
 int Convert::doConvert(DSTTYPE    *dstAddr,
                             const char *srcValue,
@@ -1082,7 +1082,7 @@ int Convert::doConvert(DSTTYPE    *dstAddr,
     return Convert::fromString(dstAddr, srcValue);
 }
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 inline
 int Convert::doConvert(DSTTYPE                  *dstAddr,
                             const ConstElemRef&  srcValue,
@@ -1094,7 +1094,7 @@ int Convert::doConvert(DSTTYPE                  *dstAddr,
                                       srcValue.data(), srcValue.type());
 }
 
-template <typename SRCTYPE, typename DSTTYPE>
+template <class SRCTYPE, class DSTTYPE>
 inline
 int Convert::doConvert(DSTTYPE        *dstAddr,
                             const SRCTYPE&  srcValue,
@@ -1108,7 +1108,7 @@ int Convert::doConvert(DSTTYPE        *dstAddr,
     return 0;
 }
 
-template <typename INTEGRALTYPE, typename FLOATINGTYPE>
+template <class INTEGRALTYPE, class FLOATINGTYPE>
 inline
 int Convert::doConvert(INTEGRALTYPE *dstAddr,
                             FLOATINGTYPE  srcValue,
@@ -1121,7 +1121,7 @@ int Convert::doConvert(INTEGRALTYPE *dstAddr,
     return 0;
 }
 
-template <typename BDETNONTZTYPE, typename BDETTZTYPE>
+template <class BDETNONTZTYPE, class BDETTZTYPE>
 inline
 int Convert::doConvert(BDETTZTYPE           *dstAddr,
                             const BDETNONTZTYPE&  srcValue,
@@ -1132,7 +1132,7 @@ int Convert::doConvert(BDETTZTYPE           *dstAddr,
     return Convert::convert(dstAddr, srcValue);
 }
 
-template <typename SRCTYPE>
+template <class SRCTYPE>
 int Convert::doConvert(ElemRef   *dstAddr,
                             const SRCTYPE&  srcValue,
                             const ElemRefFromAny&)
@@ -1267,7 +1267,7 @@ int Convert::doConvert(ElemRef   *dstAddr,
     return rc;
 }
 
-template <typename SRCTYPE>
+template <class SRCTYPE>
 inline
 int Convert::doConvert(ConstElemRef *,
                             const SRCTYPE&     ,
@@ -1324,7 +1324,7 @@ int Convert::nonconstConvert(DSTTYPE *dstAddr,
 namespace bdlmxxx {
 // CLASS METHODS
 
-template <typename SRCTYPE, typename DSTTYPE>
+template <class SRCTYPE, class DSTTYPE>
 int Convert::constConvert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
 {
     BSLS_ASSERT_SAFE(dstAddr);
@@ -1358,7 +1358,7 @@ int Convert::constConvert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
     return 0;
 }
 
-template <typename SRCTYPE, typename DSTTYPE>
+template <class SRCTYPE, class DSTTYPE>
 inline
 int Convert::convert(DSTTYPE *dstAddr, const SRCTYPE& srcValue)
 {
@@ -1384,7 +1384,7 @@ int Convert::convert(DSTTYPE *dstAddr, SRCTYPE& srcValue)
 #endif
 
 namespace bdlmxxx {
-template <typename SRCTYPE, typename DSTTYPE>
+template <class SRCTYPE, class DSTTYPE>
 inline
 int Convert::convert(const DSTTYPE *, const SRCTYPE&)
 {
@@ -1419,7 +1419,7 @@ int Convert::convert(bsl::string *dstAddr, bool srcValue)
     return Convert::convert(dstAddr, int(srcValue));
 }
 
-template <typename SRCTYPE>
+template <class SRCTYPE>
 int Convert::doToBdemType(void                *dstAddr,
                                ElemType::Type  dstType,
                                SRCTYPE&             srcValue)
@@ -1572,7 +1572,7 @@ int Convert::doToBdemType(void                *dstAddr,
 #endif
 
 namespace bdlmxxx {
-template <typename SRCTYPE>
+template <class SRCTYPE>
 inline
 int Convert::toBdemType(void                *dstAddr,
                              ElemType::Type  dstType,
@@ -1594,14 +1594,14 @@ int Convert::toBdemType(void                     *dstAddr,
                                           srcValue.data(), srcValue.type());
 }
 
-template <typename SRCTYPE>
+template <class SRCTYPE>
 inline
 int Convert::toBdemType(const void *, ElemType::Type, const SRCTYPE&)
 {
     return -1;  // destination is 'const'-qualified
 }
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 int Convert::fromBdemType(DSTTYPE             *dstAddr,
                                const void          *srcAddr,
                                ElemType::Type  srcType)
@@ -1748,7 +1748,7 @@ int Convert::fromBdemType(DSTTYPE             *dstAddr,
     return result;
 }
 
-template <typename DSTTYPE>
+template <class DSTTYPE>
 inline
 int Convert::fromBdemType(const DSTTYPE       *,
                                const void          *,
@@ -1775,15 +1775,15 @@ int Convert::convertBdemTypes(const void          *,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

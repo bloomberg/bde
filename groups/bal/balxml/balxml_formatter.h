@@ -1,4 +1,4 @@
-// balxml_formatter.h                  -*-C++-*-
+// balxml_formatter.h                                                 -*-C++-*-
 #ifndef INCLUDED_BALXML_FORMATTER
 #define INCLUDED_BALXML_FORMATTER
 
@@ -241,17 +241,17 @@ namespace BloombergLP {
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace balxml {
                         // ======================
@@ -425,7 +425,7 @@ class Formatter {
         // Destroy this object.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     void addAttribute(const bslstl::StringRef& name,
                       const TYPE&            value,
                       int                    formattingMode = 0);
@@ -459,10 +459,10 @@ class Formatter {
         // comments continue on current line.  If an element-opening tag is
         // not completed with a '>', 'addComment' will add '>'.
 
-    template <typename TYPE>
+    template <class TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
 
-    template <typename TYPE>
+    template <class TYPE>
     void addListData(const TYPE& value, int formattingMode = 0);
         // Add the 'value' as the data content, where 'value' can be of the
         // following types: 'char', 'short', 'int', 'bsls::Types::Int64',
@@ -486,7 +486,7 @@ class Formatter {
         // type 'char', it is cast to a signed byte value with a range of
         // '[ -128 .. 127 ]'.
 
-    template <typename TYPE>
+    template <class TYPE>
     void addElementAndData(const bslstl::StringRef& name,
                            const TYPE&            value,
                            int                    formattingMode = 0);
@@ -559,9 +559,9 @@ class Formatter {
 };
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -----------------------------------
                         // class balxml::Formatter::ElemContext
@@ -619,7 +619,7 @@ Formatter::~Formatter()
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 void Formatter::addAttribute(const bslstl::StringRef& name,
                                     const TYPE&            value,
                                     int                    formattingMode)
@@ -652,7 +652,7 @@ void Formatter::addAttribute(const bslstl::StringRef& name,
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 void Formatter::addData(const TYPE& value, int formattingMode)
 {
     closeTagIfOpen();
@@ -684,7 +684,7 @@ void Formatter::addData(const TYPE& value, int formattingMode)
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 void Formatter::addListData(const TYPE& value, int formattingMode)
 {
     closeTagIfOpen();
@@ -719,7 +719,7 @@ void Formatter::addListData(const TYPE& value, int formattingMode)
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void Formatter::addElementAndData(const bslstl::StringRef& name,
                                          const TYPE&            value,
@@ -796,15 +796,22 @@ int Formatter::wrapColumn() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

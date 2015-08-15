@@ -2,10 +2,13 @@
 
 #include <bdlat_arrayfunctions.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlat_typetraits.h>
 
 #include <bslalg_typetraits.h>
 
+#include <bslmf_if.h>
 #include <bslmf_issame.h>             // for testing only
 
 #include <bsl_cstdlib.h>
@@ -30,67 +33,55 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_ArrayFunctions;
+namespace Obj = bdlat_ArrayFunctions;
 
 //=============================================================================
 //                           CLASSES FOR TESTING
@@ -114,11 +105,11 @@ class GetValue {
 
     // ACCESSORS
     int operator()(const LVALUE_TYPE& object) const;
-        // Assign 'object' to '*d_destination_p'.
+        // Assign the specified 'object' to '*d_destination_p'.
 
     template <class RVALUE_TYPE>
     int operator()(const RVALUE_TYPE& object) const;
-        // Do nothing.
+        // Do nothing with the specified 'object'.
 };
 
                        // ==============================
@@ -138,11 +129,11 @@ class AssignValue {
 
     // ACCESSORS
     int operator()(RVALUE_TYPE *object) const;
-        // Assign 'd_value' to '*object'.
+        // Assign 'd_value' to the specified '*object'.
 
     template <class LVALUE_TYPE>
     int operator()(LVALUE_TYPE *object) const;
-        // Do nothing.
+        // Do nothing with the specified 'object'.
 };
 
                        // ================
@@ -154,7 +145,7 @@ namespace Test {
 template <int SIZE, class TYPE>
 class FixedArray
 {
-    // Fixed-sized array that conforms to the 'bdeat_ArrayFunctions'
+    // Fixed-sized array that conforms to the 'bdlat_ArrayFunctions'
     // interface.
 
     TYPE d_values[SIZE];
@@ -164,9 +155,9 @@ class FixedArray
     FixedArray();
 
     // Compiler-generated functions:
-    // FixedArray(const FixedArray&);
-    // FixedArray& operator=(const FixedArray&);
-    // ~FixedArray();
+    //  FixedArray(const FixedArray&);
+    //  FixedArray& operator=(const FixedArray&);
+    //  ~FixedArray();
 
     // MANIPULATORS
     void append(const TYPE& v);
@@ -185,27 +176,27 @@ class FixedArray
 
 // FREE MANIPULATORS
 template <int SIZE, class TYPE, class MANIPULATOR>
-int bdeat_arrayManipulateElement(FixedArray<SIZE, TYPE> *array,
+int bdlat_arrayManipulateElement(FixedArray<SIZE, TYPE> *array,
                                  MANIPULATOR&            manipulator,
                                  int                     index);
 
 template <int SIZE, class TYPE>
-void bdeat_arrayResize(FixedArray<SIZE, TYPE> *array, int newSize);
+void bdlat_arrayResize(FixedArray<SIZE, TYPE> *array, int newSize);
 
 // FREE ACCESSORS
 template <int SIZE, class TYPE, class ACCESSOR>
-int bdeat_arrayAccessElement(const FixedArray<SIZE, TYPE>& array,
+int bdlat_arrayAccessElement(const FixedArray<SIZE, TYPE>& array,
                              ACCESSOR&                     accessor,
                              int                           index);
 
 template <int SIZE, class TYPE>
-bsl::size_t bdeat_arraySize(const FixedArray<SIZE, TYPE>& array);
+bsl::size_t bdlat_arraySize(const FixedArray<SIZE, TYPE>& array);
     // Return the number of elements in the specified 'array'.
 
 }  // close namespace Test
 
 namespace BloombergLP {
-namespace bdeat_ArrayFunctions {
+namespace bdlat_ArrayFunctions {
     // META FUNCTIONS
     template <int SIZE, class TYPE>
     struct ElementType<Test::FixedArray<SIZE, TYPE> > {
@@ -215,7 +206,7 @@ namespace bdeat_ArrayFunctions {
     template <int SIZE, class TYPE>
     struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
     };
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace bdlat_ArrayFunctions
 }  // close enterprise namespace
 
 
@@ -331,7 +322,7 @@ int Test::FixedArray<SIZE, TYPE>::accessElement(ACCESSOR& acc, int index) const
 
 // FREE MANIPULATORS
 template <int SIZE, class TYPE, class MANIPULATOR>
-int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
+int Test::bdlat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
                                        MANIPULATOR&                  manip,
                                        int                           index)
 {
@@ -339,14 +330,14 @@ int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
 }
 
 template <int SIZE, class TYPE>
-void Test::bdeat_arrayResize(Test::FixedArray<SIZE, TYPE> *array, int newSize)
+void Test::bdlat_arrayResize(Test::FixedArray<SIZE, TYPE> *array, int newSize)
 {
     array->resize(newSize);
 }
 
 // FREE ACCESSORS
 template <int SIZE, class TYPE, class ACCESSOR>
-int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
+int Test::bdlat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
                                    ACCESSOR&                           acc,
                                    int                                 index)
 {
@@ -354,7 +345,7 @@ int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
 }
 
 template <int SIZE, class TYPE>
-bsl::size_t Test::bdeat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
+bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 {
     return array.length();
 }
@@ -368,13 +359,8 @@ bsl::size_t Test::bdeat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 // each element in the array.  We will use a stateful function object for this
 // example.  First, define a 'PrintValue' function class:
 //..
-#include <bdlat_arrayfunctions.h>
-#include <bslmf_if.h>
 
-#include <bsl_iostream.h>
-#include <bsl_vector.h>
-
-namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE {
+namespace BDLAT_ARRAYFUNCTIONS_USAGE_EXAMPLE {
 //..
 // The entire 'PrintValue' function class is provided below, uninterrupted, for
 // clarity:
@@ -407,10 +393,10 @@ class PrintValue {
     {
         enum { SUCCESS = 0, FAILURE = -1 };
 
-        int numElements = bdeat_ArrayFunctions::size(value);
+        int numElements = bdlat_ArrayFunctions::size(value);
 
         for (int index = 0; index < numElements; ++index) {
-            if (0 != bdeat_ArrayFunctions::accessElement(value,
+            if (0 != bdlat_ArrayFunctions::accessElement(value,
                                                          *this,
                                                          index)) {
                 return FAILURE;                                       // RETURN
@@ -432,7 +418,7 @@ class PrintValue {
     int operator()(const TYPE& value)
     {
         typedef typename
-        bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+        bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
                  IsArrayType,
                  IsNotArrayType>::Type Toggle;
 
@@ -441,7 +427,7 @@ class PrintValue {
 };  // end 'class PrintValue'
 //..
 // The 'PrintValue' function class can be used for types that expose "array"
-// behavior through the 'bdeat_ArrayFunctions' 'namespace' (e.g.,
+// behavior through the 'bdlat_ArrayFunctions' 'namespace' (e.g.,
 // 'bsl::vector') and any other type that has 'operator<<' defined for it.  For
 // example:
 //..
@@ -461,7 +447,7 @@ void usageExample(int verbose)
     printValue(intArray);  // expected output: '345 456 567 '
 }
 //..
-}  // close namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE
+}  // close namespace BDLAT_ARRAYFUNCTIONS_USAGE_EXAMPLE
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -471,8 +457,8 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+//  int veryVerbose = argc > 3;
+//  int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -489,7 +475,7 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         {
-          using namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE;
+          using namespace BDLAT_ARRAYFUNCTIONS_USAGE_EXAMPLE;
           usageExample(verbose);
         }
 
@@ -510,16 +496,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting meta-functions"
                           << "\n======================" << endl;
 
-        ASSERT(0 == bdeat_ArrayFunctions::IsArray<int>::VALUE);
+        ASSERT(0 == bdlat_ArrayFunctions::IsArray<int>::VALUE);
 
         typedef
             Obj::ElementType<Test::FixedArray<9, short> >::Type FAElementType;
         ASSERT(1 ==
-           (bdeat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::VALUE));
+           (bdlat_ArrayFunctions::IsArray<Test::FixedArray<3, char> >::VALUE));
         ASSERT(1 == (bslmf::IsSame<FAElementType, short>::VALUE));
 
         typedef Obj::ElementType<bsl::vector<int> >::Type VecElementType;
-        ASSERT(1 == bdeat_ArrayFunctions::IsArray<bsl::vector<int> >::VALUE);
+        ASSERT(1 == bdlat_ArrayFunctions::IsArray<bsl::vector<int> >::VALUE);
         ASSERT(1 == (bslmf::IsSame<VecElementType, int>::VALUE));
 
       } break;
@@ -634,10 +620,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

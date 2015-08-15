@@ -1,4 +1,4 @@
-// bdlmxxx_choiceimp.h                                                   -*-C++-*-
+// bdlmxxx_choiceimp.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_CHOICEIMP
 #define INCLUDED_BDLMXXX_CHOICEIMP
 
@@ -612,9 +612,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ChoiceImp& rhs);
     // in some reasonable (human-readable) format and return a modifiable
     // reference to 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------
                         // class ChoiceImp
@@ -860,15 +860,15 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream, const ChoiceImp& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -65,7 +65,7 @@ namespace bsl {
     using native_std::seed_seq;
     using native_std::generate_canonical;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

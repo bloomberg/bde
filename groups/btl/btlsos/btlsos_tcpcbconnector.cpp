@@ -30,9 +30,9 @@ BSLS_IDENT_RCSID(btlsos_tcpcbconnector_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_vector.h>
 
-// ===========================================================================
-// IMPLEMENTATION DETAILS
-// ---------------------------------------------------------------------------
+// ============================================================================
+//                          IMPLEMENTATION DETAILS
+// ----------------------------------------------------------------------------
 // 1.  Internally, this connector holds a queue of callbacks for allocation
 // requests.  The queue contains both timed and non-timed callbacks along with
 // any supporting data for a request, such as the timeout value, if any, and
@@ -49,7 +49,7 @@ BSLS_IDENT_RCSID(btlsos_tcpcbconnector_cpp,"$Id$ $CSID$")
 // An allocate method can set the value of 'd_isRegisteredFlag' to 1, but not
 // to 0 (i.e., it cannot deregister the accept callback).
 //
-// ===========================================================================
+// ============================================================================
 
 namespace BloombergLP {
 
@@ -109,11 +109,11 @@ private:
 public:
     // CREATORS
     TcpCbConnector_Reg(
-            const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor
-          , int flags);
+              const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor ,
+              int                                                     flags);
     TcpCbConnector_Reg(
-           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
-         , int flags);
+         const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor ,
+         int                                                          flags);
 
     ~TcpCbConnector_Reg();
 
@@ -193,7 +193,7 @@ void TcpCbConnector_Reg::invoke(btlsc::CbChannel *channel, int status)
 
 inline
 void TcpCbConnector_Reg::invokeTimed(btlsc::TimedCbChannel *channel,
-                                            int                   status)
+                                     int                    status)
 {
     bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
         (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *)
@@ -241,15 +241,14 @@ TcpCbConnector_Reg::timedCallback() const
 // PRIVATE MANIPULATORS
 
 template <class CALLBACK_TYPE, class CHANNEL>
-int TcpCbConnector::initiateConnection(
-                                            const CALLBACK_TYPE& callback,
-                                            int                  flags,
-                                            int                  createRequest)
+int TcpCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
+                                       int                  flags,
+                                       int                  createRequest)
 {
     d_connectingSocket_p = d_factory_p->allocate();
     if (NULL == d_connectingSocket_p) {
         callback(NULL, e_UNINITIALIZED);
-        return e_UNINITIALIZED;
+        return e_UNINITIALIZED;                                       // RETURN
     }
 
     if (0 != d_connectingSocket_p->
@@ -258,7 +257,7 @@ int TcpCbConnector::initiateConnection(
         d_factory_p->deallocate(d_connectingSocket_p);
         d_connectingSocket_p = NULL;
         callback(NULL, -2);
-        return 1;
+        return 1;                                                     // RETURN
     }
     int s = d_connectingSocket_p->connect(d_peerAddress);
 
@@ -281,7 +280,7 @@ int TcpCbConnector::initiateConnection(
             d_callbackPool.deleteObjectRaw(cb);
             d_callbacks.pop_back();
         }
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (0 == s) {
@@ -295,12 +294,12 @@ int TcpCbConnector::initiateConnection(
         d_channels.insert(idx, channel);
         d_connectingSocket_p = NULL;
         callback(channel, 0);
-        return 0;
+        return 0;                                                     // RETURN
     }
     if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
         BSLS_ASSERT(btesc_Flag::k_ASYNC_INTERRUPT & flags);
         callback(NULL, 1);
-        return 0;
+        return 0;                                                     // RETURN
     }
     // Hard error occurred
     BSLS_ASSERT(s < 0);
@@ -414,9 +413,9 @@ void TcpCbConnector::deallocateCb(btlsc::CbChannel *channel) {
 // CREATORS
 
 TcpCbConnector::TcpCbConnector(
-                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  btlso::TimerEventManager                      *manager,
-                  bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpCbConnector_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
@@ -434,10 +433,10 @@ TcpCbConnector::TcpCbConnector(
 }
 
 TcpCbConnector::TcpCbConnector(
-                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  btlso::TimerEventManager                      *manager,
-                  int                                           numChannels,
-                  bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                int                                             numChannels,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpCbConnector_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
@@ -476,13 +475,13 @@ TcpCbConnector::~TcpCbConnector()
 int TcpCbConnector::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
 
     if (d_callbacks.size() == 0) {
         initiateConnection<Callback, TcpTimedCbChannel>
                 (callback, flags, 1);
-        return 0;
+        return 0;                                                     // RETURN
 
     }
     TcpCbConnector_Reg *cb =
@@ -494,7 +493,7 @@ int TcpCbConnector::allocate(const Callback& callback, int flags)
 int TcpCbConnector::allocateTimed(const TimedCallback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
 
     // Implementation note: the request must be pushed onto the queue before
@@ -503,7 +502,7 @@ int TcpCbConnector::allocateTimed(const TimedCallback& callback, int flags)
     if (d_callbacks.size() == 0) {
         initiateConnection<TimedCallback, TcpTimedCbChannel>
             (callback, flags, 1);
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     TcpCbConnector_Reg *cb =
@@ -523,7 +522,7 @@ void TcpCbConnector::cancelAll()
         d_callbacks.erase(d_callbacks.begin(),
                           d_callbacks.begin() + d_callbacks.size() - 1);
         BSLS_ASSERT(d_currentRequest_p == d_callbacks.back());
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         while (--numToCancel >= 0) {
             TcpCbConnector_Reg *reg = toBeCancelled[numToCancel];
             reg->invoke(-1);
@@ -537,7 +536,7 @@ void TcpCbConnector::cancelAll()
         bsl::deque<TcpCbConnector_Reg *>
                                      toBeCancelled(d_callbacks, d_allocator_p);
         d_callbacks.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_manager_p->deregisterSocketEvent(
                                               d_connectingSocket_p->handle(),

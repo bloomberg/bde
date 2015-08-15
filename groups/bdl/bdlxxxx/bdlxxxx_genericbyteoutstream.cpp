@@ -1,4 +1,4 @@
-// bdlxxxx_genericbyteoutstream.cpp                                      -*-C++-*-
+// bdlxxxx_genericbyteoutstream.cpp                                   -*-C++-*-
 #include <bdlxxxx_genericbyteoutstream.h>
 
 #include <bsls_ident.h>
@@ -16,13 +16,13 @@ BSLMF_ASSERT(2 == sizeof(short));
 BSLMF_ASSERT(8 == sizeof(double));
 BSLMF_ASSERT(4 == sizeof(float));
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

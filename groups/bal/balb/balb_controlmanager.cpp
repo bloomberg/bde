@@ -1,4 +1,4 @@
-// balb_controlmanager.cpp   -*-C++-*-
+// balb_controlmanager.cpp                                            -*-C++-*-
 #include <balb_controlmanager.h>
 
 #include <ball_log.h>
@@ -19,14 +19,14 @@ namespace BloombergLP {
 
 namespace {
 
-template <typename FIRST, typename SECOND>
+template <class FIRST, class SECOND>
 struct MapKeyExtractor {
    const FIRST& operator() (const bsl::pair<FIRST, SECOND>& pair) {
       return pair.first;
    }
 };
 
-template <typename FIRST, typename SECOND, typename TC, typename TA>
+template <class FIRST, class SECOND, class TC, class TA>
 MapKeyExtractor<FIRST, SECOND>
 GetExtractor(const bsl::map<FIRST, SECOND, TC, TA>&) {
    return MapKeyExtractor<FIRST, SECOND>();
@@ -108,7 +108,7 @@ int ControlManager::dispatchMessage(const bsl::string& message) const
         ControlHandler callback =  it->second.callback();
         registryGuard.release()->unlock();
         callback(token, messageStream);
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return -1;
@@ -129,7 +129,7 @@ int ControlManager::dispatchMessage(
         ControlHandler callback =  it->second.callback();
         registryGuard.release()->unlock();
         callback(prefix, stream);
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return -1;
@@ -202,13 +202,20 @@ ControlManager_Entry::operator=(const ControlManager_Entry& rhs)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007, 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

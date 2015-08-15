@@ -1,4 +1,4 @@
-// bdlmxxx_elemref.h                                                     -*-C++-*-
+// bdlmxxx_elemref.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_ELEMREF
 #define INCLUDED_BDLMXXX_ELEMREF
 
@@ -416,32 +416,32 @@ namespace BloombergLP {
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlmxxx {class ChoiceArrayItem;
 class Choice;
@@ -1281,7 +1281,7 @@ bool ConstElemRef::isNull() const
     BSLS_ASSERT_SAFE(isBound());
 
     if (!d_constNullnessWord_p) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     return ((1 << d_nullnessBitOffset) & *d_constNullnessWord_p) != 0;
@@ -1749,15 +1749,15 @@ void *ElemRef::data() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

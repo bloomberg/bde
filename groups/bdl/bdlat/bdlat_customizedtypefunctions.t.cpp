@@ -1,22 +1,28 @@
 // bdlat_customizedtypefunctions.t.cpp                                -*-C++-*-
 
 #include <bdlat_customizedtypefunctions.h>
+
+#include <bdls_testutil.h>
+
 #include <bdlat_typetraits.h>
 #include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
+#include <bsls_assert.h>
+
+#include <bdlb_printmethods.h>
+
+
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::atoi;
-using bsl::endl;
-using bsl::flush;
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -30,61 +36,49 @@ using bsl::flush;
 // [ 3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                           CLASSES FOR TESTING
@@ -96,42 +90,17 @@ static int globalFlag = 0;
 #ifndef INCLUDED_GEOM_CUSIP
 #define INCLUDED_GEOM_CUSIP
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: Cusip
+//@CLASSES:
+//  Cusip: cusip class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  Identification number for the US and Canada.  It is a 9-digit number
+//  Identification number for the US and Canada.  'Cusip' is a 9-digit number
 //  consisting of 8 digits and a check digit.  The Bloomberg ID will be
 //  returned for Corp, Govt, Pfd if a CUSIP is not available.
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
 
 namespace BloombergLP {
 
@@ -153,21 +122,21 @@ class Cusip {
 
     // CREATORS
     explicit Cusip(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Cusip' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'Cusip' having the default value.  Use the
+        // optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     Cusip(const Cusip& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Cusip' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'Cusip' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     explicit Cusip(const bsl::string&  value,
                    bslma::Allocator   *basicAllocator = 0);
-        // Create an object of type 'Cusip' having the specified 'value'.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Cusip' having the specified 'value'.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
@@ -179,8 +148,8 @@ class Cusip {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int fromString(const bsl::string& value);
         // Convert from the specified 'value' to this type.  Return 0 if
@@ -222,8 +191,8 @@ bool operator!=(const Cusip& lhs, const Cusip& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -289,8 +258,8 @@ int Cusip::fromString(const bsl::string& value)
 
 inline
 bsl::ostream& Cusip::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+                           int           level,
+                           int           spacesPerLevel) const
 {
     return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
 }
@@ -312,22 +281,19 @@ BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(mine::Cusip)
 // FREE OPERATORS
 
 inline
-bool mine::operator==(const mine::Cusip& lhs,
-                                 const mine::Cusip& rhs)
+bool mine::operator==(const mine::Cusip& lhs, const mine::Cusip& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
-bool mine::operator!=(const mine::Cusip& lhs,
-                                 const mine::Cusip& rhs)
+bool mine::operator!=(const mine::Cusip& lhs, const mine::Cusip& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& mine::operator<<(bsl::ostream& stream,
-                                          const mine::Cusip& rhs)
+bsl::ostream& mine::operator<<(bsl::ostream& stream, const mine::Cusip& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -344,7 +310,7 @@ bsl::ostream& mine::operator<<(bsl::ostream& stream,
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_CustomizedTypeFunctions;
+namespace Obj = bdlat_CustomizedTypeFunctions;
 typedef BloombergLP::mine::Cusip Cusip;
 
 //=============================================================================
@@ -352,14 +318,14 @@ typedef BloombergLP::mine::Cusip Cusip;
 //-----------------------------------------------------------------------------
 
 namespace BloombergLP {
-namespace bdeat_CustomizedTypeFunctions {
+namespace bdlat_CustomizedTypeFunctions {
 
     template <>
     struct IsCustomizedType<mine::Cusip> {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdeat_CustomizedTypeFunctions
+}  // close namespace bdlat_CustomizedTypeFunctions
 }  // close enterprise namespace
 
 template <class TYPE>
@@ -368,7 +334,7 @@ int readCusip(bsl::istream& stream, TYPE *object)
     bsl::string value;
     stream >> value;
 
-    return bdeat_CustomizedTypeFunctions::convertFromBaseType(object, value);
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(object, value);
 }
 
 //=============================================================================
@@ -379,8 +345,8 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+//  int veryVerbose = argc > 3;
+//  int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -457,20 +423,20 @@ int main(int argc, char *argv[])
         const bsl::string dummyValue = "dummy";
 
         globalFlag = 0;
-        ASSERT(0 == bdeat_CustomizedTypeFunctions::convertFromBaseType(
+        ASSERT(0 == bdlat_CustomizedTypeFunctions::convertFromBaseType(
                                                                   &mV,
                                                                   dummyValue));
         ASSERT(1 == globalFlag);
 
         globalFlag = 0;
         const bsl::string& temp =
-                           bdeat_CustomizedTypeFunctions::convertToBaseType(V);
+                           bdlat_CustomizedTypeFunctions::convertToBaseType(V);
         ASSERT(dummyValue == temp);
         ASSERT(2          == globalFlag);
 
         globalFlag = 0;
         bsl::string temp2;
-        temp2 = bdeat_CustomizedTypeFunctions::convertToBaseType(V);
+        temp2 = bdlat_CustomizedTypeFunctions::convertToBaseType(V);
         ASSERT(dummyValue == temp2);
         ASSERT(2          == globalFlag);
 
@@ -489,10 +455,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

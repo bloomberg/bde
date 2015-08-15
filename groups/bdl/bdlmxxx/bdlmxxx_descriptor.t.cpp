@@ -1,4 +1,4 @@
-// bdlmxxx_descriptor.t.cpp                  -*-C++-*-
+// bdlmxxx_descriptor.t.cpp                                           -*-C++-*-
 
 #include <bdlmxxx_descriptor.h>
 
@@ -13,7 +13,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// TBD
+//                                  TBD
 //-----------------------------------------------------------------------------
 // [  ]
 //-----------------------------------------------------------------------------
@@ -79,11 +79,11 @@ int main()
     return -1;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

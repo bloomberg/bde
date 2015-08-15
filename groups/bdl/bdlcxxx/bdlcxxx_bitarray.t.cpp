@@ -1,4 +1,4 @@
-// bdlcxxx_bitarray.t.cpp               -*-C++-*-
+// bdlcxxx_bitarray.t.cpp                                             -*-C++-*-
 
 #include <bdlcxxx_bitarray.h>
 
@@ -362,7 +362,7 @@ void outerP(const char *leader, const Obj &X)
                      // --------------------
 
      // CREATORS
-     template <typename TYPE>
+     template <class TYPE>
      NullableVector<TYPE>::NullableVector(int               initialLength,
                                           bslma::Allocator *basicAllocator)
      : d_values(initialLength, TYPE(), basicAllocator)
@@ -371,14 +371,14 @@ void outerP(const char *leader, const Obj &X)
      {
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      NullableVector<TYPE>::~NullableVector()
      {
          BSLS_ASSERT((int) d_values.size() == d_nullFlags.length());
      }
 
      // MANIPULATORS
-     template <typename TYPE>
+     template <class TYPE>
      inline
      TYPE& NullableVector<TYPE>::modifiableElement(int index)
      {
@@ -387,7 +387,7 @@ void outerP(const char *leader, const Obj &X)
          return d_values[index];
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      void NullableVector<TYPE>::appendElement(const TYPE& value)
      {
@@ -395,7 +395,7 @@ void outerP(const char *leader, const Obj &X)
          d_nullFlags.append(false);
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      void NullableVector<TYPE>::appendNullElement()
      {
@@ -403,7 +403,7 @@ void outerP(const char *leader, const Obj &X)
          d_nullFlags.append(true);
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      void NullableVector<TYPE>::removeElement(int index)
      {
@@ -412,7 +412,7 @@ void outerP(const char *leader, const Obj &X)
          d_nullFlags.remove(index);
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      void NullableVector<TYPE>::makeNonNull(int index)
      {
@@ -420,7 +420,7 @@ void outerP(const char *leader, const Obj &X)
          d_nullFlags.set(index, false);
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      void NullableVector<TYPE>::makeNull(int index)
      {
@@ -430,14 +430,14 @@ void outerP(const char *leader, const Obj &X)
      }
 
      // ACCESSORS
-     template <typename TYPE>
+     template <class TYPE>
      inline
      int NullableVector<TYPE>::length() const
      {
          return d_values.size();
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      const TYPE& NullableVector<TYPE>::constElement(int index) const
      {
@@ -445,7 +445,7 @@ void outerP(const char *leader, const Obj &X)
          return d_values[index];
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      bool NullableVector<TYPE>::isElementNull(int index) const
      {
@@ -453,21 +453,21 @@ void outerP(const char *leader, const Obj &X)
          return d_nullFlags[index];
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      int NullableVector<TYPE>::numNullElements() const
      {
          return d_nullFlags.numSet1();
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      bool NullableVector<TYPE>::isAnyElementNonNull() const
      {
          return d_nullFlags.isAnySet0();
      }
 
-     template <typename TYPE>
+     template <class TYPE>
      inline
      bool NullableVector<TYPE>::isAnyElementNull() const
      {
@@ -540,7 +540,7 @@ int ggg(bdlcxxx::BitArray *object, const char *spec, int verboseFlag = 1)
                 cout << "Error, bad character ('" << spec[i] << "') in spec \""
                      << spec << "\" at position " << i << '.' << endl;
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
    }
    return SUCCESS;
@@ -8861,11 +8861,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

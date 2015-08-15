@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class NewDeleteAllocator;
-    }
+    }  // close namespace bslma
 
     typedef bslma::NewDeleteAllocator bslma_NewDeleteAllocator;
-}
+}  // close enterprise namespace
 
 #else
 

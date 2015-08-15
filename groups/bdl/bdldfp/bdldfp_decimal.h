@@ -4215,7 +4215,7 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128>
 
 };
 
-}  // close std namespace
+}  // close namespace std
 
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl

@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class ScalarPrimitives;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::ScalarPrimitives bslalg_ScalarPrimitives;
-}
+}  // close enterprise namespace
 
 #else
 

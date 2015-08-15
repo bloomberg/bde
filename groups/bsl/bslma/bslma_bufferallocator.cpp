@@ -45,13 +45,13 @@ void *allocateFromBufferImp(int                               *cursor,
                                                               alignment);
 
     if (*cursor + offset + size > bufSize) { // insufficient space
-        return static_cast<void *>(0);
+        return static_cast<void *>(0);                                // RETURN
     }
 
 #if 0
     // Consider adding the following:
 
-    if (*cursor + offset + size > 
+    if (*cursor + offset + size >
                      static_cast<bslma::BufferAllocator::size_type>(INT_MAX)) {
         // not representable
 
@@ -125,7 +125,7 @@ BufferAllocator::~BufferAllocator()
 void *BufferAllocator::allocate(size_type size)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        return static_cast<void *>(0);
+        return static_cast<void *>(0);                                // RETURN
     }
 
     void *result;
@@ -146,10 +146,10 @@ void *BufferAllocator::allocate(size_type size)
                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     }
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
-        return result;
+        return result;                                                // RETURN
     }
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_allocCallback)) {
-        return (*d_allocCallback)(static_cast<int>(size));
+        return (*d_allocCallback)(static_cast<int>(size));            // RETURN
     }
 
     // Throw 'std::bad_alloc' if cannot satisfy request.

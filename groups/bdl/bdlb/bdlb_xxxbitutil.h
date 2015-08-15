@@ -1,4 +1,4 @@
-// bdlb_xxxbitutil.h                                                     -*-C++-*-
+// bdlb_xxxbitutil.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLB_XXXBITUTIL
 #define INCLUDED_BDLB_XXXBITUTIL
 
@@ -1289,7 +1289,7 @@ struct BitUtil {
         // The behavior is undefined unless '0 <= srcIndex', '0 <= numBits',
         // and 'srcIndex + numBits <= sizeInBits(srcInteger)'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static int sizeInBits(TYPE value);
         // Return the number of bits in the specified 'value' of parameterized
         // 'TYPE'.  Note that this method is used extensively throughout this
@@ -1775,7 +1775,7 @@ struct BitUtil {
         //
         // DEPRECATED: Use 'oneMask' instead.
 
-    template <typename TYPE>
+    template <class TYPE>
     static int numBits(TYPE value);
         // Return the number of bits in the specified 'value' of parameterized
         // 'TYPE'.  Note that this method is used extensively in this
@@ -1785,9 +1785,9 @@ struct BitUtil {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                                // -------------------
                                // struct BitUtil
@@ -3870,7 +3870,7 @@ bsls::Types::Int64 BitUtil::setZero64(Int64 srcInteger,
     return srcInteger & zeroMask64(srcIndex, numBits);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BitUtil::sizeInBits(TYPE)
 {
@@ -4343,7 +4343,7 @@ int BitUtil::mask1(int index, int numBits)
     return oneMask(index, numBits);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BitUtil::numBits(TYPE value)
 {
@@ -4353,15 +4353,15 @@ int BitUtil::numBits(TYPE value)
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

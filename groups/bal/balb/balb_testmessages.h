@@ -219,7 +219,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomInt& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -328,7 +328,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -365,7 +365,7 @@ struct Enumerated {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
     static const char *toString(Value value);
@@ -405,7 +405,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, Enumerated::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -462,14 +462,14 @@ class SequenceWithAnonymityChoice1 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -613,7 +613,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -661,15 +661,15 @@ class SimpleRequest {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -810,7 +810,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const SimpleRequest& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -863,15 +863,15 @@ class UnsignedSequence {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1015,7 +1015,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const UnsignedSequence& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -1046,11 +1046,11 @@ class VoidSequence {
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1169,7 +1169,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const VoidSequence& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -1237,15 +1237,15 @@ class Sequence3 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1418,7 +1418,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sequence3& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -1492,15 +1492,15 @@ class Sequence5 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1681,7 +1681,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sequence5& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -1794,15 +1794,15 @@ class Sequence6 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -2047,7 +2047,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sequence6& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -2113,14 +2113,14 @@ class Choice3 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -2304,7 +2304,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Choice3& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -2370,14 +2370,14 @@ class SequenceWithAnonymityChoice {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -2561,7 +2561,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -2627,14 +2627,14 @@ class Choice1 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -2818,7 +2818,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Choice1& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -2884,14 +2884,14 @@ class Choice2 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -3075,7 +3075,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Choice2& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -3208,15 +3208,15 @@ class Sequence4 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3493,7 +3493,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sequence4& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -3557,15 +3557,15 @@ class Sequence1 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3730,7 +3730,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sequence1& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -3793,15 +3793,15 @@ class Sequence2 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3966,7 +3966,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sequence2& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -4022,14 +4022,14 @@ class SequenceWithAnonymityChoice2 {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -4173,7 +4173,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -4231,15 +4231,15 @@ class SequenceWithAnonymity {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -4396,7 +4396,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymity& rhs)
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -4497,14 +4497,14 @@ class FeatureTestMessage {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -4828,7 +4828,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const FeatureTestMessage& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -4884,14 +4884,14 @@ class Request {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -5039,7 +5039,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Request& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -5095,14 +5095,14 @@ class Response {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -5250,7 +5250,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Response& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close namespace baea
+}  // close package namespace
 
 // TRAITS
 
@@ -5268,7 +5268,7 @@ struct Testmessages {
     // defined outside of this component in the current namespace.
 };
 
-}  // close namespace baea
+}  // close package namespace
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -5316,7 +5316,7 @@ CustomInt& CustomInt::operator=(const CustomInt& rhs)
 inline
 void CustomInt::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -5389,7 +5389,7 @@ CustomString& CustomString::operator=(const CustomString& rhs)
 inline
 void CustomString::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -5471,7 +5471,7 @@ int SequenceWithAnonymityChoice1::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
       default:
         BSLS_ASSERT(SequenceWithAnonymityChoice1::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -5508,7 +5508,7 @@ int SequenceWithAnonymityChoice1::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -5557,12 +5557,12 @@ int SimpleRequest::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_data, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATA]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_responseLength, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5576,12 +5576,14 @@ int SimpleRequest::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_DATA: {
         return manipulator(&d_data, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATA]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_RESPONSE_LENGTH: {
         return manipulator(&d_responseLength, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -5593,10 +5595,10 @@ int SimpleRequest::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5622,12 +5624,12 @@ int SimpleRequest::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_data, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATA]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_responseLength, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5641,12 +5643,14 @@ int SimpleRequest::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_DATA: {
         return accessor(d_data, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATA]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_RESPONSE_LENGTH: {
         return accessor(d_responseLength, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -5658,10 +5662,10 @@ int SimpleRequest::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5693,17 +5697,17 @@ int UnsignedSequence::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5717,15 +5721,18 @@ int UnsignedSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -5737,10 +5744,10 @@ int UnsignedSequence::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5772,17 +5779,17 @@ int UnsignedSequence::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5796,15 +5803,18 @@ int UnsignedSequence::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -5816,10 +5826,10 @@ int UnsignedSequence::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5877,10 +5887,10 @@ int VoidSequence::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5914,10 +5924,10 @@ int VoidSequence::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5937,32 +5947,32 @@ int Sequence3::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -5976,24 +5986,30 @@ int Sequence3::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -6005,10 +6021,10 @@ int Sequence3::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -6058,32 +6074,32 @@ int Sequence3::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6097,24 +6113,30 @@ int Sequence3::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -6126,10 +6148,10 @@ int Sequence3::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -6185,37 +6207,37 @@ int Sequence5::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6229,27 +6251,34 @@ int Sequence5::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -6261,10 +6290,10 @@ int Sequence5::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -6320,37 +6349,37 @@ int Sequence5::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6364,27 +6393,34 @@ int Sequence5::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -6396,10 +6432,10 @@ int Sequence5::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -6461,77 +6497,77 @@ int Sequence6::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6545,51 +6581,66 @@ int Sequence6::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -6601,10 +6652,10 @@ int Sequence6::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -6708,77 +6759,77 @@ int Sequence6::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -6792,51 +6843,66 @@ int Sequence6::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -6848,10 +6914,10 @@ int Sequence6::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -6986,7 +7052,7 @@ int Choice3::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice3::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7043,7 +7109,7 @@ int Choice3::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7143,7 +7209,7 @@ int SequenceWithAnonymityChoice::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SequenceWithAnonymityChoice::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7200,7 +7266,7 @@ int SequenceWithAnonymityChoice::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7300,7 +7366,7 @@ int Choice1::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice1::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7357,7 +7423,7 @@ int Choice1::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7457,7 +7523,7 @@ int Choice2::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(Choice2::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7514,7 +7580,7 @@ int Choice2::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -7589,97 +7655,97 @@ int Sequence4::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -7693,63 +7759,82 @@ int Sequence4::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT16: {
         return manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT17: {
         return manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT18: {
         return manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT19: {
         return manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -7761,10 +7846,10 @@ int Sequence4::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -7892,97 +7977,97 @@ int Sequence4::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -7996,63 +8081,82 @@ int Sequence4::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT6: {
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT7: {
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT8: {
         return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT9: {
         return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT10: {
         return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT11: {
         return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT12: {
         return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT13: {
         return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT14: {
         return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT15: {
         return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT16: {
         return accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT17: {
         return accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT18: {
         return accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT19: {
         return accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -8064,10 +8168,10 @@ int Sequence4::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -8201,27 +8305,27 @@ int Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -8235,21 +8339,26 @@ int Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -8261,10 +8370,10 @@ int Sequence1::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -8308,27 +8417,27 @@ int Sequence1::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -8342,21 +8451,26 @@ int Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -8368,10 +8482,10 @@ int Sequence1::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -8421,27 +8535,27 @@ int Sequence2::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -8455,21 +8569,26 @@ int Sequence2::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -8481,10 +8600,10 @@ int Sequence2::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -8528,27 +8647,27 @@ int Sequence2::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -8562,21 +8681,26 @@ int Sequence2::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
         return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT2: {
         return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT3: {
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT5: {
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -8588,10 +8712,10 @@ int Sequence2::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -8660,7 +8784,7 @@ int SequenceWithAnonymityChoice2::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
       default:
         BSLS_ASSERT(SequenceWithAnonymityChoice2::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -8697,7 +8821,7 @@ int SequenceWithAnonymityChoice2::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -8746,22 +8870,22 @@ int SequenceWithAnonymity::manipulateAttributes(MANIPULATOR& manipulator)
 
     ret = manipulator(&d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -8775,18 +8899,22 @@ int SequenceWithAnonymity::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_CHOICE: {
         return manipulator(&d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_CHOICE1: {
         return manipulator(&d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_CHOICE2: {
         return manipulator(&d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -8798,10 +8926,10 @@ int SequenceWithAnonymity::manipulateAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -8839,22 +8967,22 @@ int SequenceWithAnonymity::accessAttributes(ACCESSOR& accessor) const
 
     ret = accessor(d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -8868,18 +8996,22 @@ int SequenceWithAnonymity::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_CHOICE: {
         return accessor(d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_CHOICE1: {
         return accessor(d_choice1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_CHOICE2: {
         return accessor(d_choice2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ELEMENT4: {
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+                                                                      // RETURN
       } break;
       default:
-        return k_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -8891,10 +9023,10 @@ int SequenceWithAnonymity::accessAttribute(
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return k_NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -8984,7 +9116,7 @@ int FeatureTestMessage::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION11]);
       default:
         BSLS_ASSERT(FeatureTestMessage::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -9111,7 +9243,7 @@ int FeatureTestMessage::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION11]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -9296,7 +9428,7 @@ int Request::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_REQUEST]);
       default:
         BSLS_ASSERT(Request::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -9333,7 +9465,7 @@ int Request::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_REQUEST]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -9401,7 +9533,7 @@ int Response::manipulateSelection(MANIPULATOR& manipulator)
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_RESPONSE]);
       default:
         BSLS_ASSERT(Response::SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -9438,7 +9570,7 @@ int Response::accessSelection(ACCESSOR& accessor) const
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_RESPONSE]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
@@ -9473,7 +9605,7 @@ bool Response::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
-}  // close namespace baea
+}  // close package namespace
 
 // FREE FUNCTIONS
 
@@ -9550,11 +9682,11 @@ bool balb::operator==(
             return lhs.selection6() == rhs.selection6();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -9799,11 +9931,11 @@ bool balb::operator==(
             return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -9842,11 +9974,11 @@ bool balb::operator==(
             return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -9885,11 +10017,11 @@ bool balb::operator==(
             return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -9928,11 +10060,11 @@ bool balb::operator==(
             return lhs.selection4() == rhs.selection4();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -10094,11 +10226,11 @@ bool balb::operator==(
             return lhs.selection8() == rhs.selection8();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -10182,11 +10314,11 @@ bool balb::operator==(
             return lhs.selection11() == rhs.selection11();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -10221,11 +10353,11 @@ bool balb::operator==(
             return lhs.featureRequest() == rhs.featureRequest();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -10260,11 +10392,11 @@ bool balb::operator==(
             return lhs.featureResponse() == rhs.featureResponse();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -10284,15 +10416,21 @@ bsl::ostream& balb::operator<<(
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.20 Wed Dec 12 16:23:36 2012
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

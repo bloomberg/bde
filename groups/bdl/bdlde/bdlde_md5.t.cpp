@@ -1,12 +1,10 @@
-// bdlde_md5.t.cpp    -*-C++-*-
+// bdlde_md5.t.cpp                                                    -*-C++-*-
 
 #include <bdlde_md5.h>
 
-#include <bdlxxxx_instreamfunctions.h>             // for testing only
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
+#include <bslx_testoutstream.h>                 // for testing only
+#include <bslx_testinstream.h>                  // for testing only
+#include <bslx_testinstreamexception.h>         // for testing only
 #include <bsls_stopwatch.h>                     // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -69,7 +67,7 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [10] static int maxSupportedBdexVersion();
+// [10] static int maxSupportedBdexVersion(int);
 //
 // CREATORS
 // [ 2] bdlde::Md5();
@@ -165,8 +163,8 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef bdlde::Md5          Obj;
-typedef bdlxxxx::TestInStream  In;
-typedef bdlxxxx::TestOutStream Out;
+typedef bslx::TestInStream  In;
+typedef bslx::TestOutStream Out;
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -179,7 +177,7 @@ typedef bdlxxxx::TestOutStream Out;
 // potentially on separate machines.  The 'senderExample' function below
 // demonstrates how a message sender can write a message and its MD5 digest
 // to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
-// that implements the 'bdlxxxx::OutStream' protocol:
+// that implements the 'bslx::OutStream' protocol:
 //..
 void senderExample(Out& output)
     // Write a message and its MD5 digest to the specified 'output'
@@ -192,18 +190,18 @@ void senderExample(Out& output)
     bdlde::Md5 digest(message.data(), message.length());
 
     // Write the message to 'output'.
-    bdex_OutStreamFunctions::streamOut(output, message, 0);
+    output << message;
 
     // Write the digest to 'output'.
     const int VERSION = 1;
-    bdex_OutStreamFunctions::streamOut(output, digest, VERSION);
+    digest.bdexStreamOut(output, VERSION);
 }
 //..
 // The 'receiverExample' function below illustrates how a message receiver can
 // read a message and its MD5 digest from a 'bdex' input stream, then perform a
 // local MD5 computation to verify that the message was received intact.  Note
 // that 'In' may be a 'typedef' of any class that implements the
-// 'bdlxxxx::InStream' protocol:
+// 'bslx::InStream' protocol:
 //..
 void receiverExample(In& input)
     // Read a message and its MD5 digest from the specified 'input' stream,
@@ -211,12 +209,12 @@ void receiverExample(In& input)
 {
     // Read the message from 'input'.
     bsl::string message;
-    bdex_InStreamFunctions::streamIn(input, message, 0);
+    input >> message;
 
     // Read the digest from 'input'.
     bdlde::Md5 digest;
     const int VERSION = 1;
-    bdex_InStreamFunctions::streamIn(input, digest, VERSION);
+    digest.bdexStreamIn(input, VERSION);
 
     // Locally compute the digest of the received 'message'.
     bdlde::Md5 digestLocal;
@@ -325,6 +323,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
             } else if (('0' <= spec[i] && spec[i] <= '9')
                     || ('a' <= spec[i] && spec[i] <= 'f')) {
                 // build the hexadecimal character, add it to 'update_buffer'
+
                 unsigned char hex;
 
                 if ('0' <= spec[i] && spec[i] <= '9') {
@@ -334,6 +333,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                 }
 
                 // look at the next character
+
                 ++i;
                 if ('0' <= spec[i] && spec[i] <= '9') {
                     hex |= (spec[i] - '0');
@@ -341,32 +341,43 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                     hex |= (spec[i] - 'a' + 10);
                 } else {
                     // syntax error, print an error message if vF != 0
+
                     if (vF) {
                         cout << "Error 2, bad character ('" << spec[i] << "') "
                              << "at position " << i << "." << endl;
                         PH(spec);
                     }
-                    return i;  // Discontinue processing this spec.
+
+                    // Discontinue processing this spec.
+
+                    return i;                                         // RETURN
                 }
 
                 // add 'hex' to 'update_buffer'
+
                 update_buffer[buf_pos++] = hex;
             } else {
                 // syntax error, print an error message if vF != 0
+
                 if (vF) {
                     cout << "Error, bad character ('" << spec[i] << "') at "
                          << "position " << i << "." << endl;
                     PH(spec);
                 }
-                return i;  // Discontinue processing this spec.
+
+                // Discontinue processing this spec.
+
+                return i;                                             // RETURN
             }
         } else {
             // add the current character to 'update_buffer'
+
             update_buffer[buf_pos++] = spec[i];
         }
     }
 
     // call 'update' with the remaining data in 'update_buffer'
+
     if (buf_pos) {
         object->update(update_buffer, buf_pos);
     }
@@ -439,7 +450,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-        Out out;
+        Out out(20150813);
         senderExample(out);
 
         const char *const OD  = out.data();
@@ -924,9 +935,10 @@ int main(int argc, char *argv[])
         //   (valid, empty, invalid, incomplete, and corrupted), appropriately
         //   selecting data sets as described below.  In all cases, we need to
         //   confirm exception neutrality using the specially instrumented
-        //   'bdlxxxx::TestInStream' and a pair of standard macros,
-        //   'BEGIN_BDEX_EXCEPTION_TEST' and 'END_BDEX_EXCEPTION_TEST', which
-        //   configure the 'bdlxxxx::TestInStream' object appropriately in a loop.
+        //   'bslx::TestInStream' and a pair of standard macros,
+        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
+        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which
+        //   configure the 'bslx::TestInStream' object appropriately in a loop.
         //
         // Plan:
         //   PRELIMINARY MEMBER FUNCTION TEST
@@ -966,7 +978,7 @@ int main(int argc, char *argv[])
         //     gone invalid.
         //
         // Testing:
-        //   static int maxSupportedBdexVersion();
+        //   static int maxSupportedBdexVersion(int);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // --------------------------------------------------------------------
@@ -988,13 +1000,13 @@ int main(int argc, char *argv[])
         const Obj VALUES[NUM_VALUES] = { VA, VB, VC, VD, VE, VF };
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        const int VERSION = Obj::maxSupportedBdexVersion();
+        const int VERSION = Obj::maxSupportedBdexVersion(150813);
         if (verbose) cout << "\nTesting 'bdexStreamOut' and (valid) "
                           << "'bdexStreamIn' functionality." << endl;
         {
             // testing 'bdexStreamOut' and 'bdexStreamIn' directly
             const Obj X(VC);
-            Out out;
+            Out out(20150813);
             out.putVersion(VERSION);
             X.bdexStreamOut(out, VERSION);
 
@@ -1016,8 +1028,8 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X(VALUES[i]);
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
+                Out out(20150813);
+                X.bdexStreamOut(out, VERSION);
 
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
@@ -1027,16 +1039,18 @@ int main(int argc, char *argv[])
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     In in(OD, LOD);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
+
+//                  in.setSuppressVersionCheck(1);
+
                     LOOP2_ASSERT(i, j, in);
                     LOOP2_ASSERT(i, j, !in.isEmpty());
 
                     Obj t(VALUES[j]);
-                    BEGIN_BDEX_EXCEPTION_TEST {
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                       in.reset();
                       LOOP2_ASSERT(i, j, (X == t) == (i == j));
-                      bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                    } END_BDEX_EXCEPTION_TEST
+                      t.bdexStreamIn(in, VERSION);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                     LOOP2_ASSERT(i, j, X == t);
                     LOOP2_ASSERT(i, j, in);
                     LOOP2_ASSERT(i, j, in.isEmpty());
@@ -1047,7 +1061,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tOn empty and invalid streams." << endl;
         {
             // testing empty and invalid streams
-            Out out;
+            Out out(20150813);
             const char *const OD  = out.data();
             const int         LOD = out.length();
             ASSERT(0 == LOD);
@@ -1062,13 +1076,13 @@ int main(int argc, char *argv[])
                 // unchanged.
 
                 const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
-                BEGIN_BDEX_EXCEPTION_TEST {
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                   in.reset();
-                  bdex_InStreamFunctions::streamIn(in, t, VERSION);
+                  t.bdexStreamIn(in, VERSION);
                   LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
-                  bdex_InStreamFunctions::streamIn(in, t, VERSION);
+                  t.bdexStreamIn(in, VERSION);
                   LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
-                } END_BDEX_EXCEPTION_TEST
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
         }
 
@@ -1080,44 +1094,46 @@ int main(int argc, char *argv[])
             const Obj W2 = VB, X2 = VC, Y2 = VD;
             const Obj W3 = VC, X3 = VD, Y3 = VE;
 
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
+            Out out(20150813);
+            X1.bdexStreamOut(out, VERSION);
             const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
+            X2.bdexStreamOut(out, VERSION);
             const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
+            X3.bdexStreamOut(out, VERSION);
             const int LOD  = out.length();
             const char *const    OD   = out.data();
 
             for (int i = 0; i < LOD; ++i) {
                 In in(OD, i);  In& testInStream = in;
-                in.setSuppressVersionCheck(1);
-                BEGIN_BDEX_EXCEPTION_TEST {
+
+//              in.setSuppressVersionCheck(1);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                   in.reset();
                   LOOP_ASSERT(i, in);
                   LOOP_ASSERT(i, !i == in.isEmpty());
                   Obj t1(W1), t2(W2), t3(W3);
 
                   if (i < LOD1) {
-                      bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                      t1.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W1 == t1);
-                      bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                      t2.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
-                      bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                      t3.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
                   } else if (i < LOD2) {
-                      bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                      t1.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
-                      bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                      t2.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
-                      bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                      t3.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
                   } else {
-                      bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                      t1.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
-                      bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                      t2.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X2 == t2);
-                      bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                      t3.bdexStreamIn(in, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
                   }
 
@@ -1129,7 +1145,7 @@ int main(int argc, char *argv[])
 
                               LOOP_ASSERT(i, Y3 != t3);
                   t3 = Y3;    LOOP_ASSERT(i, Y3 == t3);
-                } END_BDEX_EXCEPTION_TEST
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
         }
 
@@ -1145,7 +1161,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\tGood stream (for control)." << endl;
         {
             // good version (for control)
-            Out out;
+            Out out(20150813);
             out.putVersion(VERSION);
             Y.bdexStreamOut(out, VERSION);
 
@@ -1157,7 +1173,7 @@ int main(int argc, char *argv[])
             int version;
             in.getVersion(version);
             ASSERT(VERSION == version);
-            bdex_InStreamFunctions::streamIn(in, t, version);
+            t.bdexStreamIn(in, version);
             ASSERT(in);
             ASSERT(W != t); ASSERT(X != t); ASSERT(Y == t);
         }
@@ -1166,7 +1182,7 @@ int main(int argc, char *argv[])
         {
             const char version = 0;  // too small ('version' must be >= 1)
 
-            Out out;
+            Out out(20150813);
             out.putVersion(version);
             Y.bdexStreamOut(out, version);
 
@@ -1176,14 +1192,14 @@ int main(int argc, char *argv[])
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
             in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            t.bdexStreamIn(in, VERSION);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
         }
         {
             const char version = 5;  // too large (current version is 1)
 
-            Out out;
+            Out out(20150813);
             out.putVersion(version);
             Y.bdexStreamOut(out, version);
 
@@ -1193,7 +1209,7 @@ int main(int argc, char *argv[])
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
             in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            t.bdexStreamIn(in, VERSION);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
         }
@@ -1203,9 +1219,9 @@ int main(int argc, char *argv[])
             // test 'maxSupportedBdexVersion()'
             if (verbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
-            ASSERT(1 == X.maxSupportedBdexVersion());
+            ASSERT(1 == X.maxSupportedBdexVersion(150813));
             if (verbose) cout << "\tusing class method syntax:" << endl;
-            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(150813));
         }
       } break;
       case 9: {
@@ -1591,6 +1607,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting Output (<<) Operator"
                           << "\n===========================" << endl;
+
         static const struct {
             int         d_lineNum;  // source line number
             const char *d_str;      // source string
@@ -2380,11 +2397,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

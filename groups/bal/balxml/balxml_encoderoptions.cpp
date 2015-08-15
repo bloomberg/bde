@@ -22,9 +22,9 @@ BSLS_IDENT_RCSID(balxml_encoderoptions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                      // -------------------------------                       
-                      // class balxml::EncoderOptions                       
-                      // -------------------------------                       
+                      // -------------------------------
+                      // class balxml::EncoderOptions
+                      // -------------------------------
 
 // CONSTANTS
 
@@ -46,111 +46,111 @@ const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER = tru
 
 const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_OUTPUT_X_S_I_ALIAS = true;
 
-const bdeat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_OBJECT_NAMESPACE,
         "ObjectNamespace",
         sizeof("ObjectNamespace") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_SCHEMA_LOCATION,
         "SchemaLocation",
         sizeof("SchemaLocation") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_TAG,
         "Tag",
         sizeof("Tag") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_FORMATTING_MODE,
         "FormattingMode",
         sizeof("FormattingMode") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_INITIAL_INDENT_LEVEL,
         "InitialIndentLevel",
         sizeof("InitialIndentLevel") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_SPACES_PER_LEVEL,
         "SpacesPerLevel",
         sizeof("SpacesPerLevel") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_WRAP_COLUMN,
         "WrapColumn",
         sizeof("WrapColumn") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS,
         "MaxDecimalTotalDigits",
         sizeof("MaxDecimalTotalDigits") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS,
         "MaxDecimalFractionDigits",
         sizeof("MaxDecimalFractionDigits") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS,
         "SignificantDoubleDigits",
         sizeof("SignificantDoubleDigits") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     },
     {
         ATTRIBUTE_ID_ENCODING_STYLE,
         "EncodingStyle",
         sizeof("EncodingStyle") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS,
         "AllowControlCharacters",
         sizeof("AllowControlCharacters") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER,
         "OutputXMLHeader",
         sizeof("OutputXMLHeader") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS,
         "OutputXSIAlias",
         sizeof("OutputXSIAlias") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
 namespace balxml {
 // CLASS METHODS
 
-const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
+const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -160,7 +160,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[1]=='a'
              && name[2]=='g')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG];
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG];    // RETURN
             }
         } break;
         case 10: {
@@ -176,6 +176,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[9]=='n')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN];
+                                                                      // RETURN
             }
         } break;
         case 13: {
@@ -194,6 +195,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[12]=='e')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE];
+                                                                      // RETURN
             }
         } break;
         case 14: {
@@ -214,6 +216,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                      && name[13]=='e')
                     {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE];
+                                                                      // RETURN
                     }
                 } break;
                 case 'O': {
@@ -232,6 +235,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                      && name[13]=='s')
                     {
                         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS];
+                                                                      // RETURN
                     }
                 } break;
                 case 'S': {
@@ -251,6 +255,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                              && name[13]=='n')
                             {
                                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION];
+                                                                      // RETURN
                             }
                         } break;
                         case 'p': {
@@ -268,6 +273,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                              && name[13]=='l')
                             {
                                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL];
+                                                                      // RETURN
                             }
                         } break;
                     }
@@ -294,6 +300,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                          && name[14]=='e')
                         {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE];
+                                                                      // RETURN
                         }
                     } break;
                     case 'u': {
@@ -312,6 +319,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                          && name[14]=='r')
                         {
                             return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER];
+                                                                      // RETURN
                         }
                     } break;
                 }
@@ -338,6 +346,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[17]=='l')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL];
+                                                                      // RETURN
             }
         } break;
         case 21: {
@@ -364,6 +373,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[20]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS];
+                                                                      // RETURN
             }
         } break;
         case 22: {
@@ -391,6 +401,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[21]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS];
+                                                                      // RETURN
             }
         } break;
         case 23: {
@@ -419,6 +430,7 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[22]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS];
+                                                                      // RETURN
             }
         } break;
         case 24: {
@@ -448,13 +460,14 @@ const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[23]=='s')
             {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS];
+                                                                      // RETURN
             }
         } break;
     }
     return 0;
 }
 
-const bdeat_AttributeInfo *EncoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_OBJECT_NAMESPACE:
@@ -560,16 +573,16 @@ EncoderOptions::operator=(const EncoderOptions& rhs)
 
 void EncoderOptions::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_objectNamespace);
-    bdeat_ValueTypeFunctions::reset(&d_schemaLocation);
-    bdeat_ValueTypeFunctions::reset(&d_tag);
+    bdlat_ValueTypeFunctions::reset(&d_objectNamespace);
+    bdlat_ValueTypeFunctions::reset(&d_schemaLocation);
+    bdlat_ValueTypeFunctions::reset(&d_tag);
     d_formattingMode = DEFAULT_INITIALIZER_FORMATTING_MODE;
     d_initialIndentLevel = DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
     d_spacesPerLevel = DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
     d_wrapColumn = DEFAULT_INITIALIZER_WRAP_COLUMN;
-    bdeat_ValueTypeFunctions::reset(&d_maxDecimalTotalDigits);
-    bdeat_ValueTypeFunctions::reset(&d_maxDecimalFractionDigits);
-    bdeat_ValueTypeFunctions::reset(&d_significantDoubleDigits);
+    bdlat_ValueTypeFunctions::reset(&d_maxDecimalTotalDigits);
+    bdlat_ValueTypeFunctions::reset(&d_maxDecimalFractionDigits);
+    bdlat_ValueTypeFunctions::reset(&d_significantDoubleDigits);
     d_encodingStyle = DEFAULT_INITIALIZER_ENCODING_STYLE;
     d_allowControlCharacters = DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS;
     d_outputXMLHeader = DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER;
@@ -753,14 +766,20 @@ bsl::ostream& EncoderOptions::print(
 }  // close package namespace
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.9 Fri Jan 20 14:14:54 2012
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

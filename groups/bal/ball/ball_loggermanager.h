@@ -280,7 +280,7 @@ BSLS_IDENT("$Id: $")
 //     severity       int              severity of logged record
 //     message        string           log message text
 //..
-// The user-defined fields, if any, are described by a 'ball::UserFieldDescriptors' optionally
+// The user-defined fields, if any, are described by a 'ball::UserFieldsSchema' optionally
 // supplied by the client when the logger manager singleton is created.  If a
 // schema is supplied by the client, a corresponding
 // 'ball::Logger::UserPopulatorCallback' functor must also be supplied.
@@ -934,7 +934,7 @@ class Logger {
     RecordBuffer    *d_recordBuffer_p;     // holds log record buffer
                                                 // (not owned)
 
-    const ball::UserFieldDescriptors  *d_userFieldDescriptors_p;       // holds schema for user-
+    const ball::UserFieldsSchema  *d_userFieldsSchema_p;       // holds schema for user-
                                                 // defined fields (not owned)
 
     UserFieldsPopulatorCallback d_populator;          // user populator functor
@@ -970,7 +970,7 @@ class Logger {
     Logger(
            Observer                                   *observer,
            RecordBuffer                               *recordBuffer,
-           const ball::UserFieldDescriptors                               *schema,
+           const ball::UserFieldsSchema                               *schema,
            const UserFieldsPopulatorCallback&                     populator,
            const PublishAllTriggerCallback&                 publishAllCallback,
            int                                              scratchBufferSize,
@@ -1230,7 +1230,7 @@ class LoggerManager {
                                                  // factory default threshold
                                                  // levels
 
-    ball::UserFieldDescriptors              d_userFieldDescriptors;         // schema for user-defined
+    ball::UserFieldsSchema              d_userFieldsSchema;         // schema for user-defined
                                                  // fields
 
     Logger::UserFieldsPopulatorCallback
@@ -1382,7 +1382,7 @@ class LoggerManager {
 
     static void initSingleton(
                Observer                             *observer,
-               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const ball::UserFieldsSchema&                         userFieldsSchema,
                const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
 
@@ -1395,14 +1395,14 @@ class LoggerManager {
     static void initSingleton(
                Observer                             *observer,
                const DefaultThresholdLevelsCallback&      defaultThresholds,
-               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const ball::UserFieldsSchema&                         userFieldsSchema,
                const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
 
     static void initSingleton(
                Observer                             *observer,
                const FactoryDefaultThresholds&            factoryThresholds,
-               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const ball::UserFieldsSchema&                         userFieldsSchema,
                const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
 
@@ -1410,7 +1410,7 @@ class LoggerManager {
                Observer                             *observer,
                const DefaultThresholdLevelsCallback&      defaultThresholds,
                const FactoryDefaultThresholds&            factoryThresholds,
-               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const ball::UserFieldsSchema&                         userFieldsSchema,
                const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
         // Initialize (once!) the logger manager singleton having the specified
@@ -1421,7 +1421,7 @@ class LoggerManager {
         // for categories added to the registry by 'setCategory(const char *)'.
         // Optionally specify 'factoryThresholds' to override the
         // "factory-supplied" initial default threshold levels.  Optionally
-        // specify a 'userFieldDescriptors' that describes the structure of the
+        // specify a 'userFieldsSchema' that describes the structure of the
         // user-defined fields of log records and a corresponding 'populator'
         // functor that populates those user-defined fields.  Optionally
         // specify a 'globalAllocator' used to supply memory.  If
@@ -1689,7 +1689,7 @@ class LoggerManager {
         // Return the address of the non-modifiable observer registered with
         // this logger manager.
 
-    const Logger::UserFieldsPopulatorCallback *userFieldsPopulatorCallback() 
+    const Logger::UserFieldsPopulatorCallback *userFieldsPopulatorCallback()
                                                                          const;
         // Return the address of the non-modifiable user populator functor
         // registered with this logger manager, or 0 if there is no registered
@@ -1994,15 +1994,22 @@ ball::LoggerCategoryManip::operator const void *() const
     return d_manip;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

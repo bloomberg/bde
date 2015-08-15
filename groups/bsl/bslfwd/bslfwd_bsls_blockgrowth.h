@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class BlockGrowth;
-    }
+    }  // close namespace bsls
 
     typedef bsls::BlockGrowth bsls_BlockGrowth;
-}
+}  // close enterprise namespace
 
 #else
 

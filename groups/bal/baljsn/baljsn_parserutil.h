@@ -124,32 +124,32 @@ namespace BloombergLP {
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace baljsn {
                             // ========================
@@ -164,7 +164,7 @@ struct ParserUtil {
 
   private:
     // PRIVATE CLASS METHODS
-    template <typename TYPE>
+    template <class TYPE>
     static int getDateAndTimeValue(TYPE              *value,
                                    bslstl::StringRef  data,
                                    int                maxLength);
@@ -176,13 +176,13 @@ struct ParserUtil {
         // expected to be one of 'bdlt::Date', 'bdlt::Time', bdlt::Datetime',
         // 'bdlt::DateTz', 'bdlt::TimeTz', or 'bdlt::DatetimeTz'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static int getIntegralValue(TYPE *value, bslstl::StringRef data);
         // Load into the specified 'value' the integer value in the specified
         // 'data'.  Return 0 on success and a non-zero value otherwise.  Note
         // that 'TYPE' is expected to be a *signed* integral type.
 
-    template <typename TYPE>
+    template <class TYPE>
     static int getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data);
         // Load into the specified 'value' the unsigned integer value in the
         // specified 'data'.  Return 0 on success and a non-zero value
@@ -233,7 +233,7 @@ struct ParserUtil {
                             // ------------------------
 
 // CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 int ParserUtil::getUnsignedIntegralValue(TYPE              *value,
                                                 bslstl::StringRef  data)
 {
@@ -256,7 +256,7 @@ int ParserUtil::getUnsignedIntegralValue(TYPE              *value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
 {
     if (0 == data.length()) {
@@ -294,7 +294,7 @@ int ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int ParserUtil::getDateAndTimeValue(TYPE              *value,
                                            bslstl::StringRef  data,
                                            int                maxLength)
@@ -439,15 +439,22 @@ int ParserUtil::getValue(bdlt::TimeTz *value, bslstl::StringRef data)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

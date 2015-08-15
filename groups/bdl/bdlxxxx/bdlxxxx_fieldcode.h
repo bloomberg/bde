@@ -1,4 +1,4 @@
-// bdlxxxx_fieldcode.h                                                   -*-C++-*-
+// bdlxxxx_fieldcode.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_FIELDCODE
 #define INCLUDED_BDLXXXX_FIELDCODE
 
@@ -105,15 +105,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, FieldCode::Type rhs);
     // Write to the specified 'stream' the string representation exactly
     // matching the name corresponding to the specified 'rhs' value.
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

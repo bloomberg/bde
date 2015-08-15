@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslmf {
         class FunctionPointerCPlusPlusLinkage;
-    }
+    }  // close namespace bslmf
 
     typedef bslmf::FunctionPointerCPlusPlusLinkage bslmf_FunctionPointerCPlusPlusLinkage;
-}
+}  // close enterprise namespace
 
 #else
 

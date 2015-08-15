@@ -130,7 +130,7 @@ void TestAllocator::deallocate(void *address)
     d_isDeallocateCalled = 1;
 }
 
-} // namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                               USAGE EXAMPLE

@@ -42,7 +42,7 @@ int SequentialPool::calculateNextBufferSize(int size) const
     unsigned int nextSize = 0 == d_bufSize ? INITIAL_SIZE : d_bufSize;
 
     if (CONSTANT == d_growthStrategy) {
-        return nextSize;
+        return nextSize;                                              // RETURN
     }
 
     do {

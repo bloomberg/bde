@@ -20,11 +20,11 @@ FixedMemInStreamBuf::pos_type FixedMemInStreamBuf::seekpos(
 {
     // This is an input buffer only, so cannot "seek" in "put" area.
     if (!(which & bsl::ios_base::in)) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     if (off_type(pos) > d_length || off_type(pos) < 0) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     setg(d_buffer_p,
@@ -51,7 +51,7 @@ FixedMemInStreamBuf::int_type FixedMemInStreamBuf::pbackfail(
                                                             int_type character)
 {
     if (traits_type::eof() == character) {
-        return character;
+        return character;                                             // RETURN
     }
 
     BSLS_ASSERT(*pptr() == character);
@@ -60,7 +60,7 @@ FixedMemInStreamBuf::int_type FixedMemInStreamBuf::pbackfail(
 }
 }  // close package namespace
 
-} // end namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

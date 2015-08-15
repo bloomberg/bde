@@ -1,4 +1,4 @@
-// bdlmxxx_choicearray.h                                                 -*-C++-*-
+// bdlmxxx_choicearray.h                                              -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_CHOICEARRAY
 #define INCLUDED_BDLMXXX_CHOICEARRAY
 
@@ -709,9 +709,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ChoiceArray& rhs);
     //  rhs.print(stream, 0, -1)
     //..
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------
                         // class ChoiceArray
@@ -1095,15 +1095,15 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream, const ChoiceArray& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

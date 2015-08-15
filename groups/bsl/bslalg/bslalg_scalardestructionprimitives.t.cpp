@@ -221,8 +221,8 @@ class TestType {
 namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -338,7 +338,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 namespace bsl {
 template <> struct is_trivially_copyable<BitwiseCopyableTestType>
     : true_type {};
-}
+}  // close namespace bsl
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -565,7 +565,7 @@ static const struct {
 };
 const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 
-template <typename TYPE>
+template <class TYPE>
 void testDestroy(bool bitwiseCopyableFlag)
 {
     const size_t MAX_SIZE = 16;

@@ -62,7 +62,7 @@ typedef native_std::bad_weak_ptr bad_weak_ptr;
 typedef ::BloombergLP::bslstl::BadWeakPtr bad_weak_ptr;
 #endif
 
-}  // close 'bsl' namespace
+}  // close namespace bsl
 
 
 namespace BloombergLP {

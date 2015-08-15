@@ -173,7 +173,7 @@ double usageExample(double startValue)
         // automatically along with 'guard'.
 
     if (myVec[0] >= 5.0) {
-        return 5.0;                                               // RETURN
+        return 5.0;                                                   // RETURN
             // Note that 'myVec' is automatically destroyed as the
             // function returns.
     }

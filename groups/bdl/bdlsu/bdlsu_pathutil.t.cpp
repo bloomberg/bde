@@ -193,7 +193,7 @@ struct Parameters {
 void convertToWindowsSeparator(bsl::string *path)
    // Replace each occurance of '/' with '\\' in the specified 'path'.
 {
-    bsl::string::size_type position = path->find('/'); 
+    bsl::string::size_type position = path->find('/');
     for ( ; position != bsl::string::npos; position = path->find('/')) {
         (*path)[position] = '\\';
     }
@@ -202,9 +202,9 @@ void convertToWindowsSeparator(bsl::string *path)
 void convertToUnixSeparator(bsl::string *path)
    // Replace each occurance of '\\' with '\' in the specified 'path'.
 {
-    bsl::string::size_type position = path->find('\\'); 
-    for ( ; 
-         position != bsl::string::npos; 
+    bsl::string::size_type position = path->find('\\');
+    for ( ;
+         position != bsl::string::npos;
          position = path->find('\\', position)) {
         (*path)[position] = '/';
     }
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
         //:   appeneded to 'path'.
         //:
         //: 5 If 'path' contains only separators it is simplified to a single
-        //:   separator. 
+        //:   separator.
         //:
         //: 6 If 'filename' is an alias for any element in 'path', it is still
         //:   correctly appended.
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
         //: 1 Create a table of test input values and expected results, and
         //:   iterate over this table verifying that 'appendIfValue' produces
         //:   the expected results.  (C-1, C-2, C-3, C-4, C-5, C-6)
-        //:  
+        //:
         //: 1 Iterate over a series of simple test paths, and for each
         //:   path, iterate over a series of sub-string within that path.
         //:   For each sub-string, create a bslstl::StringRef aliasing that
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
             cout << "TESTING: appendIfValid" << endl
                  << "======================" << endl;
         }
-        
+
         if (verbose) {
             cout << "\tUse table of distinct object values." << endl;
         }
@@ -336,9 +336,9 @@ int main(int argc, char *argv[])
                 { L_,  "//?/a"  , "b" , true ,  "//?/a/b" },
                 { L_,  "//?/a/" , "b" , true ,  "//?/a/b" },
                 { L_,  "//?/a//", "b" , true ,  "//?/a/b" },
-                { L_,  "//?/"   , "/b", false,  "//?/b" },                
+                { L_,  "//?/"   , "/b", false,  "//?/b" },
 #endif
-            
+
             };
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
@@ -365,14 +365,14 @@ int main(int argc, char *argv[])
                     P_(LINE); P_(originalPath); P_(filename);
                     P_(path); P(expectedResult);
                 }
-            
+
                 if (!success) {
                     LOOP_ASSERT(LINE, 0 != rc);
                     continue;
                 }
 
                 LOOP_ASSERT(LINE, 0 == rc);
-                LOOP4_ASSERT(LINE, originalPath, filename, path, 
+                LOOP4_ASSERT(LINE, originalPath, filename, path,
                              expectedResult == path);
             }
         }
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
 
                 for (int subStrLen = 0; subStrLen < pathLen; ++subStrLen) {
                     for (int offset=0; offset<pathLen-subStrLen+1; ++offset){
-                        
+
                         bsl::string path(VALUES[i]);
                         bslstl::StringRef filename(path.c_str() + offset,
                                                  subStrLen);
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
 
                         bsl::string expectedResult(path);
                         if (path.size() > 0 && filename.length() > 0) {
-                            expectedResult += "/";                            
+                            expectedResult += "/";
                         }
                         expectedResult+=
                             bsl::string(filename.data(), filename.length());
@@ -426,9 +426,9 @@ int main(int argc, char *argv[])
                         }
 
                         ASSERT(0 == rc);
-                        LOOP4_ASSERT(originalPath, 
-                                     originalFilename, 
-                                     path, 
+                        LOOP4_ASSERT(originalPath,
+                                     originalFilename,
+                                     path,
                                      expectedResult,
                                      expectedResult == path);
                     }
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
             }
 
         }
-        
+
       } break;
       case 4: {
         /////////////////////////////////////////////////////////////
@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
             // Count leaves by removing them iteratively...When we're done,
             // verify the root of the path (we should not be able to change it
             // by removing leaves)
- 
+
             int count;
             for (count = 0;
                  bdlsu::PathUtil::hasLeaf(iTest);
@@ -626,7 +626,7 @@ int main(int argc, char *argv[])
         //
         // Concern: The component's Usage Example compiles and runs
         ////////////////////////////////////////////////////////////
-        
+
         if (verbose) {
            cout << "Usage Example Test" << endl;
         }
@@ -641,7 +641,7 @@ int main(int argc, char *argv[])
         ASSERT(false == bdlsu::PathUtil::isRelative(tempPath));
         ASSERT(true  == bdlsu::PathUtil::isAbsolute(tempPath));
         ASSERT(true  == bdlsu::PathUtil::hasLeaf(tempPath));
-        
+
         bdlsu::PathUtil::appendRaw(&tempPath, "myApp");
         bdlsu::PathUtil::appendRaw(&tempPath, "logs");
         ASSERT(true == bdlsu::PathUtil::isRelative(otherPath));
@@ -719,11 +719,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -954,9 +954,9 @@ class AtomicPointer {
         // 'bslmf_Assert' can't be used here because of package dependency
         // rules.
 
-    template <typename TYPE1>
+    template <class TYPE1>
     struct RemoveConst              { typedef TYPE1 Type; };
-    template <typename TYPE1>
+    template <class TYPE1>
     struct RemoveConst<TYPE1 const> { typedef TYPE1 Type; };
 
     typedef typename RemoveConst<TYPE>::Type NcType;
@@ -1045,9 +1045,9 @@ class AtomicPointer {
 
 namespace bsls {
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                                // ---------------
                                // class AtomicInt

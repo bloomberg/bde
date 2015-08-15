@@ -476,11 +476,11 @@ class Base64Decoder {
         // Destroy this object.
 
     // MANIPULATORS
-    template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
     int convert(OUTPUT_ITERATOR out,
                 INPUT_ITERATOR  begin,
                 INPUT_ITERATOR  end);
-    template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
     int convert(OUTPUT_ITERATOR  out,
                 int             *numOut,
                 int             *numIn,
@@ -509,9 +509,9 @@ class Base64Decoder {
         // 'endConvert' method be called to complete the encoding of any
         // unprocessed input characters that do not complete a 3-byte sequence.
 
-    template <typename OUTPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR out);
-    template <typename OUTPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR  out,
                    int             *numOut,
                    int              maxNumOut = -1);
@@ -573,9 +573,9 @@ class Base64Decoder {
         // Return the total length of the output emitted thus far.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------------
                         // class Base64Decoder
@@ -603,7 +603,7 @@ Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag)
 }
 
 // MANIPULATORS
-template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Decoder::convert(OUTPUT_ITERATOR out,
                                  INPUT_ITERATOR  begin,
                                  INPUT_ITERATOR  end)
@@ -614,7 +614,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR out,
     return convert(out, &dummyNumOut, &dummyNumIn, begin, end, -1);
 }
 
-template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Decoder::convert(OUTPUT_ITERATOR  out,
                                  int             *numOut,
                                  int             *numIn,
@@ -630,7 +630,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
         d_state = BDEDE_ERROR_STATE;
         *numOut = 0;
         *numIn = 0;
-        return rv;
+        return rv;                                                    // RETURN
     }
 
     int numEmitted = 0;
@@ -733,7 +733,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     return BDEDE_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
 }
 
-template <typename OUTPUT_ITERATOR>
+template <class OUTPUT_ITERATOR>
 int Base64Decoder::endConvert(OUTPUT_ITERATOR out)
 {
     int dummyNumOut;
@@ -741,7 +741,7 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR out)
     return endConvert(out, &dummyNumOut, -1);
 }
 
-template <typename OUTPUT_ITERATOR>
+template <class OUTPUT_ITERATOR>
 int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
                                     int             *numOut,
                                     int              maxNumOut)
@@ -754,7 +754,7 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
                               (BDEDE_INPUT_STATE == d_state && residualBits)) {
         *numOut = 0;
         d_state = BDEDE_ERROR_STATE;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     d_state = BDEDE_DONE_STATE;
@@ -830,15 +830,22 @@ int Base64Decoder::outputLength() const
 }
 }  // close package namespace
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

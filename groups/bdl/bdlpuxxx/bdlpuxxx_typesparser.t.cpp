@@ -1,4 +1,4 @@
-// bdlpuxxx_typesparser.t.cpp              -*-C++-*-
+// bdlpuxxx_typesparser.t.cpp                                         -*-C++-*-
 
 #include <bdlpuxxx_typesparser.h>
 #include <bdlpuxxx_parserimputil.h>
@@ -159,9 +159,9 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // TBD usage
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -177,10 +177,10 @@ void aSsErT(int c, const char *s, int i) {
     }
 }
 
-}
+}  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) \
 { \
     if (!(X)) { \
@@ -250,7 +250,7 @@ void aSsErT(int c, const char *s, int i) {
 #define T_()  cout << '\t' << flush;          // Print a tab character
 
 //=============================================================================
-//                  USEFUL SPECIFIC MACROS
+//                          USEFUL SPECIFIC MACROS
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -485,9 +485,9 @@ typedef struct {
     const char *d_exp_p;    // expected result
 } SampleValuesGenerateChar;
 
-//--------------------------------------------------------------
-// Static declarations
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//                          Static declarations
+//-----------------------------------------------------------------------------
 
 static const struct {
     int         d_lineNum;  // source line number
@@ -584,7 +584,7 @@ static bslma::TestAllocator *testAllocator_p;
                    INITIAL_VALUE_2, \
                    __LINE__)
 
-template <typename PARSE_TYPE>
+template <class PARSE_TYPE>
 void testParseErrorInput(
      int (*parseFunction1)(const char **, PARSE_TYPE *, const char *),
      int (*parseFunction2)(const char **, PARSE_TYPE *, const char *, int),
@@ -697,7 +697,7 @@ void testParseErrorInput(
                    INITIAL_VALUE_2, \
                    __LINE__)
 
-template <typename PARSE_TYPE, typename SPEC_TYPE>
+template <class PARSE_TYPE, class SPEC_TYPE>
 void testParseValidInput(
      int (*parseFunction1)(const char **, PARSE_TYPE *, const char *),
      int (*parseFunction2)(const char **, PARSE_TYPE *, const char *, int),
@@ -771,7 +771,7 @@ void testParseValidInput(
                    __LINE__)
 
 
-template <typename PARSE_TYPE, typename SPEC_TYPE>
+template <class PARSE_TYPE, class SPEC_TYPE>
 void testParseArray(
      int (*parseFunction)(const char **,
                           bsl::vector<PARSE_TYPE>*,
@@ -1042,7 +1042,7 @@ void testParseArray(
                    VALUES, \
                    __LINE__)
 
-template <typename GEN_TYPE1, typename GEN_TYPE2, typename SPEC_TYPE>
+template <class GEN_TYPE1, class GEN_TYPE2, class SPEC_TYPE>
 void testGenerate(
      void (*generateFunction)(bsl::vector<char> *, GEN_TYPE2, int, int),
      void (*generateFunctionRaw)(bsl::vector<char> *, GEN_TYPE2, int, int),
@@ -1131,7 +1131,7 @@ void testGenerate(
                    VALUES, \
                    __LINE__)
 
-template <typename GEN_TYPE, typename SPEC_TYPE>
+template <class GEN_TYPE, class SPEC_TYPE>
 void testGenerateArray(
      void (*generateFunction)(bsl::vector<char> *,
                               const bsl::vector<GEN_TYPE>&,
@@ -3204,11 +3204,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

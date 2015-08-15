@@ -2023,7 +2023,7 @@ class ChannelPool {
                  // class ChannelPool_IovecArray
                  // ============================
 
-template <typename IOVEC>
+template <class IOVEC>
 class ChannelPool_IovecArray {
     // This is an implementation type of 'ChannelPool' and should not be used
     // by clients of this component.  An 'IovecArray' is an in-core
@@ -2073,7 +2073,7 @@ class ChannelPool_IovecArray {
 };
 
 // FREE OPERATORS
-template <typename IOVEC>
+template <class IOVEC>
 inline
 bool operator==(const ChannelPool_IovecArray<IOVEC> &lhs,
                 const ChannelPool_IovecArray<IOVEC> &rhs);
@@ -2082,7 +2082,7 @@ bool operator==(const ChannelPool_IovecArray<IOVEC> &lhs,
     // if their respective array addresses, array lengths, and total data
     // lengths are the same.
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 bool operator!=(const ChannelPool_IovecArray<IOVEC> &lhs,
                 const ChannelPool_IovecArray<IOVEC> &rhs);
@@ -2146,12 +2146,12 @@ struct ChannelPool_MessageUtil {
      };
 
     // CLASS METHODS
-    template <typename IOVEC>
+    template <class IOVEC>
     static bsls::Types::Int64 length(const ChannelPool_IovecArray<IOVEC>& msg);
     static bsls::Types::Int64 length(const btlb::Blob& msg);
         // Return the length of the specified 'msg'.
 
-    template <typename IOVEC>
+    template <class IOVEC>
     static int write(btlso::StreamSocket<btlso::IPv4Address> *socket,
                      btls::Iovec                             *temp,
                      const ChannelPool_IovecArray<IOVEC>&     msg);
@@ -2169,7 +2169,7 @@ struct ChannelPool_MessageUtil {
         // specified 'msg', up to 'e_MAX_IOVEC_SIZE' buffers.  Return the
         // number of buffers loaded into 'dest'.
 
-    template <typename IOVEC>
+    template <class IOVEC>
     static int loadBlob(btlb::Blob                         *dest,
                         const ChannelPool_IovecArray<IOVEC>&  msg,
                         int                                   msgOffset);
@@ -2183,7 +2183,7 @@ struct ChannelPool_MessageUtil {
         // 'dest' of the corresponding 'msgOffset' byte in 'msg'.  The behavior
         // is undefined unless 'dest' is empty.
 
-    template <typename IOVEC>
+    template <class IOVEC>
     static void appendToBlob(btlb::Blob                         *dest,
                              const ChannelPool_IovecArray<IOVEC>&  msg);
     static void appendToBlob(btlb::Blob        *dest,
@@ -2208,7 +2208,7 @@ int ChannelPool::findChannelHandle(ChannelHandle *handle, int channelId) const
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                        0 == d_channels.find(channelId, handle))
           && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(*handle)) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     return 1;
@@ -2303,7 +2303,7 @@ int ChannelPool::numThreads() const
                  // ----------------------------
 
 // CREATORS
-template <typename IOVEC>
+template <class IOVEC>
 inline
 ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(const IOVEC *iovecs,
                                                       int          numIovecs)
@@ -2313,7 +2313,7 @@ ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(const IOVEC *iovecs,
 {
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(
                                         const ChannelPool_IovecArray& original)
@@ -2324,7 +2324,7 @@ ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(
 }
 
 // MANIPULATORS
-template <typename IOVEC>
+template <class IOVEC>
 inline
 ChannelPool_IovecArray<IOVEC>&
 ChannelPool_IovecArray<IOVEC>::operator=(const ChannelPool_IovecArray& rhs)
@@ -2336,7 +2336,7 @@ ChannelPool_IovecArray<IOVEC>::operator=(const ChannelPool_IovecArray& rhs)
 }
 
 // ACCESSORS
-template <typename IOVEC>
+template <class IOVEC>
 inline
 bsls::Types::Int64
 ChannelPool_IovecArray<IOVEC>::length() const
@@ -2344,7 +2344,7 @@ ChannelPool_IovecArray<IOVEC>::length() const
     return d_totalLength;
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 const IOVEC *
 ChannelPool_IovecArray<IOVEC>::iovecs() const
@@ -2352,7 +2352,7 @@ ChannelPool_IovecArray<IOVEC>::iovecs() const
     return d_iovecs;
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 int ChannelPool_IovecArray<IOVEC>::numIovecs() const
 {
@@ -2371,7 +2371,7 @@ ChannelPool_MessageUtil::length(const btlb::Blob& msg)
     return msg.length();
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 bsls::Types::Int64
 ChannelPool_MessageUtil::length(const ChannelPool_IovecArray<IOVEC>& msg)
@@ -2379,7 +2379,7 @@ ChannelPool_MessageUtil::length(const ChannelPool_IovecArray<IOVEC>& msg)
     return msg.length();
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 int ChannelPool_MessageUtil::write(
                                btlso::StreamSocket<btlso::IPv4Address> *socket,
@@ -2405,7 +2405,7 @@ int ChannelPool_MessageUtil::write(
     return socket->writev(temp, numVecs);
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 int ChannelPool_MessageUtil::loadBlob(
                                btlb::Blob                         *dest,
@@ -2418,7 +2418,7 @@ int ChannelPool_MessageUtil::loadBlob(
     return 0;
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 void ChannelPool_MessageUtil::appendToBlob(
                                     btlb::Blob                         *dest,
@@ -2430,7 +2430,7 @@ void ChannelPool_MessageUtil::appendToBlob(
 }  // close package namespace
 
 // FREE OPERATORS
-template <typename IOVEC>
+template <class IOVEC>
 inline
 bool btlmt::operator==(const ChannelPool_IovecArray<IOVEC> &lhs,
                        const ChannelPool_IovecArray<IOVEC> &rhs)
@@ -2440,7 +2440,7 @@ bool btlmt::operator==(const ChannelPool_IovecArray<IOVEC> &lhs,
         && lhs.length()    == rhs.length();
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 inline
 bool btlmt::operator!=(const ChannelPool_IovecArray<IOVEC> &lhs,
                        const ChannelPool_IovecArray<IOVEC> &rhs)
@@ -2448,15 +2448,22 @@ bool btlmt::operator!=(const ChannelPool_IovecArray<IOVEC> &lhs,
     return !(lhs == rhs);
 }
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

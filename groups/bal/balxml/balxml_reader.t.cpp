@@ -1,4 +1,4 @@
-// balxml_reader.t.cpp                         -*-C++-*-
+// balxml_reader.t.cpp                                                -*-C++-*-
 
 #include <balxml_reader.h>
 #include <balxml_errorinfo.h>
@@ -521,7 +521,7 @@ void TestReader::setResolver(XmlResolverFunctor resolver) {
 void TestReader::setPrefixStack(balxml::PrefixStack *prefixes) {
     if (d_isOpen)
     {
-        return;
+        return;                                                       // RETURN
     }
 
     d_prefixes = prefixes;
@@ -531,7 +531,7 @@ void TestReader::setPrefixStack(balxml::PrefixStack *prefixes) {
 int TestReader::open(const char *filename,
                      const char *encoding) {
     if (d_isOpen) {
-        return false;
+        return false;                                                 // RETURN
     }
     d_isOpen = true;
     d_nodeDepth = 0;
@@ -547,7 +547,7 @@ int TestReader::open(const char *buffer,
                      const char *url,
                      const char *encoding) {
     if (d_isOpen) {
-        return false;
+        return false;                                                 // RETURN
     }
     d_isOpen = true;
     d_nodeDepth = 0;
@@ -562,7 +562,7 @@ int TestReader::open(bsl::streambuf *stream,
                      const char     *url,
                      const char     *encoding) {
     if (d_isOpen) {
-        return false;
+        return false;                                                 // RETURN
     }
     d_isOpen = true;
     d_nodeDepth = 0;
@@ -586,7 +586,7 @@ void TestReader::close() {
 
 int TestReader::advanceToNextNode() {
     if (!d_currentNode) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     d_currentNode++;
@@ -598,7 +598,7 @@ int TestReader::advanceToNextNode() {
         // to a forbidden value is to simply decrement it.
         d_currentNode--;
         d_prefixes->reset();
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (d_prefixes && 1 == d_nodeDepth) {
@@ -618,12 +618,12 @@ int TestReader::advanceToNextNode() {
 int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
                                 int                      index) const {
     if (!d_currentNode || index < 0 || index >= NUM_ATTRIBUTES) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     const char *qname = d_currentNode->d_attributes[index].d_qname;
     if ('\0' == qname[0]) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     attribute->reset(d_prefixes, qname,
@@ -634,7 +634,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
 int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
                                 const char               *qname) const {
     if (!d_currentNode) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
@@ -643,7 +643,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
         if (!bsl::strcmp(currentQName, qname)) {
             attribute->reset(d_prefixes, qname,
                              d_currentNode->d_attributes[index].d_value);
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
 
@@ -654,7 +654,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
                                 const char               *localName,
                                 const char               *namespaceUri) const {
     if (!d_currentNode) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     balxml::ElementAttribute a;
@@ -671,7 +671,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
         if (!bsl::strcmp(a.localName(), localName) &&
             !bsl::strcmp(a.namespaceUri(), namespaceUri)) {
             *attribute = a;
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
 
@@ -682,7 +682,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
                                 const char               *localName,
                                 int                       namespaceId) const {
     if (!d_currentNode) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     balxml::ElementAttribute a;
@@ -699,7 +699,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute  *attribute,
         if (!bsl::strcmp(a.localName(), localName) &&
             a.namespaceId(), namespaceId) {
             *attribute = a;
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
 
@@ -739,7 +739,7 @@ balxml::PrefixStack *TestReader::prefixStack() const {
 
 TestReader::NodeType TestReader::nodeType() const {
     if (!d_currentNode || !d_isOpen) {
-        return BAEXML_NODE_TYPE_NONE;
+        return BAEXML_NODE_TYPE_NONE;                                 // RETURN
     }
 
     return d_currentNode->d_type;
@@ -747,7 +747,7 @@ TestReader::NodeType TestReader::nodeType() const {
 
 const char *TestReader::nodeName() const {
     if (!d_currentNode || !d_isOpen) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return d_currentNode->d_qname;
@@ -755,7 +755,7 @@ const char *TestReader::nodeName() const {
 
 const char *TestReader::nodeLocalName() const {
     if (!d_currentNode || !d_isOpen) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     // Our simple 'TestReader' does not understand XML with qualified node
@@ -790,11 +790,11 @@ const char *TestReader::nodeBaseUri() const {
 
 bool TestReader::nodeHasValue() const {
     if (!d_currentNode || !d_isOpen) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (0 == d_currentNode->d_nodeValue) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return ('\0' != d_currentNode->d_nodeValue[0]);
@@ -802,7 +802,7 @@ bool TestReader::nodeHasValue() const {
 
 const char *TestReader::nodeValue() const {
     if (!d_currentNode || !d_isOpen) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return d_currentNode->d_nodeValue;
@@ -815,7 +815,7 @@ int TestReader::nodeDepth() const {
 int TestReader::numAttributes() const {
     for (int index = 0; index < NUM_ATTRIBUTES; ++index) {
         if (0 == d_currentNode->d_attributes[index].d_qname) {
-            return index;
+            return index;                                             // RETURN
         }
     }
 
@@ -967,10 +967,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

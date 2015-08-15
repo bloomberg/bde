@@ -1,4 +1,4 @@
-// bdlpuxxx_typesparser.cpp                                              -*-C++-*-
+// bdlpuxxx_typesparser.cpp                                           -*-C++-*-
 #include <bdlpuxxx_typesparser.h>
 
 #include <bsls_ident.h>
@@ -85,7 +85,7 @@ int TypesParser::parseIntegerLocator(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if ('{' != *inputString) {
         *endPos = inputString;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     ++inputString;
 
@@ -97,12 +97,12 @@ int TypesParser::parseIntegerLocator(const char **endPos,
                                                   10,
                                                   0xFFFFFFFFuLL)) {
         *endPos = inputString;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     ParserImpUtil::skipWhiteSpace(endPos, *endPos);
     if ('}' != **endPos) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     (*endPos)++;
@@ -111,13 +111,13 @@ int TypesParser::parseIntegerLocator(const char **endPos,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1596,7 +1596,7 @@ struct HasStlIterators<bsl::unordered_multimap<KEY,
 : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslma {
 
@@ -1609,7 +1609,7 @@ struct UsesBslmaAllocator<bsl::unordered_multimap<KEY,
 : bsl::is_convertible<Allocator*, ALLOCATOR>::type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

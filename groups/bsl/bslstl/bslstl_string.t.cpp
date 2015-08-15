@@ -511,7 +511,7 @@ void dbg_print(const wchar_t *s)
 }
 
 // String-specific print function.
-template <typename TYPE, typename TRAITS, typename ALLOC>
+template <class TYPE, class TRAITS, class ALLOC>
 void dbg_print(const bsl::basic_string<TYPE,TRAITS,ALLOC>& v)
 {
     if (v.empty()) {
@@ -526,7 +526,7 @@ void dbg_print(const bsl::basic_string<TYPE,TRAITS,ALLOC>& v)
 }
 
 // Generic debug print function (3-arguments).
-template <typename T>
+template <class T>
 void dbg_print(const char* s, const T& val, const char* nl)
 {
     printf("%s", s); dbg_print(val);
@@ -1171,7 +1171,7 @@ int TestDriver<TYPE,TRAITS,ALLOC>::ggg(Obj        *object,
                 printf("Error, bad character ('%c') "
                        "in spec \"%s\" at position %d.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
    }
    return SUCCESS;
@@ -1241,19 +1241,19 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
     int ret = TRAITS::compare(X.data(), Y.data(), rlen);
     if (ret) {
         ASSERT(ret == result);
-        return;
+        return;                                                       // RETURN
     }
     if (X.size() > Y.size()) {
         ASSERT(result > 0);
-        return;
+        return;                                                       // RETURN
     }
     if (X.size() < Y.size()) {
         ASSERT(result < 0);
-        return;
+        return;                                                       // RETURN
     }
     if (X.size() == Y.size()) {
         ASSERT(result == 0);
-        return;
+        return;                                                       // RETURN
     }
     ASSERT(0);
 }
@@ -3264,7 +3264,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     if (EXP_MAX_SIZE >= (size_t)-2) {
         printf("\n\nERROR: Cannot continue this test case without attempting\n"
                "to allocate huge amounts of memory.  *** Aborting. ***\n\n");
-        return;
+        return;                                                       // RETURN
     }
 
     const size_t DATA[] = {
@@ -14720,9 +14720,9 @@ class StringRef {
     bool isEmpty() const { return d_begin_p == d_end_p; }
 };
 
-}
+}  // close package namespace
 
-}
+}  // close enterprise namespace
 
 namespace UsageExample {
 
@@ -15022,7 +15022,7 @@ namespace UsageExample {
     }
 //..
 
-} // close namespace 'UsageExample'
+}  // close namespace UsageExample
 
 //=============================================================================
 //                              MAIN PROGRAM

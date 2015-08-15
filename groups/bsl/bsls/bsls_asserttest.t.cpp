@@ -19,7 +19,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD
+//                                  TBD
 // ----------------------------------------------------------------------------
 // [ 8] BSLS_ASSERTTEST_ASSERT_SAFE_PASS(FUNCTION)
 // [ 9] BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(FUNCTION)
@@ -1796,7 +1796,7 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 {

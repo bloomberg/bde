@@ -1,4 +1,4 @@
-// bdlmxxx_choiceheader.t.cpp                                            -*-C++-*-
+// bdlmxxx_choiceheader.t.cpp                                         -*-C++-*-
 
 #include <bdlmxxx_choiceheader.h>
 #include <bdlmxxx_descriptor.h>
@@ -98,9 +98,9 @@ using namespace BloombergLP;
 // [ 3] HELPER FUNCTIONS
 // [13] USAGE EXAMPLE
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -112,7 +112,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -444,9 +444,9 @@ inline LargeStringAlloc Unset<LargeStringAlloc>::unsetValue()
 {
     return LargeStringAlloc();
 }
-}  // close package namespace
+}  // close namespace bdltuxxx
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 namespace my_ElemTypes {
     enum ElemType {
@@ -456,7 +456,7 @@ namespace my_ElemTypes {
         MY_LARGE_STRING_ALLOC,
         MY_NUM_TYPES
     };
-}
+}  // close namespace my_ElemTypes
 
 // Initialization of element attributes for basic (non-array) types:
 #define BDEM_BASIC_DESCRIPTOR_INIT(T,ENUM)              \
@@ -612,7 +612,7 @@ static int compare(const void *p, const void *q, char spec)
       case 'C': return *(const LargeString *) p == *(const LargeString *) q;
       case 'D': return *(const LargeStringAlloc *) p
                                               == *(const LargeStringAlloc *) q;
-      default: ASSERT(0); return 0;
+      default: ASSERT(0); return 0;                                   // RETURN
     }
 }
 
@@ -3460,11 +3460,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

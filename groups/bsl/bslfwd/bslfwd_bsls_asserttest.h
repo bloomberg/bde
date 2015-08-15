@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class AssertTest;
-    }
+    }  // close namespace bsls
 
     typedef bsls::AssertTest bsls_AssertTest;
-}
+}  // close enterprise namespace
 
 #else
 

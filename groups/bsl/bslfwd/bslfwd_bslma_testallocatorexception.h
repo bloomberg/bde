@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class TestAllocatorException;
-    }
+    }  // close namespace bslma
 
     typedef bslma::TestAllocatorException bslma_TestAllocatorException;
-}
+}  // close enterprise namespace
 
 #else
 

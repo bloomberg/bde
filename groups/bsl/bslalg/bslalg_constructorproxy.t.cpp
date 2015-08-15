@@ -237,8 +237,8 @@ namespace bslma {
 template <class TYPE>
 struct UsesBslmaAllocator<TestType_YesAllocator_Template<TYPE> >
     : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 template <class TYPE>
 class TestType_NoAllocator_Template {
@@ -404,15 +404,15 @@ class SomeArbitraryClass {
     }
 };
 
-}
+}  // close namespace UsageExample1
 
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<UsageExample1::SomeArbitraryClass>
     : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 //..
 // The 'SomeArbitraryClass' class may or may not declare the
 // 'bslma::UsesBslmaAllocator' trait.  The following code illustrates
@@ -438,7 +438,7 @@ void run()
 // specified 'allocator'.  Otherwise, the specified 'allocator' will be
 // ignored.
 
-}  // end namespace UsageExample1
+}  // close namespace UsageExample1
 
 namespace UsageExample2 {
 
@@ -593,9 +593,9 @@ class SomeArbitraryClassUsingAllocator {
     }
 };
 
-}
+}  // close namespace WithoutAllocatorTrait
 
-}
+}  // close namespace UsageExample2
 
 // TRAITS
 namespace BloombergLP {
@@ -605,8 +605,8 @@ struct UsesBslmaAllocator<UsageExample2::
                           WithoutAllocatorTrait::
                           SomeArbitraryClassUsingAllocator>
     : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 //..
 // then the following code *will* compile and run *without* an assertion
 // failure:
@@ -656,9 +656,9 @@ class SomeArbitraryClassUsingAllocator {
     }
 };
 
-}
+}  // close namespace WithAllocatorTrait
 
-}
+}  // close namespace UsageExample2
 
 // TRAITS
 namespace BloombergLP {
@@ -667,8 +667,8 @@ template <>
 struct UsesBslmaAllocator<UsageExample2::
                           WithAllocatorTrait::SomeArbitraryClassUsingAllocator>
     : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 namespace UsageExample2 {
 
@@ -700,9 +700,9 @@ class MyContainer {
     // ... rest of class definition ...
 };
 
-}
+}  // close namespace WithAllocatorTrait
 
-}
+}  // close namespace UsageExample2
 
 // TRAITS
 namespace BloombergLP {
@@ -711,8 +711,8 @@ template <class TYPE>
 struct UsesBslmaAllocator<UsageExample2::
                           WithAllocatorTrait::MyContainer<TYPE> >
     : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 namespace UsageExample2 {
 
@@ -755,7 +755,7 @@ void run()
 
 //..
 
-}  // end namespace UsageExample2
+}  // close namespace UsageExample2
 
 //=============================================================================
 //                              MAIN PROGRAM

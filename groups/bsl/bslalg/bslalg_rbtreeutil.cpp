@@ -604,8 +604,8 @@ bool RbTreeUtil_Validator::isWellFormedAnchor(const RbTreeAnchor& tree)
     return count == tree.numNodes();
 }
 
-}  // close namespace bslalg
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

@@ -1,4 +1,4 @@
-// bdlmxxx_rowdata.t.cpp                                                 -*-C++-*-
+// bdlmxxx_rowdata.t.cpp                                              -*-C++-*-
 
 #include <bdlmxxx_rowdata.h>
 
@@ -121,7 +121,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] ggg GENERATOR FUNCTION
 
 //=============================================================================
-//            STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -368,7 +368,7 @@ class ChoiceArray : public Base {
     ~ChoiceArray() {}
 };
 
-}
+}  // close enterprise namespace
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Empty Dummy descriptors for list, table, choice and choiceArray
@@ -1530,7 +1530,7 @@ int ggg(Obj *obj, const char *spec, Allocator *ta = 0, int verboseFlag = 1)
         }
 
         if (si + 1 >= len) {
-            return FAILURE;
+            return FAILURE;                                           // RETURN
         }
 
         char typeSpec  = spec[si];
@@ -1542,7 +1542,7 @@ int ggg(Obj *obj, const char *spec, Allocator *ta = 0, int verboseFlag = 1)
             obj->reset();
             ta->deleteObject(layout);
 
-            return FAILURE;
+            return FAILURE;                                           // RETURN
         }
 
         layout->append(getDescriptor(typeSpec));
@@ -1676,7 +1676,7 @@ static int compare(const void *cp, const void *cq, char spec)
                                              == *(bsl::vector<TimeTz> *) q;
       case 'e': return 1;
       case 'f': return 1;
-      default: ASSERT(0); return 0;
+      default: ASSERT(0); return 0;                                   // RETURN
     }
 }
 
@@ -4710,11 +4710,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

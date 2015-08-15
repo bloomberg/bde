@@ -1,4 +1,4 @@
-// bdlmxxx_recorddef.t.cpp                  -*-C++-*-
+// bdlmxxx_recorddef.t.cpp                                            -*-C++-*-
 
 #include <bdlmxxx_recorddef.h>
 
@@ -97,7 +97,7 @@ class bdlmxxx::Schema {
         // Dummy type.
 };
 
-}
+}  // close enterprise namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 // We verify the properties of a one of the fields we've appended.  By
 // default, a field will have a null field-id, it will not be nullable, it
 // will not have a default value, and its formatting mode will be
-// 'bdeat_FormattingMode::BDEAT_DEFAULT':
+// 'bdlat_FormattingMode::e_DEFAULT':
 //..
     ASSERT(3 == ccPaymentRecDef.numFields());
     const bdlmxxx::FieldDef& cardTypeFldDef = ccPaymentRecDef.field(0);
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
     ASSERT(bdlmxxx::ElemType::BDEM_STRING    == cardTypeFldDef.elemType());
     ASSERT(false                         == cardTypeFldDef.hasDefaultValue());
     ASSERT(false                         == cardTypeFldDef.isNullable());
-    ASSERT(bdeat_FormattingMode::BDEAT_DEFAULT ==
+    ASSERT(bdlat_FormattingMode::e_DEFAULT ==
                                        cardTypeFldDef.formattingMode());
     ASSERT(&ccTypeEnumDef == cardTypeFldDef.enumerationConstraint());
 //..
@@ -433,11 +433,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
