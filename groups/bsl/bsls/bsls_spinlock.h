@@ -1,4 +1,4 @@
-// bsls_spinlock.h                                               -*-C++-*-
+// bsls_spinlock.h                                                    -*-C++-*-
 #ifndef INCLUDED_BSLS_SPINLOCK
 #define INCLUDED_BSLS_SPINLOCK
 
@@ -16,23 +16,24 @@ BSLS_IDENT("$: $")
 //@AUTHOR: David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides a "busy wait" mutual exclusion lock
-// primitive ("mutex"). This object is small and statically initializable, but
+// primitive ("mutex"). A 'SpinLock' is small and statically-initializable, but
 // because it "spins" in a tight loop rather than using system operations to
 // block the thread of execution, it is unsuited for use cases involving high
-// contention or long critical regions. Additionally, this component does not
+// contention or long critical regions.  Additionally, this component does not
 // provide any guarantee of fairness when multiple threads are contending for
-// the same lock.
+// the same lock.  Use 'SpinLockGuard' for automatic locking-unlocking in a
+// scope.
 //
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
 ///Example 1: Maintaining Static Count/Max Values
-///- - - - - - - - - - - - - - - - - - - - - - - 
-// Suppose that we want to determine the maximum number of threads executing
-// a block of code concurrently. Note that such a use case naturally calls
-// for a statically initialized lock and the critical region involves
-// a few integer operations; SpinLock may be suitable.
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to determine the maximum number of threads executing a
+// block of code concurrently.  Note that such a use case naturally calls for
+// a statically initialized lock and the critical region involves a few integer
+// operations; SpinLock may be suitable.
 //
 // First, we define a type to manage the count within a scope:
 //..
@@ -75,7 +76,7 @@ BSLS_IDENT("$: $")
 //   }
 //..
 // Next, we declare static variables to track the call count and a SpinLock to
-// guard them. 'SpinLock' may be statically initialized using the
+// guard them.  'SpinLock' may be statically initialized using the
 // 'BSLS_SPINLOCK_UNLOCKED' constant:
 //..
 //   {
@@ -90,7 +91,7 @@ BSLS_IDENT("$: $")
 //      MaxConcurrencyCounter counter(&threadCount, &maxThreads, &threadLock);
 //..
 // Finally, closing the block synchronizes on the 'SpinLock' again to decrement
-// the thread count. Any intervening code can run in parallel.
+// the thread count.  Any intervening code can run in parallel.
 //..
 //   }
 //..
@@ -118,19 +119,19 @@ namespace bsls {
                              // ==============
 struct SpinLock {
     // A statically-initializable synchronization primitive that "spins"
-    // (i.e., executes user instructions in a tight loop) rather than
-    // blocking waiting threads using system calls. The following idiom is
-    // used to initialize 'SpinLock' objects:
+    // (i.e., executes user instructions in a tight loop) rather than blocking
+    // waiting threads using system calls.  The following idiom is used to
+    // initialize 'SpinLock' objects:
     //..
     //  SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
     //..
-    
+
   private:
     // NOT IMPLEMENTED
     SpinLock& operator=(const SpinLock&);
-    
-    // We would like to prohibit copy construction, but then this class
-    // would not be a POD and could not be initialized statically:
+
+    // We would like to prohibit copy construction, but then this class would
+    // not be a POD and could not be initialized statically:
     // SpinLock(const SpinLock&);
 
     // PRIVATE TYPES
@@ -138,23 +139,23 @@ struct SpinLock {
         e_UNLOCKED = 0, // unlocked state value
         e_LOCKED = 1    // locked state value
     };
-    
+
   public:
     // DATA
     AtomicOperations::AtomicTypes::Int d_state;
-        // Public to allow this type to be a statically-initializable POD.
-        // Do not use directly.
-    
+        // Public to allow this type to be a statically-initializable POD. Do
+        // not use directly.
+
     // MANIPULATORS
     void lock();
-        // Spin (repeat a loop continuously without using the system to
-        // pause or reschedule the thread) until this object is unlocked,
-        // then atomically acquire the lock.
-    
+        // Spin (repeat a loop continuously without using the system to pause
+        // or reschedule the thread) until this object is unlocked, then
+        // atomically acquire the lock.
+
     int tryLock(int numRetries = 0);
-        // Attempt to acquire the lock; if this object is already locked,
-        // attempt again up to the specified 'numRetries' times. Return 0
-        // on success, and a non-zero value if the lock was not successfully
+        // Attempt to acquire the lock; optionally specify the 'numRetries'
+        // times to attempt again if this object is already locked.  Return 0
+        // on success,  and a non-zero value if the lock was not successfully
         // acquired.  The behavior is undefined unless '0 <= numRetries'.
 
     void unlock();
@@ -180,17 +181,17 @@ class SpinLockGuard {
 
     // CREATORS
     explicit SpinLockGuard(SpinLock *lock);
-       // Create a proctor object that manages the specified 'lock'. Invoke
-       // 'lock->lock()'.
+        // Create a proctor object that manages the specified 'lock'. Invoke
+        // 'lock->lock()'.
 
     ~SpinLockGuard();
-       // Destroy this proctor object and invoke 'unlock()' on the lock managed
-       // by this object.
+        // Destroy this proctor object and invoke 'unlock()' on the lock
+        // managed by this object.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
                              // --------------
                              // class SpinLock
@@ -218,7 +219,7 @@ int SpinLock::tryLock(int numRetries) {
             if (e_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
                                                               e_LOCKED))
             {
-                return 0;
+                return 0;                                             // RETURN
             }
         }
     } while(numRetries--);
@@ -228,10 +229,10 @@ int SpinLock::tryLock(int numRetries) {
 inline
 void SpinLock::unlock() {
     BSLS_ASSERT_SAFE(e_LOCKED == AtomicOperations::getInt(&d_state));
-    
+
     AtomicOperations::setIntRelease(&d_state, e_UNLOCKED);
 }
-        
+
                           // -------------------
                           // class SpinLockGuard
                           // -------------------
@@ -247,13 +248,13 @@ SpinLockGuard::~SpinLockGuard()
 {
     d_lock_p->unlock();
 }
-    
-}  // close namespace bsls
-}  // close namespace BloombergLP
+
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -267,8 +268,4 @@ SpinLockGuard::~SpinLockGuard()
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// ----------------------------- END-OF-FILE ---------------------------------
-
-    
-
-    
+// ----------------------------- END-OF-FILE ----------------------------------
