@@ -22,6 +22,9 @@
 
 #include <bsls_platform.h>
 
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -29,6 +32,9 @@
 #endif
 
 #undef ERR
+
+#include <signal.h>
+#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -355,7 +361,8 @@ static void signalHandler(int sig)
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
-    // Register the signal handler for the signal 'signo' to be generated.
+    // Register the specified signal 'handler' for the specified signal 'signo'
+    // to be generated.
 {
     struct sigaction act, oact;
 
@@ -496,8 +503,8 @@ static int buildChannelHelper(
                btlso::StreamSocket<btlso::IPv4Address>            **sSocket)
     // Create a pair of sockets which are connected to each other and load them
     // into the specified 'socketPair'.  Create a
-    // 'btlso::InetStreamSocketFactory' object and load it into 'sSocket'.
-    // Return 0 on success, and nonzero otherwise.
+    // 'btlso::InetStreamSocketFactory' object and load it into the specified
+    // 'sSocket'.  Return 0 on success, and nonzero otherwise.
 {
     int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      socketPair,
@@ -563,12 +570,12 @@ static int buildChannelHelper(
 
 template <class VECBUFFER>
 static inline
-void fillBuffers(VECBUFFER *vecBuffers, int numBuffers, char ch)
+void fillBuffers(VECBUFFER *vectorBuffers, int numBuffers, char ch)
 {
     for (int i = 0; i < numBuffers; ++i) {
-        memset((char*) const_cast<void *>(vecBuffers[i].buffer()),
+        memset((char*) const_cast<void *>(vectorBuffers[i].buffer()),
                ch,
-               vecBuffers[i].length());
+               vectorBuffers[i].length());
     }
 }
 
@@ -579,14 +586,15 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
                                char                        *buffer,
                                const btls::Iovec           *ioBuffer,
                                const btls::Ovec            *oBuffer,
-                               int                         *idx)
+                               int                         *index)
     // Process the specified 'command' to invoke some operation of the
     // specified 'channel', or the 'helperSocket' which is the control endpoint
-    // of the socket pair.  For a read operation, load either 'buffer' or
-    // 'ioBuffer' corresponding to the request.  For a write operation, write
-    // data from either 'buffer' or 'ioBuffer' or 'oBuffer' corresponding to
-    // the request.  Return the return value of the operation on success, and 0
-    // if the called function returns nothing.
+    // of the socket pair.  For a read operation, load either the specified
+    // 'buffer' or 'ioBuffer' corresponding to the request.  For a write
+    // operation, write data from either 'buffer' or 'ioBuffer' or the
+    // specified 'oBuffer' corresponding to the request.  Return the return
+    // value of the operation on success, and 0 if the called function returns
+    // nothing.
 {
     int rCode = 0;
 
@@ -832,7 +840,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
                 PT(ret);
             }
         }
-        ++(*idx);
+        ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the signaling thread
         bdlqq::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
@@ -863,16 +871,18 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
                 PT(ret);
             }
         }
-        ++(*idx);
+        ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the closer thread
         bdlqq::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
 #endif
     } break;
     case e_CLOSE_OBSERVE: {
-        // To close the channel socket to simulate "hard" errors. int ret =
-        // btlso::SocketImpUtil::close(socketPair[0]);
-        //  ASSERT(0 == ret);
+        // To close the channel socket to simulate "hard" errors.
+        //..
+        //  int rv = btlso::SocketImpUtil::close(socketPair[0]);
+        //  ASSERT(0 == rv);
+        //..
 
         bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
 
@@ -895,7 +905,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
                 PT(ret);
             }
         }
-        ++(*idx);
+        ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the closer thread
         bdlqq::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
@@ -926,10 +936,11 @@ int processTest(btlsos::TcpChannel          *channel,
     // 'signals' is set, a thread taking the specified 'threadFunction'
     // function will be generated to generate signals.  Results after each test
     // will be compared against those expected which are also specified in the
-    // specified 'commands'.  For a read operation, load either 'buffer' or
+    // 'commands'.  For a read operation, load either the specified 'buffer' or
     // 'ioBuffer' corresponding to the request.  For a write operation, write
-    // data from either 'buffer' or 'ioBuffer' or 'oBuffer' corresponding to
-    // the request.  Return 0 on success, and a non-zero value otherwise.
+    // data from either 'buffer' or 'ioBuffer' or the specified 'oBuffer'
+    // corresponding to the request.  Return 0 on success, and a non-zero value
+    // otherwise.
 {
     bdlqq::ThreadUtil::Handle threadHandle[k_MAX_CMD];
     int ret = 0, idx = 0, numErrors = 0;
@@ -1006,8 +1017,8 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    registerSignal(SIGPIPE, signalHandler); // register a handler for SIGPIPE.
-    registerSignal(SIGSYS, signalHandler); // register a handler for SIGSYS.
+    registerSignal(SIGPIPE, signalHandler); // register a handler for 'SIGPIPE'
+    registerSignal(SIGSYS, signalHandler); // register a handler for 'SIGSYS'
     // A write() on the closed socket will generate SIGPIPE.
 #endif
 
@@ -1167,17 +1178,23 @@ int main(int argc, char *argv[]) {
 #ifndef BSLS_PLATFORM_OS_SOLARIS
         // -------------------------------------------------------------------
         // TESTING 'writevRaw' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
+        //
         //     2. no write operations can succeed after the channel is
         //        invalid;
+        //
         //     3. return other negative value for other 'hard' errors;
+        //
         //     4. write the expected number of bytes to the channel if
         //        enough space available in the channel;
+        //
         //     5. return after an "AE" occurs if the "write" is in
         //        'interruptible' mode, and the return value for 'augstatus'
         //        should be > 0;
+        //
         //     6. keep trying writing expected number of bytes upon "AE" if in
         //        'non-interruptible' mode;
         //
@@ -1700,6 +1717,7 @@ int main(int argc, char *argv[]) {
 #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // -------------------------------------------------------------------
         // TESTING 'writev' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -2237,6 +2255,7 @@ int main(int argc, char *argv[]) {
 #ifndef BSLS_PLATFORM_OS_SOLARIS
         // -------------------------------------------------------------------
         // TESTING 'writeRaw' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -2589,6 +2608,7 @@ int main(int argc, char *argv[]) {
 #if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // -------------------------------------------------------------------
         // TESTING 'write' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -2819,7 +2839,7 @@ int main(int argc, char *argv[]) {
                 // Each request write expected number of bytes to the channel.
              {L_,     e_WA,           1,         0,           1,         0   },
             {L_,     e_WRA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
-            //{L_,    WRA,       30000,         1,       30000,         0   },
+            //{L_,  e_WRA,       30000,         1,       30000,         0   },
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
             {L_,  e_SIGNAL,         30,          0,           0,         0   },
@@ -3251,6 +3271,7 @@ int main(int argc, char *argv[]) {
       case 6: {
         // -------------------------------------------------------------------
         // TESTING 'bufferedRead' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -3564,6 +3585,7 @@ int main(int argc, char *argv[]) {
       case 5: {
         // -------------------------------------------------------------------
         // TESTING 'readvRaw' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -3882,6 +3904,7 @@ int main(int argc, char *argv[]) {
       case 4: {
         // -------------------------------------------------------------------
         // TESTING 'readv' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -4214,6 +4237,7 @@ int main(int argc, char *argv[]) {
       case 3: {
         // -------------------------------------------------------------------
         // TESTING 'readRaw' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -4503,10 +4527,9 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 2: {
-// TBD FIX ME
-// #ifndef BSLS_PLATFORM_OS_AIX
         // -------------------------------------------------------------------
         // TESTING 'read' METHOD:
+        //
         // Concerns:
         //   The main concerns about this function are that if it can
         //     1. return -l if the connection was closed by the peer;
@@ -4807,12 +4830,11 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-// #endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:
-        //   We need to exercise basic value-semantic functionalities.  In
+        //   We need to exercise basic value-semantic functionality.  In
         //   particular, make sure that functions for I/O requests such as
         //   'read()', 'readv', 'readRaw', 'readvRaw', 'bufferedRead',
         //  'bufferedReadRaw', 'write', 'writeRaw' etc. work fine.
