@@ -100,21 +100,19 @@ BSLS_IDENT("$Id: $")
 //                          int                    status,
 //                          int                    asyncStatus,
 //                          btlsc::TimedCbChannel *channel);
-//          // Invoked from the socket event manager when data is read from a
-//          // channel.  [...]
+//          // Invoked from the socket event manager when data is read.  [...]
 //
 //      void readCb(int                    status,
 //                  int                    asyncStatus,
 //                  btlsc::TimedCbChannel *channel);
-//          // Invoked from the socket event manager when data is read from a
-//          // channel.  [...]
+//          // Invoked from the socket event manager when data is read.  [...]
 //
 //      void writeCb(int                    status,
 //                   int                    asyncStatus,
 //                   btlsc::TimedCbChannel *channel,
 //                   int                    numBytes);
-//          // Invoked from the socket event manager when data is written into
-//          // a channel.  [...]
+//          // Invoked from the socket event manager when data is written.
+//          // [...]
 //
 //    private:
 //      // Not implemented:
@@ -138,10 +136,10 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      int open(int portNumber = k_DEFAULT_PORT_NUMBER);
-//          // Establish a listening socket on the specified 'portNumber';
-//          // return 0 on success, and a non-zero value otherwise.  The
-//          // behavior is undefined unless '0 <= portNumber' and the listening
-//          // port is not currently open.
+//          // Establish a listening socket on the optionally specified
+//          // 'portNumber'; return 0 on success, and a non-zero value
+//          // otherwise.  The behavior is undefined unless '0 <= portNumber'
+//          // and the listening port is not currently open.
 //
 //      int close();
 //          // Close the listening socket; return 0 on success and a non-zero

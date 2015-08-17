@@ -206,21 +206,19 @@ enum {
                             int                    status,
                             int                    asyncStatus,
                             btlsc::TimedCbChannel *channel);
-            // Invoked from the socket event manager when data is read from a
-            // channel.  [...]
+            // Invoked from the socket event manager when data is read.  [...]
 
         void readCb(int                    status,
                     int                    asyncStatus,
                     btlsc::TimedCbChannel *channel);
-            // Invoked from the socket event manager when data is read from a
-            // channel.  [...]
+            // Invoked from the socket event manager when data is read.  [...]
 
         void writeCb(int                    status,
                      int                    asyncStatus,
                      btlsc::TimedCbChannel *channel,
                      int                    numBytes);
-            // Invoked from the socket event manager when data is written into
-            // a channel.  [...]
+            // Invoked from the socket event manager when data is written.
+            // [...]
 
       private:
         // Not implemented:
@@ -244,10 +242,10 @@ enum {
 
         // MANIPULATORS
         int open(int portNumber = k_DEFAULT_PORT_NUMBER);
-            // Establish a listening socket on the specified 'portNumber';
-            // return 0 on success, and a non-zero value otherwise.  The
-            // behavior is undefined unless '0 <= portNumber' and the listening
-            // port is not currently open.
+            // Establish a listening socket on the optionally specified
+            // 'portNumber'; return 0 on success, and a non-zero value
+            // otherwise.  The behavior is undefined unless '0 <= portNumber'
+            // and the listening port is not currently open.
 
         int close();
             // Close the listening socket; return 0 on success and a non-zero
@@ -570,8 +568,8 @@ class my_TickReporter {
         // Create a non-blocking tick-reporter using the specified 'acceptor'
         // to establish incoming client connections, each transmitting a single
         // 'my_Tick' value; write these values to the specified 'console'
-        // stream.  If the acceptor is idle for more than five minutes, print a
-        // message to the 'console' stream supplied at construction and
+        // stream.  If the 'acceptor' is idle for more than five minutes, print
+        // a message to the 'console' stream supplied at construction and
         // continue.  To guard against malicious clients, a connection that
         // does not produce a tick value within one minute will be summarily
         // dropped.
@@ -617,7 +615,8 @@ void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
                   , _1, _2, _3
                   , clientChannel));
 
-        // Install read callback (timeout, but no raw or async interrupt).
+        // Install read callback (timeout, but no raw or asynchronous
+        // interrupt).
 
         if (clientChannel->timedBufferedRead(numBytes, now + READ_TIME_LIMIT,
                                              readFunctor)) {
@@ -731,11 +730,11 @@ static void acceptCb(btlsc::CbChannel      *channel,
                      int                    closeFlag)
     // Verify the result of an "ACCEPT" request by comparing against the
     // expected values: If the specified 'channelFlag' is nonzero, a new
-    // channel should be established; the return 'status' should be the same as
-    // the specified 'expStatus'.  If the specified 'cancelFlag' is nonzero,
-    // invoke the 'cancelAll()' on the specified 'acceptor' to help the test.
-    // Similarly, if the specified 'closeFlag' is nonzero, invoke the 'close()'
-    // on the specified 'acceptor'.
+    // 'btlsc::CbChannel' should be established; the specified return 'status'
+    // should be the same as the specified 'expStatus'.  If the specified
+    // 'cancelFlag' is nonzero, invoke the 'cancelAll()' on the specified
+    // 'acceptor' to help the test.  Similarly, if the specified 'closeFlag' is
+    // nonzero, invoke the 'close()' on the 'acceptor'.
 {
     if (validChannel) {
         ASSERT (channel);
