@@ -2675,7 +2675,7 @@ int Decoder_CustomizedContext<TYPE>::endElement(
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
     int rc = d_baseContext.endElement(decoder);
     if (rc == k_SUCCESS
-     &&  0 == bdeat_CustomizedTypeFunctions::convertFromBaseType(d_object,
+     &&  0 == bdlat_CustomizedTypeFunctions::convertFromBaseType(d_object,
                                                                  d_baseObj)) {
         return k_SUCCESS;                                             // RETURN
     }

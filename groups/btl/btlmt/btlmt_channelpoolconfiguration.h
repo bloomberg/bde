@@ -1558,9 +1558,6 @@ int ChannelPoolConfiguration::manipulateAttribute(
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
-    }
-
-    return manipulateAttribute(manipulator, attributeInfo->d_id);
 }
 
 // ACCESSORS

@@ -1309,7 +1309,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
 
     Encoder_SequenceFirstPass firstPass(d_context_p);
 
-    if (0 != bdeat_SequenceFunctions::accessAttributes(object, firstPass)) {
+    if (0 != bdlat_SequenceFunctions::accessAttributes(object, firstPass)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -1439,7 +1439,7 @@ int Encoder_SequenceFirstPass::addAttributeImp(
 {
     enum { k_SUCCESS = 0 };
 
-    if (bdeat_NullableValueFunctions::isNull(object)) {
+    if (bdlat_NullableValueFunctions::isNull(object)) {
         return k_SUCCESS;                                             // RETURN
     }
 
