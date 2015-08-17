@@ -168,14 +168,24 @@ class Tokenizer {
     enum TokenType {
         // This 'enum' lists all the possible token types.
 
-        BAEJSN_BEGIN = 1,                  // starting token
-        BAEJSN_ELEMENT_NAME,               // element name
-        BAEJSN_START_OBJECT,               // start of an object ('{')
-        BAEJSN_END_OBJECT,                 // end of an object   ('}')
-        BAEJSN_START_ARRAY,                // start of an array  ('[')
-        BAEJSN_END_ARRAY,                  // end of an array    (']')
-        BAEJSN_ELEMENT_VALUE,              // element value of a simple type
-        BAEJSN_ERROR                       // error token
+        e_BEGIN = 1,                  // starting token
+        e_ELEMENT_NAME,               // element name
+        e_START_OBJECT,               // start of an object ('{')
+        e_END_OBJECT,                 // end of an object   ('}')
+        e_START_ARRAY,                // start of an array  ('[')
+        e_END_ARRAY,                  // end of an array    (']')
+        e_ELEMENT_VALUE,              // element value of a simple type
+        e_ERROR                       // error token
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_BEGIN = e_BEGIN
+      , BAEJSN_ELEMENT_NAME = e_ELEMENT_NAME
+      , BAEJSN_START_OBJECT = e_START_OBJECT
+      , BAEJSN_END_OBJECT = e_END_OBJECT
+      , BAEJSN_START_ARRAY = e_START_ARRAY
+      , BAEJSN_END_ARRAY = e_END_ARRAY
+      , BAEJSN_ELEMENT_VALUE = e_ELEMENT_VALUE
+      , BAEJSN_ERROR = e_ERROR
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -184,19 +194,19 @@ class Tokenizer {
         // This 'enum' lists the possible contexts that the tokenizer can be
         // in.
 
-        BAEJSN_OBJECT_CONTEXT = 1,         // object context
-        BAEJSN_ARRAY_CONTEXT               // array context
+        e_OBJECT_CONTEXT = 1,         // object context
+        e_ARRAY_CONTEXT               // array context
     };
 
     // Intermediate data buffer used for reading data from the stream.
 
     enum {
-        BAEJSN_BUFSIZE = 1024 * 8,
-        BAEJSN_MAX_STRING_SIZE = BAEJSN_BUFSIZE - 1
+        k_BUFSIZE = 1024 * 8,
+        k_MAX_STRING_SIZE = k_BUFSIZE - 1
     };
 
     // DATA
-    bsls::AlignedBuffer<BAEJSN_BUFSIZE>  d_buffer;               // buffer
+    bsls::AlignedBuffer<k_BUFSIZE>  d_buffer;               // buffer
 
     bdlma::BufferedSequentialAllocator    d_allocator;            // allocater
                                                                  // (owned)
@@ -332,18 +342,18 @@ class Tokenizer {
 // CREATORS
 inline
 Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
-: d_allocator(d_buffer.buffer(), BAEJSN_BUFSIZE, basicAllocator)
+: d_allocator(d_buffer.buffer(), k_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
 , d_streamBuf_p(0)
 , d_cursor(0)
 , d_valueBegin(0)
 , d_valueEnd(0)
 , d_valueIter(0)
-, d_tokenType(BAEJSN_BEGIN)
-, d_context(BAEJSN_OBJECT_CONTEXT)
+, d_tokenType(e_BEGIN)
+, d_context(e_OBJECT_CONTEXT)
 , d_allowStandAloneValues(true)
 {
-    d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
+    d_stringBuffer.reserve(k_MAX_STRING_SIZE);
 }
 
 inline
@@ -361,7 +371,7 @@ void Tokenizer::reset(bsl::streambuf *streamBuf)
     d_valueBegin  = 0;
     d_valueEnd    = 0;
     d_valueIter   = 0;
-    d_tokenType   = BAEJSN_BEGIN;
+    d_tokenType   = e_BEGIN;
 }
 
 inline

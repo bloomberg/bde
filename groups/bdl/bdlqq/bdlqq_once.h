@@ -402,7 +402,7 @@ class Once {
     // have any explicitly-declared constructors or destructor.
 
     // PRIVATE TYPES
-    enum { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
+    enum { e_NOT_ENTERED, e_IN_PROGRESS, e_DONE };
 
   private:
     // NOT IMPLEMENTED
@@ -483,7 +483,7 @@ class OnceGuard {
     // one-time code is being executed.
 
     // PRIVATE TYPES
-    enum State { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
+    enum State { e_NOT_ENTERED, e_IN_PROGRESS, e_DONE };
 
     // DATA
     Once::OnceLock  d_onceLock;
@@ -579,7 +579,7 @@ class OnceGuard {
 inline
 bdlqq::OnceGuard::OnceGuard(Once *once)
 : d_once(once)
-, d_state(BCEMT_NOT_ENTERED)
+, d_state(e_NOT_ENTERED)
 {
 }
 
@@ -587,17 +587,17 @@ bdlqq::OnceGuard::OnceGuard(Once *once)
 inline
 void bdlqq::OnceGuard::setOnce(Once *once)
 {
-    BSLS_ASSERT_SAFE(BCEMT_IN_PROGRESS != d_state);
+    BSLS_ASSERT_SAFE(e_IN_PROGRESS != d_state);
 
     d_once = once;
-    d_state = BCEMT_NOT_ENTERED;
+    d_state = e_NOT_ENTERED;
 }
 
 // ACCESSORS
 inline
 bool bdlqq::OnceGuard::isInProgress() const
 {
-    return BCEMT_IN_PROGRESS == d_state;
+    return e_IN_PROGRESS == d_state;
 }
 
                                 // ----------

@@ -235,7 +235,7 @@ int EventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
     }
 
     bdlqq::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 
     if (bdlqq::ThreadUtil::create(
             &d_dispatcherThread,

@@ -180,7 +180,7 @@ void bslsLogMessage(const char *fileName,
         ball::RecordAttributes& attributes = record->fixedFields();
         attributes.setMessage(message);
 
-        logger.logMessage(*category, ball::Severity::BAEL_ERROR, record);
+        logger.logMessage(*category, ball::Severity::e_ERROR, record);
     }
     else {
         (bsls::Log::platformDefaultMessageHandler)(fileName,
@@ -275,7 +275,7 @@ void Logger::publish(Transmission::Cause cause)
         d_recordBuffer_p->popBack();
     }
     else {
-        if (LoggerManagerConfiguration::BAEL_LIFO == d_logOrder) {
+        if (LoggerManagerConfiguration::e_LIFO == d_logOrder) {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
                 d_observer_p->publish(d_recordBuffer_p->back(), context);
@@ -323,7 +323,7 @@ void Logger::logMessage(const Category&            category,
         // Publish this record.
 
         d_observer_p->publish(handle,
-                              Context(Transmission::BAEL_PASSTHROUGH,
+                              Context(Transmission::e_PASSTHROUGH,
                                            0,                 // recordIndex
                                            1));               // sequenceLength
 
@@ -335,8 +335,8 @@ void Logger::logMessage(const Category&            category,
 
         // Print markers around the trigger logs if configured.
 
-        if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
-            Context triggerContext(Transmission::BAEL_TRIGGER, 0, 1);
+        if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
+            Context triggerContext(Transmission::e_TRIGGER, 0, 1);
             Record *marker = getRecord(
                                          record->fixedFields().fileName(),
                                          record->fixedFields().lineNumber());
@@ -353,7 +353,7 @@ void Logger::logMessage(const Category&            category,
 
             // Publish all records archived by *this* logger.
 
-            publish(Transmission::BAEL_TRIGGER);
+            publish(Transmission::e_TRIGGER);
 
             handle->fixedFields().setMessage(TRIGGER_END);
 
@@ -363,7 +363,7 @@ void Logger::logMessage(const Category&            category,
 
             // Publish all records archived by *this* logger.
 
-            publish(Transmission::BAEL_TRIGGER);
+            publish(Transmission::e_TRIGGER);
 
         }
     }
@@ -372,8 +372,8 @@ void Logger::logMessage(const Category&            category,
 
         // Print markers around the trigger logs if configured.
 
-        if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
-            Context triggerContext(Transmission::BAEL_TRIGGER, 0, 1);
+        if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
+            Context triggerContext(Transmission::e_TRIGGER, 0, 1);
             Record *marker = getRecord(
                                          record->fixedFields().fileName(),
                                          record->fixedFields().lineNumber());
@@ -390,7 +390,7 @@ void Logger::logMessage(const Category&            category,
 
             // Publish all records archived by *all* loggers.
 
-            d_publishAll(Transmission::BAEL_TRIGGER_ALL);
+            d_publishAll(Transmission::e_TRIGGER_ALL);
 
             handle->fixedFields().setMessage(TRIGGER_ALL_END);
 
@@ -400,7 +400,7 @@ void Logger::logMessage(const Category&            category,
 
             // Publish all records archived by *all* loggers.
 
-            d_publishAll(Transmission::BAEL_TRIGGER_ALL);
+            d_publishAll(Transmission::e_TRIGGER_ALL);
 
         }
     }
@@ -450,7 +450,7 @@ void Logger::logMessage(const Category&  category,
 
 void Logger::publish()
 {
-    publish(Transmission::BAEL_MANUAL_PUBLISH);
+    publish(Transmission::e_MANUAL_PUBLISH);
 }
 
 void Logger::removeAll()
@@ -520,7 +520,7 @@ void LoggerManager::initSingletonImpl(
     else {
         LoggerManager::singleton().getLogger().
             logMessage(*s_singleton_p->d_defaultCategory_p,
-                       Severity::BAEL_WARN,
+                       Severity::e_WARN,
                        __FILE__,
                        __LINE__,
                        "BAEL logger manager has already been initialized!");
@@ -1297,7 +1297,7 @@ Observer *LoggerManager::observer()
 
 void LoggerManager::publishAll()
 {
-    publishAllImp(Transmission::BAEL_MANUAL_PUBLISH_ALL);
+    publishAllImp(Transmission::e_MANUAL_PUBLISH_ALL);
 }
 
 int LoggerManager::addRule(const Rule& value)

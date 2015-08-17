@@ -28,7 +28,7 @@ int Severity::fromAscii(Severity::Level *level,
         if ('o' == (string[0] | 0x20)
          && 'f' == (string[1] | 0x20)
          && 'f' == (string[2] | 0x20)) {
-            *level = Severity::BAEL_OFF;
+            *level = Severity::e_OFF;
             return 0;                                                 // RETURN
         }
       } break;
@@ -38,7 +38,7 @@ int Severity::fromAscii(Severity::Level *level,
             if ('n' == (string[1] | 0x20)
              && 'f' == (string[2] | 0x20)
              && 'o' == (string[3] | 0x20)) {
-                *level = Severity::BAEL_INFO;
+                *level = Severity::e_INFO;
                 return 0;                                             // RETURN
             }
           } break;
@@ -46,7 +46,7 @@ int Severity::fromAscii(Severity::Level *level,
             if ('o' == (string[1] | 0x20)
              && 'n' == (string[2] | 0x20)
              && 'e' == (string[3] | 0x20)) {
-                *level = Severity::BAEL_NONE;
+                *level = Severity::e_NONE;
                 return 0;                                             // RETURN
             }
           } break;
@@ -54,7 +54,7 @@ int Severity::fromAscii(Severity::Level *level,
             if ('a' == (string[1] | 0x20)
              && 'r' == (string[2] | 0x20)
              && 'n' == (string[3] | 0x20)) {
-                *level = Severity::BAEL_WARN;
+                *level = Severity::e_WARN;
                 return 0;                                             // RETURN
             }
           } break;
@@ -67,7 +67,7 @@ int Severity::fromAscii(Severity::Level *level,
                  && 'b' == (string[2] | 0x20)
                  && 'u' == (string[3] | 0x20)
                  && 'g' == (string[4] | 0x20)) {
-                    *level = Severity::BAEL_DEBUG;
+                    *level = Severity::e_DEBUG;
                     return 0;                                         // RETURN
                 }
               } break;
@@ -76,7 +76,7 @@ int Severity::fromAscii(Severity::Level *level,
                  && 'r' == (string[2] | 0x20)
                  && 'o' == (string[3] | 0x20)
                  && 'r' == (string[4] | 0x20)) {
-                    *level = Severity::BAEL_ERROR;
+                    *level = Severity::e_ERROR;
                     return 0;                                         // RETURN
                 }
               } break;
@@ -85,7 +85,7 @@ int Severity::fromAscii(Severity::Level *level,
                  && 't' == (string[2] | 0x20)
                  && 'a' == (string[3] | 0x20)
                  && 'l' == (string[4] | 0x20)) {
-                    *level = Severity::BAEL_FATAL;
+                    *level = Severity::e_FATAL;
                     return 0;                                         // RETURN
                 }
               } break;
@@ -94,7 +94,7 @@ int Severity::fromAscii(Severity::Level *level,
                  && 'a' == (string[2] | 0x20)
                  && 'c' == (string[3] | 0x20)
                  && 'e' == (string[4] | 0x20)) {
-                    *level = Severity::BAEL_TRACE;
+                    *level = Severity::e_TRACE;
                     return 0;                                         // RETURN
                 }
               } break;

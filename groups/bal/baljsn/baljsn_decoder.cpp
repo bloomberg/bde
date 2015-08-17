@@ -23,7 +23,7 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
         return -1;                                                    // RETURN
     }
 
-    if (Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {
+    if (Tokenizer::e_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         // 'elementName' is a simple type.  Extract its value and return.
 
         bslstl::StringRef tmp;
@@ -34,7 +34,7 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
         }
         return rc;                                                    // RETURN
     }
-    else if (Tokenizer::BAEJSN_START_OBJECT ==
+    else if (Tokenizer::e_START_OBJECT ==
                                                      d_tokenizer.tokenType()) {
         // 'elementName' is a sequence or choice.  Descend into the element
         // and skip all its sub-elements.
@@ -58,8 +58,8 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
             }
 
             switch (d_tokenizer.tokenType()) {
-              case Tokenizer::BAEJSN_ELEMENT_NAME:
-              case Tokenizer::BAEJSN_ELEMENT_VALUE: {    // FALL THROUGH
+              case Tokenizer::e_ELEMENT_NAME:
+              case Tokenizer::e_ELEMENT_VALUE: {    // FALL THROUGH
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);
                 if (rc) {
@@ -68,7 +68,7 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                 }
               } break;
 
-              case Tokenizer::BAEJSN_START_OBJECT: {
+              case Tokenizer::e_START_OBJECT: {
                 if (++d_currentDepth > d_maxDepth) {
                     d_logStream << "Maximum allowed decoding depth reached: "
                                 << d_currentDepth << "\n";
@@ -77,7 +77,7 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                 ++skippingDepth;
               } break;
 
-              case Tokenizer::BAEJSN_END_OBJECT: {
+              case Tokenizer::e_END_OBJECT: {
                 --d_currentDepth;
                 --skippingDepth;
               } break;
@@ -87,7 +87,7 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
             }
         }
     }
-    else if (Tokenizer::BAEJSN_START_ARRAY == d_tokenizer.tokenType()) {
+    else if (Tokenizer::e_START_ARRAY == d_tokenizer.tokenType()) {
         // 'elementName' is an array.  Descend into the array element till we
         // encounter the matching end array token (']').
 
@@ -104,8 +104,8 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
             }
 
             switch (d_tokenizer.tokenType()) {
-              case Tokenizer::BAEJSN_ELEMENT_NAME:
-              case Tokenizer::BAEJSN_ELEMENT_VALUE: {    // FALL THROUGH
+              case Tokenizer::e_ELEMENT_NAME:
+              case Tokenizer::e_ELEMENT_VALUE: {    // FALL THROUGH
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);
                 if (rc) {
@@ -114,7 +114,7 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                 }
               } break;
 
-              case Tokenizer::BAEJSN_START_OBJECT: {
+              case Tokenizer::e_START_OBJECT: {
                 if (++d_currentDepth > d_maxDepth) {
                     d_logStream << "Maximum allowed decoding depth reached: "
                                 << d_currentDepth << "\n";
@@ -122,15 +122,15 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
                 }
               } break;
 
-              case Tokenizer::BAEJSN_END_OBJECT: {
+              case Tokenizer::e_END_OBJECT: {
                 --d_currentDepth;
               } break;
 
-              case Tokenizer::BAEJSN_START_ARRAY: {
+              case Tokenizer::e_START_ARRAY: {
                 ++skippingDepth;
               } break;
 
-              case Tokenizer::BAEJSN_END_ARRAY: {
+              case Tokenizer::e_END_ARRAY: {
                 --skippingDepth;
               } break;
 

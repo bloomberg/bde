@@ -364,9 +364,14 @@ class MultiQueueThreadPool_Queue {
     enum {
         // Queue states.
 
-        BCEP_ENQUEUEING_ENABLED,     // enqueueing is enabled
-        BCEP_ENQUEUEING_DISABLED,    // enqueueing is disabled
-        BCEP_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
+        e_ENQUEUEING_ENABLED,     // enqueueing is enabled
+        e_ENQUEUEING_DISABLED,    // enqueueing is disabled
+        e_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEP_ENQUEUEING_ENABLED = e_ENQUEUEING_ENABLED
+      , BCEP_ENQUEUEING_DISABLED = e_ENQUEUEING_DISABLED
+      , BCEP_ENQUEUEING_BLOCKED = e_ENQUEUEING_BLOCKED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -520,8 +525,12 @@ class MultiQueueThreadPool {
   private:
     // TYPES
     enum {
-        BCEP_ENQUEUE_FRONT,    // enqueue new job at front of queue
-        BCEP_ENQUEUE_BACK      // enqueue new job at back of queue
+        e_ENQUEUE_FRONT,    // enqueue new job at front of queue
+        e_ENQUEUE_BACK      // enqueue new job at back of queue
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEP_ENQUEUE_FRONT = e_ENQUEUE_FRONT
+      , BCEP_ENQUEUE_BACK = e_ENQUEUE_BACK
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -746,7 +755,7 @@ inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
     ++d_numEnqueued;
-    return enqueueJobImpl(id, functor, BCEP_ENQUEUE_BACK);
+    return enqueueJobImpl(id, functor, e_ENQUEUE_BACK);
 }
 
 inline

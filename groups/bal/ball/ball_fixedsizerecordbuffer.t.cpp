@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE",
                                       alloc);
         Handle H(R, alloc, alloc);
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -658,7 +658,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -678,7 +678,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-4",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-4",
                                       alloc);
 
@@ -688,7 +688,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-5",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-5",
                                       alloc);
 
@@ -698,7 +698,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-6",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-6",
                                       alloc);
 
@@ -825,7 +825,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -835,7 +835,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -845,7 +845,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -855,7 +855,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-4",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-4",
                                       alloc);
 
@@ -865,7 +865,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-5",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-5",
                                       alloc);
 
@@ -875,7 +875,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-6",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-6",
                                       alloc);
 
@@ -964,7 +964,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -974,7 +974,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -984,7 +984,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1060,7 +1060,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE",
                                       alloc);
 
@@ -1158,7 +1158,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -1168,7 +1168,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -1178,7 +1178,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1261,7 +1261,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -1271,7 +1271,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -1281,7 +1281,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1352,7 +1352,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -1362,7 +1362,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -1372,7 +1372,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1453,7 +1453,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -1463,7 +1463,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -1473,7 +1473,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1483,7 +1483,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-4",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-4",
                                       alloc);
 
@@ -1493,7 +1493,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-5",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-5",
                                       alloc);
 
@@ -1503,7 +1503,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-6",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-6",
                                       alloc);
 
@@ -1594,7 +1594,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -1604,7 +1604,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -1614,7 +1614,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1624,7 +1624,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-4",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-4",
                                       alloc);
 
@@ -1634,7 +1634,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-5",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-5",
                                       alloc);
 
@@ -1644,7 +1644,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-6",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-6",
                                       alloc);
 
@@ -1744,7 +1744,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -1754,7 +1754,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -1764,7 +1764,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1774,7 +1774,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-4",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-4",
                                       alloc);
 
@@ -1784,7 +1784,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-5",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-5",
                                       alloc);
 
@@ -1794,7 +1794,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-6",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-6",
                                       alloc);
 
@@ -1917,7 +1917,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-1",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-1",
                                       alloc);
 
@@ -1927,7 +1927,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-2",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-2",
                                       alloc);
 
@@ -1937,7 +1937,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-3",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-3",
                                       alloc);
 
@@ -1947,7 +1947,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-4",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-4",
                                       alloc);
 
@@ -1957,7 +1957,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-5",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-5",
                                       alloc);
 
@@ -1967,7 +1967,7 @@ int main(int argc, char *argv[])
                                       __FILE__,
                                       __LINE__,
                                       "CATEGORY-6",
-                                      ball::Severity::BAEL_WARN,
+                                      ball::Severity::e_WARN,
                                       "MESSAGE-6",
                                       alloc);
 

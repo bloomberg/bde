@@ -637,7 +637,7 @@ int main(int argc, char *argv[])
         BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
                       << BALL_LOG_END;
 
-        asyncFileObserver.setStdoutThreshold(ball::Severity::BAEL_INFO);
+        asyncFileObserver.setStdoutThreshold(ball::Severity::e_INFO);
         BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
                        << BALL_LOG_END;
         BALL_LOG_INFO  << "This info will be published on 'stdout'."
@@ -646,7 +646,7 @@ int main(int argc, char *argv[])
                        << BALL_LOG_END;
 
         asyncFileObserver.enableFileLogging(fileName.c_str());
-        asyncFileObserver.setStdoutThreshold(ball::Severity::BAEL_OFF);
+        asyncFileObserver.setStdoutThreshold(ball::Severity::e_OFF);
         asyncFileObserver.rotateOnSize(1024 * 256);
         asyncFileObserver.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
         asyncFileObserver.disableSizeRotation();
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
                  << "Testing: 'recordQueueLength'" << endl
                  << "============================" << endl;
 
-        const int ERROR = ball::Severity::BAEL_ERROR;
+        const int ERROR = ball::Severity::e_ERROR;
 
         if (veryVerbose) {
             cout << "\tTesting basic 'recordQueueLength' behavior" << endl;
@@ -707,10 +707,10 @@ int main(int argc, char *argv[])
             enum { MAX_QUEUE_LENGTH = 1024 };
 
             // Set up a non-blocking async observer
-            Obj mX(ball::Severity::BAEL_FATAL,
+            Obj mX(ball::Severity::e_FATAL,
                    false,
                    MAX_QUEUE_LENGTH,
-                   ball::Severity::BAEL_TRACE,
+                   ball::Severity::e_TRACE,
                    &ta);
             const Obj& X = mX;
 
@@ -800,10 +800,10 @@ int main(int argc, char *argv[])
             enum { NUM_ITERATIONS = 10 };
 
             // Set up a non-blocking async observer
-            Obj mX(ball::Severity::BAEL_FATAL,
+            Obj mX(ball::Severity::e_FATAL,
                    false,
                    MAX_QUEUE_LENGTH,
-                   ball::Severity::BAEL_TRACE,
+                   ball::Severity::e_TRACE,
                    &ta);
             const Obj& X = mX;
 
@@ -865,20 +865,20 @@ int main(int argc, char *argv[])
 
         // Set up a blocking async observer
 
-        Obj mX(ball::Severity::BAEL_WARN,
+        Obj mX(ball::Severity::e_WARN,
                false,
                8192,
-               ball::Severity::BAEL_TRACE,
+               ball::Severity::e_TRACE,
                &ta);
         mX.startPublicationThread();
         bdlqq::ThreadUtil::microSleep(0, 1);
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                    ball::Severity::BAEL_OFF,
-                                                    ball::Severity::BAEL_TRACE,
-                                                    ball::Severity::BAEL_OFF,
-                                                    ball::Severity::BAEL_OFF));
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_TRACE,
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_OFF));
         ball::LoggerManager::initSingleton(&mX, configuration);
 
         mX.enableFileLogging(fileName.c_str());
@@ -940,14 +940,14 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                    ball::Severity::BAEL_OFF,
-                                                    ball::Severity::BAEL_TRACE,
-                                                    ball::Severity::BAEL_OFF,
-                                                    ball::Severity::BAEL_OFF));
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_TRACE,
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+        Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
         mX.startPublicationThread();
         bdlqq::ThreadUtil::microSleep(0, 1);
 
@@ -1037,7 +1037,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
-        Obj mX(ball::Severity::BAEL_WARN, &ta);
+        Obj mX(ball::Severity::e_WARN, &ta);
         bsl::string filename = tempFileName(veryVerbose);
 
         RotCb cb(Z);
@@ -1072,10 +1072,10 @@ int main(int argc, char *argv[])
         // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
 
@@ -1093,7 +1093,7 @@ int main(int argc, char *argv[])
             act.sa_flags = 0;
             ASSERT(0 == sigaction(SIGXFSZ, &act, &oact));
 
-            Obj mX(ball::Severity::BAEL_OFF, true, 8192, &ta);
+            Obj mX(ball::Severity::e_OFF, true, 8192, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -1183,10 +1183,10 @@ int main(int argc, char *argv[])
         // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
 
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
@@ -1203,7 +1203,7 @@ int main(int argc, char *argv[])
         {
             bsl::string filename = tempFileName(veryVerbose);
 
-            Obj mX(ball::Severity::BAEL_OFF, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
@@ -1395,7 +1395,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-            Obj mX(ball::Severity::BAEL_OFF, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
@@ -1544,10 +1544,10 @@ int main(int argc, char *argv[])
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                    ball::Severity::BAEL_OFF,
-                    ball::Severity::BAEL_TRACE,
-                    ball::Severity::BAEL_OFF,
-                    ball::Severity::BAEL_OFF));
+                    ball::Severity::e_OFF,
+                    ball::Severity::e_TRACE,
+                    ball::Severity::e_OFF,
+                    ball::Severity::e_OFF));
         ball::LoggerManagerScopedGuard guard(&multiplexObserver,
                                              configuration);
         if (verbose) cerr << "Testing blocking caller thread."
@@ -1556,10 +1556,10 @@ int main(int argc, char *argv[])
             bsl::string fileName = tempFileName(veryVerbose);
 
             int fixedQueueSize     = 1000;
-            Obj mX(ball::Severity::BAEL_ERROR,
+            Obj mX(ball::Severity::e_ERROR,
                    false,
                    fixedQueueSize,
-                   ball::Severity::BAEL_TRACE,
+                   ball::Severity::e_TRACE,
                    &ta);
             const Obj& X = mX;
 
@@ -1595,7 +1595,7 @@ int main(int argc, char *argv[])
             bsl::string fileName = tempFileName(veryVerbose);
 
             int fixedQueueSize     = 1000;
-            Obj mX(ball::Severity::BAEL_ERROR,
+            Obj mX(ball::Severity::e_ERROR,
                    false,
                    fixedQueueSize,
                    &ta);
@@ -1702,7 +1702,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
-            ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
+            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                 &ta);
@@ -1715,10 +1715,10 @@ int main(int argc, char *argv[])
                 // observer will only see each message only once.
 
                 ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                            ball::Severity::BAEL_OFF,
-                            ball::Severity::BAEL_TRACE,
-                            ball::Severity::BAEL_OFF,
-                            ball::Severity::BAEL_OFF));
+                            ball::Severity::e_OFF,
+                            ball::Severity::e_TRACE,
+                            ball::Severity::e_OFF,
+                            ball::Severity::e_OFF));
                 ball::LoggerManagerScopedGuard guard(&mX, configuration);
 
                 BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
@@ -1854,10 +1854,10 @@ int main(int argc, char *argv[])
         // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_TRACE,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF));
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_TRACE,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF));
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManagerScopedGuard guard(&multiplexObserver,
                                              configuration);
@@ -1945,7 +1945,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
-            ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
+            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
             bsl::ostringstream os, dos;
 
             ball::DefaultObserver defaultObserver(&dos);
@@ -2003,8 +2003,8 @@ int main(int argc, char *argv[])
             fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             dos.str("");
 
-            mX.setStdoutThreshold(ball::Severity::BAEL_ERROR);
-            ASSERT(ball::Severity::BAEL_ERROR == X.stdoutThreshold());
+            mX.setStdoutThreshold(ball::Severity::e_ERROR);
+            ASSERT(ball::Severity::e_ERROR == X.stdoutThreshold());
             BALL_LOG_WARN << "not logged" << BALL_LOG_END;
             ASSERT("" == readPartialFile(fileName, fileOffset));
             dos.str("");
@@ -2066,7 +2066,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
         {
-            Obj mX(ball::Severity::BAEL_FATAL, &ta);
+            Obj mX(ball::Severity::e_FATAL, &ta);
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
@@ -2251,7 +2251,7 @@ int main(int argc, char *argv[])
                           << "offset."
                           << endl;
         {
-            Obj mX(ball::Severity::BAEL_WARN, true, 8192, &ta);
+            Obj mX(ball::Severity::e_WARN, true, 8192, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2411,7 +2411,7 @@ int main(int argc, char *argv[])
             bsl::string fn = tempFileName(veryVerbose);
             int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);
+            Obj mX(ball::Severity::e_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2553,7 +2553,7 @@ int main(int argc, char *argv[])
         {
             bsl::string fn = tempFileName(veryVerbose);
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);
+            Obj mX(ball::Severity::e_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2618,7 +2618,7 @@ int main(int argc, char *argv[])
             bsl::string baseName = tempFileName(veryVerbose);
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s-%p";
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);
+            Obj mX(ball::Severity::e_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2756,7 +2756,7 @@ int main(int argc, char *argv[])
                 bsl::string expected(baseName);  expected += FILENAME;
                 bsl::string actual;
 
-                Obj mX(ball::Severity::BAEL_WARN, &ta);
+                Obj mX(ball::Severity::e_WARN, &ta);
                 const Obj& X = mX;
 
                 LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(pattern.c_str()));
@@ -2785,11 +2785,11 @@ int main(int argc, char *argv[])
         {
             int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
 
-            ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
+            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
 
             multiplexObserver.registerObserver(&mX);
 
@@ -3010,7 +3010,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing User-Defined Fields Toggling\n";
         {
-            Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
             const char *logFileFormat;
             const char *stdoutFormat;
 

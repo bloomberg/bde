@@ -63,16 +63,21 @@ struct EncodingStyle {
   public:
     // TYPES
     enum Value {
-        BAEXML_COMPACT = 0
-      , BAEXML_PRETTY  = 1
+        e_COMPACT = 0
+      , e_PRETTY  = 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , COMPACT = BAEXML_COMPACT
-      , PRETTY  = BAEXML_PRETTY
+      , BAEXML_COMPACT = e_COMPACT
+      , BAEXML_PRETTY = e_PRETTY
+      , COMPACT = e_COMPACT
+      , PRETTY  = e_PRETTY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        NUM_ENUMERATORS = 2
+        k_NUM_ENUMERATORS = 2
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ENUMERATORS = k_NUM_ENUMERATORS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS

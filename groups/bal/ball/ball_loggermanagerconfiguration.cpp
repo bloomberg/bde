@@ -57,8 +57,8 @@ LoggerManagerConfiguration::LoggerManagerConfiguration(
 , d_userPopulator(basicAllocator)
 , d_categoryNameFilter()
 , d_defaultThresholdsCb()
-, d_logOrder(BAEL_LIFO)
-, d_triggerMarkers(BAEL_BEGIN_END_MARKERS)
+, d_logOrder(e_LIFO)
+, d_triggerMarkers(e_BEGIN_END_MARKERS)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -279,11 +279,11 @@ LoggerManagerConfiguration::print(bsl::ostream& stream,
     stream << "Default Threshold Callback functor is " << nullDtcb << NL;
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    const char *logOrder = d_logOrder == BAEL_FIFO ? "FIFO" : "LIFO";
+    const char *logOrder = d_logOrder == e_FIFO ? "FIFO" : "LIFO";
     stream << "Logging order is " << logOrder << NL;
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    const char *triggerMarker = d_triggerMarkers == BAEL_NO_MARKERS
+    const char *triggerMarker = d_triggerMarkers == e_NO_MARKERS
                                                  ? "NO_MARKERS"
                                                  : "BEGIN_END_MARKERS";
     stream << "Trigger markers are " << triggerMarker << NL;

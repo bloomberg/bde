@@ -180,7 +180,7 @@ class PublicationScheduler_ClockData {
 // CREATORS
 PublicationScheduler_ClockData::PublicationScheduler_ClockData(
                                               bslma::Allocator *basicAllocator)
-: d_handle(bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE)
+: d_handle(bdlmt::TimerEventScheduler::e_INVALID_HANDLE)
 , d_categories(basicAllocator)
 , d_default(false)
 , d_nonDefaultCategories(basicAllocator)
@@ -294,7 +294,7 @@ PublicationScheduler_Proctor::~PublicationScheduler_Proctor()
             // have an invalid handle) if an exception occurred between the
             // 'ClockData' objects creation (and insertion into 'd_clocks')
             // and the call to 'bdlmt::TimerEventScheduler::startClock'.
-            if (bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE !=
+            if (bdlmt::TimerEventScheduler::e_INVALID_HANDLE !=
                 it->second->handle()) {
                 d_scheduler_p->d_scheduler_p->cancelClock(
                                                   it->second->handle(), true);
@@ -405,7 +405,7 @@ int PublicationScheduler::cancelDefaultSchedule()
     // the 'ClockData' as not being the default schedule's clock.
     if (clock->categories().empty()) {
         BSLS_ASSERT(clock->handle() !=
-                       bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE);
+                       bdlmt::TimerEventScheduler::e_INVALID_HANDLE);
         d_scheduler_p->cancelClock(clock->handle());
         d_clocks.erase(clockIt);
     }
@@ -562,7 +562,7 @@ void PublicationScheduler::setDefaultSchedule(
 
     // If this is a new 'ClockData' (i.e., its handle is invalid), schedule it
     // with the underlying 'bdlmt::TimerEventScheduler' object.
-    if (clock->handle() == bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE) {
+    if (clock->handle() == bdlmt::TimerEventScheduler::e_INVALID_HANDLE) {
         clock->handle() = d_scheduler_p->startClock(
             interval,
             bdlf::BindUtil::bindA(d_allocator_p,

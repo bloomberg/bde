@@ -391,7 +391,7 @@ class IndexClerk {
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
 
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -399,7 +399,7 @@ class IndexClerk {
         // Return the most current BDEX streaming version number supported by
         // this class.
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
 };
 
 // FREE OPERATORS
@@ -646,7 +646,7 @@ int bdlc::IndexClerk::maxSupportedBdexVersion(int /* versionSelector */)
     return 1;
 }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
 
 // DEPRECATED METHODS
 inline
@@ -655,7 +655,7 @@ int bdlc::IndexClerk::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
 
 // FREE OPERATORS
 inline

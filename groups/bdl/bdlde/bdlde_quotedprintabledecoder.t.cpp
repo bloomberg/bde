@@ -1222,7 +1222,7 @@ int main(int argc, char *argv[])
         V("In CRLF_MODE and error-reporting mode");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(true, Obj::BDEDE_CRLF_MODE);
+                Obj obj(true, Obj::e_CRLF_MODE);
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -1231,7 +1231,7 @@ int main(int argc, char *argv[])
                 obj.reset();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                LOOP_ASSERT(i, Obj::e_CRLF_MODE == obj.lineBreakMode());
                 LOOP_ASSERT(i, obj.isUnrecognizedAnError());
             }
         }
@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[])
         V("In LF_MODE and error-reporting mode");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(true, Obj::BDEDE_LF_MODE);
+                Obj obj(true, Obj::e_LF_MODE);
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -1248,7 +1248,7 @@ int main(int argc, char *argv[])
                 obj.reset();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, Obj::BDEDE_LF_MODE == obj.lineBreakMode());
+                LOOP_ASSERT(i, Obj::e_LF_MODE == obj.lineBreakMode());
                 LOOP_ASSERT(i, obj.isUnrecognizedAnError());
             }
         }
@@ -1256,7 +1256,7 @@ int main(int argc, char *argv[])
         V("In CRLF_MODE and non-error-reporting mode");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -1265,7 +1265,7 @@ int main(int argc, char *argv[])
                 obj.reset();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                LOOP_ASSERT(i, Obj::e_CRLF_MODE == obj.lineBreakMode());
                 LOOP_ASSERT(i, !obj.isUnrecognizedAnError());
             }
         }
@@ -1273,7 +1273,7 @@ int main(int argc, char *argv[])
         V("In LF_MODE and non-error-reporting mode");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(false, Obj::BDEDE_LF_MODE);
+                Obj obj(false, Obj::e_LF_MODE);
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -1282,7 +1282,7 @@ int main(int argc, char *argv[])
                 obj.reset();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, Obj::BDEDE_LF_MODE == obj.lineBreakMode());
+                LOOP_ASSERT(i, Obj::e_LF_MODE == obj.lineBreakMode());
                 LOOP_ASSERT(i, !obj.isUnrecognizedAnError());
             }
         }
@@ -1358,7 +1358,7 @@ int main(int argc, char *argv[])
                     VVV("decoded");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         B = I;
                         E = B + 1;
@@ -1395,7 +1395,7 @@ int main(int argc, char *argv[])
                     VVV("decoded.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         B = I;
                         E = B + 1;
@@ -1418,7 +1418,7 @@ int main(int argc, char *argv[])
                     VVV("an '='.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = '=';
                         I[1] = i;
                         I[2] = '0';
@@ -1467,7 +1467,7 @@ int main(int argc, char *argv[])
                     VVV("an '=Y' sequence where Y is not a hexadecimal.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = '=';
                         I[1] = '\r';
                         I[2] = i;
@@ -1509,7 +1509,7 @@ int main(int argc, char *argv[])
                     VVV("2 hexadecimal digits.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = '6';
                         I[2] = '5';
@@ -1557,7 +1557,7 @@ int main(int argc, char *argv[])
                     VVV("Verify decoding of a soft line break \"=\\r\\n\"");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = '\r';
                         I[2] = '\n';
@@ -1602,7 +1602,7 @@ int main(int argc, char *argv[])
                     VVV("illegal character.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = 'A';
                         B = I;
@@ -1633,7 +1633,7 @@ int main(int argc, char *argv[])
                     VVV("input are printed and not decoded.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = 'A';
                         B = I;
@@ -1667,7 +1667,7 @@ int main(int argc, char *argv[])
                     VVV("are ignored.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = i;
                         I[2] = i;
@@ -1692,7 +1692,7 @@ int main(int argc, char *argv[])
                     VVV("just before a '\r' are ignored.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = i;
                         I[2] = i;
@@ -1727,7 +1727,7 @@ int main(int argc, char *argv[])
                     VVV("(just before a '\n' are not ignored.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = i;
                         I[2] = i;
@@ -1753,7 +1753,7 @@ int main(int argc, char *argv[])
                     VVV("a '\r' within a soft line break are ignored.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = '=';
                         I[1] = i;
                         I[2] = i;
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
                     VVV("in CRLF_MODE.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         I[1] = '\n';
                         B = I;
@@ -1838,7 +1838,7 @@ int main(int argc, char *argv[])
                     VVV("in LF_MODE.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_LF_MODE);
+                        Obj obj(errorMode, Obj::e_LF_MODE);
                         I[0] = i;
                         I[1] = '\n';
                         B = I;
@@ -1872,7 +1872,7 @@ int main(int argc, char *argv[])
                     VVV("Verify error reporting of a stand-alone '\r'");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_LF_MODE);
+                        Obj obj(errorMode, Obj::e_LF_MODE);
                         I[0] = i;
                         I[1] = 'A';
                         B = I;
@@ -1900,7 +1900,7 @@ int main(int argc, char *argv[])
                     VVV("Verify delayed dropping of \"=\\r\\n\"");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = '=';
                         I[1] = '\r';
                         I[1] = '\n';
@@ -1945,7 +1945,7 @@ int main(int argc, char *argv[])
                     VVV("Verify error reporting of \"=\\r\"");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = '=';
                         I[1] = '\r';
                         I[1] = 'A';
@@ -1987,7 +1987,7 @@ int main(int argc, char *argv[])
                     VVV("Verify a stand-alone '\\n' is decoded in CRLF_MODE.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = '\n';
                         B = I;
                         E = B + 1;
@@ -2011,7 +2011,7 @@ int main(int argc, char *argv[])
                     VVV("in LF_MODE.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = '\n';
                         B = I;
                         E = B + 1;
@@ -2048,7 +2048,7 @@ int main(int argc, char *argv[])
                     VVV("characters in strict mode.");
                     {
                         memset(output, -1, sizeof(output));
-                        Obj obj(errorMode, Obj::BDEDE_CRLF_MODE);
+                        Obj obj(errorMode, Obj::e_CRLF_MODE);
                         I[0] = i;
                         B = I;
                         E = B + 1;
@@ -2145,7 +2145,7 @@ int main(int argc, char *argv[])
                 // is used within 'isState' and it will report an error if the
                 // decoder is already done or in error.
 
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
 
                 if (verbose) cout << '\t' << STATE_NAMES[START] << '.' << endl;
                 if (veryVerbose) cout <<
@@ -2235,10 +2235,10 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\tINITIAL_STATE." << endl;
 
-            Obj obj(true, Obj::BDEDE_CRLF_MODE);
+            Obj obj(true, Obj::e_CRLF_MODE);
 
             ASSERT(obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
@@ -2251,11 +2251,11 @@ int main(int argc, char *argv[])
 #if 0
             if (verbose) cout << "\tINITIAL_STATE." << endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, INITIAL_STATE);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2268,7 +2268,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2283,11 +2283,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tSTATE_ZERO." << endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, STATE_ZERO);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2300,7 +2300,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2315,11 +2315,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tSAW_EQUAL." < endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, SAW_EQUAL);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2339,7 +2339,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2354,11 +2354,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tSAW_EQ_HEX." < endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, SAW_EQ_HEX);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2371,7 +2371,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2386,11 +2386,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tSAW_EQ_RET." < endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, SAW_EQ_RET);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2403,7 +2403,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2418,11 +2418,11 @@ int main(int argc, char *argv[])
 #endif
             if (verbose) cout << "\tSAW_EQ_WHITE." < endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, SAW_EQ_WHITE);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2455,7 +2455,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2479,11 +2479,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tSAW_RETURN." < endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, SAW_RETURN);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2496,7 +2496,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2511,11 +2511,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tSAW_WHITE." << endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, SAW_WHITE);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2528,7 +2528,7 @@ int main(int argc, char *argv[])
 
                 // DONE_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2543,11 +2543,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tDONE_STATE." << endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, DONE_STATE);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -2560,7 +2560,7 @@ int main(int argc, char *argv[])
 
                 // ERROR_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -2575,11 +2575,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tERROR_STATE." << endl;
             {
-                Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                Obj obj(false, Obj::e_CRLF_MODE);
                 setState(&obj, ERROR_STATE);
 
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -2592,7 +2592,7 @@ int main(int argc, char *argv[])
 
                 // ERROR_STATE
                 ASSERT(!obj.isUnrecognizedAnError());
-                ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -2624,7 +2624,7 @@ int main(int argc, char *argv[])
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
-                    Obj obj(false, Obj::BDEDE_CRLF_MODE);
+                    Obj obj(false, Obj::e_CRLF_MODE);
                     setState(&obj, i);
                     LOOP2_ASSERT(i, j, SAME == isState(&obj, j));
                 }
@@ -2674,7 +2674,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
@@ -2687,55 +2687,55 @@ int main(int argc, char *argv[])
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(!obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tCRLF_MODE and error reporting" << endl;
         {
-            Obj obj(true, Obj::BDEDE_CRLF_MODE);
+            Obj obj(true, Obj::e_CRLF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tCRLF_MODE and no error reporting" << endl;
         {
-            Obj obj(false, Obj::BDEDE_CRLF_MODE);
+            Obj obj(false, Obj::e_CRLF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(!obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tLF_MODE and error reporting" << endl;
         {
-            Obj obj(true, Obj::BDEDE_LF_MODE);
+            Obj obj(true, Obj::e_LF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_LF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_LF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tLF_MODE and no error reporting" << endl;
         {
-            Obj obj(false, Obj::BDEDE_LF_MODE);
+            Obj obj(false, Obj::e_LF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(!obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_LF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_LF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
@@ -2910,7 +2910,7 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[ti].d_exp;
                 const int   NUM   = DATA[ti].d_expNum;
 
-                Obj obj(false, bdlde::QuotedPrintableDecoder::BDEDE_LF_MODE);
+                Obj obj(false, bdlde::QuotedPrintableDecoder::e_LF_MODE);
                 int numOut = -1;
                 int numIn = -1;
 

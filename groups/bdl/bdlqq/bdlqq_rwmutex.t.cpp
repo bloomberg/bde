@@ -494,7 +494,7 @@ template <class LOCK>
 int benchmarkWriterBias(bool* isWriterBias, LOCK* lock)
 {
    bdlqq::ThreadAttributes detached;
-   detached.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+   detached.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
    bdlqq::ThreadUtil::Handle h;
 
    bdlqq::Barrier   readHold(2), readRelease(2), writeRelease(2);
@@ -529,7 +529,7 @@ template <class LOCK>
 int benchmarkBiasFairness(bool* isFair, LOCK* lock)
 {
    bdlqq::ThreadAttributes detached;
-   detached.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+   detached.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
    bdlqq::ThreadUtil::Handle h;
 
    bdlqq::Barrier   readHold(2), readRelease1(2), writeRelease1(2),
@@ -668,7 +668,7 @@ int benchmarkRecursion (LOCK* lock, const char* lockName)
    bdlqq::Barrier writeRelease(2);
 
    bdlqq::ThreadAttributes detached;
-   detached.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+   detached.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
    lock->lockRead();
    if (0 != bdlqq::ThreadUtil::create

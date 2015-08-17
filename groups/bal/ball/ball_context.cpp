@@ -22,13 +22,13 @@ bool Context::isValid(Transmission::Cause transmissionCause,
     bool status;
 
     switch (transmissionCause) {
-      case Transmission::BAEL_PASSTHROUGH: {
+      case Transmission::e_PASSTHROUGH: {
         status = 0 == recordIndex && 1 == sequenceLength;
       } break;
-      case Transmission::BAEL_TRIGGER:
-      case Transmission::BAEL_TRIGGER_ALL:
-      case Transmission::BAEL_MANUAL_PUBLISH:
-      case Transmission::BAEL_MANUAL_PUBLISH_ALL: {
+      case Transmission::e_TRIGGER:
+      case Transmission::e_TRIGGER_ALL:
+      case Transmission::e_MANUAL_PUBLISH:
+      case Transmission::e_MANUAL_PUBLISH_ALL: {
         status = 0 <= recordIndex
               && 1 <= sequenceLength
               && recordIndex < sequenceLength;

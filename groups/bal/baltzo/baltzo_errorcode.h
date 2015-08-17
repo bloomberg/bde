@@ -89,9 +89,9 @@ struct ErrorCode {
     enum Enum {
         k_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      , e_UNSUPPORTED_ID = k_UNSUPPORTED_ID
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAETZO_UNSUPPORTED_ID = k_UNSUPPORTED_ID
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 

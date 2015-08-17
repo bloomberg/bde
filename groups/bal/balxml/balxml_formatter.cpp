@@ -27,7 +27,7 @@ bool balxml::Formatter::ElemContext::matchTag(const bslstl::StringRef& tag) cons
         return false;
     }
 
-    int len = bsl::min(int(BAEXML_TRUNCATED_TAG_LEN), tag.length());
+    int len = bsl::min(int(k_TRUNCATED_TAG_LEN), tag.length());
     return 0 == bsl::memcmp(d_tag, tag.data(), len);
 }
 #endif
@@ -51,7 +51,7 @@ Formatter::Formatter(bsl::streambuf   *output,
 , d_column(0)
 , d_wrapColumn(wrapColumn)
 , d_elementNesting(basic_allocator)
-, d_state(BAEXML_AT_START)
+, d_state(e_AT_START)
 , d_isFirstData(true)
 , d_isFirstDataAtLine(true)
 {
@@ -75,7 +75,7 @@ Formatter::Formatter(bsl::ostream&     output,
 , d_column(0)
 , d_wrapColumn(wrapColumn)
 , d_elementNesting(basic_allocator)
-, d_state(BAEXML_AT_START)
+, d_state(e_AT_START)
 , d_isFirstData(true)
 , d_isFirstDataAtLine(true)
 {
@@ -105,7 +105,7 @@ void Formatter::indent()
 void Formatter::doAddAttribute(const bslstl::StringRef& name,
                                       const bslstl::StringRef& value)
 {
-    BSLS_ASSERT(BAEXML_IN_TAG == d_state);
+    BSLS_ASSERT(e_IN_TAG == d_state);
     BSLS_ASSERT(0 != name.length());
 
     int attrLen = name.length() + value.length() + 4;
@@ -126,12 +126,12 @@ void Formatter::doAddAttribute(const bslstl::StringRef& name,
 
 void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
 {
-    BSLS_ASSERT(BAEXML_BETWEEN_TAGS == d_state);
+    BSLS_ASSERT(e_BETWEEN_TAGS == d_state);
 
     int valueLen = value.length();
     if (d_wrapColumn >= 0) {
         if (d_isFirstData && d_column > 0 &&
-            BAEXML_NEWLINE_INDENT == d_elementNesting.back().ws()) {
+            e_NEWLINE_INDENT == d_elementNesting.back().ws()) {
             addNewline();
         }
 
@@ -140,15 +140,15 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
         }
 
         WhitespaceType ws = d_elementNesting.back().ws();
-        if (addSpace && BAEXML_PRESERVE_WHITESPACE != ws) {
+        if (addSpace && e_PRESERVE_WHITESPACE != ws) {
             if (d_column + valueLen >= d_wrapColumn || 0 == d_column) {
-                if (BAEXML_WORDWRAP == ws
+                if (e_WORDWRAP == ws
                  && d_column > 0 && d_wrapColumn >= 0) {
                     addNewline();
                 }
                 else {
                     indent();
-                    d_elementNesting.back().setWs(BAEXML_NEWLINE_INDENT);
+                    d_elementNesting.back().setWs(e_NEWLINE_INDENT);
                     // Force BAEXML_WORDWRAP_INDENT to become
                     // BAEXML_NEWLINE_INDENT now that there is line wrapping
                     // for the data, so that the closing tag doesn't share its
@@ -158,7 +158,7 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
                 d_isFirstDataAtLine = true;
             }
         }
-        else if (!addSpace && d_isFirstData && BAEXML_NEWLINE_INDENT == ws) {
+        else if (!addSpace && d_isFirstData && e_NEWLINE_INDENT == ws) {
             indent();
         } // else do nothing if BAEXML_PRESERVE_WHITESPACE or if addSpace is
           // false
@@ -180,7 +180,7 @@ void Formatter::openElement(const bslstl::StringRef& name,
                                    WhitespaceType         ws)
 {
 // TBD: Why ?
-//     BSLS_ASSERT(d_state != BAEXML_AT_END);
+//     BSLS_ASSERT(d_state != e_AT_END);
 
     closeTagIfOpen();
 
@@ -192,14 +192,14 @@ void Formatter::openElement(const bslstl::StringRef& name,
         d_elementNesting.push_back(ElemContext(name, ws));
     }
     ++d_indentLevel;
-    d_state = BAEXML_IN_TAG;
+    d_state = e_IN_TAG;
     d_isFirstData = true;
     d_isFirstDataAtLine = true;
 }
 
 void Formatter::closeElement(const bslstl::StringRef& name)
 {
-    BSLS_ASSERT(BAEXML_IN_TAG == d_state || BAEXML_BETWEEN_TAGS == d_state);
+    BSLS_ASSERT(e_IN_TAG == d_state || e_BETWEEN_TAGS == d_state);
     BSLS_ASSERT(d_wrapColumn < 0 || ! d_elementNesting.empty());
 #ifdef BDE_BUILD_TARGET_SAFE2
     BSLS_ASSERT(d_wrapColumn < 0 || d_elementNesting.back().matchTag(name));
@@ -207,7 +207,7 @@ void Formatter::closeElement(const bslstl::StringRef& name)
 
     --d_indentLevel;
 
-    if (BAEXML_IN_TAG == d_state) {
+    if (e_IN_TAG == d_state) {
         // Empty element (may have attributes but no data).
         d_outputStream << "/>";
         d_column += 2;
@@ -215,7 +215,7 @@ void Formatter::closeElement(const bslstl::StringRef& name)
     else {
         if (d_wrapColumn > 0
          && (0 == d_column ||
-             BAEXML_NEWLINE_INDENT == d_elementNesting.back().ws())) {
+             e_NEWLINE_INDENT == d_elementNesting.back().ws())) {
             // Indent this line.
             indent();
         }
@@ -228,7 +228,7 @@ void Formatter::closeElement(const bslstl::StringRef& name)
     if (d_wrapColumn < 0) {
         // Compact mode: 'd_elementNesting' is not used.
         // Use indent level to determine if we are at the end.
-        d_state = 0 == d_indentLevel ? BAEXML_AT_END : BAEXML_BETWEEN_TAGS;
+        d_state = 0 == d_indentLevel ? e_AT_END : e_BETWEEN_TAGS;
     }
     else {
         // Non-compact mode: Add newline at end of element.
@@ -238,18 +238,18 @@ void Formatter::closeElement(const bslstl::StringRef& name)
 
         // Pop element stack and compute new state.
         d_elementNesting.pop_back();
-        d_state = d_elementNesting.empty() ? BAEXML_AT_END
-                                           : BAEXML_BETWEEN_TAGS;
+        d_state = d_elementNesting.empty() ? e_AT_END
+                                           : e_BETWEEN_TAGS;
     }
 
-    if (BAEXML_AT_END == d_state) {
+    if (e_AT_END == d_state) {
         d_outputStream.flush();
     }
 }
 
 void Formatter::addHeader(const bslstl::StringRef& encoding)
 {
-    BSLS_ASSERT(BAEXML_AT_START == d_state);
+    BSLS_ASSERT(e_AT_START == d_state);
     // TBD escape encoding?
     static const char startHeader[] = "<?xml version=\"1.0\" encoding=\"";
     static const char endHeader[]   = "\" ?>";
@@ -262,16 +262,16 @@ void Formatter::addHeader(const bslstl::StringRef& encoding)
         d_column += (sizeof(startHeader) + sizeof(endHeader) - 2 +
                      encoding.length());
     }
-    d_state = BAEXML_AFTER_START_NO_TAG;
+    d_state = e_AFTER_START_NO_TAG;
 }
 
 void Formatter::addComment(const bslstl::StringRef& comment,
                                   bool                   forceNewline)
 {
-    if (BAEXML_AT_START == d_state) {
-        d_state = BAEXML_AFTER_START_NO_TAG;
+    if (e_AT_START == d_state) {
+        d_state = e_AFTER_START_NO_TAG;
     }
-    if (BAEXML_AFTER_START_NO_TAG != d_state) {
+    if (e_AFTER_START_NO_TAG != d_state) {
         closeTagIfOpen();
     }
     bool isOnSeparateLine = false;
@@ -297,7 +297,7 @@ void Formatter::reset()
 {
     d_outputStream.clear(); // Clear error condition(s)
     d_column = 0;
-    d_state = BAEXML_AT_START;
+    d_state = e_AT_START;
     d_indentLevel -= d_elementNesting.size();
     d_elementNesting.clear();
 

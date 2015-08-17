@@ -289,16 +289,16 @@ int main(int argc, char *argv[])
     ball::LoggerManager::initSingleton(&observer, configuration);
 
     if (test != -10) {
-        ball::Severity::Level passthrough = ball::Severity::BAEL_OFF;
-        if (verbose) passthrough = ball::Severity::BAEL_WARN;
-        if (veryVerbose) passthrough = ball::Severity::BAEL_INFO;
-        if (veryVeryVerbose) passthrough = ball::Severity::BAEL_TRACE;
+        ball::Severity::Level passthrough = ball::Severity::e_OFF;
+        if (verbose) passthrough = ball::Severity::e_WARN;
+        if (veryVerbose) passthrough = ball::Severity::e_INFO;
+        if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;
 
         ball::LoggerManager::singleton().setDefaultThresholdLevels(
-                                                      ball::Severity::BAEL_OFF,
+                                                      ball::Severity::e_OFF,
                                                       passthrough,
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_OFF);
+                                                      ball::Severity::e_OFF,
+                                                      ball::Severity::e_OFF);
     }
 
     if (test >= 0) {
@@ -331,15 +331,15 @@ int main(int argc, char *argv[])
         veryVeryVerbose = argv[2][0] == 'A';
         verbose = veryVeryVerbose || argv[2][0] == 'Z';
 
-        ball::Severity::Level passthrough = ball::Severity::BAEL_OFF;
-        if (verbose) passthrough = ball::Severity::BAEL_WARN;
-        if (veryVeryVerbose) passthrough = ball::Severity::BAEL_TRACE;
+        ball::Severity::Level passthrough = ball::Severity::e_OFF;
+        if (verbose) passthrough = ball::Severity::e_WARN;
+        if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;
 
         ball::LoggerManager::singleton().setDefaultThresholdLevels(
-                                                      ball::Severity::BAEL_OFF,
+                                                      ball::Severity::e_OFF,
                                                       passthrough,
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_OFF);
+                                                      ball::Severity::e_OFF,
+                                                      ball::Severity::e_OFF);
 
         cout << "P" << getpid() << "\n" << flush;
 

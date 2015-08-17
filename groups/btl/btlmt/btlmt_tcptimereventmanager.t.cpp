@@ -1192,11 +1192,11 @@ int main(int argc, char *argv[])
               btlso::DefaultEventManager<btlso::Platform::SELECT>
                                           dummyEventManager(0, &testAllocator);
               Obj mA(&testAllocator);
-              Obj mB(Obj::BTEMT_NO_HINT, &testAllocator);
-              Obj mC(Obj::BTEMT_NO_HINT, true, &testAllocator);
-              Obj mD(Obj::BTEMT_NO_HINT, false, &testAllocator);
-              Obj mE(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
-              Obj mF(Obj::BTEMT_NO_HINT, false, false, &testAllocator);
+              Obj mB(Obj::e_NO_HINT, &testAllocator);
+              Obj mC(Obj::e_NO_HINT, true, &testAllocator);
+              Obj mD(Obj::e_NO_HINT, false, &testAllocator);
+              Obj mE(Obj::e_NO_HINT, false, true, &testAllocator);
+              Obj mF(Obj::e_NO_HINT, false, false, &testAllocator);
               Obj mG(&dummyEventManager, &testAllocator);
               Obj mH(true, &testAllocator);
               Obj mI(false, &testAllocator);
@@ -1276,7 +1276,7 @@ int main(int argc, char *argv[])
               ASSERT(0 !=
                   btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
-              Obj mX(Obj::BTEMT_NO_HINT, false, &testAllocator);
+              Obj mX(Obj::e_NO_HINT, false, &testAllocator);
               const Obj& X = mX;
               bdlf::Function<void (*)()> callback(&waitForASec);
               ASSERT(0 == mX.registerSocketEvent(handles[1],
@@ -1735,7 +1735,7 @@ int main(int argc, char *argv[])
                  << "==============================================" << endl;
         {
             for (int k = 0; k < 2; ++k) {
-                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                Obj mX(Obj::e_NO_HINT, false, (bool) k, &testAllocator);
                 const Obj& X = mX;
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
@@ -1801,7 +1801,7 @@ int main(int argc, char *argv[])
                  << "======================" << endl;
         {
             for (int k = 0; k < 2; ++k) {
-                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                Obj mX(Obj::e_NO_HINT, false, (bool) k, &testAllocator);
                 const Obj& X = mX;
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
@@ -1863,7 +1863,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            Obj mX(Obj::e_NO_HINT, false, true, &testAllocator);
             const Obj& X = mX;
 
             ASSERT(0 == mX.isEnabled());
@@ -1904,7 +1904,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            Obj mX(Obj::e_NO_HINT, false, true, &testAllocator);
             const Obj& X = mX;
             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
             bdlqq::ThreadUtil::Handle workers[NUM_THREADS];

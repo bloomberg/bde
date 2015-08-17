@@ -35,7 +35,7 @@ bsl::ostream& ChannelStatus::print(
 
 const char *ChannelStatus::toAscii(ChannelStatus::Enum value)
 {
-#define CASE(X) case(BTEMT_ ## X): return #X;
+#define CASE(X) case(e_ ## X): return #X;
 
     switch (value) {
       CASE(SUCCESS)

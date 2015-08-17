@@ -24,11 +24,11 @@ const char *Transmission::toAscii(Transmission::Cause value)
 #define CASE(X) case(X): return #X;
 
     switch(value) {
-      case(BAEL_PASSTHROUGH)       : return "PASSTHROUGH";
-      case(BAEL_TRIGGER)           : return "TRIGGER";
-      case(BAEL_TRIGGER_ALL)       : return "TRIGGER_ALL";
-      case(BAEL_MANUAL_PUBLISH)    : return "MANUAL_PUBLISH";
-      case(BAEL_MANUAL_PUBLISH_ALL): return "MANUAL_PUBLISH_ALL";
+      case(e_PASSTHROUGH)       : return "PASSTHROUGH";
+      case(e_TRIGGER)           : return "TRIGGER";
+      case(e_TRIGGER_ALL)       : return "TRIGGER_ALL";
+      case(e_MANUAL_PUBLISH)    : return "MANUAL_PUBLISH";
+      case(e_MANUAL_PUBLISH_ALL): return "MANUAL_PUBLISH_ALL";
       default: return "(* UNKNOWN *)";
     }
 

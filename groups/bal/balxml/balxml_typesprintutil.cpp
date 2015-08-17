@@ -586,10 +586,10 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
                                int           precision)
 {
     switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::BDES_POSITIVE_INFINITY:
-      case bdlb::Float::BDES_NEGATIVE_INFINITY:
-      case bdlb::Float::BDES_QNAN:
-      case bdlb::Float::BDES_SNAN: {
+      case bdlb::Float::k_POSITIVE_INFINITY:
+      case bdlb::Float::k_NEGATIVE_INFINITY:
+      case bdlb::Float::k_QNAN:
+      case bdlb::Float::k_SNAN: {
         stream.setstate(bsl::ios_base::failbit);
         return stream;                                                // RETURN
       }
@@ -652,10 +652,10 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
                                       int           maxFractionDigits)
 {
     switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::BDES_POSITIVE_INFINITY:
-      case bdlb::Float::BDES_NEGATIVE_INFINITY:
-      case bdlb::Float::BDES_QNAN:
-      case bdlb::Float::BDES_SNAN: {
+      case bdlb::Float::k_POSITIVE_INFINITY:
+      case bdlb::Float::k_NEGATIVE_INFINITY:
+      case bdlb::Float::k_QNAN:
+      case bdlb::Float::k_SNAN: {
         stream.setstate(bsl::ios_base::failbit);
         return stream;                                                // RETURN
       }
@@ -910,14 +910,14 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                            bdlat_TypeCategory::Simple)
 {
     switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::BDES_POSITIVE_INFINITY: {
+      case bdlb::Float::k_POSITIVE_INFINITY: {
         stream << "+INF";
       } break;
-      case bdlb::Float::BDES_NEGATIVE_INFINITY: {
+      case bdlb::Float::k_NEGATIVE_INFINITY: {
         stream << "-INF";
       } break;
-      case bdlb::Float::BDES_QNAN:
-      case bdlb::Float::BDES_SNAN: {
+      case bdlb::Float::k_QNAN:
+      case bdlb::Float::k_SNAN: {
         stream << "NaN";
       } break;
       default: {
@@ -956,14 +956,14 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                            bdlat_TypeCategory::Simple)
 {
     switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::BDES_POSITIVE_INFINITY: {
+      case bdlb::Float::k_POSITIVE_INFINITY: {
         stream << "+INF";
       } break;
-      case bdlb::Float::BDES_NEGATIVE_INFINITY: {
+      case bdlb::Float::k_NEGATIVE_INFINITY: {
         stream << "-INF";
       } break;
-      case bdlb::Float::BDES_QNAN:
-      case bdlb::Float::BDES_SNAN: {
+      case bdlb::Float::k_QNAN:
+      case bdlb::Float::k_SNAN: {
         stream << "NaN";
       } break;
       default: {

@@ -755,9 +755,9 @@ int main(int argc, char *argv[])
 
         const int MYPAGESIZE = bdlsu::MemoryUtil::pageSize();
         const int SIZE       = MYPAGESIZE;
-        const int READ       = bdlsu::MemoryUtil::BDESU_ACCESS_READ;
-        const int READ_WRITE = bdlsu::MemoryUtil::BDESU_ACCESS_READ |
-                               bdlsu::MemoryUtil::BDESU_ACCESS_WRITE;
+        const int READ       = bdlsu::MemoryUtil::k_ACCESS_READ;
+        const int READ_WRITE = bdlsu::MemoryUtil::k_ACCESS_READ |
+                               bdlsu::MemoryUtil::k_ACCESS_WRITE;
         int         rc     = 0;
         Obj::Offset offset = 0;
 
@@ -1969,7 +1969,7 @@ int main(int argc, char *argv[])
         bdlsu::FileUtil::grow(fd, pageSize);
         int *p;
         ASSERT(0 == bdlsu::FileUtil::map(fd, (void**)&p, 0, pageSize,
-                                   bdlsu::MemoryUtil::BDESU_ACCESS_READ_WRITE));
+                                   bdlsu::MemoryUtil::k_ACCESS_READ_WRITE));
         printf("mapped at %p\n", p);
         for (int i = 0; i < 10000; ++i) {
           ASSERT(0 == bdlsu::FileUtil::seek(fd, 0,

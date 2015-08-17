@@ -65,12 +65,16 @@ struct CharConvertStatus {
   public:
     // TYPES
     enum Enum {
-        BDEDE_INVALID_CHARS_BIT = 0x1,      // Invalid characters or sequences
+        k_INVALID_CHARS_BIT = 0x1,      // Invalid characters or sequences
                                             // of characters were encountered
                                             // in the input.
-        BDEDE_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the
+        k_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the
                                             // output was insufficient for the
                                             // translation.
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_INVALID_CHARS_BIT = k_INVALID_CHARS_BIT
+      , BDEDE_OUT_OF_SPACE_BIT = k_OUT_OF_SPACE_BIT
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:

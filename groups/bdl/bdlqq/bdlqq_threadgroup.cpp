@@ -84,11 +84,11 @@ int bdlqq::ThreadGroup::addThread(const bdlf::Function<void(*)()>& functor,
 {
     ThreadUtil::Handle handle;
     int rc = 1;
-    if (ThreadAttributes::BCEMT_CREATE_JOINABLE !=
+    if (ThreadAttributes::e_CREATE_JOINABLE !=
                                                   attributes.detachedState()) {
         ThreadAttributes newAttributes(attributes);
         newAttributes.setDetachedState(
-                                ThreadAttributes::BCEMT_CREATE_JOINABLE);
+                                ThreadAttributes::e_CREATE_JOINABLE);
         rc = ThreadUtil::create(&handle, newAttributes, functor);
     }
     else {

@@ -297,16 +297,16 @@ int main(int argc, char *argv[])
                           << endl;
 
         ball::Rule rule1("WEEKEND*",                  // pattern
-                        ball::Severity::BAEL_OFF,     // record level
-                        ball::Severity::BAEL_INFO,    // pass-through level
-                        ball::Severity::BAEL_OFF,     // trigger level
-                        ball::Severity::BAEL_OFF);    // triggerAll level
+                        ball::Severity::e_OFF,     // record level
+                        ball::Severity::e_INFO,    // pass-through level
+                        ball::Severity::e_OFF,     // trigger level
+                        ball::Severity::e_OFF);    // triggerAll level
 
         ball::Rule rule2("WEEKDAY*",                  // pattern
-                        ball::Severity::BAEL_OFF,     // record level
-                        ball::Severity::BAEL_INFO,    // pass-through level
-                        ball::Severity::BAEL_OFF,     // trigger level
-                        ball::Severity::BAEL_OFF);    // triggerAll level
+                        ball::Severity::e_OFF,     // record level
+                        ball::Severity::e_INFO,    // pass-through level
+                        ball::Severity::e_OFF,     // trigger level
+                        ball::Severity::e_OFF);    // triggerAll level
 
         ball::RuleSet ruleSet;
         ASSERT(ruleSet.addRule(rule1) >= 0);

@@ -126,8 +126,12 @@ class EncoderOptions {
     enum EncodingStyle {
         // This 'enum' provides enumerators to specify the encoding styles.
 
-        BAEJSN_COMPACT = 0,  // compact encoding without any whitespace
-        BAEJSN_PRETTY        // pretty encoding with appropriate indentation
+        e_COMPACT = 0,  // compact encoding without any whitespace
+        e_PRETTY        // pretty encoding with appropriate indentation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_COMPACT = e_COMPACT
+      , BAEJSN_PRETTY = e_PRETTY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -269,7 +273,7 @@ inline
 EncoderOptions::EncoderOptions()
 : d_initialIndentLevel(0)
 , d_spacesPerLevel(0)
-, d_encodingStyle(BAEJSN_COMPACT)
+, d_encodingStyle(e_COMPACT)
 , d_encodeEmptyArrays(false)
 , d_encodeNullElements(false)
 {

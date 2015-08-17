@@ -448,7 +448,7 @@ int Iso8601Util::generate(char             *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufLen);
 
-    char outBuf[BDEPU_DATE_STRLEN];
+    char outBuf[k_DATE_STRLEN];
     int  outLen = generateRaw(outBuf, object);
 
     BSLS_ASSERT(outLen = sizeof(outBuf));
@@ -463,7 +463,7 @@ int Iso8601Util::generate(char             *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufLen);
 
-    char outBuf[BDEPU_TIME_STRLEN];
+    char outBuf[k_TIME_STRLEN];
     int  outLen = generateRaw(outBuf, object);
     BSLS_ASSERT(outLen == sizeof(outBuf));
     return copyBuf(buffer, bufLen, outBuf, outLen);
@@ -476,7 +476,7 @@ int Iso8601Util::generate(char                 *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufLen);
 
-    char outBuf[BDEPU_DATETIME_STRLEN];
+    char outBuf[k_DATETIME_STRLEN];
     int  outLen = generateRaw(outBuf, object);
 
     BSLS_ASSERT(outLen == sizeof(outBuf));
@@ -493,7 +493,7 @@ int Iso8601Util::generate(char               *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufLen);
 
-    char outBuf[BDEPU_DATETZ_STRLEN];
+    char outBuf[k_DATETZ_STRLEN];
     int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
 
     BSLS_ASSERT(outLen == sizeof(outBuf) ||
@@ -511,7 +511,7 @@ int Iso8601Util::generate(char               *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufLen);
 
-    char outBuf[BDEPU_TIMETZ_STRLEN];
+    char outBuf[k_TIMETZ_STRLEN];
     int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
 
     BSLS_ASSERT(outLen == sizeof(outBuf) ||
@@ -529,7 +529,7 @@ int Iso8601Util::generate(char                   *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufLen);
 
-    char outBuf[BDEPU_DATETIMETZ_STRLEN];
+    char outBuf[k_DATETIMETZ_STRLEN];
     int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
 
     BSLS_ASSERT(outLen == sizeof(outBuf) ||

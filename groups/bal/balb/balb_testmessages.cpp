@@ -79,19 +79,19 @@ const char Enumerated::CLASS_NAME[] = "Enumerated";
 
 const bdlat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
     {
-        Enumerated::NEW_YORK,
+        Enumerated::e_NEW_YORK,
         "NEW_YORK",
         sizeof("NEW_YORK") - 1,
         ""
     },
     {
-        Enumerated::NEW_JERSEY,
+        Enumerated::e_NEW_JERSEY,
         "NEW_JERSEY",
         sizeof("NEW_JERSEY") - 1,
         ""
     },
     {
-        Enumerated::LONDON,
+        Enumerated::e_LONDON,
         "LONDON",
         sizeof("LONDON") - 1,
         ""
@@ -103,9 +103,9 @@ const bdlat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
 int Enumerated::fromInt(Enumerated::Value *result, int number)
 {
     switch (number) {
-      case Enumerated::NEW_YORK:
-      case Enumerated::NEW_JERSEY:
-      case Enumerated::LONDON:
+      case Enumerated::e_NEW_YORK:
+      case Enumerated::e_NEW_JERSEY:
+      case Enumerated::e_LONDON:
         *result = (Enumerated::Value)number;
         return 0;                                                     // RETURN
       default:
@@ -127,7 +127,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[4]=='O'
              && string[5]=='N')
             {
-                *result = Enumerated::LONDON;
+                *result = Enumerated::e_LONDON;
                 return 0;                                             // RETURN
             }
         } break;
@@ -141,7 +141,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[6]=='R'
              && string[7]=='K')
             {
-                *result = Enumerated::NEW_YORK;
+                *result = Enumerated::e_NEW_YORK;
                 return 0;                                             // RETURN
             }
         } break;
@@ -157,7 +157,7 @@ int Enumerated::fromString(Enumerated::Value *result,
              && string[8]=='E'
              && string[9]=='Y')
             {
-                *result = Enumerated::NEW_JERSEY;
+                *result = Enumerated::e_NEW_JERSEY;
                 return 0;                                             // RETURN
             }
         } break;
@@ -169,13 +169,13 @@ int Enumerated::fromString(Enumerated::Value *result,
 const char *Enumerated::toString(Enumerated::Value value)
 {
     switch (value) {
-      case NEW_YORK: {
+      case e_NEW_YORK: {
         return "NEW_YORK";                                            // RETURN
       } break;
-      case NEW_JERSEY: {
+      case e_NEW_JERSEY: {
         return "NEW_JERSEY";                                          // RETURN
       } break;
-      case LONDON: {
+      case e_LONDON: {
         return "LONDON";                                              // RETURN
       } break;
     }
@@ -195,14 +195,14 @@ const char SequenceWithAnonymityChoice1::CLASS_NAME[] = "SequenceWithAnonymityCh
 
 const bdlat_SelectionInfo SequenceWithAnonymityChoice1::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SELECTION5,
+        e_SELECTION_ID_SELECTION5,
         "selection5",
         sizeof("selection5") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        SELECTION_ID_SELECTION6,
+        e_SELECTION_ID_SELECTION6,
         "selection6",
         sizeof("selection6") - 1,
         "",
@@ -230,11 +230,11 @@ const bdlat_SelectionInfo *SequenceWithAnonymityChoice1::lookupSelectionInfo(
             {
                 switch(name[9]) {
                     case '5': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION5];
                                                                       // RETURN
                     } break;
                     case '6': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION6];
                                                                       // RETURN
                     } break;
                 }
@@ -247,10 +247,10 @@ const bdlat_SelectionInfo *SequenceWithAnonymityChoice1::lookupSelectionInfo(
 const bdlat_SelectionInfo *SequenceWithAnonymityChoice1::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SELECTION5:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
-      case SELECTION_ID_SELECTION6:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
+      case e_SELECTION_ID_SELECTION5:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION5];
+      case e_SELECTION_ID_SELECTION6:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION6];
       default:
         return 0;
     }
@@ -265,17 +265,17 @@ SequenceWithAnonymityChoice1::SequenceWithAnonymityChoice1(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION5: {
+      case e_SELECTION_ID_SELECTION5: {
         new (d_selection5.buffer())
             bool(original.d_selection5.object());
       } break;
-      case SELECTION_ID_SELECTION6: {
+      case e_SELECTION_ID_SELECTION6: {
         new (d_selection6.buffer())
             bsl::string(
                 original.d_selection6.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -286,14 +286,14 @@ SequenceWithAnonymityChoice1::operator=(const SequenceWithAnonymityChoice1& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION5: {
+          case e_SELECTION_ID_SELECTION5: {
             makeSelection5(rhs.d_selection5.object());
           } break;
-          case SELECTION_ID_SELECTION6: {
+          case e_SELECTION_ID_SELECTION6: {
             makeSelection6(rhs.d_selection6.object());
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -303,30 +303,30 @@ SequenceWithAnonymityChoice1::operator=(const SequenceWithAnonymityChoice1& rhs)
 void SequenceWithAnonymityChoice1::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION5: {
+      case e_SELECTION_ID_SELECTION5: {
         // no destruction required
       } break;
-      case SELECTION_ID_SELECTION6: {
+      case e_SELECTION_ID_SELECTION6: {
         typedef bsl::string Type;
         d_selection6.object().~Type();
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int SequenceWithAnonymityChoice1::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SELECTION5: {
+      case e_SELECTION_ID_SELECTION5: {
         makeSelection5();
       } break;
-      case SELECTION_ID_SELECTION6: {
+      case e_SELECTION_ID_SELECTION6: {
         makeSelection6();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -348,7 +348,7 @@ int SequenceWithAnonymityChoice1::makeSelection(const char *name, int nameLength
 
 bool& SequenceWithAnonymityChoice1::makeSelection5()
 {
-    if (SELECTION_ID_SELECTION5 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION5 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection5.object());
     }
     else {
@@ -356,7 +356,7 @@ bool& SequenceWithAnonymityChoice1::makeSelection5()
         new (d_selection5.buffer())
             bool();
 
-        d_selectionId = SELECTION_ID_SELECTION5;
+        d_selectionId = e_SELECTION_ID_SELECTION5;
     }
 
     return d_selection5.object();
@@ -364,14 +364,14 @@ bool& SequenceWithAnonymityChoice1::makeSelection5()
 
 bool& SequenceWithAnonymityChoice1::makeSelection5(bool value)
 {
-    if (SELECTION_ID_SELECTION5 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION5 == d_selectionId) {
         d_selection5.object() = value;
     }
     else {
         reset();
         new (d_selection5.buffer())
                 bool(value);
-        d_selectionId = SELECTION_ID_SELECTION5;
+        d_selectionId = e_SELECTION_ID_SELECTION5;
     }
 
     return d_selection5.object();
@@ -379,7 +379,7 @@ bool& SequenceWithAnonymityChoice1::makeSelection5(bool value)
 
 bsl::string& SequenceWithAnonymityChoice1::makeSelection6()
 {
-    if (SELECTION_ID_SELECTION6 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION6 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection6.object());
     }
     else {
@@ -387,7 +387,7 @@ bsl::string& SequenceWithAnonymityChoice1::makeSelection6()
         new (d_selection6.buffer())
                 bsl::string(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION6;
+        d_selectionId = e_SELECTION_ID_SELECTION6;
     }
 
     return d_selection6.object();
@@ -395,14 +395,14 @@ bsl::string& SequenceWithAnonymityChoice1::makeSelection6()
 
 bsl::string& SequenceWithAnonymityChoice1::makeSelection6(const bsl::string& value)
 {
-    if (SELECTION_ID_SELECTION6 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION6 == d_selectionId) {
         d_selection6.object() = value;
     }
     else {
         reset();
         new (d_selection6.buffer())
                 bsl::string(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION6;
+        d_selectionId = e_SELECTION_ID_SELECTION6;
     }
 
     return d_selection6.object();
@@ -431,12 +431,12 @@ bsl::ostream& SequenceWithAnonymityChoice1::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION5: {
+          case e_SELECTION_ID_SELECTION5: {
             stream << "Selection5 = ";
             bdlb::PrintMethods::print(stream, d_selection5.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION6: {
+          case e_SELECTION_ID_SELECTION6: {
             stream << "Selection6 = ";
             bdlb::PrintMethods::print(stream, d_selection6.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -453,12 +453,12 @@ bsl::ostream& SequenceWithAnonymityChoice1::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION5: {
+          case e_SELECTION_ID_SELECTION5: {
             stream << "Selection5 = ";
             bdlb::PrintMethods::print(stream, d_selection5.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION6: {
+          case e_SELECTION_ID_SELECTION6: {
             stream << "Selection6 = ";
             bdlb::PrintMethods::print(stream, d_selection6.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -477,12 +477,12 @@ bsl::ostream& SequenceWithAnonymityChoice1::print(
 const char *SequenceWithAnonymityChoice1::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION5:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5].name();
-      case SELECTION_ID_SELECTION6:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6].name();
+      case e_SELECTION_ID_SELECTION5:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION5].name();
+      case e_SELECTION_ID_SELECTION6:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION6].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -497,14 +497,14 @@ const char SimpleRequest::CLASS_NAME[] = "SimpleRequest";
 
 const bdlat_AttributeInfo SimpleRequest::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_DATA,
+        e_ATTRIBUTE_ID_DATA,
         "data",
         sizeof("data") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_RESPONSE_LENGTH,
+        e_ATTRIBUTE_ID_RESPONSE_LENGTH,
         "responseLength",
         sizeof("responseLength") - 1,
         "",
@@ -525,7 +525,7 @@ const bdlat_AttributeInfo *SimpleRequest::lookupAttributeInfo(
              && name[2]=='t'
              && name[3]=='a')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATA];   // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATA];   // RETURN
             }
         } break;
         case 14: {
@@ -544,7 +544,7 @@ const bdlat_AttributeInfo *SimpleRequest::lookupAttributeInfo(
              && name[12]=='t'
              && name[13]=='h')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_RESPONSE_LENGTH];
                                                                       // RETURN
             }
         } break;
@@ -555,10 +555,10 @@ const bdlat_AttributeInfo *SimpleRequest::lookupAttributeInfo(
 const bdlat_AttributeInfo *SimpleRequest::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_DATA:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATA];
-      case ATTRIBUTE_ID_RESPONSE_LENGTH:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH];
+      case e_ATTRIBUTE_ID_DATA:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATA];
+      case e_ATTRIBUTE_ID_RESPONSE_LENGTH:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_RESPONSE_LENGTH];
       default:
         return 0;
     }
@@ -668,21 +668,21 @@ const char UnsignedSequence::CLASS_NAME[] = "UnsignedSequence";
 
 const bdlat_AttributeInfo UnsignedSequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        e_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT2,
+        e_ATTRIBUTE_ID_ELEMENT2,
         "element2",
         sizeof("element2") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT3,
+        e_ATTRIBUTE_ID_ELEMENT3,
         "element3",
         sizeof("element3") - 1,
         "",
@@ -708,15 +708,15 @@ const bdlat_AttributeInfo *UnsignedSequence::lookupAttributeInfo(
             {
                 switch(name[7]) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
                                                                       // RETURN
                     } break;
                 }
@@ -729,12 +729,12 @@ const bdlat_AttributeInfo *UnsignedSequence::lookupAttributeInfo(
 const bdlat_AttributeInfo *UnsignedSequence::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-      case ATTRIBUTE_ID_ELEMENT2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-      case ATTRIBUTE_ID_ELEMENT3:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+      case e_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
+      case e_ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
+      case e_ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
       default:
         return 0;
     }
@@ -948,42 +948,42 @@ const char Sequence3::CLASS_NAME[] = "Sequence3";
 
 const bdlat_AttributeInfo Sequence3::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        e_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT2,
+        e_ATTRIBUTE_ID_ELEMENT2,
         "element2",
         sizeof("element2") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT3,
+        e_ATTRIBUTE_ID_ELEMENT3,
         "element3",
         sizeof("element3") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT4,
+        e_ATTRIBUTE_ID_ELEMENT4,
         "element4",
         sizeof("element4") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT5,
+        e_ATTRIBUTE_ID_ELEMENT5,
         "element5",
         sizeof("element5") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT6,
+        e_ATTRIBUTE_ID_ELEMENT6,
         "element6",
         sizeof("element6") - 1,
         "",
@@ -1010,27 +1010,27 @@ const bdlat_AttributeInfo *Sequence3::lookupAttributeInfo(
             {
                 switch(name[7]) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
                                                                       // RETURN
                     } break;
                     case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
                                                                       // RETURN
                     } break;
                 }
@@ -1043,18 +1043,18 @@ const bdlat_AttributeInfo *Sequence3::lookupAttributeInfo(
 const bdlat_AttributeInfo *Sequence3::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-      case ATTRIBUTE_ID_ELEMENT2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-      case ATTRIBUTE_ID_ELEMENT3:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-      case ATTRIBUTE_ID_ELEMENT4:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-      case ATTRIBUTE_ID_ELEMENT5:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-      case ATTRIBUTE_ID_ELEMENT6:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+      case e_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
+      case e_ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
+      case e_ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
+      case e_ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
+      case e_ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
+      case e_ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
       default:
         return 0;
     }
@@ -1220,14 +1220,14 @@ const char Sequence5::CLASS_NAME[] = "Sequence5";
 
 const bdlat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        e_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT2,
+        e_ATTRIBUTE_ID_ELEMENT2,
         "element2",
         sizeof("element2") - 1,
         "",
@@ -1235,7 +1235,7 @@ const bdlat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT3,
+        e_ATTRIBUTE_ID_ELEMENT3,
         "element3",
         sizeof("element3") - 1,
         "",
@@ -1243,7 +1243,7 @@ const bdlat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT4,
+        e_ATTRIBUTE_ID_ELEMENT4,
         "element4",
         sizeof("element4") - 1,
         "",
@@ -1251,7 +1251,7 @@ const bdlat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT5,
+        e_ATTRIBUTE_ID_ELEMENT5,
         "element5",
         sizeof("element5") - 1,
         "",
@@ -1259,7 +1259,7 @@ const bdlat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT6,
+        e_ATTRIBUTE_ID_ELEMENT6,
         "element6",
         sizeof("element6") - 1,
         "",
@@ -1267,7 +1267,7 @@ const bdlat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT7,
+        e_ATTRIBUTE_ID_ELEMENT7,
         "element7",
         sizeof("element7") - 1,
         "",
@@ -1294,31 +1294,31 @@ const bdlat_AttributeInfo *Sequence5::lookupAttributeInfo(
             {
                 switch(name[7]) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
                                                                       // RETURN
                     } break;
                     case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
                                                                       // RETURN
                     } break;
                     case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT7];
                                                                       // RETURN
                     } break;
                 }
@@ -1331,20 +1331,20 @@ const bdlat_AttributeInfo *Sequence5::lookupAttributeInfo(
 const bdlat_AttributeInfo *Sequence5::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-      case ATTRIBUTE_ID_ELEMENT2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-      case ATTRIBUTE_ID_ELEMENT3:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-      case ATTRIBUTE_ID_ELEMENT4:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-      case ATTRIBUTE_ID_ELEMENT5:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-      case ATTRIBUTE_ID_ELEMENT6:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-      case ATTRIBUTE_ID_ELEMENT7:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+      case e_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
+      case e_ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
+      case e_ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
+      case e_ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
+      case e_ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
+      case e_ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
+      case e_ATTRIBUTE_ID_ELEMENT7:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT7];
       default:
         return 0;
     }
@@ -1529,42 +1529,42 @@ const char Sequence6::CLASS_NAME[] = "Sequence6";
 
 const bdlat_AttributeInfo Sequence6::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        e_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT2,
+        e_ATTRIBUTE_ID_ELEMENT2,
         "element2",
         sizeof("element2") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT3,
+        e_ATTRIBUTE_ID_ELEMENT3,
         "element3",
         sizeof("element3") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT4,
+        e_ATTRIBUTE_ID_ELEMENT4,
         "element4",
         sizeof("element4") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT5,
+        e_ATTRIBUTE_ID_ELEMENT5,
         "element5",
         sizeof("element5") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT6,
+        e_ATTRIBUTE_ID_ELEMENT6,
         "element6",
         sizeof("element6") - 1,
         "",
@@ -1572,49 +1572,49 @@ const bdlat_AttributeInfo Sequence6::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT7,
+        e_ATTRIBUTE_ID_ELEMENT7,
         "element7",
         sizeof("element7") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT8,
+        e_ATTRIBUTE_ID_ELEMENT8,
         "element8",
         sizeof("element8") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT9,
+        e_ATTRIBUTE_ID_ELEMENT9,
         "element9",
         sizeof("element9") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT10,
+        e_ATTRIBUTE_ID_ELEMENT10,
         "element10",
         sizeof("element10") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT11,
+        e_ATTRIBUTE_ID_ELEMENT11,
         "element11",
         sizeof("element11") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT12,
+        e_ATTRIBUTE_ID_ELEMENT12,
         "element12",
         sizeof("element12") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT13,
+        e_ATTRIBUTE_ID_ELEMENT13,
         "element13",
         sizeof("element13") - 1,
         "",
@@ -1622,14 +1622,14 @@ const bdlat_AttributeInfo Sequence6::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT14,
+        e_ATTRIBUTE_ID_ELEMENT14,
         "element14",
         sizeof("element14") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT15,
+        e_ATTRIBUTE_ID_ELEMENT15,
         "element15",
         sizeof("element15") - 1,
         "",
@@ -1656,39 +1656,39 @@ const bdlat_AttributeInfo *Sequence6::lookupAttributeInfo(
             {
                 switch(name[7]) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
                                                                       // RETURN
                     } break;
                     case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
                                                                       // RETURN
                     } break;
                     case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT7];
                                                                       // RETURN
                     } break;
                     case '8': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT8];
                                                                       // RETURN
                     } break;
                     case '9': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT9];
                                                                       // RETURN
                     } break;
                 }
@@ -1706,27 +1706,27 @@ const bdlat_AttributeInfo *Sequence6::lookupAttributeInfo(
             {
                 switch(name[8]) {
                     case '0': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT10];
                                                                       // RETURN
                     } break;
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT11];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT12];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT13];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT14];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT15];
                                                                       // RETURN
                     } break;
                 }
@@ -1739,36 +1739,36 @@ const bdlat_AttributeInfo *Sequence6::lookupAttributeInfo(
 const bdlat_AttributeInfo *Sequence6::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-      case ATTRIBUTE_ID_ELEMENT2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-      case ATTRIBUTE_ID_ELEMENT3:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-      case ATTRIBUTE_ID_ELEMENT4:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-      case ATTRIBUTE_ID_ELEMENT5:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-      case ATTRIBUTE_ID_ELEMENT6:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-      case ATTRIBUTE_ID_ELEMENT7:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
-      case ATTRIBUTE_ID_ELEMENT8:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
-      case ATTRIBUTE_ID_ELEMENT9:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
-      case ATTRIBUTE_ID_ELEMENT10:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
-      case ATTRIBUTE_ID_ELEMENT11:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
-      case ATTRIBUTE_ID_ELEMENT12:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
-      case ATTRIBUTE_ID_ELEMENT13:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
-      case ATTRIBUTE_ID_ELEMENT14:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
-      case ATTRIBUTE_ID_ELEMENT15:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+      case e_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
+      case e_ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
+      case e_ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
+      case e_ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
+      case e_ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
+      case e_ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
+      case e_ATTRIBUTE_ID_ELEMENT7:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT7];
+      case e_ATTRIBUTE_ID_ELEMENT8:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT8];
+      case e_ATTRIBUTE_ID_ELEMENT9:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT9];
+      case e_ATTRIBUTE_ID_ELEMENT10:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT10];
+      case e_ATTRIBUTE_ID_ELEMENT11:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT11];
+      case e_ATTRIBUTE_ID_ELEMENT12:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT12];
+      case e_ATTRIBUTE_ID_ELEMENT13:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT13];
+      case e_ATTRIBUTE_ID_ELEMENT14:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT14];
+      case e_ATTRIBUTE_ID_ELEMENT15:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT15];
       default:
         return 0;
     }
@@ -2060,28 +2060,28 @@ const char Choice3::CLASS_NAME[] = "Choice3";
 
 const bdlat_SelectionInfo Choice3::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SELECTION1,
+        e_SELECTION_ID_SELECTION1,
         "selection1",
         sizeof("selection1") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION2,
+        e_SELECTION_ID_SELECTION2,
         "selection2",
         sizeof("selection2") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        SELECTION_ID_SELECTION3,
+        e_SELECTION_ID_SELECTION3,
         "selection3",
         sizeof("selection3") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        SELECTION_ID_SELECTION4,
+        e_SELECTION_ID_SELECTION4,
         "selection4",
         sizeof("selection4") - 1,
         "",
@@ -2109,19 +2109,19 @@ const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(
             {
                 switch(name[9]) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
                                                                       // RETURN
                     } break;
                 }
@@ -2134,14 +2134,14 @@ const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(
 const bdlat_SelectionInfo *Choice3::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SELECTION1:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-      case SELECTION_ID_SELECTION2:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-      case SELECTION_ID_SELECTION3:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-      case SELECTION_ID_SELECTION4:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      case e_SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
+      case e_SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
+      case e_SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
+      case e_SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
       default:
         return 0;
     }
@@ -2156,26 +2156,26 @@ Choice3::Choice3(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         new (d_selection1.buffer())
             Sequence6(
                 original.d_selection1.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
             unsigned char(original.d_selection2.object());
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         new (d_selection3.buffer())
             CustomString(
                 original.d_selection3.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         new (d_selection4.buffer())
             CustomInt(original.d_selection4.object());
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -2186,20 +2186,20 @@ Choice3::operator=(const Choice3& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             makeSelection1(rhs.d_selection1.object());
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             makeSelection2(rhs.d_selection2.object());
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             makeSelection3(rhs.d_selection3.object());
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             makeSelection4(rhs.d_selection4.object());
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -2209,41 +2209,41 @@ Choice3::operator=(const Choice3& rhs)
 void Choice3::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         d_selection1.object().~Sequence6();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         // no destruction required
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         d_selection3.object().~CustomString();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         d_selection4.object().~CustomInt();
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int Choice3::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         makeSelection1();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         makeSelection2();
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         makeSelection3();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         makeSelection4();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -2265,7 +2265,7 @@ int Choice3::makeSelection(const char *name, int nameLength)
 
 Sequence6& Choice3::makeSelection1()
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
@@ -2273,7 +2273,7 @@ Sequence6& Choice3::makeSelection1()
         new (d_selection1.buffer())
                 Sequence6(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -2281,14 +2281,14 @@ Sequence6& Choice3::makeSelection1()
 
 Sequence6& Choice3::makeSelection1(const Sequence6& value)
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         d_selection1.object() = value;
     }
     else {
         reset();
         new (d_selection1.buffer())
                 Sequence6(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -2296,7 +2296,7 @@ Sequence6& Choice3::makeSelection1(const Sequence6& value)
 
 unsigned char& Choice3::makeSelection2()
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
@@ -2304,7 +2304,7 @@ unsigned char& Choice3::makeSelection2()
         new (d_selection2.buffer())
             unsigned char();
 
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -2312,14 +2312,14 @@ unsigned char& Choice3::makeSelection2()
 
 unsigned char& Choice3::makeSelection2(unsigned char value)
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
     }
     else {
         reset();
         new (d_selection2.buffer())
                 unsigned char(value);
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -2327,7 +2327,7 @@ unsigned char& Choice3::makeSelection2(unsigned char value)
 
 CustomString& Choice3::makeSelection3()
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection3.object());
     }
     else {
@@ -2335,7 +2335,7 @@ CustomString& Choice3::makeSelection3()
         new (d_selection3.buffer())
                 CustomString(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return d_selection3.object();
@@ -2343,14 +2343,14 @@ CustomString& Choice3::makeSelection3()
 
 CustomString& Choice3::makeSelection3(const CustomString& value)
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         d_selection3.object() = value;
     }
     else {
         reset();
         new (d_selection3.buffer())
                 CustomString(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return d_selection3.object();
@@ -2358,7 +2358,7 @@ CustomString& Choice3::makeSelection3(const CustomString& value)
 
 CustomInt& Choice3::makeSelection4()
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection4.object());
     }
     else {
@@ -2366,7 +2366,7 @@ CustomInt& Choice3::makeSelection4()
         new (d_selection4.buffer())
             CustomInt();
 
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return d_selection4.object();
@@ -2374,14 +2374,14 @@ CustomInt& Choice3::makeSelection4()
 
 CustomInt& Choice3::makeSelection4(const CustomInt& value)
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         d_selection4.object() = value;
     }
     else {
         reset();
         new (d_selection4.buffer())
                 CustomInt(value);
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return d_selection4.object();
@@ -2410,22 +2410,22 @@ bsl::ostream& Choice3::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, (int)d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, d_selection3.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, d_selection4.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -2442,22 +2442,22 @@ bsl::ostream& Choice3::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, (int)d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, d_selection3.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, d_selection4.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -2476,16 +2476,16 @@ bsl::ostream& Choice3::print(
 const char *Choice3::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
-      case SELECTION_ID_SELECTION2:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
-      case SELECTION_ID_SELECTION3:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
-      case SELECTION_ID_SELECTION4:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      case e_SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1].name();
+      case e_SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2].name();
+      case e_SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3].name();
+      case e_SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -2500,28 +2500,28 @@ const char SequenceWithAnonymityChoice::CLASS_NAME[] = "SequenceWithAnonymityCho
 
 const bdlat_SelectionInfo SequenceWithAnonymityChoice::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SELECTION1,
+        e_SELECTION_ID_SELECTION1,
         "selection1",
         sizeof("selection1") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION2,
+        e_SELECTION_ID_SELECTION2,
         "selection2",
         sizeof("selection2") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        SELECTION_ID_SELECTION3,
+        e_SELECTION_ID_SELECTION3,
         "selection3",
         sizeof("selection3") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        SELECTION_ID_SELECTION4,
+        e_SELECTION_ID_SELECTION4,
         "selection4",
         sizeof("selection4") - 1,
         "",
@@ -2549,19 +2549,19 @@ const bdlat_SelectionInfo *SequenceWithAnonymityChoice::lookupSelectionInfo(
             {
                 switch(name[9]) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
                                                                       // RETURN
                     } break;
                 }
@@ -2574,14 +2574,14 @@ const bdlat_SelectionInfo *SequenceWithAnonymityChoice::lookupSelectionInfo(
 const bdlat_SelectionInfo *SequenceWithAnonymityChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SELECTION1:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-      case SELECTION_ID_SELECTION2:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-      case SELECTION_ID_SELECTION3:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-      case SELECTION_ID_SELECTION4:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      case e_SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
+      case e_SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
+      case e_SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
+      case e_SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
       default:
         return 0;
     }
@@ -2596,26 +2596,26 @@ SequenceWithAnonymityChoice::SequenceWithAnonymityChoice(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         new (d_selection1.buffer())
             Sequence6(
                 original.d_selection1.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
             unsigned char(original.d_selection2.object());
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         new (d_selection3.buffer())
             CustomString(
                 original.d_selection3.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         new (d_selection4.buffer())
             CustomInt(original.d_selection4.object());
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -2626,20 +2626,20 @@ SequenceWithAnonymityChoice::operator=(const SequenceWithAnonymityChoice& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             makeSelection1(rhs.d_selection1.object());
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             makeSelection2(rhs.d_selection2.object());
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             makeSelection3(rhs.d_selection3.object());
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             makeSelection4(rhs.d_selection4.object());
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -2649,41 +2649,41 @@ SequenceWithAnonymityChoice::operator=(const SequenceWithAnonymityChoice& rhs)
 void SequenceWithAnonymityChoice::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         d_selection1.object().~Sequence6();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         // no destruction required
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         d_selection3.object().~CustomString();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         d_selection4.object().~CustomInt();
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int SequenceWithAnonymityChoice::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         makeSelection1();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         makeSelection2();
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         makeSelection3();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         makeSelection4();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -2705,7 +2705,7 @@ int SequenceWithAnonymityChoice::makeSelection(const char *name, int nameLength)
 
 Sequence6& SequenceWithAnonymityChoice::makeSelection1()
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
@@ -2713,7 +2713,7 @@ Sequence6& SequenceWithAnonymityChoice::makeSelection1()
         new (d_selection1.buffer())
                 Sequence6(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -2721,14 +2721,14 @@ Sequence6& SequenceWithAnonymityChoice::makeSelection1()
 
 Sequence6& SequenceWithAnonymityChoice::makeSelection1(const Sequence6& value)
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         d_selection1.object() = value;
     }
     else {
         reset();
         new (d_selection1.buffer())
                 Sequence6(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -2736,7 +2736,7 @@ Sequence6& SequenceWithAnonymityChoice::makeSelection1(const Sequence6& value)
 
 unsigned char& SequenceWithAnonymityChoice::makeSelection2()
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
@@ -2744,7 +2744,7 @@ unsigned char& SequenceWithAnonymityChoice::makeSelection2()
         new (d_selection2.buffer())
             unsigned char();
 
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -2752,14 +2752,14 @@ unsigned char& SequenceWithAnonymityChoice::makeSelection2()
 
 unsigned char& SequenceWithAnonymityChoice::makeSelection2(unsigned char value)
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
     }
     else {
         reset();
         new (d_selection2.buffer())
                 unsigned char(value);
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -2767,7 +2767,7 @@ unsigned char& SequenceWithAnonymityChoice::makeSelection2(unsigned char value)
 
 CustomString& SequenceWithAnonymityChoice::makeSelection3()
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection3.object());
     }
     else {
@@ -2775,7 +2775,7 @@ CustomString& SequenceWithAnonymityChoice::makeSelection3()
         new (d_selection3.buffer())
                 CustomString(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return d_selection3.object();
@@ -2783,14 +2783,14 @@ CustomString& SequenceWithAnonymityChoice::makeSelection3()
 
 CustomString& SequenceWithAnonymityChoice::makeSelection3(const CustomString& value)
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         d_selection3.object() = value;
     }
     else {
         reset();
         new (d_selection3.buffer())
                 CustomString(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return d_selection3.object();
@@ -2798,7 +2798,7 @@ CustomString& SequenceWithAnonymityChoice::makeSelection3(const CustomString& va
 
 CustomInt& SequenceWithAnonymityChoice::makeSelection4()
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection4.object());
     }
     else {
@@ -2806,7 +2806,7 @@ CustomInt& SequenceWithAnonymityChoice::makeSelection4()
         new (d_selection4.buffer())
             CustomInt();
 
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return d_selection4.object();
@@ -2814,14 +2814,14 @@ CustomInt& SequenceWithAnonymityChoice::makeSelection4()
 
 CustomInt& SequenceWithAnonymityChoice::makeSelection4(const CustomInt& value)
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         d_selection4.object() = value;
     }
     else {
         reset();
         new (d_selection4.buffer())
                 CustomInt(value);
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return d_selection4.object();
@@ -2850,22 +2850,22 @@ bsl::ostream& SequenceWithAnonymityChoice::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, (int)d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, d_selection3.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, d_selection4.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -2882,22 +2882,22 @@ bsl::ostream& SequenceWithAnonymityChoice::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, (int)d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, d_selection3.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, d_selection4.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -2916,16 +2916,16 @@ bsl::ostream& SequenceWithAnonymityChoice::print(
 const char *SequenceWithAnonymityChoice::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
-      case SELECTION_ID_SELECTION2:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
-      case SELECTION_ID_SELECTION3:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
-      case SELECTION_ID_SELECTION4:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      case e_SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1].name();
+      case e_SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2].name();
+      case e_SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3].name();
+      case e_SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -2940,28 +2940,28 @@ const char Choice1::CLASS_NAME[] = "Choice1";
 
 const bdlat_SelectionInfo Choice1::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SELECTION1,
+        e_SELECTION_ID_SELECTION1,
         "selection1",
         sizeof("selection1") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        SELECTION_ID_SELECTION2,
+        e_SELECTION_ID_SELECTION2,
         "selection2",
         sizeof("selection2") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION3,
+        e_SELECTION_ID_SELECTION3,
         "selection3",
         sizeof("selection3") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION4,
+        e_SELECTION_ID_SELECTION4,
         "selection4",
         sizeof("selection4") - 1,
         "",
@@ -2989,19 +2989,19 @@ const bdlat_SelectionInfo *Choice1::lookupSelectionInfo(
             {
                 switch(name[9]) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
                                                                       // RETURN
                     } break;
                 }
@@ -3014,14 +3014,14 @@ const bdlat_SelectionInfo *Choice1::lookupSelectionInfo(
 const bdlat_SelectionInfo *Choice1::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SELECTION1:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-      case SELECTION_ID_SELECTION2:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-      case SELECTION_ID_SELECTION3:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-      case SELECTION_ID_SELECTION4:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      case e_SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
+      case e_SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
+      case e_SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
+      case e_SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
       default:
         return 0;
     }
@@ -3036,24 +3036,24 @@ Choice1::Choice1(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         new (d_selection1.buffer())
             int(original.d_selection1.object());
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
             double(original.d_selection2.object());
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         d_selection3 = new (*d_allocator_p)
                 Sequence4(*original.d_selection3, d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         d_selection4 = new (*d_allocator_p)
                 Choice2(*original.d_selection4, d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -3064,20 +3064,20 @@ Choice1::operator=(const Choice1& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             makeSelection1(rhs.d_selection1.object());
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             makeSelection2(rhs.d_selection2.object());
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             makeSelection3(*rhs.d_selection3);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             makeSelection4(*rhs.d_selection4);
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -3087,41 +3087,41 @@ Choice1::operator=(const Choice1& rhs)
 void Choice1::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         // no destruction required
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         // no destruction required
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         d_allocator_p->deleteObject(d_selection3);
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         d_allocator_p->deleteObject(d_selection4);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int Choice1::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         makeSelection1();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         makeSelection2();
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         makeSelection3();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         makeSelection4();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -3143,7 +3143,7 @@ int Choice1::makeSelection(const char *name, int nameLength)
 
 int& Choice1::makeSelection1()
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
@@ -3151,7 +3151,7 @@ int& Choice1::makeSelection1()
         new (d_selection1.buffer())
             int();
 
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -3159,14 +3159,14 @@ int& Choice1::makeSelection1()
 
 int& Choice1::makeSelection1(int value)
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         d_selection1.object() = value;
     }
     else {
         reset();
         new (d_selection1.buffer())
                 int(value);
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -3174,7 +3174,7 @@ int& Choice1::makeSelection1(int value)
 
 double& Choice1::makeSelection2()
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
@@ -3182,7 +3182,7 @@ double& Choice1::makeSelection2()
         new (d_selection2.buffer())
             double();
 
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -3190,14 +3190,14 @@ double& Choice1::makeSelection2()
 
 double& Choice1::makeSelection2(double value)
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
     }
     else {
         reset();
         new (d_selection2.buffer())
                 double(value);
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -3205,7 +3205,7 @@ double& Choice1::makeSelection2(double value)
 
 Sequence4& Choice1::makeSelection3()
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(d_selection3);
     }
     else {
@@ -3213,7 +3213,7 @@ Sequence4& Choice1::makeSelection3()
         d_selection3 = new (*d_allocator_p)
                 Sequence4(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return *d_selection3;
@@ -3221,14 +3221,14 @@ Sequence4& Choice1::makeSelection3()
 
 Sequence4& Choice1::makeSelection3(const Sequence4& value)
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         *d_selection3 = value;
     }
     else {
         reset();
         d_selection3 = new (*d_allocator_p)
                 Sequence4(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return *d_selection3;
@@ -3236,7 +3236,7 @@ Sequence4& Choice1::makeSelection3(const Sequence4& value)
 
 Choice2& Choice1::makeSelection4()
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(d_selection4);
     }
     else {
@@ -3244,7 +3244,7 @@ Choice2& Choice1::makeSelection4()
         d_selection4 = new (*d_allocator_p)
                 Choice2(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return *d_selection4;
@@ -3252,14 +3252,14 @@ Choice2& Choice1::makeSelection4()
 
 Choice2& Choice1::makeSelection4(const Choice2& value)
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         *d_selection4 = value;
     }
     else {
         reset();
         d_selection4 = new (*d_allocator_p)
                 Choice2(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return *d_selection4;
@@ -3288,22 +3288,22 @@ bsl::ostream& Choice1::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, *d_selection3,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, *d_selection4,
                                      -levelPlus1, spacesPerLevel);
@@ -3320,22 +3320,22 @@ bsl::ostream& Choice1::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, *d_selection3,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, *d_selection4,
                                      -levelPlus1, spacesPerLevel);
@@ -3354,16 +3354,16 @@ bsl::ostream& Choice1::print(
 const char *Choice1::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
-      case SELECTION_ID_SELECTION2:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
-      case SELECTION_ID_SELECTION3:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
-      case SELECTION_ID_SELECTION4:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      case e_SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1].name();
+      case e_SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2].name();
+      case e_SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3].name();
+      case e_SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -3378,28 +3378,28 @@ const char Choice2::CLASS_NAME[] = "Choice2";
 
 const bdlat_SelectionInfo Choice2::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SELECTION1,
+        e_SELECTION_ID_SELECTION1,
         "selection1",
         sizeof("selection1") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        SELECTION_ID_SELECTION2,
+        e_SELECTION_ID_SELECTION2,
         "selection2",
         sizeof("selection2") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        SELECTION_ID_SELECTION3,
+        e_SELECTION_ID_SELECTION3,
         "selection3",
         sizeof("selection3") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION4,
+        e_SELECTION_ID_SELECTION4,
         "selection4",
         sizeof("selection4") - 1,
         "",
@@ -3427,19 +3427,19 @@ const bdlat_SelectionInfo *Choice2::lookupSelectionInfo(
             {
                 switch(name[9]) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
                                                                       // RETURN
                     } break;
                 }
@@ -3452,14 +3452,14 @@ const bdlat_SelectionInfo *Choice2::lookupSelectionInfo(
 const bdlat_SelectionInfo *Choice2::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SELECTION1:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-      case SELECTION_ID_SELECTION2:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-      case SELECTION_ID_SELECTION3:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-      case SELECTION_ID_SELECTION4:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      case e_SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
+      case e_SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
+      case e_SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
+      case e_SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
       default:
         return 0;
     }
@@ -3474,25 +3474,25 @@ Choice2::Choice2(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         new (d_selection1.buffer())
             bool(original.d_selection1.object());
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
             bsl::string(
                 original.d_selection2.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         d_selection3 = new (*d_allocator_p)
                 Choice1(*original.d_selection3, d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         new (d_selection4.buffer())
             unsigned int(original.d_selection4.object());
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -3503,20 +3503,20 @@ Choice2::operator=(const Choice2& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             makeSelection1(rhs.d_selection1.object());
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             makeSelection2(rhs.d_selection2.object());
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             makeSelection3(*rhs.d_selection3);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             makeSelection4(rhs.d_selection4.object());
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -3526,42 +3526,42 @@ Choice2::operator=(const Choice2& rhs)
 void Choice2::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         // no destruction required
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         typedef bsl::string Type;
         d_selection2.object().~Type();
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         d_allocator_p->deleteObject(d_selection3);
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         // no destruction required
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int Choice2::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         makeSelection1();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         makeSelection2();
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         makeSelection3();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         makeSelection4();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -3583,7 +3583,7 @@ int Choice2::makeSelection(const char *name, int nameLength)
 
 bool& Choice2::makeSelection1()
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
@@ -3591,7 +3591,7 @@ bool& Choice2::makeSelection1()
         new (d_selection1.buffer())
             bool();
 
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -3599,14 +3599,14 @@ bool& Choice2::makeSelection1()
 
 bool& Choice2::makeSelection1(bool value)
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         d_selection1.object() = value;
     }
     else {
         reset();
         new (d_selection1.buffer())
                 bool(value);
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -3614,7 +3614,7 @@ bool& Choice2::makeSelection1(bool value)
 
 bsl::string& Choice2::makeSelection2()
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
@@ -3622,7 +3622,7 @@ bsl::string& Choice2::makeSelection2()
         new (d_selection2.buffer())
                 bsl::string(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -3630,14 +3630,14 @@ bsl::string& Choice2::makeSelection2()
 
 bsl::string& Choice2::makeSelection2(const bsl::string& value)
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
     }
     else {
         reset();
         new (d_selection2.buffer())
                 bsl::string(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -3645,7 +3645,7 @@ bsl::string& Choice2::makeSelection2(const bsl::string& value)
 
 Choice1& Choice2::makeSelection3()
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(d_selection3);
     }
     else {
@@ -3653,7 +3653,7 @@ Choice1& Choice2::makeSelection3()
         d_selection3 = new (*d_allocator_p)
                 Choice1(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return *d_selection3;
@@ -3661,14 +3661,14 @@ Choice1& Choice2::makeSelection3()
 
 Choice1& Choice2::makeSelection3(const Choice1& value)
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         *d_selection3 = value;
     }
     else {
         reset();
         d_selection3 = new (*d_allocator_p)
                 Choice1(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return *d_selection3;
@@ -3676,7 +3676,7 @@ Choice1& Choice2::makeSelection3(const Choice1& value)
 
 unsigned int& Choice2::makeSelection4()
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection4.object());
     }
     else {
@@ -3684,7 +3684,7 @@ unsigned int& Choice2::makeSelection4()
         new (d_selection4.buffer())
             unsigned int();
 
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return d_selection4.object();
@@ -3692,14 +3692,14 @@ unsigned int& Choice2::makeSelection4()
 
 unsigned int& Choice2::makeSelection4(unsigned int value)
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         d_selection4.object() = value;
     }
     else {
         reset();
         new (d_selection4.buffer())
                 unsigned int(value);
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return d_selection4.object();
@@ -3728,22 +3728,22 @@ bsl::ostream& Choice2::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, *d_selection3,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, d_selection4.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -3760,22 +3760,22 @@ bsl::ostream& Choice2::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, *d_selection3,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, d_selection4.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -3794,16 +3794,16 @@ bsl::ostream& Choice2::print(
 const char *Choice2::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
-      case SELECTION_ID_SELECTION2:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
-      case SELECTION_ID_SELECTION3:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
-      case SELECTION_ID_SELECTION4:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      case e_SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1].name();
+      case e_SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2].name();
+      case e_SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3].name();
+      case e_SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -3818,133 +3818,133 @@ const char Sequence4::CLASS_NAME[] = "Sequence4";
 
 const bdlat_AttributeInfo Sequence4::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        e_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT2,
+        e_ATTRIBUTE_ID_ELEMENT2,
         "element2",
         sizeof("element2") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT3,
+        e_ATTRIBUTE_ID_ELEMENT3,
         "element3",
         sizeof("element3") - 1,
         "",
         bdlat_FormattingMode::e_HEX
     },
     {
-        ATTRIBUTE_ID_ELEMENT4,
+        e_ATTRIBUTE_ID_ELEMENT4,
         "element4",
         sizeof("element4") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT5,
+        e_ATTRIBUTE_ID_ELEMENT5,
         "element5",
         sizeof("element5") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT6,
+        e_ATTRIBUTE_ID_ELEMENT6,
         "element6",
         sizeof("element6") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT7,
+        e_ATTRIBUTE_ID_ELEMENT7,
         "element7",
         sizeof("element7") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT8,
+        e_ATTRIBUTE_ID_ELEMENT8,
         "element8",
         sizeof("element8") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT9,
+        e_ATTRIBUTE_ID_ELEMENT9,
         "element9",
         sizeof("element9") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT10,
+        e_ATTRIBUTE_ID_ELEMENT10,
         "element10",
         sizeof("element10") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT11,
+        e_ATTRIBUTE_ID_ELEMENT11,
         "element11",
         sizeof("element11") - 1,
         "",
         bdlat_FormattingMode::e_HEX
     },
     {
-        ATTRIBUTE_ID_ELEMENT12,
+        e_ATTRIBUTE_ID_ELEMENT12,
         "element12",
         sizeof("element12") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT13,
+        e_ATTRIBUTE_ID_ELEMENT13,
         "element13",
         sizeof("element13") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT14,
+        e_ATTRIBUTE_ID_ELEMENT14,
         "element14",
         sizeof("element14") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT15,
+        e_ATTRIBUTE_ID_ELEMENT15,
         "element15",
         sizeof("element15") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT16,
+        e_ATTRIBUTE_ID_ELEMENT16,
         "element16",
         sizeof("element16") - 1,
         "",
         bdlat_FormattingMode::e_HEX
     },
     {
-        ATTRIBUTE_ID_ELEMENT17,
+        e_ATTRIBUTE_ID_ELEMENT17,
         "element17",
         sizeof("element17") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT18,
+        e_ATTRIBUTE_ID_ELEMENT18,
         "element18",
         sizeof("element18") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT19,
+        e_ATTRIBUTE_ID_ELEMENT19,
         "element19",
         sizeof("element19") - 1,
         "",
@@ -3970,39 +3970,39 @@ const bdlat_AttributeInfo *Sequence4::lookupAttributeInfo(
             {
                 switch(name[7]) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
                                                                       // RETURN
                     } break;
                     case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
                                                                       // RETURN
                     } break;
                     case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT7];
                                                                       // RETURN
                     } break;
                     case '8': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT8];
                                                                       // RETURN
                     } break;
                     case '9': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT9];
                                                                       // RETURN
                     } break;
                 }
@@ -4020,43 +4020,43 @@ const bdlat_AttributeInfo *Sequence4::lookupAttributeInfo(
             {
                 switch(name[8]) {
                     case '0': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT10];
                                                                       // RETURN
                     } break;
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT11];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT12];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT13];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT14];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT15];
                                                                       // RETURN
                     } break;
                     case '6': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT16];
                                                                       // RETURN
                     } break;
                     case '7': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT17];
                                                                       // RETURN
                     } break;
                     case '8': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT18];
                                                                       // RETURN
                     } break;
                     case '9': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT19];
                                                                       // RETURN
                     } break;
                 }
@@ -4069,44 +4069,44 @@ const bdlat_AttributeInfo *Sequence4::lookupAttributeInfo(
 const bdlat_AttributeInfo *Sequence4::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-      case ATTRIBUTE_ID_ELEMENT2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-      case ATTRIBUTE_ID_ELEMENT3:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-      case ATTRIBUTE_ID_ELEMENT4:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-      case ATTRIBUTE_ID_ELEMENT5:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
-      case ATTRIBUTE_ID_ELEMENT6:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
-      case ATTRIBUTE_ID_ELEMENT7:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
-      case ATTRIBUTE_ID_ELEMENT8:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
-      case ATTRIBUTE_ID_ELEMENT9:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
-      case ATTRIBUTE_ID_ELEMENT10:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
-      case ATTRIBUTE_ID_ELEMENT11:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
-      case ATTRIBUTE_ID_ELEMENT12:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
-      case ATTRIBUTE_ID_ELEMENT13:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
-      case ATTRIBUTE_ID_ELEMENT14:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
-      case ATTRIBUTE_ID_ELEMENT15:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
-      case ATTRIBUTE_ID_ELEMENT16:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16];
-      case ATTRIBUTE_ID_ELEMENT17:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17];
-      case ATTRIBUTE_ID_ELEMENT18:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18];
-      case ATTRIBUTE_ID_ELEMENT19:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19];
+      case e_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
+      case e_ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
+      case e_ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
+      case e_ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
+      case e_ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
+      case e_ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT6];
+      case e_ATTRIBUTE_ID_ELEMENT7:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT7];
+      case e_ATTRIBUTE_ID_ELEMENT8:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT8];
+      case e_ATTRIBUTE_ID_ELEMENT9:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT9];
+      case e_ATTRIBUTE_ID_ELEMENT10:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT10];
+      case e_ATTRIBUTE_ID_ELEMENT11:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT11];
+      case e_ATTRIBUTE_ID_ELEMENT12:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT12];
+      case e_ATTRIBUTE_ID_ELEMENT13:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT13];
+      case e_ATTRIBUTE_ID_ELEMENT14:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT14];
+      case e_ATTRIBUTE_ID_ELEMENT15:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT15];
+      case e_ATTRIBUTE_ID_ELEMENT16:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT16];
+      case e_ATTRIBUTE_ID_ELEMENT17:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT17];
+      case e_ATTRIBUTE_ID_ELEMENT18:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT18];
+      case e_ATTRIBUTE_ID_ELEMENT19:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT19];
       default:
         return 0;
     }
@@ -4454,28 +4454,28 @@ const char Sequence1::CLASS_NAME[] = "Sequence1";
 
 const bdlat_AttributeInfo Sequence1::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        e_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT2,
+        e_ATTRIBUTE_ID_ELEMENT2,
         "element2",
         sizeof("element2") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT3,
+        e_ATTRIBUTE_ID_ELEMENT3,
         "element3",
         sizeof("element3") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT4,
+        e_ATTRIBUTE_ID_ELEMENT4,
         "element4",
         sizeof("element4") - 1,
         "",
@@ -4483,7 +4483,7 @@ const bdlat_AttributeInfo Sequence1::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_NILLABLE
     },
     {
-        ATTRIBUTE_ID_ELEMENT5,
+        e_ATTRIBUTE_ID_ELEMENT5,
         "element5",
         sizeof("element5") - 1,
         "",
@@ -4509,23 +4509,23 @@ const bdlat_AttributeInfo *Sequence1::lookupAttributeInfo(
             {
                 switch(name[7]) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
                                                                       // RETURN
                     } break;
                 }
@@ -4538,16 +4538,16 @@ const bdlat_AttributeInfo *Sequence1::lookupAttributeInfo(
 const bdlat_AttributeInfo *Sequence1::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-      case ATTRIBUTE_ID_ELEMENT2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-      case ATTRIBUTE_ID_ELEMENT3:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-      case ATTRIBUTE_ID_ELEMENT4:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-      case ATTRIBUTE_ID_ELEMENT5:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      case e_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
+      case e_ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
+      case e_ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
+      case e_ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
+      case e_ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
       default:
         return 0;
     }
@@ -4704,35 +4704,35 @@ const char Sequence2::CLASS_NAME[] = "Sequence2";
 
 const bdlat_AttributeInfo Sequence2::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        e_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_ELEMENT2,
+        e_ATTRIBUTE_ID_ELEMENT2,
         "element2",
         sizeof("element2") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ELEMENT3,
+        e_ATTRIBUTE_ID_ELEMENT3,
         "element3",
         sizeof("element3") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT4,
+        e_ATTRIBUTE_ID_ELEMENT4,
         "element4",
         sizeof("element4") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ELEMENT5,
+        e_ATTRIBUTE_ID_ELEMENT5,
         "element5",
         sizeof("element5") - 1,
         "",
@@ -4758,23 +4758,23 @@ const bdlat_AttributeInfo *Sequence2::lookupAttributeInfo(
             {
                 switch(name[7]) {
                     case '1': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
                                                                       // RETURN
                     } break;
                 }
@@ -4787,16 +4787,16 @@ const bdlat_AttributeInfo *Sequence2::lookupAttributeInfo(
 const bdlat_AttributeInfo *Sequence2::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
-      case ATTRIBUTE_ID_ELEMENT2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
-      case ATTRIBUTE_ID_ELEMENT3:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
-      case ATTRIBUTE_ID_ELEMENT4:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
-      case ATTRIBUTE_ID_ELEMENT5:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      case e_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT1];
+      case e_ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT2];
+      case e_ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT3];
+      case e_ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
+      case e_ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT5];
       default:
         return 0;
     }
@@ -4948,14 +4948,14 @@ const char SequenceWithAnonymityChoice2::CLASS_NAME[] = "SequenceWithAnonymityCh
 
 const bdlat_SelectionInfo SequenceWithAnonymityChoice2::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SELECTION7,
+        e_SELECTION_ID_SELECTION7,
         "selection7",
         sizeof("selection7") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION8,
+        e_SELECTION_ID_SELECTION8,
         "selection8",
         sizeof("selection8") - 1,
         "",
@@ -4983,11 +4983,11 @@ const bdlat_SelectionInfo *SequenceWithAnonymityChoice2::lookupSelectionInfo(
             {
                 switch(name[9]) {
                     case '7': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION7];
                                                                       // RETURN
                     } break;
                     case '8': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION8];
                                                                       // RETURN
                     } break;
                 }
@@ -5000,10 +5000,10 @@ const bdlat_SelectionInfo *SequenceWithAnonymityChoice2::lookupSelectionInfo(
 const bdlat_SelectionInfo *SequenceWithAnonymityChoice2::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SELECTION7:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
-      case SELECTION_ID_SELECTION8:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
+      case e_SELECTION_ID_SELECTION7:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION7];
+      case e_SELECTION_ID_SELECTION8:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION8];
       default:
         return 0;
     }
@@ -5018,16 +5018,16 @@ SequenceWithAnonymityChoice2::SequenceWithAnonymityChoice2(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION7: {
+      case e_SELECTION_ID_SELECTION7: {
         d_selection7 = new (*d_allocator_p)
                 Sequence4(*original.d_selection7, d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION8: {
+      case e_SELECTION_ID_SELECTION8: {
         d_selection8 = new (*d_allocator_p)
                 Choice2(*original.d_selection8, d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -5038,14 +5038,14 @@ SequenceWithAnonymityChoice2::operator=(const SequenceWithAnonymityChoice2& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION7: {
+          case e_SELECTION_ID_SELECTION7: {
             makeSelection7(*rhs.d_selection7);
           } break;
-          case SELECTION_ID_SELECTION8: {
+          case e_SELECTION_ID_SELECTION8: {
             makeSelection8(*rhs.d_selection8);
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -5055,29 +5055,29 @@ SequenceWithAnonymityChoice2::operator=(const SequenceWithAnonymityChoice2& rhs)
 void SequenceWithAnonymityChoice2::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION7: {
+      case e_SELECTION_ID_SELECTION7: {
         d_allocator_p->deleteObject(d_selection7);
       } break;
-      case SELECTION_ID_SELECTION8: {
+      case e_SELECTION_ID_SELECTION8: {
         d_allocator_p->deleteObject(d_selection8);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int SequenceWithAnonymityChoice2::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SELECTION7: {
+      case e_SELECTION_ID_SELECTION7: {
         makeSelection7();
       } break;
-      case SELECTION_ID_SELECTION8: {
+      case e_SELECTION_ID_SELECTION8: {
         makeSelection8();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -5099,7 +5099,7 @@ int SequenceWithAnonymityChoice2::makeSelection(const char *name, int nameLength
 
 Sequence4& SequenceWithAnonymityChoice2::makeSelection7()
 {
-    if (SELECTION_ID_SELECTION7 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION7 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(d_selection7);
     }
     else {
@@ -5107,7 +5107,7 @@ Sequence4& SequenceWithAnonymityChoice2::makeSelection7()
         d_selection7 = new (*d_allocator_p)
                 Sequence4(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION7;
+        d_selectionId = e_SELECTION_ID_SELECTION7;
     }
 
     return *d_selection7;
@@ -5115,14 +5115,14 @@ Sequence4& SequenceWithAnonymityChoice2::makeSelection7()
 
 Sequence4& SequenceWithAnonymityChoice2::makeSelection7(const Sequence4& value)
 {
-    if (SELECTION_ID_SELECTION7 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION7 == d_selectionId) {
         *d_selection7 = value;
     }
     else {
         reset();
         d_selection7 = new (*d_allocator_p)
                 Sequence4(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION7;
+        d_selectionId = e_SELECTION_ID_SELECTION7;
     }
 
     return *d_selection7;
@@ -5130,7 +5130,7 @@ Sequence4& SequenceWithAnonymityChoice2::makeSelection7(const Sequence4& value)
 
 Choice2& SequenceWithAnonymityChoice2::makeSelection8()
 {
-    if (SELECTION_ID_SELECTION8 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION8 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(d_selection8);
     }
     else {
@@ -5138,7 +5138,7 @@ Choice2& SequenceWithAnonymityChoice2::makeSelection8()
         d_selection8 = new (*d_allocator_p)
                 Choice2(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION8;
+        d_selectionId = e_SELECTION_ID_SELECTION8;
     }
 
     return *d_selection8;
@@ -5146,14 +5146,14 @@ Choice2& SequenceWithAnonymityChoice2::makeSelection8()
 
 Choice2& SequenceWithAnonymityChoice2::makeSelection8(const Choice2& value)
 {
-    if (SELECTION_ID_SELECTION8 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION8 == d_selectionId) {
         *d_selection8 = value;
     }
     else {
         reset();
         d_selection8 = new (*d_allocator_p)
                 Choice2(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION8;
+        d_selectionId = e_SELECTION_ID_SELECTION8;
     }
 
     return *d_selection8;
@@ -5182,12 +5182,12 @@ bsl::ostream& SequenceWithAnonymityChoice2::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION7: {
+          case e_SELECTION_ID_SELECTION7: {
             stream << "Selection7 = ";
             bdlb::PrintMethods::print(stream, *d_selection7,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION8: {
+          case e_SELECTION_ID_SELECTION8: {
             stream << "Selection8 = ";
             bdlb::PrintMethods::print(stream, *d_selection8,
                                      -levelPlus1, spacesPerLevel);
@@ -5204,12 +5204,12 @@ bsl::ostream& SequenceWithAnonymityChoice2::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION7: {
+          case e_SELECTION_ID_SELECTION7: {
             stream << "Selection7 = ";
             bdlb::PrintMethods::print(stream, *d_selection7,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION8: {
+          case e_SELECTION_ID_SELECTION8: {
             stream << "Selection8 = ";
             bdlb::PrintMethods::print(stream, *d_selection8,
                                      -levelPlus1, spacesPerLevel);
@@ -5228,12 +5228,12 @@ bsl::ostream& SequenceWithAnonymityChoice2::print(
 const char *SequenceWithAnonymityChoice2::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION7:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7].name();
-      case SELECTION_ID_SELECTION8:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8].name();
+      case e_SELECTION_ID_SELECTION7:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION7].name();
+      case e_SELECTION_ID_SELECTION8:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION8].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -5248,7 +5248,7 @@ const char SequenceWithAnonymity::CLASS_NAME[] = "SequenceWithAnonymity";
 
 const bdlat_AttributeInfo SequenceWithAnonymity::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_CHOICE,
+        e_ATTRIBUTE_ID_CHOICE,
         "Choice",
         sizeof("Choice") - 1,
         "",
@@ -5256,7 +5256,7 @@ const bdlat_AttributeInfo SequenceWithAnonymity::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_UNTAGGED
     },
     {
-        ATTRIBUTE_ID_CHOICE1,
+        e_ATTRIBUTE_ID_CHOICE1,
         "Choice-1",
         sizeof("Choice-1") - 1,
         "",
@@ -5264,7 +5264,7 @@ const bdlat_AttributeInfo SequenceWithAnonymity::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_UNTAGGED
     },
     {
-        ATTRIBUTE_ID_CHOICE2,
+        e_ATTRIBUTE_ID_CHOICE2,
         "Choice-2",
         sizeof("Choice-2") - 1,
         "",
@@ -5272,7 +5272,7 @@ const bdlat_AttributeInfo SequenceWithAnonymity::ATTRIBUTE_INFO_ARRAY[] = {
       | bdlat_FormattingMode::e_UNTAGGED
     },
     {
-        ATTRIBUTE_ID_ELEMENT4,
+        e_ATTRIBUTE_ID_ELEMENT4,
         "element4",
         sizeof("element4") - 1,
         "",
@@ -5287,35 +5287,35 @@ const bdlat_AttributeInfo *SequenceWithAnonymity::lookupAttributeInfo(
         int         nameLength)
 {
     if (bdlb::String::areEqualCaseless("selection1", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];         // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE];         // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("selection2", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];         // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE];         // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("selection3", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];         // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE];         // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("selection4", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];         // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE];         // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("selection5", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1];        // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE1];        // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("selection6", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1];        // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE1];        // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("selection7", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2];        // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE2];        // RETURN
     }
 
     if (bdlb::String::areEqualCaseless("selection8", name, nameLength)) {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2];        // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE2];        // RETURN
     }
 
     switch(nameLength) {
@@ -5327,7 +5327,7 @@ const bdlat_AttributeInfo *SequenceWithAnonymity::lookupAttributeInfo(
              && name[4]=='c'
              && name[5]=='e')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]; // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE]; // RETURN
             }
         } break;
         case 8: {
@@ -5342,11 +5342,11 @@ const bdlat_AttributeInfo *SequenceWithAnonymity::lookupAttributeInfo(
                     {
                         switch(name[7]) {
                             case '1': {
-                                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1];
+                                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE1];
                                                                       // RETURN
                             } break;
                             case '2': {
-                                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2];
+                                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE2];
                                                                       // RETURN
                             } break;
                         }
@@ -5361,7 +5361,7 @@ const bdlat_AttributeInfo *SequenceWithAnonymity::lookupAttributeInfo(
                      && name[6]=='t'
                      && name[7]=='4')
                     {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
                                                                       // RETURN
                     }
                 } break;
@@ -5374,14 +5374,14 @@ const bdlat_AttributeInfo *SequenceWithAnonymity::lookupAttributeInfo(
 const bdlat_AttributeInfo *SequenceWithAnonymity::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_CHOICE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE];
-      case ATTRIBUTE_ID_CHOICE1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE1];
-      case ATTRIBUTE_ID_CHOICE2:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE2];
-      case ATTRIBUTE_ID_ELEMENT4:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+      case e_ATTRIBUTE_ID_CHOICE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE];
+      case e_ATTRIBUTE_ID_CHOICE1:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE1];
+      case e_ATTRIBUTE_ID_CHOICE2:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_CHOICE2];
+      case e_ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ELEMENT4];
       default:
         return 0;
     }
@@ -5519,77 +5519,77 @@ const char FeatureTestMessage::CLASS_NAME[] = "FeatureTestMessage";
 
 const bdlat_SelectionInfo FeatureTestMessage::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SELECTION1,
+        e_SELECTION_ID_SELECTION1,
         "selection1",
         sizeof("selection1") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION2,
+        e_SELECTION_ID_SELECTION2,
         "selection2",
         sizeof("selection2") - 1,
         "",
         bdlat_FormattingMode::e_HEX
     },
     {
-        SELECTION_ID_SELECTION3,
+        e_SELECTION_ID_SELECTION3,
         "selection3",
         sizeof("selection3") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION4,
+        e_SELECTION_ID_SELECTION4,
         "selection4",
         sizeof("selection4") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION5,
+        e_SELECTION_ID_SELECTION5,
         "selection5",
         sizeof("selection5") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION6,
+        e_SELECTION_ID_SELECTION6,
         "selection6",
         sizeof("selection6") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        SELECTION_ID_SELECTION7,
+        e_SELECTION_ID_SELECTION7,
         "selection7",
         sizeof("selection7") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION8,
+        e_SELECTION_ID_SELECTION8,
         "selection8",
         sizeof("selection8") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION9,
+        e_SELECTION_ID_SELECTION9,
         "selection9",
         sizeof("selection9") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION10,
+        e_SELECTION_ID_SELECTION10,
         "selection10",
         sizeof("selection10") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_SELECTION11,
+        e_SELECTION_ID_SELECTION11,
         "selection11",
         sizeof("selection11") - 1,
         "",
@@ -5617,39 +5617,39 @@ const bdlat_SelectionInfo *FeatureTestMessage::lookupSelectionInfo(
             {
                 switch(name[9]) {
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
                                                                       // RETURN
                     } break;
                     case '2': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
                                                                       // RETURN
                     } break;
                     case '3': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
                                                                       // RETURN
                     } break;
                     case '4': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
                                                                       // RETURN
                     } break;
                     case '5': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION5];
                                                                       // RETURN
                     } break;
                     case '6': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION6];
                                                                       // RETURN
                     } break;
                     case '7': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION7];
                                                                       // RETURN
                     } break;
                     case '8': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION8];
                                                                       // RETURN
                     } break;
                     case '9': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION9];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION9];
                                                                       // RETURN
                     } break;
                 }
@@ -5669,11 +5669,11 @@ const bdlat_SelectionInfo *FeatureTestMessage::lookupSelectionInfo(
             {
                 switch(name[10]) {
                     case '0': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION10];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION10];
                                                                       // RETURN
                     } break;
                     case '1': {
-                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION11];
+                        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION11];
                                                                       // RETURN
                     } break;
                 }
@@ -5686,28 +5686,28 @@ const bdlat_SelectionInfo *FeatureTestMessage::lookupSelectionInfo(
 const bdlat_SelectionInfo *FeatureTestMessage::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SELECTION1:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
-      case SELECTION_ID_SELECTION2:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
-      case SELECTION_ID_SELECTION3:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
-      case SELECTION_ID_SELECTION4:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
-      case SELECTION_ID_SELECTION5:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
-      case SELECTION_ID_SELECTION6:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
-      case SELECTION_ID_SELECTION7:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
-      case SELECTION_ID_SELECTION8:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
-      case SELECTION_ID_SELECTION9:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION9];
-      case SELECTION_ID_SELECTION10:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION10];
-      case SELECTION_ID_SELECTION11:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION11];
+      case e_SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1];
+      case e_SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2];
+      case e_SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3];
+      case e_SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4];
+      case e_SELECTION_ID_SELECTION5:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION5];
+      case e_SELECTION_ID_SELECTION6:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION6];
+      case e_SELECTION_ID_SELECTION7:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION7];
+      case e_SELECTION_ID_SELECTION8:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION8];
+      case e_SELECTION_ID_SELECTION9:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION9];
+      case e_SELECTION_ID_SELECTION10:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION10];
+      case e_SELECTION_ID_SELECTION11:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION11];
       default:
         return 0;
     }
@@ -5722,58 +5722,58 @@ FeatureTestMessage::FeatureTestMessage(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         new (d_selection1.buffer())
             Sequence1(
                 original.d_selection1.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
             bsl::vector<char>(
                 original.d_selection2.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         new (d_selection3.buffer())
             Sequence2(
                 original.d_selection3.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         d_selection4 = new (*d_allocator_p)
                 Sequence3(*original.d_selection4, d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION5: {
+      case e_SELECTION_ID_SELECTION5: {
         new (d_selection5.buffer())
             bdlt::DatetimeTz(original.d_selection5.object());
       } break;
-      case SELECTION_ID_SELECTION6: {
+      case e_SELECTION_ID_SELECTION6: {
         new (d_selection6.buffer())
             CustomString(
                 original.d_selection6.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION7: {
+      case e_SELECTION_ID_SELECTION7: {
         new (d_selection7.buffer())
             Enumerated::Value(original.d_selection7.object());
       } break;
-      case SELECTION_ID_SELECTION8: {
+      case e_SELECTION_ID_SELECTION8: {
         new (d_selection8.buffer())
             Choice3(
                 original.d_selection8.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_SELECTION9: {
+      case e_SELECTION_ID_SELECTION9: {
         new (d_selection9.buffer())
             VoidSequence(original.d_selection9.object());
       } break;
-      case SELECTION_ID_SELECTION10: {
+      case e_SELECTION_ID_SELECTION10: {
         new (d_selection10.buffer())
             UnsignedSequence(original.d_selection10.object());
       } break;
-      case SELECTION_ID_SELECTION11: {
+      case e_SELECTION_ID_SELECTION11: {
         new (d_selection11.buffer())
             SequenceWithAnonymity(
                 original.d_selection11.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -5784,41 +5784,41 @@ FeatureTestMessage::operator=(const FeatureTestMessage& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             makeSelection1(rhs.d_selection1.object());
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             makeSelection2(rhs.d_selection2.object());
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             makeSelection3(rhs.d_selection3.object());
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             makeSelection4(*rhs.d_selection4);
           } break;
-          case SELECTION_ID_SELECTION5: {
+          case e_SELECTION_ID_SELECTION5: {
             makeSelection5(rhs.d_selection5.object());
           } break;
-          case SELECTION_ID_SELECTION6: {
+          case e_SELECTION_ID_SELECTION6: {
             makeSelection6(rhs.d_selection6.object());
           } break;
-          case SELECTION_ID_SELECTION7: {
+          case e_SELECTION_ID_SELECTION7: {
             makeSelection7(rhs.d_selection7.object());
           } break;
-          case SELECTION_ID_SELECTION8: {
+          case e_SELECTION_ID_SELECTION8: {
             makeSelection8(rhs.d_selection8.object());
           } break;
-          case SELECTION_ID_SELECTION9: {
+          case e_SELECTION_ID_SELECTION9: {
             makeSelection9(rhs.d_selection9.object());
           } break;
-          case SELECTION_ID_SELECTION10: {
+          case e_SELECTION_ID_SELECTION10: {
             makeSelection10(rhs.d_selection10.object());
           } break;
-          case SELECTION_ID_SELECTION11: {
+          case e_SELECTION_ID_SELECTION11: {
             makeSelection11(rhs.d_selection11.object());
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -5828,85 +5828,85 @@ FeatureTestMessage::operator=(const FeatureTestMessage& rhs)
 void FeatureTestMessage::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         d_selection1.object().~Sequence1();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         typedef bsl::vector<char> Type;
         d_selection2.object().~Type();
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         d_selection3.object().~Sequence2();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         d_allocator_p->deleteObject(d_selection4);
       } break;
-      case SELECTION_ID_SELECTION5: {
+      case e_SELECTION_ID_SELECTION5: {
         // no destruction required
       } break;
-      case SELECTION_ID_SELECTION6: {
+      case e_SELECTION_ID_SELECTION6: {
         d_selection6.object().~CustomString();
       } break;
-      case SELECTION_ID_SELECTION7: {
+      case e_SELECTION_ID_SELECTION7: {
         typedef Enumerated::Value Type;
         d_selection7.object().~Type();
       } break;
-      case SELECTION_ID_SELECTION8: {
+      case e_SELECTION_ID_SELECTION8: {
         d_selection8.object().~Choice3();
       } break;
-      case SELECTION_ID_SELECTION9: {
+      case e_SELECTION_ID_SELECTION9: {
         d_selection9.object().~VoidSequence();
       } break;
-      case SELECTION_ID_SELECTION10: {
+      case e_SELECTION_ID_SELECTION10: {
         d_selection10.object().~UnsignedSequence();
       } break;
-      case SELECTION_ID_SELECTION11: {
+      case e_SELECTION_ID_SELECTION11: {
         d_selection11.object().~SequenceWithAnonymity();
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int FeatureTestMessage::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SELECTION1: {
+      case e_SELECTION_ID_SELECTION1: {
         makeSelection1();
       } break;
-      case SELECTION_ID_SELECTION2: {
+      case e_SELECTION_ID_SELECTION2: {
         makeSelection2();
       } break;
-      case SELECTION_ID_SELECTION3: {
+      case e_SELECTION_ID_SELECTION3: {
         makeSelection3();
       } break;
-      case SELECTION_ID_SELECTION4: {
+      case e_SELECTION_ID_SELECTION4: {
         makeSelection4();
       } break;
-      case SELECTION_ID_SELECTION5: {
+      case e_SELECTION_ID_SELECTION5: {
         makeSelection5();
       } break;
-      case SELECTION_ID_SELECTION6: {
+      case e_SELECTION_ID_SELECTION6: {
         makeSelection6();
       } break;
-      case SELECTION_ID_SELECTION7: {
+      case e_SELECTION_ID_SELECTION7: {
         makeSelection7();
       } break;
-      case SELECTION_ID_SELECTION8: {
+      case e_SELECTION_ID_SELECTION8: {
         makeSelection8();
       } break;
-      case SELECTION_ID_SELECTION9: {
+      case e_SELECTION_ID_SELECTION9: {
         makeSelection9();
       } break;
-      case SELECTION_ID_SELECTION10: {
+      case e_SELECTION_ID_SELECTION10: {
         makeSelection10();
       } break;
-      case SELECTION_ID_SELECTION11: {
+      case e_SELECTION_ID_SELECTION11: {
         makeSelection11();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -5928,7 +5928,7 @@ int FeatureTestMessage::makeSelection(const char *name, int nameLength)
 
 Sequence1& FeatureTestMessage::makeSelection1()
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
@@ -5936,7 +5936,7 @@ Sequence1& FeatureTestMessage::makeSelection1()
         new (d_selection1.buffer())
                 Sequence1(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -5944,14 +5944,14 @@ Sequence1& FeatureTestMessage::makeSelection1()
 
 Sequence1& FeatureTestMessage::makeSelection1(const Sequence1& value)
 {
-    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION1 == d_selectionId) {
         d_selection1.object() = value;
     }
     else {
         reset();
         new (d_selection1.buffer())
                 Sequence1(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION1;
+        d_selectionId = e_SELECTION_ID_SELECTION1;
     }
 
     return d_selection1.object();
@@ -5959,7 +5959,7 @@ Sequence1& FeatureTestMessage::makeSelection1(const Sequence1& value)
 
 bsl::vector<char>& FeatureTestMessage::makeSelection2()
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
@@ -5967,7 +5967,7 @@ bsl::vector<char>& FeatureTestMessage::makeSelection2()
         new (d_selection2.buffer())
                 bsl::vector<char>(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -5975,14 +5975,14 @@ bsl::vector<char>& FeatureTestMessage::makeSelection2()
 
 bsl::vector<char>& FeatureTestMessage::makeSelection2(const bsl::vector<char>& value)
 {
-    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
     }
     else {
         reset();
         new (d_selection2.buffer())
                 bsl::vector<char>(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION2;
+        d_selectionId = e_SELECTION_ID_SELECTION2;
     }
 
     return d_selection2.object();
@@ -5990,7 +5990,7 @@ bsl::vector<char>& FeatureTestMessage::makeSelection2(const bsl::vector<char>& v
 
 Sequence2& FeatureTestMessage::makeSelection3()
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection3.object());
     }
     else {
@@ -5998,7 +5998,7 @@ Sequence2& FeatureTestMessage::makeSelection3()
         new (d_selection3.buffer())
                 Sequence2(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return d_selection3.object();
@@ -6006,14 +6006,14 @@ Sequence2& FeatureTestMessage::makeSelection3()
 
 Sequence2& FeatureTestMessage::makeSelection3(const Sequence2& value)
 {
-    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION3 == d_selectionId) {
         d_selection3.object() = value;
     }
     else {
         reset();
         new (d_selection3.buffer())
                 Sequence2(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION3;
+        d_selectionId = e_SELECTION_ID_SELECTION3;
     }
 
     return d_selection3.object();
@@ -6021,7 +6021,7 @@ Sequence2& FeatureTestMessage::makeSelection3(const Sequence2& value)
 
 Sequence3& FeatureTestMessage::makeSelection4()
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(d_selection4);
     }
     else {
@@ -6029,7 +6029,7 @@ Sequence3& FeatureTestMessage::makeSelection4()
         d_selection4 = new (*d_allocator_p)
                 Sequence3(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return *d_selection4;
@@ -6037,14 +6037,14 @@ Sequence3& FeatureTestMessage::makeSelection4()
 
 Sequence3& FeatureTestMessage::makeSelection4(const Sequence3& value)
 {
-    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION4 == d_selectionId) {
         *d_selection4 = value;
     }
     else {
         reset();
         d_selection4 = new (*d_allocator_p)
                 Sequence3(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION4;
+        d_selectionId = e_SELECTION_ID_SELECTION4;
     }
 
     return *d_selection4;
@@ -6052,7 +6052,7 @@ Sequence3& FeatureTestMessage::makeSelection4(const Sequence3& value)
 
 bdlt::DatetimeTz& FeatureTestMessage::makeSelection5()
 {
-    if (SELECTION_ID_SELECTION5 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION5 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection5.object());
     }
     else {
@@ -6060,7 +6060,7 @@ bdlt::DatetimeTz& FeatureTestMessage::makeSelection5()
         new (d_selection5.buffer())
             bdlt::DatetimeTz();
 
-        d_selectionId = SELECTION_ID_SELECTION5;
+        d_selectionId = e_SELECTION_ID_SELECTION5;
     }
 
     return d_selection5.object();
@@ -6068,14 +6068,14 @@ bdlt::DatetimeTz& FeatureTestMessage::makeSelection5()
 
 bdlt::DatetimeTz& FeatureTestMessage::makeSelection5(const bdlt::DatetimeTz& value)
 {
-    if (SELECTION_ID_SELECTION5 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION5 == d_selectionId) {
         d_selection5.object() = value;
     }
     else {
         reset();
         new (d_selection5.buffer())
                 bdlt::DatetimeTz(value);
-        d_selectionId = SELECTION_ID_SELECTION5;
+        d_selectionId = e_SELECTION_ID_SELECTION5;
     }
 
     return d_selection5.object();
@@ -6083,7 +6083,7 @@ bdlt::DatetimeTz& FeatureTestMessage::makeSelection5(const bdlt::DatetimeTz& val
 
 CustomString& FeatureTestMessage::makeSelection6()
 {
-    if (SELECTION_ID_SELECTION6 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION6 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection6.object());
     }
     else {
@@ -6091,7 +6091,7 @@ CustomString& FeatureTestMessage::makeSelection6()
         new (d_selection6.buffer())
                 CustomString(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION6;
+        d_selectionId = e_SELECTION_ID_SELECTION6;
     }
 
     return d_selection6.object();
@@ -6099,14 +6099,14 @@ CustomString& FeatureTestMessage::makeSelection6()
 
 CustomString& FeatureTestMessage::makeSelection6(const CustomString& value)
 {
-    if (SELECTION_ID_SELECTION6 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION6 == d_selectionId) {
         d_selection6.object() = value;
     }
     else {
         reset();
         new (d_selection6.buffer())
                 CustomString(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION6;
+        d_selectionId = e_SELECTION_ID_SELECTION6;
     }
 
     return d_selection6.object();
@@ -6114,7 +6114,7 @@ CustomString& FeatureTestMessage::makeSelection6(const CustomString& value)
 
 Enumerated::Value& FeatureTestMessage::makeSelection7()
 {
-    if (SELECTION_ID_SELECTION7 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION7 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection7.object());
     }
     else {
@@ -6122,7 +6122,7 @@ Enumerated::Value& FeatureTestMessage::makeSelection7()
         new (d_selection7.buffer())
                     Enumerated::Value(static_cast<Enumerated::Value>(0));
 
-        d_selectionId = SELECTION_ID_SELECTION7;
+        d_selectionId = e_SELECTION_ID_SELECTION7;
     }
 
     return d_selection7.object();
@@ -6130,14 +6130,14 @@ Enumerated::Value& FeatureTestMessage::makeSelection7()
 
 Enumerated::Value& FeatureTestMessage::makeSelection7(Enumerated::Value value)
 {
-    if (SELECTION_ID_SELECTION7 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION7 == d_selectionId) {
         d_selection7.object() = value;
     }
     else {
         reset();
         new (d_selection7.buffer())
                 Enumerated::Value(value);
-        d_selectionId = SELECTION_ID_SELECTION7;
+        d_selectionId = e_SELECTION_ID_SELECTION7;
     }
 
     return d_selection7.object();
@@ -6145,7 +6145,7 @@ Enumerated::Value& FeatureTestMessage::makeSelection7(Enumerated::Value value)
 
 Choice3& FeatureTestMessage::makeSelection8()
 {
-    if (SELECTION_ID_SELECTION8 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION8 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection8.object());
     }
     else {
@@ -6153,7 +6153,7 @@ Choice3& FeatureTestMessage::makeSelection8()
         new (d_selection8.buffer())
                 Choice3(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION8;
+        d_selectionId = e_SELECTION_ID_SELECTION8;
     }
 
     return d_selection8.object();
@@ -6161,14 +6161,14 @@ Choice3& FeatureTestMessage::makeSelection8()
 
 Choice3& FeatureTestMessage::makeSelection8(const Choice3& value)
 {
-    if (SELECTION_ID_SELECTION8 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION8 == d_selectionId) {
         d_selection8.object() = value;
     }
     else {
         reset();
         new (d_selection8.buffer())
                 Choice3(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION8;
+        d_selectionId = e_SELECTION_ID_SELECTION8;
     }
 
     return d_selection8.object();
@@ -6176,7 +6176,7 @@ Choice3& FeatureTestMessage::makeSelection8(const Choice3& value)
 
 VoidSequence& FeatureTestMessage::makeSelection9()
 {
-    if (SELECTION_ID_SELECTION9 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION9 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection9.object());
     }
     else {
@@ -6184,7 +6184,7 @@ VoidSequence& FeatureTestMessage::makeSelection9()
         new (d_selection9.buffer())
             VoidSequence();
 
-        d_selectionId = SELECTION_ID_SELECTION9;
+        d_selectionId = e_SELECTION_ID_SELECTION9;
     }
 
     return d_selection9.object();
@@ -6192,14 +6192,14 @@ VoidSequence& FeatureTestMessage::makeSelection9()
 
 VoidSequence& FeatureTestMessage::makeSelection9(const VoidSequence& value)
 {
-    if (SELECTION_ID_SELECTION9 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION9 == d_selectionId) {
         d_selection9.object() = value;
     }
     else {
         reset();
         new (d_selection9.buffer())
                 VoidSequence(value);
-        d_selectionId = SELECTION_ID_SELECTION9;
+        d_selectionId = e_SELECTION_ID_SELECTION9;
     }
 
     return d_selection9.object();
@@ -6207,7 +6207,7 @@ VoidSequence& FeatureTestMessage::makeSelection9(const VoidSequence& value)
 
 UnsignedSequence& FeatureTestMessage::makeSelection10()
 {
-    if (SELECTION_ID_SELECTION10 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION10 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection10.object());
     }
     else {
@@ -6215,7 +6215,7 @@ UnsignedSequence& FeatureTestMessage::makeSelection10()
         new (d_selection10.buffer())
             UnsignedSequence();
 
-        d_selectionId = SELECTION_ID_SELECTION10;
+        d_selectionId = e_SELECTION_ID_SELECTION10;
     }
 
     return d_selection10.object();
@@ -6223,14 +6223,14 @@ UnsignedSequence& FeatureTestMessage::makeSelection10()
 
 UnsignedSequence& FeatureTestMessage::makeSelection10(const UnsignedSequence& value)
 {
-    if (SELECTION_ID_SELECTION10 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION10 == d_selectionId) {
         d_selection10.object() = value;
     }
     else {
         reset();
         new (d_selection10.buffer())
                 UnsignedSequence(value);
-        d_selectionId = SELECTION_ID_SELECTION10;
+        d_selectionId = e_SELECTION_ID_SELECTION10;
     }
 
     return d_selection10.object();
@@ -6238,7 +6238,7 @@ UnsignedSequence& FeatureTestMessage::makeSelection10(const UnsignedSequence& va
 
 SequenceWithAnonymity& FeatureTestMessage::makeSelection11()
 {
-    if (SELECTION_ID_SELECTION11 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION11 == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_selection11.object());
     }
     else {
@@ -6246,7 +6246,7 @@ SequenceWithAnonymity& FeatureTestMessage::makeSelection11()
         new (d_selection11.buffer())
                 SequenceWithAnonymity(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SELECTION11;
+        d_selectionId = e_SELECTION_ID_SELECTION11;
     }
 
     return d_selection11.object();
@@ -6254,14 +6254,14 @@ SequenceWithAnonymity& FeatureTestMessage::makeSelection11()
 
 SequenceWithAnonymity& FeatureTestMessage::makeSelection11(const SequenceWithAnonymity& value)
 {
-    if (SELECTION_ID_SELECTION11 == d_selectionId) {
+    if (e_SELECTION_ID_SELECTION11 == d_selectionId) {
         d_selection11.object() = value;
     }
     else {
         reset();
         new (d_selection11.buffer())
                 SequenceWithAnonymity(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SELECTION11;
+        d_selectionId = e_SELECTION_ID_SELECTION11;
     }
 
     return d_selection11.object();
@@ -6290,57 +6290,57 @@ bsl::ostream& FeatureTestMessage::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, d_selection3.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, *d_selection4,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION5: {
+          case e_SELECTION_ID_SELECTION5: {
             stream << "Selection5 = ";
             bdlb::PrintMethods::print(stream, d_selection5.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION6: {
+          case e_SELECTION_ID_SELECTION6: {
             stream << "Selection6 = ";
             bdlb::PrintMethods::print(stream, d_selection6.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION7: {
+          case e_SELECTION_ID_SELECTION7: {
             stream << "Selection7 = ";
             bdlb::PrintMethods::print(stream, d_selection7.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION8: {
+          case e_SELECTION_ID_SELECTION8: {
             stream << "Selection8 = ";
             bdlb::PrintMethods::print(stream, d_selection8.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION9: {
+          case e_SELECTION_ID_SELECTION9: {
             stream << "Selection9 = ";
             bdlb::PrintMethods::print(stream, d_selection9.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION10: {
+          case e_SELECTION_ID_SELECTION10: {
             stream << "Selection10 = ";
             bdlb::PrintMethods::print(stream, d_selection10.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION11: {
+          case e_SELECTION_ID_SELECTION11: {
             stream << "Selection11 = ";
             bdlb::PrintMethods::print(stream, d_selection11.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -6357,57 +6357,57 @@ bsl::ostream& FeatureTestMessage::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SELECTION1: {
+          case e_SELECTION_ID_SELECTION1: {
             stream << "Selection1 = ";
             bdlb::PrintMethods::print(stream, d_selection1.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION2: {
+          case e_SELECTION_ID_SELECTION2: {
             stream << "Selection2 = ";
             bdlb::PrintMethods::print(stream, d_selection2.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION3: {
+          case e_SELECTION_ID_SELECTION3: {
             stream << "Selection3 = ";
             bdlb::PrintMethods::print(stream, d_selection3.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION4: {
+          case e_SELECTION_ID_SELECTION4: {
             stream << "Selection4 = ";
             bdlb::PrintMethods::print(stream, *d_selection4,
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION5: {
+          case e_SELECTION_ID_SELECTION5: {
             stream << "Selection5 = ";
             bdlb::PrintMethods::print(stream, d_selection5.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION6: {
+          case e_SELECTION_ID_SELECTION6: {
             stream << "Selection6 = ";
             bdlb::PrintMethods::print(stream, d_selection6.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION7: {
+          case e_SELECTION_ID_SELECTION7: {
             stream << "Selection7 = ";
             bdlb::PrintMethods::print(stream, d_selection7.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION8: {
+          case e_SELECTION_ID_SELECTION8: {
             stream << "Selection8 = ";
             bdlb::PrintMethods::print(stream, d_selection8.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION9: {
+          case e_SELECTION_ID_SELECTION9: {
             stream << "Selection9 = ";
             bdlb::PrintMethods::print(stream, d_selection9.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION10: {
+          case e_SELECTION_ID_SELECTION10: {
             stream << "Selection10 = ";
             bdlb::PrintMethods::print(stream, d_selection10.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_SELECTION11: {
+          case e_SELECTION_ID_SELECTION11: {
             stream << "Selection11 = ";
             bdlb::PrintMethods::print(stream, d_selection11.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -6426,30 +6426,30 @@ bsl::ostream& FeatureTestMessage::print(
 const char *FeatureTestMessage::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SELECTION1:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
-      case SELECTION_ID_SELECTION2:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
-      case SELECTION_ID_SELECTION3:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
-      case SELECTION_ID_SELECTION4:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
-      case SELECTION_ID_SELECTION5:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5].name();
-      case SELECTION_ID_SELECTION6:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6].name();
-      case SELECTION_ID_SELECTION7:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7].name();
-      case SELECTION_ID_SELECTION8:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8].name();
-      case SELECTION_ID_SELECTION9:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION9].name();
-      case SELECTION_ID_SELECTION10:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION10].name();
-      case SELECTION_ID_SELECTION11:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION11].name();
+      case e_SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION1].name();
+      case e_SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION2].name();
+      case e_SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION3].name();
+      case e_SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION4].name();
+      case e_SELECTION_ID_SELECTION5:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION5].name();
+      case e_SELECTION_ID_SELECTION6:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION6].name();
+      case e_SELECTION_ID_SELECTION7:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION7].name();
+      case e_SELECTION_ID_SELECTION8:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION8].name();
+      case e_SELECTION_ID_SELECTION9:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION9].name();
+      case e_SELECTION_ID_SELECTION10:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION10].name();
+      case e_SELECTION_ID_SELECTION11:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SELECTION11].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -6464,14 +6464,14 @@ const char Request::CLASS_NAME[] = "Request";
 
 const bdlat_SelectionInfo Request::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_SIMPLE_REQUEST,
+        e_SELECTION_ID_SIMPLE_REQUEST,
         "simpleRequest",
         sizeof("simpleRequest") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        SELECTION_ID_FEATURE_REQUEST,
+        e_SELECTION_ID_FEATURE_REQUEST,
         "featureRequest",
         sizeof("featureRequest") - 1,
         "",
@@ -6501,7 +6501,7 @@ const bdlat_SelectionInfo *Request::lookupSelectionInfo(
              && name[11]=='s'
              && name[12]=='t')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SIMPLE_REQUEST];
+                return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SIMPLE_REQUEST];
                                                                       // RETURN
             }
         } break;
@@ -6521,7 +6521,7 @@ const bdlat_SelectionInfo *Request::lookupSelectionInfo(
              && name[12]=='s'
              && name[13]=='t')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_REQUEST];
+                return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_FEATURE_REQUEST];
                                                                       // RETURN
             }
         } break;
@@ -6532,10 +6532,10 @@ const bdlat_SelectionInfo *Request::lookupSelectionInfo(
 const bdlat_SelectionInfo *Request::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_SIMPLE_REQUEST:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SIMPLE_REQUEST];
-      case SELECTION_ID_FEATURE_REQUEST:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_REQUEST];
+      case e_SELECTION_ID_SIMPLE_REQUEST:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SIMPLE_REQUEST];
+      case e_SELECTION_ID_FEATURE_REQUEST:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_FEATURE_REQUEST];
       default:
         return 0;
     }
@@ -6550,18 +6550,18 @@ Request::Request(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SIMPLE_REQUEST: {
+      case e_SELECTION_ID_SIMPLE_REQUEST: {
         new (d_simpleRequest.buffer())
             SimpleRequest(
                 original.d_simpleRequest.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_FEATURE_REQUEST: {
+      case e_SELECTION_ID_FEATURE_REQUEST: {
         new (d_featureRequest.buffer())
             FeatureTestMessage(
                 original.d_featureRequest.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -6572,14 +6572,14 @@ Request::operator=(const Request& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_SIMPLE_REQUEST: {
+          case e_SELECTION_ID_SIMPLE_REQUEST: {
             makeSimpleRequest(rhs.d_simpleRequest.object());
           } break;
-          case SELECTION_ID_FEATURE_REQUEST: {
+          case e_SELECTION_ID_FEATURE_REQUEST: {
             makeFeatureRequest(rhs.d_featureRequest.object());
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -6589,29 +6589,29 @@ Request::operator=(const Request& rhs)
 void Request::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SIMPLE_REQUEST: {
+      case e_SELECTION_ID_SIMPLE_REQUEST: {
         d_simpleRequest.object().~SimpleRequest();
       } break;
-      case SELECTION_ID_FEATURE_REQUEST: {
+      case e_SELECTION_ID_FEATURE_REQUEST: {
         d_featureRequest.object().~FeatureTestMessage();
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int Request::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_SIMPLE_REQUEST: {
+      case e_SELECTION_ID_SIMPLE_REQUEST: {
         makeSimpleRequest();
       } break;
-      case SELECTION_ID_FEATURE_REQUEST: {
+      case e_SELECTION_ID_FEATURE_REQUEST: {
         makeFeatureRequest();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -6633,7 +6633,7 @@ int Request::makeSelection(const char *name, int nameLength)
 
 SimpleRequest& Request::makeSimpleRequest()
 {
-    if (SELECTION_ID_SIMPLE_REQUEST == d_selectionId) {
+    if (e_SELECTION_ID_SIMPLE_REQUEST == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_simpleRequest.object());
     }
     else {
@@ -6641,7 +6641,7 @@ SimpleRequest& Request::makeSimpleRequest()
         new (d_simpleRequest.buffer())
                 SimpleRequest(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_SIMPLE_REQUEST;
+        d_selectionId = e_SELECTION_ID_SIMPLE_REQUEST;
     }
 
     return d_simpleRequest.object();
@@ -6649,14 +6649,14 @@ SimpleRequest& Request::makeSimpleRequest()
 
 SimpleRequest& Request::makeSimpleRequest(const SimpleRequest& value)
 {
-    if (SELECTION_ID_SIMPLE_REQUEST == d_selectionId) {
+    if (e_SELECTION_ID_SIMPLE_REQUEST == d_selectionId) {
         d_simpleRequest.object() = value;
     }
     else {
         reset();
         new (d_simpleRequest.buffer())
                 SimpleRequest(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_SIMPLE_REQUEST;
+        d_selectionId = e_SELECTION_ID_SIMPLE_REQUEST;
     }
 
     return d_simpleRequest.object();
@@ -6664,7 +6664,7 @@ SimpleRequest& Request::makeSimpleRequest(const SimpleRequest& value)
 
 FeatureTestMessage& Request::makeFeatureRequest()
 {
-    if (SELECTION_ID_FEATURE_REQUEST == d_selectionId) {
+    if (e_SELECTION_ID_FEATURE_REQUEST == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_featureRequest.object());
     }
     else {
@@ -6672,7 +6672,7 @@ FeatureTestMessage& Request::makeFeatureRequest()
         new (d_featureRequest.buffer())
                 FeatureTestMessage(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_FEATURE_REQUEST;
+        d_selectionId = e_SELECTION_ID_FEATURE_REQUEST;
     }
 
     return d_featureRequest.object();
@@ -6680,14 +6680,14 @@ FeatureTestMessage& Request::makeFeatureRequest()
 
 FeatureTestMessage& Request::makeFeatureRequest(const FeatureTestMessage& value)
 {
-    if (SELECTION_ID_FEATURE_REQUEST == d_selectionId) {
+    if (e_SELECTION_ID_FEATURE_REQUEST == d_selectionId) {
         d_featureRequest.object() = value;
     }
     else {
         reset();
         new (d_featureRequest.buffer())
                 FeatureTestMessage(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_FEATURE_REQUEST;
+        d_selectionId = e_SELECTION_ID_FEATURE_REQUEST;
     }
 
     return d_featureRequest.object();
@@ -6716,12 +6716,12 @@ bsl::ostream& Request::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_SIMPLE_REQUEST: {
+          case e_SELECTION_ID_SIMPLE_REQUEST: {
             stream << "SimpleRequest = ";
             bdlb::PrintMethods::print(stream, d_simpleRequest.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_FEATURE_REQUEST: {
+          case e_SELECTION_ID_FEATURE_REQUEST: {
             stream << "FeatureRequest = ";
             bdlb::PrintMethods::print(stream, d_featureRequest.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -6738,12 +6738,12 @@ bsl::ostream& Request::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_SIMPLE_REQUEST: {
+          case e_SELECTION_ID_SIMPLE_REQUEST: {
             stream << "SimpleRequest = ";
             bdlb::PrintMethods::print(stream, d_simpleRequest.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_FEATURE_REQUEST: {
+          case e_SELECTION_ID_FEATURE_REQUEST: {
             stream << "FeatureRequest = ";
             bdlb::PrintMethods::print(stream, d_featureRequest.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -6762,12 +6762,12 @@ bsl::ostream& Request::print(
 const char *Request::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_SIMPLE_REQUEST:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SIMPLE_REQUEST].name();
-      case SELECTION_ID_FEATURE_REQUEST:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_REQUEST].name();
+      case e_SELECTION_ID_SIMPLE_REQUEST:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_SIMPLE_REQUEST].name();
+      case e_SELECTION_ID_FEATURE_REQUEST:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_FEATURE_REQUEST].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }
@@ -6782,14 +6782,14 @@ const char Response::CLASS_NAME[] = "Response";
 
 const bdlat_SelectionInfo Response::SELECTION_INFO_ARRAY[] = {
     {
-        SELECTION_ID_RESPONSE_DATA,
+        e_SELECTION_ID_RESPONSE_DATA,
         "responseData",
         sizeof("responseData") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        SELECTION_ID_FEATURE_RESPONSE,
+        e_SELECTION_ID_FEATURE_RESPONSE,
         "featureResponse",
         sizeof("featureResponse") - 1,
         "",
@@ -6818,7 +6818,7 @@ const bdlat_SelectionInfo *Response::lookupSelectionInfo(
              && name[10]=='t'
              && name[11]=='a')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_RESPONSE_DATA];
+                return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_RESPONSE_DATA];
                                                                       // RETURN
             }
         } break;
@@ -6839,7 +6839,7 @@ const bdlat_SelectionInfo *Response::lookupSelectionInfo(
              && name[13]=='s'
              && name[14]=='e')
             {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_RESPONSE];
+                return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_FEATURE_RESPONSE];
                                                                       // RETURN
             }
         } break;
@@ -6850,10 +6850,10 @@ const bdlat_SelectionInfo *Response::lookupSelectionInfo(
 const bdlat_SelectionInfo *Response::lookupSelectionInfo(int id)
 {
     switch (id) {
-      case SELECTION_ID_RESPONSE_DATA:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_RESPONSE_DATA];
-      case SELECTION_ID_FEATURE_RESPONSE:
-        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_RESPONSE];
+      case e_SELECTION_ID_RESPONSE_DATA:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_RESPONSE_DATA];
+      case e_SELECTION_ID_FEATURE_RESPONSE:
+        return &SELECTION_INFO_ARRAY[e_SELECTION_INDEX_FEATURE_RESPONSE];
       default:
         return 0;
     }
@@ -6868,18 +6868,18 @@ Response::Response(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
-      case SELECTION_ID_RESPONSE_DATA: {
+      case e_SELECTION_ID_RESPONSE_DATA: {
         new (d_responseData.buffer())
             bsl::string(
                 original.d_responseData.object(), d_allocator_p);
       } break;
-      case SELECTION_ID_FEATURE_RESPONSE: {
+      case e_SELECTION_ID_FEATURE_RESPONSE: {
         new (d_featureResponse.buffer())
             FeatureTestMessage(
                 original.d_featureResponse.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -6890,14 +6890,14 @@ Response::operator=(const Response& rhs)
 {
     if (this != &rhs) {
         switch (rhs.d_selectionId) {
-          case SELECTION_ID_RESPONSE_DATA: {
+          case e_SELECTION_ID_RESPONSE_DATA: {
             makeResponseData(rhs.d_responseData.object());
           } break;
-          case SELECTION_ID_FEATURE_RESPONSE: {
+          case e_SELECTION_ID_FEATURE_RESPONSE: {
             makeFeatureResponse(rhs.d_featureResponse.object());
           } break;
           default:
-            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -6907,30 +6907,30 @@ Response::operator=(const Response& rhs)
 void Response::reset()
 {
     switch (d_selectionId) {
-      case SELECTION_ID_RESPONSE_DATA: {
+      case e_SELECTION_ID_RESPONSE_DATA: {
         typedef bsl::string Type;
         d_responseData.object().~Type();
       } break;
-      case SELECTION_ID_FEATURE_RESPONSE: {
+      case e_SELECTION_ID_FEATURE_RESPONSE: {
         d_featureResponse.object().~FeatureTestMessage();
       } break;
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
-    d_selectionId = SELECTION_ID_UNDEFINED;
+    d_selectionId = e_SELECTION_ID_UNDEFINED;
 }
 
 int Response::makeSelection(int selectionId)
 {
     switch (selectionId) {
-      case SELECTION_ID_RESPONSE_DATA: {
+      case e_SELECTION_ID_RESPONSE_DATA: {
         makeResponseData();
       } break;
-      case SELECTION_ID_FEATURE_RESPONSE: {
+      case e_SELECTION_ID_FEATURE_RESPONSE: {
         makeFeatureResponse();
       } break;
-      case SELECTION_ID_UNDEFINED: {
+      case e_SELECTION_ID_UNDEFINED: {
         reset();
       } break;
       default:
@@ -6952,7 +6952,7 @@ int Response::makeSelection(const char *name, int nameLength)
 
 bsl::string& Response::makeResponseData()
 {
-    if (SELECTION_ID_RESPONSE_DATA == d_selectionId) {
+    if (e_SELECTION_ID_RESPONSE_DATA == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_responseData.object());
     }
     else {
@@ -6960,7 +6960,7 @@ bsl::string& Response::makeResponseData()
         new (d_responseData.buffer())
                 bsl::string(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_RESPONSE_DATA;
+        d_selectionId = e_SELECTION_ID_RESPONSE_DATA;
     }
 
     return d_responseData.object();
@@ -6968,14 +6968,14 @@ bsl::string& Response::makeResponseData()
 
 bsl::string& Response::makeResponseData(const bsl::string& value)
 {
-    if (SELECTION_ID_RESPONSE_DATA == d_selectionId) {
+    if (e_SELECTION_ID_RESPONSE_DATA == d_selectionId) {
         d_responseData.object() = value;
     }
     else {
         reset();
         new (d_responseData.buffer())
                 bsl::string(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_RESPONSE_DATA;
+        d_selectionId = e_SELECTION_ID_RESPONSE_DATA;
     }
 
     return d_responseData.object();
@@ -6983,7 +6983,7 @@ bsl::string& Response::makeResponseData(const bsl::string& value)
 
 FeatureTestMessage& Response::makeFeatureResponse()
 {
-    if (SELECTION_ID_FEATURE_RESPONSE == d_selectionId) {
+    if (e_SELECTION_ID_FEATURE_RESPONSE == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_featureResponse.object());
     }
     else {
@@ -6991,7 +6991,7 @@ FeatureTestMessage& Response::makeFeatureResponse()
         new (d_featureResponse.buffer())
                 FeatureTestMessage(d_allocator_p);
 
-        d_selectionId = SELECTION_ID_FEATURE_RESPONSE;
+        d_selectionId = e_SELECTION_ID_FEATURE_RESPONSE;
     }
 
     return d_featureResponse.object();
@@ -6999,14 +6999,14 @@ FeatureTestMessage& Response::makeFeatureResponse()
 
 FeatureTestMessage& Response::makeFeatureResponse(const FeatureTestMessage& value)
 {
-    if (SELECTION_ID_FEATURE_RESPONSE == d_selectionId) {
+    if (e_SELECTION_ID_FEATURE_RESPONSE == d_selectionId) {
         d_featureResponse.object() = value;
     }
     else {
         reset();
         new (d_featureResponse.buffer())
                 FeatureTestMessage(value, d_allocator_p);
-        d_selectionId = SELECTION_ID_FEATURE_RESPONSE;
+        d_selectionId = e_SELECTION_ID_FEATURE_RESPONSE;
     }
 
     return d_featureResponse.object();
@@ -7035,12 +7035,12 @@ bsl::ostream& Response::print(
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
 
         switch (d_selectionId) {
-          case SELECTION_ID_RESPONSE_DATA: {
+          case e_SELECTION_ID_RESPONSE_DATA: {
             stream << "ResponseData = ";
             bdlb::PrintMethods::print(stream, d_responseData.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_FEATURE_RESPONSE: {
+          case e_SELECTION_ID_FEATURE_RESPONSE: {
             stream << "FeatureResponse = ";
             bdlb::PrintMethods::print(stream, d_featureResponse.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -7057,12 +7057,12 @@ bsl::ostream& Response::print(
         stream << "[ ";
 
         switch (d_selectionId) {
-          case SELECTION_ID_RESPONSE_DATA: {
+          case e_SELECTION_ID_RESPONSE_DATA: {
             stream << "ResponseData = ";
             bdlb::PrintMethods::print(stream, d_responseData.object(),
                                      -levelPlus1, spacesPerLevel);
           } break;
-          case SELECTION_ID_FEATURE_RESPONSE: {
+          case e_SELECTION_ID_FEATURE_RESPONSE: {
             stream << "FeatureResponse = ";
             bdlb::PrintMethods::print(stream, d_featureResponse.object(),
                                      -levelPlus1, spacesPerLevel);
@@ -7081,12 +7081,12 @@ bsl::ostream& Response::print(
 const char *Response::selectionName() const
 {
     switch (d_selectionId) {
-      case SELECTION_ID_RESPONSE_DATA:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_RESPONSE_DATA].name();
-      case SELECTION_ID_FEATURE_RESPONSE:
-        return SELECTION_INFO_ARRAY[SELECTION_INDEX_FEATURE_RESPONSE].name();
+      case e_SELECTION_ID_RESPONSE_DATA:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_RESPONSE_DATA].name();
+      case e_SELECTION_ID_FEATURE_RESPONSE:
+        return SELECTION_INFO_ARRAY[e_SELECTION_INDEX_FEATURE_RESPONSE].name();
       default:
-        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(e_SELECTION_ID_UNDEFINED == d_selectionId);
         return "(* UNDEFINED *)";                                     // RETURN
     }
 }

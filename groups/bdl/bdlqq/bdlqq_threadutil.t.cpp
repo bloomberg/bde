@@ -126,10 +126,10 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
     switch (policy) {
 #undef CASE
 #define CASE(x) case bdlqq::ThreadAttributes::x: stream << #x; break
-      CASE(BCEMT_SCHED_OTHER);
-      CASE(BCEMT_SCHED_FIFO);
-      CASE(BCEMT_SCHED_RR);
-      CASE(BCEMT_SCHED_DEFAULT);
+      CASE(e_SCHED_OTHER);
+      CASE(e_SCHED_FIFO);
+      CASE(e_SCHED_RR);
+      CASE(e_SCHED_DEFAULT);
       default:  stream << "<UNKNOWN>";
 #undef CASE
     }
@@ -225,7 +225,7 @@ void createSmallStackSizeThread()
     enum { STACK_SIZE = 16384 };
     bdlqq::ThreadAttributes attributes;
     attributes.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
     attributes.setStackSize(STACK_SIZE);
 
     char initValue = 1;
@@ -239,16 +239,16 @@ void createSmallStackSizeThread()
 static
 const char *policyToString(Attr::SchedulingPolicy policy)
 {
-    if      (Attr::BCEMT_SCHED_OTHER   == policy) {
+    if      (Attr::e_SCHED_OTHER   == policy) {
         return "other";                                               // RETURN
     }
-    else if (Attr::BCEMT_SCHED_FIFO    == policy) {
+    else if (Attr::e_SCHED_FIFO    == policy) {
         return "fifo";                                                // RETURN
     }
-    else if (Attr::BCEMT_SCHED_RR      == policy) {
+    else if (Attr::e_SCHED_RR      == policy) {
         return "rr";                                                  // RETURN
     }
-    else if (Attr::BCEMT_SCHED_DEFAULT == policy) {
+    else if (Attr::e_SCHED_DEFAULT == policy) {
         return "default";                                             // RETURN
     }
     else {
@@ -1167,10 +1167,10 @@ int main(int argc, char *argv[])
             int    d_line;
             Policy d_policy;
         } DATA[] = {
-            { L_, Attr::BCEMT_SCHED_DEFAULT },
-            { L_, Attr::BCEMT_SCHED_OTHER   },
-            { L_, Attr::BCEMT_SCHED_FIFO    },
-            { L_, Attr::BCEMT_SCHED_RR      },
+            { L_, Attr::e_SCHED_DEFAULT },
+            { L_, Attr::e_SCHED_OTHER   },
+            { L_, Attr::e_SCHED_FIFO    },
+            { L_, Attr::e_SCHED_RR      },
         };
         enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
 
@@ -1181,8 +1181,8 @@ int main(int argc, char *argv[])
             const Policy POLICY = DATA[i].d_policy;
 
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
-            if (Attr::BCEMT_SCHED_FIFO == POLICY ||
-                                              Attr::BCEMT_SCHED_RR == POLICY) {
+            if (Attr::e_SCHED_FIFO == POLICY ||
+                                              Attr::e_SCHED_RR == POLICY) {
                 continue;
             }
 #endif
@@ -1200,8 +1200,8 @@ int main(int argc, char *argv[])
 
 #if   defined(BSLS_PLATFORM_OS_SOLARIS)
             const int prioritiesWork = !isPost_5_10 ||
-                                           (Attr::BCEMT_SCHED_FIFO != POLICY &&
-                                            Attr::BCEMT_SCHED_RR   != POLICY);
+                                           (Attr::e_SCHED_FIFO != POLICY &&
+                                            Attr::e_SCHED_RR   != POLICY);
 #elif defined(BSLS_PLATFORM_OS_AIX)
             const int prioritiesWork = 1;
 #else
@@ -1396,10 +1396,10 @@ int main(int argc, char *argv[])
 
         namespace TC = BCEMT_THREAD_POLICY_CREATION_TEST;
 
-        Attr::SchedulingPolicy policies[] = { Attr::BCEMT_SCHED_OTHER,
-                                              Attr::BCEMT_SCHED_FIFO,
-                                              Attr::BCEMT_SCHED_RR,
-                                              Attr::BCEMT_SCHED_DEFAULT };
+        Attr::SchedulingPolicy policies[] = { Attr::e_SCHED_OTHER,
+                                              Attr::e_SCHED_FIFO,
+                                              Attr::e_SCHED_RR,
+                                              Attr::e_SCHED_DEFAULT };
         enum { NUM_POLICIES = sizeof policies / sizeof *policies };
 
         for (int i = 0; i < NUM_POLICIES; ++i) {
@@ -1408,12 +1408,12 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_OS_HPUX
             const bool willFail = true;
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_AIX)
-            const bool willFail = (Attr::BCEMT_SCHED_FIFO == policy ||
-                                   Attr::BCEMT_SCHED_RR   == policy);
+            const bool willFail = (Attr::e_SCHED_FIFO == policy ||
+                                   Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
             const bool willFail = isPost_5_10 &&
-                                           (Attr::BCEMT_SCHED_FIFO == policy ||
-                                            Attr::BCEMT_SCHED_RR   == policy);
+                                           (Attr::e_SCHED_FIFO == policy ||
+                                            Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_DARWIN)
             const bool willFail = false;
 #else
@@ -1639,7 +1639,7 @@ int main(int argc, char *argv[])
         bdlqq::ThreadAttributes attributes;
         attributes.setInheritSchedule(false);
         const bdlqq::ThreadAttributes::SchedulingPolicy policy =
-                                    bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
+                                    bdlqq::ThreadAttributes::e_SCHED_OTHER;
         attributes.setSchedulingPolicy(policy);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
@@ -1757,10 +1757,10 @@ int main(int argc, char *argv[])
 
         typedef bdlqq::ThreadAttributes Attr;
 
-        Attr::SchedulingPolicy policies[] = { Attr::BCEMT_SCHED_OTHER,
-                                              Attr::BCEMT_SCHED_FIFO,
-                                              Attr::BCEMT_SCHED_RR,
-                                              Attr::BCEMT_SCHED_DEFAULT };
+        Attr::SchedulingPolicy policies[] = { Attr::e_SCHED_OTHER,
+                                              Attr::e_SCHED_FIFO,
+                                              Attr::e_SCHED_RR,
+                                              Attr::e_SCHED_DEFAULT };
         enum { NUM_POLICIES = sizeof policies / sizeof *policies };
 
         for (int i = 0; i < NUM_POLICIES; ++i) {
@@ -1803,8 +1803,8 @@ int main(int argc, char *argv[])
             }
             else {
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-                ASSERT(Attr::BCEMT_SCHED_FIFO == POLICY ||
-                       Attr::BCEMT_SCHED_RR   == POLICY);
+                ASSERT(Attr::e_SCHED_FIFO == POLICY ||
+                       Attr::e_SCHED_RR   == POLICY);
 #elif !defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_OS_WINDOWS)
                 // This should only happen on Linux and Windows
                 ASSERT(0);
@@ -2165,7 +2165,7 @@ int main(int argc, char *argv[])
 
        bdlqq::ThreadAttributes detached;
        detached.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
        ThreadChecker joinableChecker;
        ThreadChecker detachedChecker;

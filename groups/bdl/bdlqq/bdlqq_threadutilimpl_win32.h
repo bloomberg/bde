@@ -407,14 +407,14 @@ inline
 int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
     getMinSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
-    return ThreadAttributes::BCEMT_UNSET_PRIORITY;
+    return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline
 int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
     getMaxSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
-    return ThreadAttributes::BCEMT_UNSET_PRIORITY;
+    return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline
@@ -439,10 +439,10 @@ void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::microSleep(
                                                                  int microsecs,
                                                                  int seconds)
 {
-    enum { MILLION = 1000 * 1000 };
+    enum { k_MILLION = 1000 * 1000 };
 
-    bsls::TimeInterval ti((microsecs / MILLION) + seconds,
-                         (microsecs % MILLION) * 1000);
+    bsls::TimeInterval ti((microsecs / k_MILLION) + seconds,
+                         (microsecs % k_MILLION) * 1000);
     DWORD milliSeconds;
     SaturatedTimeConversionImpUtil::toMillisec(&milliSeconds, ti);
 

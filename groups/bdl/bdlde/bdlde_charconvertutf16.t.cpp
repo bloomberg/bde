@@ -5207,16 +5207,16 @@ int main(int argc, char**argv)
                                    bslstl::StringRefWide(start, end),
                                    &nc,
                                    errorChar);
-        ASSERT(0 == (rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+        ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(start > START || end < END || (ii < 6 && jj < 6 && kk < 6) ||
-                       bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT == rc);
+                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
         ASSERT(start > START || end < END || ii >= 4 || jj >= 4 || kk >= 4 ||
                                                                       0 == rc);
         ASSERT(ii >= 3 || jj >= 3 || kk >= 3 || 0 == rc);
         ASSERT(nc <= dstVec.size());
         const char *found = bsl::find(dstVec.begin(), dstVec.end(), '?');
         if (!dstVec.empty() && errorChar &&
-                     (rc & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                     (rc & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
             ASSERT(found <  dstVec.end());
         }
         else {
@@ -5310,7 +5310,7 @@ int main(int argc, char**argv)
                                     &nw,
                                     errorChar);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc <= nw);
             ASSERT(nw <= cap);
@@ -5319,7 +5319,7 @@ int main(int argc, char**argv)
             ASSERT(!cap || (nw && nc && 0 == dstVec[nw - 1]));
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw, '?');
             if (0 != nw && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw);
             }
             else {
@@ -5335,13 +5335,13 @@ int main(int argc, char**argv)
                                     &nw2,
                                     errorChar);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw2, '?');
             if (0 != nw2 && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw2);
             }
             else {
@@ -5413,16 +5413,16 @@ int main(int argc, char**argv)
                                    &nc,
                                    errorChar,
                                    e_BACKWARDS);
-        ASSERT(0 == (rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+        ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(start > START || end < END || (ii < 6 && jj < 6 && kk < 6) ||
-                       bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT == rc);
+                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
         ASSERT(start > START || end < END || ii >= 4 || jj >= 4 || kk >= 4 ||
                                                                       0 == rc);
         ASSERT(ii >= 3 || jj >= 3 || kk >= 3 || 0 == rc);
         ASSERT(nc <= dstVec.size());
         const char *found = bsl::find(dstVec.begin(), dstVec.end(), '?');
         if (!dstVec.empty() && errorChar &&
-                     (rc & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                     (rc & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
             ASSERT(found <  dstVec.end());
         }
         else {
@@ -5524,7 +5524,7 @@ int main(int argc, char**argv)
                                     errorChar,
                                     e_BACKWARDS);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc <= nw);
             ASSERT(nw <= cap);
@@ -5533,7 +5533,7 @@ int main(int argc, char**argv)
             ASSERT(!cap || (nw && nc && 0 == dstVec[nw - 1]));
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw, '?');
             if (0 != nw && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw);
             }
             else {
@@ -5550,13 +5550,13 @@ int main(int argc, char**argv)
                                     errorChar,
                                     e_BACKWARDS);
             ASSERT((cap < dstCap) ==
-                    !!(rc2 & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                    !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw2, '?');
             if (0 != nw2 && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT)) {
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw2);
             }
             else {
@@ -5678,8 +5678,8 @@ int main(int argc, char**argv)
                                    errorChar);
         LOOP4_ASSERT(rc, i, k, m, INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                       bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT == rc);
-        ASSERT(0 == (rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
+        ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(nc <= dst.size());
 
         max16Len = bsl::max(max16Len, dst.size());
@@ -5786,11 +5786,11 @@ int main(int argc, char**argv)
             ASSERT(!nw || 0 == dst[nw - 1]);
             ASSERT((unsigned short) -1 == dst[nw]);
             ASSERT((cap < dstCap) ==
-                     !!(rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                     !!(rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                      (bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT & rc));
+                      (bdlde::CharConvertStatus::k_INVALID_CHARS_BIT & rc));
             bsl::fill(dst.begin(), dst.end(), (unsigned short) -1);
 
             save = *end;
@@ -5810,11 +5810,11 @@ int main(int argc, char**argv)
             ASSERT(!nw || 0 == dst[nw - 1]);
             ASSERT((unsigned short) -1 == dst[nw]);
             ASSERT((cap < dstCap) ==
-                     !!(rc & bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+                     !!(rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                      (bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT & rc));
+                      (bdlde::CharConvertStatus::k_INVALID_CHARS_BIT & rc));
 
             *end = save;
 
@@ -6063,7 +6063,7 @@ int main(int argc, char**argv)
                                            (const char *) errorUnsignedIn,
                                            &nChars,
                                            errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
@@ -6090,7 +6090,7 @@ int main(int argc, char**argv)
                                             (int) sizeof(errorUnsignedIn) - 1),
                           &nChars,
                           errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
@@ -6106,7 +6106,7 @@ int main(int argc, char**argv)
                                            (const char *) errorUnsignedIn,
                                            &nChars,
                                            errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
@@ -6134,7 +6134,7 @@ int main(int argc, char**argv)
                                             (int) sizeof(errorUnsignedIn) - 1),
                           &nChars,
                           errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
                 LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
@@ -6164,7 +6164,7 @@ int main(int argc, char**argv)
                                            errorUtf16InOrig,
                                            &nChars,
                                            errorChar);
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 ASSERT(expectedChars == nChars);
                 ASSERT(expectedChars == utf8Vec.size());
 
@@ -6181,7 +6181,7 @@ int main(int argc, char**argv)
                                            errorChar);
                 nBytes = utf8String.length() + 1;
 
-                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
                 ASSERT(expectedChars == nChars);
                 ASSERT(expectedChars == nBytes);
                 ASSERT(expectedChars == utf8String.length() + 1);

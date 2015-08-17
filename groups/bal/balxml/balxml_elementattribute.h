@@ -262,26 +262,30 @@ class ElementAttribute {
     // The flags property should be set to the bitwise-OR of one or more of
     // the following values:
     enum {
-        BAEXML_ATTR_NO_FLAGS   = 0x0000,
+        k_ATTR_NO_FLAGS   = 0x0000,
             // No flags set.
 
-        BAEXML_ATTR_IS_DEFAULT = 0x0001,
+        k_ATTR_IS_DEFAULT = 0x0001,
             // Set this bit if the value for this attribute object was
             // generated from the default attribute value in the DTD or
             // schema.
 
-        BAEXML_ATTR_IS_NSDECL  = 0x0002,
+        k_ATTR_IS_NSDECL  = 0x0002,
             // Set this bit if this attribute represents a namespace
             // declaration.
 
-        BAEXML_ATTR_IS_XSIDECL = 0x0004
+        k_ATTR_IS_XSIDECL = 0x0004
             // Set this bit if this attribute represents a XML schema instance
             // declaration.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTR_NO_FLAGS   = BAEXML_ATTR_NO_FLAGS
-      , ATTR_IS_DEFAULT = BAEXML_ATTR_IS_DEFAULT
-      , ATTR_IS_NSDECL  = BAEXML_ATTR_IS_NSDECL
+      , BAEXML_ATTR_NO_FLAGS = k_ATTR_NO_FLAGS
+      , BAEXML_ATTR_IS_DEFAULT = k_ATTR_IS_DEFAULT
+      , BAEXML_ATTR_IS_NSDECL = k_ATTR_IS_NSDECL
+      , BAEXML_ATTR_IS_XSIDECL = k_ATTR_IS_XSIDECL
+      , ATTR_NO_FLAGS   = k_ATTR_NO_FLAGS
+      , ATTR_IS_DEFAULT = k_ATTR_IS_DEFAULT
+      , ATTR_IS_NSDECL  = k_ATTR_IS_NSDECL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

@@ -598,42 +598,42 @@ template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Date>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATE_STRLEN;
+    return bdlt::Iso8601Util::k_DATE_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Time>()
 {
-    return bdlt::Iso8601Util::BDEPU_TIME_STRLEN;
+    return bdlt::Iso8601Util::k_TIME_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Datetime>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATETIME_STRLEN;
+    return bdlt::Iso8601Util::k_DATETIME_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::DateTz>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATETZ_STRLEN;
+    return bdlt::Iso8601Util::k_DATETZ_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::TimeTz>()
 {
-    return bdlt::Iso8601Util::BDEPU_TIMETZ_STRLEN;
+    return bdlt::Iso8601Util::k_TIMETZ_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::DatetimeTz>()
 {
-    return bdlt::Iso8601Util::BDEPU_DATETIMETZ_STRLEN;
+    return bdlt::Iso8601Util::k_DATETIMETZ_STRLEN;
 }
 
 // CLASS METHODS

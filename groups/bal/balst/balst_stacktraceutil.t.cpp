@@ -805,7 +805,7 @@ void case_07_top()
     }
 }
 
-}
+ENDNS07  // close namespace
 
                                 // ------
                                 // case 5

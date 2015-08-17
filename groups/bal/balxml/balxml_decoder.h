@@ -748,7 +748,7 @@ class Decoder_ErrorLogger {
 #define BALXML_DECODER_LOG_ERROR(reporter)                     \
     do {                                                       \
         balxml::Decoder_ErrorLogger                             \
-            logger(balxml::ErrorInfo::BAEXML_ERROR, reporter);  \
+            logger(balxml::ErrorInfo::e_ERROR, reporter);  \
         logger.stream()
     // Usage: BAEXML_LOG_ERROR(myDecoder) << "Message"
     //                                    << value << BALXML_DECODER_LOG_END;
@@ -756,7 +756,7 @@ class Decoder_ErrorLogger {
 #define BALXML_DECODER_LOG_WARNING(reporter)                   \
     do {                                                       \
         balxml::Decoder_ErrorLogger                             \
-           logger(balxml::ErrorInfo::BAEXML_WARNING, reporter); \
+           logger(balxml::ErrorInfo::e_WARNING, reporter); \
         logger.stream()
     // Usage: BAEXML_LOG_WARNING(myDecoder) << "Message"
     //                                      << value << BALXML_DECODER_LOG_END;
@@ -2080,9 +2080,9 @@ Decoder::decode(bsl::streambuf *buffer, TYPE *object, const char *uri)
     int ret = this->decode(object);
 
     switch(errorSeverity()) {
-      case ErrorInfo::BAEXML_NO_ERROR:
+      case ErrorInfo::e_NO_ERROR:
         break;
-      case ErrorInfo::BAEXML_WARNING:
+      case ErrorInfo::e_WARNING:
         if (d_warningStream) {
             *d_warningStream << loggedMessages();
         }
@@ -2186,27 +2186,27 @@ Decoder_ChoiceContext<TYPE>::Decoder_ChoiceContext(
 template <class TYPE>
 int Decoder_ChoiceContext<TYPE>::startElement(Decoder *)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     d_isSelectionNameKnown = false;  // no selection seen yet
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
 int Decoder_ChoiceContext<TYPE>::endElement(Decoder *decoder)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     if (!d_isSelectionNameKnown) {
         BALXML_DECODER_LOG_ERROR(decoder)
                  << "No elements selected in choice."
                  << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;  // will trigger failure in parser     // RETURN
+        return k_FAILURE;  // will trigger failure in parser          // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2214,7 +2214,7 @@ int Decoder_ChoiceContext<TYPE>::addCharacters(const char *chars,
                                                    unsigned int length,
                                                    Decoder *decoder)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(0 != length);
 
@@ -2230,10 +2230,10 @@ int Decoder_ChoiceContext<TYPE>::addCharacters(const char *chars,
                          << "\" when parsing choice."
                          << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;  // will trigger failure in parser     // RETURN
+        return k_FAILURE;  // will trigger failure in parser          // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2243,9 +2243,9 @@ int Decoder_ChoiceContext<TYPE>::parseAttribute(const char     *,
                                                        bsl::size_t     ,
                                                        Decoder *)
 {
-    enum { BAEXML_ATTRIBUTE_IGNORED = 0 };
+    enum { k_ATTRIBUTE_IGNORED = 0 };
 
-    return BAEXML_ATTRIBUTE_IGNORED;
+    return k_ATTRIBUTE_IGNORED;
 }
 
 template <class TYPE>
@@ -2253,7 +2253,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     const int lenName = static_cast<int>(bsl::strlen(elementName));
 
@@ -2264,7 +2264,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
                             << "Only one selection is permitted inside choice."
                             << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     bool wasSelectionNameKnown = d_isSelectionNameKnown;
@@ -2293,7 +2293,7 @@ int Decoder_ChoiceContext<TYPE>::parseSubElement(
                                               << "\"."
                                               << BALXML_DECODER_LOG_END;
 
-            return BAEXML_FAILURE;                                    // RETURN
+            return k_FAILURE;                                         // RETURN
         }
 
         d_selectionIsRepeatable = true;  // TBD: check if repeatable
@@ -2385,9 +2385,9 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseAttribute(
                                                       bsl::size_t     ,
                                                       Decoder *)
 {
-    enum { BAEXML_ATTRIBUTE_IGNORED = 0 };
+    enum { k_ATTRIBUTE_IGNORED = 0 };
 
-    return BAEXML_ATTRIBUTE_IGNORED;
+    return k_ATTRIBUTE_IGNORED;
 }
 
 template <class TYPE, class PARSER>
@@ -2395,7 +2395,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BALXML_DECODER_LOG_ERROR(decoder)
                   << "Unexpected sub-element \"" << elementName
@@ -2403,7 +2403,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
                   << "\"."
                   << BALXML_DECODER_LOG_END;
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 
                   // ------------------------------------------
@@ -2450,9 +2450,9 @@ int Decoder_SequenceContext<TYPE>::startElement(
 template <class TYPE>
 int Decoder_SequenceContext<TYPE>::endElement(Decoder *)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2461,7 +2461,7 @@ int Decoder_SequenceContext<TYPE>::addCharacters(
                                                        unsigned int    length,
                                                        Decoder *decoder)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     BSLS_ASSERT_SAFE(0 != length);
 
@@ -2479,9 +2479,9 @@ int Decoder_SequenceContext<TYPE>::addCharacters(
                                              << "\"."
                                              << BALXML_DECODER_LOG_END;
 
-            return BAEXML_FAILURE;                                    // RETURN
+            return k_FAILURE;                                         // RETURN
         }
-        return BAEXML_SUCCESS;                                        // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
 
     Decoder_ParseSequenceSimpleContent parseSimpleContent(decoder,
@@ -2501,7 +2501,7 @@ int Decoder_SequenceContext<TYPE>::parseAttribute(
                                                       bsl::size_t     lenValue,
                                                       Decoder *decoder)
 {
-    enum { BAEXML_SUCCESS = 0, ATTRIBUTE_IGNORED = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_ATTRIBUTE_IGNORED = 0, k_FAILURE = -1 };
 
     const int lenName = static_cast<int>(bsl::strlen(name));
 
@@ -2512,12 +2512,12 @@ int Decoder_SequenceContext<TYPE>::parseAttribute(
                                                           name,
                                                           lenName)) {
         if (visitor.failed()) {
-            return BAEXML_FAILURE;                                    // RETURN
+            return k_FAILURE;                                         // RETURN
         }
-        return ATTRIBUTE_IGNORED;                                     // RETURN
+        return k_ATTRIBUTE_IGNORED;                                   // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2525,7 +2525,7 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     const int lenName = static_cast<int>(bsl::strlen(elementName));
 
@@ -2569,19 +2569,19 @@ Decoder_SimpleContext<TYPE>::Decoder_SimpleContext(
 template <class TYPE>
 int Decoder_SimpleContext<TYPE>::startElement(Decoder *)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     //d_chars.clear();
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
 int Decoder_SimpleContext<TYPE>::endElement(Decoder *)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2589,7 +2589,7 @@ int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
                                                       unsigned int    length,
                                                       Decoder *decoder)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     const char *begin = chars;
     const char *end   = begin + length;
@@ -2607,10 +2607,10 @@ int Decoder_SimpleContext<TYPE>::addCharacters(const char     *chars,
                     << "\".\n"
                     << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2621,9 +2621,9 @@ int Decoder_SimpleContext<TYPE>::parseAttribute(
                                                       bsl::size_t     ,
                                                       Decoder *)
 {
-    enum { ATTRIBUTE_IGNORED = 0 };
+    enum { k_ATTRIBUTE_IGNORED = 0 };
 
-    return ATTRIBUTE_IGNORED;
+    return k_ATTRIBUTE_IGNORED;
 }
 
 template <class TYPE>
@@ -2631,7 +2631,7 @@ int Decoder_SimpleContext<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BALXML_DECODER_LOG_ERROR(decoder)
                << "Attempted to create sub context for \""
@@ -2640,7 +2640,7 @@ int Decoder_SimpleContext<TYPE>::parseSubElement(
                << "\"."
                << BALXML_DECODER_LOG_END;
 
-    return BAEXML_FAILURE;  // will trigger failure in parser
+    return k_FAILURE;  // will trigger failure in parser
 }
 
                    // --------------------------------------------
@@ -2672,15 +2672,15 @@ template <class TYPE>
 int Decoder_CustomizedContext<TYPE>::endElement(
                                           Decoder *decoder)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
     int rc = d_baseContext.endElement(decoder);
-    if (rc == BAEXML_SUCCESS
+    if (rc == k_SUCCESS
      &&  0 == bdlat_CustomizedTypeFunctions::convertFromBaseType(d_object,
                                                                  d_baseObj)) {
-        return BAEXML_SUCCESS;                                        // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
 
-    return BAEXML_FAILURE;
+    return k_FAILURE;
 }
 
 template <class TYPE>
@@ -2728,20 +2728,20 @@ template <class TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::startElement(Decoder *)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     d_object_p->clear();
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
 inline
 int Decoder_UTF8Context<TYPE>::endElement(Decoder *)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2750,11 +2750,11 @@ int Decoder_UTF8Context<TYPE>::addCharacters(const char *chars,
                                           unsigned int length,
                                           Decoder *)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     d_object_p->insert(d_object_p->end(), chars, chars + length);
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -2764,9 +2764,9 @@ int Decoder_UTF8Context<TYPE>::parseAttribute(const char     *,
                                                      bsl::size_t     ,
                                                      Decoder *)
 {
-    enum { BAEXML_ATTRIBUTE_IGNORED = 0 };
+    enum { k_ATTRIBUTE_IGNORED = 0 };
 
-    return BAEXML_ATTRIBUTE_IGNORED;
+    return k_ATTRIBUTE_IGNORED;
 }
 
 template <class TYPE>
@@ -2774,14 +2774,14 @@ int Decoder_UTF8Context<TYPE>::parseSubElement(
                                                    const char     *elementName,
                                                    Decoder *decoder)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     BALXML_DECODER_LOG_ERROR(decoder)
                                     << "Attempted to create sub context for \""
                                     << elementName << "\" inside UTF8 type."
                                     << BALXML_DECODER_LOG_END;
 
-    return BAEXML_FAILURE;  // will trigger failure in parser
+    return k_FAILURE;  // will trigger failure in parser
 }
 
                   // -------------------------------------------
@@ -2802,14 +2802,14 @@ template <class TYPE, class INFO_TYPE>
 int Decoder_PrepareSequenceContext::operator()(const TYPE&,
                                                       const INFO_TYPE& info)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     if (info.formattingMode() & bdlat_FormattingMode::e_SIMPLE_CONTENT) {
         BSLS_ASSERT_SAFE(d_simpleContentId_p->isNull());
         d_simpleContentId_p->makeValue(info.id());
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
                 // -----------------------------------------------
@@ -2839,7 +2839,7 @@ int Decoder_ParseSequenceSimpleContent::operator()(
     BSLS_ASSERT_SAFE(info.formattingMode()
                                  & bdlat_FormattingMode::e_SIMPLE_CONTENT);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     const char *begin = d_chars_p;
     const char *end   = begin + d_len;
@@ -2858,10 +2858,10 @@ int Decoder_ParseSequenceSimpleContent::operator()(
                << "\"."
                << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class INFO_TYPE>
@@ -2870,7 +2870,7 @@ int Decoder_ParseSequenceSimpleContent::operator()(
                                                       bsl::string      *object,
                                                       const INFO_TYPE&  info)
 {
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     BSLS_ASSERT_SAFE(info.formattingMode()
                    & bdlat_FormattingMode::e_SIMPLE_CONTENT);
@@ -2879,7 +2879,7 @@ int Decoder_ParseSequenceSimpleContent::operator()(
 
     object->assign(d_chars_p, d_len);
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
                  // --------------------------------------------
@@ -2913,7 +2913,7 @@ int Decoder_ParseSequenceSubElement::execute(TYPE *object,
                                                     int   ,
                                                     int   formattingMode)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
     Decoder_ParseObject parseObject(d_decoder,
                                            d_elementName_p,
                                            d_lenName);
@@ -2955,7 +2955,7 @@ template <class TYPE, class ANY_CATEGORY>
 int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
                                            ANY_CATEGORY)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = - 1 };
+    enum { k_SUCCESS = 0, k_FAILURE = - 1 };
 
     bool isAttribute = formattingMode
                      & bdlat_FormattingMode::e_ATTRIBUTE;
@@ -2983,10 +2983,10 @@ int Decoder_ParseAttribute::executeImp(TYPE *object, int formattingMode,
 
         d_failed = true;
 
-        return BAEXML_FAILURE;                                        // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 // CREATORS
@@ -3073,7 +3073,7 @@ template <class TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                            bdlat_TypeCategory::Sequence)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     if (formattingMode & bdlat_FormattingMode::e_UNTAGGED) {
         if (d_decoder->options()->skipUnknownElements()
@@ -3108,7 +3108,7 @@ template <class TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdlat_TypeCategory::Choice)
 {
-    enum { BAEXML_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     bool isUntagged = formattingMode & bdlat_FormattingMode::e_UNTAGGED;
 
@@ -3134,7 +3134,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                               << "\"."
                                               << BALXML_DECODER_LOG_END;
 
-            return BAEXML_FAILURE;                                    // RETURN
+            return k_FAILURE;                                         // RETURN
         }
 
         return bdlat_ChoiceFunctions::manipulateSelection(object, *this);
@@ -3154,7 +3154,7 @@ template <class TYPE>
 int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
                                         bdlat_TypeCategory::NullableValue)
 {
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     if (bdlat_NullableValueFunctions::isNull(*object)) {
         bdlat_NullableValueFunctions::makeValue(object);
@@ -3169,7 +3169,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
         if (0 != bdlat_NullableValueFunctions::manipulateValue(
                                                             object,
                                                             parseAsNillable)) {
-            return BAEXML_FAILURE;                                    // RETURN
+            return k_FAILURE;                                         // RETURN
         }
 
         if (parseAsNillable.isNil()) {
@@ -3177,7 +3177,7 @@ int Decoder_ParseObject::executeImp(TYPE *object, int formattingMode,
             bdlat_ValueTypeFunctions::reset(object);
         }
 
-        return BAEXML_SUCCESS;                                        // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
 
     Decoder_ParseObject_executeProxy proxy = { this, formattingMode };
