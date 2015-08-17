@@ -244,7 +244,6 @@ class MetricDescription {
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream&            stream,
                          const MetricDescription& rhs);
     // Write a formatted single-line description of the specified 'rhs' metric
@@ -252,7 +251,7 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
     // modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
                        // ----------------------------

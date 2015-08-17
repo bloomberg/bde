@@ -262,7 +262,7 @@ class MetricFormat {
     // 'setFormatSpec' method to set the format spec for a publication type,
     // and the 'formatSpec' method to retrieve the format spec for a
     // publication type (or 0 if no format spec has been provided for the
-    // indicated publication type).  Note that the types of published 
+    // indicated publication type).  Note that the types of published
     // aggregates explicitly provided by the 'baem' package are defined in the
     // 'PublicationType' enumeration.
 

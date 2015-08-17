@@ -445,8 +445,8 @@ bsl::ostream& MetricRegistry::print(bsl::ostream& stream,
     bdlb::Print::indent(stream, level, spacesPerLevel);
     stream << "[" << SEP;
 
-    // Note that this implementation assumes that the registry map is sorted
-    // by category (i.e., it is not an 'unordered_map', and the comparator
+    // Note that this implementation assumes that the registry map is sorted by
+    // category (i.e., it is not an 'unordered_map', and the comparator
     // compares by category before name).
 
     const Category *lastCategory = 0;

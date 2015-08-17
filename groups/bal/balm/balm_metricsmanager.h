@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // We first create a 'balm::MetricsManager' object and a
 // 'SimpleStreamPublisher' object.  Note that 'SimpleStreamPublisher' is an
 // example implementation of the 'balm::Publisher' protocol defined in the
-// 'balm_publisher' component. In practice, clients typically use a standard
+// 'balm_publisher' component.  In practice, clients typically use a standard
 // publisher class (e.g., 'balm::StreamPublisher').
 //..
 //  int main(int argc, char *argv[]) {
@@ -471,8 +471,8 @@ class MetricsManager {
   private:
     // PRIVATE TYPES
     typedef bsl::map<const Category *, bsls::TimeInterval> LastResetTimes;
-        // A mapping from a category to the most recent reset (represented
-        // as the interval since the epoch) of that category. This is used to
+        // A mapping from a category to the most recent reset (represented as
+        // the interval since the epoch) of that category.  This is used to
         // compute the time interval over which a metric was collected.
 
     // DATA
@@ -698,9 +698,9 @@ class MetricsManager {
         // 'categories' that is not enabled is ignored.  If 'resetFlag' is
         // 'true', the metrics being collected are reset to their default
         // state.  The metrics manager provides publishers the time interval
-        // over which the published metrics were collected. This interval is
-        // computed as the elapsed time since the last time the 'category'
-        // was reset (either through a call to the 'publish' or 'collectSample'
+        // over which the published metrics were collected.  This interval is
+        // computed as the elapsed time since the last time the 'category' was
+        // reset (either through a call to the 'publish' or 'collectSample'
         // methods).  If a category has not previously been reset then this
         // interval is taken to be the elapsed time since the creation of this
         // metrics manager.  The behavior is undefined unless
@@ -711,12 +711,12 @@ class MetricsManager {
     void publish(const bsl::set<const Category *>& categories,
                  bool                              resetFlag = true);
         // Publish metrics belonging to the specified 'categories'.
-        // Optionally specify a 'resetFlag' that determines if the metrics
-        // are reset as part of this operation.  This operation will collect
+        // Optionally specify a 'resetFlag' that determines if the metrics are
+        // reset as part of this operation.  This operation will collect
         // aggregated metric values for each *enabled* category in 'categories'
         // from registered callbacks as well as from its own
-        // 'CollectorRepository', and then publish those records using
-        // any publishers associated with the category.   Any category in
+        // 'CollectorRepository', and then publish those records using any
+        // publishers associated with the category.   Any category in
         // 'categories' that is not enabled is ignored.  If 'resetFlag' is
         // 'true', the metrics being collected are reset to their default
         // state.  The metrics manager provides publishers the time interval
@@ -729,21 +729,21 @@ class MetricsManager {
 
     void publishAll(bool resetFlag = true);
         // Publish metrics for every category registered with the contained
-        // 'MetricsRegistry' object.  Optionally specify a 'resetFlag'
-        // that determines if the metrics are reset as part of this
-        // operation.  This operation will collect aggregated metric values
-        // for each enabled category in its 'metricRegistry()' from registered
-        // callbacks as well as from its own 'CollectorRepository', and then
-        // publish those records using any publishers associated with the
-        // category.  Any category that is not enabled is ignored.  If
-        // 'resetFlag' is 'true', the metrics being collected are reset to
-        // their default state.  The metrics manager provides publishers the
-        // time interval over which a published category of metrics were
-        // collected.  This interval is computed as the elapsed time since the
-        // last time the category was reset (either through a call to the
-        // 'publish' or 'collectSample' methods).  If a category has not
-        // previously been reset then this interval is taken to be the elapsed
-        // time since the creation of this metrics manager.
+        // 'MetricsRegistry' object.  Optionally specify a 'resetFlag' that
+        // determines if the metrics are reset as part of this operation.  This
+        // operation will collect aggregated metric values for each enabled
+        // category in its 'metricRegistry()' from registered callbacks as well
+        // as from its own 'CollectorRepository', and then publish those
+        // records using any publishers associated with the category.  Any
+        // category that is not enabled is ignored.  If 'resetFlag' is 'true',
+        // the metrics being collected are reset to their default state.  The
+        // metrics manager provides publishers the time interval over which a
+        // published category of metrics were collected.  This interval is
+        // computed as the elapsed time since the last time the category was
+        // reset (either through a call to the 'publish' or 'collectSample'
+        // methods).  If a category has not previously been reset then this
+        // interval is taken to be the elapsed time since the creation of this
+        // metrics manager.
 
     void publishAll(const bsl::set<const Category *>& excludedCategories,
                     bool                              resetFlag = true);
@@ -783,7 +783,7 @@ class MetricsManager {
     void setCategoryEnabled(const Category *category,
                             bool            value = true);
         // Set whether the specified 'category' is enabled to the optionally
-	// specified 'value'.  If a category is disabled it will not be
+        // specified 'value'.  If a category is disabled it will not be
         // published (see the 'publish' methods), and higher level components
         // may not record values for metrics belonging to the category (for an
         // example, see the 'balm_metric' documentation).  The behavior is
@@ -792,7 +792,7 @@ class MetricsManager {
         // 'MetricManager' object (i.e., 'metricRegistry()').  Note that this
         // operation is thread-safe, but *not* atomic: Other threads may
         // simultaneously access the current enabled value for 'category' while
-        // this operation is performed. Also note that this operation has
+        // this operation is performed.  Also note that this operation has
         // *linear* performance with respect to the number of registered
         // category holders for 'category' (see 'balm_metricregistry' and
         // 'balm_category' for information on category holders).
@@ -855,7 +855,7 @@ class MetricsManager {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
                    // -------------------------

@@ -10,15 +10,16 @@ BSLS_IDENT_RCSID(balm_metrics_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace balm {
+
 // STATIC DATA
 namespace {
 
 const char k_LOG_CATEGORY[] = "BALM.METRICS";
 const char *k_TYPE_STRING[] = { "category", "metric", };
 
-} // close anonymous namespace
+}  // close unnamed namespace
 
-namespace balm {
                           // ------------------
                           // class Metrics
                           // ------------------

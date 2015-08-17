@@ -222,8 +222,7 @@ class Metric {
     static const bool k_NOT_ACTIVE;
         // A static boolean constant for 'false'.  The data member
         // 'd_isEnabled_p' is assigned the *address* of this constant if the
-        // 'Metric' object is not supplied a valid collector at
-        // construction.
+        // 'Metric' object is not supplied a valid collector at construction.
 
   public:
     // CLASS METHODS
@@ -271,8 +270,8 @@ class Metric {
         // in the inactive state (i.e., 'isActive()' is 'false') in which case
         // instance methods that would otherwise update the metric will have
         // no effect.  The behavior is undefined unless 'metricId' is a valid
-        // id returned by the 'MetricRepository' object owned by the
-        // indicated metrics manager.
+        // id returned by the 'MetricRepository' object owned by the indicated
+        // metrics manager.
 
     explicit Metric(Collector *collector);
         // Create a metric object to collect values for the metric implied by
@@ -331,9 +330,9 @@ class Metric {
         // Return the address of the non-modifiable collector for this metric.
 
     MetricId metricId() const;
-        // Return a 'MetricId' object identifying this metric.  If this
-        // metric was not supplied a valid collector at construction then the
-        // returned id will be invalid (i.e., 'metricId().isValid() == false').
+        // Return a 'MetricId' object identifying this metric.  If this metric
+        // was not supplied a valid collector at construction then the returned
+        // id will be invalid (i.e., 'metricId().isValid() == false').
 
     bool isActive() const;
         // Return 'true' if this metric will actively record metrics, and
@@ -346,9 +345,9 @@ class Metric {
         // '0 != collector() && metricId().category()->enabled()'.
 };
 
-// =============================================================================
+// ============================================================================
 //                      INLINE DEFINITIONS
-// =============================================================================
+// ============================================================================
 
 // FREE OPERATORS
 inline

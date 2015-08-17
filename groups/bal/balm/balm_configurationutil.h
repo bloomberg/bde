@@ -338,10 +338,10 @@ struct ConfigurationUtil {
         // If 'manager' is 0, configure the default metrics manager; if
         // 'manager' is 0 and the default metrics manager has not been
         // initialized, this method has no effect.  If a 'MetricId' does not
-        // exist for the specified 'category' and 'metricName', create one and
-        // add it to the metric registry of the indicated metrics manager.  The
-        // behavior is undefined unless 'key' was previously created for the
-        // indicated metrics manager's metrics registry (e.g., by calling
+        // exist for the 'category' and 'metricName', create one and add it to
+        // the metric registry of the indicated metrics manager.  The behavior
+        // is undefined unless 'key' was previously created for the indicated
+        // metrics manager's metrics registry (e.g., by calling
         // 'createUserDataKey').  Note that this method allows clients of
         // 'balm' to associate (opaque) application-specific information with a
         // metric.
@@ -362,7 +362,7 @@ struct ConfigurationUtil {
         // created ones.  When a metric is created that matches more than one
         // registered category prefix, it is not specified which supplied
         // value will be associated with 'key', unless only one of those values
-        // is non-null, in which case the unique non-null value is used. The
+        // is non-null, in which case the unique non-null value is used.  The
         // behavior is undefined unless 'key' was previously created for the
         // indicated metrics manager's metrics registry (e.g., by calling
         // 'createUserDataKey').
@@ -370,7 +370,7 @@ struct ConfigurationUtil {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
 }  // close enterprise namespace

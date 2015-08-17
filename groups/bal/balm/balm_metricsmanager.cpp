@@ -44,6 +44,8 @@ BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace balm {
+
 namespace {
 
 const char k_LOG_CATEGORY[] = "BALM.METRICSMANAGER";
@@ -70,8 +72,6 @@ struct SampleDescription {
 
 }  // close unnamed namespace
 
-namespace balm {
-
 struct MetricsManager_PublicationHelper {
     // This class provides a namespace for auxiliary template operations for
     // the 'MetricsManager' class.  The operations provided serve as private
@@ -81,8 +81,8 @@ struct MetricsManager_PublicationHelper {
     // 'MetricsManager'.
 
     typedef bsl::map<bsl::shared_ptr<Publisher>, MetricSample> SampleCache;
-        // An alias for a mapping of 'Publisher' to the
-        // 'MetricSample' for that publisher.
+        // An alias for a mapping of 'Publisher' to the 'MetricSample' for that
+        // publisher.
 
     // CLASS METHODS
     static void updateSampleCache(
@@ -92,9 +92,9 @@ struct MetricsManager_PublicationHelper {
                                 const bdlt::DatetimeTz&            timeStamp);
         // Update the specified 'sampleCache' entry for the specified
         // 'publisher' with the specified 'sampleGroup' collected at the
-        // specified 'timeStamp'.  If a 'MetricSample' does not already
-        // exist for 'publisher' in the 'sampleCache', create one and add it
-        // to the 'sampleCache'.
+        // specified 'timeStamp'.  If a 'MetricSample' does not already exist
+        // for 'publisher' in the 'sampleCache', create one and add it to the
+        // 'sampleCache'.
 
     static void collect(bsl::vector<MetricRecord> *records,
                         bsls::TimeInterval        *elapsedTime,
@@ -110,11 +110,10 @@ struct MetricsManager_PublicationHelper {
         // collect aggregated metric record values from metric collection
         // callbacks in 'manager.d_callbackRegistry' as well as from
         // 'Collector' objects owned by 'manager.d_collectors', and if the
-        // specified 'resetFlag' is 'true', reset those collectors and
-        // callbacks to their default state.  If a 'category' has not been
-        // previously reset, then the 'elapsedTime' is computed from the
-        // creation of 'manager'.  Note that this operation does *not* test if
-        // 'category' is enabled.
+        // 'resetFlag' is 'true', reset those collectors and callbacks to their
+        // default state.  If a 'category' has not been previously reset, then
+        // the 'elapsedTime' is computed from the creation of 'manager'.  Note
+        // that this operation does *not* test if 'category' is enabled.
 
     template <class ConstForwardCategoryIterator>
     static void publish(MetricsManager                 *manager,
@@ -124,11 +123,11 @@ struct MetricsManager_PublicationHelper {
         // Publish, to publishers managed by the specified 'manager', metrics
         // records for the sequence of categories from the specified
         // 'categoriesBegin' to the specified 'categoriesEnd' collected from
-        // metrics managed by 'manager', and if 'resetFlag' is 'true', reset
-        // the metrics being collected to their default state.  The specified
-        // template type 'ConstForwardCategoryIterator' must be a forward
-        // iterator over a container of pointers to constant 'Category'
-        // objects, e.g.:
+        // metrics managed by 'manager', and if the specified 'resetFlag' is
+        // 'true', reset the metrics being collected to their default state.
+        // The specified template type 'ConstForwardCategoryIterator' must be
+        // a forward iterator over a container of pointers to constant
+        // 'Category' objects, e.g.:
         //..
         //  bsl::set<const Category *>::const_iterator
         //..
@@ -225,16 +224,16 @@ class MapProctor {
                // ===========================================
 
 class MetricsManager_PublisherRegistry {
-    // This class provides a mechanism for associating a 'Publisher'
-    // object with one or more categories, or associating a 'Publisher'
-    // with every category.  The 'balm::Metricsmanager_PublisherRegistry' is
-    // responsible for managing the registration of 'Publisher' objects
-    // for a 'MetricsManager' object.
+    // This class provides a mechanism for associating a 'Publisher' object
+    // with one or more categories, or associating a 'Publisher' with every
+    // category.  The 'balm::Metricsmanager_PublisherRegistry' is responsible
+    // for managing the registration of 'Publisher' objects for a
+    // 'MetricsManager' object.
 
     // PRIVATE TYPES
     typedef bsl::shared_ptr<Publisher>           PublisherPtr;
-        // 'PublisherPtr' is an alias for a shared pointer to a
-        // 'Publisher' object.
+        // 'PublisherPtr' is an alias for a shared pointer to a 'Publisher'
+        // object.
 
     typedef bsl::multimap<const Category *, PublisherPtr>
                                                             SpecificPublishers;
@@ -281,15 +280,13 @@ class MetricsManager_PublisherRegistry {
     // PUBLIC TYPES
     typedef PublisherSet::iterator general_iterator;
         // An alias for an iterator over the general publishers of this
-        // registry.  This should only be used with a lock on the properties
-        // of the 'MetricsManager' (therefore, it is not exposed to
-        // clients).
+        // registry.  This should only be used with a lock on the properties of
+        // the 'MetricsManager' (therefore, it is not exposed to clients).
 
     typedef SpecificPublishers::iterator specific_iterator;
         // An alias for an iterator over the specific publishers of this
-        // registry.  This should only be used with a lock on the properties
-        // of the 'MetricsManager' (therefore, it is not exposed to
-        // clients).
+        // registry.  This should only be used with a lock on the properties of
+        // the 'MetricsManager' (therefore, it is not exposed to clients).
 
     // PUBLIC TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_PublisherRegistry,
@@ -318,11 +315,11 @@ class MetricsManager_PublisherRegistry {
                              const bsl::shared_ptr<Publisher>&  publisher);
         // Add the specified 'publisher' to the set of publishers that should
         // be used to publish metrics for the specified 'category'.  Return 0
-        // on success, and a non-zero value with no effect if 'publisher'
-        // has already been registered to publish 'category'.  Note that
-        // this method will return a non-zero value if the publisher has
-        // previously been registered to publish every category (using the
-        // alternative 'addGeneralPublisher' method).
+        // on success, and a non-zero value with no effect if 'publisher' has
+        // already been registered to publish 'category'.  Note that this
+        // method will return a non-zero value if the publisher has previously
+        // been registered to publish every category (using the alternative
+        // 'addGeneralPublisher' method).
 
     int removePublisher(const Publisher *publisher);
         // Remove the specified 'publisher' from this registry.  Return 0 on
@@ -409,8 +406,8 @@ class MetricsManager_CallbackRegistry {
   public:
     // TYPES
     typedef CallbackMap::iterator iterator;
-        // An alias for an iterator over the callbacks in this registry.
-        // This should only be used with a lock on the properties of the
+        // An alias for an iterator over the callbacks in this registry. This
+        // should only be used with a lock on the properties of the
         // 'MetricsManager' (therefore, it is not exposed to clients).
 
     // TRAITS
@@ -460,10 +457,10 @@ class MetricsManager_CallbackRegistry {
     // ACCESSORS
     int findCallbacks(
                bsl::vector<const RecordsCollectionCallback *> *callbacks,
-               const Category                            *category) const;
+               const Category                                 *category) const;
         // Append to the specified 'callbacks' the addresses to any metric
-        // collection callbacks registered for the specified 'category'.
-        // Return the number of callbacks found for the 'category'.
+        // collection callbacks registered for the specified 'category'. Return
+        // the number of callbacks found for the 'category'.
 };
 
 // ============================================================================
@@ -1062,9 +1059,9 @@ void MetricsManager::publish(const Category *category,
     publish(&category, 1, resetFlag);
 }
 
-void MetricsManager::publish(const Category * const categories[],
-                                  int         numCategories,
-                                  bool        resetFlag)
+void MetricsManager::publish(const Category *const categories[],
+                             int                   numCategories,
+                             bool                  resetFlag)
 {
     MetricsManager_PublicationHelper::publish(this, categories,
                                         categories + numCategories, resetFlag);

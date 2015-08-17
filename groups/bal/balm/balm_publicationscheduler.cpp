@@ -26,7 +26,13 @@ BSLS_IDENT_RCSID(balm_publicationscheduler_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace balm {
+
 namespace {
+
+// ============================================================================
+//                      INLINE DEFINITIONS
+// ============================================================================
 
 inline
 bsls::TimeInterval f_INVALID_INTERVAL()
@@ -83,7 +89,6 @@ bsl::ostream& printCategorySet(
 
 }  // close unnamed namespace
 
-namespace balm {
                // ==========================================
                // struct PublicationScheduler_ClockData
                // ==========================================
@@ -234,11 +239,11 @@ PublicationScheduler_ClockData::nonDefaultCategories()
                // ========================================
 
 class PublicationScheduler_Proctor {
-   // This class implements a proctor that, unless 'release()' is called,
-   // sets the 'PublicationScheduler' object supplied at construction to its
-   // default state.  On construction a proctor object is provided the address
-   // of a 'PublicationScheduler' object, on destruction, if 'release()' has
-   // not been called, the proctor will clear all of the scheduler's internal
+   // This class implements a proctor that, unless 'release()' is called, sets
+   // the 'PublicationScheduler' object supplied at construction to its default
+   // state.  On construction a proctor object is provided the address of a
+   // 'PublicationScheduler' object, on destruction, if 'release()' has not
+   // been called, the proctor will clear all of the scheduler's internal
    // state and cancel any managed clocks with the underlying
    // 'bdlmt::TimerEventScheduler'.   If 'release()' is called on a proctor
    // object, then the proctor object's destructor will have no effect.  Note
@@ -259,10 +264,10 @@ class PublicationScheduler_Proctor {
 
    // CREATORS
    PublicationScheduler_Proctor(PublicationScheduler *scheduler);
-       // Create a proctor object that, unless 'release()' is called, will,
-       // on destruction, set the specified 'scheduler' to its default state
-       // and cancel any timer events managed by 'scheduler' with the
-       // underlying 'bdlmt::TimerEventScheduler' object.
+       // Create a proctor object that, unless 'release()' is called, will, on
+       // destruction, set the specified 'scheduler' to its default state and
+       // cancel any timer events managed by 'scheduler' with the underlying
+       // 'bdlmt::TimerEventScheduler' object.
 
    ~PublicationScheduler_Proctor();
        // Unless 'release()' has been called, clear all the internal state
@@ -328,9 +333,9 @@ void PublicationScheduler::publish(bsl::shared_ptr<ClockData> clockData)
     // This method publishes, to the contained 'MetricsManager' object, the
     // categories associated with the specified 'clockData'.  If
     // 'clockData->defaultClock()' is 'true', this operation will publish all
-    // metric categories, excluding 'clockData-nonDefaultCategories()',
-    // using the 'd_metricsManager' object's 'publishAll' operation; otherwise
-    // (if 'clockData->defaultClock()' is 'false') this operation will publish
+    // metric categories, excluding 'clockData-nonDefaultCategories()', using
+    // the 'd_metricsManager' object's 'publishAll' operation; otherwise (if
+    // 'clockData->defaultClock()' is 'false') this operation will publish
     // 'clockData->categories()'.
 
     bdlqq::LockGuard<bdlqq::Mutex> guard(clockData->mutex());

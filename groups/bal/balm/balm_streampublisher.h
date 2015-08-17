@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component defines a concrete class 'balm:::StreamPublisher
-// that implements the 'balm::Publisher' protocol for publishing metric
-// records:
+//@DESCRIPTION: This component defines a concrete class
+// 'balm:::StreamPublisher' that implements the 'balm::Publisher' protocol for
+// publishing metric records:
 //..
 //               ( balm::StreamPublisher )
 //                           |              ctor
@@ -127,7 +127,7 @@ class StreamPublisher : public Publisher {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
                           // --------------------------

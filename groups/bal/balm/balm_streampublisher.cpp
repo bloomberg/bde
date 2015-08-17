@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_streampublisher_cpp,"$Id$ $CSID$")
 
+#include <bdlt_datetimetz.h>
+
 #include <balm_metricformat.h>
 #include <balm_metricrecord.h>
 #include <balm_metricsample.h>

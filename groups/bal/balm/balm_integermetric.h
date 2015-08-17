@@ -173,26 +173,25 @@ namespace balm {
 class IntegerMetric {
     // This class provides an in-core value semantic type for recording and
     // aggregating the values of an integer metric.  The value of a
-    // 'IntegerMetric' object is characterized by the
-    // 'IntegerCollector' object it uses to collect metric-event values. Each
-    // instance of this class establishes (at construction) an association to
-    // an 'IntegerCollector' object to which the metric delegates.  A
-    // 'IntegerMetric' value is constant after construction (i.e., it does not
-    // support assignment or provide manipulators that modify its collector
-    // value), so that synchronization primitives are not required to protect
-    // its data members.  Note that if a collector or metrics manager is not
-    // supplied at construction, and if the default metrics manager has not
-    // been instantiated, then the metric will be inactive (i.e., 'isActive()'
-    // is 'false') and the manipulator methods of the integer metric object
-    // will have no effect.
+    // 'IntegerMetric' object is characterized by the 'IntegerCollector' object
+    // it uses to collect metric-event values.  Each instance of this class
+    // establishes (at construction) an association to an 'IntegerCollector'
+    // object to which the metric delegates.  A 'IntegerMetric' value is
+    // constant after construction (i.e., it does not support assignment or
+    // provide manipulators that modify its collector value), so that
+    // synchronization primitives are not required to protect its data members.
+    // Note that if a collector or metrics manager is not supplied at
+    // construction, and if the default metrics manager has not been
+    // instantiated, then the metric will be inactive (i.e., 'isActive()' is
+    // 'false') and the manipulator methods of the integer metric object will
+    // have no effect.
 
     // DATA
     IntegerCollector *d_collector_p;  // collected metric data (held, not
                                       // owned); may be 0, but cannot be
                                       // invalid
 
-    const bool       *d_isEnabled_p;  // is category enabled (held, not
-                                      // owned)
+    const bool       *d_isEnabled_p;  // is category enabled (held, not owned)
 
     // NOT IMPLEMENTED
     IntegerMetric& operator=(const IntegerMetric& );

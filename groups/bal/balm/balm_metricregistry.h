@@ -239,12 +239,12 @@ class MetricRegistry {
                                              // map category -> user data
 
     UserDataRegistry       d_categoryPrefixUserData;
-                                             // map category-prefix ->
-                                             // user data
+                                             // map category-prefix -> user
+                                             // data
 
     int                    d_nextKey;        // next valid user data key
 
-    mutable bdlqq::RWMutex  d_lock;           // read-write property lock
+    mutable bdlqq::RWMutex  d_lock;          // read-write property lock
 
     bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
 
@@ -443,8 +443,8 @@ class MetricRegistry {
     const Category *findCategory(const char *category) const;
         // Find the specified 'category', a null-terminated string, in this
         // registry.  Return the address of the non-modifiable 'balm::Category'
-        // object corresponding to the specified 'category', or 0 if no such
-        // category has been registered.
+        // object corresponding to the 'category', or 0 if no such category has
+        // been registered.
 
     MetricId findId(const char *category, const char *name) const;
         // Find the specified null-terminated strings 'category' and 'name' in

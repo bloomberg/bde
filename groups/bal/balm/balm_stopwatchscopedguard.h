@@ -241,8 +241,8 @@ class StopwatchScopedGuard {
         // Initialize this scoped guard to record elapsed time using the
         // specified 'metric'.  Optionally specify the 'timeUnits' in which to
         // report elapsed time.  If 'metric->isActive()' is 'false', this
-        // object will also be inactive (i.e., will not record any values). The
-        // behavior is undefined unless 'metric' is a valid address of a
+        // object will also be inactive (i.e., will not record any values).
+        // The behavior is undefined unless 'metric' is a valid address of a
         // 'Metric' object.  Note that 'timeUnits' indicates the scale of the
         // double value reported by this guard, but does *not* affect the
         // precision of the elapsed time measurement.
@@ -320,7 +320,7 @@ class StopwatchScopedGuard {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
                     // -------------------------------

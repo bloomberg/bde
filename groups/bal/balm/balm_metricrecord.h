@@ -125,10 +125,10 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //  // In practice, get 'requestSizeId' from a 'balm::MetricRegistry' object.
 //  balm::MetricRecord requestSize(requestSizeId);
 //..
-// Finally we retrieve the information about the request sizes of the
-// requests processed by 'requestProcessor'.  Note that the count of requests
-// should be 2, the total size of the requests should be 8 (3 + 5), the
-// minimum size should be 3, and the maximum size should be 5.
+// Finally we retrieve the information about the request sizes of the requests
+// processed by 'requestProcessor'.  Note that the count of requests should be
+// 2, the total size of the requests should be 8 (3 + 5), the minimum size
+// should be 3, and the maximum size should be 5.
 //..
 //  requestProcessor.loadRequestSizeInformation(&requestSize);
 //      assert(2 == requestSize.count());
@@ -440,9 +440,9 @@ bool balm::operator!=(const MetricRecord& lhs, const MetricRecord& rhs)
 
 inline
 bsl::ostream& balm::operator<<(bsl::ostream&       stream,
-                               const MetricRecord& rhs)
+                               const MetricRecord& record)
 {
-    return rhs.print(stream);
+    return record.print(stream);
 }
 
 }  // close enterprise namespace

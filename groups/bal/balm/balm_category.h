@@ -115,7 +115,7 @@ class Category {
     explicit Category(const char *name, bool enabledFlag = true);
         // Create a category having the specified 'name' address.  Optionally
         // specify 'enabledFlag', the enabled status of the category; if
-        // 'enabledFlag' is not specified, the 'enabled' status is 'true'. The
+        // 'enabledFlag' is not specified, the 'enabled' status is 'true'.  The
         // behavior is undefined unless 'name' remains valid and unmodified for
         // the lifetime of this object.
 

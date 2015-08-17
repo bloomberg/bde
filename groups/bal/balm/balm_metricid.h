@@ -112,9 +112,9 @@ class MetricId {
     // non-modifiable 'MetricDescription' object.  In addition, a
     // 'MetricDescription' object provides auxiliary methods, 'category',
     // 'categoryName', and 'name', that enable access to the properties of the
-    // held 'MetricDescription'.  Two 'MetricId' objects have the same
-    // value if the values of their respective 'MetricDescription' object
-    // *addresses* are the same.
+    // held 'MetricDescription'.  Two 'MetricId' objects have the same value if
+    // the values of their respective 'MetricDescription' object *addresses*
+    // are the same.
 
     // DATA
     const MetricDescription *d_description_p;  // metric description

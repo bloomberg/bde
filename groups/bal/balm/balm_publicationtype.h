@@ -144,7 +144,7 @@ struct PublicationType {
 
 // FREE OPERATORS
 inline
-bsl::ostream& operator<<(bsl::ostream&               stream,
+bsl::ostream& operator<<(bsl::ostream&          stream,
                          PublicationType::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and return a
     // reference to the modifiable 'stream'.

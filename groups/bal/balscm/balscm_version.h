@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide source control management (versioning) information.
 //
 //@CLASSES:
-//  balscm::Version: namespace for RCS and SCCS versioning information for 'bal'
+//  balscm::Version: namespace for RCS and SCCS versioning information for
+//  'bal'
 //
 //@AUTHOR: Jeffrey Mendelsohn (jmendels)
 //
