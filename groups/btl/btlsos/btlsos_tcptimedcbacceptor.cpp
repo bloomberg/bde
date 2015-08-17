@@ -15,12 +15,14 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbacceptor_cpp,"$Id$ $CSID$")
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>
 
-#include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
+
+#include <bslalg_scalardestructionprimitives.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_timeinterval.h>
 
 #ifdef TEST
 // These dependencies will cause the test driver to recompile when the concrete
@@ -29,6 +31,8 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbacceptor_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
+#include <bsl_iterator.h>
 #include <bsl_vector.h>
 
 // ============================================================================
@@ -70,9 +74,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     k_CALLBACK_SIZE      = sizeof(btlsc::TimedCbChannelAllocator::Callback),
@@ -127,22 +131,21 @@ class TcpTimedCbAcceptor_Reg {
   public:
     // CREATORS
     TcpTimedCbAcceptor_Reg(
-         const bsls::TimeInterval&                                    timeout ,
-         const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor ,
-         int                                                          flags);
+          const bsls::TimeInterval&                                    timeout,
+          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
+          int                                                          flags);
     TcpTimedCbAcceptor_Reg(
-              const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor ,
-              int                                                     flags);
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags);
     TcpTimedCbAcceptor_Reg(
-         const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor ,
-         int                                                          flags);
+          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
+          int                                                          flags);
     TcpTimedCbAcceptor_Reg(
-              const bsls::TimeInterval&                               timeout ,
-              const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor ,
-              int                                                     flags);
-        // Create a callback from a specified functor 'func' with specified
-        // 'flags', and an optionally specified 'timeout' for the callback
-        // execution.
+               const bsls::TimeInterval&                               timeout,
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags);
+        // Create a callback from a specified 'functor' with specified 'flags',
+        // and an optionally specified 'timeout' for the callback execution.
 
     ~TcpTimedCbAcceptor_Reg();
         // Destroy this object.
@@ -173,9 +176,9 @@ class TcpTimedCbAcceptor_Reg {
 
 // CREATORS
 TcpTimedCbAcceptor_Reg::TcpTimedCbAcceptor_Reg(
-        const bsls::TimeInterval& timeout
-      , const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
-      , int flags)
+          const bsls::TimeInterval&                                    timeout,
+          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
+          int                                                          flags)
 : d_isTimedChannel(true)
 , d_isTimedOperation(true)
 , d_timeout(timeout)
@@ -186,8 +189,8 @@ TcpTimedCbAcceptor_Reg::TcpTimedCbAcceptor_Reg(
 }
 
 TcpTimedCbAcceptor_Reg::TcpTimedCbAcceptor_Reg(
-        const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
-      , int flags)
+          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
+          int                                                          flags)
 : d_isTimedChannel(true)
 , d_isTimedOperation(false)
 , d_flags(flags)
@@ -197,8 +200,8 @@ TcpTimedCbAcceptor_Reg::TcpTimedCbAcceptor_Reg(
 }
 
 TcpTimedCbAcceptor_Reg::TcpTimedCbAcceptor_Reg(
-        const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor
-      , int flags)
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags)
 : d_isTimedChannel(false)
 , d_isTimedOperation(false)
 , d_flags(flags)
@@ -208,9 +211,9 @@ TcpTimedCbAcceptor_Reg::TcpTimedCbAcceptor_Reg(
 }
 
 TcpTimedCbAcceptor_Reg::TcpTimedCbAcceptor_Reg(
-        const bsls::TimeInterval& timeout
-      , const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor
-      , int flags)
+               const bsls::TimeInterval&                               timeout,
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags)
 : d_isTimedChannel(false)
 , d_isTimedOperation(true)
 , d_timeout(timeout)
@@ -437,9 +440,9 @@ void TcpTimedCbAcceptor::timerCb()
 
 // CREATORS
 TcpTimedCbAcceptor::TcpTimedCbAcceptor(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        btlso::TimerEventManager                      *manager,
-        bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpTimedCbAcceptor_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_callbacks(basicAllocator)
@@ -464,10 +467,10 @@ TcpTimedCbAcceptor::TcpTimedCbAcceptor(
 }
 
 TcpTimedCbAcceptor::TcpTimedCbAcceptor(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        btlso::TimerEventManager                      *manager,
-        int                                           numElements,
-        bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                int                                             numElements,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpTimedCbAcceptor_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE,
                 bsls::BlockGrowth::BSLS_CONSTANT,
@@ -546,18 +549,19 @@ int TcpTimedCbAcceptor::allocate(const Callback& callback, int flags)
     return e_SUCCESS;
 }
 
-int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
+int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& timedCallback,
+                                      int                  flags)
 {
     if (d_isInvalidFlag) {
         return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
-        callback(NULL, e_UNINITIALIZED);
+        timedCallback(NULL, e_UNINITIALIZED);
         return e_UNINITIALIZED;                                       // RETURN
     }
 
     TcpTimedCbAcceptor_Reg *cb =
-        new (d_callbackPool) TcpTimedCbAcceptor_Reg(callback, flags);
+        new (d_callbackPool) TcpTimedCbAcceptor_Reg(timedCallback, flags);
 
     // For safety, we push the callback before registering the socket event,
     // although when this component is used by 'btlmt_channelpool' (as
@@ -766,22 +770,23 @@ int TcpTimedCbAcceptor::timedAllocate(const Callback&           callback,
     return e_SUCCESS;
 }
 
-int TcpTimedCbAcceptor::timedAllocateTimed(const TimedCallback&      callback,
-                                           const bsls::TimeInterval& timeout,
-                                           int                       flags)
+int TcpTimedCbAcceptor::timedAllocateTimed(
+                                       const TimedCallback&      timedCallback,
+                                       const bsls::TimeInterval& timeout,
+                                       int                       flags)
 {
 
     if (d_isInvalidFlag) {
         return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
-        callback(NULL, e_UNINITIALIZED);
+        timedCallback(NULL, e_UNINITIALIZED);
         return e_UNINITIALIZED;                                       // RETURN
     }
 
     TcpTimedCbAcceptor_Reg *cb =
         new (d_callbackPool)
-                   TcpTimedCbAcceptor_Reg(timeout, callback, flags);
+                   TcpTimedCbAcceptor_Reg(timeout, timedCallback, flags);
 
     // For safety, we push the callback before registering the socket event,
     // although when this component is used by 'btlmt_channelpool' (as
