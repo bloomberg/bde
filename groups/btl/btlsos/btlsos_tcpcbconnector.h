@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //              assert(0 == s);
 //          }
 //
-//          return;
+//          return;                                                   // RETURN
 //      }
 //
 //      assert(0 >= status);    // Interrupts are not enabled.
@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //          // Hard-error accepting a connection, invalidate the allocator.
 //          cerr << "Non-recoverable error connecting to the server " << endl;
 //          d_allocator.invalidate();
-//          return;
+//          return;                                                   // RETURN
 //      }
 //
 //      // In any case, except for hard error on allocator, enqueue another
@@ -394,7 +394,7 @@ BSLS_IDENT("$Id: $")
 //                           &d_controlChannel));
 //
 //      if (d_allocator.allocateTimed(callback)) {
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //
 //      callback = bdlf::BindUtil::bind(

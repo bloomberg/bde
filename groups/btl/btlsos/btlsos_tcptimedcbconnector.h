@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 //                                                         + d_connectTimeout);
 //              assert(0 == s);
 //          }
-//          return;
+//          return;                                                   // RETURN
 //      }
 //
 //      assert(0 >= status);    // Interrupts are not enabled.
@@ -202,7 +202,7 @@ BSLS_IDENT("$Id: $")
 //                 "(Connection %d of of %d)\n",
 //                 status, d_numConnections, d_maxConnections);
 //          d_allocator.invalidate();
-//          return;
+//          return;                                                   // RETURN
 //      }
 //      // In any case, except for hard error on allocator, enqueue another
 //      // connect request
@@ -410,7 +410,7 @@ BSLS_IDENT("$Id: $")
 //      if (d_allocator.timedAllocateTimed(callback,
 //                                         bdlt::CurrentTime::now()
 //                                                       + d_connectTimeout)) {
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //
 //      callback = bdlf::BindUtil::bind(&my_DataStream::allocateCb,

@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //      // In any case, invalidate the allocator, and exit.
 //      connector.invalidate();
-//      return -1;
+//      return -1;                                                    // RETURN
 //  }
 //..
 // Send 'k_NUM_PACKETS' packets to the server, wait for the response for each,

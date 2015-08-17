@@ -112,7 +112,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::cout << "Failed to connect to the peer." << bsl::endl;
 //      // In any case, invalidate the allocator, and exit.
 //      connector.invalidate();
-//      return -1;
+//      return -1;                                                    // RETURN
 //  }
 //..
 // Send 'NUM_PACKETS' packets to the server, wait for the response for each,
