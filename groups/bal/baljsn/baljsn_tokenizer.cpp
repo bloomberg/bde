@@ -226,14 +226,14 @@ int Tokenizer::skipNonWhitespaceOrTillToken()
 // MANIPULATORS
 int Tokenizer::advanceToNextToken()
 {
-    if (BAEJSN_ERROR == d_tokenType) {
+    if (e_ERROR == d_tokenType) {
         return -1;                                                    // RETURN
     }
 
     if (d_cursor >= d_stringBuffer.size()) {
         const int numRead = reloadStringBuffer();
         if (0 == numRead) {
-            d_tokenType = BAEJSN_ERROR;
+            d_tokenType = e_ERROR;
             return -1;                                                // RETURN
         }
     }
@@ -245,87 +245,87 @@ int Tokenizer::advanceToNextToken()
 
         const int rc = skipWhitespace();
         if (rc) {
-            d_tokenType = BAEJSN_ERROR;
+            d_tokenType = e_ERROR;
             return -1;                                                // RETURN
         }
 
         switch (d_stringBuffer[d_cursor]) {
           case '{': {
-            if ((BAEJSN_ELEMENT_NAME == d_tokenType && ':' == previousChar)
-             || BAEJSN_START_ARRAY   == d_tokenType
-             || (BAEJSN_END_OBJECT   == d_tokenType && ',' == previousChar)
-             || BAEJSN_BEGIN         == d_tokenType) {
+            if ((e_ELEMENT_NAME == d_tokenType && ':' == previousChar)
+             || e_START_ARRAY   == d_tokenType
+             || (e_END_OBJECT   == d_tokenType && ',' == previousChar)
+             || e_BEGIN         == d_tokenType) {
 
-                d_tokenType  = BAEJSN_START_OBJECT;
+                d_tokenType  = e_START_OBJECT;
                 d_context    = e_OBJECT_CONTEXT;
                 previousChar = '{';
 
                 ++d_cursor;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case '}': {
-            if ((BAEJSN_ELEMENT_VALUE == d_tokenType && ',' != previousChar)
-             || BAEJSN_START_OBJECT   == d_tokenType
-             || BAEJSN_END_OBJECT     == d_tokenType
-             || BAEJSN_END_ARRAY      == d_tokenType) {
+            if ((e_ELEMENT_VALUE == d_tokenType && ',' != previousChar)
+             || e_START_OBJECT   == d_tokenType
+             || e_END_OBJECT     == d_tokenType
+             || e_END_ARRAY      == d_tokenType) {
 
-                d_tokenType  = BAEJSN_END_OBJECT;
+                d_tokenType  = e_END_OBJECT;
                 d_context    = e_OBJECT_CONTEXT;
                 previousChar = '}';
 
                 ++d_cursor;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case '[': {
-            if ((BAEJSN_ELEMENT_NAME == d_tokenType && ':' == previousChar)
-             || BAEJSN_START_ARRAY   == d_tokenType
-             || (BAEJSN_END_ARRAY    == d_tokenType && ',' == previousChar)
-             || BAEJSN_BEGIN         == d_tokenType) {
+            if ((e_ELEMENT_NAME == d_tokenType && ':' == previousChar)
+             || e_START_ARRAY   == d_tokenType
+             || (e_END_ARRAY    == d_tokenType && ',' == previousChar)
+             || e_BEGIN         == d_tokenType) {
 
-                d_tokenType  = BAEJSN_START_ARRAY;
+                d_tokenType  = e_START_ARRAY;
                 d_context    = e_ARRAY_CONTEXT;
                 previousChar = '[';
 
                 ++d_cursor;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case ']': {
-            if ((BAEJSN_ELEMENT_VALUE == d_tokenType && ',' != previousChar)
-             || BAEJSN_START_ARRAY    == d_tokenType
-             || (BAEJSN_END_ARRAY     == d_tokenType && ',' != previousChar)
-             || (BAEJSN_END_OBJECT    == d_tokenType && ',' != previousChar)) {
+            if ((e_ELEMENT_VALUE == d_tokenType && ',' != previousChar)
+             || e_START_ARRAY    == d_tokenType
+             || (e_END_ARRAY     == d_tokenType && ',' != previousChar)
+             || (e_END_OBJECT    == d_tokenType && ',' != previousChar)) {
 
-                d_tokenType = BAEJSN_END_ARRAY;
+                d_tokenType = e_END_ARRAY;
                 d_context   = e_OBJECT_CONTEXT;
                 previousChar = ']';
 
                 ++d_cursor;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case ',': {
-            if (BAEJSN_ELEMENT_VALUE == d_tokenType
-             || BAEJSN_END_OBJECT    == d_tokenType
-             || BAEJSN_END_ARRAY     == d_tokenType) {
+            if (e_ELEMENT_VALUE == d_tokenType
+             || e_END_OBJECT    == d_tokenType
+             || e_END_ARRAY     == d_tokenType) {
 
                 previousChar = ',';
                 continueFlag = true;
@@ -333,13 +333,13 @@ int Tokenizer::advanceToNextToken()
                 ++d_cursor;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
 
           case ':': {
-            if (BAEJSN_ELEMENT_NAME == d_tokenType) {
+            if (e_ELEMENT_NAME == d_tokenType) {
 
                 previousChar = ':';
                 continueFlag = true;
@@ -347,7 +347,7 @@ int Tokenizer::advanceToNextToken()
                 ++d_cursor;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
@@ -366,40 +366,40 @@ int Tokenizer::advanceToNextToken()
             // ELEMENT_VALUE (   )     OBJECT_CONTEXT    ELEMENT_NAME
             // ELEMENT_VALUE (   )     ARRAY_CONTEXT     ELEMENT_VALUE
 
-            if (BAEJSN_START_OBJECT   == d_tokenType
-             || (BAEJSN_END_OBJECT    == d_tokenType && ',' == previousChar)
-             || (BAEJSN_END_ARRAY     == d_tokenType && ',' == previousChar)
-             || (BAEJSN_ELEMENT_VALUE   == d_tokenType
+            if (e_START_OBJECT   == d_tokenType
+             || (e_END_OBJECT    == d_tokenType && ',' == previousChar)
+             || (e_END_ARRAY     == d_tokenType && ',' == previousChar)
+             || (e_ELEMENT_VALUE   == d_tokenType
                && ','                   == previousChar
                && e_OBJECT_CONTEXT == d_context)) {
-                d_tokenType  = BAEJSN_ELEMENT_NAME;
+                d_tokenType  = e_ELEMENT_NAME;
                 d_valueBegin = d_cursor + 1;
                 d_valueIter  = d_valueBegin;
             }
-            else if (BAEJSN_START_ARRAY    == d_tokenType
-                  || (BAEJSN_ELEMENT_NAME  == d_tokenType
+            else if (e_START_ARRAY    == d_tokenType
+                  || (e_ELEMENT_NAME  == d_tokenType
                                                         && ':' == previousChar)
-                  || (BAEJSN_ELEMENT_VALUE == d_tokenType
+                  || (e_ELEMENT_VALUE == d_tokenType
                    && ','                  == previousChar
                    && e_ARRAY_CONTEXT == d_context)
-                 || (BAEJSN_BEGIN == d_tokenType && d_allowStandAloneValues)) {
-                d_tokenType  = BAEJSN_ELEMENT_VALUE;
+                 || (e_BEGIN == d_tokenType && d_allowStandAloneValues)) {
+                d_tokenType  = e_ELEMENT_VALUE;
                 d_valueBegin = d_cursor;
                 d_valueIter  = d_valueBegin + 1;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
 
             d_valueEnd = 0;
             int rc = extractStringValue();
             if (rc) {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
 
-            if (BAEJSN_ELEMENT_NAME == d_tokenType) {
+            if (e_ELEMENT_NAME == d_tokenType) {
                 d_cursor = d_valueEnd + 1;
             }
             else {
@@ -413,14 +413,14 @@ int Tokenizer::advanceToNextToken()
           } break;
 
           default: {
-            if (BAEJSN_START_ARRAY    == d_tokenType
-             || (BAEJSN_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
-             || (BAEJSN_ELEMENT_VALUE == d_tokenType
+            if (e_START_ARRAY    == d_tokenType
+             || (e_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
+             || (e_ELEMENT_VALUE == d_tokenType
               && ','                  == previousChar
               && e_ARRAY_CONTEXT == d_context)
-             || (BAEJSN_BEGIN == d_tokenType && d_allowStandAloneValues)) {
+             || (e_BEGIN == d_tokenType && d_allowStandAloneValues)) {
 
-                d_tokenType = BAEJSN_ELEMENT_VALUE;
+                d_tokenType = e_ELEMENT_VALUE;
 
                 d_valueBegin = d_cursor;
                 d_valueEnd   = 0;
@@ -428,14 +428,14 @@ int Tokenizer::advanceToNextToken()
 
                 const int rc = skipNonWhitespaceOrTillToken();
                 if (rc) {
-                    d_tokenType = BAEJSN_ERROR;
+                    d_tokenType = e_ERROR;
                     return -1;                                        // RETURN
                 }
                 d_cursor     = d_valueEnd;
                 previousChar = 0;
             }
             else {
-                d_tokenType = BAEJSN_ERROR;
+                d_tokenType = e_ERROR;
                 return -1;                                            // RETURN
             }
           } break;
@@ -462,8 +462,8 @@ int Tokenizer::resetStreamBufGetPointer()
 // ACCESSORS
 int Tokenizer::value(bslstl::StringRef *data) const
 {
-    if ((BAEJSN_ELEMENT_NAME == d_tokenType
-                                        || BAEJSN_ELEMENT_VALUE == d_tokenType)
+    if ((e_ELEMENT_NAME == d_tokenType
+                                        || e_ELEMENT_VALUE == d_tokenType)
      && d_valueBegin != d_valueEnd) {
         data->assign(&d_stringBuffer[d_valueBegin],
                      &d_stringBuffer[d_valueEnd]);

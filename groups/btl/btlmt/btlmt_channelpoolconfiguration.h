@@ -1372,85 +1372,85 @@ int ChannelPoolConfiguration::manipulateAttributes(
     int ret;
 
     ret = manipulator(&d_maxConnections,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxThreads,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_readTimeout,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_metricsInterval,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_collectTimeMetrics,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -1466,74 +1466,74 @@ int ChannelPoolConfiguration::manipulateAttribute(
     enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_CONNECTIONS: {
+      case e_ATTRIBUTE_ID_MAX_CONNECTIONS: {
         return manipulator(&d_maxConnections,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_THREADS: {
+      case e_ATTRIBUTE_ID_MAX_THREADS: {
         return manipulator(&d_maxThreads,
-                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
+                            ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_READ_TIMEOUT: {
+      case e_ATTRIBUTE_ID_READ_TIMEOUT: {
         return manipulator(&d_readTimeout,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_METRICS_INTERVAL: {
+      case e_ATTRIBUTE_ID_METRICS_INTERVAL: {
         return manipulator(&d_metricsInterval,
-                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                       ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
         return manipulator(&d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
         return manipulator(&d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
         return manipulator(&d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
         return manipulator(&d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
         return manipulator(&d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
         return manipulator(&d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
         return manipulator(&d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
         return manipulator(&d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_THREAD_STACK_SIZE: {
+      case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
         return manipulator(&d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
+      case e_ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
         return manipulator(&d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
                                                                       // RETURN
       } break;
 
@@ -1757,85 +1757,85 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
     int ret;
 
     ret = accessor(d_maxConnections,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxThreads,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_readTimeout,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_metricsInterval,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_minMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_typMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_writeCacheLowWat,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_writeCacheHiWat,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_threadStackSize,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -1851,74 +1851,74 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
     enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_CONNECTIONS: {
+      case e_ATTRIBUTE_ID_MAX_CONNECTIONS: {
         return accessor(d_maxConnections,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_THREADS: {
+      case e_ATTRIBUTE_ID_MAX_THREADS: {
         return accessor(d_maxThreads,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_READ_TIMEOUT: {
+      case e_ATTRIBUTE_ID_READ_TIMEOUT: {
         return accessor(d_readTimeout,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_METRICS_INTERVAL: {
+      case e_ATTRIBUTE_ID_METRICS_INTERVAL: {
         return accessor(d_metricsInterval,
-                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                       ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
         return accessor(d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
         return accessor(d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
         return accessor(d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
         return accessor(d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
         return accessor(d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
         return accessor(d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
         return accessor(d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
         return accessor(d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_THREAD_STACK_SIZE: {
+      case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
         return accessor(d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
+      case e_ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
         return accessor(d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
                                                                       // RETURN
       } break;
 

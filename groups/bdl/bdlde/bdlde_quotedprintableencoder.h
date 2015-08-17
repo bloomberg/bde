@@ -551,9 +551,9 @@ class QuotedPrintableEncoder {
         // name corresponding to the specified enumerator 'mode'.
 
     // CREATORS
-    QuotedPrintableEncoder(LineBreakMode lineBreakMode = BDEDE_CRLF_MODE,
+    QuotedPrintableEncoder(LineBreakMode lineBreakMode = e_CRLF_MODE,
                                  int           maxLineLength
-                                                        = DEFAULT_MAX_LINELEN);
+                                                        = e_DEFAULT_MAX_LINELEN);
         // Create a Quoted-Printable encoder in the initial state, configured
         // to accept hard line breaks based on the specified 'lineBreakMode',
         // and to insert soft line breaks when the line length exceeds the
@@ -566,8 +566,8 @@ class QuotedPrintableEncoder {
 
     QuotedPrintableEncoder(
                            const char    *extraCharsToEncode,
-                           LineBreakMode  lineBreakMode = BDEDE_CRLF_MODE,
-                           int            maxLineLength = DEFAULT_MAX_LINELEN);
+                           LineBreakMode  lineBreakMode = e_CRLF_MODE,
+                           int            maxLineLength = e_DEFAULT_MAX_LINELEN);
         // Create a Quoted-Printable encoder in the initial state, configured
         // to convert to the form "=XX" any input character matching those in
         // the specified 'extraCharsToEncode' array (as opposed to the default
@@ -694,7 +694,7 @@ const char* QuotedPrintableEncoder::lineBreakModeToAscii(
 inline
 void QuotedPrintableEncoder::reset()
 {
-    d_state = BDEDE_INITIAL_STATE;
+    d_state = e_INITIAL_STATE;
     d_outputLength = 0;
     d_lineLength = 0;
     d_bufferLength = 0;
@@ -707,25 +707,25 @@ void QuotedPrintableEncoder::reset()
 inline
 bool QuotedPrintableEncoder::isAccepting() const
 {
-    return BDEDE_INITIAL_STATE == d_state || BDEDE_DONE_STATE == d_state;
+    return e_INITIAL_STATE == d_state || e_DONE_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableEncoder::isDone() const
 {
-    return BDEDE_DONE_STATE == d_state && 0 == d_outBuf.size();
+    return e_DONE_STATE == d_state && 0 == d_outBuf.size();
 }
 
 inline
 bool QuotedPrintableEncoder::isError() const
 {
-    return BDEDE_ERROR_STATE == d_state;
+    return e_ERROR_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableEncoder::isInitialState() const
 {
-    return BDEDE_INITIAL_STATE == d_state && 0 == d_outputLength;
+    return e_INITIAL_STATE == d_state && 0 == d_outputLength;
 }
 
 inline

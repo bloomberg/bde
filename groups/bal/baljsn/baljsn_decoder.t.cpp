@@ -34934,7 +34934,7 @@ void constructFeatureTestMessage(
                       << i << "): "
                       << decoder.loggedMessages() << bsl::endl;
         }
-        if (balb::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
+        if (balb::FeatureTestMessage::e_SELECTION_ID_UNDEFINED ==
                                                         object.selectionId()) {
             bsl::cout << "Decoded unselected choice from initialization data"
                       << " (LINE =" << XML_TEST_MESSAGES[i].d_lineNum << "):"

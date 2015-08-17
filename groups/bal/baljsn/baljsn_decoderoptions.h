@@ -205,7 +205,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 // CREATORS
 inline
 DecoderOptions::DecoderOptions()
-: d_maxDepth(BAEJSN_DEFAULT_MAX_DEPTH)
+: d_maxDepth(e_DEFAULT_MAX_DEPTH)
 , d_skipUnknownElements(true)
 {
 }

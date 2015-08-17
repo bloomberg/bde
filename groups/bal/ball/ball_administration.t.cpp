@@ -121,12 +121,12 @@ typedef ball::Administration Obj;
 
 const char *DEFAULT_CATEGORY_NAME                 = "";
 const int   DEFAULT_CATEGORY_RECORD_THRESHOLD     = 0;
-const int   DEFAULT_CATEGORY_PASS_THRESHOLD       = ball::Severity::BAEL_ERROR;
+const int   DEFAULT_CATEGORY_PASS_THRESHOLD       = ball::Severity::e_ERROR;
 const int   DEFAULT_CATEGORY_TRIGGER_THRESHOLD    = 0;
 const int   DEFAULT_CATEGORY_TRIGGERALL_THRESHOLD = 0;
 
 const int   DEFAULT_RECORD_THRESHOLD_LEVEL        = 0;
-const int   DEFAULT_PASS_THRESHOLD_LEVEL          = ball::Severity::BAEL_ERROR;
+const int   DEFAULT_PASS_THRESHOLD_LEVEL          = ball::Severity::e_ERROR;
 const int   DEFAULT_TRIGGER_THRESHOLD_LEVEL       = 0;
 const int   DEFAULT_TRIGGERALL_THRESHOLD_LEVEL    = 0;
 
@@ -210,10 +210,10 @@ int main(int argc, char *argv[])
      for (int i = 0; i < NUM_CATEGORIES; ++i) {
          int retValue = ball::Administration::addCategory(
                                               equityCategories[i],
-                                              ball::Severity::BAEL_TRACE + i,
-                                              ball::Severity::BAEL_WARN  + i,
-                                              ball::Severity::BAEL_ERROR + i,
-                                              ball::Severity::BAEL_FATAL + i);
+                                              ball::Severity::e_TRACE + i,
+                                              ball::Severity::e_WARN  + i,
+                                              ball::Severity::e_ERROR + i,
+                                              ball::Severity::e_FATAL + i);
          ASSERT(0 == retValue);  // added new category
      }
 //..
@@ -271,10 +271,10 @@ int main(int argc, char *argv[])
          const int returnValue =
                    ball::Administration::setThresholdLevels(
                                               equityCategories[i],
-                                              ball::Severity::BAEL_TRACE - i,
-                                              ball::Severity::BAEL_WARN  - i,
-                                              ball::Severity::BAEL_ERROR - i,
-                                              ball::Severity::BAEL_FATAL - i);
+                                              ball::Severity::e_TRACE - i,
+                                              ball::Severity::e_WARN  - i,
+                                              ball::Severity::e_ERROR - i,
+                                              ball::Severity::e_FATAL - i);
          ASSERT(1 == returnValue);  // modified one category
      }
 //..

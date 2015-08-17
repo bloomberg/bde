@@ -115,24 +115,24 @@ int main(int argc, char *argv[])
 
         const ball::Category *cat = testManager.addCategory(
                                                       "MyCategory",
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_WARN,
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_OFF);
+                                                      ball::Severity::e_OFF,
+                                                      ball::Severity::e_WARN,
+                                                      ball::Severity::e_OFF,
+                                                      ball::Severity::e_OFF);
 
         ball::Rule myRule1("*",
-                          ball::Severity::BAEL_TRACE,
-                          ball::Severity::BAEL_DEBUG,
-                          ball::Severity::BAEL_INFO,
-                          ball::Severity::BAEL_WARN);
+                          ball::Severity::e_TRACE,
+                          ball::Severity::e_DEBUG,
+                          ball::Severity::e_INFO,
+                          ball::Severity::e_WARN);
         myRule1.addPredicate(ball::Predicate("serviceId", 999));
         testManager.addRule(myRule1);
 
         ball::Rule myRule2("*",
-                          ball::Severity::BAEL_INFO,
-                          ball::Severity::BAEL_WARN,
-                          ball::Severity::BAEL_ERROR,
-                          ball::Severity::BAEL_FATAL);
+                          ball::Severity::e_INFO,
+                          ball::Severity::e_WARN,
+                          ball::Severity::e_ERROR,
+                          ball::Severity::e_FATAL);
         myRule2.addPredicate(ball::Predicate("uuid", 123456));
         testManager.addRule(myRule2);
 
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
         ball::AttributeContext::getContext()->determineThresholdLevels(
                                                   &thresholdLevels, cat);
 
-        ASSERT(ball::Severity::BAEL_WARN == thresholdLevels.passLevel());
+        ASSERT(ball::Severity::e_WARN == thresholdLevels.passLevel());
 
         {
             Obj mX("serviceId", 999);
@@ -148,11 +148,11 @@ int main(int argc, char *argv[])
             ball::AttributeContext::getContext()->determineThresholdLevels(
                                                   &thresholdLevels, cat);
 
-            ASSERT(ball::Severity::BAEL_TRACE == thresholdLevels.recordLevel());
-            ASSERT(ball::Severity::BAEL_DEBUG == thresholdLevels.passLevel());
-            ASSERT(ball::Severity::BAEL_INFO  ==
+            ASSERT(ball::Severity::e_TRACE == thresholdLevels.recordLevel());
+            ASSERT(ball::Severity::e_DEBUG == thresholdLevels.passLevel());
+            ASSERT(ball::Severity::e_INFO  ==
                                             thresholdLevels.triggerLevel());
-            ASSERT(ball::Severity::BAEL_WARN  ==
+            ASSERT(ball::Severity::e_WARN  ==
                                             thresholdLevels.triggerAllLevel());
         }
 
@@ -162,11 +162,11 @@ int main(int argc, char *argv[])
             ball::AttributeContext::getContext()->determineThresholdLevels(
                                                   &thresholdLevels, cat);
 
-            ASSERT(ball::Severity::BAEL_INFO  == thresholdLevels.recordLevel());
-            ASSERT(ball::Severity::BAEL_WARN  == thresholdLevels.passLevel());
-            ASSERT(ball::Severity::BAEL_ERROR ==
+            ASSERT(ball::Severity::e_INFO  == thresholdLevels.recordLevel());
+            ASSERT(ball::Severity::e_WARN  == thresholdLevels.passLevel());
+            ASSERT(ball::Severity::e_ERROR ==
                                             thresholdLevels.triggerLevel());
-            ASSERT(ball::Severity::BAEL_FATAL ==
+            ASSERT(ball::Severity::e_FATAL ==
                                             thresholdLevels.triggerAllLevel());
         }
 
@@ -177,10 +177,10 @@ int main(int argc, char *argv[])
             ball::AttributeContext::getContext()->determineThresholdLevels(
                                                   &thresholdLevels, cat);
 
-            ASSERT(ball::Severity::BAEL_OFF  == thresholdLevels.recordLevel());
-            ASSERT(ball::Severity::BAEL_WARN == thresholdLevels.passLevel());
-            ASSERT(ball::Severity::BAEL_OFF  == thresholdLevels.triggerLevel());
-            ASSERT(ball::Severity::BAEL_OFF  ==
+            ASSERT(ball::Severity::e_OFF  == thresholdLevels.recordLevel());
+            ASSERT(ball::Severity::e_WARN == thresholdLevels.passLevel());
+            ASSERT(ball::Severity::e_OFF  == thresholdLevels.triggerLevel());
+            ASSERT(ball::Severity::e_OFF  ==
                                             thresholdLevels.triggerAllLevel());
         }
       }  break;
@@ -205,32 +205,32 @@ int main(int argc, char *argv[])
 
             const ball::Category *cat = testManager.addCategory(
                                                       "MyCategory",
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_WARN,
-                                                      ball::Severity::BAEL_OFF,
-                                                      ball::Severity::BAEL_OFF);
+                                                      ball::Severity::e_OFF,
+                                                      ball::Severity::e_WARN,
+                                                      ball::Severity::e_OFF,
+                                                      ball::Severity::e_OFF);
 
             ball::Rule myRule1("*",
-                              ball::Severity::BAEL_TRACE,
-                              ball::Severity::BAEL_INFO,
-                              ball::Severity::BAEL_ERROR,
-                              ball::Severity::BAEL_FATAL);
+                              ball::Severity::e_TRACE,
+                              ball::Severity::e_INFO,
+                              ball::Severity::e_ERROR,
+                              ball::Severity::e_FATAL);
             myRule1.addPredicate(ball::Predicate("theInt",    1974));
             testManager.addRule(myRule1);
 
             ball::Rule myRule2("*",
-                              ball::Severity::BAEL_OFF,
-                              ball::Severity::BAEL_TRACE,
-                              ball::Severity::BAEL_DEBUG,
-                              ball::Severity::BAEL_INFO);
+                              ball::Severity::e_OFF,
+                              ball::Severity::e_TRACE,
+                              ball::Severity::e_DEBUG,
+                              ball::Severity::e_INFO);
             myRule2.addPredicate(ball::Predicate("theInt64",  9876543210LL));
             testManager.addRule(myRule2);
 
             ball::Rule myRule3("*",
-                              ball::Severity::BAEL_OFF,
-                              ball::Severity::BAEL_DEBUG,
-                              ball::Severity::BAEL_ERROR,
-                              ball::Severity::BAEL_OFF);
+                              ball::Severity::e_OFF,
+                              ball::Severity::e_DEBUG,
+                              ball::Severity::e_ERROR,
+                              ball::Severity::e_OFF);
             myRule3.addPredicate(ball::Predicate("theString", "furpicus"));
             testManager.addRule(myRule3);
 
@@ -238,10 +238,10 @@ int main(int argc, char *argv[])
             ball::AttributeContext::getContext()->determineThresholdLevels(
                                                       &thresholdLevels, cat);
 
-            ASSERT(ball::Severity::BAEL_OFF  == thresholdLevels.recordLevel());
-            ASSERT(ball::Severity::BAEL_WARN == thresholdLevels.passLevel());
-            ASSERT(ball::Severity::BAEL_OFF  == thresholdLevels.triggerLevel());
-            ASSERT(ball::Severity::BAEL_OFF  ==
+            ASSERT(ball::Severity::e_OFF  == thresholdLevels.recordLevel());
+            ASSERT(ball::Severity::e_WARN == thresholdLevels.passLevel());
+            ASSERT(ball::Severity::e_OFF  == thresholdLevels.triggerLevel());
+            ASSERT(ball::Severity::e_OFF  ==
                                             thresholdLevels.triggerAllLevel());
 
             // Int constructor
@@ -253,10 +253,10 @@ int main(int argc, char *argv[])
                 Obj mX("theInt", 1974);
                 ac->determineThresholdLevels(&tl, cat);
 
-                ASSERT(ball::Severity::BAEL_TRACE == tl.recordLevel());
-                ASSERT(ball::Severity::BAEL_INFO  == tl.passLevel());
-                ASSERT(ball::Severity::BAEL_ERROR == tl.triggerLevel());
-                ASSERT(ball::Severity::BAEL_FATAL == tl.triggerAllLevel());
+                ASSERT(ball::Severity::e_TRACE == tl.recordLevel());
+                ASSERT(ball::Severity::e_INFO  == tl.passLevel());
+                ASSERT(ball::Severity::e_ERROR == tl.triggerLevel());
+                ASSERT(ball::Severity::e_FATAL == tl.triggerAllLevel());
             }
 
             // Int64 constructor
@@ -268,10 +268,10 @@ int main(int argc, char *argv[])
                 Obj mX("theInt64", bsls::Types::Int64(987654321) * 10);
                 ac->determineThresholdLevels(&tl, cat);
 
-                ASSERT(ball::Severity::BAEL_OFF   == tl.recordLevel());
-                ASSERT(ball::Severity::BAEL_TRACE == tl.passLevel());
-                ASSERT(ball::Severity::BAEL_DEBUG == tl.triggerLevel());
-                ASSERT(ball::Severity::BAEL_INFO  == tl.triggerAllLevel());
+                ASSERT(ball::Severity::e_OFF   == tl.recordLevel());
+                ASSERT(ball::Severity::e_TRACE == tl.passLevel());
+                ASSERT(ball::Severity::e_DEBUG == tl.triggerLevel());
+                ASSERT(ball::Severity::e_INFO  == tl.triggerAllLevel());
             }
 
             // String constructor
@@ -283,10 +283,10 @@ int main(int argc, char *argv[])
                 Obj mX("theString", "furpicus", &ta);
                 ac->determineThresholdLevels(&tl, cat);
 
-                ASSERT(ball::Severity::BAEL_OFF   == tl.recordLevel());
-                ASSERT(ball::Severity::BAEL_DEBUG == tl.passLevel());
-                ASSERT(ball::Severity::BAEL_ERROR == tl.triggerLevel());
-                ASSERT(ball::Severity::BAEL_OFF   == tl.triggerAllLevel());
+                ASSERT(ball::Severity::e_OFF   == tl.recordLevel());
+                ASSERT(ball::Severity::e_DEBUG == tl.passLevel());
+                ASSERT(ball::Severity::e_ERROR == tl.triggerLevel());
+                ASSERT(ball::Severity::e_OFF   == tl.triggerAllLevel());
             }
         }
         ASSERT(0 == ta.numBytesInUse());

@@ -20,7 +20,7 @@ Encoder_Formatter::Encoder_Formatter(
 : d_outputStream(stream)
 , d_isArrayElement(false)
 {
-    if (EncoderOptions::BAEJSN_PRETTY == options.encodingStyle()) {
+    if (EncoderOptions::e_PRETTY == options.encodingStyle()) {
         d_usePrettyStyle = true;
         d_indentLevel    = options.initialIndentLevel();
         d_spacesPerLevel = options.spacesPerLevel();

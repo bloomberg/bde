@@ -187,15 +187,15 @@ class NamespaceRegistry {
       , BAEXML_WSDL = e_WSDL
       , BAEXML_WSDL_SOAP = e_WSDL_SOAP
       , BAEXML_BDEM = e_BDEM
-      , NSID_NO_NAMESPACE       = BAEXML_NO_NAMESPACE
-      , NSID_PREDEF_MIN         = BAEXML_PREDEF_MIN
-      , NSID_XML                = BAEXML_XML
-      , NSID_XMLNS              = BAEXML_XMLNS
-      , NSID_XMLSCHEMA          = BAEXML_XMLSCHEMA
-      , NSID_XMLSCHEMA_INSTANCE = BAEXML_XMLSCHEMA_INSTANCE
-      , NSID_WSDL               = BAEXML_WSDL
-      , NSID_WSDL_SOAP          = BAEXML_WSDL_SOAP
-      , NSID_BDEM               = BAEXML_BDEM
+      , NSID_NO_NAMESPACE       = e_NO_NAMESPACE
+      , NSID_PREDEF_MIN         = e_PREDEF_MIN
+      , NSID_XML                = e_XML
+      , NSID_XMLNS              = e_XMLNS
+      , NSID_XMLSCHEMA          = e_XMLSCHEMA
+      , NSID_XMLSCHEMA_INSTANCE = e_XMLSCHEMA_INSTANCE
+      , NSID_WSDL               = e_WSDL
+      , NSID_WSDL_SOAP          = e_WSDL_SOAP
+      , NSID_BDEM               = e_BDEM
       , NSID_PREDEF_MAX         = BAEXML_PREDEF_MAX
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };

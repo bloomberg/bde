@@ -37,10 +37,10 @@ const char *CharConvertStatus::toAscii(
                                            CharConvertStatus::Enum value)
 {
     switch (value) {
-      case BDEDE_INVALID_CHARS_BIT: {
+      case k_INVALID_CHARS_BIT: {
         return  "INVALID_CHARS_BIT";                                  // RETURN
       } break;
-      case BDEDE_OUT_OF_SPACE_BIT: {
+      case k_OUT_OF_SPACE_BIT: {
         return  "OUT_OF_SPACE_BIT";                                   // RETURN
       } break;
     }

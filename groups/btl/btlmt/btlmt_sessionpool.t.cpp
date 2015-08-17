@@ -224,7 +224,7 @@ void sessionStateCallback(int             state,
                           void           *)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Client from "
                    << session->channel()->peerAddress()
@@ -232,7 +232,7 @@ void sessionStateCallback(int             state,
                    << MTENDL;
         }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
@@ -249,7 +249,7 @@ void sessionStateCallbackWithBarrier(int              state,
                                      bdlqq::Barrier  *barrier)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Client from "
                    << session->channel()->peerAddress()
@@ -257,7 +257,7 @@ void sessionStateCallbackWithBarrier(int              state,
                    << MTENDL;
         }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
@@ -275,7 +275,7 @@ void sessionStateCallbackWithCounter(int              state,
                                      bsls::AtomicInt *numUpConnections)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Client from "
                    << session->channel()->peerAddress()
@@ -283,7 +283,7 @@ void sessionStateCallbackWithCounter(int              state,
                    << MTENDL;
         }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
@@ -616,7 +616,7 @@ void sessionStateCallbackUsingChannelMapAndCounter(
                                              bsls::AtomicInt *numUpConnections)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
           if (veryVerbose) {
               MTCOUT << "Client from "
                      << session->channel()->peerAddress()
@@ -624,7 +624,7 @@ void sessionStateCallbackUsingChannelMapAndCounter(
                      << MTENDL;
           }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
           if (veryVerbose) {
               MTCOUT << "Client connected from "
                      << session->channel()->peerAddress()
@@ -1384,7 +1384,7 @@ void Tester::sessionStateCb(int             state,
                             void           *)
 {
     switch (state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
           if (veryVerbose) {
               MTCOUT << "Client from "
                      << session->channel()->peerAddress()
@@ -1392,7 +1392,7 @@ void Tester::sessionStateCb(int             state,
                      << MTENDL;
           }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
           if (veryVerbose) {
               MTCOUT << "Client connected from "
                      << session->channel()->peerAddress()
@@ -1711,7 +1711,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
                                        void           *) {
 
         switch(state) {
-          case btlmt::SessionPool::SESSION_DOWN: {
+          case btlmt::SessionPool::e_SESSION_DOWN: {
               if (veryVerbose) {
                   d_coutLock_p->lock();
                   bsl::cout << "Client from "
@@ -1721,7 +1721,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
                   d_coutLock_p->unlock();
               }
           } break;
-          case btlmt::SessionPool::SESSION_UP: {
+          case btlmt::SessionPool::e_SESSION_UP: {
               if (veryVerbose) {
                   d_coutLock_p->lock();
                   bsl::cout << "Client connected from "
@@ -2254,7 +2254,7 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
 
                 poolCbBarrier.wait();
-                ASSERT(btlmt::SessionPool::CONNECT_FAILED == poolState);
+                ASSERT(btlmt::SessionPool::e_CONNECT_FAILED == poolState);
             }
 
             ASSERT(0 == pool.stopAndRemoveAllSessions());
@@ -2369,7 +2369,7 @@ int main(int argc, char *argv[])
                         MTCOUT << "Waiting on pool barrier..." << MTENDL;
                     }
                     poolCbBarrier.wait();
-                    ASSERT(btlmt::SessionPool::CONNECT_FAILED == poolState);
+                    ASSERT(btlmt::SessionPool::e_CONNECT_FAILED == poolState);
                 }
             }
 

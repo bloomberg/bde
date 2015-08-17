@@ -294,10 +294,10 @@ class Formatter {
       , BAEXML_WORDWRAP = e_WORDWRAP
       , BAEXML_WORDWRAP_INDENT = e_WORDWRAP_INDENT
       , BAEXML_NEWLINE_INDENT = e_NEWLINE_INDENT
-      , PRESERVE_WHITESPACE = BAEXML_PRESERVE_WHITESPACE
-      , WORDWRAP            = BAEXML_WORDWRAP
-      , WORDWRAP_INDENT     = BAEXML_WORDWRAP_INDENT
-      , NEWLINE_INDENT      = BAEXML_NEWLINE_INDENT
+      , PRESERVE_WHITESPACE = e_PRESERVE_WHITESPACE
+      , WORDWRAP            = e_WORDWRAP
+      , WORDWRAP_INDENT     = e_WORDWRAP_INDENT
+      , NEWLINE_INDENT      = e_NEWLINE_INDENT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // Current implementation does not provide the capability of analyzing
@@ -520,7 +520,7 @@ class Formatter {
         // the output stream.
 
     void openElement(const bslstl::StringRef& name,
-                     WhitespaceType         ws = BAEXML_PRESERVE_WHITESPACE);
+                     WhitespaceType         ws = e_PRESERVE_WHITESPACE);
         // Open an element of the 'name' at current indent level with
         // the whitespace constraint 'ws' for its textual data and increment
         // indent level.  'ws' constrains how textual data is written with

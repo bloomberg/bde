@@ -276,9 +276,9 @@ if (veryVerbose)
         if (verbose) cout << "\nTesting '<<' operator." << endl;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        ASSERT(Obj:: BAETZO_VALID_UNIQUE    == Obj::e_VALID_UNIQUE);
-        ASSERT(Obj:: BAETZO_VALID_AMBIGUOUS == Obj::e_VALID_AMBIGUOUS);
-        ASSERT(Obj:: BAETZO_INVALID         == Obj::e_INVALID);
+        ASSERT(Obj:: e_VALID_UNIQUE    == Obj::e_VALID_UNIQUE);
+        ASSERT(Obj:: e_VALID_AMBIGUOUS == Obj::e_VALID_AMBIGUOUS);
+        ASSERT(Obj:: e_INVALID         == Obj::e_INVALID);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {

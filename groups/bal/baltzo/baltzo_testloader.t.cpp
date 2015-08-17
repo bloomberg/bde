@@ -758,16 +758,16 @@ struct LogVerbosityGuard {
                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
 
         }
     }
@@ -777,16 +777,16 @@ struct LogVerbosityGuard {
     {
         if (!d_verbose) {
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
         }
     }
 };

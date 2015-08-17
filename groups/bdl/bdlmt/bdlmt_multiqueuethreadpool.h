@@ -755,7 +755,7 @@ inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
     ++d_numEnqueued;
-    return enqueueJobImpl(id, functor, BCEP_ENQUEUE_BACK);
+    return enqueueJobImpl(id, functor, e_ENQUEUE_BACK);
 }
 
 inline

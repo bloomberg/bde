@@ -94,21 +94,21 @@ int main(int argc, char *argv[])
 // 'bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE'):
 //..
     bdlqq::ThreadAttributes attributes;
-    ASSERT(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE ==
+    ASSERT(bdlqq::ThreadAttributes::e_CREATE_JOINABLE ==
                                                    attributes.detachedState());
 //..
 // Next we modify the detached state of 'attributes' to have the non-default
 // value 'bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED':
 //..
     attributes.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
-    ASSERT(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED ==
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
+    ASSERT(bdlqq::ThreadAttributes::e_CREATE_DETACHED ==
                                                    attributes.detachedState());
 //..
 // Finally, we make a copy of 'attributes':
 //..
     bdlqq::ThreadAttributes copy(attributes);
-    ASSERT(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED ==
+    ASSERT(bdlqq::ThreadAttributes::e_CREATE_DETACHED ==
                                                          copy.detachedState());
     ASSERT(attributes == copy);
 //..
@@ -139,22 +139,22 @@ int main(int argc, char *argv[])
 
             int                   d_whichVerify;
         } PARAM[] = {
-           {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_OTHER,
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER,
                 0, 0, 0, 0, 1 },
-           {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
                 0, 0, 0, 0, 2 },
-           {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
                 5, 0, 0, 0, 3 },
-           {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
                 4, true, 0, 0, 4 },
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-           {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
                 3, 0, 300000, 0, 5 },
 #else
            {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
                 3, 0, 80000, 0, 5 },
 #endif
-           {L_, Obj::BCEMT_CREATE_DETACHED, Obj::BCEMT_SCHED_FIFO,
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
                 2, 0, 0, 2000, 6 }
         };
 
@@ -225,8 +225,8 @@ int main(int argc, char *argv[])
         }
         const Obj& X = mX;
 
-        ASSERT(Obj::BCEMT_CREATE_JOINABLE == X.detachedState());
-        ASSERT(Obj::BCEMT_SCHED_DEFAULT == X.schedulingPolicy());
+        ASSERT(Obj::e_CREATE_JOINABLE == X.detachedState());
+        ASSERT(Obj::e_SCHED_DEFAULT == X.schedulingPolicy());
         ASSERT(X.inheritSchedule());
         ASSERT(0 != X.stackSize());
 
@@ -351,9 +351,9 @@ int main(int argc, char *argv[])
 
         typedef bdlqq::ThreadAttributes::SchedulingPolicy Policy;
 
-        const Policy OTHER = bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
-        const Policy FIFO  = bdlqq::ThreadAttributes::BCEMT_SCHED_FIFO;
-        const Policy RR    = bdlqq::ThreadAttributes::BCEMT_SCHED_RR;
+        const Policy OTHER = bdlqq::ThreadAttributes::e_SCHED_OTHER;
+        const Policy FIFO  = bdlqq::ThreadAttributes::e_SCHED_FIFO;
+        const Policy RR    = bdlqq::ThreadAttributes::e_SCHED_RR;
 
         attr.setSchedulingPolicy(OTHER);
 

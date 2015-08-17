@@ -131,7 +131,7 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
     int valueLen = value.length();
     if (d_wrapColumn >= 0) {
         if (d_isFirstData && d_column > 0 &&
-            BAEXML_NEWLINE_INDENT == d_elementNesting.back().ws()) {
+            e_NEWLINE_INDENT == d_elementNesting.back().ws()) {
             addNewline();
         }
 
@@ -140,15 +140,15 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
         }
 
         WhitespaceType ws = d_elementNesting.back().ws();
-        if (addSpace && BAEXML_PRESERVE_WHITESPACE != ws) {
+        if (addSpace && e_PRESERVE_WHITESPACE != ws) {
             if (d_column + valueLen >= d_wrapColumn || 0 == d_column) {
-                if (BAEXML_WORDWRAP == ws
+                if (e_WORDWRAP == ws
                  && d_column > 0 && d_wrapColumn >= 0) {
                     addNewline();
                 }
                 else {
                     indent();
-                    d_elementNesting.back().setWs(BAEXML_NEWLINE_INDENT);
+                    d_elementNesting.back().setWs(e_NEWLINE_INDENT);
                     // Force BAEXML_WORDWRAP_INDENT to become
                     // BAEXML_NEWLINE_INDENT now that there is line wrapping
                     // for the data, so that the closing tag doesn't share its
@@ -158,7 +158,7 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
                 d_isFirstDataAtLine = true;
             }
         }
-        else if (!addSpace && d_isFirstData && BAEXML_NEWLINE_INDENT == ws) {
+        else if (!addSpace && d_isFirstData && e_NEWLINE_INDENT == ws) {
             indent();
         } // else do nothing if BAEXML_PRESERVE_WHITESPACE or if addSpace is
           // false
@@ -215,7 +215,7 @@ void Formatter::closeElement(const bslstl::StringRef& name)
     else {
         if (d_wrapColumn > 0
          && (0 == d_column ||
-             BAEXML_NEWLINE_INDENT == d_elementNesting.back().ws())) {
+             e_NEWLINE_INDENT == d_elementNesting.back().ws())) {
             // Indent this line.
             indent();
         }

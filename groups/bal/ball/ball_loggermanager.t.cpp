@@ -577,7 +577,7 @@ extern "C" {
             ball::FixedSizeRecordBuffer buf(MAX_LIMIT);
             ball::Logger *logger = manager->allocateLogger(&buf);
             logger->logMessage(*cat,
-                               ball::Severity::BAEL_ERROR,
+                               ball::Severity::e_ERROR,
                                __FILE__,
                                __LINE__,
                                "test-message");
@@ -900,10 +900,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         ball::LoggerManager& mLM = ball::LoggerManager::singleton();
         ball::Category *cat = mLM.addCategory("test-category",
-                                             ball::Severity::BAEL_INFO,
-                                             ball::Severity::BAEL_WARN,
-                                             ball::Severity::BAEL_ERROR,
-                                             ball::Severity::BAEL_FATAL);
+                                             ball::Severity::e_INFO,
+                                             ball::Severity::e_WARN,
+                                             ball::Severity::e_ERROR,
+                                             ball::Severity::e_FATAL);
 
         ball::Logger& logger = mLM.getLogger();
 
@@ -912,7 +912,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             logInformation(&logger,
                            information,
-                           ball::Severity::BAEL_WARN,
+                           ball::Severity::e_WARN,
                            *cat,
                            __FILE__,
                            __LINE__);
@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                                                   ball::Severity::BAEL_WARN);
+                                                   ball::Severity::e_WARN);
 
 
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
@@ -1251,24 +1251,24 @@ int main(int argc, char *argv[])
         using namespace BloombergLP;
 
         int VALUES[] = { 1,
-                         ball::Severity::BAEL_FATAL - 1,
-                         ball::Severity::BAEL_FATAL,
-                         ball::Severity::BAEL_FATAL + 1,
-                         ball::Severity::BAEL_ERROR - 1,
-                         ball::Severity::BAEL_ERROR,
-                         ball::Severity::BAEL_ERROR + 1,
-                         ball::Severity::BAEL_WARN - 1,
-                         ball::Severity::BAEL_WARN,
-                         ball::Severity::BAEL_WARN + 1,
-                         ball::Severity::BAEL_INFO - 1,
-                         ball::Severity::BAEL_INFO,
-                         ball::Severity::BAEL_INFO + 1,
-                         ball::Severity::BAEL_DEBUG - 1,
-                         ball::Severity::BAEL_DEBUG,
-                         ball::Severity::BAEL_DEBUG + 1,
-                         ball::Severity::BAEL_TRACE - 1,
-                         ball::Severity::BAEL_TRACE,
-                         ball::Severity::BAEL_TRACE + 1
+                         ball::Severity::e_FATAL - 1,
+                         ball::Severity::e_FATAL,
+                         ball::Severity::e_FATAL + 1,
+                         ball::Severity::e_ERROR - 1,
+                         ball::Severity::e_ERROR,
+                         ball::Severity::e_ERROR + 1,
+                         ball::Severity::e_WARN - 1,
+                         ball::Severity::e_WARN,
+                         ball::Severity::e_WARN + 1,
+                         ball::Severity::e_INFO - 1,
+                         ball::Severity::e_INFO,
+                         ball::Severity::e_INFO + 1,
+                         ball::Severity::e_DEBUG - 1,
+                         ball::Severity::e_DEBUG,
+                         ball::Severity::e_DEBUG + 1,
+                         ball::Severity::e_TRACE - 1,
+                         ball::Severity::e_TRACE,
+                         ball::Severity::e_TRACE + 1
         };
 
         const int NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES);
@@ -1292,7 +1292,7 @@ int main(int argc, char *argv[])
         const ball::TestObserver        *TO = &to;
         ball::LoggerManagerConfiguration lmc;
         lmc.setTriggerMarkers(
-               BloombergLP::ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+               BloombergLP::ball::LoggerManagerConfiguration::e_NO_MARKERS);
 
         ball::LoggerManager::initSingleton(&to, lmc, &ta);
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
@@ -1462,24 +1462,24 @@ int main(int argc, char *argv[])
         using namespace BloombergLP;
 
         int VALUES[] = { 1,
-                         ball::Severity::BAEL_FATAL - 1,
-                         ball::Severity::BAEL_FATAL,
-                         ball::Severity::BAEL_FATAL + 1,
-                         ball::Severity::BAEL_ERROR - 1,
-                         ball::Severity::BAEL_ERROR,
-                         ball::Severity::BAEL_ERROR + 1,
-                         ball::Severity::BAEL_WARN - 1,
-                         ball::Severity::BAEL_WARN,
-                         ball::Severity::BAEL_WARN + 1,
-                         ball::Severity::BAEL_INFO - 1,
-                         ball::Severity::BAEL_INFO,
-                         ball::Severity::BAEL_INFO + 1,
-                         ball::Severity::BAEL_DEBUG - 1,
-                         ball::Severity::BAEL_DEBUG,
-                         ball::Severity::BAEL_DEBUG + 1,
-                         ball::Severity::BAEL_TRACE - 1,
-                         ball::Severity::BAEL_TRACE,
-                         ball::Severity::BAEL_TRACE + 1
+                         ball::Severity::e_FATAL - 1,
+                         ball::Severity::e_FATAL,
+                         ball::Severity::e_FATAL + 1,
+                         ball::Severity::e_ERROR - 1,
+                         ball::Severity::e_ERROR,
+                         ball::Severity::e_ERROR + 1,
+                         ball::Severity::e_WARN - 1,
+                         ball::Severity::e_WARN,
+                         ball::Severity::e_WARN + 1,
+                         ball::Severity::e_INFO - 1,
+                         ball::Severity::e_INFO,
+                         ball::Severity::e_INFO + 1,
+                         ball::Severity::e_DEBUG - 1,
+                         ball::Severity::e_DEBUG,
+                         ball::Severity::e_DEBUG + 1,
+                         ball::Severity::e_TRACE - 1,
+                         ball::Severity::e_TRACE,
+                         ball::Severity::e_TRACE + 1
         };
         const int NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES);
 
@@ -1974,12 +1974,12 @@ int main(int argc, char *argv[])
          bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
          bsl::cerr.rdbuf(os.rdbuf());
 
-         Obj::logMessage(ball::Severity::BAEL_TRACE, record1);
-         Obj::logMessage(ball::Severity::BAEL_DEBUG, record2);
-         Obj::logMessage(ball::Severity::BAEL_INFO,  record3);
-         Obj::logMessage(ball::Severity::BAEL_WARN,  record4);
-         Obj::logMessage(ball::Severity::BAEL_ERROR, record5);
-         Obj::logMessage(ball::Severity::BAEL_FATAL, record6);
+         Obj::logMessage(ball::Severity::e_TRACE, record1);
+         Obj::logMessage(ball::Severity::e_DEBUG, record2);
+         Obj::logMessage(ball::Severity::e_INFO,  record3);
+         Obj::logMessage(ball::Severity::e_WARN,  record4);
+         Obj::logMessage(ball::Severity::e_ERROR, record5);
+         Obj::logMessage(ball::Severity::e_FATAL, record6);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
          fflush(stderr);
@@ -2262,7 +2262,7 @@ int main(int argc, char *argv[])
         my_publishCountingObserver      observer;
         ball::LoggerManagerConfiguration configuration;
         configuration.setTriggerMarkers(
-               BloombergLP::ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+               BloombergLP::ball::LoggerManagerConfiguration::e_NO_MARKERS);
 
         static bslma::TestAllocator      ta(veryVeryVerbose);
         ball::LoggerManagerScopedGuard guard(&observer, configuration, &ta);
@@ -2272,10 +2272,10 @@ int main(int argc, char *argv[])
         // for simplicity we log the messages with severity, that will
         // cause *record* followed by *trigger-all*.
         cat = localManager.addCategory("test-category",
-                                  ball::Severity::BAEL_ERROR,  // record
-                                  ball::Severity::BAEL_FATAL,  // passthrough
-                                  ball::Severity::BAEL_FATAL,  // trigger
-                                  ball::Severity::BAEL_ERROR); // triggerAll
+                                  ball::Severity::e_ERROR,  // record
+                                  ball::Severity::e_FATAL,  // passthrough
+                                  ball::Severity::e_FATAL,  // trigger
+                                  ball::Severity::e_ERROR); // triggerAll
 
         executeInParallel(NUM_THREADS, workerThread25);
         int c = observer.publishCount();
@@ -2606,15 +2606,15 @@ int main(int argc, char *argv[])
         typedef ball::LoggerManagerConfiguration lmc;
 
         static const lmc::LogOrder LOGORDER[3] = {
-            lmc::BAEL_LIFO,  // default
-            lmc::BAEL_FIFO,
-            lmc::BAEL_LIFO
+            lmc::e_LIFO,  // default
+            lmc::e_FIFO,
+            lmc::e_LIFO
         };
 
         static const lmc::TriggerMarkers TRIGGERMARKERS[3] = {
-            lmc::BAEL_BEGIN_END_MARKERS,         // default
-            lmc::BAEL_BEGIN_END_MARKERS,
-            lmc::BAEL_NO_MARKERS
+            lmc::e_BEGIN_END_MARKERS,         // default
+            lmc::e_BEGIN_END_MARKERS,
+            lmc::e_NO_MARKERS
         };
 
         static const struct {
@@ -2708,7 +2708,7 @@ int main(int argc, char *argv[])
                                DATA[k].message);
                 publishCount += expectedNumPublished;
 
-                if (TRIGGERMARKERS[j] == lmc::BAEL_BEGIN_END_MARKERS) {
+                if (TRIGGERMARKERS[j] == lmc::e_BEGIN_END_MARKERS) {
                     publishCount += 2;  // 2 for the markers
                 }
 
@@ -2728,13 +2728,13 @@ int main(int argc, char *argv[])
                 }
 
                 // Trigger markers if necessary.
-                if (TRIGGERMARKERS[j] == lmc::BAEL_BEGIN_END_MARKERS) {
+                if (TRIGGERMARKERS[j] == lmc::e_BEGIN_END_MARKERS) {
                     ss << "Log 1 of 1 : "
                           "--- BEGIN RECORD DUMP CAUSED BY TRIGGER ---\n";
                 }
 
                 // Trigger dump.
-                if (LOGORDER[i] == lmc::BAEL_LIFO) {
+                if (LOGORDER[i] == lmc::e_LIFO) {
                     for (k = NUM_DATA - 1; k >= 0; --k) {
                         ss << "Log " << NUM_DATA - k << " of " << NUM_DATA
                            << " : " << DATA[k].message << "\n";
@@ -2748,7 +2748,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Trigger markers if necessary.
-                if (TRIGGERMARKERS[j] == lmc::BAEL_BEGIN_END_MARKERS) {
+                if (TRIGGERMARKERS[j] == lmc::e_BEGIN_END_MARKERS) {
                     ss << "Log 1 of 1 : "
                           "--- END RECORD DUMP CAUSED BY TRIGGER ---\n";
                 }
@@ -2825,7 +2825,7 @@ int main(int argc, char *argv[])
 
             ball::LoggerManagerConfiguration mLMC;
             mLMC.setTriggerMarkers(
-               BloombergLP::ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+               BloombergLP::ball::LoggerManagerConfiguration::e_NO_MARKERS);
 
             const int MAX_LIMIT = 1000000;
             mLMC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);

@@ -374,10 +374,10 @@ class FixedThreadPool {
       , BCEP_RUN     = e_RUN
       , BCEP_SUSPEND = e_SUSPEND
       , BCEP_DRAIN   = e_DRAIN
-      , TP_STOP    = BCEP_STOP
-      , TP_RUN     = BCEP_RUN
-      , TP_SUSPEND = BCEP_SUSPEND
-      , TP_DRAIN   = BCEP_DRAIN
+      , TP_STOP    = e_STOP
+      , TP_RUN     = e_RUN
+      , TP_SUSPEND = e_SUSPEND
+      , TP_DRAIN   = e_DRAIN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

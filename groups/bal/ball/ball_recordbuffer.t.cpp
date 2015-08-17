@@ -118,7 +118,7 @@ class Record {
 
 // CREATORS
 Record::Record()
-: d_level((int)Severity::BAEL_TRACE)
+: d_level((int)Severity::e_TRACE)
 {
 }
 
@@ -199,10 +199,10 @@ void processRecord(const bsl::shared_ptr<ball::Record>& handle,
 {
     int severity = handle->severity();
 
-    if (ball::Severity::BAEL_WARN >= severity) {
+    if (ball::Severity::e_WARN >= severity) {
         buffer.pushBack(handle);
     }
-    if (ball::Severity::BAEL_ERROR >= severity) {
+    if (ball::Severity::e_ERROR >= severity) {
         if (veryVerbose) bsl::cout << *handle << endl;
         buffer.beginSequence();
         int length = buffer.length();
@@ -386,19 +386,19 @@ int main(int argc, char *argv[])
         my_DummyDeleter deleter;
         my_RecordBuffer buffer;
 
-        ball::Record record1(ball::Severity::BAEL_FATAL);
+        ball::Record record1(ball::Severity::e_FATAL);
         bsl::shared_ptr<ball::Record> handle1(&record1, &deleter, &ta);
         processRecord(handle1, buffer);
 
-        ball::Record record2(ball::Severity::BAEL_TRACE);
+        ball::Record record2(ball::Severity::e_TRACE);
         bsl::shared_ptr<ball::Record> handle2(&record2, &deleter, &ta);
         processRecord(handle2, buffer);
 
-        ball::Record record3(ball::Severity::BAEL_WARN);
+        ball::Record record3(ball::Severity::e_WARN);
         bsl::shared_ptr<ball::Record> handle3(&record3, &deleter, &ta);
         processRecord(handle3, buffer);
 
-        ball::Record record4(ball::Severity::BAEL_ERROR);
+        ball::Record record4(ball::Severity::e_ERROR);
         bsl::shared_ptr<ball::Record> handle4(&record4, &deleter, &ta);
         processRecord(handle4, buffer);
 

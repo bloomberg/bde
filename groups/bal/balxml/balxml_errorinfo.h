@@ -483,31 +483,31 @@ ErrorInfo::severity() const
 inline bool
 ErrorInfo::isNoError() const
 {
-    return d_severity == BAEXML_NO_ERROR;
+    return d_severity == e_NO_ERROR;
 }
 
 inline bool
 ErrorInfo::isWarning() const
 {
-    return d_severity == BAEXML_WARNING;
+    return d_severity == e_WARNING;
 }
 
 inline bool
 ErrorInfo::isError() const
 {
-    return d_severity == BAEXML_ERROR;
+    return d_severity == e_ERROR;
 }
 
 inline bool
 ErrorInfo::isFatalError() const
 {
-    return d_severity == BAEXML_FATAL_ERROR;
+    return d_severity == e_FATAL_ERROR;
 }
 
 inline bool
 ErrorInfo::isAnyError() const
 {
-    return d_severity >= BAEXML_ERROR;
+    return d_severity >= e_ERROR;
 }
 
 inline int

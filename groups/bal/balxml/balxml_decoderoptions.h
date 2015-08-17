@@ -283,17 +283,17 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -307,16 +307,16 @@ int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
     enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
-        return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       default:
@@ -365,17 +365,17 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -389,16 +389,16 @@ int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
     enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
-        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       default:

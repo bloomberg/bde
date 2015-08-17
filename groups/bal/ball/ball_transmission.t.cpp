@@ -68,7 +68,7 @@ static void aSsErT(int c, const char *s, int i) {
 typedef ball::Transmission  Class;
 typedef Class::Cause       Enum;
 
-const int NUM_ENUMS = Class::BAEL_LENGTH;
+const int NUM_ENUMS = Class::e_LENGTH;
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -98,14 +98,14 @@ void my_Logger::publish(const char               *message,
 using namespace bsl;  // automatically added by script
 
     switch (cause) {
-      case ball::Transmission::BAEL_PASSTHROUGH: {
+      case ball::Transmission::e_PASSTHROUGH: {
         d_os << ball::Transmission::toAscii(cause) << ":\t" << message << endl;
       } break;
-      case ball::Transmission::BAEL_TRIGGER: {
+      case ball::Transmission::e_TRIGGER: {
         d_os << ball::Transmission::toAscii(cause) << ":\t" << message << endl;
         d_os << "\t[ dump all messages archived for current thread ]" << endl;
       } break;
-      case ball::Transmission::BAEL_TRIGGER_ALL: {
+      case ball::Transmission::e_TRIGGER_ALL: {
         d_os << ball::Transmission::toAscii(cause) << ":\t" << message << endl;
         d_os << "\t[ dump all messages archived for *all* threads ]"  << endl;
       } break;
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsage example 1" << endl;
 
-        ball::Transmission::Cause cause = ball::Transmission::BAEL_TRIGGER_ALL;
+        ball::Transmission::Cause cause = ball::Transmission::e_TRIGGER_ALL;
         const char *asciiCause = ball::Transmission::toAscii(cause);
         ASSERT(0 == strcmp(asciiCause, "TRIGGER_ALL"));
         out << cause;
@@ -173,11 +173,11 @@ int main(int argc, char *argv[])
         const char *MSG_BAEL_TRIGGER_ALL = "report process-impacting problem";
 
         logger.publish(MSG_BAEL_PASSTHROUGH,
-                       ball::Transmission::BAEL_PASSTHROUGH);
+                       ball::Transmission::e_PASSTHROUGH);
         logger.publish(MSG_BAEL_TRIGGER,
-                       ball::Transmission::BAEL_TRIGGER);
+                       ball::Transmission::e_TRIGGER);
         logger.publish(MSG_BAEL_TRIGGER_ALL,
-                       ball::Transmission::BAEL_TRIGGER_ALL);
+                       ball::Transmission::e_TRIGGER_ALL);
 
         if (veryVerbose) { out << ends; cout << buf << endl; }
       } break;
@@ -221,11 +221,11 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // Enumerated Value                 String Representation
             // ----------------                 ---------------------
-            { Class::BAEL_PASSTHROUGH,          "PASSTHROUGH"         },
-            { Class::BAEL_TRIGGER,              "TRIGGER"             },
-            { Class::BAEL_TRIGGER_ALL,          "TRIGGER_ALL"         },
-            { Class::BAEL_MANUAL_PUBLISH,       "MANUAL_PUBLISH"      },
-            { Class::BAEL_MANUAL_PUBLISH_ALL,   "MANUAL_PUBLISH_ALL"  },
+            { Class::e_PASSTHROUGH,          "PASSTHROUGH"         },
+            { Class::e_TRIGGER,              "TRIGGER"             },
+            { Class::e_TRIGGER_ALL,          "TRIGGER_ALL"         },
+            { Class::e_MANUAL_PUBLISH,       "MANUAL_PUBLISH"      },
+            { Class::e_MANUAL_PUBLISH_ALL,   "MANUAL_PUBLISH_ALL"  },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;

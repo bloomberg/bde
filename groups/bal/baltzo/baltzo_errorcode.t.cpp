@@ -273,7 +273,7 @@ if (veryVerbose)
         const char *CTRL = mCtrl;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        ASSERT(Obj::BAETZO_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
+        ASSERT(Obj::k_UNSUPPORTED_ID == Obj::k_UNSUPPORTED_ID);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "\nTesting 'print'." << endl;

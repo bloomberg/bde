@@ -108,8 +108,8 @@ namespace bdlde {
 
 Base64Decoder::~Base64Decoder()
 {
-    BSLS_ASSERT(BDEDE_ERROR_STATE <= d_state);
-    BSLS_ASSERT(d_state <= BDEDE_DONE_STATE);
+    BSLS_ASSERT(e_ERROR_STATE <= d_state);
+    BSLS_ASSERT(d_state <= e_DONE_STATE);
     BSLS_ASSERT(0 <= d_outputLength);
 }
 }  // close package namespace

@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
             NUM_ATTRIBUTES = 14
         };
 
-        ASSERT(NUM_ATTRIBUTES == Obj::NUM_ATTRIBUTES);
+        ASSERT(NUM_ATTRIBUTES == Obj::k_NUM_ATTRIBUTES);
 
         const char* NAMES[] = {
         "MaxConnections", "MaxThreads", "ReadTimeout", "MetricsInterval",

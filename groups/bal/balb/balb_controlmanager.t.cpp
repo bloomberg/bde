@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 
             bdlqq::ThreadAttributes detached;
             bdlqq::ThreadUtil::Handle dummy;
-            detached.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+            detached.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
             ASSERT(0 == bdlqq::ThreadUtil::create(&dummy,
                                                  detached,
                                                  bdlf::BindUtil::bind(

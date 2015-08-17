@@ -397,7 +397,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Context& rhs);
 // CREATORS
 inline
 Context::Context(bslma::Allocator *basicAllocator)
-: d_transmissionCause(Transmission::BAEL_PASSTHROUGH)
+: d_transmissionCause(Transmission::e_PASSTHROUGH)
 , d_recordIndex(0)
 , d_sequenceLength(1)
 {

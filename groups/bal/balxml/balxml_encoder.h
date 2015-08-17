@@ -918,7 +918,7 @@ namespace balxml {
 inline
 bool Encoder::isCompact() const
 {
-    return EncodingStyle::BAEXML_COMPACT == d_options->encodingStyle();
+    return EncodingStyle::e_COMPACT == d_options->encodingStyle();
 }
 
 inline
@@ -1010,7 +1010,7 @@ bsl::ostream& Encoder::encode(bsl::ostream& stream, const TYPE& object)
 template <class TYPE>
 int Encoder::encode(Formatter& formatter, const TYPE& object)
 {
-    d_severity = ErrorInfo::BAEXML_NO_ERROR;
+    d_severity = ErrorInfo::e_NO_ERROR;
     if (d_logStream != 0) {
         d_logStream->reset();
     }
@@ -1067,9 +1067,9 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
     }
 
     switch (d_severity) {
-      case ErrorInfo::BAEXML_NO_ERROR: {
+      case ErrorInfo::e_NO_ERROR: {
       } break;
-      case ErrorInfo::BAEXML_WARNING: {
+      case ErrorInfo::e_WARNING: {
         if (d_warningStream) {
             *d_warningStream << loggedMessages();
         }

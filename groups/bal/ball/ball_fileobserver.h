@@ -350,7 +350,7 @@ class FileObserver : public Observer {
   public:
     // CREATORS
     explicit FileObserver(
-              Severity::Level  stdoutThreshold = Severity::BAEL_WARN,
+              Severity::Level  stdoutThreshold = Severity::e_WARN,
               bslma::Allocator     *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally-specified

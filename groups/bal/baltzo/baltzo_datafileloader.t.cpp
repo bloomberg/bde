@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID ==
+        ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
                baltzo::ErrorCode::k_UNSUPPORTED_ID);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 

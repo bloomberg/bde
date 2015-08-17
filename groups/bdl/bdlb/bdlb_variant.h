@@ -1098,7 +1098,7 @@ struct VariantImp_Traits {
     };
 
     typedef typename bslmf::If<
-        VARIANT_USES_BSLMA_ALLOCATOR,
+        k_VARIANT_USES_BSLMA_ALLOCATOR,
         VariantImp_AllocatorBase<TYPES>,
         VariantImp_NonAllocatorBase<TYPES> >::Type BaseType;
         // Determines what the base type is.

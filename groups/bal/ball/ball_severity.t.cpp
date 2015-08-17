@@ -72,7 +72,7 @@ static void aSsErT(int c, const char *s, int i) {
 typedef ball::Severity      Class;
 typedef Class::Level       Enum;
 
-const int NUM_ENUMS = Class::BAEL_LENGTH;
+const int NUM_ENUMS = Class::e_LENGTH;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
         char buf[256];  memset(buf, 0xff, sizeof buf);  // Scribble on buf.
         ostrstream out(buf, sizeof buf);
-        ball::Severity::Level level = ball::Severity::BAEL_ERROR;
+        ball::Severity::Level level = ball::Severity::e_ERROR;
         const char *asciiLevel = ball::Severity::toAscii(level);
         ASSERT(0 == strcmp(asciiLevel, "ERROR"));
         out << level << ends;
@@ -162,14 +162,14 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // Enumerated Value    String Representation    expected value
             // ----------------    ---------------------    --------------
-            {  Class::BAEL_OFF,    "OFF",                   0               },
-            {  Class::BAEL_FATAL,  "FATAL",                 1 << 5          },
-            {  Class::BAEL_ERROR,  "ERROR",                 2 << 5          },
-            {  Class::BAEL_WARN,   "WARN",                  3 << 5          },
-            {  Class::BAEL_INFO,   "INFO",                  4 << 5          },
-            {  Class::BAEL_DEBUG,  "DEBUG",                 5 << 5          },
-            {  Class::BAEL_TRACE,  "TRACE",                 6 << 5          },
-            {  Class::BAEL_NONE,   "NONE",                  7 << 5          },
+            {  Class::e_OFF,    "OFF",                   0               },
+            {  Class::e_FATAL,  "FATAL",                 1 << 5          },
+            {  Class::e_ERROR,  "ERROR",                 2 << 5          },
+            {  Class::e_WARN,   "WARN",                  3 << 5          },
+            {  Class::e_INFO,   "INFO",                  4 << 5          },
+            {  Class::e_DEBUG,  "DEBUG",                 5 << 5          },
+            {  Class::e_TRACE,  "TRACE",                 6 << 5          },
+            {  Class::e_NONE,   "NONE",                  7 << 5          },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;

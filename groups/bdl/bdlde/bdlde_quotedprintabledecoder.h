@@ -288,7 +288,7 @@ class QuotedPrintableDecoder {
     QuotedPrintableDecoder(
         bool                                        detectError,
         QuotedPrintableDecoder::LineBreakMode lineBreakMode =
-                                      QuotedPrintableDecoder::BDEDE_CRLF_MODE);
+                                      QuotedPrintableDecoder::e_CRLF_MODE);
         // Create a Quoted-Printable decoder in the initial state, set to the
         // strict or relaxed error-reporting mode according to whether the
         // specified 'detectError' flag is 'true' or 'false', respectively, and
@@ -421,7 +421,7 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
            QuotedPrintableDecoder::LineBreakMode lineBreakMode)
 : d_unrecognizedIsErrorFlag(unrecognizedIsErrorFlag)
 , d_lineBreakMode(lineBreakMode)
-, d_state(BDEDE_INPUT_STATE)
+, d_state(e_INPUT_STATE)
 , d_bufferLength(0)
 , d_outputLength(0)
 {
@@ -430,7 +430,7 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
         d_equivClass_p = const_cast<char*>(s_defaultEquivClassStrict_p);
     }
     else {
-        if (lineBreakMode == BDEDE_CRLF_MODE) {
+        if (lineBreakMode == e_CRLF_MODE) {
             d_equivClass_p = const_cast<char*>(s_defaultEquivClassCRLF_p);
         }
         else {
@@ -440,7 +440,7 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
             int len = sizeof(*s_defaultEquivClassCRLF_p) * 256;
             d_equivClass_p = new char[len];
             bsl::memcpy(d_equivClass_p, s_defaultEquivClassCRLF_p, len);
-            d_equivClass_p['\n'] = BDEDE_LL;  // output '\n' instead if preceded
+            d_equivClass_p['\n'] = e_LL;  // output '\n' instead if preceded
                                               // by '='.
         }
     }
@@ -450,7 +450,7 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
 inline
 void QuotedPrintableDecoder::reset()
 {
-    d_state = BDEDE_INPUT_STATE;
+    d_state = e_INPUT_STATE;
     d_outputLength = 0;
     d_bufferLength = 0;
 }
@@ -459,25 +459,25 @@ void QuotedPrintableDecoder::reset()
 inline
 bool QuotedPrintableDecoder::isAccepting() const
 {
-    return BDEDE_INPUT_STATE == d_state || BDEDE_DONE_STATE == d_state;
+    return e_INPUT_STATE == d_state || e_DONE_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableDecoder::isDone() const
 {
-    return BDEDE_DONE_STATE == d_state && 0 == d_bufferLength;
+    return e_DONE_STATE == d_state && 0 == d_bufferLength;
 }
 
 inline
 bool QuotedPrintableDecoder::isError() const
 {
-    return BDEDE_ERROR_STATE == d_state;
+    return e_ERROR_STATE == d_state;
 }
 
 inline
 bool QuotedPrintableDecoder::isInitialState() const
 {
-    return BDEDE_INPUT_STATE == d_state && 0 == d_outputLength;
+    return e_INPUT_STATE == d_state && 0 == d_outputLength;
 }
 
 inline

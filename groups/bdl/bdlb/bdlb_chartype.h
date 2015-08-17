@@ -362,27 +362,27 @@ struct CharType {
       , BDEU_ALUND = e_ALUND
       , BDEU_ALL = e_ALL
       , BDEU_NONE = e_NONE
-      , UPPER  = BDEU_UPPER
-      , LOWER  = BDEU_LOWER
-      , ALPHA  = BDEU_ALPHA
-      , DIGIT  = BDEU_DIGIT
-      , XDIGIT = BDEU_XDIGIT
-      , ALNUM  = BDEU_ALNUM
-      , SPACE  = BDEU_SPACE
-      , PRINT  = BDEU_PRINT
-      , GRAPH  = BDEU_GRAPH
-      , PUNCT  = BDEU_PUNCT
-      , CNTRL  = BDEU_CNTRL
-      , ASCII  = BDEU_ASCII
-      , IDENT  = BDEU_IDENT
-      , ALUND  = BDEU_ALUND
-      , ALL    = BDEU_ALL
-      , NONE   = BDEU_NONE
+      , UPPER  = e_UPPER
+      , LOWER  = e_LOWER
+      , ALPHA  = e_ALPHA
+      , DIGIT  = e_DIGIT
+      , XDIGIT = e_XDIGIT
+      , ALNUM  = e_ALNUM
+      , SPACE  = e_SPACE
+      , PRINT  = e_PRINT
+      , GRAPH  = e_GRAPH
+      , PUNCT  = e_PUNCT
+      , CNTRL  = e_CNTRL
+      , ASCII  = e_ASCII
+      , IDENT  = e_IDENT
+      , ALUND  = e_ALUND
+      , ALL    = e_ALL
+      , NONE   = e_NONE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        k_NUM_CATEGORIES = BDEU_NONE + 1
+        k_NUM_CATEGORIES = e_NONE + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEU_NUM_CATEGORIES = k_NUM_CATEGORIES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -1114,7 +1114,7 @@ STREAM& CharType::bdexStreamIn(STREAM&                   stream,
             stream.getInt8(newValue);
             if (stream) {
                 if (0 <= newValue
-                 && newValue < CharType::BDEU_NUM_CATEGORIES) {
+                 && newValue < CharType::k_NUM_CATEGORIES) {
                     value = CharType::Category(newValue);
                 }
                 else {

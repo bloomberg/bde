@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
             args.d_retvalSet = 0;
             bdlqq::ThreadAttributes attr;
             attr.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
             bdlqq::ThreadUtil::Handle dum;
             bdlqq::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
@@ -270,10 +270,10 @@ int main(int argc, char *argv[])
         namespace TC = BCEMT_MUTEX_CASE_MINUS_1;
 
         typedef bdlqq::ThreadAttributes::SchedulingPolicy Policy;
-        const Policy DF = bdlqq::ThreadAttributes::BCEMT_SCHED_DEFAULT;
-        const Policy SO = bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
-        const Policy SF = bdlqq::ThreadAttributes::BCEMT_SCHED_FIFO;
-        const Policy SR = bdlqq::ThreadAttributes::BCEMT_SCHED_RR;
+        const Policy DF = bdlqq::ThreadAttributes::e_SCHED_DEFAULT;
+        const Policy SO = bdlqq::ThreadAttributes::e_SCHED_OTHER;
+        const Policy SF = bdlqq::ThreadAttributes::e_SCHED_FIFO;
+        const Policy SR = bdlqq::ThreadAttributes::e_SCHED_RR;
 
         ZeroIntMap urgentPlaces[2];
 

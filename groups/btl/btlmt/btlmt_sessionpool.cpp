@@ -120,11 +120,11 @@ typedef bsl::shared_ptr<btlmt::SessionPool_Handle> HandlePtr;
 static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
                                btlmt::SessionPool::ConnectResolutionMode mode)
 {
-    if (mode == btlmt::SessionPool::RESOLVE_AT_EACH_ATTEMPT) {
+    if (mode == btlmt::SessionPool::e_RESOLVE_AT_EACH_ATTEMPT) {
         return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;         // RETURN
     }
 
-    BSLS_ASSERT(mode == btlmt::SessionPool::RESOLVE_ONCE);
+    BSLS_ASSERT(mode == btlmt::SessionPool::e_RESOLVE_ONCE);
     return btlmt::ChannelPool::e_RESOLVE_ONCE;
 }
 
@@ -166,7 +166,7 @@ void SessionPool::channelStateCb(int   channelId,
                   lock.release()->unlock();
 
                   handle->d_session_p->stop();
-                  handle->d_sessionStateCB(SESSION_DOWN, handleId,
+                  handle->d_sessionStateCB(e_SESSION_DOWN, handleId,
                                            handle->d_session_p,
                                            handle->d_userData_p);
               }
@@ -250,7 +250,7 @@ void SessionPool::channelStateCb(int   channelId,
           }
           SessionPool_Handle *handle = (SessionPool_Handle*) userData;
           if (handle->d_session_p) {
-              handle->d_sessionStateCB(WRITE_CACHE_LOWWAT, handle->d_handleId,
+              handle->d_sessionStateCB(e_WRITE_CACHE_LOWWAT, handle->d_handleId,
                                        handle->d_session_p,
                                        handle->d_userData_p);
           }
@@ -262,7 +262,7 @@ void SessionPool::channelStateCb(int   channelId,
           SessionPool_Handle *handle =
               (SessionPool_Handle*)userData;
           if (handle->d_session_p) {
-              handle->d_sessionStateCB(WRITE_CACHE_HIWAT,
+              handle->d_sessionStateCB(e_WRITE_CACHE_HIWAT,
                                        handle->d_handleId,
                                        handle->d_session_p,
                                        handle->d_userData_p);
@@ -312,7 +312,7 @@ void SessionPool::terminateSession(SessionPool_Handle *handle)
 {
     if (handle->d_session_p) {
         handle->d_session_p->stop();
-        handle->d_sessionStateCB(SESSION_DOWN,
+        handle->d_sessionStateCB(e_SESSION_DOWN,
                                  handle->d_handleId,
                                  handle->d_session_p,
                                  handle->d_userData_p);
@@ -333,9 +333,9 @@ void SessionPool::handleDeleter(SessionPool_Handle *handle)
         else if (SessionPool_Handle::CONNECT_SESSION == handle->d_type
               || SessionPool_Handle::ABORTED_CONNECT_SESSION ==
                                                               handle->d_type) {
-            handle->d_sessionStateCB(CONNECT_ABORTED, handle->d_handleId, 0,
+            handle->d_sessionStateCB(e_CONNECT_ABORTED, handle->d_handleId, 0,
                                      handle->d_userData_p);
-            d_poolStateCB(CONNECT_ABORTED, 0, handle->d_userData_p);
+            d_poolStateCB(e_CONNECT_ABORTED, 0, handle->d_userData_p);
         }
     }
 
@@ -371,11 +371,11 @@ void SessionPool::poolStateCb(int state, int source, int)
         // ACCEPT_FAILED is forwarded to both callbacks.  So we can move away
         // from the poolStateCb.
 
-        handle->d_sessionStateCB(ACCEPT_FAILED,
+        handle->d_sessionStateCB(e_ACCEPT_FAILED,
                                  handle->d_handleId,
                                  0,
                                  handle->d_userData_p);
-        d_poolStateCB(ACCEPT_FAILED, source, handle->d_userData_p);
+        d_poolStateCB(e_ACCEPT_FAILED, source, handle->d_userData_p);
       } break;
 
       case ChannelPool::e_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
@@ -393,12 +393,12 @@ void SessionPool::poolStateCb(int state, int source, int)
         if (!--handle->d_numAttemptsRemaining) {
             handle->d_type = SessionPool_Handle::INVALID_SESSION;
             lock.release()->unlock();
-            handle->d_sessionStateCB(CONNECT_FAILED,
+            handle->d_sessionStateCB(e_CONNECT_FAILED,
                                      handle->d_handleId,
                                      0,
                                      handle->d_userData_p);
 
-            d_poolStateCB(CONNECT_FAILED, source, handle->d_userData_p);
+            d_poolStateCB(e_CONNECT_FAILED, source, handle->d_userData_p);
             d_handles.remove(source);
         }
         else {
@@ -408,17 +408,17 @@ void SessionPool::poolStateCb(int state, int source, int)
             // any of this callback will be invoked after the abort message if
             // closeHandle was called for this pending connect.
 
-            handle->d_sessionStateCB(CONNECT_ATTEMPT_FAILED,
+            handle->d_sessionStateCB(e_CONNECT_ATTEMPT_FAILED,
                                      handle->d_handleId, 0,
                                      handle->d_userData_p);
-            d_poolStateCB(CONNECT_ATTEMPT_FAILED,
+            d_poolStateCB(e_CONNECT_ATTEMPT_FAILED,
                           source,
                           handle->d_userData_p);
         }
       } break;
 
       case ChannelPool::e_CHANNEL_LIMIT: {
-        d_poolStateCB(SESSION_LIMIT_REACHED, 0, 0);
+        d_poolStateCB(e_SESSION_LIMIT_REACHED, 0, 0);
       } break;
     }
 }
@@ -480,7 +480,7 @@ void SessionPool::sessionAllocationCb(int       result,
     }
 
     if (result) {
-        handle->d_sessionStateCB(SESSION_ALLOC_FAILED,
+        handle->d_sessionStateCB(e_SESSION_ALLOC_FAILED,
                                  handle->d_handleId,
                                  0,
                                  handle->d_userData_p);
@@ -494,7 +494,7 @@ void SessionPool::sessionAllocationCb(int       result,
     // Start the session
 
     if (session->start()) {
-        handle->d_sessionStateCB(SESSION_STARTUP_FAILED,
+        handle->d_sessionStateCB(e_SESSION_STARTUP_FAILED,
                                  handle->d_handleId,
                                  session,
                                  handle->d_userData_p);
@@ -510,7 +510,7 @@ void SessionPool::sessionAllocationCb(int       result,
 
     ++d_numSessions;
     handle->d_session_p = session;
-    handle->d_sessionStateCB(SESSION_UP,
+    handle->d_sessionStateCB(e_SESSION_UP,
                              handle->d_handleId,
                              session,
                              handle->d_userData_p);

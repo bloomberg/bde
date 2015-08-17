@@ -81,7 +81,7 @@ static const char ALL_STRING[]    = "\000\001\002\003\004\005\006\007\010\011"
 
 static const char NONE_STRING[]   = "";
 
-static const char *CATEGORY_STRING[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const char *CATEGORY_STRING[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_STRING,
     LOWER_STRING,
     ALPHA_STRING,
@@ -100,7 +100,7 @@ static const char *CATEGORY_STRING[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
     NONE_STRING,
 };
 
-static const char *CATEGORY_NAME[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const char *CATEGORY_NAME[bdlb::CharType::k_NUM_CATEGORIES] = {
     "UPPER",
     "LOWER",
     "ALPHA",
@@ -315,7 +315,7 @@ static const bool NONE_TABLE[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 };
 
-static const bool *CATEGORY_TABLE[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const bool *CATEGORY_TABLE[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_TABLE,
     LOWER_TABLE,
     ALPHA_TABLE,
@@ -334,7 +334,7 @@ static const bool *CATEGORY_TABLE[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
     NONE_TABLE,
 };
 
-static const short int CATEGORY_COUNT[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const short int CATEGORY_COUNT[bdlb::CharType::k_NUM_CATEGORIES] = {
     static_cast<short int>(sizeof UPPER_STRING - 1),
     static_cast<short int>(sizeof LOWER_STRING - 1),
     static_cast<short int>(sizeof ALPHA_STRING - 1),

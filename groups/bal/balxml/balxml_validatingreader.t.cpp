@@ -118,90 +118,90 @@ static const char *XmlValue = "version='1.0' encoding='UTF-8'";
 static const TestNode goodDocument[] = {
     // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
     // 'TestReader' to traverse and describe the user directory XML above.
-    { 0, Obj::BAEXML_NODE_TYPE_NONE },
+    { 0, Obj::e_NODE_TYPE_NONE },
 
-    { 0, Obj::BAEXML_NODE_TYPE_XML_DECLARATION,
+    { 0, Obj::e_NODE_TYPE_XML_DECLARATION,
          "xml"          , XmlValue   , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "directory-entry" , 0             ,  0,
         false, { "xmlns:dir"    , "http://bloomberg.com/schemas/directory" } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "name"           , 0             , +1,
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "John Smith"  , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "name"           , 0             , -1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "phone"          , 0             ,  0,
         false, { "dir:phonetype", "cell"                                   } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "212-318-2000", +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "phone"          , 0             , -1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "address"        , 0             ,  0,
         true                                                                 },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "directory-entry", 0             , -1
                                                                              },
 
-    { 1, Obj::BAEXML_NODE_TYPE_NONE
+    { 1, Obj::e_NODE_TYPE_NONE
                                                                              }
 };
 
 static const TestNode badDocument[] = {
     // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
     // 'TestReader' to traverse and describe the user directory XML above.
-    { 0, Obj::BAEXML_NODE_TYPE_NONE },
+    { 0, Obj::e_NODE_TYPE_NONE },
 
-    { 0, Obj::BAEXML_NODE_TYPE_XML_DECLARATION,
+    { 0, Obj::e_NODE_TYPE_XML_DECLARATION,
          "xml"          , XmlValue      , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "directory-entry" , 0             ,  0,
         false, { "xmlns:dir"    , "http://bloomberg.com/schemas/directory" } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "name"           , 0             , +1,
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "John Smith"  , +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "name"           , 0             , -1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_ELEMENT,
          "phone"          , 0             ,  0,
         false, { "dir:phonetype", "cell"                                   } },
 
-    { 0, Obj::BAEXML_NODE_TYPE_TEXT,
+    { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "212-318-2000", +1
                                                                              },
 
-    { 0, Obj::BAEXML_NODE_TYPE_END_ELEMENT,
+    { 0, Obj::e_NODE_TYPE_END_ELEMENT,
          "phone"          , 0             , -1
                                                                              },
 
-    { -1, Obj::BAEXML_NODE_TYPE_NONE
+    { -1, Obj::e_NODE_TYPE_NONE
                                                                              }
 };
 
@@ -335,12 +335,12 @@ int advancePastWhiteSpace(balxml::ValidatingReader& reader) {
         value = reader.nodeValue();
         type  = reader.nodeType();
     } while(0 == rc &&
-            type == balxml::ValidatingReader::BAEXML_NODE_TYPE_WHITESPACE ||
-            (type == balxml::ValidatingReader::BAEXML_NODE_TYPE_TEXT &&
+            type == balxml::ValidatingReader::e_NODE_TYPE_WHITESPACE ||
+            (type == balxml::ValidatingReader::e_NODE_TYPE_TEXT &&
              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 
     ASSERT( reader.nodeType() !=
-                         balxml::ValidatingReader::BAEXML_NODE_TYPE_WHITESPACE);
+                         balxml::ValidatingReader::e_NODE_TYPE_WHITESPACE);
 
     return rc;
 }
@@ -362,7 +362,7 @@ inline void TestReader::setEncoding(const char *encoding) {
 inline void TestReader::adjustPrefixStack() {
     // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
     // push an prefixed on the prefix stack.
-    if (Obj::BAEXML_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
+    if (Obj::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
 
         for (int ii = 0; ii < NUM_ATTRIBUTES; ++ii) {
             const char *prefix = d_currentNode->d_attributes[ii].d_qname;
@@ -382,7 +382,7 @@ inline void TestReader::adjustPrefixStack() {
             }
         }
     }
-    else if (Obj::BAEXML_NODE_TYPE_NONE == d_currentNode->d_type) {
+    else if (Obj::e_NODE_TYPE_NONE == d_currentNode->d_type) {
         d_prefixes->reset();
     }
 }
@@ -673,7 +673,7 @@ balxml::PrefixStack *TestReader::prefixStack() const {
 
 TestReader::NodeType TestReader::nodeType() const {
     if (!d_currentNode || !d_isOpen) {
-        return BAEXML_NODE_TYPE_NONE;                                 // RETURN
+        return e_NODE_TYPE_NONE;                                 // RETURN
     }
 
     return d_currentNode->d_type;

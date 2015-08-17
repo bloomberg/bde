@@ -2243,7 +2243,7 @@ void ChannelPool::init()
     for (int i = 0; i < maxThread; ++i) {
         TcpTimerEventManager *manager =
             new (*d_allocator_p) TcpTimerEventManager(
-                                           TcpTimerEventManager::BTEMT_NO_HINT,
+                                           TcpTimerEventManager::e_NO_HINT,
                                            d_collectTimeMetrics,
                                            d_allocator_p);
         if (d_startFlag) {
@@ -2389,7 +2389,7 @@ void ChannelPool::acceptCb(int                          serverId,
                                      &socket,
                                      newId, serverId,
                                      d_config,
-                                     ChannelType::BTEMT_ACCEPTED_CHANNEL,
+                                     ChannelType::e_ACCEPTED_CHANNEL,
                                      server->d_keepHalfOpenMode,
                                      d_channelStateCb,
                                      d_blobBasedReadCb,
@@ -3048,8 +3048,8 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     // aCC (aC++/ANSI C B3910B A.06.00 [Aug 25 2004]).
 
     ChannelType::Value type = imported
-                                  ? ChannelType::BTEMT_IMPORTED_CHANNEL
-                                  : ChannelType::BTEMT_CONNECTED_CHANNEL;
+                                  ? ChannelType::e_IMPORTED_CHANNEL
+                                  : ChannelType::e_CONNECTED_CHANNEL;
     Channel *channelPtr = new (d_pool) Channel(&socket,
                                                newId,
                                                sourceId,
@@ -4381,7 +4381,7 @@ void ChannelPool::getHandleStatistics(
             // 'listen()' under the lock.
 
             info.d_handle       = ss.d_socket_p->handle();
-            info.d_channelType  = ChannelType::BTEMT_LISTENING_CHANNEL;
+            info.d_channelType  = ChannelType::e_LISTENING_CHANNEL;
             info.d_channelId    = -1;
             info.d_creationTime = ss.d_creationTime;
             info.d_threadHandle = ss.d_manager_p->dispatcherThreadHandle();
@@ -4406,7 +4406,7 @@ void ChannelPool::getHandleStatistics(
                 HandleInfo& info = handleInfo->back();
 
                 info.d_handle       = cs.d_socket->handle();
-                info.d_channelType  = ChannelType::BTEMT_CONNECTING_CHANNEL;
+                info.d_channelType  = ChannelType::e_CONNECTING_CHANNEL;
                 info.d_channelId    = -1;
                 info.d_creationTime = cs.d_creationTime;
                 info.d_threadHandle = cs.d_manager_p->dispatcherThreadHandle();

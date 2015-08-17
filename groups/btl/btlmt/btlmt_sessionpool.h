@@ -890,7 +890,7 @@ class SessionPool {
                 SessionFactory                           *factory,
                 void                                     *userData = 0,
                 ConnectResolutionMode                     resolutionMode
-                                                               = RESOLVE_ONCE);
+                                                               = e_RESOLVE_ONCE);
     int connect(int                                      *handleBuffer,
                 const SessionPool::SessionStateCallback&  callback,
                 const char                               *hostname,
@@ -900,7 +900,7 @@ class SessionPool {
                 SessionFactory                           *factory,
                 void                                     *userData = 0,
                 ConnectResolutionMode                     resolutionMode
-                                                               = RESOLVE_ONCE,
+                                                               = e_RESOLVE_ONCE,
                 const btlso::SocketOptions               *socketOptions = 0,
                 const btlso::IPv4Address                 *localAddress = 0);
         // Asynchronously attempt to connect to the specified 'hostname' on the

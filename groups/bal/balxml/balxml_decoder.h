@@ -2080,9 +2080,9 @@ Decoder::decode(bsl::streambuf *buffer, TYPE *object, const char *uri)
     int ret = this->decode(object);
 
     switch(errorSeverity()) {
-      case ErrorInfo::BAEXML_NO_ERROR:
+      case ErrorInfo::e_NO_ERROR:
         break;
-      case ErrorInfo::BAEXML_WARNING:
+      case ErrorInfo::e_WARNING:
         if (d_warningStream) {
             *d_warningStream << loggedMessages();
         }

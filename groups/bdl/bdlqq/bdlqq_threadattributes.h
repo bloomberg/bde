@@ -283,8 +283,8 @@ class ThreadAttributes {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BCEMT_CREATE_JOINABLE = e_CREATE_JOINABLE
       , BCEMT_CREATE_DETACHED = e_CREATE_DETACHED
-      , CREATE_JOINABLE = BCEMT_CREATE_JOINABLE
-      , CREATE_DETACHED = BCEMT_CREATE_DETACHED
+      , CREATE_JOINABLE = e_CREATE_JOINABLE
+      , CREATE_DETACHED = e_CREATE_DETACHED
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -320,8 +320,8 @@ class ThreadAttributes {
         e_UNSET_GUARD_SIZE = -1,
         e_UNSET_PRIORITY   = INT_MIN,
 
-        e_SCHED_MIN        = BCEMT_SCHED_OTHER,
-        e_SCHED_MAX        = BCEMT_SCHED_DEFAULT
+        e_SCHED_MIN        = e_SCHED_OTHER,
+        e_SCHED_MAX        = e_SCHED_DEFAULT
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BCEMT_UNSET_STACK_SIZE = e_UNSET_STACK_SIZE
       , BCEMT_UNSET_GUARD_SIZE = e_UNSET_GUARD_SIZE
@@ -549,8 +549,8 @@ inline
 void bdlqq::ThreadAttributes::setDetachedState(
                                          ThreadAttributes::DetachedState value)
 {
-    BSLS_ASSERT_SAFE(BCEMT_CREATE_DETACHED == value ||
-                     BCEMT_CREATE_JOINABLE == value);
+    BSLS_ASSERT_SAFE(e_CREATE_DETACHED == value ||
+                     e_CREATE_JOINABLE == value);
 
     d_detachedState = value;
 }
@@ -558,7 +558,7 @@ void bdlqq::ThreadAttributes::setDetachedState(
 inline
 void bdlqq::ThreadAttributes::setGuardSize(int value)
 {
-    BSLMF_ASSERT(-1 == BCEMT_UNSET_GUARD_SIZE);
+    BSLMF_ASSERT(-1 == e_UNSET_GUARD_SIZE);
 
     BSLS_ASSERT_SAFE(-1 <= value);
 
@@ -575,8 +575,8 @@ inline
 void bdlqq::ThreadAttributes::setSchedulingPolicy(
                                       ThreadAttributes::SchedulingPolicy value)
 {
-    BSLS_ASSERT_SAFE(BCEMT_SCHED_MIN <= (int) value);
-    BSLS_ASSERT_SAFE(                   (int) value <= BCEMT_SCHED_MAX);
+    BSLS_ASSERT_SAFE(e_SCHED_MIN <= (int) value);
+    BSLS_ASSERT_SAFE(                   (int) value <= e_SCHED_MAX);
 
     d_schedulingPolicy = value;
 }
@@ -590,7 +590,7 @@ void bdlqq::ThreadAttributes::setSchedulingPriority(int value)
 inline
 void bdlqq::ThreadAttributes::setStackSize(int value)
 {
-    BSLMF_ASSERT(-1 == BCEMT_UNSET_STACK_SIZE);
+    BSLMF_ASSERT(-1 == e_UNSET_STACK_SIZE);
 
     BSLS_ASSERT_SAFE(-1 <= value);
 

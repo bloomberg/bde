@@ -95,13 +95,13 @@ int MemoryUtil::protect(void *address, int numBytes, int mode)
 
     int protect = 0;
 
-    if (mode & BDESU_ACCESS_READ) {
+    if (mode & k_ACCESS_READ) {
         protect |= PROT_READ;
     }
-    if (mode & BDESU_ACCESS_WRITE) {
+    if (mode & k_ACCESS_WRITE) {
         protect |= PROT_WRITE;
     }
-    if (mode & BDESU_ACCESS_EXECUTE) {
+    if (mode & k_ACCESS_EXECUTE) {
         protect |= PROT_EXEC;
     }
 

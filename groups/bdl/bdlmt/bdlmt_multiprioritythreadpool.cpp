@@ -147,7 +147,7 @@ MultipriorityThreadPool::MultipriorityThreadPool(
 , d_numSuspendedThreads(0)
 , d_numActiveThreads(0)
 {
-    BSLS_ASSERT(BCEP_MAX_NUM_PRIORITIES >= numPriorities);
+    BSLS_ASSERT(k_MAX_NUM_PRIORITIES >= numPriorities);
     BSLS_ASSERT(1 <= numPriorities);
     BSLS_ASSERT(1 <= numThreads);
 }
@@ -167,13 +167,13 @@ MultipriorityThreadPool::MultipriorityThreadPool(
 , d_numSuspendedThreads(0)
 , d_numActiveThreads(0)
 {
-    BSLS_ASSERT(BCEP_MAX_NUM_PRIORITIES >= numPriorities);
+    BSLS_ASSERT(k_MAX_NUM_PRIORITIES >= numPriorities);
     BSLS_ASSERT(1 <= numPriorities);
     BSLS_ASSERT(1 <= numThreads);
 
     // Force all threads to be joinable.
     d_threadAttributes.setDetachedState(
-                                       bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+                                       bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 }
 
 MultipriorityThreadPool::~MultipriorityThreadPool()

@@ -2674,7 +2674,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
@@ -2687,55 +2687,55 @@ int main(int argc, char *argv[])
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(!obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tCRLF_MODE and error reporting" << endl;
         {
-            Obj obj(true, Obj::BDEDE_CRLF_MODE);
+            Obj obj(true, Obj::e_CRLF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tCRLF_MODE and no error reporting" << endl;
         {
-            Obj obj(false, Obj::BDEDE_CRLF_MODE);
+            Obj obj(false, Obj::e_CRLF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(!obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tLF_MODE and error reporting" << endl;
         {
-            Obj obj(true, Obj::BDEDE_LF_MODE);
+            Obj obj(true, Obj::e_LF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_LF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_LF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tLF_MODE and no error reporting" << endl;
         {
-            Obj obj(false, Obj::BDEDE_LF_MODE);
+            Obj obj(false, Obj::e_LF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(!obj.isUnrecognizedAnError());
-            ASSERT(Obj::BDEDE_LF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_LF_MODE == obj.lineBreakMode());
             ASSERT(0 == obj.outputLength());
         }
 
@@ -2910,7 +2910,7 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[ti].d_exp;
                 const int   NUM   = DATA[ti].d_expNum;
 
-                Obj obj(false, bdlde::QuotedPrintableDecoder::BDEDE_LF_MODE);
+                Obj obj(false, bdlde::QuotedPrintableDecoder::e_LF_MODE);
                 int numOut = -1;
                 int numIn = -1;
 

@@ -349,7 +349,7 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_valueBegin(0)
 , d_valueEnd(0)
 , d_valueIter(0)
-, d_tokenType(BAEJSN_BEGIN)
+, d_tokenType(e_BEGIN)
 , d_context(e_OBJECT_CONTEXT)
 , d_allowStandAloneValues(true)
 {
@@ -371,7 +371,7 @@ void Tokenizer::reset(bsl::streambuf *streamBuf)
     d_valueBegin  = 0;
     d_valueEnd    = 0;
     d_valueIter   = 0;
-    d_tokenType   = BAEJSN_BEGIN;
+    d_tokenType   = e_BEGIN;
 }
 
 inline

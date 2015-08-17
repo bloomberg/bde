@@ -273,7 +273,7 @@ inline
 EncoderOptions::EncoderOptions()
 : d_initialIndentLevel(0)
 , d_spacesPerLevel(0)
-, d_encodingStyle(BAEJSN_COMPACT)
+, d_encodingStyle(e_COMPACT)
 , d_encodeEmptyArrays(false)
 , d_encodeNullElements(false)
 {

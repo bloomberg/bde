@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < 10; ++i) {
             ASSERT(native == Obj::nativeDefaultThreadStackSize());
-            ASSERT(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+            ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                                 Obj::defaultThreadStackSize());
         }
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 
         // Then, we verify that 'defaultThreadStackSize' is unset.
 
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+        ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                bdlqq::Configuration::defaultThreadStackSize());
 
         // Next, we define 'newDefaultStackSize' to some size other than the
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
                              "==============\n";
 
         bsl::size_t defaultStackSize = Obj::defaultThreadStackSize();
-        ASSERT(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+        ASSERT(bdlqq::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                                        (int) defaultStackSize);
 
         defaultStackSize = Obj::nativeDefaultThreadStackSize();

@@ -260,13 +260,13 @@ struct Iso8601Util {
       , BDEPU_TIME_STRLEN = k_TIME_STRLEN
       , BDEPU_TIMETZ_STRLEN = k_TIMETZ_STRLEN
       , BDEPU_MAX_DATETIME_STRLEN = k_MAX_DATETIME_STRLEN
-      , DATE_STRLEN         = BDEPU_DATE_STRLEN
-      , DATETIME_STRLEN     = BDEPU_DATETIME_STRLEN
-      , DATETIMETZ_STRLEN   = BDEPU_DATETIMETZ_STRLEN
-      , DATETZ_STRLEN       = BDEPU_DATETZ_STRLEN
-      , TIME_STRLEN         = BDEPU_TIME_STRLEN
-      , TIMETZ_STRLEN       = BDEPU_TIMETZ_STRLEN
-      , MAX_DATETIME_STRLEN = BDEPU_MAX_DATETIME_STRLEN
+      , DATE_STRLEN         = k_DATE_STRLEN
+      , DATETIME_STRLEN     = k_DATETIME_STRLEN
+      , DATETIMETZ_STRLEN   = k_DATETIMETZ_STRLEN
+      , DATETZ_STRLEN       = k_DATETZ_STRLEN
+      , TIME_STRLEN         = k_TIME_STRLEN
+      , TIMETZ_STRLEN       = k_TIMETZ_STRLEN
+      , MAX_DATETIME_STRLEN = k_MAX_DATETIME_STRLEN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -700,9 +700,9 @@ inline
 bsl::ostream& Iso8601Util::generate(bsl::ostream&    stream,
                                       const bdlt::Date& object)
 {
-    char buffer[BDEPU_DATE_STRLEN + 1];
-    int len = generate(buffer, object, BDEPU_DATE_STRLEN);
-    BSLS_ASSERT_SAFE(BDEPU_DATE_STRLEN >= len);
+    char buffer[k_DATE_STRLEN + 1];
+    int len = generate(buffer, object, k_DATE_STRLEN);
+    BSLS_ASSERT_SAFE(k_DATE_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
 }
@@ -711,9 +711,9 @@ inline
 bsl::ostream& Iso8601Util::generate(bsl::ostream&    stream,
                                       const bdlt::Time& object)
 {
-    char buffer[BDEPU_TIME_STRLEN + 1];
-    int len = generate(buffer, object, BDEPU_TIME_STRLEN);
-    BSLS_ASSERT_SAFE(BDEPU_TIME_STRLEN >= len);
+    char buffer[k_TIME_STRLEN + 1];
+    int len = generate(buffer, object, k_TIME_STRLEN);
+    BSLS_ASSERT_SAFE(k_TIME_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
 }
@@ -722,9 +722,9 @@ inline
 bsl::ostream& Iso8601Util::generate(bsl::ostream&        stream,
                                       const bdlt::Datetime& object)
 {
-    char buffer[BDEPU_DATETIME_STRLEN + 1];
-    int len = generate(buffer, object, BDEPU_DATETIME_STRLEN);
-    BSLS_ASSERT_SAFE(BDEPU_DATETIME_STRLEN >= len);
+    char buffer[k_DATETIME_STRLEN + 1];
+    int len = generate(buffer, object, k_DATETIME_STRLEN);
+    BSLS_ASSERT_SAFE(k_DATETIME_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
 }
@@ -744,10 +744,10 @@ bsl::ostream& Iso8601Util::generate(
                                      const bdlt::DateTz& object,
                                      bool               useZAbbreviationForUtc)
 {
-    char buffer[BDEPU_DATETZ_STRLEN + 1];
+    char buffer[k_DATETZ_STRLEN + 1];
     int len = generate(
-             buffer, object, BDEPU_DATETZ_STRLEN, useZAbbreviationForUtc);
-    BSLS_ASSERT_SAFE(BDEPU_DATETZ_STRLEN >= len);
+             buffer, object, k_DATETZ_STRLEN, useZAbbreviationForUtc);
+    BSLS_ASSERT_SAFE(k_DATETZ_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
 }
@@ -767,10 +767,10 @@ bsl::ostream& Iso8601Util::generate(
                                      const bdlt::TimeTz& object,
                                      bool               useZAbbreviationForUtc)
 {
-    char buffer[BDEPU_TIMETZ_STRLEN + 1];
+    char buffer[k_TIMETZ_STRLEN + 1];
     int len = generate(
-                  buffer, object, BDEPU_TIMETZ_STRLEN, useZAbbreviationForUtc);
-    BSLS_ASSERT_SAFE(BDEPU_TIMETZ_STRLEN >= len);
+                  buffer, object, k_TIMETZ_STRLEN, useZAbbreviationForUtc);
+    BSLS_ASSERT_SAFE(k_TIMETZ_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
 }
@@ -790,10 +790,10 @@ bsl::ostream& Iso8601Util::generate(
                                  const bdlt::DatetimeTz& object,
                                  bool                   useZAbbreviationForUtc)
 {
-    char buffer[BDEPU_DATETIMETZ_STRLEN + 1];
+    char buffer[k_DATETIMETZ_STRLEN + 1];
     int len = generate(
-              buffer, object, BDEPU_DATETIMETZ_STRLEN, useZAbbreviationForUtc);
-    BSLS_ASSERT_SAFE(BDEPU_DATETIMETZ_STRLEN >= len);
+              buffer, object, k_DATETIMETZ_STRLEN, useZAbbreviationForUtc);
+    BSLS_ASSERT_SAFE(k_DATETIMETZ_STRLEN >= len);
     stream.write(buffer, len);
     return stream;
 }

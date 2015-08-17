@@ -258,7 +258,7 @@ static char toUpper(char c) {
 // The following table mirrors the one in the header used to document which
 // characters belong to the respective categories.
 
-static const char DOC_TABLE[128][bdlb::CharType::BDEU_NONE + 1] =
+static const char DOC_TABLE[128][bdlb::CharType::e_NONE + 1] =
 {
   //             X
   // U  L  A  D  D  A  S  P  G  P  C  A  I  A
@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Streaming Operators" << endl
                                   << "===========================" << endl;
 
-        const int NUM_ENUMS = bdlb::CharType::BDEU_NUM_CATEGORIES;
+        const int NUM_ENUMS = bdlb::CharType::k_NUM_CATEGORIES;
         typedef bdlb::CharType::Category Enum;
 
         // --------------------------------------------------------------------
@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nFor each character set, check count." << endl;
         {
-            for (int ci = 0; ci < Util::BDEU_NUM_CATEGORIES; ++ci) {
+            for (int ci = 0; ci < Util::k_NUM_CATEGORIES; ++ci) {
                 Util::Category category = Util::Category(ci);
 
                 // Count up the number of true values in the table and compare
@@ -954,30 +954,30 @@ int main(int argc, char *argv[])
             if (verbose) cout <<
                 "\tRepeat test with individual functions." << endl;
 
-            ASSERT(Util::numCategory(Util::BDEU_UPPER) == Util::numUpper());
-            ASSERT(Util::numCategory(Util::BDEU_LOWER) == Util::numLower());
-            ASSERT(Util::numCategory(Util::BDEU_ALPHA) == Util::numAlpha());
-            ASSERT(Util::numCategory(Util::BDEU_DIGIT) == Util::numDigit());
+            ASSERT(Util::numCategory(Util::e_UPPER) == Util::numUpper());
+            ASSERT(Util::numCategory(Util::e_LOWER) == Util::numLower());
+            ASSERT(Util::numCategory(Util::e_ALPHA) == Util::numAlpha());
+            ASSERT(Util::numCategory(Util::e_DIGIT) == Util::numDigit());
 
-            ASSERT(Util::numCategory(Util::BDEU_XDIGIT) == Util::numXdigit());
-            ASSERT(Util::numCategory(Util::BDEU_ALNUM) == Util::numAlnum());
-            ASSERT(Util::numCategory(Util::BDEU_SPACE) == Util::numSpace());
-            ASSERT(Util::numCategory(Util::BDEU_PRINT) == Util::numPrint());
+            ASSERT(Util::numCategory(Util::e_XDIGIT) == Util::numXdigit());
+            ASSERT(Util::numCategory(Util::e_ALNUM) == Util::numAlnum());
+            ASSERT(Util::numCategory(Util::e_SPACE) == Util::numSpace());
+            ASSERT(Util::numCategory(Util::e_PRINT) == Util::numPrint());
 
-            ASSERT(Util::numCategory(Util::BDEU_GRAPH) == Util::numGraph());
-            ASSERT(Util::numCategory(Util::BDEU_PUNCT) == Util::numPunct());
-            ASSERT(Util::numCategory(Util::BDEU_CNTRL) == Util::numCntrl());
-            ASSERT(Util::numCategory(Util::BDEU_ASCII) == Util::numAscii());
+            ASSERT(Util::numCategory(Util::e_GRAPH) == Util::numGraph());
+            ASSERT(Util::numCategory(Util::e_PUNCT) == Util::numPunct());
+            ASSERT(Util::numCategory(Util::e_CNTRL) == Util::numCntrl());
+            ASSERT(Util::numCategory(Util::e_ASCII) == Util::numAscii());
 
-            ASSERT(Util::numCategory(Util::BDEU_IDENT) == Util::numIdent());
-            ASSERT(Util::numCategory(Util::BDEU_ALUND) == Util::numAlund());
-            ASSERT(Util::numCategory(Util::BDEU_ALL)   == Util::numAll());
-            ASSERT(Util::numCategory(Util::BDEU_NONE)  == Util::numNone());
+            ASSERT(Util::numCategory(Util::e_IDENT) == Util::numIdent());
+            ASSERT(Util::numCategory(Util::e_ALUND) == Util::numAlund());
+            ASSERT(Util::numCategory(Util::e_ALL)   == Util::numAll());
+            ASSERT(Util::numCategory(Util::e_NONE)  == Util::numNone());
         }
 
         if (verbose) cout << "\nFor each character set, check string." << endl;
         {
-            for (int ci = 0; ci < Util::BDEU_NUM_CATEGORIES; ++ci) {
+            for (int ci = 0; ci < Util::k_NUM_CATEGORIES; ++ci) {
                 Util::Category category = Util::Category(ci);
                 int count = Util::numCategory(category);
                 if (veryVerbose) { T_ P_(ci) P_(category) P(count) }
@@ -1007,82 +1007,82 @@ int main(int argc, char *argv[])
 
                               n = Util::numUpper();
                            r = Util::stringUpper();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_UPPER);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_UPPER);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numLower();
                            r = Util::stringLower();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_LOWER);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_LOWER);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAlpha();
                            r = Util::stringAlpha();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALPHA);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALPHA);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numDigit();
                            r = Util::stringDigit();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_DIGIT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_DIGIT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numXdigit();
                            r = Util::stringXdigit();    ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_XDIGIT);     ASSERT(e == r);
+            e = Util::stringCategory(Util::e_XDIGIT);     ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAlnum();
                            r = Util::stringAlnum();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALNUM);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALNUM);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numSpace();
                            r = Util::stringSpace();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_SPACE);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_SPACE);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numPrint();
                            r = Util::stringPrint();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_PRINT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_PRINT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numGraph();
                            r = Util::stringGraph();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_GRAPH);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_GRAPH);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numPunct();
                            r = Util::stringPunct();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_PUNCT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_PUNCT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numCntrl();
                            r = Util::stringCntrl();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_CNTRL);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_CNTRL);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAscii();
                            r = Util::stringAscii();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ASCII);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ASCII);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numIdent();
                            r = Util::stringIdent();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_IDENT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_IDENT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAlund();
                            r = Util::stringAlund();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALUND);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALUND);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAll();
                            r = Util::stringAll();       ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALL);        ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALL);        ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numNone();
                            r = Util::stringNone();      ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_NONE);       ASSERT(e == r);
+            e = Util::stringCategory(Util::e_NONE);       ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
         }
 
@@ -1090,7 +1090,7 @@ int main(int argc, char *argv[])
     "\nFor each character set, ensure character codes are strictly increasing."
                                                                        << endl;
         {
-            for (int ci = 0; ci < Util::BDEU_NUM_CATEGORIES; ++ci) {
+            for (int ci = 0; ci < Util::k_NUM_CATEGORIES; ++ci) {
                 Util::Category category = Util::Category(ci);
                 int count = Util::numCategory(category);
                 if (veryVerbose) { T_ P_(ci) P_(category) P(count) }
@@ -1183,40 +1183,40 @@ int main(int argc, char *argv[])
                 typedef bdlb::CharType U;        // *** Very Short Alias
 
                 LOOP_ASSERT(i, isUpper(i)  == Util::isCategory(i,
-                                                               U::BDEU_UPPER));
+                                                               U::e_UPPER));
                 LOOP_ASSERT(i, isLower(i)  == Util::isCategory(i,
-                                                               U::BDEU_LOWER));
+                                                               U::e_LOWER));
                 LOOP_ASSERT(i, isDigit(i)  == Util::isCategory(i,
-                                                               U::BDEU_DIGIT));
+                                                               U::e_DIGIT));
                 LOOP_ASSERT(i, isXdigit(i) == Util::isCategory(i,
-                                                              U::BDEU_XDIGIT));
+                                                              U::e_XDIGIT));
 
                 LOOP_ASSERT(i, isAlpha(i)  == Util::isCategory(i,
-                                                               U::BDEU_ALPHA));
+                                                               U::e_ALPHA));
                 LOOP_ASSERT(i, isAlnum(i)  == Util::isCategory(i,
-                                                               U::BDEU_ALNUM));
+                                                               U::e_ALNUM));
                 LOOP_ASSERT(i, isSpace(i)  == Util::isCategory(i,
-                                                               U::BDEU_SPACE));
+                                                               U::e_SPACE));
                 LOOP_ASSERT(i, isPrint(i)  == Util::isCategory(i,
-                                                               U::BDEU_PRINT));
+                                                               U::e_PRINT));
 
                 LOOP_ASSERT(i, isGraph(i)  == Util::isCategory(i,
-                                                               U::BDEU_GRAPH));
+                                                               U::e_GRAPH));
                 LOOP_ASSERT(i, isPunct(i)  == Util::isCategory(i,
-                                                               U::BDEU_PUNCT));
+                                                               U::e_PUNCT));
                 LOOP_ASSERT(i, isCntrl(i)  == Util::isCategory(i,
-                                                               U::BDEU_CNTRL));
+                                                               U::e_CNTRL));
                 LOOP_ASSERT(i, isAscii(i)  == Util::isCategory(i,
-                                                               U::BDEU_ASCII));
+                                                               U::e_ASCII));
 
                 LOOP_ASSERT(i, isIdent(i)  == Util::isCategory(i,
-                                                               U::BDEU_IDENT));
+                                                               U::e_IDENT));
                 LOOP_ASSERT(i, isAlund(i)  == Util::isCategory(i,
-                                                               U::BDEU_ALUND));
+                                                               U::e_ALUND));
                 LOOP_ASSERT(i, isAll(i)    == Util::isCategory(i,
-                                                               U::BDEU_ALL));
+                                                               U::e_ALL));
                 LOOP_ASSERT(i, isNone(i)   == Util::isCategory(i,
-                                                               U::BDEU_NONE));
+                                                               U::e_NONE));
 
                 LOOP_ASSERT(i, toLower(i)  == Util::toLower(i));
                 LOOP_ASSERT(i, toUpper(i)  == Util::toUpper(i));
@@ -1254,22 +1254,22 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nVerify bdlb::CharType::toAscii." << endl;
         {
-            ASSERT(0 == strcmp("UPPER", Util::toAscii(Util::BDEU_UPPER)));
-            ASSERT(0 == strcmp("LOWER", Util::toAscii(Util::BDEU_LOWER)));
-            ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::BDEU_ALPHA)));
-            ASSERT(0 == strcmp("DIGIT", Util::toAscii(Util::BDEU_DIGIT)));
-            ASSERT(0 == strcmp("XDIGIT", Util::toAscii(Util::BDEU_XDIGIT)));
-            ASSERT(0 == strcmp("ALNUM", Util::toAscii(Util::BDEU_ALNUM)));
-            ASSERT(0 == strcmp("SPACE", Util::toAscii(Util::BDEU_SPACE)));
-            ASSERT(0 == strcmp("PRINT", Util::toAscii(Util::BDEU_PRINT)));
-            ASSERT(0 == strcmp("GRAPH", Util::toAscii(Util::BDEU_GRAPH)));
-            ASSERT(0 == strcmp("PUNCT", Util::toAscii(Util::BDEU_PUNCT)));
-            ASSERT(0 == strcmp("CNTRL", Util::toAscii(Util::BDEU_CNTRL)));
-            ASSERT(0 == strcmp("ASCII", Util::toAscii(Util::BDEU_ASCII)));
-            ASSERT(0 == strcmp("IDENT", Util::toAscii(Util::BDEU_IDENT)));
-            ASSERT(0 == strcmp("ALUND", Util::toAscii(Util::BDEU_ALUND)));
-            ASSERT(0 == strcmp("ALL", Util::toAscii(Util::BDEU_ALL)));
-            ASSERT(0 == strcmp("NONE", Util::toAscii(Util::BDEU_NONE)));
+            ASSERT(0 == strcmp("UPPER", Util::toAscii(Util::e_UPPER)));
+            ASSERT(0 == strcmp("LOWER", Util::toAscii(Util::e_LOWER)));
+            ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::e_ALPHA)));
+            ASSERT(0 == strcmp("DIGIT", Util::toAscii(Util::e_DIGIT)));
+            ASSERT(0 == strcmp("XDIGIT", Util::toAscii(Util::e_XDIGIT)));
+            ASSERT(0 == strcmp("ALNUM", Util::toAscii(Util::e_ALNUM)));
+            ASSERT(0 == strcmp("SPACE", Util::toAscii(Util::e_SPACE)));
+            ASSERT(0 == strcmp("PRINT", Util::toAscii(Util::e_PRINT)));
+            ASSERT(0 == strcmp("GRAPH", Util::toAscii(Util::e_GRAPH)));
+            ASSERT(0 == strcmp("PUNCT", Util::toAscii(Util::e_PUNCT)));
+            ASSERT(0 == strcmp("CNTRL", Util::toAscii(Util::e_CNTRL)));
+            ASSERT(0 == strcmp("ASCII", Util::toAscii(Util::e_ASCII)));
+            ASSERT(0 == strcmp("IDENT", Util::toAscii(Util::e_IDENT)));
+            ASSERT(0 == strcmp("ALUND", Util::toAscii(Util::e_ALUND)));
+            ASSERT(0 == strcmp("ALL", Util::toAscii(Util::e_ALL)));
+            ASSERT(0 == strcmp("NONE", Util::toAscii(Util::e_NONE)));
         }
 
         if (verbose) cout <<
@@ -1284,25 +1284,25 @@ int main(int argc, char *argv[])
                 //        Input              Output
                 //L#    Enumerator           Format
                 //--    ----------           ------
-                { L_,   Util::BDEU_UPPER,    "UPPER"         },
-                { L_,   Util::BDEU_LOWER,    "LOWER"         },
-                { L_,   Util::BDEU_ALPHA,    "ALPHA"         },
-                { L_,   Util::BDEU_DIGIT,    "DIGIT"         },
+                { L_,   Util::e_UPPER,    "UPPER"         },
+                { L_,   Util::e_LOWER,    "LOWER"         },
+                { L_,   Util::e_ALPHA,    "ALPHA"         },
+                { L_,   Util::e_DIGIT,    "DIGIT"         },
 
-                { L_,   Util::BDEU_XDIGIT,   "XDIGIT"        },
-                { L_,   Util::BDEU_ALNUM,    "ALNUM"         },
-                { L_,   Util::BDEU_SPACE,    "SPACE"         },
-                { L_,   Util::BDEU_PRINT,    "PRINT"         },
+                { L_,   Util::e_XDIGIT,   "XDIGIT"        },
+                { L_,   Util::e_ALNUM,    "ALNUM"         },
+                { L_,   Util::e_SPACE,    "SPACE"         },
+                { L_,   Util::e_PRINT,    "PRINT"         },
 
-                { L_,   Util::BDEU_GRAPH,    "GRAPH"         },
-                { L_,   Util::BDEU_PUNCT,    "PUNCT"         },
-                { L_,   Util::BDEU_CNTRL,    "CNTRL"         },
-                { L_,   Util::BDEU_ASCII,    "ASCII"         },
+                { L_,   Util::e_GRAPH,    "GRAPH"         },
+                { L_,   Util::e_PUNCT,    "PUNCT"         },
+                { L_,   Util::e_CNTRL,    "CNTRL"         },
+                { L_,   Util::e_ASCII,    "ASCII"         },
 
-                { L_,   Util::BDEU_IDENT,    "IDENT"         },
-                { L_,   Util::BDEU_ALUND,    "ALUND"         },
-                { L_,   Util::BDEU_ALL,      "ALL"           },
-                { L_,   Util::BDEU_NONE,     "NONE"          },
+                { L_,   Util::e_IDENT,    "IDENT"         },
+                { L_,   Util::e_ALUND,    "ALUND"         },
+                { L_,   Util::e_ALL,      "ALL"           },
+                { L_,   Util::e_NONE,     "NONE"          },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1384,28 +1384,28 @@ int main(int argc, char *argv[])
         {
             enum bdlb::CharType::Category c;
 
-            c = bdlb::CharType::BDEU_UPPER;   ASSERT(0 == c);
-            c = bdlb::CharType::BDEU_LOWER;   ASSERT(1 == c);
-            c = bdlb::CharType::BDEU_ALPHA;   ASSERT(2 == c);
-            c = bdlb::CharType::BDEU_DIGIT;   ASSERT(3 == c);
-            c = bdlb::CharType::BDEU_XDIGIT;  ASSERT(4 == c);
-            c = bdlb::CharType::BDEU_ALNUM;   ASSERT(5 == c);
-            c = bdlb::CharType::BDEU_SPACE;   ASSERT(6 == c);
-            c = bdlb::CharType::BDEU_PRINT;   ASSERT(7 == c);
-            c = bdlb::CharType::BDEU_GRAPH;   ASSERT(8 == c);
-            c = bdlb::CharType::BDEU_PUNCT;   ASSERT(9 == c);
-            c = bdlb::CharType::BDEU_CNTRL;   ASSERT(10 == c);
-            c = bdlb::CharType::BDEU_ASCII;   ASSERT(11 == c);
-            c = bdlb::CharType::BDEU_IDENT;   ASSERT(12 == c);
-            c = bdlb::CharType::BDEU_ALUND;   ASSERT(13 == c);
-            c = bdlb::CharType::BDEU_ALL;     ASSERT(14 == c);
-            c = bdlb::CharType::BDEU_NONE;    ASSERT(15 == c);
+            c = bdlb::CharType::e_UPPER;   ASSERT(0 == c);
+            c = bdlb::CharType::e_LOWER;   ASSERT(1 == c);
+            c = bdlb::CharType::e_ALPHA;   ASSERT(2 == c);
+            c = bdlb::CharType::e_DIGIT;   ASSERT(3 == c);
+            c = bdlb::CharType::e_XDIGIT;  ASSERT(4 == c);
+            c = bdlb::CharType::e_ALNUM;   ASSERT(5 == c);
+            c = bdlb::CharType::e_SPACE;   ASSERT(6 == c);
+            c = bdlb::CharType::e_PRINT;   ASSERT(7 == c);
+            c = bdlb::CharType::e_GRAPH;   ASSERT(8 == c);
+            c = bdlb::CharType::e_PUNCT;   ASSERT(9 == c);
+            c = bdlb::CharType::e_CNTRL;   ASSERT(10 == c);
+            c = bdlb::CharType::e_ASCII;   ASSERT(11 == c);
+            c = bdlb::CharType::e_IDENT;   ASSERT(12 == c);
+            c = bdlb::CharType::e_ALUND;   ASSERT(13 == c);
+            c = bdlb::CharType::e_ALL;     ASSERT(14 == c);
+            c = bdlb::CharType::e_NONE;    ASSERT(15 == c);
         }
 
         if (verbose) cout << "\nVerify bdlb::CharType::BDEU_NUM_CATEGORIES."
                           << endl;
         {
-            ASSERT(16 == bdlb::CharType::BDEU_NUM_CATEGORIES);
+            ASSERT(16 == bdlb::CharType::k_NUM_CATEGORIES);
         }
 
       } break;
@@ -1470,25 +1470,25 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < 128; ++i) {
                 if (veryVerbose) P(i);
-                LOOP_ASSERT(i, isUpper(i)  == DOC_TABLE[i][Util::BDEU_UPPER]);
-                LOOP_ASSERT(i, isLower(i)  == DOC_TABLE[i][Util::BDEU_LOWER]);
-                LOOP_ASSERT(i, isDigit(i)  == DOC_TABLE[i][Util::BDEU_DIGIT]);
-                LOOP_ASSERT(i, isXdigit(i) == DOC_TABLE[i][Util::BDEU_XDIGIT]);
+                LOOP_ASSERT(i, isUpper(i)  == DOC_TABLE[i][Util::e_UPPER]);
+                LOOP_ASSERT(i, isLower(i)  == DOC_TABLE[i][Util::e_LOWER]);
+                LOOP_ASSERT(i, isDigit(i)  == DOC_TABLE[i][Util::e_DIGIT]);
+                LOOP_ASSERT(i, isXdigit(i) == DOC_TABLE[i][Util::e_XDIGIT]);
 
-                LOOP_ASSERT(i, isAlpha(i)  == DOC_TABLE[i][Util::BDEU_ALPHA]);
-                LOOP_ASSERT(i, isAlnum(i)  == DOC_TABLE[i][Util::BDEU_ALNUM]);
-                LOOP_ASSERT(i, isSpace(i)  == DOC_TABLE[i][Util::BDEU_SPACE]);
-                LOOP_ASSERT(i, isPrint(i)  == DOC_TABLE[i][Util::BDEU_PRINT]);
+                LOOP_ASSERT(i, isAlpha(i)  == DOC_TABLE[i][Util::e_ALPHA]);
+                LOOP_ASSERT(i, isAlnum(i)  == DOC_TABLE[i][Util::e_ALNUM]);
+                LOOP_ASSERT(i, isSpace(i)  == DOC_TABLE[i][Util::e_SPACE]);
+                LOOP_ASSERT(i, isPrint(i)  == DOC_TABLE[i][Util::e_PRINT]);
 
-                LOOP_ASSERT(i, isGraph(i)  == DOC_TABLE[i][Util::BDEU_GRAPH]);
-                LOOP_ASSERT(i, isPunct(i)  == DOC_TABLE[i][Util::BDEU_PUNCT]);
-                LOOP_ASSERT(i, isCntrl(i)  == DOC_TABLE[i][Util::BDEU_CNTRL]);
-                LOOP_ASSERT(i, isAscii(i)  == DOC_TABLE[i][Util::BDEU_ASCII]);
+                LOOP_ASSERT(i, isGraph(i)  == DOC_TABLE[i][Util::e_GRAPH]);
+                LOOP_ASSERT(i, isPunct(i)  == DOC_TABLE[i][Util::e_PUNCT]);
+                LOOP_ASSERT(i, isCntrl(i)  == DOC_TABLE[i][Util::e_CNTRL]);
+                LOOP_ASSERT(i, isAscii(i)  == DOC_TABLE[i][Util::e_ASCII]);
 
-                LOOP_ASSERT(i, isIdent(i)  == DOC_TABLE[i][Util::BDEU_IDENT]);
-                LOOP_ASSERT(i, isAlund(i)  == DOC_TABLE[i][Util::BDEU_ALUND]);
-                LOOP_ASSERT(i, isAll(i)    == DOC_TABLE[i][Util::BDEU_ALL]);
-                LOOP_ASSERT(i, isNone(i)   == DOC_TABLE[i][Util::BDEU_NONE]);
+                LOOP_ASSERT(i, isIdent(i)  == DOC_TABLE[i][Util::e_IDENT]);
+                LOOP_ASSERT(i, isAlund(i)  == DOC_TABLE[i][Util::e_ALUND]);
+                LOOP_ASSERT(i, isAll(i)    == DOC_TABLE[i][Util::e_ALL]);
+                LOOP_ASSERT(i, isNone(i)   == DOC_TABLE[i][Util::e_NONE]);
             }
         }
 
@@ -1560,22 +1560,22 @@ int main(int argc, char *argv[])
         typedef bdlb::CharType Util;     // *** Short Alias
 
         if (verbose) cout << "\ttoAscii" << endl;
-        ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::BDEU_ALPHA)));
+        ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::e_ALPHA)));
 
         if (verbose) cout << "\tisCategory" << endl;
-        ASSERT(1 == Util::isCategory('A', Util::BDEU_UPPER));
-        ASSERT(0 == Util::isCategory('A', Util::BDEU_DIGIT));
-        ASSERT(1 == Util::isCategory('A', Util::BDEU_ALUND));
-        ASSERT(0 == Util::isCategory('A', Util::BDEU_CNTRL));
+        ASSERT(1 == Util::isCategory('A', Util::e_UPPER));
+        ASSERT(0 == Util::isCategory('A', Util::e_DIGIT));
+        ASSERT(1 == Util::isCategory('A', Util::e_ALUND));
+        ASSERT(0 == Util::isCategory('A', Util::e_CNTRL));
 
         if (verbose) cout << "\tnumCategory" << endl;
-        ASSERT(22 == Util::numCategory(Util::BDEU_XDIGIT));
+        ASSERT(22 == Util::numCategory(Util::e_XDIGIT));
 
         if (verbose) cout << "\tstringCategory" << endl;
-        ASSERT('0' == Util::stringCategory(Util::BDEU_XDIGIT)[0]);
-        ASSERT('9' == Util::stringCategory(Util::BDEU_XDIGIT)[9]);
-        ASSERT('F' == Util::stringCategory(Util::BDEU_XDIGIT)[15]);
-        ASSERT('f' == Util::stringCategory(Util::BDEU_XDIGIT)[21]);
+        ASSERT('0' == Util::stringCategory(Util::e_XDIGIT)[0]);
+        ASSERT('9' == Util::stringCategory(Util::e_XDIGIT)[9]);
+        ASSERT('F' == Util::stringCategory(Util::e_XDIGIT)[15]);
+        ASSERT('f' == Util::stringCategory(Util::e_XDIGIT)[21]);
 
       } break;
       default: {

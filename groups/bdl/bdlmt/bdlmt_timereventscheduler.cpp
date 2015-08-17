@@ -436,7 +436,7 @@ int TimerEventScheduler::start(
     }
 
     bdlqq::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 
     if (bdlqq::ThreadUtil::create(&d_dispatcherThread, modAttr,
                                  &TimerEventSchedulerDispatcherThread,
@@ -480,7 +480,7 @@ TimerEventScheduler::scheduleEvent(
         handle = d_eventTimeQueue.add(timer, callback, key, &isNewTop);
 
         if (-1 == handle) {
-            return BCEP_INVALID_HANDLE;                               // RETURN
+            return e_INVALID_HANDLE;                               // RETURN
         }
 
         ++d_numEvents;
@@ -611,7 +611,7 @@ TimerEventScheduler::startClock(const bsls::TimeInterval&        interval,
         p->d_handle = d_clockTimeQueue.add(stime, p, &isNewTop);
 
         if (-1 == p->d_handle) {
-            return BCEP_INVALID_HANDLE;                               // RETURN
+            return e_INVALID_HANDLE;                               // RETURN
         }
 
         ++d_numClocks;

@@ -148,14 +148,14 @@ struct Severity {
       , BAEL_DEBUG = e_DEBUG
       , BAEL_TRACE = e_TRACE
       , BAEL_NONE = e_NONE
-      , OFF   = BAEL_OFF
-      , FATAL = BAEL_FATAL
-      , ERROR = BAEL_ERROR
-      , WARN  = BAEL_WARN
-      , INFO  = BAEL_INFO
-      , DEBUG = BAEL_DEBUG
-      , TRACE = BAEL_TRACE
-      , NONE  = BAEL_NONE
+      , OFF   = e_OFF
+      , FATAL = e_FATAL
+      , ERROR = e_ERROR
+      , WARN  = e_WARN
+      , INFO  = e_INFO
+      , DEBUG = e_DEBUG
+      , TRACE = e_TRACE
+      , NONE  = e_NONE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

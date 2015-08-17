@@ -317,7 +317,7 @@ Decoder::readTopElement()
             return -1;                                                // RETURN
         }
 
-    } while (d_reader->nodeType() != Reader::BAEXML_NODE_TYPE_ELEMENT);
+    } while (d_reader->nodeType() != Reader::e_NODE_TYPE_ELEMENT);
 
     return 0;
 }
@@ -346,15 +346,15 @@ int
 Decoder::checkForErrors(const ErrorInfo& errInfo)
 {
     switch (errInfo.severity()) {
-      case ErrorInfo::BAEXML_NO_ERROR:
+      case ErrorInfo::e_NO_ERROR:
         return 0;                                                     // RETURN
 
-      case ErrorInfo::BAEXML_WARNING:
+      case ErrorInfo::e_WARNING:
         ++d_warningCount;
         break;
 
-      case ErrorInfo::BAEXML_ERROR:
-      case ErrorInfo::BAEXML_FATAL_ERROR:
+      case ErrorInfo::e_ERROR:
+      case ErrorInfo::e_FATAL_ERROR:
         d_fatalError = true;
         ++d_errorCount;
         break;
@@ -383,7 +383,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
     // That means the current node is ELEMENT .
     //
     BSLS_ASSERT(d_reader->nodeType() ==
-                   Reader::BAEXML_NODE_TYPE_ELEMENT);
+                   Reader::e_NODE_TYPE_ELEMENT);
 
     int numAttr = d_reader->numAttributes();
 
@@ -418,7 +418,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
 
         unsigned int flags = attr.flags();
 
-        if ((flags & ElementAttribute::BAEXML_ATTR_IS_NSDECL) != 0) {
+        if ((flags & ElementAttribute::k_ATTR_IS_NSDECL) != 0) {
             continue;
         }
 
@@ -459,10 +459,10 @@ Decoder::parse(Decoder_ElementContext *elementContext)
         int nodeType = d_reader->nodeType ();
 
         switch(nodeType) {
-          case Reader::BAEXML_NODE_TYPE_TEXT :
-          case Reader::BAEXML_NODE_TYPE_CDATA :
-          case Reader::BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE:
-          case Reader::BAEXML_NODE_TYPE_WHITESPACE:
+          case Reader::e_NODE_TYPE_TEXT :
+          case Reader::e_NODE_TYPE_CDATA :
+          case Reader::e_NODE_TYPE_SIGNIFICANT_WHITESPACE:
+          case Reader::e_NODE_TYPE_WHITESPACE:
             {
                 const char *val = d_reader->nodeValue();
                 size_t       len = val ? bsl::strlen(val) : 0;
@@ -480,11 +480,11 @@ Decoder::parse(Decoder_ElementContext *elementContext)
             }
             break;
 
-          case Reader::BAEXML_NODE_TYPE_END_ELEMENT:
+          case Reader::e_NODE_TYPE_END_ELEMENT:
             flgExit = true;
             break;
 
-          case Reader::BAEXML_NODE_TYPE_ELEMENT:
+          case Reader::e_NODE_TYPE_ELEMENT:
             {
                 const char *name = d_reader->nodeLocalName();
 
@@ -529,16 +529,16 @@ bsl::ostream& Decoder::logStream()
 ErrorInfo::Severity Decoder::errorSeverity() const
 {
     if (d_fatalError) {
-        return ErrorInfo::BAEXML_FATAL_ERROR;                         // RETURN
+        return ErrorInfo::e_FATAL_ERROR;                         // RETURN
     }
     if (d_errorCount != 0) {
-        return ErrorInfo::BAEXML_ERROR;                               // RETURN
+        return ErrorInfo::e_ERROR;                               // RETURN
     }
     if (d_warningCount != 0) {
-        return ErrorInfo::BAEXML_WARNING;                             // RETURN
+        return ErrorInfo::e_WARNING;                             // RETURN
     }
 
-    return ErrorInfo::BAEXML_NO_ERROR;
+    return ErrorInfo::e_NO_ERROR;
 }
 
 bslstl::StringRef Decoder::loggedMessages() const

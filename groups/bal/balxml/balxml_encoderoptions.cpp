@@ -38,7 +38,7 @@ const int balxml::EncoderOptions::DEFAULT_INITIALIZER_SPACES_PER_LEVEL = 4;
 
 const int balxml::EncoderOptions::DEFAULT_INITIALIZER_WRAP_COLUMN = 80;
 
-const balxml::EncodingStyle::Value balxml::EncoderOptions::DEFAULT_INITIALIZER_ENCODING_STYLE = balxml::EncodingStyle::BAEXML_COMPACT;
+const balxml::EncodingStyle::Value balxml::EncoderOptions::DEFAULT_INITIALIZER_ENCODING_STYLE = balxml::EncodingStyle::e_COMPACT;
 
 const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS = false;
 
@@ -48,98 +48,98 @@ const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_OUTPUT_X_S_I_ALIAS = true
 
 const bdlat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_OBJECT_NAMESPACE,
+        e_ATTRIBUTE_ID_OBJECT_NAMESPACE,
         "ObjectNamespace",
         sizeof("ObjectNamespace") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_SCHEMA_LOCATION,
+        e_ATTRIBUTE_ID_SCHEMA_LOCATION,
         "SchemaLocation",
         sizeof("SchemaLocation") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_TAG,
+        e_ATTRIBUTE_ID_TAG,
         "Tag",
         sizeof("Tag") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_FORMATTING_MODE,
+        e_ATTRIBUTE_ID_FORMATTING_MODE,
         "FormattingMode",
         sizeof("FormattingMode") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_INITIAL_INDENT_LEVEL,
+        e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL,
         "InitialIndentLevel",
         sizeof("InitialIndentLevel") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_SPACES_PER_LEVEL,
+        e_ATTRIBUTE_ID_SPACES_PER_LEVEL,
         "SpacesPerLevel",
         sizeof("SpacesPerLevel") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_WRAP_COLUMN,
+        e_ATTRIBUTE_ID_WRAP_COLUMN,
         "WrapColumn",
         sizeof("WrapColumn") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS,
+        e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS,
         "MaxDecimalTotalDigits",
         sizeof("MaxDecimalTotalDigits") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS,
+        e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS,
         "MaxDecimalFractionDigits",
         sizeof("MaxDecimalFractionDigits") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS,
+        e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS,
         "SignificantDoubleDigits",
         sizeof("SignificantDoubleDigits") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_ENCODING_STYLE,
+        e_ATTRIBUTE_ID_ENCODING_STYLE,
         "EncodingStyle",
         sizeof("EncodingStyle") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS,
+        e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS,
         "AllowControlCharacters",
         sizeof("AllowControlCharacters") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER,
+        e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER,
         "OutputXMLHeader",
         sizeof("OutputXMLHeader") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS,
+        e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS,
         "OutputXSIAlias",
         sizeof("OutputXSIAlias") - 1,
         "",
@@ -160,7 +160,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[1]=='a'
              && name[2]=='g')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG];    // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG];    // RETURN
             }
         } break;
         case 10: {
@@ -175,7 +175,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[8]=='m'
              && name[9]=='n')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN];
                                                                       // RETURN
             }
         } break;
@@ -194,7 +194,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[11]=='l'
              && name[12]=='e')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE];
                                                                       // RETURN
             }
         } break;
@@ -215,7 +215,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                      && name[12]=='d'
                      && name[13]=='e')
                     {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE];
                                                                       // RETURN
                     }
                 } break;
@@ -234,7 +234,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                      && name[12]=='a'
                      && name[13]=='s')
                     {
-                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS];
+                        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS];
                                                                       // RETURN
                     }
                 } break;
@@ -254,7 +254,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                              && name[12]=='o'
                              && name[13]=='n')
                             {
-                                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION];
+                                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION];
                                                                       // RETURN
                             }
                         } break;
@@ -272,7 +272,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                              && name[12]=='e'
                              && name[13]=='l')
                             {
-                                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL];
+                                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL];
                                                                       // RETURN
                             }
                         } break;
@@ -299,7 +299,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                          && name[13]=='c'
                          && name[14]=='e')
                         {
-                            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE];
+                            return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE];
                                                                       // RETURN
                         }
                     } break;
@@ -318,7 +318,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                          && name[13]=='e'
                          && name[14]=='r')
                         {
-                            return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER];
+                            return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER];
                                                                       // RETURN
                         }
                     } break;
@@ -345,7 +345,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[16]=='e'
              && name[17]=='l')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL];
                                                                       // RETURN
             }
         } break;
@@ -372,7 +372,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[19]=='t'
              && name[20]=='s')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS];
                                                                       // RETURN
             }
         } break;
@@ -400,7 +400,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[20]=='r'
              && name[21]=='s')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS];
                                                                       // RETURN
             }
         } break;
@@ -429,7 +429,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[21]=='t'
              && name[22]=='s')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS];
                                                                       // RETURN
             }
         } break;
@@ -459,7 +459,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
              && name[22]=='t'
              && name[23]=='s')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS];
                                                                       // RETURN
             }
         } break;
@@ -470,34 +470,34 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
 const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_OBJECT_NAMESPACE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE];
-      case ATTRIBUTE_ID_SCHEMA_LOCATION:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION];
-      case ATTRIBUTE_ID_TAG:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG];
-      case ATTRIBUTE_ID_FORMATTING_MODE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE];
-      case ATTRIBUTE_ID_INITIAL_INDENT_LEVEL:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL];
-      case ATTRIBUTE_ID_SPACES_PER_LEVEL:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL];
-      case ATTRIBUTE_ID_WRAP_COLUMN:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN];
-      case ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS];
-      case ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS];
-      case ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS];
-      case ATTRIBUTE_ID_ENCODING_STYLE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE];
-      case ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS];
-      case ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER];
-      case ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS];
+      case e_ATTRIBUTE_ID_OBJECT_NAMESPACE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE];
+      case e_ATTRIBUTE_ID_SCHEMA_LOCATION:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION];
+      case e_ATTRIBUTE_ID_TAG:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG];
+      case e_ATTRIBUTE_ID_FORMATTING_MODE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE];
+      case e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL];
+      case e_ATTRIBUTE_ID_SPACES_PER_LEVEL:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL];
+      case e_ATTRIBUTE_ID_WRAP_COLUMN:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN];
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS];
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS];
+      case e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS];
+      case e_ATTRIBUTE_ID_ENCODING_STYLE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE];
+      case e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS];
+      case e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER];
+      case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS];
       default:
         return 0;
     }

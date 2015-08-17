@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
 
       BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
         Obj mX(&ta); const Obj& X = mX;
-        const int UC = Holder::BAEL_UNINITIALIZED_CATEGORY;
+        const int UC = Holder::e_UNINITIALIZED_CATEGORY;
         {
             Holder mH; const Holder& H = mH;
             mH.reset();
@@ -1198,17 +1198,17 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard guard(&testAllocator);
             const int NUM_BYTES = testAllocator.numBytesInUse();
 
-            Holder mX = { Holder::BAEL_DYNAMIC_CATEGORY, CATEGORY, NEXT };
+            Holder mX = { Holder::e_DYNAMIC_CATEGORY, CATEGORY, NEXT };
             const Holder& X = mX;
-            LOOP3_ASSERT(LINE, Holder::BAEL_DYNAMIC_CATEGORY, X.threshold(),
-                         Holder::BAEL_DYNAMIC_CATEGORY == X.threshold());
+            LOOP3_ASSERT(LINE, Holder::e_DYNAMIC_CATEGORY, X.threshold(),
+                         Holder::e_DYNAMIC_CATEGORY == X.threshold());
             LOOP3_ASSERT(LINE, CATEGORY, X.category(),
                          CATEGORY == X.category());
             LOOP3_ASSERT(LINE, NEXT, X.next(), NEXT == X.next());
 
             mX.reset();
             LOOP2_ASSERT(LINE, X.threshold(),
-                         Holder::BAEL_UNINITIALIZED_CATEGORY == X.threshold());
+                         Holder::e_UNINITIALIZED_CATEGORY == X.threshold());
             LOOP2_ASSERT(LINE, X.category(), 0 == X.category());
             LOOP2_ASSERT(LINE, X.next(),     0 == X.next());
 

@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
                               &testAllocator);
                     adapter->publish(
                                   handle,
-                                  ball::Context(ball::Transmission::BAEL_TRIGGER,
+                                  ball::Context(ball::Transmission::e_TRIGGER,
                                                n,
                                                NUM_MESSAGES));
                 }

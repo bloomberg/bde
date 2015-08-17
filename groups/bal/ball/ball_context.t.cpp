@@ -125,11 +125,11 @@ void aSsErT(int c, const char *s, int i)
 typedef ball::Context       Obj;
 
 const ball::Transmission::Cause CAUSE[] = {
-    ball::Transmission::BAEL_PASSTHROUGH,
-    ball::Transmission::BAEL_TRIGGER,
-    ball::Transmission::BAEL_TRIGGER_ALL,
-    ball::Transmission::BAEL_MANUAL_PUBLISH,
-    ball::Transmission::BAEL_MANUAL_PUBLISH_ALL
+    ball::Transmission::e_PASSTHROUGH,
+    ball::Transmission::e_TRIGGER,
+    ball::Transmission::e_TRIGGER_ALL,
+    ball::Transmission::e_MANUAL_PUBLISH,
+    ball::Transmission::e_MANUAL_PUBLISH_ALL
 };
 
 const int INDEX[]  = { 0, 1, 8, 98,  99, 9998, INT_MAX-1 };
@@ -176,18 +176,18 @@ void my_Logger::publish(const bsl::string&  message,
                         const ball::Context& context)
 {
     switch (context.transmissionCause()) {
-      case ball::Transmission::BAEL_PASSTHROUGH: {
+      case ball::Transmission::e_PASSTHROUGH: {
         d_os << "Single Pass-through Message: ";
       } break;
-      case ball::Transmission::BAEL_TRIGGER_ALL: {
+      case ball::Transmission::e_TRIGGER_ALL: {
         d_os << "Remotely ";               // no 'break'; concatenated output
       } break;
-      case ball::Transmission::BAEL_TRIGGER: {
+      case ball::Transmission::e_TRIGGER: {
         d_os << "Triggered Publication Sequence: Message "
              << context.recordIndex() + 1  // Account for zero-based index.
              << " of " << context.sequenceLength() << ": ";
       } break;
-      case ball::Transmission::BAEL_MANUAL_PUBLISH: {
+      case ball::Transmission::e_MANUAL_PUBLISH: {
         d_os << "Manually triggered Message: ";
       } break;
       default: {
@@ -210,13 +210,13 @@ void my_Logger::logMessage(const bsl::string& message, Severity severity)
         // Do nothing beyond archiving the message.
       } break;
       case WARN: {
-        ball::Context context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1);
+        ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
         publish(message, context);
       } break;
       case ERROR: {
         int index  = 0;
         int length = (int)archive.size();
-        ball::Context context(ball::Transmission::BAEL_TRIGGER, index, length);
+        ball::Context context(ball::Transmission::e_TRIGGER, index, length);
         while (length--) {
             publish(archive[length], context);
             context.setRecordIndexRaw(++index);

@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
                        __FILE__,
                        __LINE__,
                        "MyCategory1",
-                       ball::Severity::BAEL_INFO,
+                       ball::Severity::e_INFO,
                        "Distinct Message 1");
         Record_Attr FC(bdlt::Datetime(2000, 2, 29, 10, 13, 55, 111),
                        bdlsu::ProcessUtil::getProcessId(),
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
                        __FILE__,
                        __LINE__,
                        "MyCategory2",
-                       ball::Severity::BAEL_ERROR,
+                       ball::Severity::e_ERROR,
                        "Distinct Message 2");
 
         if (verbose) cout << "\nTesting default ctor (thoroughly)." << endl;
@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
                        0,  // threadID
                        __FILE__, __LINE__,
                        "EQUITY.NASD",
-                       ball::Severity::BAEL_INFO,
+                       ball::Severity::e_INFO,
                        "Ticker Summary");
         bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         FA.setTimestamp(now);
@@ -825,7 +825,7 @@ int main(int argc, char *argv[])
                        0,  // threadID
                        __FILE__, __LINE__,
                        "USER_SESSION",
-                       ball::Severity::BAEL_TRACE,
+                       ball::Severity::e_TRACE,
                        "User Session Info");
 
         now = bdlt::EpochUtil::convertFromTimeT(time(0));

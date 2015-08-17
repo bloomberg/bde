@@ -1057,7 +1057,7 @@ int TcpTimerEventManager::reinitializeControlChannel()
 
     bdlqq::ThreadUtil::Handle handle;
     bdlqq::ThreadAttributes   attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+    attributes.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
     bdlf::Function<void (*)()> initiateReadFunctor = bdlf::Function<void (*)()>(
       bdlf::BindUtil::bindA(

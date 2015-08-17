@@ -1470,18 +1470,18 @@ int main(int argc, char *argv[])
     ball::LoggerManager& manager =
             ball::LoggerManager::initSingleton(&observer, configuration);
 
-    ball::Severity::Level defaultPassthrough = ball::Severity::BAEL_OFF;
+    ball::Severity::Level defaultPassthrough = ball::Severity::e_OFF;
     if (verbose)
-        defaultPassthrough = ball::Severity::BAEL_FATAL;
+        defaultPassthrough = ball::Severity::e_FATAL;
     if (veryVerbose)
-        defaultPassthrough = ball::Severity::BAEL_ERROR;
+        defaultPassthrough = ball::Severity::e_ERROR;
     if (veryVeryVerbose)
-        defaultPassthrough = ball::Severity::BAEL_TRACE;
+        defaultPassthrough = ball::Severity::e_TRACE;
 
-    manager.setDefaultThresholdLevels(ball::Severity::BAEL_OFF,
+    manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
                                       defaultPassthrough,
-                                      ball::Severity::BAEL_OFF,
-                                      ball::Severity::BAEL_OFF);
+                                      ball::Severity::e_OFF,
+                                      ball::Severity::e_OFF);
 
     bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
     bslma::TestAllocator defaultAllocator;

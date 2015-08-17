@@ -548,7 +548,7 @@ public:
       bdlqq::ThreadAttributes detached;
       bdlqq::ThreadUtil::Handle dummy;
       detached.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
       ASSERT(0 == bdlqq::ThreadUtil::create(&dummy, detached,
                            bdlf::BindUtil::bind(&Case7_Waiter::run,
@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
         bsls::AtomicInt state(0);
         bdlqq::ThreadUtil::Handle dummy;
         detached.setDetachedState(
-                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
         if (veryVerbose) {
            cout << "Unencumbered test" << endl;

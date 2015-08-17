@@ -68,8 +68,8 @@ struct EncodingStyle {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEXML_COMPACT = e_COMPACT
       , BAEXML_PRETTY = e_PRETTY
-      , COMPACT = BAEXML_COMPACT
-      , PRETTY  = BAEXML_PRETTY
+      , COMPACT = e_COMPACT
+      , PRETTY  = e_PRETTY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

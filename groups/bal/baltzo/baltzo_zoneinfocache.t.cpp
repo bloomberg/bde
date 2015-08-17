@@ -609,10 +609,10 @@ int main(int argc, char *argv[])
 
     ball::DefaultObserver            observer(&bsl::cout);
     ball::LoggerManagerConfiguration configuration;
-    configuration.setDefaultThresholdLevelsIfValid(ball::Severity::BAEL_OFF,
-                                                   ball::Severity::BAEL_OFF,
-                                                   ball::Severity::BAEL_OFF,
-                                                   ball::Severity::BAEL_OFF);
+    configuration.setDefaultThresholdLevelsIfValid(ball::Severity::e_OFF,
+                                                   ball::Severity::e_OFF,
+                                                   ball::Severity::e_OFF,
+                                                   ball::Severity::e_OFF);
     ball::LoggerManager& manager =
                   ball::LoggerManager::initSingleton(&observer, configuration);
 

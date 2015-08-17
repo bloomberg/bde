@@ -319,8 +319,8 @@ class LoggerManagerConfiguration {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEL_FIFO = e_FIFO
       , BAEL_LIFO = e_LIFO
-      , FIFO = BAEL_FIFO
-      , LIFO = BAEL_LIFO
+      , FIFO = e_FIFO
+      , LIFO = e_LIFO
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -341,8 +341,8 @@ class LoggerManagerConfiguration {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEL_NO_MARKERS = e_NO_MARKERS
       , BAEL_BEGIN_END_MARKERS = e_BEGIN_END_MARKERS
-      , NO_MARKERS        = BAEL_NO_MARKERS
-      , BEGIN_END_MARKERS = BAEL_BEGIN_END_MARKERS
+      , NO_MARKERS        = e_NO_MARKERS
+      , BEGIN_END_MARKERS = e_BEGIN_END_MARKERS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

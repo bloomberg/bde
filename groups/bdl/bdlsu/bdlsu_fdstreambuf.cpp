@@ -422,7 +422,7 @@ void *FdStreamBuf_FileHandler::mmap(bsl::streamoff offset,
                            &ret,
                            offset,
                            static_cast<int>(len),
-                           MemoryUtil::BDESU_ACCESS_READ)) {
+                           MemoryUtil::k_ACCESS_READ)) {
         // error -- device is not mappable
 
         this->seek(cur, FileUtil::e_SEEK_FROM_BEGINNING);
