@@ -402,8 +402,8 @@ class TestType {
 namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -519,13 +519,13 @@ namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<BitwiseMoveableTestType>
     : bsl::true_type {};
-}
+}  // close namespace bslma
 
 namespace bslmf {
 template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
     : bsl::true_type {};
-}
-}
+}  // close namespace bslmf
+}  // close enterprise namespace
 
                        // =============================
                        // class BitwiseCopyableTestType
@@ -558,7 +558,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 namespace bsl {
 template <> struct is_trivially_copyable<BitwiseCopyableTestType>
     : true_type {};
-}
+}  // close namespace bsl
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -667,7 +667,7 @@ class CleanupGuard {
     {
         if (0 == d_deque_p) {
             // guard released
-            return;
+            return;                                                   // RETURN
         }
 
         // First clean up according to the spec
@@ -760,7 +760,7 @@ int ggg(TestDeque<TYPE, BLOCK_LENGTH> *deque,
                 printf("Error, bad character ('%c') in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
     }
     return SUCCESS;

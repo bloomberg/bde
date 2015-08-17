@@ -1,4 +1,4 @@
-// bdlmt_fixedthreadpool.cpp            -*-C++-*-
+// bdlmt_fixedthreadpool.cpp                                          -*-C++-*-
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bsls_ident.h>
@@ -46,7 +46,7 @@ void initBlockSet(sigset_t *blockSet)
     }
 }
 #endif
-}
+}  // close unnamed namespace
 
 namespace BloombergLP {
 
@@ -59,7 +59,7 @@ namespace bdlmt {
 void FixedThreadPool::processJobs()
 {
     while (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                        BCEP_RUN == d_control.loadRelaxed())) {
+                                        e_RUN == d_control.loadRelaxed())) {
         Job functor;
 
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -68,7 +68,7 @@ void FixedThreadPool::processJobs()
 
             ++d_numThreadsWaiting;
 
-            if (BCEP_RUN == d_control && d_queue.isEmpty()) {
+            if (e_RUN == d_control && d_queue.isEmpty()) {
                 d_queueSemaphore.wait();
             }
 
@@ -82,12 +82,12 @@ void FixedThreadPool::processJobs()
 
 void FixedThreadPool::drainQueue()
 {
-    while (BCEP_DRAIN == d_control.loadRelaxed()) {
+    while (e_DRAIN == d_control.loadRelaxed()) {
         Job functor;
 
         const int ret = d_queue.tryPopFront(&functor);
         if (ret) {
-            return;
+            return;                                                   // RETURN
         }
 
         functor();
@@ -146,20 +146,20 @@ void FixedThreadPool::workerThread()
 
         int control = d_control.loadRelaxed();
 
-        if (BCEP_RUN == control) {
+        if (e_RUN == control) {
             processJobs();
             control = d_control;
         }
 
-        if (BCEP_DRAIN == control) {
+        if (e_DRAIN == control) {
             drainQueue();
         }
-        else if (BCEP_SUSPEND == control) {
+        else if (e_SUSPEND == control) {
             continue;
         }
         else {
-            BSLS_ASSERT(BCEP_STOP == control);
-            return;
+            BSLS_ASSERT(e_STOP == control);
+            return;                                                   // RETURN
         }
     }
 }
@@ -195,7 +195,7 @@ FixedThreadPool::FixedThreadPool(
         int                     maxQueueSize,
         bslma::Allocator       *basicAllocator)
 : d_queue(maxQueueSize, basicAllocator)
-, d_control(BCEP_STOP)
+, d_control(e_STOP)
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
@@ -215,7 +215,7 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
                                            int               maxQueueSize,
                                            bslma::Allocator *basicAllocator)
 : d_queue(maxQueueSize, basicAllocator)
-, d_control(BCEP_STOP)
+, d_control(e_STOP)
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
@@ -270,8 +270,8 @@ void FixedThreadPool::drain()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.loadRelaxed()) {
-        d_control = BCEP_DRAIN;
+    if (e_RUN == d_control.loadRelaxed()) {
+        d_control = e_DRAIN;
 
         // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
         // lock).  Guaranteeing that no instructions in
@@ -280,7 +280,7 @@ void FixedThreadPool::drain()
         interruptWorkerThreads();
         waitWorkerThreads();
 
-        d_control = BCEP_RUN;
+        d_control = e_RUN;
 
         // 'releaseWorkerThreads' emits a release barrier so that the worker
         // threads can't return from wait without observing the previous store.
@@ -293,9 +293,9 @@ void FixedThreadPool::shutdown()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.loadRelaxed()) {
+    if (e_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
-        d_control = BCEP_STOP;
+        d_control = e_STOP;
 
         // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
         // lock).  Guaranteeing that no instructions in
@@ -312,8 +312,8 @@ int FixedThreadPool::start()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_STOP != d_control.loadRelaxed()) {
-        return 0;
+    if (e_STOP != d_control.loadRelaxed()) {
+        return 0;                                                     // RETURN
     }
 
     for (int i = d_threadGroup.numThreads(); i < d_numThreads; ++i)  {
@@ -321,14 +321,14 @@ int FixedThreadPool::start()
 
             releaseWorkerThreads();
             d_threadGroup.joinAll();
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 
     waitWorkerThreads();
 
     d_queue.enable();
-    d_control = BCEP_RUN;
+    d_control = e_RUN;
 
     // 'releaseWorkerThreads' emits a release barrier so that the worker
     // threads can't return from wait without observing the previous store.
@@ -342,9 +342,9 @@ void FixedThreadPool::stop()
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.loadRelaxed()) {
+    if (e_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
-        d_control = BCEP_DRAIN;
+        d_control = e_DRAIN;
 
         // 'interruptWorkerThreads' has an initial acquire barrier (mutex
         // lock).  Guaranteeing that no instructions in
@@ -354,7 +354,7 @@ void FixedThreadPool::stop()
 
         waitWorkerThreads();
 
-        d_control = BCEP_STOP;
+        d_control = e_STOP;
 
         // 'releaseWorkerThreads' emits a release barrier so that the worker
         // threads can't return from wait without observing the previous store.
@@ -365,13 +365,20 @@ void FixedThreadPool::stop()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

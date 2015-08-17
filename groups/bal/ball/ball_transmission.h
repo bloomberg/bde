@@ -180,23 +180,34 @@ struct Transmission {
   public:
     // TYPES
     enum Cause {
-        BAEL_PASSTHROUGH        = 0,  // single record emitted; caused locally
-        BAEL_TRIGGER            = 1,  // all records emitted; caused locally
-        BAEL_TRIGGER_ALL        = 2,  // all records emitted; caused remotely
-        BAEL_MANUAL_PUBLISH     = 3,  // manually publish a single record
-        BAEL_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
-        BAEL_END                = 5   // end flag for asynchronous publication
+        e_PASSTHROUGH        = 0,  // single record emitted; caused locally
+        e_TRIGGER            = 1,  // all records emitted; caused locally
+        e_TRIGGER_ALL        = 2,  // all records emitted; caused remotely
+        e_MANUAL_PUBLISH     = 3,  // manually publish a single record
+        e_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
+        e_END                = 5   // end flag for asynchronous publication
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , PASSTHROUGH        = BAEL_PASSTHROUGH
-      , TRIGGER            = BAEL_TRIGGER
-      , TRIGGER_ALL        = BAEL_TRIGGER_ALL
-      , MANUAL_PUBLISH     = BAEL_MANUAL_PUBLISH
-      , MANUAL_PUBLISH_ALL = BAEL_MANUAL_PUBLISH_ALL
+      , BAEL_PASSTHROUGH = e_PASSTHROUGH
+      , BAEL_TRIGGER = e_TRIGGER
+      , BAEL_TRIGGER_ALL = e_TRIGGER_ALL
+      , BAEL_MANUAL_PUBLISH = e_MANUAL_PUBLISH
+      , BAEL_MANUAL_PUBLISH_ALL = e_MANUAL_PUBLISH_ALL
+      , BAEL_END = e_END
+      , PASSTHROUGH        = e_PASSTHROUGH
+      , TRIGGER            = e_TRIGGER
+      , TRIGGER_ALL        = e_TRIGGER_ALL
+      , MANUAL_PUBLISH     = e_MANUAL_PUBLISH
+      , MANUAL_PUBLISH_ALL = e_MANUAL_PUBLISH_ALL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum { BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1 };
+    enum {
+        e_LENGTH = e_MANUAL_PUBLISH_ALL + 1
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_LENGTH = e_LENGTH
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
         // Define 'LENGTH' to be the number of consecutively-valued enumerators
         // in the range '[ BAEL_PASSTHROUGH .. BAEL_MANUAL_PUBLISH_ALL ]'.
 
@@ -225,9 +236,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ------------------------
                         // struct Transmission
@@ -252,15 +263,22 @@ bsl::ostream& ball::operator<<(bsl::ostream&            stream,
     return Transmission::streamOut(stream, rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

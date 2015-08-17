@@ -399,12 +399,13 @@ class CategoryHolder {
   public:
     // PUBLIC TYPES
     enum {
-        BAEL_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
-        BAEL_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
+        e_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
+        e_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , UNINITIALIZED_CATEGORY = BAEL_UNINITIALIZED_CATEGORY
-      , DYNAMIC_CATEGORY       = BAEL_DYNAMIC_CATEGORY
-
+      , BAEL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
+      , BAEL_DYNAMIC_CATEGORY = e_DYNAMIC_CATEGORY
+      , UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
+      , DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // This enumeration defines distinguished values for category holder
@@ -999,15 +1000,22 @@ ball::CategoryManagerManip::operator const void *() const
                                                                       : 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

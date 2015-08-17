@@ -46,7 +46,7 @@ using namespace bslalg;
 // this type on a variety of types.  Note that because of package dependencies
 // this test-driver cannot depend on 'bsltf'.
 //-----------------------------------------------------------------------------
-// CLASS METHODS
+//                              CLASS METHODS
 // ----------------------------------------------------------------------------
 // Navigation
 // [ 4] const RbTreeNode *leftmost(const RbTreeNode *);
@@ -245,7 +245,7 @@ IntNode *toIntNode(RbTreeNode *node)
 int prevIntNodeValue(const RbTreeAnchor& tree, RbTreeNode *node)
 {
     if (tree.firstNode() == node) {
-        return INT_MIN;
+        return INT_MIN;                                               // RETURN
     }
     RbTreeNode *prev = Obj::previous(node);
     return toIntNode(prev)->value();
@@ -255,7 +255,7 @@ int nextIntNodeValue(const RbTreeAnchor& tree, RbTreeNode *node)
 {
     RbTreeNode *next = Obj::next(node);
     if (tree.sentinel() == next) {
-        return INT_MAX;
+        return INT_MAX;                                               // RETURN
     }
     return toIntNode(next)->value();
 }
@@ -424,7 +424,7 @@ const RbTreeNode *testNodeAtIndex(const IntNode       *nodes,
     return nodeIndex >= 0 ? &nodes[nodeIndex] : tree.sentinel();
 }
 
-template <typename NODE_COMPARATOR, typename NODE_PRINT_FUNC>
+template <class NODE_COMPARATOR, class NODE_PRINT_FUNC>
 int validateTestRbTree(const RbTreeNode       *rootNode,
                        const NODE_COMPARATOR&  comparator,
                        const NODE_PRINT_FUNC&  nodePrintFunction)
@@ -461,7 +461,7 @@ int validateIntRbTree(const RbTreeNode *rootNode)
 
 
 
-template <typename VALUE>
+template <class VALUE>
 class Array {
     // This class provides an array of objects of the parameterized 'VALUE'
     // type.  The size of the array is initialized by a call to 'reset'.  Note
@@ -699,10 +699,10 @@ bool areTreesEqual(const RbTreeNode       *left,
 {
 
     if (0 == left && 0 == right) {
-        return true;
+        return true;                                                  // RETURN
     }
     if (0 == left || 0 == right) {
-        return false;
+        return false;                                                 // RETURN
     }
     return (!comparator(*left, *right) && !comparator(*right, *left))
         && areTreesEqual(left->leftChild(), right->leftChild(), comparator)
@@ -713,7 +713,7 @@ int countNodes(RbTreeNode *node)
     // Return the count of nodes under (and including) the specified 'node'.
 {
     if (0 == node) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     return 1 + countNodes(node->leftChild()) + countNodes(node->rightChild());
 }
@@ -756,7 +756,7 @@ bool isInRange(const RbTreeNode *node,
     RbTreeNodeRangeIterator it(first, last);
     for (RbTreeNode *itNode = it.next(); 0 != itNode; itNode = it.next()) {
         if (node == itNode) {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;
@@ -1046,8 +1046,8 @@ class AllocTestType {
 namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<AllocTestType> : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 // FREE OPERATORS
 bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
@@ -1145,7 +1145,7 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
                         // class TestTypeValue
                         // ===================
 
-template <typename VALUE>
+template <class VALUE>
 struct TestTypeValue {
     // Provide a functor for creating values of the parameterized 'VALUE'
     // type from an int, and to load an int from an object of the
@@ -1236,7 +1236,7 @@ struct TestTypeValue<SimpleTestType> {
                         // class TestTypeComparator
                         // ========================
 
-template <typename VALUE>
+template <class VALUE>
 struct TestTypeComparator {
     bool operator()(const VALUE& lhs, const VALUE& rhs) const {
         return lhs < rhs;
@@ -1375,7 +1375,7 @@ class TestTreeNodeAssign {
                         // struct TestNodeFactory
                         // ======================
 
-template <typename VALUE>
+template <class VALUE>
 class TestNodeFactory {
 
   public:
@@ -1613,7 +1613,7 @@ const char *ggParseNode(
                  spec);
 
     if ('}' == *currentChar) {
-        return currentChar + 1;
+        return currentChar + 1;                                       // RETURN
     }
 
     if ('.' == *currentChar) {
@@ -1714,7 +1714,7 @@ void gg(RbTreeAnchor                *tree,
     if (numNodes == 0) {
         PARSE_ASSERT('.' == *ltrim(spec), spec);
         tree->reset(0, tree->sentinel(), 0);
-        return;
+        return;                                                       // RETURN
     }
 
     nodes->reset(numNodes);
@@ -1737,13 +1737,13 @@ void intNodeTreeToSpec(IntNode *root)
 {
     if (0 == root) {
         printf(".");
-        return;
+        return;                                                       // RETURN
     }
 
     printf("{%d:%c", root->value(), (root->isRed() ? 'R' : 'B'));
     if (0 == root->leftChild() && 0 == root->rightChild()) {
         printf("}");
-        return;
+        return;                                                       // RETURN
     }
     printf(" ");
     intNodeTreeToSpec(static_cast<IntNode*>(root->leftChild()));

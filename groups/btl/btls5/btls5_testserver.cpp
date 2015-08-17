@@ -153,7 +153,7 @@ struct Socks5Session : public btlmt::Session {
 
                         // btlmt::AsyncChannel interface
 
-    template<typename MSG>
+    template<class MSG>
     int readMessage(void (Socks5Session::*func)(const MSG *data,
                                                 int        length,
                                                 int       *consumed,
@@ -161,7 +161,7 @@ struct Socks5Session : public btlmt::Session {
         // Queue up reading a message of the specified type 'MSG', and arrange
         // to invoke the specified 'func' when it's received.
 
-    template<typename MSG>
+    template<class MSG>
     void readMessageCb(int           result,
                        int          *needed,
                        btlb::Blob *msg,
@@ -352,7 +352,7 @@ class TestServer::SessionFactory : public btlmt::SessionFactory {
                         // --------------------
 
 // PRIVATE MANIPULATORS
-template<typename MSG>
+template<class MSG>
 int Socks5Session::readMessage(
     void (Socks5Session::*func)(const MSG *data,
                                 int        length,
@@ -373,7 +373,7 @@ int Socks5Session::readMessage(
     return rc;
 }
 
-template<typename MSG>
+template<class MSG>
 void Socks5Session::readMessageCb(int           result,
                                   int          *needed,
                                   btlb::Blob *msg,
@@ -541,7 +541,7 @@ void Socks5Session::readCredentials(const Socks5CredentialsHeader *data,
 
     *needed = 0;
     *consumed = sizeof(*data) + ulen + 1 + plen;
-    
+
     bsl::string username((const char *) ubuf, ulen, d_allocator_p);
     bsl::string password(reinterpret_cast<const char *>(ubuf + ulen + 1),
                          plen,
@@ -902,7 +902,7 @@ void btls5::TestServer::SessionFactory::sessionStateCb(
     Socks5Session *s = dynamic_cast<Socks5Session *>(session);
     Socks5Session *cs = reinterpret_cast<Socks5Session*>(clientSession);
 
-    if (s && btlmt::SessionPool::SESSION_UP == state) {
+    if (s && btlmt::SessionPool::e_SESSION_UP == state) {
         if (cs) {
             s->startDestination(cs);
         }
@@ -915,15 +915,15 @@ void btls5::TestServer::SessionFactory::sessionStateCb(
             LOG_DEBUG << "client " << cs->d_peer
                       << ": destination connection state " << state;
             switch (state) {
-              case btlmt::SessionPool::CONNECT_ATTEMPT_FAILED: {
+              case btlmt::SessionPool::e_CONNECT_ATTEMPT_FAILED: {
                 // another attempt may succeed
 
                 return;                                               // RETURN
               } break;
-              case btlmt::SessionPool::SESSION_ALLOC_FAILED:
-              case btlmt::SessionPool::SESSION_STARTUP_FAILED:
-              case btlmt::SessionPool::CONNECT_FAILED:
-              case btlmt::SessionPool::CONNECT_ABORTED: {
+              case btlmt::SessionPool::e_SESSION_ALLOC_FAILED:
+              case btlmt::SessionPool::e_SESSION_STARTUP_FAILED:
+              case btlmt::SessionPool::e_CONNECT_FAILED:
+              case btlmt::SessionPool::e_CONNECT_ABORTED: {
                 Socks5ConnectResponse1 response;
                 response.d_base.d_reply = 4;  // Host unreachable
                 cs->clientWrite((char *) &response, sizeof(response));
@@ -1061,11 +1061,18 @@ TestServer::TestServer(btlso::Endpoint             *proxy,
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

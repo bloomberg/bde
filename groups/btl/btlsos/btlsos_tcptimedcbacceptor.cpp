@@ -31,9 +31,9 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbacceptor_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_vector.h>
 
-// ===========================================================================
-// IMPLEMENTATION DETAILS
-// ---------------------------------------------------------------------------
+// ============================================================================
+//                          IMPLEMENTATION DETAILS
+// ----------------------------------------------------------------------------
 // 1.  Internally, this acceptor holds a queue of callbacks for allocation
 // requests.  The queue contains both timed and non-timed callbacks along with
 // any supporting data for a request, such as the timeout value, if any, and
@@ -62,7 +62,7 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbacceptor_cpp,"$Id$ $CSID$")
 // rather installs the deallocate callback to be invoked on the next invocation
 // of the 'dispatch' method of the timer event manager.  The deallocate
 // callback will actually destroy the resources allocates for a channel.
-// ===========================================================================
+// ============================================================================
 
 namespace BloombergLP {
 
@@ -354,7 +354,7 @@ void TcpTimedCbAcceptor::acceptCb()
                 d_currentRequest_p->invoke(status);
             }
             else {
-                return; // EWOULDBLOCK -- ignored.
+                return; // EWOULDBLOCK -- ignored.                    // RETURN
             }
         }
     }
@@ -515,11 +515,11 @@ TcpTimedCbAcceptor::~TcpTimedCbAcceptor()
 int TcpTimedCbAcceptor::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
         callback(NULL, e_UNINITIALIZED);
-        return e_UNINITIALIZED;
+        return e_UNINITIALIZED;                                       // RETURN
     }
 
     TcpTimedCbAcceptor_Reg *cb =
@@ -540,7 +540,7 @@ int TcpTimedCbAcceptor::allocate(const Callback& callback, int flags)
             cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return e_INVALID;
+            return e_INVALID;                                         // RETURN
         }
     }
     return e_SUCCESS;
@@ -549,11 +549,11 @@ int TcpTimedCbAcceptor::allocate(const Callback& callback, int flags)
 int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
         callback(NULL, e_UNINITIALIZED);
-        return e_UNINITIALIZED;
+        return e_UNINITIALIZED;                                       // RETURN
     }
 
     TcpTimedCbAcceptor_Reg *cb =
@@ -574,7 +574,7 @@ int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
             cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return e_INVALID;
+            return e_INVALID;                                         // RETURN
         }
     }
     return e_SUCCESS;
@@ -676,7 +676,7 @@ int TcpTimedCbAcceptor::open(const btlso::IPv4Address& endpoint,
 
     d_serverSocket_p = d_factory_p->allocate();
     if (!d_serverSocket_p) {
-        return e_ALLOCATION_FAILED;
+        return e_ALLOCATION_FAILED;                                   // RETURN
     }
 
     if (0 != d_serverSocket_p->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
@@ -684,26 +684,26 @@ int TcpTimedCbAcceptor::open(const btlso::IPv4Address& endpoint,
                                          !!reuseAddress))
     {
         d_factory_p->deallocate(d_serverSocket_p);
-        return e_REUSEADDRESS_FAILED;
+        return e_REUSEADDRESS_FAILED;                                 // RETURN
     }
 
     if (0 != d_serverSocket_p->bind(endpoint)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BIND_FAILED;
+        return e_BIND_FAILED;                                         // RETURN
     }
 
     if (0 != d_serverSocket_p->localAddress(&d_serverAddress)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BIND_FAILED;
+        return e_BIND_FAILED;                                         // RETURN
     }
     BSLS_ASSERT(d_serverAddress.portNumber());
 
     if (0 != d_serverSocket_p->listen(queueSize)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_LISTEN_FAILED;
+        return e_LISTEN_FAILED;                                       // RETURN
     }
 #ifndef BTLSO_PLATFORM_WIN_SOCKETS
     // Windows has a bug -- setting listening socket to non-blocking mode will
@@ -714,7 +714,7 @@ int TcpTimedCbAcceptor::open(const btlso::IPv4Address& endpoint,
                                              bteso_Flag::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BLOCKMODE_FAILED;
+        return e_BLOCKMODE_FAILED;                                    // RETURN
     }
 #endif
     return e_SUCCESS;
@@ -731,11 +731,11 @@ int TcpTimedCbAcceptor::timedAllocate(const Callback&           callback,
                                       int                       flags)
 {
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
         callback(NULL, e_UNINITIALIZED);
-        return e_UNINITIALIZED;
+        return e_UNINITIALIZED;                                       // RETURN
     }
     // void *arena = d_callbackPool.allocate(); BSLS_ASSERT(arena);
 
@@ -760,7 +760,7 @@ int TcpTimedCbAcceptor::timedAllocate(const Callback&           callback,
             cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return e_INVALID;
+            return e_INVALID;                                         // RETURN
         }
     }
     return e_SUCCESS;
@@ -772,11 +772,11 @@ int TcpTimedCbAcceptor::timedAllocateTimed(const TimedCallback&      callback,
 {
 
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
         callback(NULL, e_UNINITIALIZED);
-        return e_UNINITIALIZED;
+        return e_UNINITIALIZED;                                       // RETURN
     }
 
     TcpTimedCbAcceptor_Reg *cb =
@@ -800,7 +800,7 @@ int TcpTimedCbAcceptor::timedAllocateTimed(const TimedCallback&      callback,
             cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return e_INVALID;
+            return e_INVALID;                                         // RETURN
         }
     }
     return e_SUCCESS;

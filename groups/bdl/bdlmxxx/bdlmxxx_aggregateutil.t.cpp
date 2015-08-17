@@ -1,4 +1,4 @@
-// bdlmxxx_aggregateutil.t.cpp                                           -*-C++-*-
+// bdlmxxx_aggregateutil.t.cpp                                        -*-C++-*-
 
 #include <bdlmxxx_aggregateutil.h>
 #include <bdlmxxx_aggregate.h>
@@ -171,9 +171,9 @@ void aSsErT(int c, const char *s, int i)
 
 #define NL "\n"
 
-//==========================================================================
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 typedef bdlmxxx::AggregateUtil Util;
 typedef bdlmxxx::ConstElemRef  ConstElemRef;
@@ -511,10 +511,10 @@ static int ggg(bdlmxxx::List *address, const char *spec, int showErrorFlag)
                 continue;
             }
             bug(spec, p - spec, "Expected type character", showErrorFlag);
-            return GGG_EXPECTED_TYPE_CHARACTER;
+            return GGG_EXPECTED_TYPE_CHARACTER;                       // RETURN
         }
         bug(spec, p - spec, "Inappropriate character", showErrorFlag);
-        return GGG_INAPPROPRIATE_CHARACTER;
+        return GGG_INAPPROPRIATE_CHARACTER;                           // RETURN
     }
     return GGG_SUCCESS;
 }
@@ -668,7 +668,7 @@ static int hhh(bdlmxxx::Table *address, const char *spec, int showErrorFlag)
             if (';' != *p) {
                 bug(spec, p - spec, "Missing ';' after last valid type",
                     showErrorFlag);
-                return HHH_TYPEFIELD_UNTERMINATED;
+                return HHH_TYPEFIELD_UNTERMINATED;                    // RETURN
             }
             bdlmxxx::List tempList;
             bsl::vector<bdlmxxx::ElemType::Type> tempTypeArray;
@@ -683,18 +683,18 @@ static int hhh(bdlmxxx::Table *address, const char *spec, int showErrorFlag)
             if (';' != *p) {
                 bug(spec, p - spec, "Missing ';' after last valid value",
                     showErrorFlag);
-                return HHH_VALFIELD_UNTERMINATED;
+                return HHH_VALFIELD_UNTERMINATED;                     // RETURN
             }
             if (numVals < numCols) {
                 bug(spec, p - spec, "Missing expected value", showErrorFlag);
-                return HHH_MISSING_EXPECTED_VALUE;
+                return HHH_MISSING_EXPECTED_VALUE;                    // RETURN
             }
             bdlmxxx::List tempList;
             address->appendRow(gg(&tempList, buf));
         }
         else {
             bug(spec, p - spec, "Illegal character", showErrorFlag);
-            return HHH_ILLEGAL_CHARACTER;
+            return HHH_ILLEGAL_CHARACTER;                             // RETURN
         }
     }
     return HHH_SUCCESS;
@@ -738,7 +738,7 @@ bool elExact(const bdlmxxx::List& lhs, const bdlmxxx::List& rhs)
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eExact(lhs[idx], rhs[idx])) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -754,7 +754,7 @@ bool etExact(const bdlmxxx::Table& lhs, const bdlmxxx::Table& rhs)
     for (int rIdx = 0; rIdx < lhs.numRows(); ++rIdx) {
         for (int cIdx = 0; cIdx < lhs.numColumns(); ++cIdx) {
             if (!eExact(lhs[rIdx][cIdx], rhs[rIdx][cIdx])) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -765,7 +765,7 @@ bool ecaExact(const bdlmxxx::ChoiceArray& lhs, const bdlmxxx::ChoiceArray& rhs)
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eExact(lhs[idx].selection(), rhs[idx].selection())) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -812,7 +812,7 @@ bool elApprox2(const bdlmxxx::List& lhs, const bdlmxxx::List& rhs)
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox2(lhs[idx], rhs[idx])) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -828,7 +828,7 @@ bool etApprox2(const bdlmxxx::Table& lhs, const bdlmxxx::Table& rhs)
     for (int rIdx = 0; rIdx < lhs.numRows(); ++rIdx) {
         for (int cIdx = 0; cIdx < lhs.numColumns(); ++cIdx) {
             if (!eApprox2(lhs[rIdx][cIdx], rhs[rIdx][cIdx])) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -839,7 +839,7 @@ bool ecaApprox2(const bdlmxxx::ChoiceArray& lhs, const bdlmxxx::ChoiceArray& rhs
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox2(lhs[idx].selection(), rhs[idx].selection())) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -881,12 +881,12 @@ bool elApprox3(const bdlmxxx::List& lhs, const bdlmxxx::List& rhs, double dRel)
 {
     const int lhsLen = lhs.length();
     if (lhsLen != rhs.length()) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     for (int idx = 0; idx < lhsLen; ++idx) {
         if (!eApprox3(lhs[idx], rhs[idx], dRel)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -904,7 +904,7 @@ bool etApprox3(const bdlmxxx::Table& lhs, const bdlmxxx::Table& rhs, double dRel
     for (int rIdx = 0; rIdx < lhs.numRows(); ++rIdx) {
         for (int cIdx = 0; cIdx < lhs.numColumns(); ++cIdx) {
             if (!eApprox3(lhs[rIdx][cIdx], rhs[rIdx][cIdx], dRel)) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -917,7 +917,7 @@ bool ecaApprox3(const bdlmxxx::ChoiceArray& lhs,
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox3(lhs[idx].selection(), rhs[idx].selection(), dRel)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -964,7 +964,7 @@ bool elApprox4(const bdlmxxx::List& lhs,
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox4(lhs[idx], rhs[idx], dRel, dAbs)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -986,7 +986,7 @@ bool etApprox4(const bdlmxxx::Table& lhs,
     for (int rIdx = 0; rIdx < lhs.numRows(); ++rIdx) {
         for (int cIdx = 0; cIdx < lhs.numColumns(); ++cIdx) {
             if (!eApprox4(lhs[rIdx][cIdx], rhs[rIdx][cIdx], dRel, dAbs)) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -1001,7 +1001,7 @@ bool ecaApprox4(const bdlmxxx::ChoiceArray& lhs,
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox4(lhs[idx].selection(), rhs[idx].selection(),
                       dRel, dAbs)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1053,7 +1053,7 @@ bool elApprox5(const bdlmxxx::List& lhs,
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox5(lhs[idx], rhs[idx], dRel, dAbs, fRel)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1078,7 +1078,7 @@ bool etApprox5(const bdlmxxx::Table& lhs,
         for (int cIdx = 0; cIdx < lhs.numColumns(); ++cIdx) {
             if (!eApprox5(lhs[rIdx][cIdx], rhs[rIdx][cIdx],
                           dRel, dAbs, fRel)) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -1094,7 +1094,7 @@ bool ecaApprox5(const bdlmxxx::ChoiceArray& lhs,
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox5(lhs[idx].selection(), rhs[idx].selection(),
                       dRel, dAbs, fRel)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1154,7 +1154,7 @@ bool elApprox6(const bdlmxxx::List& lhs,
 {
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox6(lhs[idx], rhs[idx], dRel, dAbs, fRel, fAbs)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1181,7 +1181,7 @@ bool etApprox6(const bdlmxxx::Table& lhs,
         for (int cIdx = 0; cIdx < lhs.numColumns(); ++cIdx) {
             if (!eApprox6(lhs[rIdx][cIdx], rhs[rIdx][cIdx],
                           dRel, dAbs, fRel, fAbs)) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -1198,7 +1198,7 @@ bool ecaApprox6(const bdlmxxx::ChoiceArray& lhs,
     for (int idx = 0; idx < lhs.length(); ++idx) {
         if (!eApprox6(lhs[idx].selection(), rhs[idx].selection(),
                       dRel, dAbs, fRel, fAbs)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1242,9 +1242,9 @@ bool cApprox6(const Choice& lhs,
                                                                     fAbs);
 }
 
-//==========================================================================
+//=============================================================================
 //                               USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -1404,7 +1404,7 @@ bool cApprox6(const Choice& lhs,
                                                             relTolerance,
                                                             absTolerance)) {
                 *sourceId = priceVec[i].first;
-                return SUCCESS;
+                return SUCCESS;                                       // RETURN
             }
         }
         return FAILURE;
@@ -3773,11 +3773,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

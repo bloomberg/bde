@@ -1,4 +1,4 @@
-// bdlpuxxx_escapechar.cpp                  -*-C++-*-
+// bdlpuxxx_escapechar.cpp                                            -*-C++-*-
 #include <bdlpuxxx_escapechar.h>
 
 #include <bsls_ident.h>
@@ -65,13 +65,13 @@ static const unsigned char ESCAPE_SEQUENCE_TYPE[256] = {
 const unsigned char *bdlpuxxx::EscapeChar::s_escapeCodes =
                                                 ESCAPE_SEQUENCE_TYPE;
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

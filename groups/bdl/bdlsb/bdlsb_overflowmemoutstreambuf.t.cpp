@@ -27,9 +27,9 @@ using bsl::strlen; using bsl::strncmp; using bsl::memset;
 using bsl::strchr; using bsl::string; using bsl::strcmp;
 using bsl::memcmp; using bsl::streambuf;
 
-//==========================================================================
+//=============================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 //
@@ -90,7 +90,7 @@ using bsl::memcmp; using bsl::streambuf;
 // component are a value-semantic types that represent big-endian integer
 // types.  They have the same value if they have the same in-core big endian
 // representation.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
 // CLASS METHODS
 // [11] void grow(int n);

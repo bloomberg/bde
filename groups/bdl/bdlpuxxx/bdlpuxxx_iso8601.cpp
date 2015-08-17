@@ -1,4 +1,4 @@
-// bdlpuxxx_iso8601.cpp                                                  -*-C++-*-
+// bdlpuxxx_iso8601.cpp                                               -*-C++-*-
 #include <bdlpuxxx_iso8601.h>
 
 #include <bsls_ident.h>
@@ -1025,7 +1025,7 @@ int Iso8601::parse(bdlt::DatetimeTz *result,
 
         const bdlt::Datetime MAX(9999, 12, 31, 23, 59, 59, 999);
         if (MAX - resultAdjustment < localDatetime) {
-            return -1;
+            return -1;                                                // RETURN
         }
         localDatetime += resultAdjustment;
     }
@@ -1057,13 +1057,13 @@ bool Iso8601Configuration::useZAbbreviationForUtc()
 }  // close package namespace
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

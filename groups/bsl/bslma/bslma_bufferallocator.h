@@ -374,9 +374,9 @@ void BufferAllocator::deallocate(void *)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::BufferAllocator bslma_BufferAllocator;
     // This alias is defined for backward compatibility.

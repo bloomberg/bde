@@ -1,4 +1,4 @@
-// btlmt_channeltype.h             -*-C++-*-
+// btlmt_channeltype.h                                                -*-C++-*-
 #ifndef INCLUDED_BTLMT_CHANNELTYPE
 #define INCLUDED_BTLMT_CHANNELTYPE
 
@@ -63,21 +63,31 @@ struct ChannelType {
   public:
     // TYPES
     enum Value {
-        BTEMT_LISTENING_CHANNEL = 1,
-        BTEMT_ACCEPTED_CHANNEL,
-        BTEMT_CONNECTING_CHANNEL,
-        BTEMT_CONNECTED_CHANNEL,
-        BTEMT_IMPORTED_CHANNEL
+        e_LISTENING_CHANNEL = 1,
+        e_ACCEPTED_CHANNEL,
+        e_CONNECTING_CHANNEL,
+        e_CONNECTED_CHANNEL,
+        e_IMPORTED_CHANNEL
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , LISTENING_CHANNEL  = BTEMT_LISTENING_CHANNEL
-      , ACCEPTED_CHANNEL   = BTEMT_ACCEPTED_CHANNEL
-      , CONNECTING_CHANNEL = BTEMT_CONNECTING_CHANNEL
-      , CONNECTED_CHANNEL  = BTEMT_CONNECTED_CHANNEL
-      , IMPORTED_CHANNEL   = BTEMT_IMPORTED_CHANNEL
+      , BTEMT_LISTENING_CHANNEL = e_LISTENING_CHANNEL
+      , BTEMT_ACCEPTED_CHANNEL = e_ACCEPTED_CHANNEL
+      , BTEMT_CONNECTING_CHANNEL = e_CONNECTING_CHANNEL
+      , BTEMT_CONNECTED_CHANNEL = e_CONNECTED_CHANNEL
+      , BTEMT_IMPORTED_CHANNEL   = e_IMPORTED_CHANNEL
+      , LISTENING_CHANNEL  = e_LISTENING_CHANNEL
+      , ACCEPTED_CHANNEL   = e_ACCEPTED_CHANNEL
+      , CONNECTING_CHANNEL = e_CONNECTING_CHANNEL
+      , CONNECTED_CHANNEL  = e_CONNECTED_CHANNEL
+      , IMPORTED_CHANNEL   = e_IMPORTED_CHANNEL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum { BTEMT_LENGTH = BTEMT_IMPORTED_CHANNEL };
+    enum {
+        e_LENGTH = e_IMPORTED_CHANNEL
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTEMT_LENGTH = e_LENGTH
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
         // Define 'LENGTH' to be the number of consecutively valued enumerators
         // in the range '[ LISTENING_CHANNEL .. IMPORTED_CHANNEL ]'.
 
@@ -95,15 +105,22 @@ bsl::ostream& operator<<(bsl::ostream& stream, ChannelType::Value rhs);
     // in a string representation matching the enumerator name (e.g.,
     // "LISTENING_CHANNEL"), and return a reference to the modifiable 'stream'.
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

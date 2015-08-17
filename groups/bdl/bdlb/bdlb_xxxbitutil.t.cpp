@@ -1,4 +1,4 @@
-// bdlb_xxxbitutil.t.cpp                                                 -*-C++-*-
+// bdlb_xxxbitutil.t.cpp                                              -*-C++-*-
 
 #include <bdlb_xxxbitutil.h>
 
@@ -505,29 +505,29 @@ static int g(const char *spec)
           case '.': {
             if (rangeStartIndex != -1) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Multiple Ranges");
-                return G_MULTIPLE_RANGES;
+                return G_MULTIPLE_RANGES;                             // RETURN
             }
             if (0 == bitCount) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range Start");
-                return G_MISSING_RANGE_START;
+                return G_MISSING_RANGE_START;                         // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip white space
             }
             if ('.' != spec[i]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Second Dot");
-                return G_MISSING_SECOND_DOT;
+                return G_MISSING_SECOND_DOT;                          // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip white space
             }
             if ('0' != spec[i] && '1' != spec[i]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range End");
-                return G_MISSING_RANGE_END;
+                return G_MISSING_RANGE_END;                           // RETURN
             }
             if (spec[i] != spec[lastBitIndex]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Nonmatching Range");
-                return G_MISMATCHED_RANGE;
+                return G_MISMATCHED_RANGE;                            // RETURN
             }
 
             // Found valid range; record index of beginning and of end.
@@ -538,7 +538,7 @@ static int g(const char *spec)
           default: {
             if (!isspace(spec[i])) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Illegal Character");
-                return G_ILLEGAL_CHARACTER;
+                return G_ILLEGAL_CHARACTER;                           // RETURN
             }
           } break;
         }
@@ -546,7 +546,7 @@ static int g(const char *spec)
 
     if (bitCount > BITS_PER_WORD) {
         LOOP2_ASSERT(bitCount, BITS_PER_WORD, G_OFF || !"Too Many Bits");
-        return G_TOO_MANY_BITS;
+        return G_TOO_MANY_BITS;                                       // RETURN
     }
 
     int result;     // value to be returned
@@ -645,29 +645,29 @@ static Int64 g64(const char *spec)
           case '.': {
             if (rangeStartIndex != -1) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Multiple Ranges");
-                return G_MULTIPLE_RANGES;
+                return G_MULTIPLE_RANGES;                             // RETURN
             }
             if (0 == bitCount) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range Start");
-                return G_MISSING_RANGE_START;
+                return G_MISSING_RANGE_START;                         // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip white space
             }
             if ('.' != spec[i]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Second Dot");
-                return G_MISSING_SECOND_DOT;
+                return G_MISSING_SECOND_DOT;                          // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip white space
             }
             if ('0' != spec[i] && '1' != spec[i]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range End");
-                return G_MISSING_RANGE_END;
+                return G_MISSING_RANGE_END;                           // RETURN
             }
             if (spec[i] != spec[lastBitIndex]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Nonmatching Range");
-                return G_MISMATCHED_RANGE;
+                return G_MISMATCHED_RANGE;                            // RETURN
             }
 
             // Found valid range; record index of beginning and of end.
@@ -678,7 +678,7 @@ static Int64 g64(const char *spec)
           default: {
             if (!isspace(spec[i])) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Illegal Character");
-                return G_ILLEGAL_CHARACTER;
+                return G_ILLEGAL_CHARACTER;                           // RETURN
             }
           } break;
         }
@@ -686,7 +686,7 @@ static Int64 g64(const char *spec)
 
     if (bitCount > BITS_PER_INT64) {
         LOOP2_ASSERT(bitCount, BITS_PER_INT64, G_OFF || !"Too Many Bits");
-        return G_TOO_MANY_BITS;
+        return G_TOO_MANY_BITS;                                       // RETURN
     }
 
     Int64 result;     // value to be returned
@@ -715,7 +715,7 @@ static long long roundUpToBinaryPower(Uint64 srcInteger)
     // Return the value of 'bdlb::BitUtil::roundUpToBinaryPower(srcInteger)'
     // computing it by a different algorithm
     if (0 == srcInteger) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     Uint64 i = 1;
     for (; i && i < srcInteger; i <<= 1) {
@@ -746,7 +746,7 @@ static int findFirstBit1(Int64 srcInteger)
 {
     for (int i = BPS - 1; i >= 0; --i) {
         if (srcInteger & ((Int64) 1 << i))
-            return i;
+            return i;                                                 // RETURN
     }
     return -1;
 }
@@ -757,7 +757,7 @@ static int findLastBit1(Int64 srcInteger)
 {
     for (int i = 0; i < BPS; ++i) {
         if (srcInteger & ((Int64) 1 << i))
-            return i;
+            return i;                                                 // RETURN
     }
     return Util::BDES_BITS_PER_INT64;
 }
@@ -17020,11 +17020,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

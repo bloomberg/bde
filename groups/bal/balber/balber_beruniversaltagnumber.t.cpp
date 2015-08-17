@@ -43,7 +43,7 @@ void aSsErT(int c, const char *s, int i)
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-}
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -216,9 +216,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -259,7 +259,7 @@ CustomizedString& CustomizedString::operator=(const CustomizedString& rhs)
 inline
 void CustomizedString::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -268,7 +268,7 @@ int CustomizedString::fromString(const bsl::string& value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -474,16 +474,16 @@ class MyChoice {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyChoice")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
     // CLASS METHODS
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -646,7 +646,7 @@ inline
 void MyChoice::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -672,7 +672,7 @@ inline
 void MyChoice::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -694,7 +694,7 @@ void MyChoice::makeSelection2(const bsl::string& value)
     }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CREATORS
 inline
@@ -768,7 +768,7 @@ int MyChoice::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return SUCCESS;
 }
@@ -778,10 +778,10 @@ int MyChoice::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return NOT_FOUND;                                            // RETURN
+       return NOT_FOUND;                                              // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -805,7 +805,7 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
       default:
         BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -847,7 +847,7 @@ int MyChoice::accessSelection(ACCESSOR& accessor) const
                                                                       // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -885,11 +885,11 @@ bool test::operator==(const test::MyChoice& lhs, const test::MyChoice& rhs)
           default:
             BSLS_ASSERT_SAFE(test::MyChoice::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -905,18 +905,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mychoice.cpp  -*-C++-*-
 
@@ -939,20 +939,20 @@ namespace test {
 const char MyChoice::CLASS_NAME[] = "MyChoice";
     // the name of this class
 
-const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",                         // name
         sizeof("Selection1") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",                         // name
         sizeof("Selection2") - 1,             // name length
         "todo: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -960,7 +960,7 @@ const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -979,10 +979,12 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
                     case '1': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -991,7 +993,7 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -1148,7 +1150,7 @@ struct MyEnumeration {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyEnumeration")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -1182,9 +1184,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
 
@@ -1197,9 +1199,9 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
       case MyEnumeration::VALUE1:
       case MyEnumeration::VALUE2:
         *result = (MyEnumeration::Value)number;
-        return SUCCESS;                                         // RETURN
+        return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1210,7 +1212,7 @@ bsl::ostream& MyEnumeration::print(bsl::ostream&      stream,
     return stream << toString(value);
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CLASS METHODS
 inline
@@ -1218,10 +1220,10 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
 {
     switch (value) {
       case VALUE1: {
-        return "VALUE1";
+        return "VALUE1";                                              // RETURN
       } break;
       case VALUE2: {
-        return "VALUE2";
+        return "VALUE2";                                              // RETURN
       } break;
       default:
         BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
@@ -1243,18 +1245,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return test::MyEnumeration::print(stream, rhs);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_myenumeration.cpp  -*-C++-*-
 
@@ -1275,7 +1277,7 @@ namespace test {
 const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
     // the name of this class
 
-const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
     {
         MyEnumeration::VALUE1,
         "VALUE1",                      // name
@@ -1311,12 +1313,12 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                 switch(bdlb::CharType::toUpper(string[5])) {
                     case '1': {
                         *result = MyEnumeration::VALUE1;
-                        return SUCCESS;
+                        return SUCCESS;                               // RETURN
                                                                       // RETURN
                     } break;
                     case '2': {
                         *result = MyEnumeration::VALUE2;
-                        return SUCCESS;
+                        return SUCCESS;                               // RETURN
                                                                       // RETURN
                     } break;
                 }
@@ -1433,16 +1435,16 @@ class MySequence {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequence")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -1626,8 +1628,8 @@ MySequence::operator=(const MySequence& rhs)
 inline
 void MySequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -1639,13 +1641,13 @@ int MySequence::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_attribute1,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_attribute2,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1661,15 +1663,15 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1681,10 +1683,10 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1712,13 +1714,13 @@ int MySequence::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_attribute1,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_attribute2,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1734,15 +1736,15 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1754,10 +1756,10 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
 
      return accessAttribute(accessor, attributeInfo->d_id);
@@ -1775,7 +1777,7 @@ const bsl::string& MySequence::attribute2() const
     return d_attribute2;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::MySequence)
@@ -1802,18 +1804,18 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mysequence.cpp  -*-C++-*-
 
@@ -1836,20 +1838,20 @@ namespace test {
 const char MySequence::CLASS_NAME[] = "MySequence";
     // the name of this class
 
-const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                     // name
         sizeof("Attribute1") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                     // name
         sizeof("Attribute2") - 1,         // name length
         "todo: provide annotation",// annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -1857,7 +1859,7 @@ const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -1876,10 +1878,12 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
                     case '1': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -1888,7 +1892,7 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -1965,17 +1969,17 @@ bsl::ostream& MySequence::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 namespace BloombergLP {
 namespace test {
@@ -1991,27 +1995,27 @@ class MyDynamicType {
     int category() const { return d_category; }
 };
 
-bdeat_TypeCategory::Value bdeat_typeCategorySelect(const MyDynamicType& obj)
+bdlat_TypeCategory::Value bdlat_typeCategorySelect(const MyDynamicType& obj)
 {
-    return bdeat_TypeCategory::Value(obj.category());
+    return bdlat_TypeCategory::Value(obj.category());
 }
 
-}  // close namespace test;
+}  // close namespace test
 
-namespace bdeat_SequenceFunctions {
+namespace bdlat_SequenceFunctions {
 
     template <>
     struct IsSequence<test::MyDynamicType> : bslmf::MetaInt<1> { };
-}
+}  // close namespace bdlat_SequenceFunctions
 
-namespace bdeat_ChoiceFunctions {
+namespace bdlat_ChoiceFunctions {
 
     template <>
     struct IsChoice<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
-}  // close namespace bdeat_ChoiceFunctions
+}  // close namespace bdlat_ChoiceFunctions
 
-namespace bdeat_ArrayFunctions {
+namespace bdlat_ArrayFunctions {
 
     template <>
     struct IsArray<test::MyDynamicType> : bslmf::MetaInt<1> { };
@@ -2019,16 +2023,16 @@ namespace bdeat_ArrayFunctions {
     template <>
     struct ElementType<test::MyDynamicType> { typedef int Type; };
 
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace bdlat_ArrayFunctions
 
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
 
     template <>
     struct IsEnumeration<test::MyDynamicType> : bslmf::MetaInt<1> { };
 
-} // close namespace bdeat_EnumFunctions
+}  // close namespace bdlat_EnumFunctions
 
-namespace bdeat_NullableValueFunctions {
+namespace bdlat_NullableValueFunctions {
 
     template <>
     struct IsNullableValue<test::MyDynamicType> : bslmf::MetaInt<1> { };
@@ -2036,15 +2040,15 @@ namespace bdeat_NullableValueFunctions {
     template <>
     struct ValueType<test::MyDynamicType> { typedef int Type; };
 
-}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace bdlat_NullableValueFunctions
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 typedef balber::BerUniversalTagNumber        Class;
 typedef balber::BerUniversalTagNumber::Value Enum;
 const int                                 NUM_ENUMS = Class::k_LENGTH;
-typedef bdeat_FormattingMode              FM;
-typedef bdeat_TypeCategory                TC;
+typedef bdlat_FormattingMode              FM;
+typedef bdlat_TypeCategory                TC;
 
 // ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
@@ -2058,7 +2062,7 @@ typedef bdeat_TypeCategory                TC;
         LOOP2_ASSERT(expectedResult, result, expectedResult == result);       \
         balber::BerUniversalTagNumber::Value result2 =                           \
             balber::BerUniversalTagNumber::select(object,                        \
-                                         formattingMode | FM::BDEAT_UNTAGGED, \
+                                         formattingMode | FM::e_UNTAGGED, \
                                                options);                      \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
     }
@@ -2077,12 +2081,12 @@ typedef bdeat_TypeCategory                TC;
         balber::BerUniversalTagNumber::Value result2 =                        \
             balber::BerUniversalTagNumber::select(object,                     \
                                          formattingMode | FM::BDEAT_UNTAGGED, \
-                                               &altTag);                      \
+                                         &altTag);                            \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
         LOOP2_ASSERT(*otherTag, altTag, *otherTag == altTag);                 \
     }
-    // Test select() function, both with unadorned 'formattingMode' and with
-    // an extra bit set in 'formattingMode'.
+    // Test 'select' function, both with unadorned 'formattingMode' and with an
+    // extra bit set in 'formattingMode'.
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -2191,225 +2195,225 @@ int main(int argc, char *argv[])
         //          type         formatting mode   expected result
         //          ----         ---------------   ---------------
         TEST_SELECT_WITH_ALT_TAG(bool,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_BOOL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bool,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_BOOL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bool,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_BOOL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(char,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(schar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(schar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(schar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uchar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uchar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(short,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(short,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(ushort,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(ushort,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(unsigned long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(unsigned long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(int64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(uint64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(float,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(double,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(string,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(vectorChar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(CustString,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyEnum,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_ENUMERATION,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyEnum,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_ENUMERATION,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyEnum,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_ENUMERATION,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MySequence,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(MyChoice,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &otherTag);
 
         otherTag = Class::e_BER_OCTET_STRING;
         TEST_SELECT_WITH_ALT_TAG(bdlt::Date,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::DateTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::Datetime,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::DatetimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::Time,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(bdlt::TimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(DateVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(TimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
         TEST_SELECT_WITH_ALT_TAG(DatetimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &otherTag);
 
@@ -2419,12 +2423,12 @@ int main(int argc, char *argv[])
             TC::Value    d_category;
             Class::Value d_expectedResult;
         } DATA[] = {
-            { TC::BDEAT_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
-            { TC::BDEAT_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
+            { TC::e_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
+            { TC::e_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
 //            { TC::CUSTOMIZED_TYPE_CATEGORY , ? },
-            { TC::BDEAT_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
+            { TC::e_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
 //            { TC::NULLABLE_VALUE_CATEGORY  ,  ? },
-            { TC::BDEAT_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
+            { TC::e_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
         };
 
         static const int DATA_SIZE = sizeof DATA / sizeof DATA[0];
@@ -2438,7 +2442,7 @@ int main(int argc, char *argv[])
 
             balber::BerUniversalTagNumber::Value result =
                 balber::BerUniversalTagNumber::select(object,
-                                                   FM::BDEAT_DEFAULT,
+                                                   FM::e_DEFAULT,
                                                    &otherTag);
 
             LOOP2_ASSERT(EXPECTED_RESULT, result, EXPECTED_RESULT == result);
@@ -2489,262 +2493,262 @@ int main(int argc, char *argv[])
         //          type         formatting mode   expected result
         //          ----         ---------------   ---------------
         TEST_SELECT_WITH_OPTIONS(bool,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_BOOL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bool,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_BOOL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bool,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_BOOL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(char,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(schar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(schar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(schar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uchar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uchar,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(short,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(short,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(ushort,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(ushort,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(unsigned long,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(unsigned long,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(int64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint64,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(uint64,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_INT,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(float,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(double,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_REAL,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(string,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Date,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DateTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Datetime,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DatetimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Time,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::TimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DateVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(TimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DatetimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_VISIBLE_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(vectorChar,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_UTF8_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_BASE64,
+                                 FM::e_BASE64,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(CustString,
-                                 FM::BDEAT_HEX,
+                                 FM::e_HEX,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyEnum,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_ENUMERATION,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyEnum,
-                                 FM::BDEAT_DEC,
+                                 FM::e_DEC,
                                  Class::e_BER_ENUMERATION,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyEnum,
-                                 FM::BDEAT_TEXT,
+                                 FM::e_TEXT,
                                  Class::e_BER_ENUMERATION,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MySequence,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(MyChoice,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &options);
 
         options.setEncodeDateAndTimeTypesAsBinary(true);
 
         TEST_SELECT_WITH_OPTIONS(bdlt::Date,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DateTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Datetime,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::DatetimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::Time,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(bdlt::TimeTz,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DateVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(TimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
         TEST_SELECT_WITH_OPTIONS(DatetimeVariant,
-                                 FM::BDEAT_DEFAULT,
+                                 FM::e_DEFAULT,
                                  Class::e_BER_OCTET_STRING,
                                  &options);
 
@@ -2754,12 +2758,12 @@ int main(int argc, char *argv[])
             TC::Value    d_category;
             Class::Value d_expectedResult;
         } DATA[] = {
-            { TC::BDEAT_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
-            { TC::BDEAT_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
+            { TC::e_ARRAY_CATEGORY         , Class::e_BER_SEQUENCE    },
+            { TC::e_CHOICE_CATEGORY        , Class::e_BER_SEQUENCE    },
 //            { TC::CUSTOMIZED_TYPE_CATEGORY , ? },
-            { TC::BDEAT_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
+            { TC::e_ENUMERATION_CATEGORY   , Class::e_BER_ENUMERATION },
 //            { TC::NULLABLE_VALUE_CATEGORY  ,  ? },
-            { TC::BDEAT_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
+            { TC::e_SEQUENCE_CATEGORY      , Class::e_BER_SEQUENCE    },
         };
 
         static const int DATA_SIZE = sizeof DATA / sizeof DATA[0];
@@ -2772,7 +2776,7 @@ int main(int argc, char *argv[])
 
             balber::BerUniversalTagNumber::Value result =
                 balber::BerUniversalTagNumber::select(object,
-                                                   FM::BDEAT_DEFAULT,
+                                                   FM::e_DEFAULT,
                                                    &options);
 
             LOOP2_ASSERT(EXPECTED_RESULT, result, EXPECTED_RESULT == result);
@@ -2916,10 +2920,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

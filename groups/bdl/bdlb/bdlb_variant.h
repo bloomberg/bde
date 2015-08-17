@@ -1,4 +1,4 @@
-// bdlb_variant.h                                                    -*-C++-*-
+// bdlb_variant.h                                                     -*-C++-*-
 #ifndef INCLUDED_BDLB_VARIANT
 #define INCLUDED_BDLB_VARIANT
 
@@ -734,7 +734,7 @@ struct Variant_BdexStreamInVisitor;
 template <class STREAM>
 struct Variant_BdexStreamOutVisitor;
 
-template <typename TYPES>
+template <class TYPES>
 class VariantImp;
 
                     // ======================================
@@ -758,17 +758,19 @@ struct Variant_ReturnValueHelper {
     // member 'ResultType' defined using "SFINAE" - substitution failure is not
     // an error.
 
-    template <typename T> static Variant_ReturnValueHelper_YesType
+    template <class T> static Variant_ReturnValueHelper_YesType
         match(typename T::ResultType*);
-    template <typename T> static Variant_ReturnValueHelper_NoType
+    template <class T> static Variant_ReturnValueHelper_NoType
         match(...);
         // If 'T::Type' exists, then the first function will be a better match
         // than the ellipsis version, which will return a 'YesType', indicating
         // the existence of 'T::ResultType'.
 
-    enum { VALUE = sizeof(match<VISITOR>(0))
-                   == sizeof(Variant_ReturnValueHelper_YesType) };
-        // A 'VALUE' of 'true' indicates 'VISITOR::ResultType' exists, and
+    enum {
+        k_VaL = sizeof(match<VISITOR>(0))
+                   == sizeof(Variant_ReturnValueHelper_YesType)
+    };
+        // A 'k_VaL' of 'true' indicates 'VISITOR::ResultType' exists, and
         // 'false' otherwise.
 };
 
@@ -851,10 +853,10 @@ class VariantImp_AllocatorBase {
     bslma::Allocator *d_allocator_p;  // pointer to allocator (held, not owned)
 
     // FRIENDS
-    template <typename VARIANT_TYPES>
+    template <class VARIANT_TYPES>
     friend class VariantImp;
 
-    template <typename VARIANT_TYPES>
+    template <class VARIANT_TYPES>
     friend bool operator==(const VariantImp<VARIANT_TYPES>&,
                            const VariantImp<VARIANT_TYPES>&);
 
@@ -873,7 +875,7 @@ class VariantImp_AllocatorBase {
         // indicating the type the variant is currently holding, and the
         // specified 'basicAllocator' to supply memory.
 
-    template <typename TYPE>
+    template <class TYPE>
     VariantImp_AllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *);
 
     // ACCESSORS
@@ -885,7 +887,7 @@ class VariantImp_AllocatorBase {
                   // class VariantImp_NonAllocatorBase<TYPES>
                   // ==============================================
 
-template <typename TYPES>
+template <class TYPES>
 class VariantImp_NonAllocatorBase {
     // This class is component-private.  Do not use.  This class contains the
     // 'typedef's and data members of the 'Variant' class.  This class
@@ -960,10 +962,10 @@ class VariantImp_NonAllocatorBase {
     int              d_type;   // current type the variant is holding
 
     // FRIENDS
-    template <typename VARIANT_TYPES>
+    template <class VARIANT_TYPES>
     friend class VariantImp;
 
-    template <typename VARIANT_TYPES>
+    template <class VARIANT_TYPES>
     friend bool operator==(const VariantImp<VARIANT_TYPES>&,
                            const VariantImp<VARIANT_TYPES>&);
 
@@ -977,7 +979,7 @@ class VariantImp_NonAllocatorBase {
         // Create a 'VariantImp_AllocatorBase' with the specified 'type'
         // indicating the type the variant is currently holding.
 
-    template <typename TYPE>
+    template <class TYPE>
     VariantImp_NonAllocatorBase(int                type,
                                       const TYPE&,
                                       bslmf::MetaInt<0> *);
@@ -1023,7 +1025,7 @@ struct VariantImp_Traits {
 
   public:
     enum {
-        VARIANT_USES_BSLMA_ALLOCATOR = (
+        k_VARIANT_USES_BSLMA_ALLOCATOR = (
             bslma::UsesBslmaAllocator< Type1>::value
          || bslma::UsesBslmaAllocator< Type2>::value
          || bslma::UsesBslmaAllocator< Type3>::value
@@ -1045,7 +1047,7 @@ struct VariantImp_Traits {
          || bslma::UsesBslmaAllocator<Type19>::value
          || bslma::UsesBslmaAllocator<Type20>::value),
 
-        VARIANT_IS_BITWISE_COPYABLE = (
+        k_VARIANT_IS_BITWISE_COPYABLE = (
             bsl::is_trivially_copyable< Type1>::value
          && bsl::is_trivially_copyable< Type2>::value
          && bsl::is_trivially_copyable< Type3>::value
@@ -1067,7 +1069,7 @@ struct VariantImp_Traits {
          && bsl::is_trivially_copyable<Type19>::value
          && bsl::is_trivially_copyable<Type20>::value),
 
-        VARIANT_IS_BITWISE_MOVEABLE = (
+        k_VARIANT_IS_BITWISE_MOVEABLE = (
             bslmf::IsBitwiseMoveable< Type1>::value
          && bslmf::IsBitwiseMoveable< Type2>::value
          && bslmf::IsBitwiseMoveable< Type3>::value
@@ -1088,10 +1090,15 @@ struct VariantImp_Traits {
          && bslmf::IsBitwiseMoveable<Type18>::value
          && bslmf::IsBitwiseMoveable<Type19>::value
          && bslmf::IsBitwiseMoveable<Type20>::value)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , VARIANT_USES_BSLMA_ALLOCATOR = k_VARIANT_USES_BSLMA_ALLOCATOR
+      , VARIANT_IS_BITWISE_COPYABLE = k_VARIANT_IS_BITWISE_COPYABLE
+      , VARIANT_IS_BITWISE_MOVEABLE = k_VARIANT_IS_BITWISE_MOVEABLE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     typedef typename bslmf::If<
-        VARIANT_USES_BSLMA_ALLOCATOR,
+        k_VARIANT_USES_BSLMA_ALLOCATOR,
         VariantImp_AllocatorBase<TYPES>,
         VariantImp_NonAllocatorBase<TYPES> >::Type BaseType;
         // Determines what the base type is.
@@ -1174,7 +1181,7 @@ class Variant_RawVisitorHelper {
                        // class VariantImp<TYPES>
                        // =============================
 
-template <typename TYPES>
+template <class TYPES>
 class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     // This class provides the implementation of 'Variant' (except for
     // the creators) given a parameterized list of 'TYPES'.
@@ -1297,13 +1304,13 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(VariantImp,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(VariantImp,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(VariantImp,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(VariantImp, bdlb::HasPrintMethod);
 
     // CREATORS
@@ -1362,7 +1369,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1378,6 +1385,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1386,7 +1394,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1402,6 +1410,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<const VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1410,7 +1419,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1426,6 +1435,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         return visitor(defaultValue);
@@ -1433,7 +1443,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1449,6 +1459,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<const VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         return visitor(defaultValue);
@@ -1456,7 +1467,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1469,7 +1480,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1478,7 +1489,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1491,7 +1502,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1500,7 +1511,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1513,7 +1524,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         visitor(defaultValue);
@@ -1521,7 +1532,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1534,7 +1545,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         visitor(defaultValue);
@@ -1563,7 +1574,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1586,7 +1597,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
@@ -1609,7 +1620,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1629,7 +1640,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(const VISITOR& visitor) {
         // Apply the specified 'visitor' to this modifiable variant by passing
         // the value this variant currently holds to 'visitor' object's
@@ -1775,7 +1786,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     // ACCESSORS
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1790,6 +1801,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1798,7 +1810,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1813,6 +1825,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<const VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1821,7 +1834,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1836,6 +1849,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         return visitor(defaultValue);
@@ -1843,7 +1857,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1858,6 +1872,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         if (this->d_type) {
             return doApplyR<const VISITOR&,
                           typename VISITOR::ResultType>(visitor, this->d_type);
+                                                                      // RETURN
         }
 
         return visitor(defaultValue);
@@ -1865,7 +1880,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1878,7 +1893,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1887,7 +1902,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1900,7 +1915,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         bslmf::Nil nil = bslmf::Nil();
@@ -1909,7 +1924,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1922,7 +1937,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         visitor(defaultValue);
@@ -1930,7 +1945,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -1943,7 +1958,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
-            return;
+            return;                                                   // RETURN
         }
 
         visitor(defaultValue);
@@ -1971,7 +1986,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -1996,7 +2011,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
@@ -2020,7 +2035,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -2039,7 +2054,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 
     template <class VISITOR>
     typename bsl::enable_if<
-             Variant_ReturnValueHelper<VISITOR>::VALUE == 0, void>::type
+             Variant_ReturnValueHelper<VISITOR>::k_VaL == 0, void>::type
     applyRaw(const VISITOR& visitor) const {
         // Apply the specified 'visitor' to this variant by passing the value
         // this variant currently holds to 'visitor' object's 'operator()'.
@@ -2135,7 +2150,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 };
 
 // FREE OPERATORS
-template <typename TYPES>
+template <class TYPES>
 bool operator==(const VariantImp<TYPES>& lhs,
                 const VariantImp<TYPES>& rhs);
     // Return 'true' if the specified 'lhs' variant object has the same value
@@ -2143,7 +2158,7 @@ bool operator==(const VariantImp<TYPES>& lhs,
     // variant objects have the same value if they are both set and hold
     // objects of the same type and same value, or are both unset.
 
-template <typename TYPES>
+template <class TYPES>
 bool operator!=(const VariantImp<TYPES>& lhs,
                 const VariantImp<TYPES>& rhs);
     // Return 'true' if the specified 'lhs' variant object does not have the
@@ -2162,7 +2177,7 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
     // to the modifiable 'stream'.
 
 // FREE FUNCTIONS
-template <typename TYPES>
+template <class TYPES>
 void swap(bdlb::VariantImp<TYPES>& a, bdlb::VariantImp<TYPES>& b);
 
 namespace bdlb {    // Swap the values of the specified 'a' and 'b' objects.  This method
@@ -2209,13 +2224,13 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant, bdlb::HasPrintMethod);
 
     // CREATORS
@@ -2371,13 +2386,13 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant2,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant2,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant2,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant2, bdlb::HasPrintMethod);
 
     // CREATORS
@@ -2503,13 +2518,13 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant3,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant3,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant3,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant3, bdlb::HasPrintMethod);
 
 
@@ -2639,13 +2654,13 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant4,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant4,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant4,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant4, bdlb::HasPrintMethod);
 
 
@@ -2775,13 +2790,13 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant5,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant5,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant5,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant5, bdlb::HasPrintMethod);
 
 
@@ -2911,13 +2926,13 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant6,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant6,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant6,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant6, bdlb::HasPrintMethod);
 
 
@@ -3048,13 +3063,13 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant7,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant7,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant7,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant7, bdlb::HasPrintMethod);
 
 
@@ -3187,13 +3202,13 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant8,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant8,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant8,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant8, bdlb::HasPrintMethod);
 
 
@@ -3332,13 +3347,13 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant9,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant9,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant9,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant9, bdlb::HasPrintMethod);
 
 
@@ -3478,13 +3493,13 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant10,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant10,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant10,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant10, bdlb::HasPrintMethod);
 
 
@@ -3624,13 +3639,13 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant11,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant11,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant11,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant11, bdlb::HasPrintMethod);
 
 
@@ -3772,13 +3787,13 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant12,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant12,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant12,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant12, bdlb::HasPrintMethod);
 
 
@@ -3921,13 +3936,13 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant13,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant13,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant13,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant13, bdlb::HasPrintMethod);
 
 
@@ -4072,13 +4087,13 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant14,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant14,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant14,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant14, bdlb::HasPrintMethod);
 
 
@@ -4229,13 +4244,13 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant15,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant15,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant15,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant15, bdlb::HasPrintMethod);
 
 
@@ -4395,13 +4410,13 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant16,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant16,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant16,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant16, bdlb::HasPrintMethod);
 
 
@@ -4562,13 +4577,13 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant17,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant17,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant17,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant17, bdlb::HasPrintMethod);
 
 
@@ -4728,13 +4743,13 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant18,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant18,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant18,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant18, bdlb::HasPrintMethod);
 
 
@@ -4896,13 +4911,13 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant19,
                                       bslma::UsesBslmaAllocator,
-                                      Traits::VARIANT_USES_BSLMA_ALLOCATOR);
+                                      Traits::k_VARIANT_USES_BSLMA_ALLOCATOR);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant19,
                                       bsl::is_trivially_copyable,
-                                      Traits::VARIANT_IS_BITWISE_COPYABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_COPYABLE);
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Variant19,
                                       bslmf::IsBitwiseMoveable,
-                                      Traits::VARIANT_IS_BITWISE_MOVEABLE);
+                                      Traits::k_VARIANT_IS_BITWISE_MOVEABLE);
     BSLMF_NESTED_TRAIT_DECLARATION(Variant19, bdlb::HasPrintMethod);
 
     // CREATORS
@@ -5038,14 +5053,14 @@ operator=(const Variant19& rhs)
                // struct Variant_TypeIndex<TYPES, TYPE>
                // ===========================================
 
-template <typename TYPES, typename TYPE>
+template <class TYPES, class TYPE>
 struct Variant_TypeIndex {
     // Component-private meta-function.  Do not use.  This meta-function
     // computed the index of the parameterized 'TYPE' in the parameterized list
     // of 'TYPES'.
 
     enum {
-        VALUE
+        k_VaL
             = bslmf::IsSame<
                       typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault,
                       TYPE>::VALUE ?  1
@@ -5111,7 +5126,7 @@ struct Variant_TypeIndex {
             : 0
     };
 
-    BSLMF_ASSERT(VALUE);
+    BSLMF_ASSERT(k_VaL);
 };
 
                // ============================================
@@ -5214,7 +5229,7 @@ struct Variant_AssignVisitor {
     }
 
     // ACCESSORS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     void operator() (const TYPE& value)
     {
@@ -5243,7 +5258,7 @@ struct Variant_SwapVisitor {
     }
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     void operator() (TYPE& value)
     {
@@ -5457,7 +5472,7 @@ struct Variant_EqualityTestVisitor {
                    // -------------------------------------------
 
 // CREATORS
-template <typename TYPES>
+template <class TYPES>
 inline
 VariantImp_AllocatorBase<TYPES>::
 VariantImp_AllocatorBase(int type, bslma::Allocator *basicAllocator)
@@ -5466,7 +5481,7 @@ VariantImp_AllocatorBase(int type, bslma::Allocator *basicAllocator)
 {
 }
 
-template <typename TYPES>
+template <class TYPES>
 inline
 VariantImp_AllocatorBase<TYPES>::
 VariantImp_AllocatorBase(int,
@@ -5477,8 +5492,8 @@ VariantImp_AllocatorBase(int,
 {
 }
 
-template <typename TYPES>
-template <typename TYPE>
+template <class TYPES>
+template <class TYPE>
 inline
 VariantImp_AllocatorBase<TYPES>::
 VariantImp_AllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *)
@@ -5488,7 +5503,7 @@ VariantImp_AllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *)
 }
 
 // ACCESSORS
-template <typename TYPES>
+template <class TYPES>
 inline
 bslma::Allocator *
 VariantImp_AllocatorBase<TYPES>::getAllocator() const
@@ -5501,7 +5516,7 @@ VariantImp_AllocatorBase<TYPES>::getAllocator() const
                   // ----------------------------------------------
 
 // CREATORS
-template <typename TYPES>
+template <class TYPES>
 inline
 VariantImp_NonAllocatorBase<TYPES>::
 VariantImp_NonAllocatorBase(int type, bslma::Allocator *)
@@ -5509,7 +5524,7 @@ VariantImp_NonAllocatorBase(int type, bslma::Allocator *)
 {
 }
 
-template <typename TYPES>
+template <class TYPES>
 inline
 VariantImp_NonAllocatorBase<TYPES>::
 VariantImp_NonAllocatorBase(int, bslma::Allocator *, bslmf::MetaInt<1> *)
@@ -5517,8 +5532,8 @@ VariantImp_NonAllocatorBase(int, bslma::Allocator *, bslmf::MetaInt<1> *)
 {
 }
 
-template <typename TYPES>
-template <typename TYPE>
+template <class TYPES>
+template <class TYPE>
 inline
 VariantImp_NonAllocatorBase<TYPES>::
 VariantImp_NonAllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *)
@@ -5527,7 +5542,7 @@ VariantImp_NonAllocatorBase(int type, const TYPE&, bslmf::MetaInt<0> *)
 }
 
 // ACCESSORS
-template <typename TYPES>
+template <class TYPES>
 inline
 bslma::Allocator *
 VariantImp_NonAllocatorBase<TYPES>::getAllocator() const
@@ -5701,7 +5716,7 @@ void VariantImp<TYPES>::assignImp(const SOURCE_TYPE& value)
      value,
      this->getAllocator());
 
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -5809,82 +5824,102 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor,
       case 1: {
         return applyImpR<typename Base::Type1,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 2: {
         return applyImpR<typename Base::Type2,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 3: {
         return applyImpR<typename Base::Type3,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 4: {
         return applyImpR<typename Base::Type4,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 5: {
         return applyImpR<typename Base::Type5,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 6: {
         return applyImpR<typename Base::Type6,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 7: {
         return applyImpR<typename Base::Type7,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 8: {
         return applyImpR<typename Base::Type8,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 9: {
         return applyImpR<typename Base::Type9,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 10: {
         return applyImpR<typename Base::Type10,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 11: {
         return applyImpR<typename Base::Type11,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 12: {
         return applyImpR<typename Base::Type12,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 13: {
         return applyImpR<typename Base::Type13,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 14: {
         return applyImpR<typename Base::Type14,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 15: {
         return applyImpR<typename Base::Type15,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 16: {
         return applyImpR<typename Base::Type16,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 17: {
         return applyImpR<typename Base::Type17,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 18: {
         return applyImpR<typename Base::Type18,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 19: {
         return applyImpR<typename Base::Type19,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 20: {
         return applyImpR<typename Base::Type20,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       default: {
         BSLS_ASSERT_SAFE(!"Unreachable by design!");
@@ -6041,82 +6076,102 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor,
       case 1: {
         return applyImpR<typename Base::Type1,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 2: {
         return applyImpR<typename Base::Type2,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 3: {
         return applyImpR<typename Base::Type3,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 4: {
         return applyImpR<typename Base::Type4,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 5: {
         return applyImpR<typename Base::Type5,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 6: {
         return applyImpR<typename Base::Type6,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 7: {
         return applyImpR<typename Base::Type7,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 8: {
         return applyImpR<typename Base::Type8,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 9: {
         return applyImpR<typename Base::Type9,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 10: {
         return applyImpR<typename Base::Type10,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 11: {
         return applyImpR<typename Base::Type11,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 12: {
         return applyImpR<typename Base::Type12,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 13: {
         return applyImpR<typename Base::Type13,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 14: {
         return applyImpR<typename Base::Type14,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 15: {
         return applyImpR<typename Base::Type15,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 16: {
         return applyImpR<typename Base::Type16,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 17: {
         return applyImpR<typename Base::Type17,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 18: {
         return applyImpR<typename Base::Type18,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 19: {
         return applyImpR<typename Base::Type19,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       case 20: {
         return applyImpR<typename Base::Type20,
                                          VISITOR_REF, RET_TYPE>(visitor);
+                                                                      // RETURN
       } break;
       default: {
         BSLS_ASSERT_SAFE(!"Unreachable by design!");
@@ -6139,15 +6194,17 @@ template <class TYPES>
 template <class TYPE_OR_ALLOCATOR>
 inline
 VariantImp<TYPES>::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Base(Variant_TypeIndex<TYPES, TYPE_OR_ALLOCATOR>::VALUE,
+: Base(Variant_TypeIndex<TYPES, TYPE_OR_ALLOCATOR>::k_VaL,
        typeOrAlloc,
        (bslmf::MetaInt< bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
                                            bslma::Allocator *>::VALUE> *)0)
 {
-    enum { IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
-                                              bslma::Allocator *>::VALUE };
+    enum {
+        k_IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
+                                              bslma::Allocator *>::VALUE
+    };
 
-    create(typeOrAlloc, (bslmf::MetaInt<IS_ALLOCATOR> *)0);
+    create(typeOrAlloc, (bslmf::MetaInt<k_IS_ALLOCATOR> *)0);
 }
 
 template <class TYPES>
@@ -6155,7 +6212,7 @@ template <class TYPE>
 inline
 VariantImp<TYPES>::VariantImp(const TYPE&       value,
                                           bslma::Allocator *basicAllocator)
-: Base(Variant_TypeIndex<TYPES, TYPE>::VALUE, basicAllocator)
+: Base(Variant_TypeIndex<TYPES, TYPE>::k_VaL, basicAllocator)
 {
     bslalg::ScalarPrimitives::construct(
      &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
@@ -6225,7 +6282,7 @@ inline
 RET_TYPE VariantImp<TYPES>::apply(VISITOR& visitor)
 {
     if (this->d_type) {
-        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
+        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);   // RETURN
     }
 
     bslmf::Nil nil = bslmf::Nil();
@@ -6239,6 +6296,7 @@ RET_TYPE VariantImp<TYPES>::apply(const VISITOR& visitor)
 {
     if (this->d_type) {
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
+                                                                      // RETURN
     }
 
     bslmf::Nil nil = bslmf::Nil();
@@ -6252,7 +6310,7 @@ RET_TYPE VariantImp<TYPES>::apply(VISITOR&    visitor,
                                         const TYPE& defaultValue)
 {
     if (this->d_type) {
-        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
+        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);   // RETURN
     }
 
     return visitor(defaultValue);
@@ -6266,6 +6324,7 @@ RET_TYPE VariantImp<TYPES>::apply(const VISITOR& visitor,
 {
     if (this->d_type) {
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
+                                                                      // RETURN
     }
 
     return visitor(defaultValue);
@@ -6304,7 +6363,7 @@ template <class TYPES>
 template <class TYPE>
 VariantImp<TYPES>& VariantImp<TYPES>::assign(const TYPE& value)
 {
-    if (Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type) {
+    if (Variant_TypeIndex<TYPES, TYPE>::k_VaL == this->d_type) {
         reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()
                                                                        = value;
     }
@@ -6320,7 +6379,7 @@ template <class TYPE, class SOURCE_TYPE>
 VariantImp<TYPES>& VariantImp<TYPES>::assignTo(
                                                       const SOURCE_TYPE& value)
 {
-    if (Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type
+    if (Variant_TypeIndex<TYPES, TYPE>::k_VaL == this->d_type
      && bslmf::IsSame<TYPE, SOURCE_TYPE>::VALUE) {
         reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
                                              &this->d_value)->object() = value;
@@ -6341,7 +6400,7 @@ STREAM& VariantImp<TYPES>::bdexStreamIn(STREAM& stream, int version)
 
     if (!stream || type < 0 || 20 < type) {
         stream.invalidate();
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (type != this->d_type) {
@@ -6375,7 +6434,7 @@ void VariantImp<TYPES>::createInPlace()
     bslalg::ScalarPrimitives::defaultConstruct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6389,7 +6448,7 @@ void VariantImp<TYPES>::createInPlace(const A1& a1)
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6403,7 +6462,7 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6418,7 +6477,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, a3, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6433,7 +6492,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    a1, a2, a3, a4, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6449,7 +6508,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6466,7 +6525,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6483,7 +6542,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6500,7 +6559,7 @@ void VariantImp<TYPES>::createInPlace(
     bslalg::ScalarPrimitives::construct(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6519,7 +6578,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6538,7 +6597,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6558,7 +6617,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6579,7 +6638,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6600,7 +6659,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   a13, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6621,7 +6680,7 @@ void VariantImp<TYPES>::createInPlace(
                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
                   a13, a14, this->getAllocator());
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::VALUE;
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::k_VaL;
 }
 
 template <class TYPES>
@@ -6670,9 +6729,9 @@ template <class TYPE>
 inline
 TYPE& VariantImp<TYPES>::the()
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::VALUE));
+    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::k_VaL));
     BSLS_ASSERT_SAFE((this->d_type ==
-                                 Variant_TypeIndex<TYPES, TYPE>::VALUE));
+                                 Variant_TypeIndex<TYPES, TYPE>::k_VaL));
     return reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
                                                      &this->d_value)->object();
 }
@@ -6686,7 +6745,7 @@ int VariantImp<TYPES>::maxSupportedBdexVersion() const
         Variant_MaxSupportedBdexVersionVisitor visitor;
         doApply<Variant_MaxSupportedBdexVersionVisitor&>(visitor,
                                                            this->d_type);
-        return visitor.d_maxSupportedBdexVersion;
+        return visitor.d_maxSupportedBdexVersion;                     // RETURN
     }
 
     return bdex_VersionFunctions::BDEX_NO_VERSION_NUMBER;
@@ -6698,7 +6757,7 @@ inline
 RET_TYPE VariantImp<TYPES>::apply(VISITOR& visitor) const
 {
     if (this->d_type) {
-        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
+        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);   // RETURN
     }
 
     bslmf::Nil nil = bslmf::Nil();
@@ -6712,6 +6771,7 @@ RET_TYPE VariantImp<TYPES>::apply(const VISITOR& visitor) const
 {
     if (this->d_type) {
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
+                                                                      // RETURN
     }
 
     bslmf::Nil nil = bslmf::Nil();
@@ -6725,7 +6785,7 @@ RET_TYPE VariantImp<TYPES>::apply(VISITOR&    visitor,
                                         const TYPE& defaultValue) const
 {
     if (this->d_type) {
-        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
+        return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);   // RETURN
     }
 
     return visitor(defaultValue);
@@ -6739,6 +6799,7 @@ RET_TYPE VariantImp<TYPES>::apply(const VISITOR& visitor,
 {
     if (this->d_type) {
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
+                                                                      // RETURN
     }
 
     return visitor(defaultValue);
@@ -6793,7 +6854,7 @@ template <class TYPE>
 inline
 bool VariantImp<TYPES>::is() const
 {
-    return Variant_TypeIndex<TYPES, TYPE>::VALUE == this->d_type;
+    return Variant_TypeIndex<TYPES, TYPE>::k_VaL == this->d_type;
 }
 
 template <class TYPES>
@@ -6824,9 +6885,9 @@ template <class TYPE>
 inline
 const TYPE& VariantImp<TYPES>::the() const
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::VALUE));
+    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::k_VaL));
     BSLS_ASSERT_SAFE((this->d_type ==
-                                 Variant_TypeIndex<TYPES, TYPE>::VALUE));
+                                 Variant_TypeIndex<TYPES, TYPE>::k_VaL));
 
     return reinterpret_cast<
                    const bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object();
@@ -6853,11 +6914,11 @@ bool bdlb::operator==(const VariantImp<TYPES>& lhs,
                 const VariantImp<TYPES>& rhs)
 {
     if (lhs.typeIndex() != rhs.typeIndex()) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (0 == lhs.typeIndex()) {
-        return true;
+        return true;                                                  // RETURN
     }
 
     Variant_EqualityTestVisitor visitor(&rhs.d_value);
@@ -6883,22 +6944,29 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&                  stream,
 }
 
 // FREE FUNCTIONS
-template <typename TYPES>
+template <class TYPES>
 inline
 void swap(bdlb::VariantImp<TYPES>& a, bdlb::VariantImp<TYPES>& b)
 {
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

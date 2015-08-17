@@ -1052,6 +1052,7 @@ int main(int argc, char *argv[])
 
         typedef bslx::TestInStream  In;
         typedef bslx::TestOutStream Out;
+        const int VERSION_SELECTOR = 20130612;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Scalar and array object values for various stream tests
@@ -1067,7 +1068,7 @@ int main(int argc, char *argv[])
         const Obj VALUES[NUM_VALUES] = { VA, VB, VC, VD, VE, VF };
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        const int VERSION = Obj::maxSupportedBdexVersion();
+        const int VERSION = Obj::maxSupportedBdexVersion(VERSION_SELECTOR);
         if (verbose) cout << "\nTesting 'bdexStreamOut' and (valid) "
                           << "'bdexStreamIn' functionality." << endl;
         {
@@ -1420,9 +1421,9 @@ int main(int argc, char *argv[])
             // test 'maxSupportedBdexVersion()'
             if (verbose) cout << "\tusing object syntax:" << endl;
             const Obj X(&objectAllocator);
-            ASSERT(1 == X.maxSupportedBdexVersion());
+            ASSERT(1 == X.maxSupportedBdexVersion(VERSION_SELECTOR));
             if (verbose) cout << "\tusing class method syntax:" << endl;
-            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
         }
 
         }

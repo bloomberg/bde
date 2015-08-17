@@ -23,14 +23,14 @@ BSLS_IDENT("$Id: $")
 //..
 //  o 'print':        Print an object using the supplied formatting mode.
 //  o 'printBase64':  Print an object using
-//                    'bdeat_FormattingMode::BDEAT_BASE64'.
-//  o 'printDecimal': Print an object using 'bdeat_FormattingMode::BDEAT_DEC'.
+//                    'bdlat_FormattingMode::e_BASE64'.
+//  o 'printDecimal': Print an object using 'bdlat_FormattingMode::e_DEC'.
 //  o 'printDefault': Print an object using
-//                    'bdeat_FormattingMode::BDEAT_DEFAULT'.
-//  o 'printHex':     Print an object using 'bdeat_FormattingMode::BDEAT_HEX'.
+//                    'bdlat_FormattingMode::e_DEFAULT'.
+//  o 'printHex':     Print an object using 'bdlat_FormattingMode::e_HEX'.
 //  o 'printList':    Print an object using
-//                    'bdeat_FormattingMode::BDEAT_IS_LIST'.
-//  o 'printText':    Print an object using 'bdeat_FormattingMode::BDEAT_TEXT'.
+//                    'bdlat_FormattingMode::e_IS_LIST'.
+//  o 'printText':    Print an object using 'bdlat_FormattingMode::e_TEXT'.
 //..
 // The output is generated according to each type's lexical representation as
 // described in the XML Schema Specification, which is available at
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //      CustomizedType                      Base type's formatting modes
 //      Array                               IS_LIST
 //..
-// When 'bdeat_FormattingMode::BDEAT_DEFAULT' is used, the actual formatting
+// When 'bdlat_FormattingMode::e_DEFAULT' is used, the actual formatting
 // mode selected is based on the following mapping:
 //..
 //      C++ Type                            Default Formatting Mode
@@ -243,32 +243,32 @@ namespace BloombergLP {
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace balxml {                           // ============================
                            // struct TypesPrintUtil
@@ -278,7 +278,7 @@ struct TypesPrintUtil {
     // This 'struct' contains functions for printing objects to output streams
     // using various formatting modes.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& print(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
@@ -291,63 +291,63 @@ struct TypesPrintUtil {
         // 'formattingMode' combination is supported (supported combinations
         // are listed in the component-level documentation).
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printBase64(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
                               const EncoderOptions *encoderOptions = 0);
         // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdeat_FormattingMode::BDEAT_BASE64' formatting mode and the
+        // the 'bdlat_FormattingMode::e_BASE64' formatting mode and the
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
                               const EncoderOptions *encoderOptions = 0);
         // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdeat_FormattingMode::BDEAT_DEC' formatting mode and the
+        // the 'bdlat_FormattingMode::e_DEC' formatting mode and the
         // optionally provided 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
                               const EncoderOptions *encoderOptions = 0);
         // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdeat_FormattingMode::BDEAT_DEFAULT' formatting mode and the
+        // the 'bdlat_FormattingMode::e_DEFAULT' formatting mode and the
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printHex(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
                               const EncoderOptions *encoderOptions = 0);
         // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdeat_FormattingMode::BDEAT_HEX' formatting mode and the
+        // the 'bdlat_FormattingMode::e_HEX' formatting mode and the
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printList(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
                               const EncoderOptions *encoderOptions = 0);
         // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdeat_FormattingMode::BDEAT_LIST' formatting mode and the
+        // the 'bdlat_FormattingMode::e_LIST' formatting mode and the
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(
                               bsl::ostream&                stream,
                               const TYPE&                  object,
                               const EncoderOptions *encoderOptions = 0);
         // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdeat_FormattingMode::BDEAT_TEXT' formatting mode and the
+        // the 'bdlat_FormattingMode::e_TEXT' formatting mode and the
         // optionally specified 'encoderOptions'.  Return a reference to
         // 'stream'.  The string representation of 'object' must be a valid
         // UTF-8 string and may not contain any control characters other than
@@ -369,14 +369,14 @@ struct TypesPrintUtil_Imp {
     // this component.
 
     // BASE64 FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType);
+                                   bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -387,41 +387,41 @@ struct TypesPrintUtil_Imp {
                                    bsl::ostream&                stream,
                                    const bsl::string&           object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
                                    const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
                                    const bsl::vector<char>&     object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Array);
+                                   bdlat_TypeCategory::Array);
 
     // DECIMAL FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Enumeration);
+                                   bdlat_TypeCategory::Enumeration);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::CustomizedType);
+                                   bdlat_TypeCategory::CustomizedType);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType);
+                                   bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -432,93 +432,93 @@ struct TypesPrintUtil_Imp {
                                    bsl::ostream&                stream,
                                    const bool&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const char&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const short&                 object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const int&                   object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const long&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const bsls::Types::Int64&    object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const unsigned char&         object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const unsigned short&        object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const unsigned int&          object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const unsigned long&         object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const bsls::Types::Uint64&   object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
 
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const float&                 object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
 
     static bsl::ostream& printDecimal(
                                    bsl::ostream&                stream,
                                    const double&                object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
 
     // DEFAULT FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Enumeration);
+                                   bdlat_TypeCategory::Enumeration);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::CustomizedType);
+                                   bdlat_TypeCategory::CustomizedType);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printDefault(
                                    bsl::ostream&          stream,
                                    const TYPE&            object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType);
+                                   bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
@@ -529,126 +529,126 @@ struct TypesPrintUtil_Imp {
                                    bsl::ostream&                stream,
                                    const bool&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const char&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const short&                 object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const int&                   object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const long&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bsls::Types::Int64&    object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned char&         object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned short&        object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned int&          object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned long&         object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bsls::Types::Uint64&   object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const float&                 object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const double&                object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const char                  *object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bsl::string&           object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bdlt::Date&             object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bdlt::DateTz&           object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bdlt::Datetime&         object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bdlt::DatetimeTz&       object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bdlt::Time&             object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bdlt::TimeTz&           object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
                                    const bsl::vector<char>&     object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Array);
+                                   bdlat_TypeCategory::Array);
 
     // HEX FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printHex(bsl::ostream&                stream,
                                   const TYPE&                  object,
                                   const EncoderOptions *encoderOptions,
-                                  bdeat_TypeCategory::DynamicType);
+                                  bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printHex(bsl::ostream&                stream,
                                   const TYPE&                  object,
                                   const EncoderOptions *encoderOptions,
@@ -657,54 +657,54 @@ struct TypesPrintUtil_Imp {
     static bsl::ostream& printHex(bsl::ostream&                stream,
                                   const bsl::string&           object,
                                   const EncoderOptions *encoderOptions,
-                                  bdeat_TypeCategory::Simple);
+                                  bdlat_TypeCategory::Simple);
     static bsl::ostream& printHex(bsl::ostream&                stream,
                                   const bslstl::StringRef&       object,
                                   const EncoderOptions *encoderOptions,
-                                  bdeat_TypeCategory::Simple);
+                                  bdlat_TypeCategory::Simple);
     static bsl::ostream& printHex(bsl::ostream&                stream,
                                   const bsl::vector<char>&     object,
                                   const EncoderOptions *encoderOptions,
-                                  bdeat_TypeCategory::Array);
+                                  bdlat_TypeCategory::Array);
 
     // LIST FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printList(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Array);
+                                   bdlat_TypeCategory::Array);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printList(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType);
+                                   bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printList(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
                                    ANY_CATEGORY);
     // TEXT FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Enumeration);
+                                   bdlat_TypeCategory::Enumeration);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::CustomizedType);
+                                   bdlat_TypeCategory::CustomizedType);
 
-    template <typename TYPE>
+    template <class TYPE>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType);
+                                   bdlat_TypeCategory::DynamicType);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
@@ -713,27 +713,27 @@ struct TypesPrintUtil_Imp {
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const bool&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const char&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const char                  *object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const bsl::string&           object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple);
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
                                    const bsl::vector<char>&     object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Array);
+                                   bdlat_TypeCategory::Array);
 };
 
 // ============================================================================
@@ -756,7 +756,7 @@ struct TypesPrintUtil_printDefaultProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE& object)
     {
@@ -783,7 +783,7 @@ struct TypesPrintUtil_Imp_printBase64Proxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -791,7 +791,7 @@ struct TypesPrintUtil_Imp_printBase64Proxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -819,7 +819,7 @@ struct TypesPrintUtil_Imp_printDecimalProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -827,7 +827,7 @@ struct TypesPrintUtil_Imp_printDecimalProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -855,7 +855,7 @@ struct TypesPrintUtil_Imp_printDefaultProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -863,7 +863,7 @@ struct TypesPrintUtil_Imp_printDefaultProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -891,7 +891,7 @@ struct TypesPrintUtil_Imp_printHexProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -899,7 +899,7 @@ struct TypesPrintUtil_Imp_printHexProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -927,7 +927,7 @@ struct TypesPrintUtil_Imp_printListProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -935,7 +935,7 @@ struct TypesPrintUtil_Imp_printListProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -963,7 +963,7 @@ struct TypesPrintUtil_Imp_printTextProxy {
     // this struct.
 
     // FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int operator()(const TYPE&, bslmf::Nil)
     {
@@ -971,7 +971,7 @@ struct TypesPrintUtil_Imp_printTextProxy {
         return -1;
     }
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     inline
     int operator()(const TYPE& object, ANY_CATEGORY category)
     {
@@ -991,71 +991,71 @@ struct TypesPrintUtil_Imp_printTextProxy {
                            // struct TypesPrintUtil
                            // ----------------------------
 
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream& TypesPrintUtil::print(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    int                          formattingMode,
                                    const EncoderOptions *encoderOptions)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
-    if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
+    if (formattingMode & bdlat_FormattingMode::e_LIST) {
         return TypesPrintUtil_Imp::printList(stream,
                                                     object,
                                                     encoderOptions,
-                                                    Tag());
+                                                    Tag());           // RETURN
     }
 
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_BASE64: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_BASE64: {
         return TypesPrintUtil_Imp::printBase64(stream,
                                                       object,
                                                       encoderOptions,
-                                                      Tag());
+                                                      Tag());         // RETURN
       }
-      case bdeat_FormattingMode::BDEAT_DEC: {
+      case bdlat_FormattingMode::e_DEC: {
         return TypesPrintUtil_Imp::printDecimal(stream,
                                                        object,
                                                        encoderOptions,
-                                                       Tag());
+                                                       Tag());        // RETURN
       }
-      case bdeat_FormattingMode::BDEAT_DEFAULT: {
+      case bdlat_FormattingMode::e_DEFAULT: {
         return TypesPrintUtil_Imp::printDefault(stream,
                                                        object,
                                                        encoderOptions,
-                                                       Tag());
+                                                       Tag());        // RETURN
       }
-      case bdeat_FormattingMode::BDEAT_HEX: {
+      case bdlat_FormattingMode::e_HEX: {
         return TypesPrintUtil_Imp::printHex(stream,
                                                    object,
                                                    encoderOptions,
-                                                   Tag());
+                                                   Tag());            // RETURN
       }
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+      case bdlat_FormattingMode::e_TEXT: {
         return TypesPrintUtil_Imp::printText(stream,
                                                     object,
                                                     encoderOptions,
-                                                    Tag());
+                                                    Tag());           // RETURN
       }
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
 
         stream.setstate(bsl::ios_base::failbit);
 
-        return stream;
+        return stream;                                                // RETURN
       }
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printBase64(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     return TypesPrintUtil_Imp::printBase64(stream,
                                                   object,
@@ -1063,14 +1063,14 @@ bsl::ostream& TypesPrintUtil::printBase64(
                                                   Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     return TypesPrintUtil_Imp::printDecimal(stream,
                                                    object,
@@ -1078,14 +1078,14 @@ bsl::ostream& TypesPrintUtil::printDecimal(
                                                    Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     return TypesPrintUtil_Imp::printDefault(stream,
                                                    object,
@@ -1093,14 +1093,14 @@ bsl::ostream& TypesPrintUtil::printDefault(
                                                    Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printHex(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     return TypesPrintUtil_Imp::printHex(stream,
                                                object,
@@ -1108,14 +1108,14 @@ bsl::ostream& TypesPrintUtil::printHex(
                                                Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printList(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     return TypesPrintUtil_Imp::printList(stream,
                                                 object,
@@ -1123,14 +1123,14 @@ bsl::ostream& TypesPrintUtil::printList(
                                                 Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil::printText(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type Tag;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     return TypesPrintUtil_Imp::printText(stream,
                                                 object,
@@ -1144,21 +1144,21 @@ bsl::ostream& TypesPrintUtil::printText(
 
 // BASE64 FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printBase64(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType)
+                                   bdlat_TypeCategory::DynamicType)
 {
     TypesPrintUtil_Imp_printBase64Proxy proxy = { &stream,
                                                          encoderOptions };
-    bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printBase64(
                                          bsl::ostream&               stream,
@@ -1178,52 +1178,52 @@ bsl::ostream& TypesPrintUtil_Imp::printBase64(
 
 // DECIMAL FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Enumeration)
+                                   bdlat_TypeCategory::Enumeration)
 {
     int intValue;
 
-    bdeat_EnumFunctions::toInt(&intValue, object);
+    bdlat_EnumFunctions::toInt(&intValue, object);
 
     return TypesPrintUtil::printDecimal(stream,
                                                intValue,
                                                encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::CustomizedType)
+                                   bdlat_TypeCategory::CustomizedType)
 {
     return TypesPrintUtil::printDecimal(
                      stream,
-                     bdeat_CustomizedTypeFunctions::convertToBaseType(object),
+                     bdlat_CustomizedTypeFunctions::convertToBaseType(object),
                      encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType)
+                                   bdlat_TypeCategory::DynamicType)
 {
     TypesPrintUtil_Imp_printDecimalProxy proxy = { &stream,
                                                           encoderOptions };
-    bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&               stream,
@@ -1243,7 +1243,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&               stream,
                                          const bool&                 object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << (object ? 1 : 0);
 }
@@ -1253,7 +1253,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&               stream,
                                          const char&                 object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     signed char temp(object);  // Note that 'char' is unsigned on IBM.
 
@@ -1265,7 +1265,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&               stream,
                                          const short&                object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1275,7 +1275,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&               stream,
                                          const int&                  object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1285,7 +1285,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&               stream,
                                          const long&                 object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1295,7 +1295,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&                stream,
                                          const bsls::Types::Int64&    object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1305,7 +1305,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&                stream,
                                          const unsigned char&         object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     unsigned short us = object;
     return stream << us;
@@ -1316,7 +1316,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&                stream,
                                          const unsigned short&        object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1326,7 +1326,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&                stream,
                                          const unsigned int&          object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1336,7 +1336,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&                stream,
                                          const unsigned long&         object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
@@ -1346,57 +1346,57 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                                          bsl::ostream&                stream,
                                          const bsls::Types::Uint64&   object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << object;
 }
 
 // DEFAULT FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Enumeration)
+                                   bdlat_TypeCategory::Enumeration)
 {
     bsl::string stringVal;
 
-    bdeat_EnumFunctions::toString(&stringVal, object);
+    bdlat_EnumFunctions::toString(&stringVal, object);
 
     return TypesPrintUtil::printText(stream, stringVal, encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::CustomizedType)
+                                   bdlat_TypeCategory::CustomizedType)
 {
     return TypesPrintUtil::printDefault(
                      stream,
-                     bdeat_CustomizedTypeFunctions::convertToBaseType(object),
+                     bdlat_CustomizedTypeFunctions::convertToBaseType(object),
                      encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType)
+                                   bdlat_TypeCategory::DynamicType)
 {
     TypesPrintUtil_Imp_printDefaultProxy proxy =
                                                    { &stream, encoderOptions };
-    bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          bsl::ostream&                stream,
@@ -1416,12 +1416,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const bool&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printText(stream,
                      object,
                      encoderOptions,
-                     bdeat_TypeCategory::Simple());
+                     bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1429,12 +1429,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const char&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1442,12 +1442,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const short&                 object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1455,12 +1455,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const int&                   object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1468,12 +1468,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const long&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1481,12 +1481,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const bsls::Types::Int64&    object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1494,12 +1494,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned char&         object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1507,12 +1507,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned short&        object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1520,12 +1520,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned int&          object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1533,12 +1533,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const unsigned long&         object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1546,12 +1546,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const bsls::Types::Uint64&   object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printDecimal(stream,
                         object,
                         encoderOptions,
-                        bdeat_TypeCategory::Simple());
+                        bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1559,12 +1559,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const char                  *object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printText(stream,
                      object,
                      encoderOptions,
-                     bdeat_TypeCategory::Simple());
+                     bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1572,12 +1572,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const bsl::string&           object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printText(stream,
                      object,
                      encoderOptions,
-                     bdeat_TypeCategory::Simple());
+                     bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1585,12 +1585,12 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Simple)
+                                   bdlat_TypeCategory::Simple)
 {
     return printText(stream,
                      object,
                      encoderOptions,
-                     bdeat_TypeCategory::Simple());
+                     bdlat_TypeCategory::Simple());
 }
 
 inline
@@ -1598,7 +1598,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          bsl::ostream&                stream,
                                          const bdlt::Date&             object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::generate(stream, object);
 }
@@ -1608,7 +1608,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          bsl::ostream&                stream,
                                          const bdlt::DateTz&           object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::generate(stream, object);
 }
@@ -1618,7 +1618,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          bsl::ostream&                stream,
                                          const bdlt::Datetime&         object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::generate(stream, object);
 }
@@ -1628,7 +1628,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                         bsl::ostream&                stream,
                                         const bdlt::DatetimeTz&       object,
                                         const EncoderOptions *,
-                                        bdeat_TypeCategory::Simple)
+                                        bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::generate(stream, object);
 }
@@ -1638,7 +1638,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          bsl::ostream&                stream,
                                          const bdlt::Time&             object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::generate(stream, object);
 }
@@ -1648,7 +1648,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          bsl::ostream&                stream,
                                          const bdlt::TimeTz&           object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return bdlt::Iso8601Util::generate(stream, object);
 }
@@ -1658,31 +1658,31 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
                                    const bsl::vector<char>&     object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Array)
+                                   bdlat_TypeCategory::Array)
 {
     return printBase64(stream,
                        object,
                        encoderOptions,
-                       bdeat_TypeCategory::Array());
+                       bdlat_TypeCategory::Array());
 }
 
 // HEX FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printHex(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType)
+                                   bdlat_TypeCategory::DynamicType)
 {
     TypesPrintUtil_Imp_printHexProxy proxy = { &stream,
                                                       encoderOptions };
-    bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printHex(
                                          bsl::ostream&                stream,
@@ -1702,47 +1702,47 @@ bsl::ostream& TypesPrintUtil_Imp::printHex(
 
 // LIST FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream& TypesPrintUtil_Imp::printList(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Array)
+                                   bdlat_TypeCategory::Array)
 {
-    int size = (int)bdeat_ArrayFunctions::size(object);
+    int size = (int)bdlat_ArrayFunctions::size(object);
 
     if (0 == size) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     TypesPrintUtil_printDefaultProxy proxy = { &stream,
                                                       encoderOptions };
 
-    bdeat_ArrayFunctions::accessElement(object, proxy, 0);
+    bdlat_ArrayFunctions::accessElement(object, proxy, 0);
 
     for (int i = 1; i < size; ++i) {
         stream << " ";
-        bdeat_ArrayFunctions::accessElement(object, proxy, i);
+        bdlat_ArrayFunctions::accessElement(object, proxy, i);
     }
 
     return stream;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printList(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType)
+                                   bdlat_TypeCategory::DynamicType)
 {
     TypesPrintUtil_Imp_printListProxy proxy = { &stream,
                                                        encoderOptions };
-    bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printList(
                                          bsl::ostream&                stream,
@@ -1758,50 +1758,50 @@ bsl::ostream& TypesPrintUtil_Imp::printList(
 }
 // TEXT FUNCTIONS
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::Enumeration)
+                                   bdlat_TypeCategory::Enumeration)
 {
     bsl::string stringVal;
 
-    bdeat_EnumFunctions::toString(&stringVal, object);
+    bdlat_EnumFunctions::toString(&stringVal, object);
 
     return TypesPrintUtil::printText(stream, stringVal, encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::CustomizedType)
+                                   bdlat_TypeCategory::CustomizedType)
 {
     return TypesPrintUtil::printText(
                      stream,
-                     bdeat_CustomizedTypeFunctions::convertToBaseType(object),
+                     bdlat_CustomizedTypeFunctions::convertToBaseType(object),
                      encoderOptions);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                    bsl::ostream&                stream,
                                    const TYPE&                  object,
                                    const EncoderOptions *encoderOptions,
-                                   bdeat_TypeCategory::DynamicType)
+                                   bdlat_TypeCategory::DynamicType)
 {
     TypesPrintUtil_Imp_printTextProxy proxy = { &stream,
                                                        encoderOptions };
-    bdeat_TypeCategoryUtil::accessByCategory(object, proxy);
+    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
     return stream;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(
                                          bsl::ostream&                stream,
@@ -1821,21 +1821,28 @@ bsl::ostream& TypesPrintUtil_Imp::printText(
                                          bsl::ostream&                stream,
                                          const bool&                  object,
                                          const EncoderOptions *,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     return stream << (object ? "true" : "false");
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

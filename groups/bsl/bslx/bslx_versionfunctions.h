@@ -233,7 +233,7 @@ namespace VersionFunctions_Impl {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-}  // close VersionFunctions_Impl namespace
+}  // close namespace VersionFunctions_Impl
 
                          // ==========================
                          // namespace VersionFunctions
@@ -263,7 +263,7 @@ namespace VersionFunctions {
         // package-level documentation for more information on BDEX streaming
         // of value-semantic types and containers.
 
-}  // close VersionFunctions namespace
+}  // close namespace VersionFunctions
 
 // ============================================================================
 //                          INLINE DEFINITIONS

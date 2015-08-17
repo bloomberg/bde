@@ -1,4 +1,4 @@
-// bdlxxxx_byteoutstreamformatter.h                                      -*-C++-*-
+// bdlxxxx_byteoutstreamformatter.h                                   -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_BYTEOUTSTREAMFORMATTER
 #define INCLUDED_BDLXXXX_BYTEOUTSTREAMFORMATTER
 
@@ -184,9 +184,9 @@ ByteOutStreamFormatter&
     // Provide support for all manipulator functions on this stream (e.g.,
     // 'bdexFlush').
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // FREE OPERATORS
 inline
@@ -197,17 +197,17 @@ bdlxxxx::ByteOutStreamFormatter&
     return (*pf)(stream);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -694,15 +694,17 @@ int BerEncoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
     if (! d_options) {
         BerEncoderOptions options;  // temporary options object
         d_options = &options;
-        BerEncoder_UniversalElementVisitor
-                            visitor(this, bdlat_FormattingMode::BDLAT_DEFAULT);
+        BerEncoder_UniversalElementVisitor visitor(
+                                              this,
+                                              bdlat_FormattingMode::e_DEFAULT);
 
         rc = visitor(value);
         d_options = 0;
     }
     else {
-        BerEncoder_UniversalElementVisitor
-                            visitor(this, bdlat_FormattingMode::BDLAT_DEFAULT);
+        BerEncoder_UniversalElementVisitor visitor(
+                                              this,
+                                              bdlat_FormattingMode::e_DEFAULT);
         rc = visitor(value);
     }
 
@@ -747,8 +749,8 @@ int BerEncoder::encodeImpl(const TYPE&                value,
         return k_FAILURE;                                             // RETURN
     }
 
-    const bool isUntagged =
-                         formattingMode & bdlat_FormattingMode::BDLAT_UNTAGGED;
+    const bool isUntagged = formattingMode
+                          & bdlat_FormattingMode::e_UNTAGGED;
 
     if (!isUntagged) {
         // According to X.694 (clause 20.4), an XML choice (not anonymous)
@@ -765,7 +767,7 @@ int BerEncoder::encodeImpl(const TYPE&                value,
 
     const int selectionId = bdlat_ChoiceFunctions::selectionId(value);
 
-    if (bdlat_ChoiceFunctions::BDLAT_UNDEFINED_SELECTION_ID != selectionId) {
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID != selectionId) {
 
         BerEncoder_Visitor visitor(this);
 
@@ -796,7 +798,7 @@ int BerEncoder::encodeImpl(const TYPE&                       value,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    bool isNillable = formattingMode & bdlat_FormattingMode::BDLAT_NILLABLE;
+    bool isNillable = formattingMode & bdlat_FormattingMode::e_NILLABLE;
 
     if (isNillable) {
 
@@ -1104,10 +1106,17 @@ int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

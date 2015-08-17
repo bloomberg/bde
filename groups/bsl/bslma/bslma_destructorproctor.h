@@ -302,9 +302,9 @@ void DestructorProctor<TYPE>::reset(TYPE *object)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_DestructorProctor
 #undef bslma_DestructorProctor

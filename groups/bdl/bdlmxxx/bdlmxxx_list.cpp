@@ -1,4 +1,4 @@
-// bdlmxxx_list.cpp                                                      -*-C++-*-
+// bdlmxxx_list.cpp                                                   -*-C++-*-
 #include <bdlmxxx_list.h>
 
 #include <bsls_ident.h>
@@ -13,7 +13,7 @@ BSLS_IDENT_RCSID(bdlmxxx_list_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 // STATIC HELPER FUNCTIONS
-template <typename TYPE>
+template <class TYPE>
 static
 const TYPE *vectorData(const bsl::vector<TYPE>& v)
     // Return the address of the non-modifiable first element of 'v', or 0 if
@@ -111,13 +111,13 @@ BSLMF_ASSERT(sizeof(bdlmxxx::List) == sizeof(bdlmxxx::ListImp));
 BSLMF_ASSERT((int) bsls::AlignmentFromType<bdlmxxx::List>::VALUE ==
              (int) bsls::AlignmentFromType<bdlmxxx::ListImp>::VALUE);
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

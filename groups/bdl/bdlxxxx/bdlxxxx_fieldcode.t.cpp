@@ -1,4 +1,4 @@
-// bdlxxxx_fieldcode.t.cpp                                               -*-C++-*-
+// bdlxxxx_fieldcode.t.cpp                                            -*-C++-*-
 
 #include <bdlxxxx_fieldcode.h>
 
@@ -54,15 +54,15 @@ static void aSsErT(int c, const char *s, int i)
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 
-//==========================================================================
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 typedef bdlxxxx::FieldCode Obj;
 
-//==========================================================================
+//=============================================================================
 //                              MAIN PROGRAM
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -176,11 +176,11 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

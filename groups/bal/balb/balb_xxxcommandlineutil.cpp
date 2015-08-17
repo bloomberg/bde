@@ -1,4 +1,4 @@
-// balb_xxxcommandlineutil.cpp   -*-C++-*-
+// balb_xxxcommandlineutil.cpp                                        -*-C++-*-
 #include <balb_xxxcommandlineutil.h>
 #include <balb_xxxcommandline.h>  // for testing only
 
@@ -50,13 +50,13 @@ int CommandLineUtil::splitCommandLineArguments(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

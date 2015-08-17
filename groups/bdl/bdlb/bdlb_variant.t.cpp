@@ -1,4 +1,4 @@
-// bdlb_variant.t.cpp                                                -*-C++-*-
+// bdlb_variant.t.cpp                                                 -*-C++-*-
 
 #include <bdlb_variant.h>
 
@@ -430,13 +430,13 @@ class TestInt {
                 int value;
                 stream.getInt32(value);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 // Add redundant code (purely for the sake of example!)
                 unsigned char sum;
                 stream.getUint8(sum);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 union {
                     unsigned char d_char[4];
@@ -474,7 +474,7 @@ class TestInt {
           case 2: {
             stream.putInt32(d_value);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             // Add redundant code (purely for the sake of example!)
             union {
@@ -597,13 +597,13 @@ class TestString {
                 bsl::string value;
                 stream.getString(value);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 // Add redundant code (purely for the sake of example!)
                 unsigned char sum, check = 0;
                 stream.getUint8(sum);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 for (int i = 0; i < value.length(); ++i) {
                     check += value[i];
@@ -638,7 +638,7 @@ class TestString {
           case 2: {
             stream.putString(d_value);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             // Add redundant code (purely for the sake of example!)
             unsigned char sum = 0;
@@ -741,13 +741,13 @@ class TestArg {
                 int value;
                 stream.getInt32(value);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 // Add redundant code (purely for the sake of example!)
                 unsigned char sum;
                 stream.getUint8(sum);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 union {
                     unsigned char d_char[4];
@@ -785,7 +785,7 @@ class TestArg {
           case 2: {
             stream.putInt32(d_value);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             // Add redundant code (purely for the sake of example!)
             union {
@@ -1442,7 +1442,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1451,7 +1451,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1460,7 +1460,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1469,7 +1469,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(VISITOR&       visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1478,7 +1478,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1487,7 +1487,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1524,7 +1524,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1533,7 +1533,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1542,7 +1542,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1551,7 +1551,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(VISITOR&       visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1560,7 +1560,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1569,7 +1569,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1587,26 +1587,26 @@ class my_VariantWrapper {
 };
 
 // FREE OPERATORS
-template <typename VARIANT>
+template <class VARIANT>
 bool operator==(const my_VariantWrapper<VARIANT>& lhs,
                 const my_VariantWrapper<VARIANT>& rhs);
-template <typename VARIANT>
+template <class VARIANT>
 bool operator==(const VARIANT&                    lhs,
                 const my_VariantWrapper<VARIANT>& rhs);
-template <typename VARIANT>
+template <class VARIANT>
 bool operator==(const my_VariantWrapper<VARIANT>& lhs,
                 const VARIANT&                    rhs);
     // Return 'true' if the (variant object wrapped by the) specified 'lhs' has
     // the same value as the (variant object wrapped by the) specified 'rhs',
     // and 'false' otherwise.
 
-template <typename VARIANT>
+template <class VARIANT>
 bool operator!=(const my_VariantWrapper<VARIANT>& lhs,
                 const my_VariantWrapper<VARIANT>& rhs);
-template <typename VARIANT>
+template <class VARIANT>
 bool operator!=(const VARIANT&                    lhs,
                 const my_VariantWrapper<VARIANT>& rhs);
-template <typename VARIANT>
+template <class VARIANT>
 bool operator!=(const my_VariantWrapper<VARIANT>& lhs,
                 const VARIANT&                    rhs);
     // Return 'true' if the (variant object wrapped by the) specified 'lhs'
@@ -1751,45 +1751,45 @@ RET_TYPE my_VariantWrapper<VARIANT>::applyRaw(const VISITOR& visitor) const
 }
 
 // FREE OPERATORS
-template <typename VARIANT>
+template <class VARIANT>
 bool operator==(const my_VariantWrapper<VARIANT>& lhs,
                 const my_VariantWrapper<VARIANT>& rhs)
 {
     return lhs.variant() == rhs.variant();
 }
 
-template <typename VARIANT>
+template <class VARIANT>
 bool operator==(const VARIANT& lhs, const my_VariantWrapper<VARIANT>& rhs)
 {
     return lhs == rhs.variant();
 }
 
-template <typename VARIANT>
+template <class VARIANT>
 bool operator==(const my_VariantWrapper<VARIANT>& lhs, const VARIANT& rhs)
 {
     return lhs.variant() == rhs;
 }
 
-template <typename VARIANT>
+template <class VARIANT>
 bool operator!=(const my_VariantWrapper<VARIANT>& lhs,
                 const my_VariantWrapper<VARIANT>& rhs)
 {
     return lhs.variant() != rhs.variant();
 }
 
-template <typename VARIANT>
+template <class VARIANT>
 bool operator!=(const VARIANT& lhs, const my_VariantWrapper<VARIANT>& rhs)
 {
     return lhs != rhs.variant();
 }
 
-template <typename VARIANT>
+template <class VARIANT>
 bool operator!=(const my_VariantWrapper<VARIANT>& lhs, const VARIANT& rhs)
 {
     return lhs.variant() != rhs;
 }
 
-template <typename VARIANT>
+template <class VARIANT>
 bsl::ostream&
 operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 {
@@ -1898,7 +1898,7 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
                  << "') in spec \"" << spec << "\" at position " << idx
                  << '.' << endl;
         }
-        return idx;  // Discontinue processing this spec.
+        return idx;  // Discontinue processing this spec.             // RETURN
     }
 
     return -1; // All input was consumed.
@@ -1962,7 +1962,7 @@ Obj g(const char *spec)
                 // Add certain values to the variant.  The details are elided
                 // as it is the return value that is the focus of this example.
 
-                return true;
+                return true;                                          // RETURN
             }
             return false;
         }
@@ -1999,7 +1999,7 @@ struct TestVisitorWithUndeclaredResultType {
 };
 
 
-} // close namespace nilvisitor
+}  // close namespace nilvisitor
 
 struct TestUtil {
    // This 'struct' defines several test cases outside of 'main' to avoid
@@ -11066,11 +11066,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

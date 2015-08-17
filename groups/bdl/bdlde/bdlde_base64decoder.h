@@ -411,11 +411,18 @@ class Base64Decoder {
     enum {
         // Symbolic state values.
 
-        BDEDE_ERROR_STATE      = -1, // input is irreparably invalid
-        BDEDE_INPUT_STATE      =  0, // general input state
-        BDEDE_NEED_EQUAL_STATE =  1, // need an '='
-        BDEDE_SOFT_DONE_STATE  =  2, // only ignorable input and 'endConvert'
-        BDEDE_DONE_STATE       =  3  // any additional input is an error
+        e_ERROR_STATE      = -1, // input is irreparably invalid
+        e_INPUT_STATE      =  0, // general input state
+        e_NEED_EQUAL_STATE =  1, // need an '='
+        e_SOFT_DONE_STATE  =  2, // only ignorable input and 'endConvert'
+        e_DONE_STATE       =  3  // any additional input is an error
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEDE_ERROR_STATE = e_ERROR_STATE
+      , BDEDE_INPUT_STATE = e_INPUT_STATE
+      , BDEDE_NEED_EQUAL_STATE = e_NEED_EQUAL_STATE
+      , BDEDE_SOFT_DONE_STATE = e_SOFT_DONE_STATE
+      , BDEDE_DONE_STATE = e_DONE_STATE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS DATA
@@ -469,11 +476,11 @@ class Base64Decoder {
         // Destroy this object.
 
     // MANIPULATORS
-    template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
     int convert(OUTPUT_ITERATOR out,
                 INPUT_ITERATOR  begin,
                 INPUT_ITERATOR  end);
-    template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
     int convert(OUTPUT_ITERATOR  out,
                 int             *numOut,
                 int             *numIn,
@@ -502,9 +509,9 @@ class Base64Decoder {
         // 'endConvert' method be called to complete the encoding of any
         // unprocessed input characters that do not complete a 3-byte sequence.
 
-    template <typename OUTPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR out);
-    template <typename OUTPUT_ITERATOR>
+    template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR  out,
                    int             *numOut,
                    int              maxNumOut = -1);
@@ -566,9 +573,9 @@ class Base64Decoder {
         // Return the total length of the output emitted thus far.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------------
                         // class Base64Decoder
@@ -588,7 +595,7 @@ inline
 Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag)
 : d_ignorable_p(unrecognizedIsErrorFlag ? s_ignorableStrict_p
                                         : s_ignorableRelaxed_p)
-, d_state(BDEDE_INPUT_STATE)
+, d_state(e_INPUT_STATE)
 , d_outputLength(0)
 , d_stack(0)
 , d_bitsInStack(0)
@@ -596,7 +603,7 @@ Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag)
 }
 
 // MANIPULATORS
-template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Decoder::convert(OUTPUT_ITERATOR out,
                                  INPUT_ITERATOR  begin,
                                  INPUT_ITERATOR  end)
@@ -607,7 +614,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR out,
     return convert(out, &dummyNumOut, &dummyNumIn, begin, end, -1);
 }
 
-template <typename OUTPUT_ITERATOR, typename INPUT_ITERATOR>
+template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Decoder::convert(OUTPUT_ITERATOR  out,
                                  int             *numOut,
                                  int             *numIn,
@@ -618,12 +625,12 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     BSLS_ASSERT(numOut);
     BSLS_ASSERT(numIn);
 
-    if (BDEDE_ERROR_STATE == d_state || BDEDE_DONE_STATE == d_state) {
-        int rv = BDEDE_DONE_STATE == d_state ? -2 : -1;
-        d_state = BDEDE_ERROR_STATE;
+    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
+        int rv = e_DONE_STATE == d_state ? -2 : -1;
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         *numIn = 0;
-        return rv;
+        return rv;                                                    // RETURN
     }
 
     int numEmitted = 0;
@@ -641,7 +648,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
 
     *numIn = 0;
 
-    if (BDEDE_INPUT_STATE == d_state) {
+    if (e_INPUT_STATE == d_state) {
         while (18 >= d_bitsInStack && begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
@@ -670,25 +677,25 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
                     if (12 == residualBits && 0 == (d_stack & 0xf)) {
                         d_stack = d_stack >> 4;
                         d_bitsInStack -= 4;
-                        d_state = BDEDE_NEED_EQUAL_STATE;
+                        d_state = e_NEED_EQUAL_STATE;
                     }
                     else if (18 == residualBits && 0 == (d_stack & 0x3)) {
                         d_stack = d_stack >> 2;
                         d_bitsInStack -= 2;
-                        d_state = BDEDE_SOFT_DONE_STATE;
+                        d_state = e_SOFT_DONE_STATE;
                     }
                     else {
-                        d_state = BDEDE_ERROR_STATE;
+                        d_state = e_ERROR_STATE;
                     }
                 }
                 else {
-                    d_state = BDEDE_ERROR_STATE;
+                    d_state = e_ERROR_STATE;
                 }
                 break;
             }
         }
     }
-    if (BDEDE_NEED_EQUAL_STATE == d_state) {
+    if (e_NEED_EQUAL_STATE == d_state) {
         while (begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
@@ -697,16 +704,16 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
 
             if (!d_ignorable_p[byte]) {
                 if ('=' == byte) {
-                    d_state = BDEDE_SOFT_DONE_STATE;
+                    d_state = e_SOFT_DONE_STATE;
                 }
                 else {
-                    d_state = BDEDE_ERROR_STATE;
+                    d_state = e_ERROR_STATE;
                 }
                 break;
             }
         }
     }
-    if (BDEDE_SOFT_DONE_STATE == d_state) {
+    if (e_SOFT_DONE_STATE == d_state) {
         while (begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
@@ -714,7 +721,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
             ++*numIn;
 
             if (!d_ignorable_p[byte]) {
-                d_state = BDEDE_ERROR_STATE;
+                d_state = e_ERROR_STATE;
                 break;
             }
         }
@@ -723,10 +730,10 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     *numOut = numEmitted;
     d_outputLength += numEmitted;
 
-    return BDEDE_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
+    return e_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
 }
 
-template <typename OUTPUT_ITERATOR>
+template <class OUTPUT_ITERATOR>
 int Base64Decoder::endConvert(OUTPUT_ITERATOR out)
 {
     int dummyNumOut;
@@ -734,7 +741,7 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR out)
     return endConvert(out, &dummyNumOut, -1);
 }
 
-template <typename OUTPUT_ITERATOR>
+template <class OUTPUT_ITERATOR>
 int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
                                     int             *numOut,
                                     int              maxNumOut)
@@ -742,15 +749,15 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
     BSLS_ASSERT(numOut);
 
     const int residualBits = ((d_outputLength % 3) * 8 + d_bitsInStack) % 24;
-    if (BDEDE_ERROR_STATE == d_state || BDEDE_NEED_EQUAL_STATE == d_state ||
-                    (BDEDE_DONE_STATE == d_state && 0 == d_bitsInStack) ||
-                              (BDEDE_INPUT_STATE == d_state && residualBits)) {
+    if (e_ERROR_STATE == d_state || e_NEED_EQUAL_STATE == d_state ||
+                    (e_DONE_STATE == d_state && 0 == d_bitsInStack) ||
+                              (e_INPUT_STATE == d_state && residualBits)) {
         *numOut = 0;
-        d_state = BDEDE_ERROR_STATE;
-        return -1;
+        d_state = e_ERROR_STATE;
+        return -1;                                                    // RETURN
     }
 
-    d_state = BDEDE_DONE_STATE;
+    d_state = e_DONE_STATE;
 
     int numEmitted = 0;
     while (8 <= d_bitsInStack && numEmitted != maxNumOut) {
@@ -763,13 +770,13 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
     *numOut = numEmitted;
     d_outputLength += numEmitted;
 
-    return BDEDE_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
+    return e_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
 }
 
 inline
 void Base64Decoder::resetState()
 {
-    d_state        = BDEDE_INPUT_STATE;
+    d_state        = e_INPUT_STATE;
     d_outputLength = 0;
     d_bitsInStack  = 0;
 }
@@ -779,33 +786,33 @@ inline
 bool Base64Decoder::isAcceptable() const
 {
     const int residualBits = ((d_outputLength % 3) * 8 + d_bitsInStack) % 24;
-    return (0 == residualBits && BDEDE_INPUT_STATE == d_state) ||
-               BDEDE_SOFT_DONE_STATE == d_state || BDEDE_DONE_STATE == d_state;
+    return (0 == residualBits && e_INPUT_STATE == d_state) ||
+               e_SOFT_DONE_STATE == d_state || e_DONE_STATE == d_state;
 }
 
 inline
 bool Base64Decoder::isDone() const
 {
-    return !d_bitsInStack && BDEDE_DONE_STATE == d_state;
+    return !d_bitsInStack && e_DONE_STATE == d_state;
 }
 
 inline
 bool Base64Decoder::isError() const
 {
-    return BDEDE_ERROR_STATE == d_state;
+    return e_ERROR_STATE == d_state;
 }
 
 inline
 bool Base64Decoder::isMaximal() const
 {
-    return BDEDE_SOFT_DONE_STATE == d_state
-        || (d_bitsInStack && BDEDE_DONE_STATE == d_state);
+    return e_SOFT_DONE_STATE == d_state
+        || (d_bitsInStack && e_DONE_STATE == d_state);
 }
 
 inline
 bool Base64Decoder::isInitialState() const
 {
-    return BDEDE_INPUT_STATE == d_state
+    return e_INPUT_STATE == d_state
         && 0 == d_bitsInStack
         && 0 == d_outputLength;
 }
@@ -823,15 +830,22 @@ int Base64Decoder::outputLength() const
 }
 }  // close package namespace
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

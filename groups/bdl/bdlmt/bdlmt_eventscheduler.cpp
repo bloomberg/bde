@@ -1,4 +1,4 @@
-// bdlmt_eventscheduler.cpp                                            -*-C++-*-
+// bdlmt_eventscheduler.cpp                                           -*-C++-*-
 #include <bdlmt_eventscheduler.h>
 
 #include <bsls_ident.h>
@@ -235,7 +235,7 @@ int EventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
     }
 
     bdlqq::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 
     if (bdlqq::ThreadUtil::create(
             &d_dispatcherThread,
@@ -366,7 +366,7 @@ EventScheduler::scheduleRecurringEventRaw(
 int EventScheduler::cancelEvent(EventHandle *handle)
 {
     if (0 == (const Event *) *handle) {
-        return EventQueue::e_INVALID;                              // RETURN
+        return EventQueue::e_INVALID;                                 // RETURN
     }
 
     int ret = cancelEvent((const Event *) *handle);
@@ -377,7 +377,7 @@ int EventScheduler::cancelEvent(EventHandle *handle)
 int EventScheduler::cancelEvent(RecurringEventHandle *handle)
 {
     if (0 == (const RecurringEvent *) *handle) {
-        return RecurringEventQueue::e_INVALID;                     // RETURN
+        return RecurringEventQueue::e_INVALID;                        // RETURN
     }
 
     int ret = cancelEvent((const RecurringEvent *) *handle);
@@ -457,7 +457,7 @@ int EventScheduler::cancelEventAndWait(const Event *handle)
 int EventScheduler::cancelEventAndWait(EventHandle *handle)
 {
     if (0 == (const Event *) *handle) {
-        return EventQueue::e_INVALID;                              // RETURN
+        return EventQueue::e_INVALID;                                 // RETURN
     }
 
     int ret = cancelEventAndWait((const Event *) *handle);
@@ -468,7 +468,7 @@ int EventScheduler::cancelEventAndWait(EventHandle *handle)
 int EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
 {
     if (0 == (const RecurringEvent *) *handle) {
-        return RecurringEventQueue::e_INVALID;                     // RETURN
+        return RecurringEventQueue::e_INVALID;                        // RETURN
     }
 
     int ret = cancelEventAndWait((const RecurringEvent *) *handle);
@@ -563,13 +563,20 @@ void EventScheduler::cancelAllEventsAndWait()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

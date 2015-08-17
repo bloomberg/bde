@@ -250,9 +250,9 @@ struct MetaInt<1> : public bsl::true_type {
     // expression, 'expr', is not evaluated at run-time.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_MetaInt
 #undef bslmf_MetaInt
@@ -261,9 +261,9 @@ struct MetaInt<1> : public bsl::true_type {
     // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
-// ===========================================================================
+// ============================================================================
 //                            INLINE FUNCTIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 template <int INT_VALUE>

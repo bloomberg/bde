@@ -565,7 +565,7 @@ int processTest(btlsos::TcpAcceptor               *acceptor,
 }
 
 // ============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {

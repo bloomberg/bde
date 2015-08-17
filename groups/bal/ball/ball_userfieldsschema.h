@@ -7,14 +7,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a description for a sequence user field values
+//@PURPOSE: Provide a description for a sequence user field values.
 //
 //@CLASSES:
 //  ball::UserFieldsSchema: describe a sequence of user field values
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
-//@SEE_ALSO: 
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a value-semantic container-type,
 // 'ball::UserFieldsSchema', that is used to describe the contents of a
@@ -25,9 +25,46 @@ BSLS_IDENT("$Id: $")
 // where each index in the schema supplies an identifying string and
 // 'ball::UserFieldType' for corresponding index in the described
 // 'ball::UserFields' object.  In addition, a 'ball::UserFieldsSchema'
-// provides an operation, 'indexOf', for users to find the index of the field
+// provides an operation, 'indexOf', for users to find the index of a field
 // having a particular identifier.
 //
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFieldsSchema'
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we demonstrate how to populate and access a
+// 'ball::UserFieldsSchema' object.  See the 'ball_userfields' for an example
+// of using a schema in the implementation of a logging callback (it cannot be
+// shown here to avoid a circular dependency).
+//
+// First, we create a 'ball::UserFieldsSchema' object, 'fieldSchema', and
+// append the description of two fields; the first haveing the name 'username'
+// and the type 'bsl::string', and the second having the name 'taskId' and the
+// type 'int64_t':
+//..
+//  typedef ball::UserFieldType Type;
+//
+//  ball::UserFieldsSchema fieldSchema;
+//
+//  fieldSchema.appendFieldDescription("username", Type::e_STRING);
+//  fieldSchema.appendFieldDescription("taskId", Type::e_INT64);
+//..
+// Next we use the 'length', 'name', and 'type' accessors to verify the new
+// field descriptions were appended correctly:
+//..
+//  assert(2              == fieldSchema.length());
+//  assert("username"     == fieldSchema.name(0));
+//  assert(Type::e_STRING == fieldSchema.type(0));
+//  assert("taskId"       == fieldSchema.name(1));
+//  assert(Type::e_INT64  == fieldSchema.type(1));
+//..
+// Finally, we use 'indexOf' to efficiently lookup the index of the field
+// having the name "taskId":
+//..
+//  assert(1 == fieldSchema.indexOf("taskId"));
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -43,6 +80,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSL_UNORDERED_MAP
@@ -66,10 +107,14 @@ namespace ball {
                         // ======================
 
 class UserFieldsSchema {
-    // This component provides a value-semantic container-type,
-    // 'ball::UserFieldsSchema', that is used to describe the contents of a
-    // 'ball::UserFields' object. 
-    //
+    // This class implements a value-semantic type for describing the contents
+    // of a 'ball::UserFields' object.  A 'ball::UserFieldSchema' object
+    // maintains a sequence of field names and field data types.  The name and
+    // type at a given index in a schema object indicate the name of a field
+    // and its data type in the 'ball::UserFields' object being described.
+    // Additionally, a schema object provides the method 'indexOf' to lookup
+    // the index of a field given its name.
+
 
     // PRIVATE TYPES
     typedef bsl::unordered_map<bsl::string, int> NameToIndex;
@@ -87,9 +132,9 @@ class UserFieldsSchema {
     bsl::vector<ball::UserFieldType::Enum> d_types;        // field types
                                                            // (same length as
                                                            // 'd_names')
-    
+
     // FRIENDS
-    friend bool operator==(const UserFieldsSchema&, 
+    friend bool operator==(const UserFieldsSchema&,
                            const UserFieldsSchema&);
 
   public:
@@ -119,12 +164,12 @@ class UserFieldsSchema {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    int appendFieldDescription(bslstl::StringRef         name, 
+    int appendFieldDescription(bslstl::StringRef         name,
                                ball::UserFieldType::Enum type);
         // Append a field description to this schema describing a field having
         // the specified 'name' and 'type.  Return 0 on success, or a non-zero
         // value if this schema already contains a description for a field
-        // with the supplied 'name'. 
+        // with the supplied 'name'.
 
     void removeAll();
         // Remove all of the field descriptions maintained by this object.
@@ -153,7 +198,7 @@ class UserFieldsSchema {
         // Return the name of the field at the specified 'index' in the
         // described user fields object.
 
-    ball::UserFieldType::Enum type(int index) const;   
+    ball::UserFieldType::Enum type(int index) const;
         // Return the data type of the field in the described user fields
         // object at the specified 'index'.
 
@@ -162,7 +207,7 @@ class UserFieldsSchema {
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.       
+        // installed default allocator is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -177,8 +222,8 @@ class UserFieldsSchema {
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
@@ -187,7 +232,7 @@ bool operator==(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs);
     // value, and 'false' otherwise.  Two 'ball::UserFieldsSchema' objects have
     // the same value if they have the same number of field descriptions, and
     // each field description in 'lhs' has the same name and type as
-    // corresponding description at the same index in 'rhs'. 
+    // corresponding description at the same index in 'rhs'.
 
 bool operator!=(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
@@ -216,7 +261,7 @@ void swap(ball::UserFieldsSchema& a, ball::UserFieldsSchema& b);
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------
@@ -261,15 +306,17 @@ int UserFieldsSchema::appendFieldDescription(bslstl::StringRef         name,
 {
     if (d_nameToIndex.end() != d_nameToIndex.find(name)) {
         return -1;                                                    // RETURN
-    }    
-    bsl::pair<NameToIndex::iterator, bool> result = 
+    }
+    bsl::pair<NameToIndex::iterator, bool> result =
         d_nameToIndex.insert(NameToIndex::value_type(name, d_names.size()));
 
-    BSLS_ASSERT(true == result.second);    
-                         
+    BSLS_ASSERT(true == result.second);
+
     d_names.push_back(bslstl::StringRef(result.first->first.data(),
                                         result.first->first.size()));
     d_types.push_back(type);
+
+    return 0;
 }
 
 inline
@@ -329,7 +376,7 @@ int UserFieldsSchema::length() const
 inline
 bool ball::operator==(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs)
 {
-    return lhs.d_nameToIndex == rhs.d_nameToIndex 
+    return lhs.d_nameToIndex == rhs.d_nameToIndex
         && lhs.d_names       == rhs.d_names
         && lhs.d_types       == rhs.d_types;
 }
@@ -341,10 +388,10 @@ bool ball::operator!=(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs)
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&           stream, 
-                               const UserFieldsSchema& rhs)
+bsl::ostream& ball::operator<<(bsl::ostream&           stream,
+                               const UserFieldsSchema& object)
 {
-    return rhs.print(stream, 0, -1);
+    return object.print(stream, 0, -1);
 }
 
 
@@ -358,22 +405,29 @@ void swap(ball::UserFieldsSchema& a, ball::UserFieldsSchema& b)
     else {
         ball::UserFieldsSchema tempA(a, b.allocator());
         ball::UserFieldsSchema tempB(b, a.allocator());
-        
+
         a.swap(tempB);
         b.swap(tempA);
     }
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

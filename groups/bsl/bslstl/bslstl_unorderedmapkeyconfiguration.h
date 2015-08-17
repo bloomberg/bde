@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  List of students, lowest GPA first:
 //  ===================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Ann    2.3   21
@@ -179,7 +179,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  List of students, youngest first:
 //  ================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Phil   3.4   19
@@ -239,7 +239,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  List of employees, cheapest first:
 //  ==================================
-//  Name   Wage
+//                              Name   Wage
 //  -----  -----
 //  Kenny   7.75
 //  Kyle   12.25
@@ -276,9 +276,9 @@ struct UnorderedMapKeyConfiguration {
         // 'key' portion of 'obj'.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                        //-----------------------------------
                        // class UnorderedMapKeyConfiguration
@@ -293,7 +293,7 @@ UnorderedMapKeyConfiguration<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
     return obj.first;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 }  // close enterprise namespace
 

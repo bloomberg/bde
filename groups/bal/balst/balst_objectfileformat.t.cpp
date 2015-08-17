@@ -17,9 +17,9 @@ using namespace bsl;  // automatically added by script
 // [ 3] Proper resolver policy defined
 // [ 4] Usage example
 //-----------------------------------------------------------------------------
-//==========================================================================
+//=============================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
 // Since this component implements 'CPP' macro's and 'typedef's, which may or
@@ -27,8 +27,8 @@ using namespace bsl;  // automatically added by script
 // correctness will be affected by compile-time switches during the build
 // process, any compile-time tests we come up with should probably reside
 // directly in the header or implementation file.
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] Ensure that if a 'RESOLVER' id is defined, it has the value '1'.
 // [ 2] Ensure that exactly one of the 'RESOLVER' ids is defined.
 // [ 3] That 'Obj::Policy' is appropriate for the platform.
@@ -109,7 +109,7 @@ typedef balst::ObjectFileFormat          Obj;
 // value when passed an object of types
 // 'balst::ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.
 //..
-template <typename TYPE>
+template <class TYPE>
 int typeTest(const TYPE &)
 {
     return 0;
@@ -372,11 +372,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

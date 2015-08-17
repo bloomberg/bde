@@ -1,4 +1,4 @@
-// bdlxxxx_genericbyteinstream.t.cpp              -*-C++-*-
+// bdlxxxx_genericbyteinstream.t.cpp                                  -*-C++-*-
 
 #include <bdlxxxx_genericbyteinstream.h>
 #include <bdlxxxx_genericbyteoutstream.h>          // for testing only
@@ -242,7 +242,7 @@ my_FixedMemInStreamBuf::pubsetbuf(const char *buffer, bsl::streamsize length)
 int my_FixedMemInStreamBuf::sbumpc()
 {
     if (d_pos >= d_length) {
-        return char_traits<char>::eof();
+        return char_traits<char>::eof();                              // RETURN
     }
     return d_buffer_p[d_pos++];
 }
@@ -250,7 +250,7 @@ int my_FixedMemInStreamBuf::sbumpc()
 int my_FixedMemInStreamBuf::sgetc()
 {
     if (d_pos >= d_length) {
-        return char_traits<char>::eof();
+        return char_traits<char>::eof();                              // RETURN
     }
     return d_buffer_p[d_pos];
 }
@@ -274,9 +274,9 @@ bsl::streamsize my_FixedMemInStreamBuf::length() const
 
 typedef bdlxxxx::GenericByteInStream<my_FixedMemInStreamBuf> GObj;
 
-} // closing namespace
+}  // close namespace genericTest
 //=============================================================================
-//                  USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 class my_Person {
     bsl::string d_firstName;
@@ -397,18 +397,18 @@ STREAM& my_Person::bdexStreamIn(STREAM& stream, int version)
               if (!stream) {
                   d_firstName = "stream error";  // *might* be corrupted;
                                                  //  value for testing
-                  return stream;
+                  return stream;                                      // RETURN
               }
               stream.getString(d_lastName);
               if (!stream) {
                   d_lastName = "stream error";  // *might* be corrupted;
                                                 //  value for testing
-                  return stream;
+                  return stream;                                      // RETURN
               }
               stream.getInt32(d_age);
               if (!stream) {
                  d_age = 1;      // *might* be corrupted; value for testing
-                  return stream;
+                  return stream;                                      // RETURN
               }
           } break;
           default: {
@@ -438,7 +438,7 @@ inline
 bool operator==(const my_Person& lhs, const my_Person& rhs)
 {
     if(&lhs == &rhs) {
-       return true;
+       return true;                                                   // RETURN
     }
 
     return( (lhs.d_firstName == rhs.d_firstName) &&
@@ -3736,7 +3736,7 @@ int main(int argc, char *argv[])
                  << "\tand numOutIters  = number of ctor+putInt8+dtor in"
                                                             " outer loop\n"
                  << "\t(default values to 1000 and 1000000, resp.)\n";
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if (verbose) { P_(NUM_OUT_ITERS);  P(NUM_ITERS); }
@@ -3852,11 +3852,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

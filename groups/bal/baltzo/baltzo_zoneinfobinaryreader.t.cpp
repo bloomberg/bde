@@ -2608,10 +2608,10 @@ int main(int argc, char *argv[])
     ball::LoggerManager& manager =
                   ball::LoggerManager::initSingleton(&observer, configuration);
 
-    manager.setDefaultThresholdLevels(ball::Severity::BAEL_OFF,
-                                      ball::Severity::BAEL_OFF,
-                                      ball::Severity::BAEL_OFF,
-                                      ball::Severity::BAEL_OFF);
+    manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
+                                      ball::Severity::e_OFF,
+                                      ball::Severity::e_OFF,
+                                      ball::Severity::e_OFF);
 
     switch (test) { case 0:
       case 11: {

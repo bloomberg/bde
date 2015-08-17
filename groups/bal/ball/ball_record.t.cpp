@@ -1,4 +1,4 @@
-// ball_record.t.cpp         -*-C++-*-
+// ball_record.t.cpp                                                  -*-C++-*-
 
 #include <ball_record.h>
 
@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
                        __FILE__,
                        __LINE__,
                        "MyCategory1",
-                       ball::Severity::BAEL_INFO,
+                       ball::Severity::e_INFO,
                        "Distinct Message 1");
         Record_Attr FC(bdlt::Datetime(2000, 2, 29, 10, 13, 55, 111),
                        bdlsu::ProcessUtil::getProcessId(),
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
                        __FILE__,
                        __LINE__,
                        "MyCategory2",
-                       ball::Severity::BAEL_ERROR,
+                       ball::Severity::e_ERROR,
                        "Distinct Message 2");
 
         if (verbose) cout << "\nTesting default ctor (thoroughly)." << endl;
@@ -636,9 +636,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == (mX == mY)); ASSERT(0 == (mX == mZ));
             ASSERT(0 == (mY == mZ));
 
-            ASSERT(mX.fixedFields() == FA); 
-            ASSERT(mY.fixedFields() == FB);    
-            ASSERT(mZ.fixedFields() == FC);    
+            ASSERT(mX.fixedFields() == FA);
+            ASSERT(mY.fixedFields() == FB);
+            ASSERT(mZ.fixedFields() == FC);
 
             ASSERT(mX.userFields()  == Values());
             ASSERT(mY.userFields()  == *VALUES_DATA[1]);
@@ -646,9 +646,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
                                   << endl;
-            mX.setFixedFields(FB);     
+            mX.setFixedFields(FB);
             ASSERT(mX.fixedFields() == FB);
-            
+
             mX.setUserFields(*VALUES_DATA[1]);
             ASSERT(mX.userFields() == *VALUES_DATA[1]);
 
@@ -656,10 +656,10 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tSetting mX with mZ's initializer."
                                   << endl;
-            mX.setFixedFields(FC);           
+            mX.setFixedFields(FC);
             ASSERT(mX.fixedFields() == FC);
-            
-            mX.setUserFields(*VALUES_DATA[2]);         
+
+            mX.setUserFields(*VALUES_DATA[2]);
             ASSERT(mX.userFields()  == *VALUES_DATA[2]);
 
             ASSERT(mX == mZ);
@@ -683,30 +683,30 @@ int main(int argc, char *argv[])
             ASSERT(0 == (mX == mY)); ASSERT(0 == (mX == mZ));
             ASSERT(0 == (mY == mZ));
 
-            ASSERT(mX.fixedFields() == FA);   
-            ASSERT(mY.fixedFields() == FB);   
-            ASSERT(mZ.fixedFields() == FC);   
- 
+            ASSERT(mX.fixedFields() == FA);
+            ASSERT(mY.fixedFields() == FB);
+            ASSERT(mZ.fixedFields() == FC);
+
             ASSERT(mX.userFields()  == Values());
             ASSERT(mY.userFields()  == *VALUES_DATA[1]);
             ASSERT(mZ.userFields()  == *VALUES_DATA[2]);
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
                                   << endl;
-            mX.setFixedFields(FB);       
+            mX.setFixedFields(FB);
             ASSERT(mX.fixedFields() == FB);
-            
-            mX.setUserFields(*VALUES_DATA[1]);     
+
+            mX.setUserFields(*VALUES_DATA[1]);
             ASSERT(mX.userFields() == *VALUES_DATA[1]);
 
             ASSERT(mX == mY);
 
             if (veryVerbose) cout << "\tSetting mX with mZ's initializer."
                                   << endl;
-            mX.setFixedFields(FC);   
+            mX.setFixedFields(FC);
             ASSERT(mX.fixedFields() == FC);
 
-            mX.setUserFields(*VALUES_DATA[2]);   
+            mX.setUserFields(*VALUES_DATA[2]);
             ASSERT(mX.userFields()  == *VALUES_DATA[2]);
 
             ASSERT(mX == mZ);
@@ -731,8 +731,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == (mX == mY)); ASSERT(0 == (mX == mZ));
             ASSERT(0 == (mY == mZ));
 
-            ASSERT(mX.fixedFields() == FA); 
-            ASSERT(mY.fixedFields() == FB); 
+            ASSERT(mX.fixedFields() == FA);
+            ASSERT(mY.fixedFields() == FB);
             ASSERT(mZ.fixedFields() == FC);
 
             ASSERT(mX.userFields()  == Values());
@@ -741,20 +741,20 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
                                   << endl;
-            mX.setFixedFields(FB);    
+            mX.setFixedFields(FB);
             ASSERT(mX.fixedFields() == FB);
 
-            mX.setUserFields(*VALUES_DATA[1]);  
+            mX.setUserFields(*VALUES_DATA[1]);
             ASSERT(mX.userFields() == *VALUES_DATA[1]);
 
             ASSERT(mX == mY);
 
             if (veryVerbose) cout << "\tSetting mX with mZ's initializer."
                             << endl;
-            mX.setFixedFields(FC);    
+            mX.setFixedFields(FC);
             ASSERT(mX.fixedFields() == FC);
 
-            mX.setUserFields(*VALUES_DATA[2]); 
+            mX.setUserFields(*VALUES_DATA[2]);
             ASSERT(mX.userFields()  == *VALUES_DATA[2]);
 
             ASSERT(mX == mZ);
@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
                        0,  // threadID
                        __FILE__, __LINE__,
                        "EQUITY.NASD",
-                       ball::Severity::BAEL_INFO,
+                       ball::Severity::e_INFO,
                        "Ticker Summary");
         bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         FA.setTimestamp(now);
@@ -816,8 +816,8 @@ int main(int argc, char *argv[])
         if (verbose) { P(FA) ; }
 
         Obj RA(FA, *VALUES_DATA[1]);
-        
-        ASSERT(FA == RA.fixedFields()); 
+
+        ASSERT(FA == RA.fixedFields());
         ASSERT(*VALUES_DATA[1] == RA.userFields());
 
         Record_Attr FB(bdlt::Datetime(),
@@ -825,7 +825,7 @@ int main(int argc, char *argv[])
                        0,  // threadID
                        __FILE__, __LINE__,
                        "USER_SESSION",
-                       ball::Severity::BAEL_TRACE,
+                       ball::Severity::e_TRACE,
                        "User Session Info");
 
         now = bdlt::EpochUtil::convertFromTimeT(time(0));
@@ -834,7 +834,7 @@ int main(int argc, char *argv[])
         if (verbose) { P(FB) ; }
 
         Obj RB(FB, *VALUES_DATA[2]);
-        ASSERT(FB == RB.fixedFields()); 
+        ASSERT(FB == RB.fixedFields());
         ASSERT(*VALUES_DATA[2] == RB.userFields());
 
         Obj RC(RA);
@@ -842,18 +842,18 @@ int main(int argc, char *argv[])
 
         RA.setFixedFields(FB);
         RA.setUserFields(*VALUES_DATA[2]);
-        ASSERT(FB == RA.fixedFields()); 
+        ASSERT(FB == RA.fixedFields());
         ASSERT(*VALUES_DATA[2] == RA.userFields());
         ASSERT(RA == RB);               ASSERT(RA != RC);
 
         RA.setFixedFields(FA);
         RA.setUserFields(*VALUES_DATA[1]);
-        ASSERT(FA == RA.fixedFields()); 
+        ASSERT(FA == RA.fixedFields());
         ASSERT(*VALUES_DATA[1] == RA.userFields());
         ASSERT(RA != RB);               ASSERT(RA == RC);
 
         RC = RB;
-        ASSERT(FB == RC.fixedFields()); 
+        ASSERT(FB == RC.fixedFields());
         ASSERT(*VALUES_DATA[2] == RC.userFields());
         ASSERT(RA != RC);               ASSERT(RB == RC);
 
@@ -876,7 +876,7 @@ int main(int argc, char *argv[])
             uf = *VALUES_DATA[2];
             const Obj &CRA = RA;
             LOOP_ASSERT(CRA.fixedFields(), CRA.fixedFields() == FB);
-            LOOP_ASSERT(CRA.userFields(), 
+            LOOP_ASSERT(CRA.userFields(),
                         CRA.userFields() == *VALUES_DATA[2]);
             if (verbose) {
                 cout << "tested const versions of 'fixedFields'"
@@ -898,11 +898,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

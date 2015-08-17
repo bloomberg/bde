@@ -1,4 +1,4 @@
-// balb_xxxcommandline.t.cpp                                             -*-C++-*-
+// balb_xxxcommandline.t.cpp                                          -*-C++-*-
 
 #include <balb_xxxcommandline.h>
 
@@ -75,7 +75,7 @@ using bsl::flush;
 // errors in the documentation, of course.
 //-----------------------------------------------------------------------------
 // 'balb::CommandLine' public interface:
-// ------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 9] balb::CommandLine();
 // [ 9] ~balb::CommandLine();
@@ -720,7 +720,7 @@ static int parseCommandLine(char       *cmdLine,
     // If passing null string (not even empty), failure.
 
     if (!cmdLine) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     // Initialize 'argc'.
@@ -739,16 +739,16 @@ static int parseCommandLine(char       *cmdLine,
         // Check for end-of-string.
 
         if (!*cmdLine) { // null-terminating character                   // EOL
-            return 0;    // we're done
+            return 0;    // we're done                                // RETURN
         }
         if (0xa == *cmdLine || 0xd == *cmdLine) {                   // NL or CR
-            return -1;    // FAILURE
+            return -1;    // FAILURE                                  // RETURN
         }
 
         // Check overflow.
 
         if (argc >= maxArgs) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         // Not a space, newline, CR, or null-terminating character:
@@ -761,10 +761,10 @@ static int parseCommandLine(char       *cmdLine,
 
         while (' ' != *cmdLine && '\t' != *cmdLine) {
             if (!*cmdLine) { // null-terminating character
-                return 0;    // we're done
+                return 0;    // we're done                            // RETURN
             }
             if (0xa == *cmdLine || 0xd == *cmdLine) {
-                return -1;    // FAILURE
+                return -1;    // FAILURE                              // RETURN
             }
             ++cmdLine;
         }
@@ -1146,7 +1146,7 @@ int parseTypeInfo(const char      **endpos,
      || Parser::skipRequiredToken(&input, input, ET::toAscii(typeInfo.type())))
     {
         *endpos = input;
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     if (typeInfo.linkedVariable()) {
@@ -1155,7 +1155,7 @@ int parseTypeInfo(const char      **endpos,
          || Parser::skipWhiteSpace(&input, input))
         {
             *endpos = input;
-            return FAILURE;
+            return FAILURE;                                           // RETURN
         }
         else {
             // Retrieve the pointer address.
@@ -1169,7 +1169,7 @@ int parseTypeInfo(const char      **endpos,
             oss << (void *)typeInfo.linkedVariable();
             if (oss.str() != ptrString) {
                 *endpos = input;
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
         }
     }
@@ -1179,7 +1179,7 @@ int parseTypeInfo(const char      **endpos,
      || Parser::skipWhiteSpace(&input, input))
     {
         *endpos = input;
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
     else {
         // Retrieve the pointer address.
@@ -1193,7 +1193,7 @@ int parseTypeInfo(const char      **endpos,
         oss << (void *)typeInfo.constraint().get();
         if (oss.str() != ptrString) {
             *endpos = input;
-            return FAILURE;
+            return FAILURE;                                           // RETURN
         }
     }
 
@@ -1201,7 +1201,7 @@ int parseTypeInfo(const char      **endpos,
      || Parser::skipRequiredToken(&input, input, "}"))
     {
         *endpos = input;
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     *endpos = input;
@@ -1226,67 +1226,67 @@ int parseOccurrenceInfo(const char            **endpos,
 
     if (Parser::skipWhiteSpace(&input, input)) {
         *endpos = input;
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
     if (*input != '{') {
         if (OccurrenceInfo::BAEA_REQUIRED == occurrenceInfo.occurrenceType()) {
             if (Parser::skipRequiredToken(endpos, input, "REQUIRED")) {
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
-            return SUCCESS;
+            return SUCCESS;                                           // RETURN
         }
         if (OccurrenceInfo::BAEA_OPTIONAL == occurrenceInfo.occurrenceType()) {
             if (Parser::skipRequiredToken(endpos, input, "OPTIONAL")) {
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
-            return SUCCESS;
+            return SUCCESS;                                           // RETURN
         }
         if (OccurrenceInfo::BAEA_HIDDEN == occurrenceInfo.occurrenceType()) {
             if (Parser::skipRequiredToken(endpos, input, "HIDDEN")) {
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
-            return SUCCESS;
+            return SUCCESS;                                           // RETURN
         }
         *endpos = input;
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     } else {
         ++input; // Parser::skipRequiredToken(&input, input, "{");
         if (OccurrenceInfo::BAEA_OPTIONAL == occurrenceInfo.occurrenceType()) {
             if (Parser::skipWhiteSpace(&input, input)
              || Parser::skipRequiredToken(&input, input, "OPTIONAL")) {
                 *endpos = input;
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
         } else {
             if (Parser::skipWhiteSpace(&input, input)
              || Parser::skipRequiredToken(&input, input, "HIDDEN")) {
                 *endpos = input;
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
         }
         if (occurrenceInfo.hasDefaultValue()) {
             if (Parser::skipWhiteSpace(&input, input)
              || Parser::skipRequiredToken(&input, input, "DEFAULT_TYPE")) {
                 *endpos = input;
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
             if (Parser::skipWhiteSpace(&input, input)
              || Parser::skipRequiredToken(&input, input,
                           ET::toAscii(occurrenceInfo.defaultValue().type()))) {
                 *endpos = input;
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
             if (Parser::skipWhiteSpace(&input, input)
              || Parser::skipRequiredToken(&input, input, "DEFAULT_VALUE")
              || Parser::skipWhiteSpace(&input, input)) {
                 *endpos = input;
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
             switch (occurrenceInfo.defaultValue().type()) {
               case ET::BDEM_CHAR: {
                 char charValue = *input;
                 if (charValue != occurrenceInfo.defaultValue().theChar()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
                 *endpos = ++input;
               } break;
@@ -1294,21 +1294,21 @@ int parseOccurrenceInfo(const char            **endpos,
                 short shortValue;
                 if (bdlpuxxx::TypesParser::parseShort(endpos, &shortValue, input)
                  || shortValue != occurrenceInfo.defaultValue().theShort()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_INT: {
                 int intValue;
                 if (bdlpuxxx::TypesParser::parseInt(endpos, &intValue, input)
                  || intValue != occurrenceInfo.defaultValue().theInt()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_INT64: {
                 Int64 int64Value;
                 if (bdlpuxxx::TypesParser::parseInt64(endpos, &int64Value, input)
                  || int64Value != occurrenceInfo.defaultValue().theInt64()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_FLOAT: {
@@ -1331,7 +1331,7 @@ int parseOccurrenceInfo(const char            **endpos,
                 bsl::string stringValue;
                 if (bdlpuxxx::TypesParser::parseString(endpos, &stringValue, input)
                  || stringValue != occurrenceInfo.defaultValue().theString()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_DATETIME: {
@@ -1344,7 +1344,7 @@ int parseOccurrenceInfo(const char            **endpos,
                     // because DATE isn't either (see below).
                     // return FAILURE;
                     if (0 == (*endpos = bsl::strchr(input, '}'))) {
-                        return FAILURE;
+                        return FAILURE;                               // RETURN
                     }
                 }
               } break;
@@ -1357,7 +1357,7 @@ int parseOccurrenceInfo(const char            **endpos,
                     // 1234/04/06.  Go figure...
                     // return FAILURE;
                     if (0 == (*endpos = bsl::strchr(input, '}'))) {
-                        return FAILURE;
+                        return FAILURE;                               // RETURN
                     }
                 }
               } break;
@@ -1365,7 +1365,7 @@ int parseOccurrenceInfo(const char            **endpos,
                 bdlt::Time timeValue;
                 if (bdlpuxxx::TypesParser::parseTime(endpos, &timeValue, input)
                  || timeValue != occurrenceInfo.defaultValue().theTime()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_CHAR_ARRAY: {
@@ -1377,13 +1377,13 @@ int parseOccurrenceInfo(const char            **endpos,
                     // double quotes, whereas parsing requires parsing a
                     // sequence of white-separated CHARs enclosed by '[' ']'.
                     // Use parseQuotedString instead.
-                    return FAILURE - 1;
+                    return FAILURE - 1;                               // RETURN
                 }
                 bsl::vector<char> charArrayValue(charArrayAsString.begin(),
                                                  charArrayAsString.end());
                 if (charArrayValue !=
                                 occurrenceInfo.defaultValue().theCharArray()) {
-                    return FAILURE - 2;
+                    return FAILURE - 2;                               // RETURN
                 }
               } break;
               case ET::BDEM_SHORT_ARRAY: {
@@ -1392,7 +1392,7 @@ int parseOccurrenceInfo(const char            **endpos,
                                                endpos, &shortArrayValue, input)
                  || shortArrayValue !=
                                occurrenceInfo.defaultValue().theShortArray()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_INT_ARRAY: {
@@ -1401,7 +1401,7 @@ int parseOccurrenceInfo(const char            **endpos,
                                                  endpos, &intArrayValue, input)
                  || intArrayValue !=
                                  occurrenceInfo.defaultValue().theIntArray()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_INT64_ARRAY: {
@@ -1410,7 +1410,7 @@ int parseOccurrenceInfo(const char            **endpos,
                                                endpos, &int64ArrayValue, input)
                  || int64ArrayValue !=
                                occurrenceInfo.defaultValue().theInt64Array()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_FLOAT_ARRAY: {
@@ -1437,7 +1437,7 @@ int parseOccurrenceInfo(const char            **endpos,
                                               endpos, &stringArrayValue, input)
                  || stringArrayValue !=
                               occurrenceInfo.defaultValue().theStringArray()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               case ET::BDEM_DATETIME_ARRAY: {
@@ -1449,7 +1449,7 @@ int parseOccurrenceInfo(const char            **endpos,
                     // Incomprehensibly, ... see DATETIME above.
 
                     if ( 0 == (*endpos = bsl::strchr(input, '}'))) {
-                        return FAILURE;
+                        return FAILURE;                               // RETURN
                     }
                 }
               } break;
@@ -1462,7 +1462,7 @@ int parseOccurrenceInfo(const char            **endpos,
                     // Incomprehensibly, ... see DATETIME above.
 
                     if ( 0 == (*endpos = bsl::strchr(input, '}'))) {
-                        return FAILURE;
+                        return FAILURE;                               // RETURN
                     }
                 }
               } break;
@@ -1472,7 +1472,7 @@ int parseOccurrenceInfo(const char            **endpos,
                                                 endpos, &timeArrayValue, input)
                  || timeArrayValue !=
                                 occurrenceInfo.defaultValue().theTimeArray()) {
-                    return FAILURE;
+                    return FAILURE;                                   // RETURN
                 }
               } break;
               default: {
@@ -1484,7 +1484,7 @@ int parseOccurrenceInfo(const char            **endpos,
         if (Parser::skipWhiteSpace(&input, input)
          || Parser::skipRequiredToken(&input, input, "}")) {
             *endpos = input;
-            return FAILURE;
+            return FAILURE;                                           // RETURN
         }
     }
 
@@ -1515,7 +1515,7 @@ int parseCommandLineOption(const char    **endpos,
      || Parser::skipWhiteSpace(&input, input))
     {
         *endpos = input;
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     if (Parser::skipRequiredToken(&input, input, "NON_OPTION")) {
@@ -1525,7 +1525,7 @@ int parseCommandLineOption(const char    **endpos,
          || tagString != commandLineOption.tagString())
         {
             *endpos = input;
-            return FAILURE - 1;
+            return FAILURE - 1;                                       // RETURN
         }
     }
 
@@ -1536,7 +1536,7 @@ int parseCommandLineOption(const char    **endpos,
      || nameString != commandLineOption.name())
     {
         *endpos = input;
-        return FAILURE - 2;
+        return FAILURE - 2;                                           // RETURN
     }
 
     if (Parser::skipWhiteSpace(&input, input)
@@ -1546,37 +1546,37 @@ int parseCommandLineOption(const char    **endpos,
      || descriptionString != commandLineOption.description())
     {
         *endpos = input;
-        return FAILURE - 3;
+        return FAILURE - 3;                                           // RETURN
     }
     if (Parser::skipWhiteSpace(&input, input)
      || Parser::skipRequiredToken(&input, input, "TYPE_INFO"))
     {
         *endpos = input;
-        return FAILURE - 4;
+        return FAILURE - 4;                                           // RETURN
     }
     if (parseTypeInfo(&input, commandLineOption.typeInfo(), input))
     {
         *endpos = input;
-        return FAILURE - 5;
+        return FAILURE - 5;                                           // RETURN
     }
     if (Parser::skipWhiteSpace(&input, input)
      || Parser::skipRequiredToken(&input, input, "OCCURRENCE_INFO"))
     {
         *endpos = input;
-        return FAILURE - 6;
+        return FAILURE - 6;                                           // RETURN
     }
 
     if (parseOccurrenceInfo(&input, commandLineOption.occurrenceInfo(), input))
     {
         *endpos = input;
-        return FAILURE - 7;
+        return FAILURE - 7;                                           // RETURN
     }
 
     if (Parser::skipWhiteSpace(&input, input)
      || Parser::skipRequiredToken(&input, input, "}"))
     {
         *endpos = input;
-        return FAILURE - 8;
+        return FAILURE - 8;                                           // RETURN
     }
 
     *endpos = input;
@@ -1653,7 +1653,7 @@ bool isCompatibleOrdering(const char *const *argv1,
                 }
             }
             if (filter1 != filter2) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -1661,7 +1661,7 @@ bool isCompatibleOrdering(const char *const *argv1,
 }
 
 //=============================================================================
-//          USAGE EXAMPLE CLASSES AND FUNCTIONS
+//                  USAGE EXAMPLE CLASSES AND FUNCTIONS
 //-----------------------------------------------------------------------------
 namespace BAEA_COMMANDLINE_USAGE_EXAMPLE {
 
@@ -1713,13 +1713,13 @@ namespace BAEA_COMMANDLINE_USAGE_EXAMPLE {
         bsl::string shellSortStr("shellSort");
 
         if (quickSortStr == *algo) {
-            return true;
+            return true;                                              // RETURN
         }
         if (insertionSortStr == *algo) {
-            return true;
+            return true;                                              // RETURN
         }
         if (shellSortStr == *algo) {
-            return true;
+            return true;                                              // RETURN
         }
         os << "Error: sorting algorithm (" << *algo << ") must be either "
               "quickSort, insertionSort or shellSort.\n";
@@ -1830,7 +1830,7 @@ namespace BAEA_COMMANDLINE_USAGE_EXAMPLE {
         bsl::ostringstream oss;  // test driver: redirect output in non-verbose
         if (cmdLine.parse(argc, argv, oss)) {
             if (verbose) { cmdLine.printUsage(); }
-            return -1;
+            return -1;                                                // RETURN
         } else {
             if (verbose) { cout << oss.str() << endl; }
         }
@@ -7074,11 +7074,11 @@ int main(int argc, const char *argv[])  {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

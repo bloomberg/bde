@@ -318,7 +318,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         Imp::copyConstruct(address, original, allocator, Selection());
     } // end copyConstruct()
 
-    } // Close namespace bslalg
+    }  // close namespace bslalg
 //..
 // Finally, we define three classes, associated with each of the three traits
 // of interest, a fourth class associated with more than one trait (to show

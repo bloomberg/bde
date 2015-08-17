@@ -142,6 +142,7 @@ static void errorProneFunc(my_Object *obj, my_RWLock *rwlock)
         obj->someOtherUpgradeMethod();
         return;                             // MISTAKE! forgot to unlock rwlock
                                                                       // RETURN
+                                                                      // RETURN
     }
     obj->defaultUpgradeMethod();
     rwlock->unlock();
@@ -157,6 +158,7 @@ static void safeFunc(my_Object *obj, my_RWLock *rwlock)
     } else if (someOtherUpgradeCondition) {
         obj->someOtherUpgradeMethod();
         return;                         // OK, rwlock is automatically unlocked
+                                                                      // RETURN
                                                                       // RETURN
     }
     obj->defaultUpgradeMethod();

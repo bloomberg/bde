@@ -920,7 +920,7 @@ namespace OutStreamFunctions {
         // more information on BDEX streaming of value-semantic types and
         // containers.
 
-}  // close OutStreamFunctions namespace
+}  // close namespace OutStreamFunctions
 
 // ============================================================================
 //                          INLINE FUNCTION DEFINITIONS

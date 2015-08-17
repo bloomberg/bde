@@ -1,4 +1,4 @@
-// balxml_errorinfo.h                   -*-C++-*-
+// balxml_errorinfo.h                                                 -*-C++-*-
 #ifndef INCLUDED_BALXML_ERRORINFO
 #define INCLUDED_BALXML_ERRORINFO
 
@@ -334,10 +334,16 @@ class ErrorInfo
         // For example, a constraint error would typically have
         // 'BAEXML_ERROR' whereas a parsing (syntax) error would have
         // 'BAEXML_FATAL_ERROR'.
-        BAEXML_NO_ERROR,
-        BAEXML_WARNING,
-        BAEXML_ERROR,
-        BAEXML_FATAL_ERROR
+        e_NO_ERROR,
+        e_WARNING,
+        e_ERROR,
+        e_FATAL_ERROR
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEXML_NO_ERROR = e_NO_ERROR
+      , BAEXML_WARNING = e_WARNING
+      , BAEXML_ERROR = e_ERROR
+      , BAEXML_FATAL_ERROR = e_FATAL_ERROR
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -454,9 +460,9 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     // human-readable form and return a modifiable reference to 'stream'.  The
     // output is one-line without a terminating newline.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 inline void
@@ -477,31 +483,31 @@ ErrorInfo::severity() const
 inline bool
 ErrorInfo::isNoError() const
 {
-    return d_severity == BAEXML_NO_ERROR;
+    return d_severity == e_NO_ERROR;
 }
 
 inline bool
 ErrorInfo::isWarning() const
 {
-    return d_severity == BAEXML_WARNING;
+    return d_severity == e_WARNING;
 }
 
 inline bool
 ErrorInfo::isError() const
 {
-    return d_severity == BAEXML_ERROR;
+    return d_severity == e_ERROR;
 }
 
 inline bool
 ErrorInfo::isFatalError() const
 {
-    return d_severity == BAEXML_FATAL_ERROR;
+    return d_severity == e_FATAL_ERROR;
 }
 
 inline bool
 ErrorInfo::isAnyError() const
 {
-    return d_severity >= BAEXML_ERROR;
+    return d_severity >= e_ERROR;
 }
 
 inline int
@@ -536,14 +542,22 @@ bool balxml::operator!=(const ErrorInfo& lhs, const ErrorInfo& rhs)
     return ! (lhs == rhs);
 }
 
-} // namespace BloombergLP
+}  // close enterprise namespace
 
-#endif //INCLUDED_BAEXML_ERRORINFO
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+#endif // INCLUDED_BALXML_ERRORINFO
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

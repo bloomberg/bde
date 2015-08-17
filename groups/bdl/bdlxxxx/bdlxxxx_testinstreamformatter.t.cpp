@@ -1,4 +1,4 @@
-// bdlxxxx_testinstreamformatter.t.cpp              -*-C++-*-
+// bdlxxxx_testinstreamformatter.t.cpp                                -*-C++-*-
 
 #include <bdlxxxx_testinstreamformatter.h>
 #include <bdlxxxx_testinstream.h>
@@ -418,13 +418,13 @@ int g(bdlxxxx::TestOutStreamFormatter* o, const char* spec) {
             if (!haveDigit) {
                 if (veryVerbose)
                     cout << "*** missing digit after letter ***" << endl;
-                return 0;     // discontinue processing this spec.
+                return 0;     // discontinue processing this spec.    // RETURN
             }
         } else {
             if (veryVerbose)
                 cout << "*** bad character ('" << spec[i] << "') in spec \""
                      << spec << "\" at position " << i << " ***" << endl;
-            return 0;         // discontinue processing this spec.
+            return 0;         // discontinue processing this spec.    // RETURN
         }
     }
     return 1;
@@ -1069,11 +1069,11 @@ STREAM& my_DoubleArray::bdexStreamIn(STREAM& stream, int version)
             int newLength;
             stream.getLength(newLength);
             if (!stream) {
-                return stream;                                  // RETURN
+                return stream;                                        // RETURN
             }
             if (newLength < 0) {
                 stream.invalidate();
-                return stream;                                  // RETURN
+                return stream;                                        // RETURN
             }
 
             if (newLength > d_size) {
@@ -1174,7 +1174,7 @@ int hhh(my_DoubleArray *object, const char *spec, int verboseFlag = 1)
                 cout << "Error, bad character ('" << spec[i] << "') in spec \""
                      << spec << "\" at position " << i << '.' << endl;
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
    }
    return SUCCESS;
@@ -4736,11 +4736,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

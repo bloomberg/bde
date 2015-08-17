@@ -60,7 +60,7 @@ namespace bsl
     using native_std::locale;
     using native_std::ostreambuf_iterator;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-}
+}  // close package namespace
 
 #endif
 

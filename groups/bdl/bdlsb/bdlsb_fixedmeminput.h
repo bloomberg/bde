@@ -260,7 +260,7 @@ bsl::streamsize FixedMemInput::in_avail()
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                    bsl::streamsize(d_pos) == d_bufferLength)) {
-        return bsl::streamsize(-1);
+        return bsl::streamsize(-1);                                   // RETURN
     }
     return static_cast<bsl::streamsize>(d_bufferLength - d_pos);
 }
@@ -269,7 +269,7 @@ inline
 FixedMemInput::int_type FixedMemInput::sbumpc()
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_pos >= d_bufferLength)) {
-        return traits_type::eof();
+        return traits_type::eof();                                    // RETURN
     }
     const int_type i = traits_type::to_int_type(d_buffer_p[
                                                   static_cast<IntPtr>(d_pos)]);
@@ -281,7 +281,7 @@ inline
 FixedMemInput::int_type FixedMemInput::sgetc()
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_pos >= d_bufferLength)) {
-        return traits_type::eof();
+        return traits_type::eof();                                    // RETURN
     }
     return traits_type::to_int_type(d_buffer_p[static_cast<IntPtr>(d_pos)]);
 }
@@ -290,7 +290,7 @@ inline
 FixedMemInput::int_type FixedMemInput::snextc()
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(sbumpc() == traits_type::eof())){
-        return traits_type::eof();
+        return traits_type::eof();                                    // RETURN
     }
     return traits_type::to_int_type(d_buffer_p[static_cast<IntPtr>(d_pos)]);
 }
@@ -317,7 +317,7 @@ FixedMemInput::int_type FixedMemInput::sputbackc(char c)
      || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(c != d_buffer_p[
                                                 static_cast<IntPtr>(d_pos)])) {
         d_pos += 1;
-        return traits_type::eof();
+        return traits_type::eof();                                    // RETURN
     }
     return traits_type::to_int_type(c);
 }
@@ -326,7 +326,7 @@ inline
 FixedMemInput::int_type FixedMemInput::sungetc()
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == d_pos)) {
-        return traits_type::eof();
+        return traits_type::eof();                                    // RETURN
     }
     d_pos -= 1;
     return traits_type::to_int_type(d_buffer_p[static_cast<IntPtr>(d_pos)]);
@@ -352,7 +352,7 @@ bsl::streamsize FixedMemInput::length() const
 }
 }  // close package namespace
 
-}  // end namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

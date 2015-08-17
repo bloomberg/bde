@@ -1,4 +1,4 @@
-// bdlmxxx_rowdata.h                                                     -*-C++-*-
+// bdlmxxx_rowdata.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_ROWDATA
 #define INCLUDED_BDLMXXX_ROWDATA
 
@@ -643,9 +643,9 @@ bool operator!=(const RowData& lhs, const RowData& rhs);
     // the same type or value.  The behavior is undefined unless 'lhs' and
     // 'rhs' hold row layouts.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ------------------
                         // class RowData
@@ -959,15 +959,15 @@ RowData::bdexStreamOutImp(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

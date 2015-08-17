@@ -1,4 +1,4 @@
-// balxml_elementattribute.h                  -*-C++-*-
+// balxml_elementattribute.h                                          -*-C++-*-
 #ifndef INCLUDED_BALXML_ELEMENTATTRIBUTE
 #define INCLUDED_BALXML_ELEMENTATTRIBUTE
 
@@ -262,26 +262,30 @@ class ElementAttribute {
     // The flags property should be set to the bitwise-OR of one or more of
     // the following values:
     enum {
-        BAEXML_ATTR_NO_FLAGS   = 0x0000,
+        k_ATTR_NO_FLAGS   = 0x0000,
             // No flags set.
 
-        BAEXML_ATTR_IS_DEFAULT = 0x0001,
+        k_ATTR_IS_DEFAULT = 0x0001,
             // Set this bit if the value for this attribute object was
             // generated from the default attribute value in the DTD or
             // schema.
 
-        BAEXML_ATTR_IS_NSDECL  = 0x0002,
+        k_ATTR_IS_NSDECL  = 0x0002,
             // Set this bit if this attribute represents a namespace
             // declaration.
 
-        BAEXML_ATTR_IS_XSIDECL = 0x0004
+        k_ATTR_IS_XSIDECL = 0x0004
             // Set this bit if this attribute represents a XML schema instance
             // declaration.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTR_NO_FLAGS   = BAEXML_ATTR_NO_FLAGS
-      , ATTR_IS_DEFAULT = BAEXML_ATTR_IS_DEFAULT
-      , ATTR_IS_NSDECL  = BAEXML_ATTR_IS_NSDECL
+      , BAEXML_ATTR_NO_FLAGS = k_ATTR_NO_FLAGS
+      , BAEXML_ATTR_IS_DEFAULT = k_ATTR_IS_DEFAULT
+      , BAEXML_ATTR_IS_NSDECL = k_ATTR_IS_NSDECL
+      , BAEXML_ATTR_IS_XSIDECL = k_ATTR_IS_XSIDECL
+      , ATTR_NO_FLAGS   = k_ATTR_NO_FLAGS
+      , ATTR_IS_DEFAULT = k_ATTR_IS_DEFAULT
+      , ATTR_IS_NSDECL  = k_ATTR_IS_NSDECL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -447,9 +451,9 @@ bsl::ostream& operator<<(bsl::ostream&                  os,
     // 'os' in human-readable form.  Attributes that have not yet been
     // computed are not computed by this function.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // ACCESSORS
 inline
@@ -491,15 +495,22 @@ bsl::ostream& balxml::operator<<(bsl::ostream&                  os,
     return attribute.print(os);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

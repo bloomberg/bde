@@ -1,4 +1,4 @@
-// ball_recordbuffer.t.cpp         -*-C++-*-
+// ball_recordbuffer.t.cpp                                            -*-C++-*-
 #include <ball_recordbuffer.h>
 
 #include <ball_severity.h>          // for testing only
@@ -118,7 +118,7 @@ class Record {
 
 // CREATORS
 Record::Record()
-: d_level((int)Severity::BAEL_TRACE)
+: d_level((int)Severity::e_TRACE)
 {
 }
 
@@ -157,9 +157,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Record& rhs)
     stream << rhs.severity();
     return stream;
 }
-}
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 typedef bsl::shared_ptr<ball::Record> Handle;
 
@@ -199,10 +199,10 @@ void processRecord(const bsl::shared_ptr<ball::Record>& handle,
 {
     int severity = handle->severity();
 
-    if (ball::Severity::BAEL_WARN >= severity) {
+    if (ball::Severity::e_WARN >= severity) {
         buffer.pushBack(handle);
     }
-    if (ball::Severity::BAEL_ERROR >= severity) {
+    if (ball::Severity::e_ERROR >= severity) {
         if (veryVerbose) bsl::cout << *handle << endl;
         buffer.beginSequence();
         int length = buffer.length();
@@ -386,19 +386,19 @@ int main(int argc, char *argv[])
         my_DummyDeleter deleter;
         my_RecordBuffer buffer;
 
-        ball::Record record1(ball::Severity::BAEL_FATAL);
+        ball::Record record1(ball::Severity::e_FATAL);
         bsl::shared_ptr<ball::Record> handle1(&record1, &deleter, &ta);
         processRecord(handle1, buffer);
 
-        ball::Record record2(ball::Severity::BAEL_TRACE);
+        ball::Record record2(ball::Severity::e_TRACE);
         bsl::shared_ptr<ball::Record> handle2(&record2, &deleter, &ta);
         processRecord(handle2, buffer);
 
-        ball::Record record3(ball::Severity::BAEL_WARN);
+        ball::Record record3(ball::Severity::e_WARN);
         bsl::shared_ptr<ball::Record> handle3(&record3, &deleter, &ta);
         processRecord(handle3, buffer);
 
-        ball::Record record4(ball::Severity::BAEL_ERROR);
+        ball::Record record4(ball::Severity::e_ERROR);
         bsl::shared_ptr<ball::Record> handle4(&record4, &deleter, &ta);
         processRecord(handle4, buffer);
 
@@ -465,11 +465,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

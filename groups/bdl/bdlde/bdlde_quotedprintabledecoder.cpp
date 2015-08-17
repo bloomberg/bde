@@ -1,4 +1,4 @@
-// bdlde_quotedprintabledecoder.cpp              -*-C++-*-
+// bdlde_quotedprintabledecoder.cpp                                   -*-C++-*-
 #include <bdlde_quotedprintabledecoder.h>
 
 #include <bsls_ident.h>
@@ -14,24 +14,24 @@ namespace BloombergLP {
                 // ======================
 
 // Strict-mode equivalence class symbols
-const char RC_ = bdlde::QuotedPrintableDecoder::BDEDE_RC_;
-const char HX_ = bdlde::QuotedPrintableDecoder::BDEDE_HX_;
-const char EQ_ = bdlde::QuotedPrintableDecoder::BDEDE_EQ_;
-const char WS_ = bdlde::QuotedPrintableDecoder::BDEDE_WS_;
-const char CR_ = bdlde::QuotedPrintableDecoder::BDEDE_CR_;
-const char LC_ = bdlde::QuotedPrintableDecoder::BDEDE_LC_;
-const char LL_ = bdlde::QuotedPrintableDecoder::BDEDE_LL_;
-const char UC_ = bdlde::QuotedPrintableDecoder::BDEDE_UC_;
+const char RC_ = bdlde::QuotedPrintableDecoder::e_RC_;
+const char HX_ = bdlde::QuotedPrintableDecoder::e_HX_;
+const char EQ_ = bdlde::QuotedPrintableDecoder::e_EQ_;
+const char WS_ = bdlde::QuotedPrintableDecoder::e_WS_;
+const char CR_ = bdlde::QuotedPrintableDecoder::e_CR_;
+const char LC_ = bdlde::QuotedPrintableDecoder::e_LC_;
+const char LL_ = bdlde::QuotedPrintableDecoder::e_LL_;
+const char UC_ = bdlde::QuotedPrintableDecoder::e_UC_;
 
 // Relaxed-mode equivalence class symbols
-const char RC = bdlde::QuotedPrintableDecoder::BDEDE_RC;
-const char HX = bdlde::QuotedPrintableDecoder::BDEDE_HX;
-const char EQ = bdlde::QuotedPrintableDecoder::BDEDE_EQ;
-const char WS = bdlde::QuotedPrintableDecoder::BDEDE_WS;
-const char CR = bdlde::QuotedPrintableDecoder::BDEDE_CR;
-const char LC = bdlde::QuotedPrintableDecoder::BDEDE_LC;
-const char LL = bdlde::QuotedPrintableDecoder::BDEDE_LL;
-const char UC = bdlde::QuotedPrintableDecoder::BDEDE_UC;
+const char RC = bdlde::QuotedPrintableDecoder::e_RC;
+const char HX = bdlde::QuotedPrintableDecoder::e_HX;
+const char EQ = bdlde::QuotedPrintableDecoder::e_EQ;
+const char WS = bdlde::QuotedPrintableDecoder::e_WS;
+const char CR = bdlde::QuotedPrintableDecoder::e_CR;
+const char LC = bdlde::QuotedPrintableDecoder::e_LC;
+const char LL = bdlde::QuotedPrintableDecoder::e_LL;
+const char UC = bdlde::QuotedPrintableDecoder::e_UC;
 
 // The following table is a map of an 8-bit index value to the corresponding
 // equivalence class for operation in the strict error- reporting mode (i.e.,
@@ -184,10 +184,10 @@ namespace bdlde {
 QuotedPrintableDecoder::~QuotedPrintableDecoder()
 {
     // Assert invariants:
-    BSLS_ASSERT(BDEDE_ERROR_STATE <= d_state);
-    BSLS_ASSERT(d_state <= BDEDE_DONE_STATE);
+    BSLS_ASSERT(e_ERROR_STATE <= d_state);
+    BSLS_ASSERT(d_state <= e_DONE_STATE);
     BSLS_ASSERT(0 <= d_outputLength);
-    BSLS_ASSERT(BDEDE_CRLF_MODE == d_lineBreakMode || BDEDE_LF_MODE == d_lineBreakMode);
+    BSLS_ASSERT(e_CRLF_MODE == d_lineBreakMode || e_LF_MODE == d_lineBreakMode);
     BSLS_ASSERT(d_lineBreakMode <= 1);
 
     if (d_equivClass_p != s_defaultEquivClassStrict_p &&
@@ -212,27 +212,27 @@ int QuotedPrintableDecoder::convert(char       *out,
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
 
-    if (BDEDE_ERROR_STATE == d_state || BDEDE_DONE_STATE == d_state) {
-        int rv = BDEDE_DONE_STATE == d_state ? -2 : -1;
-        d_state = BDEDE_ERROR_STATE;
+    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
+        int rv = e_DONE_STATE == d_state ? -2 : -1;
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         *numIn = 0;
-        return rv;
+        return rv;                                                    // RETURN
     }
 
     if (0 == maxNumOut) {
         *numOut = 0;
         *numIn = 0;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     const char *originalBegin = begin;
     int numEmitted = 0;
 
     while (numEmitted != maxNumOut && (begin < end ||
-              ((BDEDE_INPUT_STATE == d_state || BDEDE_NEED_HEX_STATE == d_state) &&
+              ((e_INPUT_STATE == d_state || e_NEED_HEX_STATE == d_state) &&
                                                             d_bufferLength))) {
-        if ((BDEDE_INPUT_STATE == d_state || BDEDE_NEED_HEX_STATE == d_state) &&
+        if ((e_INPUT_STATE == d_state || e_NEED_HEX_STATE == d_state) &&
                                                               d_bufferLength) {
             // flush buffer
             int i = 0;
@@ -243,57 +243,57 @@ int QuotedPrintableDecoder::convert(char       *out,
             d_bufferLength -= i;
             bsl::memcpy(d_buffer, &d_buffer[i], d_bufferLength);
         }
-        else if (BDEDE_SAW_WS_STATE == d_state) {
+        else if (e_SAW_WS_STATE == d_state) {
             if (' ' == *begin || '\t' == *begin) {
                 d_buffer[d_bufferLength++] = *begin++;
             }
             else if ('=' == *begin) {
                 // set state to indicate the equal sign
-                d_state = BDEDE_SAW_EQUAL_STATE;
+                d_state = e_SAW_EQUAL_STATE;
                 ++begin;
             }
             else if ('\r' == *begin) {
                 d_bufferLength = 0;
-                d_state = BDEDE_INPUT_STATE;
+                d_state = e_INPUT_STATE;
             }
             else {
-                d_state = BDEDE_INPUT_STATE;
+                d_state = e_INPUT_STATE;
             }
         }
-        else if (BDEDE_NEED_HEX_STATE == d_state) {
+        else if (e_NEED_HEX_STATE == d_state) {
             const unsigned char ch = DEC[(int)*begin];
             if (ch == (unsigned char)0xFF) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
                 *numIn = begin - originalBegin;
-                d_state = BDEDE_ERROR_STATE;
-                return -1;
+                d_state = e_ERROR_STATE;
+                return -1;                                            // RETURN
             }
             *out++ = static_cast<char>((d_hexBuffer << 4) | ch);
             ++numEmitted;
             ++begin;
-            d_state = BDEDE_INPUT_STATE;
+            d_state = e_INPUT_STATE;
         }
-        else if (BDEDE_NEED_SOFT_LF_STATE == d_state) {
+        else if (e_NEED_SOFT_LF_STATE == d_state) {
             if ('\n' != *begin) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
                 *numIn = begin - originalBegin;
-                d_state = BDEDE_ERROR_STATE;
-                return -1;
+                d_state = e_ERROR_STATE;
+                return -1;                                            // RETURN
             }
             ++begin;
-            d_state = BDEDE_INPUT_STATE;
+            d_state = e_INPUT_STATE;
         }
-        else if (BDEDE_NEED_HARD_LF_STATE == d_state) {
+        else if (e_NEED_HARD_LF_STATE == d_state) {
             if ('\n' != *begin) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
                 *numIn = begin - originalBegin;
-                d_state = BDEDE_ERROR_STATE;
-                return -1;
+                d_state = e_ERROR_STATE;
+                return -1;                                            // RETURN
             }
-            if (BDEDE_CRLF_MODE == d_lineBreakMode) {
+            if (e_CRLF_MODE == d_lineBreakMode) {
                 *out++ = '\r';
                 ++numEmitted;
                 d_buffer[0] = '\n';
@@ -304,12 +304,12 @@ int QuotedPrintableDecoder::convert(char       *out,
                 ++numEmitted;
             }
             ++begin;
-            d_state = BDEDE_INPUT_STATE;
+            d_state = e_INPUT_STATE;
         }
-        else if (BDEDE_SAW_EQUAL_STATE == d_state) {
+        else if (e_SAW_EQUAL_STATE == d_state) {
             if ('\r' == *begin) {
                 // next character must be a '\n'
-                d_state = BDEDE_NEED_SOFT_LF_STATE;
+                d_state = e_NEED_SOFT_LF_STATE;
                 ++begin;
             }
             else {
@@ -318,28 +318,28 @@ int QuotedPrintableDecoder::convert(char       *out,
                     *numOut = numEmitted;
                     d_outputLength += numEmitted;
                     *numIn = begin - originalBegin;
-                    d_state = BDEDE_ERROR_STATE;
-                    return -1;
+                    d_state = e_ERROR_STATE;
+                    return -1;                                        // RETURN
                 }
-                d_state = BDEDE_NEED_HEX_STATE;
+                d_state = e_NEED_HEX_STATE;
                 ++begin;
             }
         }
         else {
-            BSLS_ASSERT(BDEDE_INPUT_STATE == d_state);
+            BSLS_ASSERT(e_INPUT_STATE == d_state);
             if ('=' == *begin) {
                 // set state to indicate the equal sign
-                d_state = BDEDE_SAW_EQUAL_STATE;
+                d_state = e_SAW_EQUAL_STATE;
                 ++begin;
             }
             else if ('\r' == *begin) {
-                d_state = BDEDE_NEED_HARD_LF_STATE;
+                d_state = e_NEED_HARD_LF_STATE;
                 ++begin;
             }
             else if (' ' == *begin || '\t' == *begin) {
                 d_buffer[0] = *begin++;
                 d_bufferLength = 1;
-                d_state = BDEDE_SAW_WS_STATE;
+                d_state = e_SAW_WS_STATE;
             }
             else {
                 // forward the character
@@ -363,11 +363,11 @@ int QuotedPrintableDecoder::endConvert(char *out,
     BSLS_ASSERT(out);
     BSLS_ASSERT(numOut);
 
-    if (BDEDE_ERROR_STATE == d_state || BDEDE_DONE_STATE == d_state ||
+    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state ||
                                                               d_bufferLength) {
-        d_state = BDEDE_ERROR_STATE;
+        d_state = e_ERROR_STATE;
         *numOut = 0;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *numOut = 0;
@@ -377,13 +377,20 @@ int QuotedPrintableDecoder::endConvert(char *out,
 
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

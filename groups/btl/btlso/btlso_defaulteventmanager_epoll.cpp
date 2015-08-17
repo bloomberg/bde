@@ -1,4 +1,4 @@
-// btlso_defaulteventmanager_epoll.cpp    -*-C++-*-
+// btlso_defaulteventmanager_epoll.cpp                                -*-C++-*-
 #include <btlso_defaulteventmanager_epoll.h>
 
 #include <bsls_ident.h>
@@ -63,7 +63,7 @@ int sleep(int                     *resultErrno,
             if (flags & bteso_Flag::k_ASYNC_INTERRUPT) {
                 // We're allowing async interrupts.
 
-                return -1;
+                return -1;                                            // RETURN
             }
         }
         now = bdlt::CurrentTime::now();
@@ -76,17 +76,17 @@ int translateEventToMask(btlso::EventType::Type event)
     switch (event) {
       case btlso::EventType::e_ACCEPT:
       case btlso::EventType::e_READ:
-        return EPOLLIN;
+        return EPOLLIN;                                               // RETURN
       case btlso::EventType::e_CONNECT:
       case btlso::EventType::e_WRITE:
-        return EPOLLOUT;
+        return EPOLLOUT;                                              // RETURN
       default:
         BSLS_ASSERT("Invalid event (must be unreachable)" && 0);
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
            // ------------------------------------------------------
            // class btlso::DefaultEventManager<btlso::Platform::EPOLL>
@@ -251,7 +251,7 @@ int EventManagerName::dispatchImp(int                      flags,
                    ? -1 == numReady && EINTR == savedErrno
                      ? -1
                      : -2
-                   : 0;
+                   : 0;                                               // RETURN
         }
         numCallbacks += dispatchCallbacks(d_signaled, numReady);
         if (timeout) {
@@ -268,7 +268,7 @@ EventManagerName::isSupported()
 {
     int fd = epoll_create(128);
     if (-1 == fd) {
-        return false;
+        return false;                                                 // RETURN
     }
     close(fd);
     return true;
@@ -353,7 +353,7 @@ void EventManagerName::deregisterSocketEvent(
     if (d_events.end() == it || !it->second.d_isValid) {
         // Should really be an assert.
 
-        return;
+        return;                                                       // RETURN
     }
     HandleEvents *regEvents = &it->second;
 
@@ -366,7 +366,7 @@ void EventManagerName::deregisterSocketEvent(
 
         if (!(regEvents->d_readCallback
               && event == regEvents->d_readEventType)) {
-            return ;
+            return ;                                                  // RETURN
         }
         regEvents->d_readCallback = btlso::EventManager::Callback();
     }
@@ -376,7 +376,7 @@ void EventManagerName::deregisterSocketEvent(
 
         if (!(regEvents->d_writeCallback
               && event == regEvents->d_writeEventType)) {
-            return;
+            return;                                                   // RETURN
         }
         regEvents->d_writeCallback = btlso::EventManager::Callback();
     }
@@ -415,7 +415,7 @@ void EventManagerName::deregisterSocketEvent(
         else {
             d_events.erase(it);
         }
-        return;
+        return;                                                       // RETURN
     }
 
     // We're still interested in another event for this fd.  Let's just remove
@@ -434,7 +434,7 @@ int EventManagerName::deregisterSocket(
 {
     EventMap::iterator it = d_events.find(handle);
     if (d_events.end() == it || !it->second.d_isValid) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     int numEvents = it->second.d_readCallback ? 1 : 0;
     numEvents += it->second.d_writeCallback ? 1 : 0;
@@ -475,7 +475,7 @@ int EventManagerName::dispatch(const bsls::TimeInterval& timeout,
 {
     if (0 == numEvents()) {
         int dummy;
-        return sleep(&dummy, timeout, flags, d_timeMetric_p);
+        return sleep(&dummy, timeout, flags, d_timeMetric_p);         // RETURN
     }
     return dispatchImp(flags, &timeout);
 }
@@ -483,7 +483,7 @@ int EventManagerName::dispatch(const bsls::TimeInterval& timeout,
 int EventManagerName::dispatch(int flags)
 {
     if (0 == numEvents()) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     return dispatchImp(flags, 0);
 }
@@ -545,7 +545,7 @@ int EventManagerName::registerSocketEvent(
     else if (newMask == regEvents->d_mask) {
         // We just updated the callback.
 
-        return 0;
+        return 0;                                                     // RETURN
     }
     ++d_numEvents;
 
@@ -587,20 +587,20 @@ int EventManagerName::registerSocketEvent(
                 }
             }
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
     regEvents->d_mask = oldMask;
     *modifiedCallback = btlso::EventManager::Callback();
     --d_numEvents;
     if (oldMask) {
         // There are other events registered at this point.  Leave the entry.
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (wasRevalidated) {
         BSLS_ASSERT(d_isInvokingCb);
         it->second.d_isValid = false;
-        return -2;
+        return -2;                                                    // RETURN
     }
 
     // This was a completely new entry, nobody could have seen it.  We can
@@ -616,7 +616,7 @@ int EventManagerName::numSocketEvents(
 {
     EventMap::const_iterator it = d_events.find(handle);
     if (d_events.end() == it || !it->second.d_isValid) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     const int numEvents = it->second.d_readCallback ? 1 : 0;
     return numEvents + (it->second.d_writeCallback ? 1 : 0);
@@ -633,29 +633,36 @@ int EventManagerName::isRegistered(
 {
     EventMap::const_iterator it = d_events.find(handle);
     if (d_events.end() == it || !it->second.d_isValid) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     const HandleEvents& regEvents = it->second;
     if (regEvents.d_readCallback
      && event == regEvents.d_readEventType) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     if (regEvents.d_writeCallback
      && event == regEvents.d_writeEventType) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     return 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -116,7 +116,7 @@ namespace {
     typedef bslmf::If<false, TrueType>::Type CT15;
     const size_t C15 = SIZEOF(CT15);                      // Nil
 
-}  // close namespace 'anonymous'
+}  // close unnamed namespace
 
 //=============================================================================
 //                GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE

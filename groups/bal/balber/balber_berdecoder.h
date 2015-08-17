@@ -809,7 +809,7 @@ BerDecoder_Node::BerDecoder_Node(BerDecoder *decoder)
 , d_consumedHeaderBytes(0)
 , d_consumedBodyBytes  (0)
 , d_consumedTailBytes  (0)
-, d_formattingMode     (bdlat_FormattingMode::BDLAT_DEFAULT)
+, d_formattingMode     (bdlat_FormattingMode::e_DEFAULT)
 , d_fieldName          (0)
 {
     ++d_decoder->d_currentDepth;
@@ -940,7 +940,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
         return logError("Expected CONSTRUCTED tag type for choice");
     }
 
-    bool isUntagged = d_formattingMode & bdlat_FormattingMode::BDEAT_UNTAGGED;
+    bool isUntagged = d_formattingMode & bdlat_FormattingMode::e_UNTAGGED;
 
     int rc = BerDecoder::e_BER_SUCCESS;
 
@@ -993,7 +993,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
 {
     int rc = BerDecoder::e_BER_SUCCESS;
 
-    if (d_formattingMode & bdlat_FormattingMode::BDEAT_NILLABLE) {
+    if (d_formattingMode & bdlat_FormattingMode::e_NILLABLE) {
         // nillable is encoded in BER as a sequence with one optional element
 
         if (d_tagType != BerConstants::e_CONSTRUCTED) {
@@ -1034,7 +1034,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
             bdlat_ValueTypeFunctions::reset(variable);
         }
     }
-    else {  // not 'bdlat_FormattingMode::BDEAT_NILLABLE'
+    else {  // not 'bdlat_FormattingMode::e_NILLABLE'
         bdlat_NullableValueFunctions::makeValue(variable);
         rc = bdlat_NullableValueFunctions::manipulateValue(variable, *this);
     }
@@ -1319,10 +1319,17 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

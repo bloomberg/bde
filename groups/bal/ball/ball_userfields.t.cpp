@@ -158,7 +158,7 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 // one described by the 'ball::LoggerManagerConfiguration'
 // 'UserFieldsPopulatorCallback'.
 //..
-    void populateLoggingFields(ball::UserFields              *fields, 
+    void populateLoggingFields(ball::UserFields              *fields,
                                const ball::UserFieldsSchema&  fieldsSchema)
         // Populate the specifield 'fields' with the user name and current
         // task identifier so that in matches the specified 'fieldsSchema'.
@@ -168,7 +168,7 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
         // called "taskId".
     {
 //..
-// Notice that we have decided for this application the schema for the custom 
+// Notice that we have decided for this application the schema for the custom
 // logging fields are fixed at compile time.
 //
 // Next, we assert that the schema matches the preconditions for this function:
@@ -255,14 +255,14 @@ int main(int argc, char *argv[])
 
         // This test intentionally uses the default allocator.
 
-        bslma::TestAllocator testAllocator("breathing", veryVeryVeryVerbose);
+        bslma::TestAllocator testAllocator("usage", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
         ball::UserFields result;
         ball::UserFieldsSchema schema;
         schema.appendFieldDescription("username", Type::e_STRING);
         schema.appendFieldDescription("taskId", Type::e_INT64);
-        
+
         populateLoggingFields(&result, schema);
 
         ASSERT(2 == result.length());
@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

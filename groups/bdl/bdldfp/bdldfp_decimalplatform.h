@@ -69,7 +69,7 @@ BSLS_IDENT("$Id$")
 // to support implementation of encoding conversions.
 //
 // 'BDLDFP_DECIMALPLATFORM_DPD' - Densely Packed Decimal significand
-//                                representation 
+//                                representation
 //
 // 'BDLDFP_DECIMALPLATFORM_BININT' - Binary Integer significand representation
 //

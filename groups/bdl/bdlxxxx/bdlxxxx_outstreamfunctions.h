@@ -1,4 +1,4 @@
-// bdlxxxx_outstreamfunctions.h                                          -*-C++-*-
+// bdlxxxx_outstreamfunctions.h                                       -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
 #define INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
 
@@ -521,7 +521,7 @@ namespace bdex_OutStreamFunctions {
         // that underlie 'operator>>'.  The deprecated functions are inline and
         // cannot always be found in object files.
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamOut_Imp(STREAM&                                   stream,
                           const TYPE&                               value,
@@ -544,7 +544,7 @@ namespace bdex_OutStreamFunctions {
         return stream.putInt32(intValue);
     }
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamOut_Imp(STREAM&                                      stream,
                           const TYPE&                                  value,
@@ -564,7 +564,7 @@ namespace bdex_OutStreamFunctions {
         return value.bdexStreamOut(stream, version);
     }
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamOut(STREAM& stream, const TYPE& value, int version)
         // Write the specified 'value' to the specified output 'stream' using
@@ -590,7 +590,7 @@ namespace bdex_OutStreamFunctions {
                        // template class specializations
                        // ------------------------------
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const bool& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -603,7 +603,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'char'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const char& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -616,7 +616,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'signed' 'char'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const signed char& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -629,7 +629,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'unsigned' 'char'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const unsigned char& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -642,7 +642,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'short'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const short& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -655,7 +655,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'unsigned' 'short'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const unsigned short& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -668,7 +668,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'int'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const int& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -681,7 +681,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'unsigned' 'int'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const unsigned int& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -694,7 +694,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'long'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const long& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -708,7 +708,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'unsigned long'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const unsigned long& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -723,7 +723,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for
     // 'bsls::Types::Int64'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const bsls::Types::Int64& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -737,7 +737,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for
     // 'bsls::Types::Uint64'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const bsls::Types::Uint64& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -751,7 +751,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' and 'maxSupportedBdexVersion'
     // for 'bsl::string'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const bsl::string& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -764,7 +764,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'float'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const float& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -777,7 +777,7 @@ namespace bdex_OutStreamFunctions {
 
     // This specialization implements 'streamOut' for 'double'.
 
-    template <typename STREAM>
+    template <class STREAM>
     inline
     STREAM& streamOut(STREAM& stream, const double& value, int)
         // Write the specified 'value' to the specified output 'stream' using
@@ -791,7 +791,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for 'bsl::vector<char,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamOut(STREAM&                         stream,
                       const bsl::vector<char, ALLOC>& value,
@@ -810,7 +810,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for 'bsl::vector<short,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamOut(STREAM&                          stream,
                       const bsl::vector<short, ALLOC>& value,
@@ -829,7 +829,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for 'bsl::vector<int,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamOut(STREAM&                        stream,
                       const bsl::vector<int, ALLOC>& value,
@@ -848,7 +848,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for
     // 'bsl::vector<bsls::Types::Int64, ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamOut(STREAM&                                       stream,
                       const bsl::vector<bsls::Types::Int64, ALLOC>& value,
@@ -867,7 +867,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for 'bsl::vector<float,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamOut(STREAM&                          stream,
                       const bsl::vector<float, ALLOC>& value,
@@ -886,7 +886,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for 'bsl::vector<double,
     // ALLOC>'.
 
-    template <typename STREAM, typename ALLOC>
+    template <class STREAM, class ALLOC>
     inline
     STREAM& streamOut(STREAM&                           stream,
                       const bsl::vector<double, ALLOC>& value,
@@ -905,7 +905,7 @@ namespace bdex_OutStreamFunctions {
     // This specialization implements 'streamOut' for 'bsl::vector<TYPE,
     // ALLOC>'.
 
-    template <typename STREAM, typename TYPE, typename ALLOC>
+    template <class STREAM, class TYPE, class ALLOC>
     STREAM& streamOut(STREAM&                         stream,
                       const bsl::vector<TYPE, ALLOC>& value,
                       int                             version)
@@ -928,7 +928,7 @@ namespace bdex_OutStreamFunctions {
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-    template <typename STREAM, typename TYPE>
+    template <class STREAM, class TYPE>
     inline
     STREAM& streamOutVersionAndObject(STREAM& stream, const TYPE& value)
         // !DEPRECATED!: Use 'streamOut' instead.
@@ -958,7 +958,7 @@ namespace bdex_OutStreamFunctions {
                 // I/O manipulator functions
                 // =========================
 
-template <typename STREAM>
+template <class STREAM>
 inline
 STREAM& bdexFlush(STREAM& stream)
 {
@@ -966,15 +966,15 @@ STREAM& bdexFlush(STREAM& stream)
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

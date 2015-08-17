@@ -92,7 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -297,7 +297,7 @@ struct TestCommand {
                                                            + d_connectTimeout);
                 ASSERT(0 == s);
             }
-            return;
+            return;                                                   // RETURN
         }
 
         ASSERT(0 >= status);    // Interrupts are not enabled.
@@ -310,7 +310,7 @@ struct TestCommand {
                    "(Connection %d of of %d)\n",
                    status, d_numConnections, d_maxConnections);
             d_allocator.invalidate();
-            return;
+            return;                                                   // RETURN
         }
         // In any case, except for hard error on allocator, enqueue another
         // connect request
@@ -565,7 +565,7 @@ void *echoClientThread(void *arg) {
         if (d_allocator.timedAllocateTimed(callback,
                                            bdlt::CurrentTime::now()
                                                          + d_connectTimeout)) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         callback = bdlf::BindUtil::bind(&my_DataStream::allocateCb,
@@ -651,7 +651,7 @@ void *threadToAcceptConnection(void *arg)
     }
 
     if (!info.d_numConnections) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     ASSERT(0 == info.d_serverSocket_p->listen(info.d_equeueSize));
 
@@ -822,7 +822,7 @@ int getMaxconnectValue(TestCommand *commands, int maxCommands)
     int i = 0;
     while (i < maxCommands) {
         if (0 == commands[i].d_commandCode) {
-            return i > 0? commands[i - 1].d_expNumChannels : 0;
+            return i > 0? commands[i - 1].d_expNumChannels : 0;       // RETURN
         }
         ++i;
     }

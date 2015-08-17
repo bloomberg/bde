@@ -1,4 +1,4 @@
-// balb_xxxcommandlineutil.t.cpp   -*-C++-*-
+// balb_xxxcommandlineutil.t.cpp                                      -*-C++-*-
 
 #include <balb_xxxcommandlineutil.h>
 #include <balb_xxxcommandline.h>  // for testing only

@@ -18,16 +18,22 @@
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_currenttime.h>
+#include <bdlt_localtimeoffset.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_climits.h>
+#include <bsl_cmath.h>
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_ctime.h>       // 'time_t'
+#include <bsl_iomanip.h>     // 'setfill'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bsl_cmath.h>
+
 
 #include <bsl_c_stdio.h>     // 'tempname'
 #include <bsl_c_stdlib.h>    // 'unsetenv'
@@ -102,7 +108,7 @@ using bsl::flush;
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-// Note assert and debug macros all output to cerr instead of cout, unlike
+// Note assert and debug macros all output to 'cerr' instead of cout, unlike
 // most other test drivers.  This is necessary because test case 2 plays
 // tricks with cout and examines what is written there.
 
@@ -293,7 +299,7 @@ bsl::string tempFileName(bool verboseFlag)
     char *fn = tempnam(0, "bael");
     if (0 == fn) {
         ASSERTV("Unable to generate temporary file name", false);
-        return "bael.faketempfile";
+        return "bael.faketempfile";                                   // RETURN
     }
     else {
         result = fn;
@@ -310,11 +316,12 @@ bsl::string tempFileName(bool verboseFlag)
 }
 
 bsl::string readPartialFile(bsl::string& fileName, int startOffset)
-    // read everything after offset 'startOffset' from a file and return it
-    // as a string.
+    // Read everything after offset the specified 'startOffset' from a file and
+    // return it as a string.
 {
     bsl::string result;
-    result.reserve(bdlsu::FilesystemUtil::getFileSize(fileName) + 1 - startOffset);
+    result.reserve(
+        bdlsu::FilesystemUtil::getFileSize(fileName) + 1 - startOffset);
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
@@ -346,7 +353,7 @@ int countLoggedRecords(const bsl::string& fileName)
     fs.close();
 
     // Note that we divide 'numLines' by 2 because there are 2 lines written
-    // to the log file for eached logged record (when using the default record
+    // to the log file for each logged record (when using the default record
     // formatter typically used in this test driver).
 
     return numLines / 2;
@@ -446,6 +453,7 @@ class LogRotationCallbackTester {
     bsl::shared_ptr<Rep> d_rep;
 
   public:
+
     // PUBLIC CONSTANTS
 
     enum {
@@ -513,17 +521,17 @@ typedef LogRotationCallbackTester RotCb;
 
 namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
 
-void executeInParallel(int                               numThreads,
-                       Obj                              *mX,
-                       bdlqq::ThreadUtil::ThreadFunction  func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
+void executeInParallel(int                                numThreads,
+                       Obj                               *mX,
+                       bdlqq::ThreadUtil::ThreadFunction  function)
+    // Create the specified 'numThreads', each executing the specified 'func'.
 {
     bdlqq::ThreadUtil::Handle *threads =
-                                      new bdlqq::ThreadUtil::Handle[numThreads];
+                                     new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], func, mX);
+        bdlqq::ThreadUtil::create(&threads[i], function, mX);
     }
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);
@@ -535,7 +543,7 @@ void executeInParallel(int                               numThreads,
 extern "C" void *workerThread(void *arg)
 {
     BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
-    (void *)arg;
+    (void)arg;
 
     for (int i = 0;i < 10000; ++i) {
         BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test "
@@ -629,7 +637,7 @@ int main(int argc, char *argv[])
         BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
                       << BALL_LOG_END;
 
-        asyncFileObserver.setStdoutThreshold(ball::Severity::BAEL_INFO);
+        asyncFileObserver.setStdoutThreshold(ball::Severity::e_INFO);
         BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
                        << BALL_LOG_END;
         BALL_LOG_INFO  << "This info will be published on 'stdout'."
@@ -638,7 +646,7 @@ int main(int argc, char *argv[])
                        << BALL_LOG_END;
 
         asyncFileObserver.enableFileLogging(fileName.c_str());
-        asyncFileObserver.setStdoutThreshold(ball::Severity::BAEL_OFF);
+        asyncFileObserver.setStdoutThreshold(ball::Severity::e_OFF);
         asyncFileObserver.rotateOnSize(1024 * 256);
         asyncFileObserver.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
         asyncFileObserver.disableSizeRotation();
@@ -687,7 +695,7 @@ int main(int argc, char *argv[])
                  << "Testing: 'recordQueueLength'" << endl
                  << "============================" << endl;
 
-        const int ERROR = ball::Severity::BAEL_ERROR;
+        const int ERROR = ball::Severity::e_ERROR;
 
         if (veryVerbose) {
             cout << "\tTesting basic 'recordQueueLength' behavior" << endl;
@@ -699,10 +707,10 @@ int main(int argc, char *argv[])
             enum { MAX_QUEUE_LENGTH = 1024 };
 
             // Set up a non-blocking async observer
-            Obj mX(ball::Severity::BAEL_FATAL,
+            Obj mX(ball::Severity::e_FATAL,
                    false,
                    MAX_QUEUE_LENGTH,
-                   ball::Severity::BAEL_TRACE,
+                   ball::Severity::e_TRACE,
                    &ta);
             const Obj& X = mX;
 
@@ -792,10 +800,10 @@ int main(int argc, char *argv[])
             enum { NUM_ITERATIONS = 10 };
 
             // Set up a non-blocking async observer
-            Obj mX(ball::Severity::BAEL_FATAL,
+            Obj mX(ball::Severity::e_FATAL,
                    false,
                    MAX_QUEUE_LENGTH,
-                   ball::Severity::BAEL_TRACE,
+                   ball::Severity::e_TRACE,
                    &ta);
             const Obj& X = mX;
 
@@ -857,20 +865,20 @@ int main(int argc, char *argv[])
 
         // Set up a blocking async observer
 
-        Obj mX(ball::Severity::BAEL_WARN,
+        Obj mX(ball::Severity::e_WARN,
                false,
                8192,
-               ball::Severity::BAEL_TRACE,
+               ball::Severity::e_TRACE,
                &ta);
         mX.startPublicationThread();
         bdlqq::ThreadUtil::microSleep(0, 1);
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_TRACE,
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_OFF));
         ball::LoggerManager::initSingleton(&mX, configuration);
 
         mX.enableFileLogging(fileName.c_str());
@@ -879,8 +887,8 @@ int main(int argc, char *argv[])
 
         int numThreads = 4;
 
-        // First test if concurrent publish is correct, check the total
-        // number of lines afterwards
+        // First test if concurrent publish is correct, check the total number
+        // of lines afterwards
 
         if (verbose)
             cout << "Running first concurrency test." << endl;
@@ -932,14 +940,14 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_TRACE,
+                                                    ball::Severity::e_OFF,
+                                                    ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+        Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
         mX.startPublicationThread();
         bdlqq::ThreadUtil::microSleep(0, 1);
 
@@ -991,8 +999,8 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
 
-            ASSERT(1 ==
-                   bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == bdlsu::FilesystemUtil::exists(
+                                                cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"
@@ -1029,7 +1037,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
-        Obj mX(ball::Severity::BAEL_WARN, &ta);
+        Obj mX(ball::Severity::e_WARN, &ta);
         bsl::string filename = tempFileName(veryVerbose);
 
         RotCb cb(Z);
@@ -1048,8 +1056,8 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
-        // Don't run this if we're in the debugger because the debugger
-        // stops and refuses to continue when we hit the file size limit.
+        // Don't run this if we're in the debugger because the debugger stops
+        // and refuses to continue when we hit the file size limit.
 
         if (verbose) cerr << "Testing output when the stream fails"
                           << " (UNIX only)."
@@ -1060,14 +1068,14 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
 
@@ -1085,7 +1093,7 @@ int main(int argc, char *argv[])
             act.sa_flags = 0;
             ASSERT(0 == sigaction(SIGXFSZ, &act, &oact));
 
-            Obj mX(ball::Severity::BAEL_OFF, true, 8192, &ta);
+            Obj mX(ball::Severity::e_OFF, true, 8192, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -1095,11 +1103,11 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
 
-            // We want to capture the error message that will be
-            // written to stderr (not cerr).  Redirect stderr to a
-            // file.  We can't redirect it back; we'll have to use
-            // 'ASSERT2' (which outputs to cout, not cerr) from now on
-            // and report a summary to to cout at the end of this case.
+            // We want to capture the error message that will be written to
+            // stderr (not cerr).  Redirect stderr to a file.  We can't
+            // redirect it back; we'll have to use 'ASSERT2' (which outputs to
+            // cout, not cerr) from now on and report a summary to to cout at
+            // the end of this case.
 
             bsl::string stderrFN = tempFileName(veryVerbose);
             ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
@@ -1171,14 +1179,14 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
 
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
@@ -1195,7 +1203,7 @@ int main(int argc, char *argv[])
         {
             bsl::string filename = tempFileName(veryVerbose);
 
-            Obj mX(ball::Severity::BAEL_OFF, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
@@ -1387,7 +1395,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-            Obj mX(ball::Severity::BAEL_OFF, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
@@ -1423,9 +1431,12 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
-                ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) ==
+                       X.rotationLifetime());
+
                 mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
-                ASSERT(bdlt::DatetimeInterval(0,0,0,3) == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
+                       X.rotationLifetime());
                 bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -1533,21 +1544,22 @@ int main(int argc, char *argv[])
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                    ball::Severity::BAEL_OFF,
-                    ball::Severity::BAEL_TRACE,
-                    ball::Severity::BAEL_OFF,
-                    ball::Severity::BAEL_OFF));
-        ball::LoggerManagerScopedGuard guard(&multiplexObserver, configuration);
+                    ball::Severity::e_OFF,
+                    ball::Severity::e_TRACE,
+                    ball::Severity::e_OFF,
+                    ball::Severity::e_OFF));
+        ball::LoggerManagerScopedGuard guard(&multiplexObserver,
+                                             configuration);
         if (verbose) cerr << "Testing blocking caller thread."
                           << endl;
         {
             bsl::string fileName = tempFileName(veryVerbose);
 
             int fixedQueueSize     = 1000;
-            Obj mX(ball::Severity::BAEL_ERROR,
+            Obj mX(ball::Severity::e_ERROR,
                    false,
                    fixedQueueSize,
-                   ball::Severity::BAEL_TRACE,
+                   ball::Severity::e_TRACE,
                    &ta);
             const Obj& X = mX;
 
@@ -1583,7 +1595,7 @@ int main(int argc, char *argv[])
             bsl::string fileName = tempFileName(veryVerbose);
 
             int fixedQueueSize     = 1000;
-            Obj mX(ball::Severity::BAEL_ERROR,
+            Obj mX(ball::Severity::e_ERROR,
                    false,
                    fixedQueueSize,
                    &ta);
@@ -1690,7 +1702,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
-            ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
+            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                 &ta);
@@ -1703,10 +1715,10 @@ int main(int argc, char *argv[])
                 // observer will only see each message only once.
 
                 ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                            ball::Severity::BAEL_OFF,
-                            ball::Severity::BAEL_TRACE,
-                            ball::Severity::BAEL_OFF,
-                            ball::Severity::BAEL_OFF));
+                            ball::Severity::e_OFF,
+                            ball::Severity::e_TRACE,
+                            ball::Severity::e_OFF,
+                            ball::Severity::e_OFF));
                 ball::LoggerManagerScopedGuard guard(&mX, configuration);
 
                 BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
@@ -1748,7 +1760,7 @@ int main(int argc, char *argv[])
         //   2. Records are published asynchronously
         //   3. The 'publish' method logs in the expected format using
         //      enable/disableStdoutLogging
-        //   4. The 'publish' method properly ignores the severities below the
+        //   4. The 'publish' method properly ignores the severity below the
         //      one specified at construction on 'stdout'
         //   5. The 'publish' publishes all messages to a file if file logging
         //      is enabled
@@ -1771,7 +1783,7 @@ int main(int argc, char *argv[])
         //   in the expected format and contain the expected data by comparing
         //   the output of this observer with 'ball::DefaultObserver', that we
         //   slightly modify.  Then, we will configure the observer to ignore
-        //   different severities and test if only the expected messages are
+        //   different severity and test if only the expected messages are
         //   published.  We will use different manipulators to affect output
         //   format and verify that it has changed where expected.
         //
@@ -1838,16 +1850,17 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_TRACE,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF));
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_TRACE,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF));
         ball::MultiplexObserver multiplexObserver;
-        ball::LoggerManagerScopedGuard guard(&multiplexObserver, configuration);
+        ball::LoggerManagerScopedGuard guard(&multiplexObserver,
+                                             configuration);
 
         if (verbose) cerr << "Testing publication thread start and stop."
                           << endl;
@@ -1914,8 +1927,8 @@ int main(int argc, char *argv[])
                 cout << "FileOffset after publish: " << afterFileOffset
                      << endl;
 
-            // Verify writing is in process even after all 'publish' calls
-            // are finished
+            // Verify writing is in process even after all 'publish' calls are
+            // finished
 
             bdlqq::ThreadUtil::microSleep(0, 1);
             int endFileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
@@ -1932,7 +1945,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
-            ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
+            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
             bsl::ostringstream os, dos;
 
             ball::DefaultObserver defaultObserver(&dos);
@@ -1948,9 +1961,9 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
             int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
-            // these two lines are a desperate kludge to make windows
-            // work -- this test driver works everywhere else without
-            // them.
+            // these two lines are a desperate kludge to make windows work --
+            // this test driver works everywhere else without them.
+
             (void) readPartialFile(fileName, 0);
             fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
@@ -1990,8 +2003,8 @@ int main(int argc, char *argv[])
             fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             dos.str("");
 
-            mX.setStdoutThreshold(ball::Severity::BAEL_ERROR);
-            ASSERT(ball::Severity::BAEL_ERROR == X.stdoutThreshold());
+            mX.setStdoutThreshold(ball::Severity::e_ERROR);
+            ASSERT(ball::Severity::e_ERROR == X.stdoutThreshold());
             BALL_LOG_WARN << "not logged" << BALL_LOG_END;
             ASSERT("" == readPartialFile(fileName, fileOffset));
             dos.str("");
@@ -2053,7 +2066,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
         {
-            Obj mX(ball::Severity::BAEL_FATAL, &ta);
+            Obj mX(ball::Severity::e_FATAL, &ta);
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
@@ -2238,7 +2251,7 @@ int main(int argc, char *argv[])
                           << "offset."
                           << endl;
         {
-            Obj mX(ball::Severity::BAEL_WARN, true, 8192, &ta);
+            Obj mX(ball::Severity::e_WARN, true, 8192, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2374,13 +2387,9 @@ int main(int argc, char *argv[])
                     // UTC and local time are on the same day
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
 
-                    // skong: This is a bug, you can not figure out if they
-                    // are on the same day with only two hour numbers.
-                    //ASSERT(dos.str() == coutS);
                 }
                 else if (coutS.length() >= 11) {
-                    // UTC and local time are on different days.  Ignore
-                    // date.
+                    // UTC and local time are on different days.  Ignore date.
 
                     ASSERT(dos.str().substr(10) == os.str().substr(10));
                 } else {
@@ -2402,7 +2411,7 @@ int main(int argc, char *argv[])
             bsl::string fn = tempFileName(veryVerbose);
             int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);
+            Obj mX(ball::Severity::e_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2544,7 +2553,7 @@ int main(int argc, char *argv[])
         {
             bsl::string fn = tempFileName(veryVerbose);
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);
+            Obj mX(ball::Severity::e_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2609,7 +2618,7 @@ int main(int argc, char *argv[])
             bsl::string baseName = tempFileName(veryVerbose);
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s-%p";
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);
+            Obj mX(ball::Severity::e_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
@@ -2747,7 +2756,7 @@ int main(int argc, char *argv[])
                 bsl::string expected(baseName);  expected += FILENAME;
                 bsl::string actual;
 
-                Obj mX(ball::Severity::BAEL_WARN, &ta);
+                Obj mX(ball::Severity::e_WARN, &ta);
                 const Obj& X = mX;
 
                 LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(pattern.c_str()));
@@ -2776,11 +2785,11 @@ int main(int argc, char *argv[])
         {
             int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
-            Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bdlqq::ThreadUtil::microSleep(0, 1);
 
-            ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
+            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
 
             multiplexObserver.registerObserver(&mX);
 
@@ -2799,8 +2808,8 @@ int main(int argc, char *argv[])
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
                 bsl::cout.rdbuf(os.rdbuf());
 
-                // For log file, use bdlt::Datetime format
-                // For stdout, use ISO format
+                // For log file, use bdlt::Datetime format For stdout, use ISO
+                // format
 
                 mX.setLogFormat("%d %p %t %s %l %c %m %u",
                                 "%i %p %t %s %l %c %m %u");
@@ -3001,7 +3010,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing User-Defined Fields Toggling\n";
         {
-            Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+            Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
             const char *logFileFormat;
             const char *stdoutFormat;
 
@@ -3048,8 +3057,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
 
-            // Now see what happens with customized format.  Notice that
-            // we intentionally use the default short format.
+            // Now see what happens with customized format.  Notice that we
+            // intentionally use the default short format.
 
             const char *newLogFileFormat = "\n%s %f:%l %c %m %u\n";
             const char *newStdoutFormat  = "\n%s %f:%l %c %m %u\n";
@@ -3068,8 +3077,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
 
             // stdoutFormat should change, since even if we are now using
-            // customized formats, the format happens to be the same as
-            // the default short format.
+            // customized formats, the format happens to be the same as the
+            // default short format.
         }
 
         if (verbose) cerr << "Testing publication shutdown."
@@ -3109,10 +3118,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

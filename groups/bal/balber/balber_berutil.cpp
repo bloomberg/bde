@@ -329,7 +329,7 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
     // specified 'value' in the ISO 8601 format.  Return 0 on success and a
     // non-zero value otherwise.
 {
-    char buf[bdlt::Iso8601Util::BDEPU_MAX_DATETIME_STRLEN];
+    char buf[bdlt::Iso8601Util::k_MAX_DATETIME_STRLEN];
     int len = bdlt::Iso8601Util::generate(buf, value, sizeof(buf));
     return balber::BerUtil_Imp::putStringValue(streamBuf, buf, len);
 }
@@ -1484,10 +1484,17 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

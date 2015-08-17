@@ -1,4 +1,4 @@
-// balb_xxxcommandlineutil.h   -*-C++-*-
+// balb_xxxcommandlineutil.h                                          -*-C++-*-
 #ifndef INCLUDED_BALB_XXXCOMMANDLINEUTIL
 #define INCLUDED_BALB_XXXCOMMANDLINEUTIL
 
@@ -109,10 +109,10 @@ struct CommandLineUtil {
 
 namespace bael {
 typedef balb::CommandLineUtil CommandLineUtil;
-}  // close package namespace
+}  // close namespace bael
     // *DEPRECATED*  Use the type name 'balb::CommandLineUtil' instead.
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

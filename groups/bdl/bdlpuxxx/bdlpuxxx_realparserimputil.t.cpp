@@ -1,4 +1,4 @@
-// bdlpuxxx_realparserimputil.t.cpp              -*-C++-*-
+// bdlpuxxx_realparserimputil.t.cpp                                   -*-C++-*-
 
 #include <bdlpuxxx_realparserimputil.h>
 
@@ -27,18 +27,18 @@ using namespace bsl;  // automatically added by script
 // [ 6] convertDecimalFractionToBinaryFraction(Uint64, Uint64 *);
 // [ 7] convertDecimalToBinary(Uint64, int, Uint64 *, int *);
 // [ 8] convertDoubleToBinary(double, int *, Uint64 *, int *);
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 9] CONCERN: DECIMAL FRACTION TO BINARY FRACTION TO DECIMAL FRACTION
 // [10] CONCERN: DECIMAL EXPONENT TO BINARY TO DECIMAL
 // [11] CONCERN: DECIMAL TO BINARY TO DECIMAL
 // [12] USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -50,7 +50,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
@@ -1130,11 +1130,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

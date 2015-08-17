@@ -1,4 +1,4 @@
-// balxml_hexparser.h                  -*-C++-*-
+// balxml_hexparser.h                                                 -*-C++-*-
 #ifndef INCLUDED_BALXML_HEXPARSER
 #define INCLUDED_BALXML_HEXPARSER
 
@@ -67,17 +67,17 @@ BSLS_IDENT("$Id: $")
 //
 //  int loadFromHexStream(bsl::vector<char> *result, bsl::istream& stream)
 //  {
-//      enum { BAEXML_FAILURE = -1 };
+//      enum { k_FAILURE = -1 };
 //
 //      balxml::HexParser<bsl::vector<char> > parser;
 //
 //      if (0 != parser.beginParse(result)) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
 //                                     bsl::istreambuf_iterator<char>())) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      return parser.endParse();
@@ -128,7 +128,7 @@ namespace balxml {
                            // class HexParser<TYPE>
                            // ============================
 
-template <typename TYPE>
+template <class TYPE>
 class HexParser {
     // This is a push parser for supported Hex types ('bsl::vector<char>'
     // or 'bsl::string').
@@ -168,7 +168,7 @@ class HexParser {
         // associated with this parser.  Upon successful completion, the parser
         // will be disassociated with the object.
 
-    template <typename INPUT_ITERATOR>
+    template <class INPUT_ITERATOR>
     int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
         // Push the characters ranging from the specified 'begin' up to (but
         // not including) the specified 'end' into this parser.  Return 0 if
@@ -187,7 +187,7 @@ class HexParser_Helper {
     // class 'HexParser<TYPE>'.  Only instances of
     // 'HexParser<TYPE>' can access the facilities in this class.
 
-    template <typename TYPE> friend class HexParser;
+    template <class TYPE> friend class HexParser;
 
     static const char s_hexValueTable[128];
         // Table that maps from ASCII character value to hex value.
@@ -202,7 +202,7 @@ class HexParser_Helper {
                            // ----------------------------
 
 // PRIVATE MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 void HexParser<TYPE>::appendOctet(char firstDigit, char secondDigit)
 {
     BSLS_ASSERT_SAFE(bdlb::CharType::isXdigit((unsigned char) firstDigit));
@@ -216,7 +216,7 @@ void HexParser<TYPE>::appendOctet(char firstDigit, char secondDigit)
 }
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 HexParser<TYPE>::HexParser()
 : d_firstDigit(0)
 , d_object_p(0)
@@ -224,41 +224,41 @@ HexParser<TYPE>::HexParser()
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 int HexParser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     d_firstDigit = 0;
     d_object_p   = object;
 
-    bdeat_ValueTypeFunctions::reset(d_object_p);
+    bdlat_ValueTypeFunctions::reset(d_object_p);
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int HexParser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     d_object_p = 0;
 
-    return 0 == d_firstDigit ? BAEXML_SUCCESS : BAEXML_FAILURE;
+    return 0 == d_firstDigit ? k_SUCCESS : k_FAILURE;
 }
 
-template <typename TYPE>
-template <typename INPUT_ITERATOR>
+template <class TYPE>
+template <class INPUT_ITERATOR>
 int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
                                            INPUT_ITERATOR end)
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     while (begin != end) {
         const char digit = *begin;
@@ -267,7 +267,7 @@ int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 
         if (!bdlb::CharType::isSpace(digit)) {
             if (!bdlb::CharType::isXdigit(digit)) {
-                return BAEXML_FAILURE;
+                return k_FAILURE;                                     // RETURN
             }
 
             if (0 == d_firstDigit) {
@@ -281,19 +281,26 @@ int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
         }
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

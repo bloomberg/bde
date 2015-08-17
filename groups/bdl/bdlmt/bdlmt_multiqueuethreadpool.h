@@ -1,4 +1,4 @@
-// bdlmt_multiqueuethreadpool.h                                        -*-C++-*-
+// bdlmt_multiqueuethreadpool.h                                       -*-C++-*-
 #ifndef INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 #define INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 
@@ -364,9 +364,14 @@ class MultiQueueThreadPool_Queue {
     enum {
         // Queue states.
 
-        BCEP_ENQUEUEING_ENABLED,     // enqueueing is enabled
-        BCEP_ENQUEUEING_DISABLED,    // enqueueing is disabled
-        BCEP_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
+        e_ENQUEUEING_ENABLED,     // enqueueing is enabled
+        e_ENQUEUEING_DISABLED,    // enqueueing is disabled
+        e_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEP_ENQUEUEING_ENABLED = e_ENQUEUEING_ENABLED
+      , BCEP_ENQUEUEING_DISABLED = e_ENQUEUEING_DISABLED
+      , BCEP_ENQUEUEING_BLOCKED = e_ENQUEUEING_BLOCKED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -520,8 +525,12 @@ class MultiQueueThreadPool {
   private:
     // TYPES
     enum {
-        BCEP_ENQUEUE_FRONT,    // enqueue new job at front of queue
-        BCEP_ENQUEUE_BACK      // enqueue new job at back of queue
+        e_ENQUEUE_FRONT,    // enqueue new job at front of queue
+        e_ENQUEUE_BACK      // enqueue new job at back of queue
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEP_ENQUEUE_FRONT = e_ENQUEUE_FRONT
+      , BCEP_ENQUEUE_BACK = e_ENQUEUE_BACK
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -746,7 +755,7 @@ inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
     ++d_numEnqueued;
-    return enqueueJobImpl(id, functor, BCEP_ENQUEUE_BACK);
+    return enqueueJobImpl(id, functor, e_ENQUEUE_BACK);
 }
 
 inline
@@ -789,10 +798,17 @@ const ThreadPool& MultiQueueThreadPool::threadPool() const
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

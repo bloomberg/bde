@@ -1,4 +1,4 @@
-// bdlmt_timereventscheduler.cpp                                       -*-C++-*-
+// bdlmt_timereventscheduler.cpp                                      -*-C++-*-
 #include <bdlmt_timereventscheduler.h>
 
 #include <bsls_ident.h>
@@ -75,7 +75,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
         {
             bdlqq::LockGuard<bdlqq::Mutex> lock(&scheduler->d_mutex);
             if (!scheduler->d_running) {
-                return;
+                return;                                               // RETURN
             }
             ++scheduler->d_iterations;
 
@@ -432,17 +432,17 @@ int TimerEventScheduler::start(
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_running) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     bdlqq::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 
     if (bdlqq::ThreadUtil::create(&d_dispatcherThread, modAttr,
                                  &TimerEventSchedulerDispatcherThread,
                                  this))
     {
-        return -1;
+        return -1;                                                    // RETURN
     }
     d_running = 1;
 
@@ -457,7 +457,7 @@ void TimerEventScheduler::stop()
     {
         bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
         if (!d_running) {
-            return;
+            return;                                                   // RETURN
         }
 
         d_running = 0;
@@ -480,7 +480,7 @@ TimerEventScheduler::scheduleEvent(
         handle = d_eventTimeQueue.add(timer, callback, key, &isNewTop);
 
         if (-1 == handle) {
-            return BCEP_INVALID_HANDLE;
+            return e_INVALID_HANDLE;                               // RETURN
         }
 
         ++d_numEvents;
@@ -530,7 +530,7 @@ int TimerEventScheduler::cancelEvent(
         // it was in the event queue, therefore it is not in the
         // pendingEventItems.
 
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     // Following code optimizes for the case when this method is being called
@@ -554,13 +554,13 @@ int TimerEventScheduler::cancelEvent(
                 if (it->handle() == handle && it->key() == key) {
                     --d_numEvents;
                     d_pendingEventItems.erase(it);
-                    return 0;
+                    return 0;                                         // RETURN
                 }
             }
         }
         // Else it is not found in the pending items, nor in the event queue.
 
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     // The rest of this code is guaranteed not to execute in the dispatcher
@@ -611,7 +611,7 @@ TimerEventScheduler::startClock(const bsls::TimeInterval&        interval,
         p->d_handle = d_clockTimeQueue.add(stime, p, &isNewTop);
 
         if (-1 == p->d_handle) {
-            return BCEP_INVALID_HANDLE;
+            return e_INVALID_HANDLE;                               // RETURN
         }
 
         ++d_numClocks;
@@ -628,7 +628,7 @@ int TimerEventScheduler::cancelClock(Handle handle, bool wait)
 {
     ClockDataPtr p;
     if (d_clocks.remove(handle, &p)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     --d_numClocks;
@@ -673,13 +673,20 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

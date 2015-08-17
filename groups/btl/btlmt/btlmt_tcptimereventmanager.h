@@ -366,14 +366,16 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // DEPRECATED: The enumerated hints are not supported and will be
         // ignored by this component.
 
-        BTEMT_NO_HINT,                 // The (de)registrations will likely be
+        e_NO_HINT,                 // The (de)registrations will likely be
                                        // frequent.
 
-        BTEMT_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
+        e_INFREQUENT_REGISTRATION  // The (de)registrations will likely be
                                        // infrequent.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , NO_HINT                 = BTEMT_NO_HINT
-      , INFREQUENT_REGISTRATION = BTEMT_INFREQUENT_REGISTRATION
+      , BTEMT_NO_HINT = e_NO_HINT
+      , BTEMT_INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
+      , NO_HINT                 = e_NO_HINT
+      , INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -385,8 +387,8 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
   private:
     // PRIVATE TYPES
     enum State {
-        BTEMT_ENABLED  = 0,  // dispatching thread is running
-        BTEMT_DISABLED = 1   // dispatching thread is not running
+        e_ENABLED  = 0,  // dispatching thread is running
+        e_DISABLED = 1   // dispatching thread is not running
     };
 
     typedef TcpTimerEventManager_ControlChannel ControlChannel;
@@ -812,15 +814,22 @@ TcpTimerEventManager_TestUtil::getControlChannel(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

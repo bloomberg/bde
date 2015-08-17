@@ -143,7 +143,7 @@ namespace TEST_CASE_USAGE {
 //..
 // Finally, we define a generic function to sort two items:
 //..
-    template <typename T>
+    template <class T>
     void sortTwoItems(T& a, T& b)
     {
         if (b < a) {

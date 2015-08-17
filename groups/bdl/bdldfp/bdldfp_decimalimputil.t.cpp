@@ -745,7 +745,7 @@ Util::ValueType128 alternateMakeDecimalRaw128(unsigned long long int mantissa,
 }
 
 // ============================================================================
-//                      USAGE EXAMPLE
+//                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 ///Example 2: Adding two Decimal Floating Point Values

@@ -290,10 +290,10 @@ int main(int argc, char *argv[])
                           << endl;
 
         ball::Rule rule("WEEKEND*",                  // pattern
-                       ball::Severity::BAEL_OFF,     // record level
-                       ball::Severity::BAEL_INFO,    // pass-through level
-                       ball::Severity::BAEL_OFF,     // trigger level
-                       ball::Severity::BAEL_OFF);    // triggerAll level
+                       ball::Severity::e_OFF,     // record level
+                       ball::Severity::e_INFO,    // pass-through level
+                       ball::Severity::e_OFF,     // trigger level
+                       ball::Severity::e_OFF);    // triggerAll level
 
         ball::Predicate p1("uuid", 4044457);
         ball::Predicate p2("name", "Gang Chen");
@@ -313,20 +313,20 @@ int main(int argc, char *argv[])
         rule.setPattern("WEEKDAY*");
         ASSERT(0 == strcmp(rule.pattern(), "WEEKDAY*"));
 
-        ASSERT(ball::Severity::BAEL_OFF  == rule.recordLevel());
-        ASSERT(ball::Severity::BAEL_INFO == rule.passLevel());
-        ASSERT(ball::Severity::BAEL_OFF  == rule.triggerLevel());
-        ASSERT(ball::Severity::BAEL_OFF  == rule.triggerAllLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.recordLevel());
+        ASSERT(ball::Severity::e_INFO == rule.passLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.triggerLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.triggerAllLevel());
 
-        rule.setLevels(ball::Severity::BAEL_INFO,
-                       ball::Severity::BAEL_OFF,
-                       ball::Severity::BAEL_INFO,
-                       ball::Severity::BAEL_INFO);
+        rule.setLevels(ball::Severity::e_INFO,
+                       ball::Severity::e_OFF,
+                       ball::Severity::e_INFO,
+                       ball::Severity::e_INFO);
 
-        ASSERT(ball::Severity::BAEL_INFO == rule.recordLevel());
-        ASSERT(ball::Severity::BAEL_OFF  == rule.passLevel());
-        ASSERT(ball::Severity::BAEL_INFO == rule.triggerLevel());
-        ASSERT(ball::Severity::BAEL_INFO == rule.triggerAllLevel());
+        ASSERT(ball::Severity::e_INFO == rule.recordLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.passLevel());
+        ASSERT(ball::Severity::e_INFO == rule.triggerLevel());
+        ASSERT(ball::Severity::e_INFO == rule.triggerAllLevel());
 
       } break;
       case 15: {
@@ -1849,11 +1849,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// btlso_socketimputil.cpp         -*-C++-*-
+// btlso_socketimputil.cpp                                            -*-C++-*-
 #include <btlso_socketimputil.h>
 
 #include <bsls_ident.h>
@@ -132,9 +132,9 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
 
 #endif
 
-//-------------
+//-----------------------------------------------------------------------------
 // TODO - mappings are not complete!!!! (e.g., most map to unclassified)
-//------------
+//-----------------------------------------------------------------------------
 
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     switch (errorNumber) {
@@ -725,7 +725,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
     // Validate the parameters
     if (type != btlso::SocketImpUtil::k_SOCKET_STREAM
     &&  type != btlso::SocketImpUtil::k_SOCKET_DATAGRAM) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (type == btlso::SocketImpUtil::k_SOCKET_STREAM) {
@@ -739,7 +739,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         int classification = open(&listenSocket, type, protocol, errorCode);
         // Test for errors
         if (classification < 0) {
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Bind to localhost and anon port.
@@ -751,7 +751,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         // Test for errors
         if (classification < 0) {
             btlso::SocketImpUtil::close(listenSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Get the address for the client to connect to
@@ -761,7 +761,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         // Test for errors
         if (classification < 0) {
             btlso::SocketImpUtil::close(listenSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Listen for the client connection
@@ -770,7 +770,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         // Test for errors
         if (classification < 0) {
             btlso::SocketImpUtil::close(listenSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Create the client socket
@@ -779,7 +779,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         // Test for errors
         if (classification < 0) {
             btlso::SocketImpUtil::close(listenSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Connect to the listening socket (blocking)
@@ -790,7 +790,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         if (classification < 0) {
             btlso::SocketImpUtil::close(listenSocket);
             btlso::SocketImpUtil::close(clientSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Accept the connection from the client
@@ -800,7 +800,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         if (classification < 0) {
             btlso::SocketImpUtil::close(listenSocket);
             btlso::SocketImpUtil::close(clientSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Close the listen socket
@@ -819,7 +819,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
             clientAddress != peerAddress) {
             btlso::SocketImpUtil::close(clientSocket);
             btlso::SocketImpUtil::close(serverSocket);
-            return -1;
+            return -1;                                                // RETURN
         }
 
         newSockets[0] = clientSocket;
@@ -837,7 +837,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         int classification = open(&clientSocket, type, protocol, errorCode);
         // Test for errors
         if (classification < 0) {
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Bind to localhost and anon port.
@@ -849,7 +849,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         // Test for errors
         if (classification < 0) {
             btlso::SocketImpUtil::close(clientSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Get the address for the peer to connect to
@@ -859,7 +859,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         // Test for errors
         if (classification < 0) {
             btlso::SocketImpUtil::close(clientSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Create the server socket
@@ -868,7 +868,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         // Test for errors
         if (classification < 0) {
             btlso::SocketImpUtil::close(clientSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Bind to localhost and anon port.
@@ -877,7 +877,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         if (classification < 0) {
             btlso::SocketImpUtil::close(clientSocket);
             btlso::SocketImpUtil::close(serverSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Get the address for the peer to connect to
@@ -888,7 +888,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         if (classification < 0) {
             btlso::SocketImpUtil::close(clientSocket);
             btlso::SocketImpUtil::close(serverSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         // Associate sockets with each other.
@@ -899,7 +899,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         if (classification < 0) {
             btlso::SocketImpUtil::close(serverSocket);
             btlso::SocketImpUtil::close(clientSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         classification = btlso::SocketImpUtil::connect(clientSocket,
@@ -909,7 +909,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
         if (classification < 0) {
             btlso::SocketImpUtil::close(serverSocket);
             btlso::SocketImpUtil::close(clientSocket);
-            return classification;
+            return classification;                                    // RETURN
         }
 
         newSockets[0] = clientSocket;
@@ -920,13 +920,20 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
 }
 
 }  // close package namespace
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

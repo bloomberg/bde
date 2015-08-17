@@ -1,4 +1,4 @@
-// bdlxxxx_instreammethods.t.cpp          -*-C++-*-
+// bdlxxxx_instreammethods.t.cpp                                      -*-C++-*-
 
 #include <bdlxxxx_instreammethods.h>
 
@@ -267,7 +267,7 @@ static void aSsErT(int c, const char *s, int i)
     template <>
     class bdex_InStreamMethods<my_Color::Color> {
       public:
-        template <typename STREAM>
+        template <class STREAM>
         static STREAM& bdexStreamIn(STREAM&          stream,
                                     my_Color::Color& value,
                                     int              version)
@@ -276,7 +276,7 @@ static void aSsErT(int c, const char *s, int i)
         }
     };
 
-    } // Close namespace BloombergLP
+    }  // close enterprise namespace
 //..
 // Next, we consider a very special-purpose point that has as a data member its
 // color.  Such a point provides an excellent opportunity for factoring, but
@@ -565,7 +565,7 @@ static void aSsErT(int c, const char *s, int i)
     };
 
     //   FREE OPERATORS
-    template <typename OBJECT>
+    template <class OBJECT>
     inline
     my_InStream& operator<<(my_InStream& stream, const OBJECT& object);
         // Write to the specified input 'stream', using the 'putVersion'
@@ -674,7 +674,7 @@ static void aSsErT(int c, const char *s, int i)
     }
 
     // FREE OPERATORS
-    template <typename OBJECT>
+    template <class OBJECT>
     inline
     my_InStream& operator>>(my_InStream& stream, OBJECT& object)
     {
@@ -682,7 +682,7 @@ static void aSsErT(int c, const char *s, int i)
             int version;
             stream.getVersion(version);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             bdex_InStreamMethods<OBJECT>::bdexStreamIn(stream, object,
                                                        version);
@@ -1263,11 +1263,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

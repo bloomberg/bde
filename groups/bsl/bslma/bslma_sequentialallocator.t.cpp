@@ -218,7 +218,7 @@ void my_DoubleStack::increaseSize()
      d_size = proposedNewSize;                        // we're committed
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 //           Additional Functionality Need to Complete Usage Test Case
 
 class my_DoubleStackIter {
@@ -533,8 +533,8 @@ int main(int argc, char *argv[])
             char *buffer = (char*)sp.allocate(SIZE);
 
             bslma::TestAllocator sequentialAllocatorTA(veryVeryVerbose);
-            bslma::SequentialAllocator sa(buffer, 
-                                          SIZE, 
+            bslma::SequentialAllocator sa(buffer,
+                                          SIZE,
                                           &sequentialAllocatorTA);
 
             void *p = sa.allocate(SIZE);

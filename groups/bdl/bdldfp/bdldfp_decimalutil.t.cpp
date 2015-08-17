@@ -335,7 +335,7 @@ BDEC::DecimalImpUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
     if (0 == mantissa) {
         DpdUtil::StorageType64 value = DpdUtil::makeDecimalRaw64(mantissa,
                                                                  exponent);
-        return bdldfp::DecimalImpUtil::convertFromDPD(value);
+        return bdldfp::DecimalImpUtil::convertFromDPD(value);         // RETURN
     }
 
 #endif
@@ -353,16 +353,16 @@ BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     if (0 == mantissa) {
-        DpdUtil::StorageType128 value = 
+        DpdUtil::StorageType128 value =
             DpdUtil::makeDecimalRaw128(mantissa, exponent);
-        return bdldfp::DecimalImpUtil::convertFromDPD(value);
+        return bdldfp::DecimalImpUtil::convertFromDPD(value);         // RETURN
     }
 #endif
     return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 }
 
 
-}  // closing unnamed namespace.
+}  // close unnamed namespace
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -1713,7 +1713,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 value = makeDecimalRaw64Zero(0, 0);
 
-                DpdUtil::StorageType64 ACTUAL = 
+                DpdUtil::StorageType64 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x2238000000000000ull;
                 ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
@@ -1722,7 +1722,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 value = makeDecimalRaw64Zero(0, 5);
 
-                DpdUtil::StorageType64 ACTUAL = 
+                DpdUtil::StorageType64 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x224C000000000000ull;
                 ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
@@ -1731,7 +1731,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 value = makeDecimalRaw64Zero(0, -5);
 
-                DpdUtil::StorageType64 ACTUAL = 
+                DpdUtil::StorageType64 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x2224000000000000ull;
                 ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
@@ -1769,7 +1769,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal128 value = makeDecimalRaw128Zero(0, 0);
 
-                DpdUtil::StorageType128 ACTUAL = 
+                DpdUtil::StorageType128 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2208000000000000ull, 0x0000000000000000ull);
@@ -1781,7 +1781,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal128 value = makeDecimalRaw128Zero(0, 5);
 
-                DpdUtil::StorageType128 ACTUAL = 
+                DpdUtil::StorageType128 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2209400000000000ull, 0x0000000000000000ull);
@@ -1792,7 +1792,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal128 value = makeDecimalRaw128Zero(0, -5);
 
-                DpdUtil::StorageType128 ACTUAL = 
+                DpdUtil::StorageType128 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2206C00000000000ull, 0x0000000000000000ull);

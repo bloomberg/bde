@@ -2,6 +2,8 @@
 
 #include <bdlat_enumfunctions.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_typetraits.h>
 #include <bdlb_string.h>
@@ -27,7 +29,7 @@ using namespace bsl;  // automatically added by script
 //                              --------
 //                                  TBD doc
 //-----------------------------------------------------------------------------
-// [ 4] int lookupEnumeratorInfo(bdeat_EnumeratorInfo *info, TYPE value);
+// [ 4] int lookupEnumeratorInfo(bdlat_EnumeratorInfo *info, TYPE value);
 // [ 3] struct IsEnumeration
 // [ 2] const char *className(TYPE);
 // [ 2] int numEnumerators(TYPE);
@@ -36,67 +38,55 @@ using namespace bsl;  // automatically added by script
 // [ 2] TESTING META-FUNCTIONS
 // [ 5] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace Obj = bdeat_EnumFunctions;
+namespace Obj = bdlat_EnumFunctions;
 
 //=============================================================================
 //                           CLASSES FOR TESTING
@@ -126,7 +116,7 @@ struct PolygonType {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "PolygonType")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -177,7 +167,7 @@ const char *PolygonType::toString(PolygonType::Value value)
 
 const char PolygonType::CLASS_NAME[] = "PolygonType";
 
-const bdeat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
     {
         PolygonType::TRIANGLE,
         "Triangle",                 // name
@@ -202,12 +192,12 @@ const bdeat_EnumeratorInfo PolygonType::ENUMERATOR_INFO_ARRAY[] = {
 
 // TYPE TRAITS
 template <>
-struct bdeat_IsBasicEnumeration<geom::PolygonType::Value> : bsl::true_type
+struct bdlat_IsBasicEnumeration<geom::PolygonType::Value> : bsl::true_type
 {
 };
 
 template <>
-struct bdeat_BasicEnumerationWrapper<geom::PolygonType::Value> :
+struct bdlat_BasicEnumerationWrapper<geom::PolygonType::Value> :
     geom::PolygonType
 {
     typedef geom::PolygonType Wrapper;
@@ -246,7 +236,7 @@ struct PrimaryColor {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "PrimaryColor")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -283,15 +273,15 @@ struct PrimaryColor {
         // reference to the modifiable 'stream'.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
+        // undefined.  If the 'version' is not supported, 'stream' is marked
+        // invalid, but 'value' is unaltered.  Note that no version is read
+        // from 'stream'.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&  stream,
@@ -310,8 +300,8 @@ struct PrimaryColor {
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, PrimaryColor::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -382,9 +372,9 @@ const char *PrimaryColor::toString(PrimaryColor::Value value)
 
 template <class STREAM>
 inline
-STREAM& PrimaryColor::bdexStreamIn(STREAM&             stream,
+STREAM& PrimaryColor::bdexStreamIn(STREAM&              stream,
                                    PrimaryColor::Value& value,
-                                   int                 version)
+                                   int                  version)
 {
     switch(version) {
       case 1: {
@@ -405,9 +395,9 @@ STREAM& PrimaryColor::bdexStreamIn(STREAM&             stream,
 
 template <class STREAM>
 inline
-STREAM& PrimaryColor::bdexStreamOut(STREAM&              stream,
+STREAM& PrimaryColor::bdexStreamOut(STREAM&             stream,
                                     PrimaryColor::Value value,
-                                    int                version)
+                                    int                 version)
 {
     switch (version) {
       case 1: {
@@ -421,9 +411,8 @@ STREAM& PrimaryColor::bdexStreamOut(STREAM&              stream,
 // FREE FUNCTIONS
 
 inline
-bsl::ostream& test::operator<<(
-        bsl::ostream& stream,
-        test::PrimaryColor::Value rhs)
+bsl::ostream& test::operator<<(bsl::ostream&             stream,
+                               test::PrimaryColor::Value rhs)
 {
     return test::PrimaryColor::print(stream, rhs);
 }
@@ -442,7 +431,7 @@ namespace test {
 const char PrimaryColor::CLASS_NAME[] = "PrimaryColor";
     // the name of this class
 
-const bdeat_EnumeratorInfo PrimaryColor::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo PrimaryColor::ENUMERATOR_INFO_ARRAY[] = {
     {
         PrimaryColor::BLUE,
         "BLUE",                 // name
@@ -467,8 +456,8 @@ const bdeat_EnumeratorInfo PrimaryColor::ENUMERATOR_INFO_ARRAY[] = {
 // CLASS METHODS
 
 int PrimaryColor::fromString(PrimaryColor::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+                            const char           *string,
+                            int                   stringLength)
 {
 
     enum { SUCCESS = 0, NOT_FOUND = 1 };
@@ -526,31 +515,30 @@ enum MyEnum {
 };
 //..
 // We can now make 'MyEnum' expose "enumeration" behavior by implementing
-// all the necessary 'bdeat_enum*' functions for 'MyEnum' inside the 'mine
+// all the necessary 'bdlat_enum*' functions for 'MyEnum' inside the 'mine
 // namespace'.  First we should forward declare all the functions that we
 // will implement inside the 'mine' namespace:
 //..
     // MANIPULATORS
-    int bdeat_enumFromInt(MyEnum *result, int number);
+    int bdlat_enumFromInt(MyEnum *result, int number);
         // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value
-        // with no effect on 'result' if 'number' does not match any
-        // enumerator.
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' if 'number' does not match any enumerator.
 
-    int bdeat_enumFromString(MyEnum *result,
-                             const char *string, int stringLength);
+    int bdlat_enumFromString(MyEnum     *result,
+                             const char *string,
+                             int         stringLength);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' if
-        // 'string' and 'stringLength' do not match any enumerator.
+        // success, and a non-zero value with no effect on 'result' if 'string'
+        // and 'stringLength' do not match any enumerator.
 
     // ACCESSORS
-    void bdeat_enumToInt(int *result, const MyEnum& value);
-        // Return the integer representation exactly matching the
-        // enumerator name corresponding to the specified enumeration
-        // 'value'.
+    void bdlat_enumToInt(int *result, const MyEnum& value);
+        // Return the integer representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
 
-    void bdeat_enumToString(bsl::string *result, const MyEnum& value);
+    void bdlat_enumToString(bsl::string *result, const MyEnum& value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
@@ -561,7 +549,7 @@ enum MyEnum {
 // MANIPULATORS
 
 inline
-int mine::bdeat_enumFromInt(MyEnum *result, int number)
+int mine::bdlat_enumFromInt(MyEnum *result, int number)
 {
     enum { SUCCESS = 0, NOT_FOUND = -1 };
 
@@ -588,34 +576,28 @@ int mine::bdeat_enumFromInt(MyEnum *result, int number)
 }
 
 inline
-int mine::bdeat_enumFromString(MyEnum    *result,
+int mine::bdlat_enumFromString(MyEnum     *result,
                                const char *string,
                                int         stringLength)
 {
     enum { SUCCESS = 0, NOT_FOUND = -1 };
 
-    if (bdlb::String::areEqualCaseless("red",
-                                      string,
-                                      stringLength)) {
+    if (bdlb::String::areEqualCaseless("red", string, stringLength)) {
         *result = RED;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
 
-    if (bdlb::String::areEqualCaseless("green",
-                                      string,
-                                      stringLength)) {
+    if (bdlb::String::areEqualCaseless("green", string, stringLength)) {
         *result = GREEN;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
 
-    if (bdlb::String::areEqualCaseless("blue",
-                                      string,
-                                      stringLength)) {
+    if (bdlb::String::areEqualCaseless("blue", string, stringLength)) {
         *result = BLUE;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
 
     return NOT_FOUND;
@@ -623,12 +605,12 @@ int mine::bdeat_enumFromString(MyEnum    *result,
 
 // ACCESSORS
 
-void mine::bdeat_enumToInt(int *result, const MyEnum& value)
+void mine::bdlat_enumToInt(int *result, const MyEnum& value)
 {
     *result = static_cast<int>(value);
 }
 
-void mine::bdeat_enumToString(bsl::string    *result, const MyEnum&  value)
+void mine::bdlat_enumToString(bsl::string *result, const MyEnum &value)
 {
     switch (value) {
       case RED: {
@@ -647,17 +629,17 @@ void mine::bdeat_enumToString(bsl::string    *result, const MyEnum&  value)
 }
 //..
 // Finally, we need to specialize the 'IsEnum' meta-function in the
-// 'bdeat_EnumFunctions' namespace for the 'mine::MyEnum' type.  This makes the
+// 'bdlat_EnumFunctions' namespace for the 'mine::MyEnum' type.  This makes the
 // 'bdeat' infrastructure recognize 'MyEnum' as an enumeration abstraction:
 //..
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
 
     template <>
     struct IsEnumeration<mine::MyEnum> {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdeat_EnumFunctions
+}  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
 //..
 // The 'bdeat' infrastructure (and any component that uses this infrastructure)
@@ -701,7 +683,7 @@ int readMyEnum(bsl::istream& stream, TYPE *object)
     bsl::string value;
     stream >> value;
 
-    return bdeat_enumFromString(object, value.c_str(), value.length());
+    return bdlat_enumFromString(object, value.c_str(), value.length());
 }
 //..
 // Now we have a generic function that takes an input stream and a 'Cusip'
@@ -732,7 +714,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+//  int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -769,7 +751,7 @@ int main(int argc, char *argv[])
         //   match the string representation of any of the valid enumerators.
         //
         // Testing:
-        //   bdeat_enumToString
+        //   bdlat_enumToString
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Conversion to String"
@@ -780,8 +762,8 @@ int main(int argc, char *argv[])
         test::PrimaryColor::Value c2 = (test::PrimaryColor::Value)-1;
 
         bsl::string c1string, c2string;
-        bdeat_EnumFunctions::toString(&c1string, c1);
-        bdeat_EnumFunctions::toString(&c2string, c2);
+        bdlat_EnumFunctions::toString(&c1string, c1);
+        bdlat_EnumFunctions::toString(&c2string, c2);
 
         if (veryVerbose) {
             bsl::cout << "c1 = " << c1string << bsl::endl;
@@ -837,16 +819,16 @@ int main(int argc, char *argv[])
         mX = PolygonType::RHOMBUS;   ASSERT(X == PolygonType::RHOMBUS);
         mN = PolygonType::TRIANGLE;  ASSERT(N == PolygonType::TRIANGLE);
 
-        ASSERT(0 == bdeat_EnumFunctions::fromInt(&mX, N));
+        ASSERT(0 == bdlat_EnumFunctions::fromInt(&mX, N));
                                      ASSERT(X == PolygonType::TRIANGLE);
                                      ASSERT(N == PolygonType::TRIANGLE);
 
         const char *const S = "rhombus";
-        ASSERT(0 == bdeat_EnumFunctions::fromString(&mX, S, 7));
+        ASSERT(0 == bdlat_EnumFunctions::fromString(&mX, S, 7));
                                      ASSERT(X == PolygonType::RHOMBUS);
 
         bsl::string toString;
-        bdeat_EnumFunctions::toString(&toString, X);
+        bdlat_EnumFunctions::toString(&toString, X);
         ASSERT(toString == "rhombus");
         ASSERT(X        == PolygonType::RHOMBUS);
 
@@ -865,10 +847,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

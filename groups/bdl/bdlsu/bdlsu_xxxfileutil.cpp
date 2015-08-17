@@ -1,4 +1,4 @@
-// bdlsu_xxxfileutil.cpp                                                 -*-C++-*-
+// bdlsu_xxxfileutil.cpp                                              -*-C++-*-
 #include <bdlsu_xxxfileutil.h>
 
 #include <bsls_ident.h>
@@ -868,9 +868,9 @@ int FileUtil::map(FileDescriptor   fd,
     BSLS_ASSERT(0 <= size);
 
     int protect = 0;
-    if (mode & MemoryUtil::BDESU_ACCESS_READ)    protect |= PROT_READ;
-    if (mode & MemoryUtil::BDESU_ACCESS_WRITE)   protect |= PROT_WRITE;
-    if (mode & MemoryUtil::BDESU_ACCESS_EXECUTE) protect |= PROT_EXEC;
+    if (mode & MemoryUtil::k_ACCESS_READ)    protect |= PROT_READ;
+    if (mode & MemoryUtil::k_ACCESS_WRITE)   protect |= PROT_WRITE;
+    if (mode & MemoryUtil::k_ACCESS_EXECUTE) protect |= PROT_EXEC;
 
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
@@ -1159,7 +1159,7 @@ int FileUtil::getWorkingDirectory(bsl::string *path)
 
         //our contract requires an absolute path
 
-        return PathUtil::isRelative(*path);                     // RETURN
+        return PathUtil::isRelative(*path);                           // RETURN
     }
     return -1;
 }

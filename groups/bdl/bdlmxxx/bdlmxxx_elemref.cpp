@@ -1,4 +1,4 @@
-// bdlmxxx_elemref.cpp                                                   -*-C++-*-
+// bdlmxxx_elemref.cpp                                                -*-C++-*-
 #include <bdlmxxx_elemref.h>
 
 #include <bsls_ident.h>
@@ -21,7 +21,7 @@ bool bdlmxxx::operator==(const ConstElemRef& lhs, const ConstElemRef& rhs)
         if (lhs.d_descriptor_p->d_elemEnum != rhs.d_descriptor_p->d_elemEnum) {
             // References with different descriptors cannot be equal.
 
-            return false;
+            return false;                                             // RETURN
         }
 
         if (lhs.isNonNull() && rhs.isNonNull()) {
@@ -29,10 +29,10 @@ bool bdlmxxx::operator==(const ConstElemRef& lhs, const ConstElemRef& rhs)
             // function.
 
             return lhs.d_descriptor_p->areEqual(lhs.d_constData_p,
-                                                rhs.d_constData_p);
+                                                rhs.d_constData_p);   // RETURN
         }
 
-        return lhs.isNull() == rhs.isNull();
+        return lhs.isNull() == rhs.isNull();                          // RETURN
     }
 
     return lhs.isBound() == rhs.isBound();
@@ -45,11 +45,11 @@ bsl::ostream& ConstElemRef::print(bsl::ostream& stream,
                                        int           spacesPerLevel) const
 {
     if (!isBound()) {
-        return stream << "unbound";
+        return stream << "unbound";                                   // RETURN
     }
 
     if (isNull()) {
-        return stream << "NULL";
+        return stream << "NULL";                                      // RETURN
     }
 
     return d_descriptor_p->print(d_constData_p, stream, level, spacesPerLevel);
@@ -87,13 +87,13 @@ void *ElemRef::dataRaw() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

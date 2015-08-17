@@ -1,4 +1,4 @@
-/* bsl_stdhdrs_incpaths.h                                          -*-C++-*- */
+/* bsl_stdhdrs_incpaths.h                                            -*-C-*- */
 #ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #define INCLUDED_BSL_STDHDRS_INCPATHS
 

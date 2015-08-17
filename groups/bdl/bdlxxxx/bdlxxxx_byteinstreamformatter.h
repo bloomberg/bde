@@ -1,4 +1,4 @@
-// bdlxxxx_byteinstreamformatter.h                                       -*-C++-*-
+// bdlxxxx_byteinstreamformatter.h                                    -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_BYTEINSTREAMFORMATTER
 #define INCLUDED_BDLXXXX_BYTEINSTREAMFORMATTER
 
@@ -316,21 +316,21 @@ typedef GenericByteInStream<bsl::streambuf> ByteInStreamFormatter;
     // in a data-independent, platform-neutral representation.  It is currently
     // a typedef for 'bdlxxxx::GenericByteInStream<bsl::streambuf>'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -63,7 +63,7 @@ inline
     btlso::StreamSocket<btlso::IPv4Address> *socket_p = 0;
     socket_p = factory->allocate();
     if (!socket_p) {
-        return NULL;
+        return NULL;                                                  // RETURN
     }
     int rc = socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
 
@@ -75,12 +75,12 @@ inline
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = e_FAILED; // Any negative number satisfies the contract.
             factory->deallocate(socket_p);
-            return NULL;
+            return NULL;                                              // RETURN
         }
         if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
-            return NULL;
+            return NULL;                                              // RETURN
         }
     }
     RESULT *channel = new (*pool) RESULT(socket_p);
@@ -152,7 +152,7 @@ btlsc::Channel *TcpConnector::allocate(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::Channel *channel = BloombergLP::allocate<TcpChannel>(
@@ -182,7 +182,7 @@ btlsc::TimedChannel *TcpConnector::allocateTimed(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::TimedChannel *channel =

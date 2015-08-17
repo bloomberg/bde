@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class InfrequentDeleteBlockList;
-    }
+    }  // close namespace bslma
 
     typedef bslma::InfrequentDeleteBlockList bslma_InfrequentDeleteBlockList;
-}
+}  // close enterprise namespace
 
 #else
 

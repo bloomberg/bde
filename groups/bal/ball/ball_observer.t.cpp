@@ -110,13 +110,13 @@ void my_OstreamObserver::publish(const ball::Record&  record,
     d_stream << endl;  // skip a line
 
     switch (context.transmissionCause()) {
-      case ball::Transmission::BAEL_PASSTHROUGH: {
+      case ball::Transmission::e_PASSTHROUGH: {
         d_stream << "Single Pass-through Message:" << endl;
       } break;
-      case ball::Transmission::BAEL_TRIGGER_ALL: {
+      case ball::Transmission::e_TRIGGER_ALL: {
         d_stream << "Remotely ";      // no 'break'; concatenated output
       }
-      case ball::Transmission::BAEL_TRIGGER: {
+      case ball::Transmission::e_TRIGGER: {
         d_stream << "Triggered Publication Sequence: Message "
                  << context.recordIndex() + 1  // Account for 0-based index.
                  << " of " << context.sequenceLength()
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
                              &testAllocator);
                 observer.publish(
                             handle,
-                            ball::Context(ball::Transmission::BAEL_PASSTHROUGH,
+                            ball::Context(ball::Transmission::e_PASSTHROUGH,
                             0,
                             1));
                 out << ends;
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
                              &testAllocator);
                     observer.publish(
                                 handle,
-                                ball::Context(ball::Transmission::BAEL_TRIGGER,
+                                ball::Context(ball::Transmission::e_TRIGGER,
                                               n,
                                               NUM_MESSAGES));
                 }
@@ -282,11 +282,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

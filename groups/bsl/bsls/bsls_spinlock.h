@@ -1,4 +1,4 @@
-// bsls_spinlock.h                                               -*-C++-*-
+// bsls_spinlock.h                                                    -*-C++-*-
 #ifndef INCLUDED_BSLS_SPINLOCK
 #define INCLUDED_BSLS_SPINLOCK
 
@@ -28,7 +28,7 @@ BSLS_IDENT("$: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Maintaining Static Count/Max Values
-///- - - - - - - - - - - - - - - - - - - - - - - 
+///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to determine the maximum number of threads executing
 // a block of code concurrently. Note that such a use case naturally calls
 // for a statically initialized lock and the critical region involves
@@ -124,11 +124,11 @@ struct SpinLock {
     //..
     //  SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
     //..
-    
+
   private:
     // NOT IMPLEMENTED
     SpinLock& operator=(const SpinLock&);
-    
+
     // We would like to prohibit copy construction, but then this class
     // would not be a POD and could not be initialized statically:
     // SpinLock(const SpinLock&);
@@ -138,19 +138,19 @@ struct SpinLock {
         e_UNLOCKED = 0, // unlocked state value
         e_LOCKED = 1    // locked state value
     };
-    
+
   public:
     // DATA
     AtomicOperations::AtomicTypes::Int d_state;
         // Public to allow this type to be a statically-initializable POD.
         // Do not use directly.
-    
+
     // MANIPULATORS
     void lock();
         // Spin (repeat a loop continuously without using the system to
         // pause or reschedule the thread) until this object is unlocked,
         // then atomically acquire the lock.
-    
+
     int tryLock(int numRetries = 0);
         // Attempt to acquire the lock; if this object is already locked,
         // attempt again up to the specified 'numRetries' times. Return 0
@@ -188,9 +188,9 @@ class SpinLockGuard {
        // by this object.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                              // --------------
                              // class SpinLock
@@ -218,7 +218,7 @@ int SpinLock::tryLock(int numRetries) {
             if (e_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
                                                               e_LOCKED))
             {
-                return 0;
+                return 0;                                             // RETURN
             }
         }
     } while(numRetries--);
@@ -228,10 +228,10 @@ int SpinLock::tryLock(int numRetries) {
 inline
 void SpinLock::unlock() {
     BSLS_ASSERT_SAFE(e_LOCKED == AtomicOperations::getInt(&d_state));
-    
+
     AtomicOperations::setIntRelease(&d_state, e_UNLOCKED);
 }
-        
+
                           // -------------------
                           // class SpinLockGuard
                           // -------------------
@@ -247,13 +247,13 @@ SpinLockGuard::~SpinLockGuard()
 {
     d_lock_p->unlock();
 }
-    
-}  // close namespace bsls
-}  // close namespace BloombergLP
+
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -267,8 +267,22 @@ SpinLockGuard::~SpinLockGuard()
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
-    
 
-    
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -257,9 +257,9 @@ class ReaderWriterLock {
 
     // PRIVATE TYPES
     enum SignalState{
-        BCEMT_NOT_SIGNALED     = 0,
-        BCEMT_WRITE_SIGNALED   = 1,
-        BCEMT_UPGRADE_SIGNALED = 2
+        e_NOT_SIGNALED     = 0,
+        e_WRITE_SIGNALED   = 1,
+        e_UPGRADE_SIGNALED = 2
     };
 
     // CLASS DATA
@@ -421,7 +421,7 @@ class ReaderWriterLock {
 // CREATORS
 inline
 bdlqq::ReaderWriterLock::ReaderWriterLock()
-: d_signalState(BCEMT_NOT_SIGNALED)
+: d_signalState(e_NOT_SIGNALED)
 , d_owned(0)
 {
     bsls::AtomicOperations::initInt64(&d_rwCount, READ_OK);

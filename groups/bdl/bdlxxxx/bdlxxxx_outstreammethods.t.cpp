@@ -1,4 +1,4 @@
-// bdlxxxx_outstreammethods.t.cpp         -*-C++-*-
+// bdlxxxx_outstreammethods.t.cpp                                     -*-C++-*-
 
 #include <bdlxxxx_outstreammethods.h>
 
@@ -156,7 +156,7 @@ class bdex_OutStreamMethods<Shape> {
         return shapeVersion;
     }
 
-    template <typename STREAM>
+    template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&      stream,
                                  const Shape& value,
                                  int          version)
@@ -166,7 +166,7 @@ class bdex_OutStreamMethods<Shape> {
     }
 };
 
-}
+}  // close enterprise namespace
 
 
 //=============================================================================
@@ -287,7 +287,7 @@ class bdex_OutStreamMethods<my_Color::Color> {
         return my_Color::maxSupportedBdexVersion();
     }
 
-    template <typename STREAM>
+    template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&                stream,
                                  const my_Color::Color& value,
                                  int                    version)
@@ -296,7 +296,7 @@ class bdex_OutStreamMethods<my_Color::Color> {
     }
 };
 
-}
+}  // close enterprise namespace
 
 //..
 //
@@ -542,7 +542,7 @@ bsl::ostream& operator<<(bsl::ostream&       stream,
     // some reasonable (multi-line) format, and return a reference to
     // 'stream'.
 //
-template <typename OBJECT>
+template <class OBJECT>
 inline
 my_OutStream& operator<<(my_OutStream& stream, const OBJECT& object);
     // Write to the specified output 'stream', using the 'putVersion'
@@ -662,7 +662,7 @@ bsl::ostream& operator<<(bsl::ostream&       stream,
     return stream;
 }
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 my_OutStream& operator<<(my_OutStream& stream, const OBJECT& object)
 {
@@ -1262,11 +1262,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

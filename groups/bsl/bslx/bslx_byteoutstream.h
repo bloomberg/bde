@@ -1590,7 +1590,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<bslx::ByteOutStream> : bsl::true_type {};
 
-}  // close 'bslma' namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

@@ -301,9 +301,9 @@ void RawDeleterProctor<TYPE, ALLOCATOR>::reset(TYPE *object)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_RawDeleterProctor
 #undef bslma_RawDeleterProctor

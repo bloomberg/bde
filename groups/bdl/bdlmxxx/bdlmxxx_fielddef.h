@@ -1,4 +1,4 @@
-// bdlmxxx_fielddef.h                                                    -*-C++-*-
+// bdlmxxx_fielddef.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_FIELDDEF
 #define INCLUDED_BDLMXXX_FIELDDEF
 
@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 // 'bdlmxxx_schema' for more information).  The 'elemType' of a field definition
 // identifies the data type of the field.  The 'isNullable' flag indicates
 // whether values of the field may be null.  The 'formattingMode' is one of the
-// enumerated mode values defined by 'bdeat_FormattingMode' (e.g., 'BDEAT_DEC',
-// 'BDEAT_HEX', 'BDEAT_BASE64', etc.).  The 'formattingMode' can be used to
+// enumerated mode values defined by 'bdlat_FormattingMode' (e.g., 'e_DEC',
+// 'e_HEX', 'e_BASE64', etc.).  The 'formattingMode' can be used to
 // determine how a field's value should be written as text (e.g., if the value
 // were being serialized as XML).  Finally, a field definition contains an
 // optional constraint, which may be either 0, a record definition, or an
@@ -314,8 +314,8 @@ class FieldDef {
     int formattingMode() const;
         // Return the formatting-mode attribute of this object.  The returned
         // value will be one of the mode values defined by
-        // 'bdeat_FormattingMode' (e.g., 'BDEAT_DEFAULT', 'BDEAT_DEC',
-        // 'BDEAT_HEX').  Note that this value is used to determine how a
+        // 'bdlat_FormattingMode' (e.g., 'e_DEFAULT', 'e_DEC',
+        // 'e_HEX').  Note that this value is used to determine how a
         // field described by these attributes should be formatted in
         // text.  Also note that the formatting mode is provided, at
         // construction, via a 'FieldDefAttributes' object.
@@ -463,15 +463,15 @@ bool FieldDef::hasDefaultValue() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

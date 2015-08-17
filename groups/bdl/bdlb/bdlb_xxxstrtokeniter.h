@@ -1,4 +1,4 @@
-// bdlb_xxxstrtokeniter.h                                               -*-C++-*-
+// bdlb_xxxstrtokeniter.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLB_XXXSTRTOKENITER
 #define INCLUDED_BDLB_XXXSTRTOKENITER
 
@@ -461,9 +461,9 @@ class StrTokenIter {
 };
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ------------------------
                         // class bdlb::StrTokenIter
@@ -508,15 +508,15 @@ const char *StrTokenIter::previousDelimiter() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

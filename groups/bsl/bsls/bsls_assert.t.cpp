@@ -89,9 +89,9 @@ using namespace std;
 // [-2] CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' for NON-EXC
 // [-3] CONCERN: 'bsls::Assert::failSleep' sleeps forever
 // [-3] CONCERN: 'bsls::Assert::failSleep' prints to 'stderr' not 'stdout'
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -2167,7 +2167,7 @@ struct AssertFailed {
     // sure to catch any compile-time use of this structure in exception-free
     // builds.
 #endif
-}
+}  // close unnamed namespace
 
 #undef BSLS_ASSERT_NORETURN
 

@@ -24,9 +24,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//==========================================================================
+//=============================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // This test driver exercises all the public methods from the 'basic_streambuf'
@@ -86,7 +86,7 @@ using namespace bsl;  // automatically added by script
 // component are value-semantic types that represent big-endian integer types.
 // They have the same value if they have the same in-core big endian
 // representation.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
 // CLASS METHODS
 // [11] void grow(int n);

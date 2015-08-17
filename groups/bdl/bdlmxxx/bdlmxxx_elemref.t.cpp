@@ -1,4 +1,4 @@
-// bdlmxxx_elemref.t.cpp                                                 -*-C++-*-
+// bdlmxxx_elemref.t.cpp                                              -*-C++-*-
 
 #include <bdlmxxx_elemref.h>
 
@@ -879,7 +879,7 @@ class Table {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 static void unsetConstructTable(void                                      *obj,
                                 bdlmxxx::AggregateOption::AllocationStrategy,
@@ -955,7 +955,7 @@ static const bdlmxxx::Descriptor tableDescriptor = {
     printTable
 };
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Descriptor lookup
 
 struct {
@@ -1346,10 +1346,10 @@ void printERefs() {
 bool referenceSameData(const bdlmxxx::ConstElemRef& ref1,
                        const bdlmxxx::ConstElemRef& ref2) {
     if (!ref1.isBound() && !ref2.isBound()) {
-        return true;
+        return true;                                                  // RETURN
     }
     if (!ref1.isBound() || !ref2.isBound()) {
-        return false;
+        return false;                                                 // RETURN
     }
     return ref1.data()       == ref2.data()
         && ref1.descriptor() == ref2.descriptor()
@@ -1374,7 +1374,7 @@ bool referenceSameData(const bdlmxxx::ConstElemRef& ref1,
     {
         for (int i = 0; i < length; ++i) {
             if (element == sequence[i]) {
-                return true;
+                return true;                                          // RETURN
             }
         }
         return false;
@@ -1402,31 +1402,38 @@ bool referenceSameData(const bdlmxxx::ConstElemRef& ref1,
               case bdlmxxx::ElemType::BDEM_CHAR: {
                 if (*static_cast<const char *>(dataValue) ==
                     *static_cast<const char *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
               case bdlmxxx::ElemType::BDEM_SHORT: {
                 if (*static_cast<const short *>(dataValue) ==
                     *static_cast<const short *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
               case bdlmxxx::ElemType::BDEM_INT: {
                 if (*static_cast<const int *>(dataValue) ==
                     *static_cast<const int *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
               case bdlmxxx::ElemType::BDEM_INT64: {
                 if (*static_cast<const Int64 *>(dataValue) ==
                     *static_cast<const Int64 *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
               case bdlmxxx::ElemType::BDEM_FLOAT: {
                 if (*static_cast<const float *>(dataValue) ==
                     *static_cast<const float *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
               case bdlmxxx::ElemType::BDEM_DOUBLE: {
                 if (*static_cast<const double *>(dataValue) ==
                     *static_cast<const double *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
               case bdlmxxx::ElemType::BDEM_STRING: {
                 typedef bsl::string String;
                 if (*static_cast<const String *>(dataValue) ==
                     *static_cast<const String *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
                 // .
                 // .   (14 case statements omitted)
@@ -1435,6 +1442,7 @@ bool referenceSameData(const bdlmxxx::ConstElemRef& ref1,
                 typedef bdlmxxx::Table Table;
                 if (*static_cast<const Table *>(dataValue) ==
                     *static_cast<const Table *>(sequenceData[i])) return true;
+                                                                      // RETURN
               } break;
               default: {
                 ASSERT("Error: Enum Value out of range [0..21]" && 0);
@@ -5557,11 +5565,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -128,7 +128,7 @@ void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
     // key being sorted over.  We require that 'VALUE_TYPE' support copy
     // construction and assignment.
 {
-    if (begin == end) return;
+    if (begin == end) return;                                         // RETURN
 
     while (begin != --end) {
         for (VALUE_TYPE *it = begin; it != end; ++it) {
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 //..
 //  List of students, lowest GPA first:
 //  ===================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Ann    2.3   21
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
 //..
 //  List of students, youngest first:
 //  ================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Phil   3.4   19

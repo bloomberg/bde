@@ -270,8 +270,8 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
     ta.print();
     return out;
 }
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 //=============================================================================
 //                          CASE 11 RELATED ENTITIES
@@ -789,7 +789,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
                                   int length)
     {
         if (connection->d_timerId) {
-            if (d_timeQueue.remove(connection->d_timerId))  return;
+            if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
             connection->d_timerId = 0;
         }
         connection->d_session_p->processData(data, length);

@@ -85,7 +85,7 @@ using namespace bsl;  // automatically added by script
 //
 // USAGE EXAMPLE
 // [ 9] Capitalizing Stream
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -169,7 +169,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
-// Usage
+//                                  Usage
 // -----
 // This example demonstrates use of a stream buffer by a stream, in this case a
 // stream with simple formatting requirements -- namely, capitalizing all

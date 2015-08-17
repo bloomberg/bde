@@ -109,7 +109,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -543,13 +543,13 @@ static int buildChannelHelper(
             btlso::SocketOptUtil::k_SOCKETLEVEL,
             btlso::SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     ret = btlso::SocketOptUtil::getOption(&rcvBufferSize, socketPair[1],
             btlso::SocketOptUtil::k_SOCKETLEVEL,
             btlso::SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     if (verbose) {
         P_T(sndBufferSize);
@@ -1189,7 +1189,7 @@ int processTest(btlsos::TcpTimedChannel     *channel,
 }
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {

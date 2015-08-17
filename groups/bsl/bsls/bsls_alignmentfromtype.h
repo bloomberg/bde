@@ -348,9 +348,9 @@ struct AlignmentFromType {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bsls_AlignmentFromType
 #undef bsls_AlignmentFromType

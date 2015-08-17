@@ -38,7 +38,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 // STANDARD BDE LOOP-ASSERT TEST MACROS
 //=============================================================================
-// STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
@@ -99,14 +99,14 @@ void aSsErT(int c, const char *s, int i)
 typedef ball::Severity     Class;
 typedef Class::Level      Enum;
 typedef ball::SeverityUtil Util;
-const Enum initialValue = Class::BAEL_OFF;
+const Enum initialValue = Class::e_OFF;
 
 //=============================================================================
-// GLOBAL HELPER FUNCTIONS FOR TESTING
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-// MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -167,10 +167,10 @@ int main(int argc, char *argv[])
       ASSERT(0 == ball::SeverityUtil::fromAsciiCaseless(&trigger,    argv[2]));
       ASSERT(0 == ball::SeverityUtil::fromAsciiCaseless(&triggerAll, argv[3]));
 //
-      ASSERT(ball::Severity::BAEL_INFO  == record);
-      ASSERT(ball::Severity::BAEL_WARN  == pass);
-      ASSERT(ball::Severity::BAEL_ERROR == trigger);
-      ASSERT(ball::Severity::BAEL_FATAL == triggerAll);
+      ASSERT(ball::Severity::e_INFO  == record);
+      ASSERT(ball::Severity::e_WARN  == pass);
+      ASSERT(ball::Severity::e_ERROR == trigger);
+      ASSERT(ball::Severity::e_FATAL == triggerAll);
 //..
       } break;
       case 5: {
@@ -301,32 +301,32 @@ int main(int argc, char *argv[])
          } DATA[] = {
            ///d_linenum  d_severityName   d_status   d_severity
            ///---------  --------------   ---------  ----------
-            { L_,        "OFF",             0,       Class::BAEL_OFF   },
-            { L_,        "FATAL",           0,       Class::BAEL_FATAL },
-            { L_,        "ERROR",           0,       Class::BAEL_ERROR },
-            { L_,        "WARN",            0,       Class::BAEL_WARN  },
-            { L_,        "INFO",            0,       Class::BAEL_INFO  },
-            { L_,        "DEBUG",           0,       Class::BAEL_DEBUG },
-            { L_,        "TRACE",           0,       Class::BAEL_TRACE },
-            { L_,        "NONE",            0,       Class::BAEL_NONE  },
+            { L_,        "OFF",             0,       Class::e_OFF   },
+            { L_,        "FATAL",           0,       Class::e_FATAL },
+            { L_,        "ERROR",           0,       Class::e_ERROR },
+            { L_,        "WARN",            0,       Class::e_WARN  },
+            { L_,        "INFO",            0,       Class::e_INFO  },
+            { L_,        "DEBUG",           0,       Class::e_DEBUG },
+            { L_,        "TRACE",           0,       Class::e_TRACE },
+            { L_,        "NONE",            0,       Class::e_NONE  },
 
-            { L_,        "oFf",             0,       Class::BAEL_OFF   },
-            { L_,        "fAtAl",           0,       Class::BAEL_FATAL },
-            { L_,        "eRrOr",           0,       Class::BAEL_ERROR },
-            { L_,        "wArN",            0,       Class::BAEL_WARN  },
-            { L_,        "iNfO",            0,       Class::BAEL_INFO  },
-            { L_,        "dEbUg",           0,       Class::BAEL_DEBUG },
-            { L_,        "tRaCe",           0,       Class::BAEL_TRACE },
-            { L_,        "nOnE",            0,       Class::BAEL_NONE  },
+            { L_,        "oFf",             0,       Class::e_OFF   },
+            { L_,        "fAtAl",           0,       Class::e_FATAL },
+            { L_,        "eRrOr",           0,       Class::e_ERROR },
+            { L_,        "wArN",            0,       Class::e_WARN  },
+            { L_,        "iNfO",            0,       Class::e_INFO  },
+            { L_,        "dEbUg",           0,       Class::e_DEBUG },
+            { L_,        "tRaCe",           0,       Class::e_TRACE },
+            { L_,        "nOnE",            0,       Class::e_NONE  },
 
-            { L_,        "OfF",             0,       Class::BAEL_OFF   },
-            { L_,        "FaTaL",           0,       Class::BAEL_FATAL },
-            { L_,        "ErRoR",           0,       Class::BAEL_ERROR },
-            { L_,        "WaRn",            0,       Class::BAEL_WARN  },
-            { L_,        "InFo",            0,       Class::BAEL_INFO  },
-            { L_,        "DeBuG",           0,       Class::BAEL_DEBUG },
-            { L_,        "TrAcE",           0,       Class::BAEL_TRACE },
-            { L_,        "NoNe",            0,       Class::BAEL_NONE  },
+            { L_,        "OfF",             0,       Class::e_OFF   },
+            { L_,        "FaTaL",           0,       Class::e_FATAL },
+            { L_,        "ErRoR",           0,       Class::e_ERROR },
+            { L_,        "WaRn",            0,       Class::e_WARN  },
+            { L_,        "InFo",            0,       Class::e_INFO  },
+            { L_,        "DeBuG",           0,       Class::e_DEBUG },
+            { L_,        "TrAcE",           0,       Class::e_TRACE },
+            { L_,        "NoNe",            0,       Class::e_NONE  },
 
             { L_,        "OF",             -1,       initialValue },
             { L_,        "FATA",           -1,       initialValue },
@@ -387,14 +387,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CONSISTENCY WITH 'ToAscii'" << endl
                           << "========================="  << endl;
             Enum VALUES[] = {
-               Class::BAEL_OFF,
-               Class::BAEL_FATAL,
-               Class::BAEL_ERROR,
-               Class::BAEL_WARN,
-               Class::BAEL_INFO,
-               Class::BAEL_DEBUG,
-               Class::BAEL_TRACE,
-               Class::BAEL_NONE
+               Class::e_OFF,
+               Class::e_FATAL,
+               Class::e_ERROR,
+               Class::e_WARN,
+               Class::e_INFO,
+               Class::e_DEBUG,
+               Class::e_TRACE,
+               Class::e_NONE
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -535,32 +535,32 @@ int main(int argc, char *argv[])
          } DATA[] = {
            ///d_linenum  d_severityName   d_status   d_severity
            ///---------  --------------   ---------  ----------
-            { L_,        "OFF",             0,       Class::BAEL_OFF   },
-            { L_,        "FATAL",           0,       Class::BAEL_FATAL },
-            { L_,        "ERROR",           0,       Class::BAEL_ERROR },
-            { L_,        "WARN",            0,       Class::BAEL_WARN  },
-            { L_,        "INFO",            0,       Class::BAEL_INFO  },
-            { L_,        "DEBUG",           0,       Class::BAEL_DEBUG },
-            { L_,        "TRACE",           0,       Class::BAEL_TRACE },
-            { L_,        "NONE",            0,       Class::BAEL_NONE  },
+            { L_,        "OFF",             0,       Class::e_OFF   },
+            { L_,        "FATAL",           0,       Class::e_FATAL },
+            { L_,        "ERROR",           0,       Class::e_ERROR },
+            { L_,        "WARN",            0,       Class::e_WARN  },
+            { L_,        "INFO",            0,       Class::e_INFO  },
+            { L_,        "DEBUG",           0,       Class::e_DEBUG },
+            { L_,        "TRACE",           0,       Class::e_TRACE },
+            { L_,        "NONE",            0,       Class::e_NONE  },
 
-            { L_,        "oFf",             0,       Class::BAEL_OFF   },
-            { L_,        "fAtAl",           0,       Class::BAEL_FATAL },
-            { L_,        "eRrOr",           0,       Class::BAEL_ERROR },
-            { L_,        "wArN",            0,       Class::BAEL_WARN  },
-            { L_,        "iNfO",            0,       Class::BAEL_INFO  },
-            { L_,        "dEbUg",           0,       Class::BAEL_DEBUG },
-            { L_,        "tRaCe",           0,       Class::BAEL_TRACE },
-            { L_,        "nOnE",            0,       Class::BAEL_NONE  },
+            { L_,        "oFf",             0,       Class::e_OFF   },
+            { L_,        "fAtAl",           0,       Class::e_FATAL },
+            { L_,        "eRrOr",           0,       Class::e_ERROR },
+            { L_,        "wArN",            0,       Class::e_WARN  },
+            { L_,        "iNfO",            0,       Class::e_INFO  },
+            { L_,        "dEbUg",           0,       Class::e_DEBUG },
+            { L_,        "tRaCe",           0,       Class::e_TRACE },
+            { L_,        "nOnE",            0,       Class::e_NONE  },
 
-            { L_,        "OfF",             0,       Class::BAEL_OFF   },
-            { L_,        "FaTaL",           0,       Class::BAEL_FATAL },
-            { L_,        "ErRoR",           0,       Class::BAEL_ERROR },
-            { L_,        "WaRn",            0,       Class::BAEL_WARN  },
-            { L_,        "InFo",            0,       Class::BAEL_INFO  },
-            { L_,        "DeBuG",           0,       Class::BAEL_DEBUG },
-            { L_,        "TrAcE",           0,       Class::BAEL_TRACE },
-            { L_,        "NoNe",            0,       Class::BAEL_NONE  },
+            { L_,        "OfF",             0,       Class::e_OFF   },
+            { L_,        "FaTaL",           0,       Class::e_FATAL },
+            { L_,        "ErRoR",           0,       Class::e_ERROR },
+            { L_,        "WaRn",            0,       Class::e_WARN  },
+            { L_,        "InFo",            0,       Class::e_INFO  },
+            { L_,        "DeBuG",           0,       Class::e_DEBUG },
+            { L_,        "TrAcE",           0,       Class::e_TRACE },
+            { L_,        "NoNe",            0,       Class::e_NONE  },
 
             { L_,        "OF",             -1,       initialValue },
             { L_,        "FATA",           -1,       initialValue },
@@ -609,11 +609,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The 'balxml::ListParser<TYPE>' class template provided by this
 // component can be used to parse lists into an object that supports
-// 'bdeat_ArrayFunctions'.
+// 'bdlat_ArrayFunctions'.
 //
 // This class template is a model of the 'PushParser' concept, which contains
 // the following methods:
@@ -71,17 +71,17 @@ BSLS_IDENT("$Id: $")
 //  int loadDoublesFromListStream(bsl::vector<double> *result,
 //                                bsl::istream&        stream)
 //  {
-//      enum { BAEXML_FAILURE = -1 };
+//      enum { k_FAILURE = -1 };
 //
 //      balxml::ListParser<bsl::vector<double> > parser(&parseDouble);
 //
 //      if (0 != parser.beginParse(result)) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
 //                                     bsl::istreambuf_iterator<char>())) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      return parser.endParse();
@@ -160,13 +160,13 @@ namespace balxml {
                            // class ListParser<TYPE>
                            // =============================
 
-template <typename TYPE>
+template <class TYPE>
 class ListParser {
     // This is a push parser for lists.
 
     // PRIVATE TYPES
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
   public:
     // TYPES
@@ -217,7 +217,7 @@ class ListParser {
         // associated with this parser.  Upon successful completion, the parser
         // will be disassociated with the object.
 
-    template <typename INPUT_ITERATOR>
+    template <class INPUT_ITERATOR>
     int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
         // Push the characters ranging from the specified 'begin' up to (but
         // not including) the specified 'end' into this parser.  Return 0 if
@@ -237,17 +237,17 @@ class ListParser {
 
 // PRIVATE MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 int ListParser<TYPE>::appendElement(const char *data, int dataLength)
 {
     BSLS_ASSERT_SAFE(data);
     BSLS_ASSERT_SAFE(0 < dataLength);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
+    const int i = static_cast<int>(bdlat_ArrayFunctions::size(*d_object_p));
 
-    bdeat_ArrayFunctions::resize(d_object_p, i + 1);
+    bdlat_ArrayFunctions::resize(d_object_p, i + 1);
 
     typedef bdlf::Function<int(*)(ElementType*)> Functor;
 
@@ -258,21 +258,21 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
                                                       data,
                                                       dataLength);
 
-    if (0 != bdeat_ArrayFunctions::manipulateElement(d_object_p,
+    if (0 != bdlat_ArrayFunctions::manipulateElement(d_object_p,
                                                      parseElementFunctor,
                                                      i)) {
         // remove the new object from the array
-        bdeat_ArrayFunctions::resize(d_object_p, i);
+        bdlat_ArrayFunctions::resize(d_object_p, i);
 
-        return BAEXML_FAILURE;
+        return k_FAILURE;                                             // RETURN
     }
 
-     return BAEXML_SUCCESS;
+     return k_SUCCESS;
 }
 
 // CREATORS
 
-template <typename TYPE>
+template <class TYPE>
 ListParser<TYPE>::ListParser(
     ParseElementCallback  parseElementCallback,
     bslma::Allocator     *basicAllocator)
@@ -284,48 +284,48 @@ ListParser<TYPE>::ListParser(
 
 // MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 int ListParser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     d_characters.clear();
     d_object_p = object;
 
-    bdeat_ArrayFunctions::resize(d_object_p, 0);
+    bdlat_ArrayFunctions::resize(d_object_p, 0);
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int ListParser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     if (!d_characters.empty()) {
         if (0 != appendElement(d_characters.data(),
                                static_cast<int>(d_characters.length()))) {
-            return BAEXML_FAILURE;
+            return k_FAILURE;                                         // RETURN
         }
     }
 
     d_object_p = 0;
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
-template <typename TYPE>
-template <typename INPUT_ITERATOR>
+template <class TYPE>
+template <class INPUT_ITERATOR>
 int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
                                             INPUT_ITERATOR end)
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     while (begin != end) {
         const char character = *begin;
@@ -337,7 +337,7 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
                 if (0 != appendElement(
                                     d_characters.data(),
                                     static_cast<int>(d_characters.length()))) {
-                    return BAEXML_FAILURE;
+                    return k_FAILURE;                                 // RETURN
                 }
 
                 d_characters.clear();
@@ -348,19 +348,26 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
         }
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BAEXML_LISTPARSER)
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

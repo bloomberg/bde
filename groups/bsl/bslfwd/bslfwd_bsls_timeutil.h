@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class TimeUtil;
-    }
+    }  // close namespace bsls
 
     typedef bsls::TimeUtil bsls_TimeUtil;
-}
+}  // close enterprise namespace
 
 #else
 

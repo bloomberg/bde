@@ -35,7 +35,7 @@ bsls::AtomicOperations::AtomicTypes::Pointer s_closure  = { 0 };
     // Closure value passed back to callback function.
 
 bsls::AtomicOperations::AtomicTypes::Int s_severity = {
-    ball::Severity::BAEL_FATAL
+    ball::Severity::e_FATAL
 };
     // Severity level used when no callback is installed.
 
@@ -54,7 +54,7 @@ void AssertionLogger::assertionFailureHandler(const char *text,
     ball::Severity::Level level =
          callback ? callback(closure, text, file, line) : defaultLogSeverity();
 
-    if (level > ball::Severity::BAEL_OFF) {
+    if (level > ball::Severity::e_OFF) {
         BALL_LOG_SET_CATEGORY("Assertion.Failure");
         BALL_LOG_STREAM(level)
             << "Assertion failed: "
@@ -124,14 +124,22 @@ ball::Severity::Level AssertionLogger::defaultLogSeverity()
     return static_cast<ball::Severity::Level>(
                            bsls::AtomicOperations::getIntRelaxed(&s_severity));
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

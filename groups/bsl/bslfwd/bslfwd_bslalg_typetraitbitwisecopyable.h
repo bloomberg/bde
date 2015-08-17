@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class TypeTraitBitwiseCopyable;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::TypeTraitBitwiseCopyable bslalg_TypeTraitBitwiseCopyable;
-}
+}  // close enterprise namespace
 
 #else
 

@@ -441,11 +441,18 @@ class Function_Rep {
         // This enumeration provide values to identify operations to be
         // performed by the manager.
 
-        BDEF_MOVE_CONSTRUCT     = 0
-      , BDEF_COPY_CONSTRUCT     = 1
-      , BDEF_CONSTRUCT          = 2
-      , BDEF_DESTROY            = 3
-      , BDEF_IN_PLACE_DETECTION = 4
+        e_MOVE_CONSTRUCT     = 0
+      , e_COPY_CONSTRUCT     = 1
+      , e_CONSTRUCT          = 2
+      , e_DESTROY            = 3
+      , e_IN_PLACE_DETECTION = 4
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEF_MOVE_CONSTRUCT     = e_MOVE_CONSTRUCT
+      , BDEF_COPY_CONSTRUCT     = e_COPY_CONSTRUCT
+      , BDEF_CONSTRUCT          = e_CONSTRUCT
+      , BDEF_DESTROY            = e_DESTROY
+      , BDEF_IN_PLACE_DETECTION = e_IN_PLACE_DETECTION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     typedef bool (*Manager)(Function_Rep *rep,
@@ -467,7 +474,7 @@ class Function_Rep {
         // bigger than 'sizeof(ArenaType)' will be stored out-of-place and its
         // address will be stored in 'd_object_p'.  Discriminating between the
         // two representations can be done by the manager with the opcode
-        // 'BDEF_IN_PLACE_DETECTION'.  As a shortcut, when the manager is 0,
+        // 'e_IN_PLACE_DETECTION'.  As a shortcut, when the manager is 0,
         // the representation is in-place and the invocable is a function
         // pointer stored in 'd_object_p'.
         //
@@ -1228,7 +1235,7 @@ struct Function_RepUtil {
     // copy) in the same way as 'char [sizeof(FUNC)]'.  Finally, note that
     // there is no advantage to treat bitwise-moveable out-of-place
     // representations any differently that for non-bitwise-moveable types (the
-    // only operation that would benefit, 'BDEF_MOVE_CONSTRUCT', is already
+    // only operation that would benefit, 'e_MOVE_CONSTRUCT', is already
     // reduced to a simple pointer copy).
 
     // TYPES
@@ -1244,7 +1251,7 @@ struct Function_RepUtil {
         // at the specified 'rep' address (the actual type does not matter),
         // using the data at the specified 'source' address, performing the
         // operation with the specified 'opCode' and optimizing
-        // 'BDEF_MOVE_CONSTRUCT' and 'BDEF_COPY_CONSTRUCT' using bitwise copy.
+        // 'e_MOVE_CONSTRUCT' and 'e_COPY_CONSTRUCT' using bitwise copy.
         // Note that 'source' is interpreted either as 'const char[FUNC_SIZE]'
         // or 'Function_Rep *' according to the 'opCode'.
 
@@ -1257,7 +1264,7 @@ struct Function_RepUtil {
         // 'FUNC_SIZE' at the specified 'rep' address (the actual type does not
         // matter), using the data at the specified 'source' address,
         // performing the operation with the specified 'opCode' and optimizing
-        // 'BDEF_MOVE_CONSTRUCT' and 'BDEF_COPY_CONSTRUCT' using bitwise copy.
+        // 'e_MOVE_CONSTRUCT' and 'e_COPY_CONSTRUCT' using bitwise copy.
         // Note that 'source' is interpreted either as 'const char[FUNC_SIZE]'
         // or 'Function_Rep *' according to the 'opCode'.
 
@@ -1269,8 +1276,8 @@ struct Function_RepUtil {
         // Manage the in-place representation of the parameterized 'FUNC'
         // instance at the specified 'rep' address, using the data at the
         // specified 'source' address, performing the operation with the
-        // specified 'opCode' and optimizing 'BDEF_MOVE_CONSTRUCT' (but not
-        // 'BDEF_COPY_CONSTRUCT') using bitwise copy.  Note that 'source' is
+        // specified 'opCode' and optimizing 'e_MOVE_CONSTRUCT' (but not
+        // 'e_COPY_CONSTRUCT') using bitwise copy.  Note that 'source' is
         // interpreted either as 'const FUNC *' or 'Function_Rep *'
         // according to the 'opCode'.
 
@@ -2598,7 +2605,7 @@ Function_Rep::Function_Rep(
     Function_RepUtil::outofplaceBitwiseCopyableManager<sizeof(FUNC)>(
                                                            this,
                                                            (const void *)&func,
-                                                           BDEF_CONSTRUCT);
+                                                           e_CONSTRUCT);
 
     // Initialized *after* the manager call, in case the allocator throws.
     // See "Notes" in the component implementation file (.cpp).
@@ -2618,7 +2625,7 @@ Function_Rep::Function_Rep(
     Function_RepUtil::inplaceBitwiseMoveableManager<FUNC>(
                                                            this,
                                                            (const void *)&func,
-                                                           BDEF_CONSTRUCT);
+                                                           e_CONSTRUCT);
 
     // Initialized *after* the manager call, in case the ctor throws.
     // See "Notes" in the component implementation file (.cpp).
@@ -2635,7 +2642,7 @@ Function_Rep::Function_Rep(const FUNC&              func,
 {
     Function_RepUtil::inplaceManager<FUNC>(this,
                                                 (const void *)&func,
-                                                BDEF_CONSTRUCT);
+                                                e_CONSTRUCT);
 
     // Initialized *after* the manager call, in case the ctor throws.
     // See "Notes" in the component implementation file (.cpp).
@@ -2652,7 +2659,7 @@ Function_Rep::Function_Rep(const FUNC&                  func,
 {
     Function_RepUtil::outofplaceManager<FUNC>(this,
                                                    (const void *)&func,
-                                                   BDEF_CONSTRUCT);
+                                                   e_CONSTRUCT);
 
     // Initialized *after* the manager call, in case the ctor throws.
     // See "Notes" in the component implementation file (.cpp).
@@ -2779,7 +2786,7 @@ bool Function_Rep::isInplace() const
     if (!d_manager_p) {
         return true;                                                  // RETURN
     }
-    return (*d_manager_p)(0, (const void *)0, BDEF_IN_PLACE_DETECTION);
+    return (*d_manager_p)(0, (const void *)0, e_IN_PLACE_DETECTION);
 }
 
                         // ----------------------------
@@ -2794,12 +2801,12 @@ bool Function_RepUtil::inplaceBitwiseCopyableManager(
                                       Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
-    // hence the code that can be shared, such as 'BDEF_COPY_CONSTRUCT' and
-    // 'BDEF_CONSTRUCT', is shared via 'FALL THROUGH'.
+    // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
+    // 'e_CONSTRUCT', is shared via 'FALL THROUGH'.
 
     switch(opCode) {
-      case Function_Rep::BDEF_MOVE_CONSTRUCT:              // FALL THROUGH
-      case Function_Rep::BDEF_COPY_CONSTRUCT: {
+      case Function_Rep::e_MOVE_CONSTRUCT:              // FALL THROUGH
+      case Function_Rep::e_COPY_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // instance, and 'rep' must be empty (or a function pointer).  Note
         // that 'source' is left in a empty state but must be zero-initialized
@@ -2807,17 +2814,17 @@ bool Function_RepUtil::inplaceBitwiseCopyableManager(
 
         source = &((const Function_Rep *)source)->d_arena;
       }                                                         // FALL THROUGH
-      case Function_Rep::BDEF_CONSTRUCT: {
+      case Function_Rep::e_CONSTRUCT: {
         // 'source' is a 'FUNC *', and 'rep' must be empty (or a function
         // pointer).
 
         bsl::memcpy((void *)&rep->d_arena, source, FUNC_SIZE);
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_DESTROY: {
+      case Function_Rep::e_DESTROY: {
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_IN_PLACE_DETECTION: {
+      case Function_Rep::e_IN_PLACE_DETECTION: {
         return true;                                                  // RETURN
       } break;
       default:
@@ -2833,11 +2840,11 @@ bool Function_RepUtil::outofplaceBitwiseCopyableManager(
                                   Function_Rep::ManagerOpCode      opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
-    // hence the code that can be shared, such as 'BDEF_COPY_CONSTRUCT' and
-    // 'BDEF_CONSTRUCT', is shared via 'FALL THROUGH'.
+    // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
+    // 'e_CONSTRUCT', is shared via 'FALL THROUGH'.
 
     switch(opCode) {
-      case Function_Rep::BDEF_MOVE_CONSTRUCT: {
+      case Function_Rep::e_MOVE_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // pointer, and 'rep' must be empty (or a function pointer).  Note
         // that 'source' is left in a empty state but must be zero-initialized
@@ -2849,13 +2856,13 @@ bool Function_RepUtil::outofplaceBitwiseCopyableManager(
         rep->d_arena.d_object_p = sourceRep->d_arena.d_object_p;
         return false;                                                 // RETURN
       } break;
-      case Function_Rep::BDEF_COPY_CONSTRUCT: {
+      case Function_Rep::e_COPY_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // pointer, and 'rep' must be empty (or a function pointer).
 
         source = ((const Function_Rep *)source)->d_arena.d_object_p;
       }                                                         // FALL THROUGH
-      case Function_Rep::BDEF_CONSTRUCT: {
+      case Function_Rep::e_CONSTRUCT: {
         // 'source' is a 'FUNC *', and 'rep' must be empty (or a function
         // pointer).
 
@@ -2864,13 +2871,13 @@ bool Function_RepUtil::outofplaceBitwiseCopyableManager(
         rep->d_arena.d_object_p = tempPtr;
         return false;                                                 // RETURN
       } break;
-      case Function_Rep::BDEF_DESTROY: {
+      case Function_Rep::e_DESTROY: {
         // 'rep' stores a 'FUNC' instance, and 'source' is irrelevant.
 
         rep->d_allocator_p->deallocate(rep->d_arena.d_object_p);
         return false;                                                 // RETURN
       } break;
-      case Function_Rep::BDEF_IN_PLACE_DETECTION: {
+      case Function_Rep::e_IN_PLACE_DETECTION: {
         return false;                                                 // RETURN
       } break;
       default:
@@ -2886,11 +2893,11 @@ bool Function_RepUtil::inplaceBitwiseMoveableManager(
                                       Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
-    // hence the code that can be shared, such as 'BDEF_COPY_CONSTRUCT' and
-    // 'BDEF_CONSTRUCT', is shared via 'FALL THROUGH'.
+    // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
+    // 'e_CONSTRUCT', is shared via 'FALL THROUGH'.
 
     switch(opCode) {
-      case Function_Rep::BDEF_MOVE_CONSTRUCT: {
+      case Function_Rep::e_MOVE_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // instance, and 'rep' must be empty (or a function pointer).  Note
         // that 'source' is left in a empty state but must be zero-initialized
@@ -2906,13 +2913,13 @@ bool Function_RepUtil::inplaceBitwiseMoveableManager(
 
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_COPY_CONSTRUCT: {
+      case Function_Rep::e_COPY_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // instance, and 'rep' must be empty (or a function pointer).
 
         source = &((const Function_Rep *)source)->d_arena;
       }                                                         // FALL THROUGH
-      case Function_Rep::BDEF_CONSTRUCT: {
+      case Function_Rep::e_CONSTRUCT: {
         // 'source' is a 'FUNC *', and 'rep' must be empty (or a function
         // pointer).
 
@@ -2921,13 +2928,13 @@ bool Function_RepUtil::inplaceBitwiseMoveableManager(
                                                 rep->d_allocator_p);
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_DESTROY: {
+      case Function_Rep::e_DESTROY: {
         // 'rep' stores a 'FUNC' instance, and 'source' is irrelevant.
 
         ((FUNC *)&rep->d_arena)->~FUNC();
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_IN_PLACE_DETECTION: {
+      case Function_Rep::e_IN_PLACE_DETECTION: {
         return true;                                                  // RETURN
       } break;
       default:
@@ -2943,11 +2950,11 @@ bool Function_RepUtil::inplaceManager(
                                       Function_Rep::ManagerOpCode  opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
-    // hence the code that can be shared, such as 'BDEF_COPY_CONSTRUCT' and
-    // 'BDEF_CONSTRUCT', is shared via 'FALL THROUGH'.
+    // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
+    // 'e_CONSTRUCT', is shared via 'FALL THROUGH'.
 
     switch(opCode) {
-      case Function_Rep::BDEF_MOVE_CONSTRUCT: {
+      case Function_Rep::e_MOVE_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // instance, and 'rep' must be empty (or a function pointer).  Note
         // that 'source' is left in a empty state but must be zero-initialized
@@ -2964,13 +2971,13 @@ bool Function_RepUtil::inplaceManager(
         const_cast<FUNC *>((const FUNC *)source)->~FUNC();
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_COPY_CONSTRUCT: {
+      case Function_Rep::e_COPY_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // instance, and 'rep' must be empty (or a function pointer).
 
         source = &((const Function_Rep *)source)->d_arena;
       }                                                         // FALL THROUGH
-      case Function_Rep::BDEF_CONSTRUCT: {
+      case Function_Rep::e_CONSTRUCT: {
         // 'source' is a 'FUNC *', and 'rep' must be empty (or a function
         // pointer).
 
@@ -2979,13 +2986,13 @@ bool Function_RepUtil::inplaceManager(
                                                 rep->d_allocator_p);
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_DESTROY: {
+      case Function_Rep::e_DESTROY: {
         // 'rep' stores a 'FUNC' instance, and 'source' is irrelevant.
 
         ((FUNC *)&rep->d_arena)->~FUNC();
         return true;                                                  // RETURN
       } break;
-      case Function_Rep::BDEF_IN_PLACE_DETECTION: {
+      case Function_Rep::e_IN_PLACE_DETECTION: {
         return true;                                                  // RETURN
       } break;
       default:
@@ -3001,11 +3008,11 @@ bool Function_RepUtil::outofplaceManager(
                                   Function_Rep::ManagerOpCode      opCode)
 {
     // NOTE: This function is optimized for space (to minimize template bloat),
-    // hence the code that can be shared, such as 'BDEF_COPY_CONSTRUCT' and
-    // 'BDEF_CONSTRUCT', is shared via 'FALL THROUGH'.
+    // hence the code that can be shared, such as 'e_COPY_CONSTRUCT' and
+    // 'e_CONSTRUCT', is shared via 'FALL THROUGH'.
 
     switch(opCode) {
-      case Function_Rep::BDEF_MOVE_CONSTRUCT: {
+      case Function_Rep::e_MOVE_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // pointer, and 'rep' must be empty (or a function pointer).  Note
         // that 'source' is left in a empty state but must be zero-initialized
@@ -3018,13 +3025,13 @@ bool Function_RepUtil::outofplaceManager(
                        ((const Function_Rep *)source)->d_arena.d_object_p;
         return false;                                                 // RETURN
       } break;
-      case Function_Rep::BDEF_COPY_CONSTRUCT: {
+      case Function_Rep::e_COPY_CONSTRUCT: {
         // 'source' is interpreted as a 'Function_Rep *' storing a 'FUNC'
         // pointer, and 'rep' must be empty (or a function pointer).
 
         source = ((const Function_Rep *)source)->d_arena.d_object_p;
       }                                                         // FALL THROUGH
-      case Function_Rep::BDEF_CONSTRUCT: {
+      case Function_Rep::e_CONSTRUCT: {
         // 'source' is a 'FUNC *', and 'rep' must be empty (or a function
         // pointer).
 
@@ -3040,14 +3047,14 @@ bool Function_RepUtil::outofplaceManager(
         rep->d_arena.d_object_p = tempPtr;
         return false;                                                 // RETURN
       } break;
-      case Function_Rep::BDEF_DESTROY: {
+      case Function_Rep::e_DESTROY: {
         // 'rep' stores a 'FUNC' instance, and 'source' is irrelevant.
 
         ((FUNC *)rep->d_arena.d_object_p)->~FUNC();
         rep->d_allocator_p->deallocate(rep->d_arena.d_object_p);
         return false;                                                 // RETURN
       } break;
-      case Function_Rep::BDEF_IN_PLACE_DETECTION: {
+      case Function_Rep::e_IN_PLACE_DETECTION: {
         return false;                                                 // RETURN
       } break;
       default:
@@ -3057,15 +3064,22 @@ bool Function_RepUtil::outofplaceManager(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

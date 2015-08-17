@@ -455,10 +455,10 @@ bool requiresAliasedOper(const int *dstBitstring,
 
         if ((srcStartPtr == dstStartPtr && dstStartPos < srcStartPos)
          || (srcEndPtr   == dstStartPtr && srcEndPos   < dstStartPos)) {
-            return false;
+            return false;                                             // RETURN
         }
         else {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;
@@ -762,7 +762,7 @@ void BitstringUtil::set(int  *bitstring,
     BSLS_ASSERT(0 <= numBits);
 
     if (0 == numBits) {
-        return;
+        return;                                                       // RETURN
     }
 
     int idx = index / BITS_PER_INT;
@@ -781,7 +781,7 @@ void BitstringUtil::set(int  *bitstring,
 
     numBits -= numOfBits;
     if (numBits <= 0) {
-        return;
+        return;                                                       // RETURN
     }
 
     ++idx;
@@ -986,7 +986,7 @@ bsl::ostream& BitstringUtil::print(bsl::ostream&  stream,
     BSLS_ASSERT(0 < bitsPerUnit);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     Print::indent(stream, level, spacesPerLevel);
@@ -1278,7 +1278,7 @@ int BitstringUtil::find0AtLargestIndex(const int *bitstring, int length)
             const int value = bitstring[i];
             if (~value) {
                 return i * BITS_PER_INT
-                     + bdlb::BitUtil::find0AtLargestIndex(value);      // RETURN
+                     + bdlb::BitUtil::find0AtLargestIndex(value);     // RETURN
             }
         }
     }
@@ -1321,7 +1321,7 @@ int BitstringUtil::find0AtLargestIndexGE(const int *bitstring,
                 const int value = bitstring[i];
                 if (~value) {
                     return i * BITS_PER_INT
-                         + bdlb::BitUtil::find0AtLargestIndex(value);  // RETURN
+                         + bdlb::BitUtil::find0AtLargestIndex(value); // RETURN
                 }
             }
             rv = bdlb::BitUtil::find0AtLargestIndexGE(bitstring[idx],
@@ -1370,7 +1370,7 @@ int BitstringUtil::find0AtLargestIndexGT(const int *bitstring,
                 const int value = bitstring[i];
                 if (~value) {
                     return i * BITS_PER_INT
-                        + bdlb::BitUtil::find0AtLargestIndex(value);   // RETURN
+                        + bdlb::BitUtil::find0AtLargestIndex(value);  // RETURN
                 }
             }
             rv = bdlb::BitUtil::find0AtLargestIndexGT(bitstring[idx],
@@ -1397,7 +1397,7 @@ int BitstringUtil::find0AtLargestIndexLE(const int *bitstring, int index)
         const int value = bitstring[i];
         if (~value) {
             return i * BITS_PER_INT
-                   + bdlb::BitUtil::find0AtLargestIndex(value);        // RETURN
+                   + bdlb::BitUtil::find0AtLargestIndex(value);       // RETURN
         }
     }
     return -1;
@@ -1418,7 +1418,7 @@ int BitstringUtil::find0AtLargestIndexLT(const int *bitstring, int index)
         const int value = bitstring[i];
         if (~value) {
             return i * BITS_PER_INT
-                + bdlb::BitUtil::find0AtLargestIndex(value);           // RETURN
+                + bdlb::BitUtil::find0AtLargestIndex(value);          // RETURN
         }
     }
     return -1;
@@ -1435,7 +1435,7 @@ int BitstringUtil::find0AtSmallestIndex(const int *bitstring, int length)
             const int value = bitstring[i];
             if (~value) {
                 return i * BITS_PER_INT
-                     + bdlb::BitUtil::find0AtSmallestIndex(value);     // RETURN
+                     + bdlb::BitUtil::find0AtSmallestIndex(value);    // RETURN
             }
         }
 
@@ -1485,7 +1485,8 @@ int BitstringUtil::find0AtSmallestIndexGE(const int *bitstring,
                 const int value = bitstring[i];
                 if (~value) {
                     return i * BITS_PER_INT
-                         + bdlb::BitUtil::find0AtSmallestIndex(value); // RETURN
+                         + bdlb::BitUtil::find0AtSmallestIndex(value);
+                                                                      // RETURN
                 }
             }
             const int pos = (length - 1) % BITS_PER_INT + 1;
@@ -1535,7 +1536,8 @@ int BitstringUtil::find0AtSmallestIndexGT(const int *bitstring,
                 const int value = bitstring[i];
                 if (~value) {
                     return i * BITS_PER_INT
-                         + bdlb::BitUtil::find0AtSmallestIndex(value); // RETURN
+                         + bdlb::BitUtil::find0AtSmallestIndex(value);
+                                                                      // RETURN
                 }
             }
             const int pos = (length - 1) % BITS_PER_INT + 1;
@@ -1561,7 +1563,7 @@ int BitstringUtil::find0AtSmallestIndexLE(const int *bitstring, int index)
         const int value = bitstring[i];
         if (~value) {
             return i * BITS_PER_INT
-                + bdlb::BitUtil::find0AtSmallestIndex(value);          // RETURN
+                + bdlb::BitUtil::find0AtSmallestIndex(value);         // RETURN
         }
     }
     const int rv = bdlb::BitUtil::find0AtSmallestIndexLE(bitstring[idx],
@@ -1583,7 +1585,7 @@ int BitstringUtil::find0AtSmallestIndexLT(const int *bitstring, int index)
         const int value = bitstring[i];
         if (~value) {
             return i * BITS_PER_INT
-                   + bdlb::BitUtil::find0AtSmallestIndex(value);       // RETURN
+                   + bdlb::BitUtil::find0AtSmallestIndex(value);      // RETURN
         }
     }
     const int rv = bdlb::BitUtil::find0AtSmallestIndexLT(bitstring[idx],
@@ -1614,7 +1616,7 @@ int BitstringUtil::find1AtLargestIndex(const int *bitstring, int length)
             const int value = bitstring[i];
             if (value) {
                 return i * BITS_PER_INT
-                       + bdlb::BitUtil::find1AtLargestIndex(value);    // RETURN
+                       + bdlb::BitUtil::find1AtLargestIndex(value);   // RETURN
             }
         }
     }
@@ -1658,7 +1660,7 @@ int BitstringUtil::find1AtLargestIndexGE(const int *bitstring,
                 const int value = bitstring[i];
                 if (value) {
                     return i * BITS_PER_INT
-                         + bdlb::BitUtil::find1AtLargestIndex(value);  // RETURN
+                         + bdlb::BitUtil::find1AtLargestIndex(value); // RETURN
                 }
             }
             rv = bdlb::BitUtil::find1AtLargestIndexGE(bitstring[idx],
@@ -1708,7 +1710,7 @@ int BitstringUtil::find1AtLargestIndexGT(const int *bitstring,
                 const int value = bitstring[i];
                 if (value) {
                     return i * BITS_PER_INT
-                         + bdlb::BitUtil::find1AtLargestIndex(value);  // RETURN
+                         + bdlb::BitUtil::find1AtLargestIndex(value); // RETURN
                 }
             }
             rv = bdlb::BitUtil::find1AtLargestIndexGT(bitstring[idx],
@@ -1736,7 +1738,7 @@ int BitstringUtil::find1AtLargestIndexLE(const int *bitstring, int index)
         const int value = bitstring[i];
         if (value) {
             return i * BITS_PER_INT
-                   + bdlb::BitUtil::find1AtLargestIndex(value);        // RETURN
+                   + bdlb::BitUtil::find1AtLargestIndex(value);       // RETURN
         }
     }
     return -1;
@@ -1757,7 +1759,7 @@ int BitstringUtil::find1AtLargestIndexLT(const int *bitstring, int index)
         const int value = bitstring[i];
         if (value) {
             return i * BITS_PER_INT
-                   + bdlb::BitUtil::find1AtLargestIndex(value);        // RETURN
+                   + bdlb::BitUtil::find1AtLargestIndex(value);       // RETURN
         }
     }
     return -1;
@@ -1774,7 +1776,7 @@ int BitstringUtil::find1AtSmallestIndex(const int *bitstring, int length)
             const int value = bitstring[i];
             if (value) {
                 return i * BITS_PER_INT
-                       + bdlb::BitUtil::find1AtSmallestIndex(value);   // RETURN
+                       + bdlb::BitUtil::find1AtSmallestIndex(value);  // RETURN
             }
         }
 
@@ -1824,7 +1826,8 @@ int BitstringUtil::find1AtSmallestIndexGE(const int *bitstring,
                 const int value = bitstring[i];
                 if (value) {
                     return i * BITS_PER_INT
-                         + bdlb::BitUtil::find1AtSmallestIndex(value); // RETURN
+                         + bdlb::BitUtil::find1AtSmallestIndex(value);
+                                                                      // RETURN
                 }
             }
             const int pos = (length - 1) % BITS_PER_INT + 1;
@@ -1874,7 +1877,8 @@ int BitstringUtil::find1AtSmallestIndexGT(const int *bitstring,
                 const int value = bitstring[i];
                 if (value) {
                     return i * BITS_PER_INT
-                         + bdlb::BitUtil::find1AtSmallestIndex(value); // RETURN
+                         + bdlb::BitUtil::find1AtSmallestIndex(value);
+                                                                      // RETURN
                 }
             }
             const int pos = (length - 1) % BITS_PER_INT + 1;
@@ -1900,7 +1904,7 @@ int BitstringUtil::find1AtSmallestIndexLE(const int *bitstring, int index)
         const int value = bitstring[i];
         if (value) {
             return i * BITS_PER_INT
-                   + bdlb::BitUtil::find1AtSmallestIndex(value);       // RETURN
+                   + bdlb::BitUtil::find1AtSmallestIndex(value);      // RETURN
         }
     }
     const int rv = bdlb::BitUtil::find1AtSmallestIndexLE(bitstring[idx],
@@ -1922,7 +1926,7 @@ int BitstringUtil::find1AtSmallestIndexLT(const int *bitstring, int index)
         const int value = bitstring[i];
         if (value) {
             return i * BITS_PER_INT
-                   + bdlb::BitUtil::find1AtSmallestIndex(value);       // RETURN
+                   + bdlb::BitUtil::find1AtSmallestIndex(value);      // RETURN
         }
     }
     const int rv = bdlb::BitUtil::find1AtSmallestIndexLT(bitstring[idx],
@@ -1991,7 +1995,7 @@ int BitstringUtil::num0(const int *bitstring, int index, int numBits)
     remBits = numBits - remBits;
 
     if (remBits <= 0) {
-        return numSet;
+        return numSet;                                                // RETURN
     }
 
     const int numInts = remBits / BITS_PER_INT;
@@ -2027,7 +2031,7 @@ int BitstringUtil::num1(const int *bitstring, int index, int numBits)
     remBits = numBits - remBits;
 
     if (remBits <= 0) {
-        return numSet;
+        return numSet;                                                // RETURN
     }
 
     const int numInts = remBits / BITS_PER_INT;
@@ -2046,13 +2050,20 @@ int BitstringUtil::num1(const int *bitstring, int index, int numBits)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -28,7 +28,7 @@ InfrequentDeleteBlockList::~InfrequentDeleteBlockList()
 void *InfrequentDeleteBlockList::allocate(int numBytes)
 {
     if (0 == numBytes) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     // Add size of block header to 'numBytes', then round up to

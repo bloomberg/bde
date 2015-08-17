@@ -1,4 +1,4 @@
-// btlb_blob.t.cpp                                                   -*-C++-*-
+// btlb_blob.t.cpp                                                    -*-C++-*-
 #include <btlb_blob.h>
 
 #include <bdlt_datetimeutil.h>                     // for testing only
@@ -27,9 +27,9 @@ using bsl::flush;
 using bsl::endl;
 using bsl::cerr;
 
-//==========================================================================
+//=============================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // This test driver verifies many claims about 'btlb::Blob's which are made in
@@ -62,7 +62,7 @@ using bsl::cerr;
 // empty blobs with empty or non-empty capacities are always taken into
 // account, and run bdema exception test loops around all these.  With this
 // test driver, there is almost no room for a bug in the component.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 2] btlb::Blob(allocator);
 // [ 2] btlb::Blob(factory, allocator);
 // [ 2] btlb::Blob(buffers, numBuffers, allocator);
@@ -83,13 +83,13 @@ using bsl::cerr;
 // [11] void btlb::Blob::moveDataBuffers(btlb::Blob *srcBlob);
 // [11] void btlb::Blob::moveAndAppendDataBuffers(btlb::Blob *srcBlob);
 // [10] void btlb::Blob::swapBufferRaw(int index, btlb::BlobBuffer *srcBuffer);
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] CONCERN: BUFFER ALIASING
 // [13] USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
@@ -261,7 +261,7 @@ void blobToStr(bsl::string * str, const btlb::Blob& blob) {
 bool checkBlob(const btlb::Blob& blob, const bsl::string& dataString)
 {
     if (blob.length() != (int) dataString.length()) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     const char *data = dataString.data();
@@ -276,7 +276,7 @@ bool checkBlob(const btlb::Blob& blob, const bsl::string& dataString)
         for (char *pc = buffer.data(), *end = pc + buffer.size();
                   pc < end && dataCharIdx < DATA_LENGTH; ++pc, ++dataCharIdx) {
             if (*pc != data[dataCharIdx]) {
-                return false;
+                return false;                                         // RETURN
             }
         }
     }
@@ -289,7 +289,7 @@ void populateBuffersWithData(btlb::Blob *blob, int numBuffers, char value)
     // specified 'value'.
 {
     if (0 == numBuffers) {
-        return;
+        return;                                                       // RETURN
     }
     for (int i = 0; i < numBuffers; ++i) {
         bsl::memset(blob->buffer(i).data(), value, blob->buffer(i).size());
@@ -304,7 +304,7 @@ bool compareBlobBufferData(const btlb::BlobBuffer& blobBuffer, char value)
     const char *bufData = blobBuffer.data();
     for (int i = 0; i < bufSize; ++i) {
         if (bufData[i] != value) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -321,14 +321,14 @@ bool compareBuffersData(const btlb::Blob& blob,
     ASSERT(-1 <= exceptIdx && exceptIdx < numBuffers);
 
     if (0 == numBuffers) {
-        return false;
+        return false;                                                 // RETURN
     }
     for (int i = 0; i < numBuffers; ++i) {
         if (i == exceptIdx) {
             continue;
         }
         if (!compareBlobBufferData(blob.buffer(i), value)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -3052,11 +3052,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

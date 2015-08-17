@@ -18,7 +18,7 @@ namespace
 // through inline functions defined in the header.
     static ::BloombergLP::bslma::Allocator
                               *s_StdTestAllocatorConfiguration_allocator_p = 0;
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 namespace BloombergLP {
 namespace bsltf {

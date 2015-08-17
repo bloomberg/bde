@@ -1,4 +1,4 @@
-// bdlxxxx_bytestreamimputil.h                                           -*-C++-*-
+// bdlxxxx_bytestreamimputil.h                                        -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_BYTESTREAMIMPUTIL
 #define INCLUDED_BDLXXXX_BYTESTREAMIMPUTIL
 
@@ -774,9 +774,9 @@ struct ByteStreamImpUtil {
         // operation may be lossy.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -----------------------------
                         // struct ByteStreamImpUtil
@@ -1647,15 +1647,15 @@ void ByteStreamImpUtil::getArrayInt8(unsigned char *array,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlxxxx_byteoutstreamraw.h                                            -*-C++-*-
+// bdlxxxx_byteoutstreamraw.h                                         -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_BYTEOUTSTREAMRAW
 #define INCLUDED_BDLXXXX_BYTEOUTSTREAMRAW
 
@@ -277,7 +277,7 @@ class ByteOutStreamRaw {
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     ByteOutStreamRaw& put(const TYPE& variable);
         // TBD
 
@@ -559,7 +559,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 ByteOutStreamRaw& operator<<(ByteOutStreamRaw& stream,
                                   const OBJECT&          object);
@@ -574,9 +574,9 @@ ByteOutStreamRaw& operator<<(ByteOutStreamRaw& stream,
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 inline
@@ -1029,7 +1029,7 @@ ByteOutStreamRaw::putArrayFloat32(const float *array, int count)
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename TYPE>
+template <class TYPE>
 inline
 ByteOutStreamRaw& ByteOutStreamRaw::put(const TYPE& variable)
 {
@@ -1064,7 +1064,7 @@ int ByteOutStreamRaw::length() const
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 bdlxxxx::ByteOutStreamRaw& bdlxxxx::operator<<(ByteOutStreamRaw& stream,
                                   const OBJECT&          object)
@@ -1074,15 +1074,15 @@ bdlxxxx::ByteOutStreamRaw& bdlxxxx::operator<<(ByteOutStreamRaw& stream,
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

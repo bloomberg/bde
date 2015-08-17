@@ -113,7 +113,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -146,7 +146,7 @@ enum {
 };
 
 //=============================================================================
-//                      USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 ///  Usage example
 
@@ -244,7 +244,7 @@ void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
         {
             d_allocator.close();
         }
-        return;
+        return;                                                       // RETURN
     }
     ASSERT(0 >= status);    // Interrupts are not enabled.
     if (0 == status) {
@@ -289,7 +289,7 @@ void my_EchoServer::bufferedReadCb(const char            *buffer,
         {
             cout << "Failed to enqueue write request" << endl;
             d_allocator.deallocate(channel);
-            return;
+            return;                                                   // RETURN
         }
         // Re-register read request
         bdlf::Function<void (*)(const char *, int, int)> readCallback(
@@ -342,7 +342,7 @@ void my_EchoServer::readCb(int                    status,
         {
             cout << "Failed to enqueue write request" << endl;
             d_allocator.deallocate(channel);
-            return;
+            return;                                                   // RETURN
         }
         // Re-register read request
         bdlf::Function<void (*)(int, int)> readCallback(
@@ -393,7 +393,7 @@ int my_EchoServer::open(int portNumber) {
     int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
     if (s) {
         cout << "Failed to open listening port." << endl;
-        return s;
+        return s;                                                     // RETURN
     }
     cout << "server's socket: " << d_allocator.address() << endl;
     ASSERT(0 == d_allocator.isInvalid());
@@ -403,7 +403,7 @@ int my_EchoServer::open(int portNumber) {
         cout << "Can't enqueue an allocation request." << endl;
         ASSERT(d_allocator.isInvalid());
         d_allocator.close();
-        return s;
+        return s;                                                     // RETURN
     }
     return 0;
 }
@@ -416,7 +416,7 @@ int my_EchoServer::close() {
 //                      USAGE EXAMPLE IN THE PROTOCOL HEADER FILE
 //-----------------------------------------------------------------------------
 // Usage example 3: Tick Reporter
-// -------------------------------
+// ----------------------------------------------------------------------------
 class my_Tick {
     char   d_name[5];
     double d_bestBid;

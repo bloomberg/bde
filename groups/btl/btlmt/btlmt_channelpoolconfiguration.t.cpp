@@ -160,7 +160,7 @@ const bool COLLECTMETRICS[NUM_VALUES] =
                         // class GetValue<LVALUE_TYPE>
                         // ===========================
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 class GetValue {
     // This visitor assigns the value of the visited member to
     // 'd_destination_p'.
@@ -173,12 +173,12 @@ class GetValue {
     explicit GetValue(LVALUE_TYPE *lValue);
 
     // ACCESSORS
-    template <typename INFO_TYPE>
+    template <class INFO_TYPE>
     int operator()(const LVALUE_TYPE& object,
                    const INFO_TYPE&   info) const;
         // Assign 'object' to '*d_destination_p'.
 
-    template <typename RVALUE_TYPE, typename INFO_TYPE>
+    template <class RVALUE_TYPE, class INFO_TYPE>
     int operator()(const RVALUE_TYPE& object,
                    const INFO_TYPE&   info) const;
         // Do nothing.
@@ -188,7 +188,7 @@ class GetValue {
                        // class AssignValue<RVALUE_TYPE>
                        // ==============================
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 class AssignValue {
     // This visitor assigns 'd_value' to the visited member.
 
@@ -200,12 +200,12 @@ class AssignValue {
     explicit AssignValue(const RVALUE_TYPE& value);
 
     // ACCESSORS
-    template <typename INFO_TYPE>
+    template <class INFO_TYPE>
     int operator()(RVALUE_TYPE      *object,
                    const INFO_TYPE&  info) const;
         // Assign 'd_value' to '*object'.
 
-    template <typename LVALUE_TYPE, typename INFO_TYPE>
+    template <class LVALUE_TYPE, class INFO_TYPE>
     int operator()(LVALUE_TYPE      *object,
                    const INFO_TYPE&  info) const;
         // Do nothing.
@@ -217,7 +217,7 @@ class AssignValue {
 
 // CREATORS
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 : d_lValue_p(lValue)
 {
@@ -225,8 +225,8 @@ GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 
 // ACCESSORS
 
-template <typename LVALUE_TYPE>
-template <typename INFO_TYPE>
+template <class LVALUE_TYPE>
+template <class INFO_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object,
                                       const INFO_TYPE&   info) const
 {
@@ -234,8 +234,8 @@ int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object,
     return 0;
 }
 
-template <typename LVALUE_TYPE>
-template <typename RVALUE_TYPE, typename INFO_TYPE>
+template <class LVALUE_TYPE>
+template <class RVALUE_TYPE, class INFO_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object,
                                       const INFO_TYPE&   info) const
 {
@@ -248,7 +248,7 @@ int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object,
 
 // CREATORS
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 : d_value(value)
 {
@@ -256,8 +256,8 @@ AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 
 // ACCESSORS
 
-template <typename RVALUE_TYPE>
-template <typename INFO_TYPE>
+template <class RVALUE_TYPE>
+template <class INFO_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object,
                                          const INFO_TYPE&) const
 {
@@ -265,8 +265,8 @@ int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object,
     return 0;
 }
 
-template <typename RVALUE_TYPE>
-template <typename LVALUE_TYPE, typename INFO_TYPE>
+template <class RVALUE_TYPE>
+template <class LVALUE_TYPE, class INFO_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object,
                                          const INFO_TYPE&) const
 {
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
             NUM_ATTRIBUTES = 14
         };
 
-        ASSERT(NUM_ATTRIBUTES == Obj::NUM_ATTRIBUTES);
+        ASSERT(NUM_ATTRIBUTES == Obj::k_NUM_ATTRIBUTES);
 
         const char* NAMES[] = {
         "MaxConnections", "MaxThreads", "ReadTimeout", "MetricsInterval",
@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
         {
             btlmt::ChannelPoolConfiguration cpc;
             for (int i = 0; i <  NUM_NAMES; ++i) {
-                bdeat_AttributeInfo info
+                bdlat_AttributeInfo info
                      = btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[i];
 
                 LOOP_ASSERT(i, NAMES[i] == bsl::string(info.name(),
@@ -425,7 +425,7 @@ int main(int argc, char *argv[])
             btlmt::ChannelPoolConfiguration cpc;
             AssignValue<int> visitor(0);
             ASSERT(-1 ==
-                 bdeat_SequenceFunctions::manipulateAttribute(
+                 bdlat_SequenceFunctions::manipulateAttribute(
                                                     &cpc,
                                                     visitor,
                                                     NUM_ATTRIBUTES + 1));
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMaxConnections(MAXCONNECTIONS[i]));
                     AssignValue<int> visitor(MAXCONNECTIONS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMaxThreads(MAXNUMTHREADS[i]));
                     AssignValue<int> visitor(MAXNUMTHREADS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setReadTimeout(READTIMEOUT[i]));
                     AssignValue<double> visitor(READTIMEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMetricsInterval(METRICSINTERVAL[i]));
                     AssignValue<double> visitor(METRICSINTERVAL[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
                                                mA.maxOutgoingMessageSize()));
                     AssignValue<int> visitor(MINMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -491,7 +491,7 @@ int main(int argc, char *argv[])
                                                  mA.maxOutgoingMessageSize()));
                     AssignValue<int> visitor(TYPMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
                                                MAXMESSAGESIZEOUT[i]));
                     AssignValue<int> visitor(MAXMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
                                                mA.maxIncomingMessageSize()));
                     AssignValue<int> visitor(MINMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
                                                  mA.maxIncomingMessageSize()));
                     AssignValue<int> visitor(TYPMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
                                                MAXMESSAGESIZEIN[i]));
                     AssignValue<int> visitor(MAXMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
                                                   mA.writeCacheHiWatermark()));
                     AssignValue<int> visitor(i);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
                                                    MAXWRITECACHE[i]));
                     AssignValue<int> visitor(MAXWRITECACHE[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setThreadStackSize(THREADSTACKSIZE[i]));
                     AssignValue<int> visitor(THREADSTACKSIZE[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setCollectTimeMetrics(COLLECTMETRICS[i]));
                     AssignValue<bool> visitor(COLLECTMETRICS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -585,11 +585,11 @@ int main(int argc, char *argv[])
                     double value;
                     GetValue<double> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<double> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
@@ -597,11 +597,11 @@ int main(int argc, char *argv[])
                     bool value;
                     GetValue<bool> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<bool> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
@@ -609,11 +609,11 @@ int main(int argc, char *argv[])
                     int value;
                     GetValue<int> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<int> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
@@ -2048,11 +2048,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

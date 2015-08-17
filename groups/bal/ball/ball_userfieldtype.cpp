@@ -1,4 +1,4 @@
-// ball_userfieldtype.cpp                                           -*-C++-*-
+// ball_userfieldtype.cpp                                             -*-C++-*-
 #include <ball_userfieldtype.h>
 
 #include <bsls_ident.h>
@@ -16,10 +16,10 @@ namespace ball {
                      // ----------------------
 
 // CLASS METHODS
-bsl::ostream& UserFieldType::print(bsl::ostream&     stream,
-                                 UserFieldType::Enum value,
-                                 int               level,
-                                 int               spacesPerLevel)
+bsl::ostream& UserFieldType::print(bsl::ostream&       stream,
+                                   UserFieldType::Enum value,
+                                   int                 level,
+                                   int                 spacesPerLevel)
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
 
@@ -46,7 +46,7 @@ const char *UserFieldType::toAscii(UserFieldType::Enum value)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

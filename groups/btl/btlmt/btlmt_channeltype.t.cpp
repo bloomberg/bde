@@ -1,4 +1,4 @@
-// btlmt_channeltype.t.cpp    -*-C++-*-
+// btlmt_channeltype.t.cpp                                            -*-C++-*-
 
 #include <btlmt_channeltype.h>
 
@@ -56,16 +56,16 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
-//==========================================================================
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 typedef btlmt::ChannelType  Class;
 typedef Class::Value       Enum;
 
-//==========================================================================
+//=============================================================================
 //                              MAIN PROGRAM
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -97,10 +97,10 @@ int main(int argc, char *argv[]) {
                           << "\n=====================" << endl;
 
 // First, create a variable 'channelType' of type 'btlmt::ChannelType::Value'
-// and initialize it to the value 'btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL'.
+// and initialize it to the value 'btlmt::ChannelType::e_CONNECTED_CHANNEL'.
 //..
     btlmt::ChannelType::Value channelType =
-                                    btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL;
+                                    btlmt::ChannelType::e_CONNECTED_CHANNEL;
 //..
 // Next, store its representation in a variable 'rep' of type 'const char*'.
 //..
@@ -135,13 +135,13 @@ int main(int argc, char *argv[]) {
         } DATA[] = {
             // line   Enumerated Value                  Expected output
             // ----   ----------------                  ---------------
-            {  L_,    Class::BTEMT_LISTENING_CHANNEL,   "LISTENING_CHANNEL"  },
-            {  L_,    Class::BTEMT_ACCEPTED_CHANNEL,    "ACCEPTED_CHANNEL"   },
-            {  L_,    Class::BTEMT_CONNECTING_CHANNEL,  "CONNECTING_CHANNEL" },
-            {  L_,    Class::BTEMT_CONNECTED_CHANNEL,   "CONNECTED_CHANNEL"  },
-            {  L_,    Class::BTEMT_IMPORTED_CHANNEL,    "IMPORTED_CHANNEL"   },
+            {  L_,    Class::e_LISTENING_CHANNEL,   "LISTENING_CHANNEL"  },
+            {  L_,    Class::e_ACCEPTED_CHANNEL,    "ACCEPTED_CHANNEL"   },
+            {  L_,    Class::e_CONNECTING_CHANNEL,  "CONNECTING_CHANNEL" },
+            {  L_,    Class::e_CONNECTED_CHANNEL,   "CONNECTED_CHANNEL"  },
+            {  L_,    Class::e_IMPORTED_CHANNEL,    "IMPORTED_CHANNEL"   },
             {  L_,    0,                                "(* UNKNOWN *)"      },
-            {  L_,    1 + Class::BTEMT_LENGTH,          "(* UNKNOWN *)"      },
+            {  L_,    1 + Class::e_LENGTH,          "(* UNKNOWN *)"      },
             {  L_,    10,                               "(* UNKNOWN *)"      }
         };
 
@@ -199,11 +199,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

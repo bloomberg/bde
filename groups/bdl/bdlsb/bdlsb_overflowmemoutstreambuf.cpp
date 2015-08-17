@@ -55,7 +55,7 @@ OverflowMemOutStreamBuf::overflow(
                                      OverflowMemOutStreamBuf::int_type c)
 {
     if (EOF == c) {
-        return traits_type::not_eof(c);
+        return traits_type::not_eof(c);                               // RETURN
     }
 
     privateSync();
@@ -101,7 +101,7 @@ OverflowMemOutStreamBuf::seekoff(off_type                offset,
     bool pseek = which & bsl::ios_base::out;
 
     if (!pseek || gseek) {
-        return bsl::streambuf::pos_type(-1);
+        return bsl::streambuf::pos_type(-1);                          // RETURN
     }
 
     int totalSize = d_initialBufferSize + d_overflowBufferSize;
@@ -117,14 +117,14 @@ OverflowMemOutStreamBuf::seekoff(off_type                offset,
         newoff = totalSize;
       } break;
       default: {
-        return bsl::streambuf::pos_type(-1);
+        return bsl::streambuf::pos_type(-1);                          // RETURN
       }
     }
 
     newoff += offset;
 
     if (0 > newoff) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     BSLS_ASSERT(0 <= newoff);

@@ -274,9 +274,9 @@ static const char *get1stCbCommand(const char *commandSeq)
     while ('{' != *commandSeq && ';' != *commandSeq
                               && '\0' != *commandSeq)  ++commandSeq;
     if (';' == *commandSeq || '\0' == *commandSeq)
-        return 0;
+        return 0;                                                     // RETURN
     else
-        return ++commandSeq;   // skip '{'
+        return ++commandSeq;   // skip '{'                            // RETURN
 }
 
 static const char *getNextCbCommand(const char *cbCmd)
@@ -304,10 +304,10 @@ static const char *getNextCbCommand(const char *cbCmd)
     }
     if (';' == *cbCmd) {
         while (' ' == *cbCmd || ';' == *cbCmd)  ++cbCmd;
-        return cbCmd;
+        return cbCmd;                                                 // RETURN
     }
     else
-        return 0;
+        return 0;                                                     // RETURN
 }
 
 static int helpWrite(btlso::SocketHandle::Handle  client,
@@ -317,13 +317,13 @@ static int helpWrite(btlso::SocketHandle::Handle  client,
     // tested. return 0 on success, non-zero otherwise.
 {
   if (0 == buf || 0 == bufLen)
-      return 0;
+      return 0;                                                       // RETURN
   else {
       int len = btlso::SocketImpUtil::write(client, buf, bufLen);
       if (veryVerbose) {
           cout << "Wrote " << len << " bytes to the control pipe." << endl;
       }
-      return len != bufLen;
+      return len != bufLen;                                           // RETURN
   }
 }
 
@@ -745,9 +745,9 @@ static void writeCallback(int                          status,
     }
 }
 
-//============================================================================
+//=============================================================================
 //              GENERATOR FUNCTION 'gg' FOR TESTING
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //..
 // LANGUAGE SPECIFICATION:
 // -----------------------
@@ -782,7 +782,7 @@ static void writeCallback(int                          status,
 // EMPTY      :=
 //..
 //
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // The following interprets a given 'script' in the order from left to right to
 // configure a list of I/O request commands for a channel according to the
 // custom language defined above.  By parsing a request script that is based on
@@ -942,7 +942,7 @@ gg(btlsos::TcpTimedCbChannel   *channel,
 
     int ret = 0, ret_flag = 0;
     if (0 == script || '\0' == *script)  // no command passed in
-        return ret_flag;
+        return ret_flag;                                              // RETURN
     const char *callBackScript = get1stCbCommand(script);
 
     switch (*script) {

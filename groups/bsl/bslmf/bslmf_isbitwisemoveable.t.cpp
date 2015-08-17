@@ -19,9 +19,9 @@ using namespace bsl;
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
@@ -180,7 +180,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     namespace bslmf {
         template <> struct IsBitwiseMoveable<MoveableClass1> : bsl::true_type {
         };
-    }
+    }  // close package namespace
 //..
 // The third class is also declared to be bitwise moveable, but this time we
 // do it using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro:
@@ -361,7 +361,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         template <class TYPE>
         struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : bsl::true_type {
         };
-    }
+    }  // close package namespace
 //..
 // Third, we define 'MoveableTemplate2', which uses the
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the 'IsBitwiseMoveable'
@@ -389,7 +389,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         template <class TYPE>
         struct IsBitwiseMoveable<MoveableTemplate3<TYPE> > :
             IsBitwiseMoveable<TYPE>::type { };
-    }
+    }  // close package namespace
 //..
 // Now, we check that the traits are correctly associated by instantiating
 // each class with both bit-wise moveable and non-moveable types and verifying
@@ -456,7 +456,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         };
     };
 
-    } // Close package namespace
+    }  // close namespace bslalg
 //..
 // Second, we declare a class and a class template that use the legacy
 // 'BSLALG_DECLARE_NESTED_TRAITS' macro to associate the above trait with

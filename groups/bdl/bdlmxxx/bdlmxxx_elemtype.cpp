@@ -1,4 +1,4 @@
-// bdlmxxx_elemtype.cpp                                                  -*-C++-*-
+// bdlmxxx_elemtype.cpp                                               -*-C++-*-
 #include <bdlmxxx_elemtype.h>
 
 #include <bsls_ident.h>
@@ -111,10 +111,10 @@ bool ElemType::isArrayType(ElemType::Type value)
       case ElemType::BDEM_DATETZ_ARRAY:
       case ElemType::BDEM_TIMETZ_ARRAY:
       case ElemType::BDEM_CHOICE_ARRAY: {
-        return true;
+        return true;                                                  // RETURN
       }
       default: {
-        return false;
+        return false;                                                 // RETURN
       }
     }
 }
@@ -128,10 +128,10 @@ bool ElemType::isAggregateType(ElemType::Type value)
       case ElemType::BDEM_TABLE:
       case ElemType::BDEM_CHOICE:
       case ElemType::BDEM_CHOICE_ARRAY: {
-        return true;
+        return true;                                                  // RETURN
       }
       default: {
-        return false;
+        return false;                                                 // RETURN
       }
     }
 }
@@ -142,10 +142,10 @@ bool ElemType::isChoiceType(ElemType::Type value)
       case ElemType::BDEM_CHOICE_ARRAY_ITEM:
       case ElemType::BDEM_CHOICE:
       case ElemType::BDEM_CHOICE_ARRAY: {
-        return true;
+        return true;                                                  // RETURN
       }
       default: {
-        return false;
+        return false;                                                 // RETURN
       }
     }
 }
@@ -167,10 +167,10 @@ bool ElemType::isScalarType(ElemType::Type value)
       case ElemType::BDEM_DATETIMETZ:
       case ElemType::BDEM_DATETZ:
       case ElemType::BDEM_TIMETZ: {
-        return true;
+        return true;                                                  // RETURN
       }
       default: {
-        return false;
+        return false;                                                 // RETURN
       }
     }
 }
@@ -187,20 +187,20 @@ const char *ElemType::toAscii(ElemType::Type value)
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
         (int)value < -BDEM_NUM_PSEUDO_TYPES || (int)value >= BDEM_NUM_TYPES)) {
-        return "(* UNKNOWN *)";
+        return "(* UNKNOWN *)";                                       // RETURN
     }
 
     return elemTypeMap[value].d_name;
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

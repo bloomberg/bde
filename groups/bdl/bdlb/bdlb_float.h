@@ -1,4 +1,4 @@
-// bdlb_float.h                  -*-C++-*-
+// bdlb_float.h                                                       -*-C++-*-
 #ifndef INCLUDED_BDLB_FLOAT
 #define INCLUDED_BDLB_FLOAT
 
@@ -174,11 +174,18 @@ struct Float {
         // bit-patterns to make it easy to create a "set" of classifications
         // using bit-wise OR.
 
-        BDES_ZERO      = 0x01, // positive or negative zero
-        BDES_NORMAL    = 0x02, // full-precision, non-zero, normal number
-        BDES_SUBNORMAL = 0x04, // reduced-precision numb with a small abs value
-        BDES_INFINITE  = 0x08, // positive or negative infinity
-        BDES_NAN       = 0x10  // not a number
+        k_ZERO      = 0x01, // positive or negative zero
+        k_NORMAL    = 0x02, // full-precision, non-zero, normal number
+        k_SUBNORMAL = 0x04, // reduced-precision numb with a small abs value
+        k_INFINITE  = 0x08, // positive or negative infinity
+        k_NAN       = 0x10  // not a number
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDES_ZERO = k_ZERO
+      , BDES_NORMAL = k_NORMAL
+      , BDES_SUBNORMAL = k_SUBNORMAL
+      , BDES_INFINITE = k_INFINITE
+      , BDES_NAN = k_NAN
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum FineClassification {
@@ -187,19 +194,33 @@ struct Float {
         // from signaling NaNs.  Every floating-point number belongs to
         // exactly one of these classifications.
 
-        BDES_NEGATIVE           = 0x8000,  // Bit for negative floats
-        BDES_SIGNALING          = 0x4000,  // Bit for signaling NaNs
+        k_NEGATIVE           = 0x8000,  // Bit for negative floats
+        k_SIGNALING          = 0x4000,  // Bit for signaling NaNs
 
-        BDES_POSITIVE_INFINITY  = BDES_INFINITE,
-        BDES_NEGATIVE_INFINITY  = BDES_INFINITE | BDES_NEGATIVE,
-        BDES_QNAN               = BDES_NAN,
-        BDES_SNAN               = BDES_NAN | BDES_SIGNALING,
-        BDES_POSITIVE_NORMAL    = BDES_NORMAL,
-        BDES_NEGATIVE_NORMAL    = BDES_NORMAL | BDES_NEGATIVE,
-        BDES_POSITIVE_SUBNORMAL = BDES_SUBNORMAL,
-        BDES_NEGATIVE_SUBNORMAL = BDES_SUBNORMAL | BDES_NEGATIVE,
-        BDES_POSITIVE_ZERO      = BDES_ZERO,
-        BDES_NEGATIVE_ZERO      = BDES_ZERO | BDES_NEGATIVE
+        k_POSITIVE_INFINITY  = k_INFINITE,
+        k_NEGATIVE_INFINITY  = k_INFINITE | k_NEGATIVE,
+        k_QNAN               = k_NAN,
+        k_SNAN               = k_NAN | k_SIGNALING,
+        k_POSITIVE_NORMAL    = k_NORMAL,
+        k_NEGATIVE_NORMAL    = k_NORMAL | k_NEGATIVE,
+        k_POSITIVE_SUBNORMAL = k_SUBNORMAL,
+        k_NEGATIVE_SUBNORMAL = k_SUBNORMAL | k_NEGATIVE,
+        k_POSITIVE_ZERO      = k_ZERO,
+        k_NEGATIVE_ZERO      = k_ZERO | k_NEGATIVE
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDES_NEGATIVE = k_NEGATIVE
+      , BDES_SIGNALING = k_SIGNALING
+      , BDES_POSITIVE_INFINITY = k_POSITIVE_INFINITY
+      , BDES_NEGATIVE_INFINITY = k_NEGATIVE_INFINITY
+      , BDES_QNAN = k_QNAN
+      , BDES_SNAN = k_SNAN
+      , BDES_POSITIVE_NORMAL = k_POSITIVE_NORMAL
+      , BDES_NEGATIVE_NORMAL = k_NEGATIVE_NORMAL
+      , BDES_POSITIVE_SUBNORMAL = k_POSITIVE_SUBNORMAL
+      , BDES_NEGATIVE_SUBNORMAL = k_NEGATIVE_SUBNORMAL
+      , BDES_POSITIVE_ZERO = k_POSITIVE_ZERO
+      , BDES_NEGATIVE_ZERO = k_NEGATIVE_ZERO
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS
@@ -293,19 +314,26 @@ struct Float {
 };
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

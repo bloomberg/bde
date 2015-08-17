@@ -638,9 +638,9 @@ void PerformanceHint::lowFrequency()
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bsls::PerformanceHint bsls_PerformanceHint;
     // This alias is defined for backward compatibility.

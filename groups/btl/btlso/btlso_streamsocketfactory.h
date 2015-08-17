@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // constructing managed pointer object for a stream socket using
 // 'btlso::StreamSocketFactoryDeleter'.  This example assumes that a concrete
 // 'btlso::StreamSocketFactory' named 'factory' is available and can be used to
-// allocate stream socket objects. 
+// allocate stream socket objects.
 //
 // First, we allocate a stream socket:
 //..
@@ -176,7 +176,7 @@ struct StreamSocketFactoryDeleter {
     // can be supplied to 'bslma::ManagedPtr'.
 
     // CLASS METHODS
-    template <typename ADDRESS>
+    template <class ADDRESS>
     static void deleteObject(void *socket, void *factory);
         // Deallocate the specified 'socket' using the specified 'factory'.
         // The behavior is undefined unless 'socket' was allocated using
@@ -186,9 +186,9 @@ struct StreamSocketFactoryDeleter {
         // 'StreamSocket' objects.
 };
 
-// ===========================================================================
+// ============================================================================
 //                         INLINE FUNCTIONS DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------------------
                         // class StreamSocketFactory
@@ -214,7 +214,7 @@ StreamSocket<ADDRESS> *
 StreamSocketFactoryAutoDeallocateGuard<ADDRESS>::socket() const
 {
     if (d_resetFlag) {
-        return *d_arena.d_socketPtr_p;
+        return *d_arena.d_socketPtr_p;                                // RETURN
     }
     return d_arena.d_socket_p;
 }
@@ -271,7 +271,7 @@ void StreamSocketFactoryAutoDeallocateGuard<ADDRESS>::release()
                         // class StreamSocketFactoryDeleter
                         // --------------------------------------
 
-template <typename ADDRESS>
+template <class ADDRESS>
 void StreamSocketFactoryDeleter::deleteObject(void *socket,
                                                     void *factory)
 {
@@ -286,15 +286,22 @@ void StreamSocketFactoryDeleter::deleteObject(void *socket,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

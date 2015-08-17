@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslmf {
         class Nil;
-    }
+    }  // close namespace bslmf
 
     typedef bslmf::Nil bslmf_Nil;
-}
+}  // close enterprise namespace
 
 #else
 

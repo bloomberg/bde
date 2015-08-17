@@ -1,4 +1,4 @@
-// bdlmxxx_elemattrlookup.cpp                  -*-C++-*-
+// bdlmxxx_elemattrlookup.cpp                                         -*-C++-*-
 #include <bdlmxxx_elemattrlookup.h>
 
 #include <bsls_ident.h>
@@ -75,13 +75,13 @@ const bdlmxxx::Descriptor *const rawLookupTable[TOTAL_NUM_TYPES] = {
 const bdlmxxx::Descriptor *const *const bdlmxxx::ElemAttrLookup::s_lookupTable =
     &rawLookupTable[bdlmxxx::ElemType::BDEM_NUM_PSEUDO_TYPES];
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

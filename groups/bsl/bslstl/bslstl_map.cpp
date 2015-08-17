@@ -8,8 +8,8 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslstl {
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

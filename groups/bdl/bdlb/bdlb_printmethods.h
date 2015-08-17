@@ -253,7 +253,7 @@ namespace bsl {
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_string;
 
-}
+}  // close namespace bsl
 
 namespace BloombergLP {
 
@@ -308,7 +308,7 @@ namespace PrintMethods {
     // standard BDE signature for such methods.
 
     // CLASS METHODS
-    template <typename TYPE>
+    template <class TYPE>
     bsl::ostream& print(bsl::ostream& stream,
                         const TYPE&   object,
                         int           level          = 0,
@@ -324,7 +324,7 @@ namespace PrintMethods {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    template <typename CHAR_T, typename CHAR_TRAITS_T, typename ALLOC>
+    template <class CHAR_T, class CHAR_TRAITS_T, class ALLOC>
     bsl::ostream& print(
                     bsl::ostream&                          stream,
                     const bsl::basic_string<CHAR_T,
@@ -338,7 +338,7 @@ namespace PrintMethods {
         // formatted on one line.  If 'stream' is not valid on entry, this
         // operation has no effect.
 
-    template <typename ALLOC>
+    template <class ALLOC>
     bsl::ostream& print(bsl::ostream&                   stream,
                         const bsl::vector<char, ALLOC>& object,
                         int                             level          = 0,
@@ -360,10 +360,10 @@ namespace PrintMethods {
                 // --------------------------------------------
 
 
-namespace bdlb {template <typename TYPE, typename SELECTOR>
+namespace bdlb {template <class TYPE, class SELECTOR>
 struct PrintMethods_Imp;
 
-template <typename TYPE>
+template <class TYPE>
 struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
@@ -384,7 +384,7 @@ struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> > {
               // struct PrintMethods_Imp<TYPE, HasPrintMethod<TYPE> >
               // --------------------------------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 struct PrintMethods_Imp<TYPE,
                              bslmf::SelectTraitCase<HasPrintMethod> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
@@ -403,7 +403,7 @@ struct PrintMethods_Imp<TYPE,
          // struct PrintMethods_Imp<TYPE, bslalg::HasStlIterators<TYPE> >
          // ------------------------------------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 struct PrintMethods_Imp<TYPE,
                             bslmf::SelectTraitCase<bslalg::HasStlIterators> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
@@ -422,7 +422,7 @@ struct PrintMethods_Imp<TYPE,
                   // struct PrintMethods_Imp<TYPE, bslmf::IsPair<TYPE> >
                   // ---------------------------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> > {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of
@@ -444,7 +444,7 @@ struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> > {
                 // --------------------------------------------
 
 // CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream&
 PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::
 print(bsl::ostream& stream,
@@ -453,7 +453,7 @@ print(bsl::ostream& stream,
       int           spacesPerLevel)
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     Print::indent(stream, level, spacesPerLevel);
@@ -475,7 +475,7 @@ print(bsl::ostream& stream,
           // ---------------------------------------------------------------
 
 // CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 inline
 bsl::ostream&
 PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<HasPrintMethod> >::
@@ -496,7 +496,7 @@ print(bsl::ostream& stream,
          // ------------------------------------------------------------------
 
 // CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream&
 PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslalg::HasStlIterators> >::
 print(bsl::ostream& stream,
@@ -506,7 +506,7 @@ print(bsl::ostream& stream,
 
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     Print::indent(stream, level, spacesPerLevel);
@@ -559,7 +559,7 @@ print(bsl::ostream& stream,
                   // ---------------------------------------------------------
 
 // CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream&
 PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslmf::IsPair> >::
 print(bsl::ostream& stream,
@@ -568,7 +568,7 @@ print(bsl::ostream& stream,
       int           spacesPerLevel)
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     Print::indent(stream, level, spacesPerLevel);
@@ -623,7 +623,7 @@ print(bsl::ostream& stream,
                         // ---------------------------
 
 // CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 bsl::ostream&
 PrintMethods::print(bsl::ostream& stream,
                          const TYPE&   object,
@@ -643,7 +643,7 @@ PrintMethods::print(bsl::ostream& stream,
                                                             spacesPerLevel);
 }
 
-template <typename CHAR_T, typename CHAR_TRAITS_T, typename ALLOC>
+template <class CHAR_T, class CHAR_TRAITS_T, class ALLOC>
 bsl::ostream&
 PrintMethods::print(
          bsl::ostream&                                          stream,
@@ -659,7 +659,7 @@ PrintMethods::print(
                                                             spacesPerLevel);
 }
 
-template <typename ALLOC>
+template <class ALLOC>
 bsl::ostream&
 PrintMethods::print(bsl::ostream&                   stream,
                          const bsl::vector<char, ALLOC>& object,
@@ -667,7 +667,7 @@ PrintMethods::print(bsl::ostream&                   stream,
                          int                             spacesPerLevel)
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     Print::indent(stream, level, spacesPerLevel);
@@ -690,15 +690,22 @@ PrintMethods::print(bsl::ostream&                   stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

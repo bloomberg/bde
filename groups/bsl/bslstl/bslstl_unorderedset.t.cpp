@@ -338,19 +338,19 @@ static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                              TEST SUPPORT
 //-----------------------------------------------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 const TYPE& my_max(const TYPE& x, const TYPE& y)
 {
     return x > y ? x : y;
 }
 
-template <typename TYPE>
+template <class TYPE>
 TYPE my_abs(const TYPE& x)
 {
     return x < 0 ? -x : x;
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool nearlyEqual(const TYPE& x, const TYPE& y)
 {
     TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
@@ -1367,7 +1367,7 @@ bsl::unordered_set<KEY, HASH, EQUAL, ALLOC>
     return gg(&object, spec);
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool isConstValue(TYPE&)
     // Template method to determine whether a returned value is declared
     // 'const'.
@@ -1375,7 +1375,7 @@ bool isConstValue(TYPE&)
     return false;
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool isConstValue(const TYPE&)
 {
     return true;

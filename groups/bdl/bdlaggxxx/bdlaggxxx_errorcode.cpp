@@ -1,4 +1,4 @@
-// bdlaggxxx_errorcode.cpp                                                 -*-C++-*-
+// bdlaggxxx_errorcode.cpp                                            -*-C++-*-
 #include <bdlaggxxx_errorcode.h>
 
 #include <bsls_ident.h>
@@ -59,7 +59,7 @@ const char *ErrorCode::toAscii(ErrorCode::Code value)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // NOTICE:

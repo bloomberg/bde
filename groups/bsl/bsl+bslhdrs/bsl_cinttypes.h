@@ -32,7 +32,7 @@ namespace bsl {
     using native_std::wcstoumax;
     using native_std::imaxdiv_t;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 
