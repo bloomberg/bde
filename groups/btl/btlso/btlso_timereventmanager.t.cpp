@@ -1,4 +1,4 @@
-// btlso_timereventmanager.t.cpp      -*-C++-*-
+// btlso_timereventmanager.t.cpp                                      -*-C++-*-
 
 #include <btlso_timereventmanager.h>
 
@@ -18,9 +18,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//==========================================================================
+//=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -31,16 +31,16 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                              TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              OVERVIEW
 // We are testing a pure protocol class.  We need to verify that a
 // concrete derived class compiles and links and that the example compiles
 // and works as advertised.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] ~btlso::TimerEventManager()
 // [ 1] int registerSocketEvent(
 //                const btlso::SocketHandle::Handle& handle,
@@ -61,14 +61,14 @@ static void aSsErT(int c, const char *s, int i)
 // [ 1] int  isRegistered(const Handle& handle, const Type event);
 // [ 1] void numTimers();
 // [ 1] void numSocketEvents(const btlso::SocketHandle::Handle& handle);
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 2] USAGE TEST - Make sure usage example compiles and works as advertised.
-//==========================================================================
+//=============================================================================
 
-//==========================================================================
-//                      USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 class my_TimerInfo {
     // This is a helper class that stores information about the timer
@@ -371,7 +371,7 @@ int my_TimedSocketMultiplexer::deregisterTimedSocketEvent(
     EventTimeMap::iterator socketEventIt = d_eventTimeMap.find(socketEvent);
     my_TimerInfo *timerInfo = &socketEventIt->second;
     if (d_eventTimeMap.end() != socketEventIt) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     // Deregister this socket event.
@@ -386,9 +386,9 @@ int my_TimedSocketMultiplexer::deregisterTimedSocketEvent(
     return 0;
 }
 
-//==========================================================================
+//=============================================================================
 //                      CONCRETE DERIVED TYPE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 class my_TimerEventManager : public btlso::TimerEventManager {
   // Test class used to verify protocol.
@@ -468,9 +468,9 @@ class my_TimerEventManager : public btlso::TimerEventManager {
         { *d_fun = 16; return true; }
 };
 
-//==========================================================================
-//                      MAIN PROGRAM
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -601,11 +601,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,6 +1,6 @@
 // btls_reservationguard.h                                            -*-C++-*-
-#ifndef BTLS_RESERVATIONGUARD
-#define BTLS_RESERVATIONGUARD
+#ifndef INCLUDED_BTLS_RESERVATIONGUARD
+#define INCLUDED_BTLS_RESERVATIONGUARD
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -18,8 +18,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides generic proctor to automatically
 // reserve and release units from a rate controlling object.  The rate
-// controlling object can be of any type (typically either a 'btls::RateLimiter'
-// or 'btls::LeakyBucket') that provides the following methods:
+// controlling object can be of any type (typically either a
+// 'btls::RateLimiter' or 'btls::LeakyBucket') that provides the following
+// methods:
 //..
 //  void reserve(bsls::Types::Uint64 numOfUnits);
 //  void submitReserved(bsls::Types::Uint64 numOfUnits);
@@ -112,7 +113,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      else {
 //
-//          bsls::TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
+//          bsls::TimeInterval timeToSubmit =
+//                                           bucket.calculateTimeToSubmit(now);
 //          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
 //          bdlqq::ThreadUtil::microSleep(uS);
@@ -124,8 +126,8 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERTTEST
-#include <bsls_asserttest.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -133,11 +135,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btls {
-                        //============================
+                        // ======================
                         // class ReservationGuard
-                        //============================
+                        // ======================
 
 template<class TYPE>
 class ReservationGuard {
@@ -150,12 +151,12 @@ class ReservationGuard {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    TYPE                  *d_rateController_p;  // Pointer to the rate
-                                                // controlling object in which
-                                                // the units are reserved.
+    TYPE                *d_rateController_p;  // Pointer to the rate
+                                              // controlling object in which
+                                              // the units are reserved.
 
-    bsls::Types::Uint64     d_unitsReserved;    // Number of units reserved by
-                                                // this object.
+    bsls::Types::Uint64  d_unitsReserved;    // Number of units reserved by
+                                             // this object.
 
   private:
     // NOT IMPLEMENTED
@@ -200,16 +201,15 @@ class ReservationGuard {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        //----------------------------
+                        // ----------------------
                         // class ReservationGuard
-                        //----------------------------
+                        // ----------------------
 
 // CREATORS
 template <class TYPE>
 inline
-ReservationGuard<TYPE>::ReservationGuard(
-                                            TYPE*               rateController,
-                                            bsls::Types::Uint64 numUnits)
+ReservationGuard<TYPE>::ReservationGuard(TYPE                *rateController,
+                                         bsls::Types::Uint64  numUnits)
 {
     BSLS_ASSERT_SAFE(0 != rateController);
 
@@ -261,17 +261,24 @@ void ReservationGuard<TYPE>::submitReserved(bsls::Types::Uint64 numUnits)
     d_rateController_p->submitReserved(numUnits);
     d_unitsReserved -= numUnits;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// btlb_blobstreambuf.cpp                                            -*-C++-*-
+// btlb_blobstreambuf.cpp                                             -*-C++-*-
 #include <btlb_blobstreambuf.h>
 
 #include <bsls_ident.h>
@@ -30,7 +30,7 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
     BSLS_ASSERT(position <= (unsigned)d_blob_p->length());
     if (d_blob_p->length() == 0) {
         setg(0, 0, 0);
-        return;
+        return;                                                       // RETURN
     }
 
     if (egptr() == eback()) {
@@ -54,7 +54,7 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
         BSLS_ASSERT((position - d_previousBuffersLength) <=
                           (unsigned)d_blob_p->buffer(d_getBufferIndex).size());
         setg(eback(), eback() + position - d_previousBuffersLength, egptr());
-        return;
+        return;                                                       // RETURN
     }
 
     BSLS_ASSERT(position != (unsigned)d_previousBuffersLength);
@@ -131,6 +131,7 @@ InBlobStreamBuf::pbackfail(InBlobStreamBuf::int_type c)
     if (gptr() == eback()) {
         if (0 == d_getBufferIndex) {
             return traits_type::eof(); // No put-back position available
+                                                                      // RETURN
         }
         else {
             d_getBufferIndex--;
@@ -146,11 +147,11 @@ InBlobStreamBuf::pbackfail(InBlobStreamBuf::int_type c)
 
     gbump(-1);
     if (traits_type::eof() == c) {
-        return ~traits_type::eof();
+        return ~traits_type::eof();                                   // RETURN
     }
     else {
         *gptr() = static_cast<char_type>(c);
-        return c;
+        return c;                                                     // RETURN
     }
 }
 
@@ -172,7 +173,7 @@ InBlobStreamBuf::seekoff(off_type                offset,
     bool pseek = which & bsl::ios_base::out;
 
     if (!gseek || pseek) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     sync();
@@ -191,12 +192,12 @@ InBlobStreamBuf::seekoff(off_type                offset,
           newoff = totalSize;
           break;
         default:
-          return off_type(-1);
+          return off_type(-1);                                        // RETURN
     }
 
     newoff += offset;
     if (newoff < 0 || totalSize < (unsigned)newoff) {
-        return off_type(-1);
+        return off_type(-1);                                          // RETURN
     }
 
     setGetPosition(static_cast<bsl::size_t>(newoff));
@@ -227,7 +228,7 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
 
     if (getPosition >= totalSize) {
         BSLS_ASSERT(getPosition == totalSize);
-        return EOF;
+        return EOF;                                                   // RETURN
     }
 
     bsl::size_t curOffset;
@@ -279,7 +280,7 @@ bsl::streamsize InBlobStreamBuf::xsgetn(char_type       *destination,
         if (   0 < numLeft
             && gptr() == egptr()
             && traits_type::eof() == underflow()) {
-            return numCopied + canCopy;
+            return numCopied + canCopy;                               // RETURN
         }
         numCopied += canCopy;
     }
@@ -316,7 +317,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
     BSLS_ASSERT(position <= (unsigned)d_blob_p->totalSize());
     if (d_blob_p->totalSize() == 0) {
         setp(0, 0);
-        return;
+        return;                                                       // RETURN
     }
 
     if (epptr() == pbase()) {
@@ -342,7 +343,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
         const btlb::BlobBuffer& buffer = d_blob_p->buffer(d_putBufferIndex);
         setp(buffer.data(), buffer.data() + buffer.size());
         pbump(position - d_previousBuffersLength);
-        return;
+        return;                                                       // RETURN
     }
 
     BSLS_ASSERT(position != (unsigned)d_previousBuffersLength);
@@ -424,7 +425,7 @@ OutBlobStreamBuf::overflow(OutBlobStreamBuf::int_type c)
     BSLS_ASSERT(0 == checkInvariant());
 
     if (EOF == c) {
-        return traits_type::not_eof(c);
+        return traits_type::not_eof(c);                               // RETURN
     }
 
     if (pptr() == epptr()) {
@@ -474,7 +475,7 @@ OutBlobStreamBuf::seekoff(off_type                offset,
     bool pseek = which & bsl::ios_base::out;
 
     if (gseek || !pseek) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     sync();
@@ -493,12 +494,12 @@ OutBlobStreamBuf::seekoff(off_type                offset,
           newoff = totalSize;
           break;
         default:
-          return off_type(-1);
+          return off_type(-1);                                        // RETURN
     }
 
     newoff += offset;
     if (newoff < 0 || totalSize < (unsigned)newoff) {
-        return off_type(-1);
+        return off_type(-1);                                          // RETURN
     }
 
     setPutPosition(static_cast<bsl::size_t>(newoff));
@@ -556,7 +557,7 @@ bsl::streamsize OutBlobStreamBuf::xsputn(const char_type *source,
             if (traits_type::eof() ==
                          overflow(traits_type::to_int_type(source[numCopied])))
             {
-                return numCopied;
+                return numCopied;                                     // RETURN
             }
             else {
                 numCopied += 1;
@@ -583,13 +584,20 @@ OutBlobStreamBuf::~OutBlobStreamBuf()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

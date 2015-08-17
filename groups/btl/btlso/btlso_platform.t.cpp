@@ -1,4 +1,4 @@
-// btlso_platform.t.cpp    -*-C++-*-
+// btlso_platform.t.cpp                                               -*-C++-*-
 
 #include <btlso_platform.h>
 
@@ -12,9 +12,9 @@ using namespace bsl;  // automatically added by script
 
 
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -27,24 +27,24 @@ static void aSsErT(int c, const char *s, int i)
 }
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 int typeTest(const btlso::Platform::BsdSockets&) { return 1; }
 int typeTest(const btlso::Platform::WinSockets&) { return 2; }
 
-//==========================================================================
+//=============================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                            * Overview *
 // Since this component implements CPP macro's and typedefs, which may or may
 // not be defined, there is not too much to test in this driver.  Since
 // correctness will be affected by compile-time switches during the build
 // process, any compile-time tests we come up with should probably reside
 // directly in the header or implementation file.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] Ensure that ThreadPolicy is set.
 // [ 1] Ensure that exactly one of each THREADS type is set.
-//==========================================================================
+//=============================================================================
 
 int main(int argc, char *argv[]) {
 
@@ -110,11 +110,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

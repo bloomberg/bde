@@ -309,7 +309,7 @@ void testCase2()
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-                return;
+                return;                                               // RETURN
               } break;
             }
 
@@ -569,7 +569,7 @@ void testCase4()
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                    return;
+                    return;                                           // RETURN
                   } break;
                 }
 
@@ -774,7 +774,7 @@ void testCase5()
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-                return;
+                return;                                               // RETURN
               } break;
             }
 
@@ -950,7 +950,7 @@ void testCase6()
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                    return;
+                    return;                                           // RETURN
                   } break;
                 }
 

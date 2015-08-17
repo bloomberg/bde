@@ -1,11 +1,12 @@
 // bdlat_bdeatoverrides.t.cpp                                         -*-C++-*-
 
 #include <bdlat_bdeatoverrides.h>
+
+#include <bdls_testutil.h>
+
 #include <bdlat_choicefunctions.h>  // for testing only
 #include <bdlat_formattingmode.h>   // for testing only
 #include <bdlat_typecategory.h>     // for testing only
-
-#include <bdls_testutil.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -26,7 +27,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                     STANDARD BSL ASSERT TEST FUNCTION
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -82,27 +83,27 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 1: {
+    switch (test) { case 0:
+      case 2: {
         // --------------------------------------------------------------------
         // TEST DEFINITIONS
         //
         // Concerns:
-        //: 1 When BDE_OPENSOURCE_PUBLICATION is not defined, the suite of
+        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the suite of
         //:   BDEAT_... and bdeat_... macros should be defined to be their
-        //:   BDLAT_... and bdlat_... versions.
+        //:   e_... and bdlat_... versions.
         //:
-        //: 2 When BDE_OPENSOURCE_PUBLICATION is defined, the BDEAT_... and
+        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_... and
         //:   bdeat_... macros should not be defined.
         //
         // Plan:
         //: 1 Obtain a stringized version of the macro definition through the
         //:   usual indirection through a secondary macro before quoting.
         //:
-        //: 2 When BDE_OPENSOURCE_PUBLICATION is not defined, comapre the
+        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, compare the
         //:   stringized version to the expected value.  (C-1)
         //:
-        //: 3 When BDE_OPENSOURCE_PUBLICATION is defined, compare the
+        //: 3 When BDE_OMIT_INTERNAL_DEPRECATED is defined, compare the
         //:   stringized version to the macro name (without a macro definition
         //:   the quoting process will just return the quoted name).
         //
@@ -221,7 +222,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i != NUM_DATA; ++i) {
             const int   LINE     = DATA[i].d_line;
             const char *NAME     = DATA[i].d_name;
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             const char *EXPECTED = DATA[i].d_expected;
 #else
             const char *EXPECTED = DATA[i].d_name;
@@ -233,21 +234,21 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, NAME, EXPECTED, ACTUAL, !strcmp(EXPECTED, ACTUAL));
         }
       } break;
-      case 2: {
+      case 1: {
         // --------------------------------------------------------------------
         // TEST ENUMERATORS
         //
         // Concerns
-        //: 1 When BDE_OPENSOURCE_PUBLICATION is not defined, the BDEAT_...
-        //:   enumeration literals should exist and evaluate to their BDLAT_...
+        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
+        //:   enumeration literals should exist and evaluate to their e_...
         //:   equivalents.
         //:
-        //: 2 When BDE_OPENSOURCE_PUBLICATION is defined, the BDEAT_...
+        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
         //:   enumeration literals should not exist.
         //
         // Plan
-        //: 1 When BDE_OPENSOURCE_PUBLICATION is not defined, check that the
-        //:   BDEAT_... enumeration literals evaluate to their BDLAT_...
+        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
+        //:   BDEAT_... enumeration literals evaluate to their e_...
         //:   equivalents.  (C-1)
         //:
         //: 2 We cannot check for (C-2), so hope for the best.
@@ -261,17 +262,20 @@ int main(int argc, char *argv[])
 
 #undef e
 #define e(Class, Enumerator)                                                  \
-    { L_, #Class "::BDxAT_" #Enumerator,                                      \
-      Class::BDLAT_##Enumerator, Class::BDEAT_##Enumerator }
+    { L_, #Class "::..._" #Enumerator,                                        \
+      Class::e_##Enumerator, Class::BDEAT_##Enumerator }
 
         static struct {
             int         d_line;         // line number
             const char *d_name;         // printable enumerator name
             int         d_bdeat_value;  // value of BDEAT_... version
-            int         d_bdlat_value;  // value of BDLAT_... version
+            int         d_bdlat_value;  // value of e_... version
         } DATA [] = {
-#ifndef BDE_OPENSOURCE_PUBLICATION
-          e(bdlat_ChoiceFunctions, UNDEFINED_SELECTION_ID),
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+          { L_, "bdlat_ChoiceFunctions::..._UNDEFINED_SELECTION_ID",
+            bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID,
+            bdlat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID
+          },
           e(bdlat_FormattingMode, DEFAULT),
           e(bdlat_FormattingMode, DEC),
           e(bdlat_FormattingMode, HEX),
@@ -323,10 +327,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

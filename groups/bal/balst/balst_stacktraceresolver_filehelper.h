@@ -12,8 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balst::StackTraceResolver_FileHelper: file input for stack trace resolvers
 //
-//@SEE_ALSO: baesu::StackTraceResolverImpl_Elf
-//           baesu::StackTraceResolverImpl_Xcoff
+//@SEE_ALSO: balst::StackTraceResolverImpl_Elf
+//           balst::StackTraceResolverImpl_Xcoff
 //
 //@AUTHOR: Bill Chapman
 //
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 //
 //  char fileNameBuffer[100];
 //  sprintf(fileNameBuffer,
-//          "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
+//          "/tmp/balst_StackTraceResolver_FileHelper.usage.%d.txt",
 //          getProcessId());
 //..
 // Make sure file does not already exist.
@@ -120,8 +120,8 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #include <balst_objectfileformat.h>
 #endif
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-    defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+    defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
 #ifndef INCLUDED_bdlsu_filesystemutil
 #include <bdlsu_filesystemutil.h>
@@ -151,13 +151,14 @@ class StackTraceResolver_FileHelper {
     // this object.
 
     // PRIVATE TYPES
-    typedef bdlsu::FilesystemUtil           FilesystemUtil;  // shorthand for class
+    typedef bdlsu::FilesystemUtil          FilesystemUtil;
+                                                // shorthand for class
                                                 // 'bdlsu::FilesystemUtil'
     typedef FilesystemUtil::FileDescriptor FdType;    // shorthand for file
-                                                // descriptor
+                                                      // descriptor
     typedef FilesystemUtil::Offset         Offset;
-    typedef bsls::Types::UintPtr     UintPtr;
-    typedef bsls::Types::IntPtr      IntPtr;
+    typedef bsls::Types::UintPtr           UintPtr;
+    typedef bsls::Types::IntPtr            IntPtr;
 
     // DATA
     FdType d_fd;  // file descriptor
@@ -206,9 +207,9 @@ class StackTraceResolver_FileHelper {
         // behavior is undefined unless 'buf != 0' and 'offset >= 0'.
 };
 
-// ===========================================================================
+// ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                      // -----------------------------------
                      // StackTraceResolver_FileHelper
@@ -217,8 +218,8 @@ class StackTraceResolver_FileHelper {
 // ACCESSORS
 inline
 int StackTraceResolver_FileHelper::readExact(void    *buf,
-                                                   UintPtr  numBytes,
-                                                   Offset   offset) const
+                                             UintPtr  numBytes,
+                                             Offset   offset) const
 {
     BSLS_ASSERT_SAFE(buf);
     BSLS_ASSERT_SAFE(offset >= 0);
@@ -226,19 +227,26 @@ int StackTraceResolver_FileHelper::readExact(void    *buf,
     UintPtr res = readBytes(buf, numBytes, offset);
     return res != numBytes ? -1 : 0;
 }
+
 }  // close package namespace
-
-}  // close namespace BloombergLP
-
-#endif
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

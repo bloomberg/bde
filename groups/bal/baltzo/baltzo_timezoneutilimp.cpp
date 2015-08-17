@@ -26,6 +26,8 @@ BSLS_IDENT_RCSID(baltzo_timezoneutilimp_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <bsl_ostream.h>
+
 namespace BloombergLP {
 
 static const char LOG_CATEGORY[] = "BALTZO.TIMEZONEUTILIMP";
@@ -33,12 +35,12 @@ static const char LOG_CATEGORY[] = "BALTZO.TIMEZONEUTILIMP";
 // STATIC HELPER FUNCTIONS
 static
 int lookupTimeZone(const baltzo::Zoneinfo **timeZone,
-                   const char             *timeZoneId,
+                   const char              *timeZoneId,
                    baltzo::ZoneinfoCache   *cache)
     // Load, into the specified 'timeZone', the address of the time zone
     // information having the specified 'timeZoneId' from the specified
     // 'cache'.  Return 0 on success, and a non-zero value otherwise.  A return
-    // status of 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
+    // status of 'baltzo::ErrorCode::k_UNSUPPORTED_ID' indicates that
     // 'timeZoneId' is not recognized.
 {
     BSLS_ASSERT(timeZone);
@@ -316,24 +318,24 @@ void baltzo::TimeZoneUtilImp::resolveLocalTime(
     // the relevant transitions.
 
     int utcOffsetInSeconds;
-    if (dstPolicy != DstPolicy::BALTZO_UNSPECIFIED) {
+    if (dstPolicy != DstPolicy::e_UNSPECIFIED) {
         // If 'dstPolicy' is DST or STANDARD, select the UTC offset from a
         // local time descriptor with a matching daylight-saving time
         // property.
 
-        const bool isDstOff = dstPolicy == DstPolicy::BALTZO_DST;
+        const bool isDstOff = dstPolicy == DstPolicy::e_DST;
         selectUtcOffset(&utcOffsetInSeconds, iter1, iter2, timeZone, isDstOff);
     }
     else {
-        // 'dstPolicy' is UNSPECIFIED.  Select the UTC offset from the
-        // later relevant transition if the local time is ambiguous or the
-        // earlier if invalid.  Note that for valid and unique local times, the
-        // returned iterators are equal so this choice is irrelevant.
+        // 'dstPolicy' is UNSPECIFIED.  Select the UTC offset from the later
+        // relevant transition if the local time is ambiguous or the earlier if
+        // invalid.  Note that for valid and unique local times, the returned
+        // iterators are equal so this choice is irrelevant.
 
-        BSLS_ASSERT(*resultValidity != Validity::BALTZO_VALID_UNIQUE
+        BSLS_ASSERT(*resultValidity != Validity::e_VALID_UNIQUE
                  || utcOffset1 == utcOffset2);
 
-         utcOffsetInSeconds = *resultValidity == Validity::BALTZO_INVALID
+         utcOffsetInSeconds = *resultValidity == Validity::e_INVALID
                             ? utcOffset1 : utcOffset2;
     }
 

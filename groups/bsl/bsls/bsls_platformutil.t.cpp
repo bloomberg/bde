@@ -86,9 +86,9 @@ static void aSsErT(int c, const char *s, int i)
 #define TAB cout << '\t';                     // output the tab character.
 #define L_ __LINE__                           // current Line number
 
-//==========================================================================
+//=============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
@@ -133,9 +133,9 @@ struct Test8BytesAlignedType {
 };
 #endif
 
-//==========================================================================
+//=============================================================================
 //                   SUPPORTING FUNCTIONS USED FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static bool isBigEndian()
     // Return 'true' if this machine is observed to be big endian, and 'false'
@@ -150,10 +150,10 @@ static bool isBigEndian()
     u.d_int = 0x1;
 
     if (u.d_char[0] == 0x1) {
-        return false;
+        return false;                                                 // RETURN
     }
     else if (u.d_char[sizeof(int) - 1] == 0x1) {
-        return true;
+        return true;                                                  // RETURN
     }
     else {
         ASSERT(0);      // Neither big endian nor little endian!
@@ -161,7 +161,7 @@ static bool isBigEndian()
     return false;
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static bool isLittleEndian()
     // Return 'true' if this machine is observed to be little endian, and
@@ -176,10 +176,10 @@ static bool isLittleEndian()
     u.d_int = 0x1;
 
     if (u.d_char[0] == 0x1) {
-        return true;
+        return true;                                                  // RETURN
     }
     else if (u.d_char[sizeof(int) - 1] == 0x1) {
-        return false;
+        return false;                                                 // RETURN
     }
     else {
         ASSERT(0);      // Neither big endian nor little endian!

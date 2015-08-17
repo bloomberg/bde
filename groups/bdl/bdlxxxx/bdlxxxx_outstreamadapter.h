@@ -1,4 +1,4 @@
-// bdlxxxx_outstreamadapter.h                                            -*-C++-*-
+// bdlxxxx_outstreamadapter.h                                         -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_OUTSTREAMADAPTER
 #define INCLUDED_BDLXXXX_OUTSTREAMADAPTER
 
@@ -883,9 +883,9 @@ class OutStreamAdapter : public OutStream {
         // Return the number of bytes in this stream.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -1400,15 +1400,15 @@ int OutStreamAdapter<STREAM>::length() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

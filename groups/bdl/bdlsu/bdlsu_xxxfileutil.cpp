@@ -1,4 +1,4 @@
-// bdlsu_xxxfileutil.cpp                                                 -*-C++-*-
+// bdlsu_xxxfileutil.cpp                                              -*-C++-*-
 #include <bdlsu_xxxfileutil.h>
 
 #include <bsls_ident.h>
@@ -1159,7 +1159,7 @@ int FileUtil::getWorkingDirectory(bsl::string *path)
 
         //our contract requires an absolute path
 
-        return PathUtil::isRelative(*path);                     // RETURN
+        return PathUtil::isRelative(*path);                           // RETURN
     }
     return -1;
 }

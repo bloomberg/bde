@@ -1,4 +1,4 @@
-// bdlmxxx_schemaaggregateutil.t.cpp                                     -*-C++-*-
+// bdlmxxx_schemaaggregateutil.t.cpp                                  -*-C++-*-
 
 #include <bdlmxxx_schemaaggregateutil.h>
 
@@ -38,7 +38,7 @@ using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 //=============================================================================
-//                   TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 // [11] int canSatisfyRecord(const bdlmxxx::Row&, bdlmxxx::RecordDef&);
 // [11] int canSatisfyRecord(const bdlmxxx::List&, bdlmxxx::RecordDef&);
@@ -189,7 +189,7 @@ typedef bdlmxxx::Choice              Choice;
 typedef bdlmxxx::ChoiceArray         Array;
 typedef bdlmxxx::ChoiceArrayItem     ChoiceItem;
 
-typedef bdeat_FormattingMode     Format;
+typedef bdlat_FormattingMode     Format;
 
 typedef bsls::Types::Int64       Int64;
 
@@ -283,9 +283,9 @@ int strCmp(const char* lhs, const char* rhs)
     // equal, a negative value if lhs < rhs, and a positive value if lhs > rhs.
     // Note that the behavior is well-defined for null-pointer arguments.
 {
-    if (0 == lhs && 0 == rhs) return 0;
-    if (0 == lhs) return -1;
-    if (0 == rhs) return 1;
+    if (0 == lhs && 0 == rhs) return 0;                               // RETURN
+    if (0 == lhs) return -1;                                          // RETURN
+    if (0 == rhs) return 1;                                           // RETURN
     return bsl::strcmp(lhs, rhs);
 }
 
@@ -748,7 +748,7 @@ const RecDef *getRecordConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->record(token - '0');
+        return &object->record(token - '0');                          // RETURN
     }
 
     // else constrained by name
@@ -759,7 +759,7 @@ const EnumDef *getEnumConstraint(Schema *object, char token)
 {
     if (bsl::strchr(indexStr, token)) {
         // constrained by index
-        return &object->enumeration(token - '0');
+        return &object->enumeration(token - '0');                     // RETURN
     }
 
     // else constrained by name
@@ -769,25 +769,25 @@ const EnumDef *getEnumConstraint(Schema *object, char token)
 int getFormattingMode(char fmtCode)
     // Return the formatting mode corresponding to the specified 'fmtCode'.
     //..
-    //  '0' => BDEAT_DEFAULT (zero, not "oh")
-    //  'B' => BDEAT_BASE64
-    //  'D' => BDEAT_DEC
-    //  'L' => BDEAT_LIST
-    //  'N' => BDEAT_NILLABLE
-    //  'T' => BDEAT_TEXT
-    //  'U' => BDEAT_UNTAGGED
-    //  'X' => BDEAT_HEX
+    //  '0' => e_DEFAULT (zero, not "oh")
+    //  'B' => e_BASE64
+    //  'D' => e_DEC
+    //  'L' => e_LIST
+    //  'N' => e_NILLABLE
+    //  'T' => e_TEXT
+    //  'U' => e_UNTAGGED
+    //  'X' => e_HEX
     //..
 {
     switch (fmtCode) {
-      case '0': return Format::BDEAT_DEFAULT;
-      case 'B': return Format::BDEAT_BASE64;
-      case 'D': return Format::BDEAT_DEC;
-      case 'L': return Format::BDEAT_LIST;
-      case 'N': return Format::BDEAT_NILLABLE;
-      case 'T': return Format::BDEAT_TEXT;
-      case 'U': return Format::BDEAT_UNTAGGED;
-      case 'X': return Format::BDEAT_HEX;
+      case '0': return Format::e_DEFAULT;
+      case 'B': return Format::e_BASE64;
+      case 'D': return Format::e_DEC;
+      case 'L': return Format::e_LIST;
+      case 'N': return Format::e_NILLABLE;
+      case 'T': return Format::e_TEXT;
+      case 'U': return Format::e_UNTAGGED;
+      case 'X': return Format::e_HEX;
 
       default: {
         P(fmtCode);  ASSERT("Invalid formatting mode used in gg script" && 0);
@@ -848,7 +848,7 @@ const char
 
         // Parse field attributes, if any.
 
-        int  fmt           = Format::BDEAT_DEFAULT;
+        int  fmt           = Format::e_DEFAULT;
         bool nullable      = ! bsl::strchr("+#%@", fieldTypeChar);
         bool hasNoDefault  = true;
         int  dfltIndex     = -1;
@@ -1081,7 +1081,7 @@ bool containsAggregate(const RecDef& rec)
 
     for (int i = 0; i < length; ++i) {
         if (bdlmxxx::ElemType::isAggregateType(rec.field(i).elemType())) {
-            return true;
+            return true;                                              // RETURN
         }
     }
 
@@ -1207,7 +1207,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
     getElemTypes(&listElemTypes, list);
     if (listElemTypes != elemTypes) {
         cout << "list.elemTypes() != elemTypes" << endl;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     for (int i = 0; i < list.length(); ++i) {
@@ -1222,12 +1222,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     if (!list[i].isNull()) {
                         cout << "schema is null, element is not" << endl;
                         P_(list[i]);
-                        return 0;
+                        return 0;                                     // RETURN
                     }
                 }
                 else if (list[i].isNonNull()) {
                     cout << "schema has no default value, list is set" << endl;
-                    return 0;
+                    return 0;                                         // RETURN
                 }
             }
             else {
@@ -1235,7 +1235,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     cout << "scalar element is not set to default value" <<
                                                                           endl;
                     P(list[i]); P(pFld->defaultValue());
-                    return 0;
+                    return 0;                                         // RETURN
                 }
             }
         }
@@ -1244,7 +1244,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                 if (!list[i].isNull()) {
                     cout << "schema is null, element is not" << endl;
                     P_(list[i]);
-                    return 0;
+                    return 0;                                         // RETURN
                 }
 
                 continue;
@@ -1255,7 +1255,7 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                 //       unconstrained;
                 if (list[i].isNonNull()) {
                     cout << "unconstrained sub-list not unset" << endl;
-                    return 0;
+                    return 0;                                         // RETURN
                 }
 
                 continue;                                           // CONTINUE
@@ -1271,13 +1271,13 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                 if(pConstraint == &recDef) {
                     if (list[i].isNonNull()) {
                         cout << "self-constrained sub-list not unset" << endl;
-                        return 0;
+                        return 0;                                     // RETURN
                     }
                 }
                 else {
                     if (!verifyDeepInitList(list.theList(i), *pConstraint)) {
                         cout << "sub-list not deep-conformant" << endl;
-                        return 0;
+                        return 0;                                     // RETURN
                     }
                 }
               } break;
@@ -1292,12 +1292,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     cout << "sub-table does not have proper column types"
                          << endl;
                     P(list.theTable(i)); P(bdlmxxx::Table(constraintTypes));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
                 if (0 != list.theTable(i).numRows()) {
                     cout << "sub-table does not have zero rows" << endl;
                     P(list.theTable(i));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
               } break;
               case EType::BDEM_CHOICE: {
@@ -1311,12 +1311,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                     cout << "sub-choice does not have the proper type catalog"
                          << endl;
                     P(list.theChoice(i)); P(bdlmxxx::Choice(constraintTypes));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
                 if (-1 != list.theChoice(i).selector()) {
                     cout << "sub-choice is not null" << endl;
                     P(list.theChoice(i));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
               } break;
               case EType::BDEM_CHOICE_ARRAY: {
@@ -1332,12 +1332,12 @@ int verifyDeepInitList(const List& list, const RecDef& recDef)
                          << endl;
                     P(list.theChoiceArray(i));
                     P(bdlmxxx::ChoiceArray(constraintTypes));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
                 if (0 != list.theChoiceArray(i).length()) {
                     cout << "sub-choice-array is not empty" << endl;
                     P(list.theChoiceArray(i));
-                    return 0;
+                    return 0;                                         // RETURN
                 }
               } break;
               default: {
@@ -1629,7 +1629,7 @@ static const struct {
 
 static const int NUM_INDENT_DATA = SIZEOF_ARRAY(INDENT_DATA);
 
-template <typename AGG_TYPE>
+template <class AGG_TYPE>
 void printTest(int                   LINE,
                const AGG_TYPE&       agg,
                EType::Type           type,
@@ -3472,7 +3472,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator  testAllocator(veryVeryVerbose);
         bslma::Allocator     *Z = &testAllocator;
-        int                  fmt = Format::BDEAT_DEFAULT;
+        int                  fmt = Format::e_DEFAULT;
 
         Schema s(Z);
         EnumDef *e = s.createEnumeration("a");
@@ -8040,11 +8040,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

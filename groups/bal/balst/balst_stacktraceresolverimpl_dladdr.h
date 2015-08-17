@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Functions for resolving symbols in a stack trace using 'dladdr'.
+//@PURPOSE: Provide functions for resolving a stack trace using 'dladdr'.
 //
 //@CLASSES:
 //   balst::StackTraceResolverImpl<Dladdr>: symbol resolution using 'dladdr'
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// 'baesu::StackTraceResolver<Dladdr>', that, given a vector of
+// 'balst::StackTraceResolver<Dladdr>', that, given a vector of
 // 'balst::StackTraceFrame' objects that have only their 'address' fields set,
 // resolves some of the other fields in those frames.  This resolver will work
 // for any platform that supports the 'dladdr' function (e.g., Darwin and
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 
 
 namespace balst {template <typename RESOLVER_POLICY>
@@ -150,19 +150,27 @@ class StackTraceResolverImpl<ObjectFileFormat::Dladdr> {
         // occur.  The behavior is undefined unless all the 'address' field in
         // '*stackTrace' are valid and other fields are invalid.
 };
+
 }  // close package namespace
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

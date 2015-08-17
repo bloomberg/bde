@@ -61,7 +61,7 @@ using bsl::endl;
 using bsl::flush;
 
 //=============================================================================
-// TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 // [ 1] loadStackTraceFromAddressArray
 // [ 1] loadStackTraceFrameStack
@@ -83,7 +83,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-// STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -149,7 +149,7 @@ typedef balst::StackTrace               ST;
 typedef balst::StackTraceFrame          Frame;
 typedef balst::StackTraceUtil           Util;
 
-#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 0 };
 
@@ -163,17 +163,17 @@ typedef balst::StackTraceUtil           Util;
 #   error unknown platform
 # endif
 
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
            PLAT_DARWIN = 1 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1,
            PLAT_DARWIN = 0 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1,
            FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0,
@@ -206,7 +206,7 @@ typedef bsls::Types::IntPtr    IntPtr;
 }  // close unnamed namespace
 
 //=============================================================================
-// GLOBAL HELPER VARIABLES FOR TESTING
+//                  GLOBAL HELPER VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
 
 static int verbose;
@@ -238,7 +238,7 @@ bool problem()
 //=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 
-template <typename TYPE>
+template <class TYPE>
 TYPE foilOptimizer(const TYPE funcPtr)
     // The function just returns 'funcPtr', but only after putting it through a
     // transform that the optimizer can't possibly understand that leaves it
@@ -363,7 +363,7 @@ void testStackTrace(const balst::StackTrace& st)
                                 // case 11
                                 // -------
 
-namespace BAESU_STACKTRACEUTIL_TEST_CASE_11 {
+namespace BALST_STACKTRACEUTIL_TEST_CASE_11 {
 
 bool straightTrace = true;
 
@@ -442,7 +442,7 @@ void stackTop()
 
         int numStackTop                          = 0;
         int numRecurseABunchOfTimes              = 0;
-        int numBAESU_STACKTRACEUTIL_TEST_CASE_11 = 0;
+        int numBALST_STACKTRACEUTIL_TEST_CASE_11 = 0;
         int numMain                              = 0;
 
         for (int i = 0; i < st.length(); ++i) {
@@ -451,24 +451,24 @@ void stackTop()
             numStackTop += !!bsl::strstr(sym, "stackTop");
             numRecurseABunchOfTimes +=
                                     !!bsl::strstr(sym, "recurseABunchOfTimes");
-            numBAESU_STACKTRACEUTIL_TEST_CASE_11 +=
-                       !!bsl::strstr(sym, "BAESU_STACKTRACEUTIL_TEST_CASE_11");
+            numBALST_STACKTRACEUTIL_TEST_CASE_11 +=
+                       !!bsl::strstr(sym, "BALST_STACKTRACEUTIL_TEST_CASE_11");
             numMain += !!bsl::strstr(sym, "main");
         }
 
         ASSERT(1 == numStackTop);
         ASSERT(5 == numRecurseABunchOfTimes)
-        ASSERT(6 == numBAESU_STACKTRACEUTIL_TEST_CASE_11);
+        ASSERT(6 == numBALST_STACKTRACEUTIL_TEST_CASE_11);
         ASSERT(1 <= numMain);
 
         if (veryVerbose) {
             P_(numStackTop);    P_(numRecurseABunchOfTimes);
-            P_(numBAESU_STACKTRACEUTIL_TEST_CASE_11);    P(numMain);
+            P_(numBALST_STACKTRACEUTIL_TEST_CASE_11);    P(numMain);
         }
     }
 }
 
-}  // close namespace BAESU_STACKTRACEUTIL_TEST_CASE_11
+}  // close namespace BALST_STACKTRACEUTIL_TEST_CASE_11
 
                                 // -------
                                 // case 10
@@ -476,14 +476,14 @@ void stackTop()
 
 // We want long, ccmplicated to demangle names
 
-namespace BAESU_STACKTRACEUTIL_TEST_CASE_10 {
+namespace BALST_STACKTRACEUTIL_TEST_CASE_10 {
 namespace NS_10_2 {
 namespace NS_10_3 {
 namespace NS_10_4 {
 
-#undef  BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+#undef  BALST_STACKTRACEUTIL_TEST_10_SYMBOLS
 #if defined(BDE_BUILD_TARGET_DBG) || !defined(BSLS_PLATFORM_OS_WINDOWS)
-#define BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+#define BALST_STACKTRACEUTIL_TEST_10_SYMBOLS
 #endif
 
 void topOfTheStack(void *, void *, void *, void *)
@@ -493,7 +493,7 @@ void topOfTheStack(void *, void *, void *, void *)
     int rc = Util::loadStackTraceFromStack(&st, 2000, true);
     LOOP_ASSERT(rc, 0 == rc);
 
-#if defined(BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS)
+#if defined(BALST_STACKTRACEUTIL_TEST_10_SYMBOLS)
     const int len = st.length();
 
     bool tots = false;
@@ -517,7 +517,7 @@ void topOfTheStack(void *, void *, void *, void *)
         if (!lffs && npos != s.find("loopForFourSeconds")) {
             lffs = true;
         }
-        if (!tc10 && npos != s.find("BAESU_STACKTRACEUTIL_TEST_CASE_10")) {
+        if (!tc10 && npos != s.find("BALST_STACKTRACEUTIL_TEST_CASE_10")) {
             tc10 = true;
         }
         if (!ns2  && npos != s.find("NS_10_2")) {
@@ -563,7 +563,7 @@ void loopForFourSeconds()
 }  // close namespace NS_10_4
 }  // close namespace NS_10_3
 }  // close namespace NS_10_2
-}  // close namespace BAESU_STACKTRACEUTIL_TEST_CASE_10
+}  // close namespace BALST_STACKTRACEUTIL_TEST_CASE_10
 
                                 // ------
                                 // case 8
@@ -805,7 +805,7 @@ void case_07_top()
     }
 }
 
-ENDNS07  // close namespace
+}
 
                                 // ------
                                 // case 5
@@ -882,7 +882,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     break;
                 }
 
-                if (bsl::strstr(sn, "bdlf::Function")) {
+                if (bsl::strstr(sn, "bdlf") && bsl::strstr(sn, "Function")) {
                     continue;
                 }
 
@@ -1208,7 +1208,7 @@ void top(bslma::Allocator *alloc)
     matches.push_back("main");
 
     {
-        enum { IGNORE_FRAMES = balst::StackAddressUtil::BAESU_IGNORE_FRAMES };
+        enum { IGNORE_FRAMES = balst::StackAddressUtil::k_IGNORE_FRAMES };
 
         void *addresses[3 + IGNORE_FRAMES];
         bsl::memset(addresses, 0, sizeof(addresses));
@@ -1459,7 +1459,7 @@ void traceExample1()
 }
 
 //=============================================================================
-// MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -1569,7 +1569,7 @@ int main(int argc, char *argv[])
         //:   reclaimed.
         // --------------------------------------------------------------------
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         if (verbose) cout << "Memory Leak Test is Performed on Unix Only\n"
                              "==========================================\n";
 #else
@@ -1618,7 +1618,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING PRINT HEX STACK TRACE\n"
                              "=============================\n";
 
-        using namespace BAESU_STACKTRACEUTIL_TEST_CASE_11;
+        using namespace BALST_STACKTRACEUTIL_TEST_CASE_11;
 
         bslma::TestAllocator da2;
         bslma::DefaultAllocatorGuard guard(&da2);
@@ -1645,7 +1645,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING << HEX STACK TRACE\n"
                              "==========================\n";
 
-        using namespace BAESU_STACKTRACEUTIL_TEST_CASE_11;
+        using namespace BALST_STACKTRACEUTIL_TEST_CASE_11;
 
         bslma::TestAllocator da2;
         bslma::DefaultAllocatorGuard guard(&da2);
@@ -1670,11 +1670,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Multithreaded Test\n"
                              "==================\n";
 
-#ifndef BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+#ifndef BALST_STACKTRACEUTIL_TEST_10_SYMBOLS
         cout << "Not built with symbols -- no symbols checked\n";
 #endif
 
-        namespace TC1 = BAESU_STACKTRACEUTIL_TEST_CASE_10;
+        namespace TC1 = BALST_STACKTRACEUTIL_TEST_CASE_10;
         namespace TC = TC1::NS_10_2::NS_10_3::NS_10_4;
 
         bdlf::Function<void (*)()> func = &TC::loopForFourSeconds;
@@ -2038,8 +2038,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Get several subroutines deep on the stack.
         //:   1 load a stack trace using
-        //:     'balst::StackAddressUtil::getStackAddresses' and then initialize
-        //:     a stack trace using 'loadStackTraceFromAddressArray'.
+        //:     'balst::StackAddressUtil::getStackAddresses' and then
+        //:     initialize a stack trace using
+        //:     'loadStackTraceFromAddressArray'.
         //:   2 verify the subroutine names on the stack trace.
         //:   3 load another stack trace using 'loadStackTraceFromStack'.
         //:   4 verify the subroutine names on the stack trace.
@@ -2090,11 +2091,18 @@ int main()
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

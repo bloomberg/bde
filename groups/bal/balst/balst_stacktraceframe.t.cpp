@@ -114,10 +114,10 @@ using bsl::ostream;
 //:   o swap
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] balst::StackTraceFrame(bslma::Allocator *bA = 0);
-// [ 3] balst::StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
-// [ 7] balst::StackTraceFrame(const baesu::STF& o, *bA = 0);
-// [ 2] ~balst::StackTraceFrame();
+// [ 2] StackTraceFrame(bslma::Allocator *bA = 0);
+// [ 3] StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+// [ 7] StackTraceFrame(const balst::STF& o, *bA = 0);
+// [ 2] ~StackTraceFrame();
 //
 // MANIPULATORS
 // [ 9] operator=(const balst::StackTraceFrame& rhs);
@@ -153,7 +153,7 @@ using bsl::ostream;
 // FREE OPERATORS
 // [ 6] bool operator==(const balst::StackTraceFrame& lhs, rhs);
 // [ 6] bool operator!=(const balst::StackTraceFrame& lhs, rhs);
-// [ 5] operator<<(bsl::ostream& s, const baesu::STF& f);
+// [ 5] operator<<(bsl::ostream& s, const balst::STF& f);
 //
 // FREE FUNCTIONS
 // [ 8] void swap(balst::StackTraceFrame& a, b);
@@ -755,8 +755,8 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// In this example, we create two 'balst::StackTraceFrame' objects, modify their
-// properties, and compare them.
+// In this example, we create two 'balst::StackTraceFrame' objects, modify
+// their properties, and compare them.
 //
 // First, we (default) create the two objects, 'a' and 'b', and verify that:
 // they have the same value:
@@ -1470,7 +1470,7 @@ int main(int argc, char *argv[])
             // Verify that the signatures and return types are standard.
 
             funcPtr     memberSwap = &Obj::swap;
-            freeFuncPtr freeSwap   = swap;
+            freeFuncPtr freeSwap   = &balst::swap;
 
             (void)memberSwap;  // quash potential compiler warnings
             (void)freeSwap;
@@ -1820,7 +1820,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   balst::StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+        //   StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3183,7 +3183,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   balst::StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+        //   StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3471,7 +3471,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tlibraryFileName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1, "", (T5)-1, "", ""));
             }
 
             if (veryVerbose) cout << "\tlineNumber" << endl;
@@ -3487,19 +3486,16 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tmangledSymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1,  0, (T5)-1, "", ""));
             }
 
             if (veryVerbose) cout << "\tsourceFileName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1,  0, (T5)-1,  0, ""));
             }
 
             if (veryVerbose) cout << "\tsymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1,  0, (T5)-1,  0,  0));
             }
         }
 
@@ -3617,8 +3613,8 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   balst::StackTraceFrame(bslma::Allocator *bA = 0);
-        //   ~balst::StackTraceFrame();
+        //   StackTraceFrame(bslma::Allocator *bA = 0);
+        //   ~StackTraceFrame();
         //   setAddress(const void *value);
         //   setLibraryFileName(const bslstl::StringRef& value);
         //   setLineNumber(int value);
@@ -4078,7 +4074,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tlibraryFileName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setLibraryFileName(""));
-                ASSERT_SAFE_FAIL(obj.setLibraryFileName( 0));
             }
 
             if (veryVerbose) cout << "\tlineNumber" << endl;
@@ -4094,19 +4089,16 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tmangledSymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setMangledSymbolName(""));
-                ASSERT_SAFE_FAIL(obj.setMangledSymbolName( 0));
             }
 
             if (veryVerbose) cout << "\tsourceFileName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setSourceFileName(""));
-                ASSERT_SAFE_FAIL(obj.setSourceFileName( 0));
             }
 
             if (veryVerbose) cout << "\tsymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setSymbolName(""));
-                ASSERT_SAFE_FAIL(obj.setSymbolName( 0));
             }
         }
 
@@ -4429,11 +4421,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

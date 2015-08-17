@@ -129,7 +129,7 @@ struct Dbghelp_Util {
         // necessary, calls the large, out-of-line 'load' function.
 
     // ACCESSORS
-    bool isLoaded();
+    bool isLoaded() const;
         // Everything is fully loaded.
 };
 
@@ -207,7 +207,7 @@ int Dbghelp_Util::load()
 Dbghelp_Util::~Dbghelp_Util()
 {
     BSLS_ASSERT_OPT(
-               !BloombergLP::balst::DbghelpDllImpl_Windows::qLock().isLocked());
+              !BloombergLP::balst::DbghelpDllImpl_Windows::qLock().isLocked());
 
     if (isLoaded()) {
         (*d_symCleanup)(d_hProcess);
@@ -246,7 +246,7 @@ void Dbghelp_Util::wipeClean()
 }
 
 // ACCESSORS
-bool Dbghelp_Util::isLoaded()
+bool Dbghelp_Util::isLoaded() const
 {
     return  0 != d_moduleHandle
          && 0 != d_symSetOptions
@@ -269,16 +269,17 @@ bool Dbghelp_Util::isLoaded()
 // DATA
 static Dbghelp_Util dbghelp_util = {};    // all zeroes
 
-                              // -------------
-                              // balst::DbghelpDllImpl_Windows
-                              // -------------
-
 namespace BloombergLP {
+
+namespace balst {
+
+                           // ----------------------
+                           // DbghelpDllImpl_Windows
+                           // ----------------------
 
 // DATA
 bdlqq::QLock balst::DbghelpDllImpl_Windows::s_qLock = BDLQQ_QLOCK_INITIALIZER;
 
-namespace balst {
 // CLASS METHODS
 bool DbghelpDllImpl_Windows::isLoaded()
 {
@@ -292,11 +293,9 @@ DWORD DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
 
     return (*dbghelp_util.d_symSetOptions)(symOptions);
 }
-}  // close package namespace
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 
-namespace balst {
 BOOL DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
                                                PDWORD64     displacement,
                                                PSYMBOL_INFO symbol)
@@ -311,11 +310,9 @@ BOOL DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
                                          displacement,
                                          symbol);
 }
-}  // close package namespace
 
 #else
 
-namespace balst {
 BOOL DbghelpDllImpl_Windows::symGetSymFromAddr64(
                                                DWORD64            address,
                                                PDWORD64           displacement,
@@ -331,11 +328,9 @@ BOOL DbghelpDllImpl_Windows::symGetSymFromAddr64(
                                                  displacement,
                                                  symbol);
 }
-}  // close package namespace
 
 #endif
 
-namespace balst {
 BOOL DbghelpDllImpl_Windows::symGetLineFromAddr64(
                                               DWORD64          dwAddr,
                                               PDWORD           pdwDisplacement,
@@ -381,10 +376,17 @@ BOOL DbghelpDllImpl_Windows::stackWalk64(DWORD          machineType,
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

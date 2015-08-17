@@ -1,4 +1,4 @@
-// btlb_blobutil.h                                                   -*-C++-*-
+// btlb_blobutil.h                                                    -*-C++-*-
 #ifndef INCLUDED_BTLB_BLOBUTIL
 #define INCLUDED_BTLB_BLOBUTIL
 
@@ -231,18 +231,18 @@ struct BlobUtil {
         // bytes of the specified 'source' starting at the specified 'offset',
         // and return a reference to the modifiable 'stream'.
 
-    template <typename STREAM>
+    template <class STREAM>
     static STREAM& read(STREAM& stream, Blob *dest, int numBytes);
         // Read the specified 'numBytes' from the specified 'stream' and load
         // it into the specified 'dest', and return a reference to the
         // modifiable 'stream'.
 
-    template <typename STREAM>
+    template <class STREAM>
     static STREAM& write(STREAM& stream, const Blob& source);
         // Write the specified 'source' to the specified 'stream', and return a
         // reference to the modifiable 'stream'.
 
-    template <typename STREAM>
+    template <class STREAM>
     static int write(STREAM&           stream,
                      const Blob& source,
                      int               sourcePosition,
@@ -432,7 +432,7 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream&     stream,
     return hexDump(stream, source, 0, source.length());
 }
 
-template <typename STREAM>
+template <class STREAM>
 STREAM& BlobUtil::read(STREAM& stream, Blob *dest, int numBytes)
 {
     BSLS_ASSERT(0 != dest);
@@ -456,7 +456,7 @@ STREAM& BlobUtil::read(STREAM& stream, Blob *dest, int numBytes)
     return stream;                                                    // RETURN
 }
 
-template <typename STREAM>
+template <class STREAM>
 STREAM& BlobUtil::write(STREAM& stream, const Blob& source)
 {
     int numBytes = source.length();
@@ -478,7 +478,7 @@ STREAM& BlobUtil::write(STREAM& stream, const Blob& source)
     return stream;                                                    // RETURN
 }
 
-template <typename STREAM>
+template <class STREAM>
 int BlobUtil::write(STREAM&           stream,
                           const Blob& source,
                           int               sourcePosition,
@@ -585,15 +585,22 @@ bsl::ostream& btlb::operator<<(bsl::ostream&                  stream,
                                    rhs.d_length);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

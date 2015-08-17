@@ -17,9 +17,9 @@ using namespace bsl;  // automatically added by script
 // [ 3] Proper resolver policy defined
 // [ 4] Usage example
 //-----------------------------------------------------------------------------
-//==========================================================================
+//=============================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
 // Since this component implements 'CPP' macro's and 'typedef's, which may or
@@ -27,8 +27,8 @@ using namespace bsl;  // automatically added by script
 // correctness will be affected by compile-time switches during the build
 // process, any compile-time tests we come up with should probably reside
 // directly in the header or implementation file.
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] Ensure that if a 'RESOLVER' id is defined, it has the value '1'.
 // [ 2] Ensure that exactly one of the 'RESOLVER' ids is defined.
 // [ 3] That 'Obj::Policy' is appropriate for the platform.
@@ -109,7 +109,7 @@ typedef balst::ObjectFileFormat          Obj;
 // value when passed an object of types
 // 'balst::ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.
 //..
-template <typename TYPE>
+template <class TYPE>
 int typeTest(const TYPE &)
 {
     return 0;
@@ -171,11 +171,11 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-#if !defined(BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
+#if !defined(BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
 
-// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy', which
-// will be of type '...::Elf', '...::Xcoff', or '...::Windows' appropriate for
-// the platform.
+// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy',
+// which will be of type '...::Elf', '...::Xcoff', or '...::Windows'
+// appropriate for the platform.
 //..
         balst::ObjectFileFormat::Policy policy;
 //..
@@ -183,13 +183,13 @@ int main(int argc, char *argv[])
 //..
         ASSERT(typeTest(policy) > 0);
 
-    #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+    #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
         ASSERT(1 == typeTest(policy));
-    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+    #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
         ASSERT(2 == typeTest(policy));
-    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+    #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         ASSERT(3 == typeTest(policy));
-    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+    #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
         ASSERT(4 == typeTest(policy));
     #else
         #error No resolver format defined
@@ -267,23 +267,23 @@ int main(int argc, char *argv[])
 
         int count = 0;
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
         ++count;
 #endif
 
@@ -312,48 +312,48 @@ int main(int argc, char *argv[])
     defined(BSLS_PLATFORM_OS_LINUX)   || \
     defined(BSLS_PLATFORM_OS_HPUX)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_ELF);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_AIX)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
 
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 #  error multiple file formats defined
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_CYGWIN)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED);
 
 #else
 # error unrecognized platform
@@ -372,11 +372,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

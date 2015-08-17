@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //      established by the 'BALL_LOG_SET_CATEGORY' (or
 //      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 //..
-#warning TBD:FIX blmxxx references
+// TBD:FIX blmxxx references
 // Seven other macros based on C++ streams, similar to 'BALL_LOG_TRACE', etc.,
 // allow the caller to specify a "callback" function which is passed the
 // 'bdlmxxx::List *' used to represent the user fields of a log record.  The
@@ -656,7 +656,7 @@ BSLS_IDENT("$Id: $")
                                         BAEL_SEVERITY)) {                   \
             ball::Log_Stream bael_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__, \
                                               __LINE__, BAEL_SEVERITY);     \
-            CB(&bael_lOcAl_StReAm.record()->userFieldValues());             \
+            CB(&bael_lOcAl_StReAm.record()->userFields());             \
             BAEL_STREAM
 
 #define BALL_LOGCB_TRACE(CB) BALL_LOGCB_STREAM(ball::Severity::BAEL_TRACE, CB)
@@ -1471,15 +1471,22 @@ int Log_Formatter::severity() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

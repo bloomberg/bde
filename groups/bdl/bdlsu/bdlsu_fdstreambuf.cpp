@@ -123,7 +123,7 @@ int FdStreamBuf_FileHandler::reset(
 
     if (isOpened() && willCloseOnReset()) {
         int rc = FileUtil::close(d_fileId);
-        if (0 != rc && FileUtil::k_BAD_FILE_DESCRIPTOR != rc) {            
+        if (0 != rc && FileUtil::k_BAD_FILE_DESCRIPTOR != rc) {
             return -1;                                                // RETURN
         }
     }
@@ -1112,6 +1112,7 @@ FdStreamBuf::seekpos(pos_type pos, bsl::ios_base::openmode)
     if (offset >= 0 && isOpened() && 0 == seekInit()) {
         return seekReturn(d_fileHandler.seek(offset,                  // RETURN
                                          FileUtil::e_SEEK_FROM_BEGINNING));
+                                                                      // RETURN
     }
 
     return pos_type(-1);
@@ -1121,7 +1122,7 @@ int FdStreamBuf::sync()
 {
     if (BDESU_OUTPUT_MODE == d_mode) {
         return traits_type::eq_int_type(overflow(traits_type::eof()), // RETURN
-                                        traits_type::eof()) ? -1 : 0;
+                                        traits_type::eof()) ? -1 : 0; // RETURN
     }
 
     return 0;
@@ -1246,7 +1247,7 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 //-----------------------------------------------------------------------------
 // Adapted to bde from STLport, 2009
@@ -1270,10 +1271,17 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
 //-----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

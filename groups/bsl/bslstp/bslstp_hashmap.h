@@ -15,7 +15,7 @@
 //@AUTHOR: Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_hash_map.h>' instead. 
+// '<bsl_hash_map.h>' instead.
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
@@ -246,10 +246,10 @@ public:
 
         // MODIFIED BY ARTHUR
         //_Tp v = _STLP_DEFAULT_CONSTRUCTED(_Tp);
-        return _M_ht._M_insert(_value_type(__key, _Tp())).second;
+        return _M_ht._M_insert(_value_type(__key, _Tp())).second;     // RETURN
     }
     else
-        return (*__it).second;
+        return (*__it).second;                                        // RETURN
   }
 
   size_type count(const key_type& __key) const { return _M_ht.count(__key); }
@@ -476,7 +476,7 @@ bool operator!=(const hash_multimap<_Key,_Tp,_HashFcn,_EqlKey,_Alloc>& __hm1,
   return !(__hm1 == __hm2);
 }
 
-}  // namespace bsl
+}  // close namespace bsl
 
 // This needs to be updated whenever bsl_stdhdrs_epilogue.h changes.
 #ifdef BSL_STDHDRS_DEFINED_STD_MACRO
@@ -568,7 +568,7 @@ struct HasStlIterators<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> >
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslma {
 
@@ -581,7 +581,7 @@ struct UsesBslmaAllocator<bsl::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc> 
     : bsl::is_convertible<Allocator*, _Alloc>
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 namespace bslalg {
 
@@ -594,7 +594,7 @@ struct HasStlIterators<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslma {
 
@@ -607,7 +607,7 @@ struct UsesBslmaAllocator<bsl::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Al
     : bsl::is_convertible<Allocator*, _Alloc>
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

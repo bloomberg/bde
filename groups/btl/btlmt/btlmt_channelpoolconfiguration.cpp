@@ -1,4 +1,4 @@
-// btlmt_channelpoolconfiguration.cpp  -*-C++-*-
+// btlmt_channelpoolconfiguration.cpp                                 -*-C++-*-
 #include <btlmt_channelpoolconfiguration.h>
 
 #include <bsls_ident.h>
@@ -25,105 +25,105 @@ const char btlmt::ChannelPoolConfiguration::CLASS_NAME[] =
                                               "btlmt::ChannelPoolConfiguration";
     // the name of this class
 
-const bdeat_AttributeInfo
+const bdlat_AttributeInfo
                      btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_MAX_CONNECTIONS,
         "MaxConnections",                     // name
         sizeof("MaxConnections") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MAX_THREADS,
         "MaxThreads",                     // name
         sizeof("MaxThreads") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_READ_TIMEOUT,
         "ReadTimeout",                     // name
         sizeof("ReadTimeout") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_METRICS_INTERVAL,
         "MetricsInterval",                     // name
         sizeof("MetricsInterval") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT,
         "MinMessageSizeOut",                     // name
         sizeof("MinMessageSizeOut") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT,
         "TypMessageSizeOut",                     // name
         sizeof("TypMessageSizeOut") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT,
         "MaxMessageSizeOut",                     // name
         sizeof("MaxMessageSizeOut") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN,
         "MinMessageSizeIn",                     // name
         sizeof("MinMessageSizeIn") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN,
         "TypMessageSizeIn",                     // name
         sizeof("TypMessageSizeIn") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN,
         "MaxMessageSizeIn",                     // name
         sizeof("MaxMessageSizeIn") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT,
         "WriteCacheLowWat",                     // name
         sizeof("WriteCacheLowWat") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_WRITE_CACHE_HI_WAT,
         "WriteCacheHiWat",                     // name
         sizeof("WriteCacheHiWat") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_THREAD_STACK_SIZE,
         "ThreadStackSize",                     // name
         sizeof("ThreadStackSize") - 1,         // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_COLLECT_TIME_METRICS,
         "CollectTimeMetrics",                  // name
         sizeof("CollectTimeMetrics") - 1,      // name length
         "",// annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     }
 
 };
@@ -133,7 +133,7 @@ namespace btlmt {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
+const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
@@ -150,6 +150,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[8])=='D' &&
                 bsl::toupper(name[9])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS];
+                                                                      // RETURN
             }
         } break;
         case 11: {
@@ -165,6 +166,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[9])=='U' &&
                 bsl::toupper(name[10])=='T') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT];
+                                                                      // RETURN
             }
         } break;
         case 14: {
@@ -183,6 +185,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[12])=='N' &&
                 bsl::toupper(name[13])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS];
+                                                                      // RETURN
             }
         } break;
         case 15: {
@@ -204,6 +207,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='L') {
                         return
                        &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL];
+                                                                      // RETURN
                     }
                 } break;
                 case 'W': {
@@ -223,6 +227,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='T') {
                         return
                      &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
+                                                                      // RETURN
                     }
                 } break;
                 case 'T': {
@@ -242,6 +247,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[14])=='E') {
                         return
                      &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -267,6 +273,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[15])=='N') {
                                return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN];
+                                                                      // RETURN
                             }
                         } break;
                         case 'I': {
@@ -286,6 +293,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[15])=='N') {
                                 return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN];
+                                                                      // RETURN
                             }
                         } break;
                     }
@@ -308,6 +316,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[15])=='N') {
                         return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN];
+                                                                      // RETURN
                     }
                 } break;
                 case 'W': {
@@ -328,6 +337,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[15])=='T') {
                         return
                     &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -354,6 +364,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[16])=='T') {
                                 return
                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT];
+                                                                      // RETURN
                             }
                         } break;
                         case 'I': {
@@ -374,6 +385,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                 bsl::toupper(name[16])=='T') {
                                 return
                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT];
+                                                                      // RETURN
                             }
                         } break;
                     }
@@ -397,6 +409,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                         bsl::toupper(name[16])=='T') {
                         return
                    &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT];
+                                                                      // RETURN
                     }
                 } break;
             }
@@ -422,6 +435,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                 bsl::toupper(name[17])=='S') {
                 return &ATTRIBUTE_INFO_ARRAY[
                                          ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
+                                                                      // RETURN
             }
 
         } break;
@@ -429,7 +443,7 @@ const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
+const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                                                         int id)
 {
     switch (id) {
@@ -615,13 +629,20 @@ bsl::ostream& btlmt::operator<<(bsl::ostream&                         output,
     return output;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

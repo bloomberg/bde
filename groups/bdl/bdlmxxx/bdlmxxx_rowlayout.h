@@ -1,4 +1,4 @@
-// bdlmxxx_rowlayout.h                                                   -*-C++-*-
+// bdlmxxx_rowlayout.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_ROWLAYOUT
 #define INCLUDED_BDLMXXX_ROWLAYOUT
 
@@ -759,9 +759,9 @@ class RowLayout {
         // the elements are not streamed out.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                       // --------------------------
                       // class RowLayoutEntry
@@ -986,15 +986,15 @@ const RowLayoutEntry& RowLayout::operator[](int index) const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

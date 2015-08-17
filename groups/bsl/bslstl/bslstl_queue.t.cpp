@@ -369,7 +369,7 @@ void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
 }
 
 // generic debug print function (3-arguments)
-template <typename T>
+template <class T>
 void dbg_print(const char* s, const T& val, const char* nl) {
     printf("%s", s); dbg_print(val);
     printf("%s", nl);
@@ -456,12 +456,12 @@ class NonAllocCont {
 };
 
 namespace std {
-    template <typename VALUE>
+    template <class VALUE>
     void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
     {
         lhs.contents().swap(rhs.contents());
     }
-}
+}  // close namespace std
 
                             // ====================
                             // class ExceptionGuard
@@ -1154,7 +1154,7 @@ void TestDriver<VALUE, CONTAINER>::testCase12()
                   } break;
                   default: {
                       ASSERTV(LINE, CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
                 ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -2250,7 +2250,7 @@ void TestDriver<VALUE, CONTAINER>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
 
@@ -2566,7 +2566,7 @@ void TestDriver<VALUE, CONTAINER>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
-                  return;
+                  return;                                             // RETURN
               } break;
             }
 

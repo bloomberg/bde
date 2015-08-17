@@ -8,15 +8,15 @@ namespace BloombergLP {
 namespace {
 
 bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
-                     bsls::Types::Uint64*     fractionalUnitDrainedInNanoUnits,
-                     bsls::Types::Uint64      drainRate,
-                     const bsls::TimeInterval& timeInterval)
+                   bsls::Types::Uint64       *fractionalUnitDrainedInNanoUnits,
+                   bsls::Types::Uint64        drainRate,
+                   const bsls::TimeInterval&  timeInterval)
     // Return the number of units that would be drained from a leaky bucket
     // over the specified 'timeInterval' at the specified 'drainRate', plus the
     // specified 'fractionalUnitDrainedInNanoUnits', representing a fractional
     // remainder from a previous call to 'calculateNumberOfUnitsToDrain'.  Load
     // into 'fractionalUnitDrainedInNanoUnits' the fractional remainder
-    // (between 0.0 and 1.0, represented in nano-units) from this caculation.
+    // (between 0.0 and 1.0, represented in nano-units) from this calculation.
     // The behavior is undefined unless
     // '0 <= *fractionalUnitDrainedInNanoUnits < 1000000000' (i.e., it
     // represents a value between 0 and 1 unit) and
@@ -54,9 +54,9 @@ bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
 }  // close unnamed namespace
 
 namespace btls {
-                        //-----------------------
-                        // class LeakyBucket
-                        //-----------------------
+                            //------------------
+                            // class LeakyBucket
+                            //------------------
 
 // CLASS METHODS
 bsls::TimeInterval LeakyBucket::calculateDrainTime(
@@ -99,8 +99,8 @@ bsls::TimeInterval LeakyBucket::calculateTimeWindow(
 }
 
 bsls::Types::Uint64 LeakyBucket::calculateCapacity(
-                                           bsls::Types::Uint64      drainRate,
-                                           const bsls::TimeInterval& timeWindow)
+                                          bsls::Types::Uint64       drainRate,
+                                          const bsls::TimeInterval& timeWindow)
 {
     BSLS_ASSERT(1 == drainRate ||
                 timeWindow <= LeakyBucket::calculateDrainTime(ULLONG_MAX,
@@ -122,8 +122,8 @@ bsls::Types::Uint64 LeakyBucket::calculateCapacity(
 
 // CREATORS
 LeakyBucket::LeakyBucket(bsls::Types::Uint64       drainRate,
-                                   bsls::Types::Uint64       capacity,
-                                   const bsls::TimeInterval&  currentTime)
+                         bsls::Types::Uint64       capacity,
+                         const bsls::TimeInterval& currentTime)
 : d_drainRate(drainRate)
 , d_capacity(capacity)
 , d_unitsReserved(0)
@@ -158,14 +158,14 @@ LeakyBucket::LeakyBucket(bsls::Types::Uint64       drainRate,
 
 // MANIPULATORS
 bsls::TimeInterval LeakyBucket::calculateTimeToSubmit(
-                                          const bsls::TimeInterval& currentTime)
+                                         const bsls::TimeInterval& currentTime)
 {
     bsls::Types::Uint64 usedUnits = d_unitsInBucket + d_unitsReserved;
 
     // Return 0-length time interval if units can be submitted right now.
 
     if (usedUnits < d_capacity) {
-        return bsls::TimeInterval(0, 0);                               // RETURN
+        return bsls::TimeInterval(0, 0);                              // RETURN
     }
 
     updateState(currentTime);
@@ -174,7 +174,7 @@ bsls::TimeInterval LeakyBucket::calculateTimeToSubmit(
     // has been updated.
 
     if (d_unitsInBucket + d_unitsReserved < d_capacity) {
-        return bsls::TimeInterval(0, 0);                               // RETURN
+        return bsls::TimeInterval(0, 0);                              // RETURN
     }
 
     bsls::TimeInterval timeToSubmit(0,0);
@@ -200,7 +200,7 @@ bsls::TimeInterval LeakyBucket::calculateTimeToSubmit(
 }
 
 void LeakyBucket::setRateAndCapacity(bsls::Types::Uint64 newRate,
-                                          bsls::Types::Uint64 newCapacity)
+                                     bsls::Types::Uint64 newCapacity)
 {
     BSLS_ASSERT_SAFE(0 < newRate);
     BSLS_ASSERT_SAFE(0 < newCapacity);
@@ -217,8 +217,8 @@ void LeakyBucket::setRateAndCapacity(bsls::Types::Uint64 newRate,
     }
     else {
         d_maxUpdateInterval = LeakyBucket::calculateDrainTime(ULLONG_MAX,
-                                                                   newRate,
-                                                                   false);
+                                                              newRate,
+                                                              false);
     }
 }
 
@@ -280,8 +280,8 @@ bool LeakyBucket::wouldOverflow(const bsls::TimeInterval& currentTime)
 }
 
 // ACCESSORS
-void LeakyBucket::getStatistics(bsls::Types::Uint64* submittedUnits,
-                                     bsls::Types::Uint64* unusedUnits) const
+void LeakyBucket::getStatistics(bsls::Types::Uint64 *submittedUnits,
+                                bsls::Types::Uint64 *unusedUnits) const
 {
 
     BSLS_ASSERT(0 != submittedUnits);
@@ -309,15 +309,22 @@ void LeakyBucket::getStatistics(bsls::Types::Uint64* submittedUnits,
         *unusedUnits = drainedUnits - d_statSubmittedUnitsAtLastUpdate;
     }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

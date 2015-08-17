@@ -373,7 +373,7 @@ void dbg_print(const bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& pq)
 
 // generic debug print function (3-arguments)
 
-template <typename T>
+template <class T>
 void dbg_print(const char* s, const T& val, const char* nl) {
     printf("%s", s); dbg_print(val);
     printf("%s", nl);
@@ -468,12 +468,12 @@ class NonAllocCont {
 };
 
 namespace std {
-    template <typename VALUE>
+    template <class VALUE>
     void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
     {
         lhs.contents().swap(rhs.contents());
     }
-}
+}  // close namespace std
 
 bool g_enableLessThanFunctorFlag = true;
 
@@ -541,10 +541,12 @@ class TestComparator {
         if (d_compareLess) {
             return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
                  < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+                                                                      // RETURN
         }
         else {
             return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
                  > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+                                                                      // RETURN
         }
     }
 
@@ -1145,7 +1147,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
                   } break;
                   default: {
                       ASSERTV(LINE, CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
                 ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -2079,7 +2081,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
 
@@ -2395,7 +2397,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
-                  return;
+                  return;                                             // RETURN
               } break;
             }
 

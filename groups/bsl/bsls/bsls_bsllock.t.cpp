@@ -280,10 +280,10 @@ extern "C" void *threadFunction(void *arg)
 
         if (amount <= d_money) {
             d_money -= amount;
-            return 0;
+            return 0;                                                 // RETURN
         }
         else {
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 //..

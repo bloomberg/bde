@@ -2,22 +2,40 @@
 
 #include <bdlat_symbolicconverter.h>
 
-#include <bslma_allocator.h>
-#include <bslmf_assert.h>
-#include <bsls_assert.h>
+#include <bdls_testutil.h>
+
+#include <bdlat_attributeinfo.h>
+#include <bdlat_enumeratorinfo.h>
+#include <bdlat_formattingmode.h>
+#include <bdlat_selectioninfo.h>
+#include <bdlat_typetraits.h>
+#include <bdlat_valuetypefunctions.h>
+
+#include <bdlb_nullablevalue.h>
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
 
 #include <bsl_cctype.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
+#include <bslalg_typetraits.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
+#include <bslmf_assert.h>
+
+#include <bsls_assert.h>
+#include <bsls_objectbuffer.h>
+
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::atoi;
-using bsl::flush;
-using bsl::endl;
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -28,61 +46,49 @@ using bsl::endl;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -96,55 +102,16 @@ struct ConvertibleType {
 #ifndef INCLUDED_TEST_CHOICEA
 #define INCLUDED_TEST_CHOICEA
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: ChoiceA
+//@CLASSES:
+//  ChoiceA: A choice class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
+//  TBD: provide annotation for 'ChoiceA'
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
-#include <bdlat_selectioninfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
 namespace BloombergLP {
 
 namespace test {
@@ -190,7 +157,7 @@ class ChoiceA {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "ChoiceA")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
@@ -201,11 +168,11 @@ class ChoiceA {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -214,16 +181,16 @@ class ChoiceA {
 
     // CREATORS
     explicit ChoiceA(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'ChoiceA' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'ChoiceA' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ChoiceA(const ChoiceA& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'ChoiceA' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'ChoiceA' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     ~ChoiceA();
         // Destroy this object.
@@ -245,8 +212,8 @@ class ChoiceA {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int makeSelection(int selectionId);
         // Set the value of this object to be the default for the selection
@@ -261,17 +228,15 @@ class ChoiceA {
 
     void makeSelection1();
     void makeSelection1(int value);
-        // Set the value of this object to be a "Selection1" value.
-        // Optionally specify the 'value' of the "Selection1".  If
-        // 'value' is not specified, the default "Selection1" value is
-        // used.
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
 
     void makeSelection2();
     void makeSelection2(const bsl::string& value);
-        // Set the value of this object to be a "Selection2" value.
-        // Optionally specify the 'value' of the "Selection2".  If
-        // 'value' is not specified, the default "Selection2" value is
-        // used.
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
 
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
@@ -282,16 +247,14 @@ class ChoiceA {
         // and -1 otherwise.
 
     int& selection1();
-        // Return a reference to the modifiable "Selection1" selection
-        // of this object if "Selection1" is the current selection.
-        // The behavior is undefined unless "Selection1" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
 
     bsl::string& selection2();
-        // Return a reference to the modifiable "Selection2" selection
-        // of this object if "Selection2" is the current selection.
-        // The behavior is undefined unless "Selection2" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -314,9 +277,9 @@ class ChoiceA {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     int selectionId() const;
         // Return the id of the current selection if the selection is defined,
@@ -330,26 +293,23 @@ class ChoiceA {
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
     const int& selection1() const;
-        // Return a reference to the non-modifiable "Selection1"
-        // selection of this object if "Selection1" is the current
-        // selection.  The behavior is undefined unless "Selection1"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
 
     const bsl::string& selection2() const;
-        // Return a reference to the non-modifiable "Selection2"
-        // selection of this object if "Selection2" is the current
-        // selection.  The behavior is undefined unless "Selection2"
-        // is the selection of this object.
-
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
 };
 
 // FREE OPERATORS
 inline
 bool operator==(const ChoiceA& lhs, const ChoiceA& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'ChoiceA' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
+    // value, and 'false' otherwise.  Two 'ChoiceA' objects have the same value
+    // if either the selections in both objects have the same ids and the same
+    // values, or both selections are undefined.
 
 inline
 bool operator!=(const ChoiceA& lhs, const ChoiceA& rhs);
@@ -358,11 +318,11 @@ bool operator!=(const ChoiceA& lhs, const ChoiceA& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const ChoiceA& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -395,7 +355,7 @@ inline
 void ChoiceA::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -421,7 +381,7 @@ inline
 void ChoiceA::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -454,9 +414,7 @@ ChoiceA::ChoiceA(bslma::Allocator *basicAllocator)
 }
 
 inline
-ChoiceA::ChoiceA(
-    const ChoiceA& original,
-    bslma::Allocator *basicAllocator)
+ChoiceA::ChoiceA(const ChoiceA& original, bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -565,7 +523,7 @@ int ChoiceA::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -726,14 +684,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::ChoiceA& rhs)
 
 // test_choicea.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -744,20 +694,20 @@ namespace test {
 const char ChoiceA::CLASS_NAME[] = "ChoiceA";
     // the name of this class
 
-const bdeat_SelectionInfo ChoiceA::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo ChoiceA::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",              // name
         sizeof("Selection1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",              // name
         sizeof("Selection2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -765,7 +715,7 @@ const bdeat_SelectionInfo ChoiceA::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *ChoiceA::lookupSelectionInfo(
+const bdlat_SelectionInfo *ChoiceA::lookupSelectionInfo(
         const char *name,
         int         nameLength)
 {
@@ -796,7 +746,7 @@ const bdeat_SelectionInfo *ChoiceA::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *ChoiceA::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *ChoiceA::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -894,55 +844,16 @@ bsl::ostream& ChoiceA::print(
 #ifndef INCLUDED_TEST_CHOICEB
 #define INCLUDED_TEST_CHOICEB
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: ChoiceB
+//@CLASSES:
+//  ChoiceB: A choice class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
+//  TBD: provide annotation for 'ChoiceB'
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
-#include <bdlat_selectioninfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 
@@ -954,7 +865,7 @@ class ChoiceB {
     union {
         bsls::ObjectBuffer< bsl::string > d_selection2;
             // TBD: provide annotation
-        bsls::ObjectBuffer< int > d_selection1;
+        bsls::ObjectBuffer< int >         d_selection1;
             // TBD: provide annotation
     };
 
@@ -989,7 +900,7 @@ class ChoiceB {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "ChoiceB")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
@@ -1000,11 +911,11 @@ class ChoiceB {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return selection information for the selection indicated by the
@@ -1013,16 +924,16 @@ class ChoiceB {
 
     // CREATORS
     explicit ChoiceB(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'ChoiceB' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'ChoiceB' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ChoiceB(const ChoiceB& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'ChoiceB' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'ChoiceB' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     ~ChoiceB();
         // Destroy this object.
@@ -1044,8 +955,8 @@ class ChoiceB {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int makeSelection(int selectionId);
         // Set the value of this object to be the default for the selection
@@ -1060,17 +971,15 @@ class ChoiceB {
 
     void makeSelection2();
     void makeSelection2(const bsl::string& value);
-        // Set the value of this object to be a "Selection2" value.
-        // Optionally specify the 'value' of the "Selection2".  If
-        // 'value' is not specified, the default "Selection2" value is
-        // used.
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
 
     void makeSelection1();
     void makeSelection1(int value);
-        // Set the value of this object to be a "Selection1" value.
-        // Optionally specify the 'value' of the "Selection1".  If
-        // 'value' is not specified, the default "Selection1" value is
-        // used.
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
 
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
@@ -1081,16 +990,14 @@ class ChoiceB {
         // and -1 otherwise.
 
     bsl::string& selection2();
-        // Return a reference to the modifiable "Selection2" selection
-        // of this object if "Selection2" is the current selection.
-        // The behavior is undefined unless "Selection2" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
 
     int& selection1();
-        // Return a reference to the modifiable "Selection1" selection
-        // of this object if "Selection1" is the current selection.
-        // The behavior is undefined unless "Selection1" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -1113,9 +1020,9 @@ class ChoiceB {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     int selectionId() const;
         // Return the id of the current selection if the selection is defined,
@@ -1129,16 +1036,14 @@ class ChoiceB {
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
     const bsl::string& selection2() const;
-        // Return a reference to the non-modifiable "Selection2"
-        // selection of this object if "Selection2" is the current
-        // selection.  The behavior is undefined unless "Selection2"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
 
     const int& selection1() const;
-        // Return a reference to the non-modifiable "Selection1"
-        // selection of this object if "Selection1" is the current
-        // selection.  The behavior is undefined unless "Selection1"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
 
 };
 
@@ -1146,9 +1051,9 @@ class ChoiceB {
 inline
 bool operator==(const ChoiceB& lhs, const ChoiceB& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'ChoiceB' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
+    // value, and 'false' otherwise.  Two 'ChoiceB' objects have the same value
+    // if either the selections in both objects have the same ids and the same
+    // values, or both selections are undefined.
 
 inline
 bool operator!=(const ChoiceB& lhs, const ChoiceB& rhs);
@@ -1157,11 +1062,11 @@ bool operator!=(const ChoiceB& lhs, const ChoiceB& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const ChoiceB& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -1194,7 +1099,7 @@ inline
 void ChoiceB::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -1220,7 +1125,7 @@ inline
 void ChoiceB::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -1253,9 +1158,7 @@ ChoiceB::ChoiceB(bslma::Allocator *basicAllocator)
 }
 
 inline
-ChoiceB::ChoiceB(
-    const ChoiceB& original,
-    bslma::Allocator *basicAllocator)
+ChoiceB::ChoiceB(const ChoiceB& original, bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1364,7 +1267,7 @@ int ChoiceB::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -1487,11 +1390,9 @@ bool test::operator==(const test::ChoiceB& lhs, const test::ChoiceB& rhs)
     if (lhs.selectionId() == rhs.selectionId()) {
         switch (rhs.selectionId()) {
           case test::ChoiceB::SELECTION_ID_SELECTION2:
-            return lhs.selection2() == rhs.selection2();
-                                                                    // RETURN
+            return lhs.selection2() == rhs.selection2();              // RETURN
           case test::ChoiceB::SELECTION_ID_SELECTION1:
-            return lhs.selection1() == rhs.selection1();
-                                                                    // RETURN
+            return lhs.selection1() == rhs.selection1();              // RETURN
           default:
             BSLS_ASSERT_SAFE(test::ChoiceB::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
@@ -1525,14 +1426,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::ChoiceB& rhs)
 
 // test_choiceb.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -1543,20 +1436,20 @@ namespace test {
 const char ChoiceB::CLASS_NAME[] = "ChoiceB";
     // the name of this class
 
-const bdeat_SelectionInfo ChoiceB::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo ChoiceB::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION2,
         "Selection2",              // name
         sizeof("Selection2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         SELECTION_ID_SELECTION1,
         "Selection1",              // name
         sizeof("Selection1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
@@ -1564,9 +1457,8 @@ const bdeat_SelectionInfo ChoiceB::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_SelectionInfo *ChoiceB::lookupSelectionInfo(const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 10: {
@@ -1595,7 +1487,7 @@ const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *ChoiceB::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION2:
@@ -1619,10 +1511,9 @@ const bdeat_SelectionInfo *ChoiceB::lookupSelectionInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& ChoiceB::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& ChoiceB::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -1693,43 +1584,15 @@ bsl::ostream& ChoiceB::print(
 #ifndef INCLUDED_TEST_CUSTOMIZEDA
 #define INCLUDED_TEST_CUSTOMIZEDA
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: CustomizedA
+//@CLASSES:
+//  CustomizedA: a customized class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'CustomizedA'
 
 namespace BloombergLP {
 
@@ -1756,16 +1619,16 @@ class CustomizedA {
     // CREATORS
     explicit CustomizedA(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedA' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     CustomizedA(const CustomizedA&  original,
                 bslma::Allocator   *basicAllocator = 0);
-        // Create an object of type 'CustomizedA' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'CustomizedA' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     explicit CustomizedA(const bsl::string&  value,
                          bslma::Allocator   *basicAllocator = 0);
@@ -1794,8 +1657,8 @@ class CustomizedA {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int fromString(const bsl::string& value);
         // Convert from the specified 'value' to this type.  Return 0 if
@@ -1807,9 +1670,9 @@ class CustomizedA {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     int maxSupportedBdexVersion() const;
         // Return the most current 'bdex' streaming version number supported by
@@ -1852,11 +1715,11 @@ bool operator!=(const CustomizedA& lhs, const CustomizedA& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedA& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -1906,7 +1769,7 @@ STREAM& CustomizedA::bdexStreamIn(STREAM& stream, int version)
         return stream;                                                // RETURN
     }
 
-    if (fromString(temp)!=0) {
+    if (fromString(temp) != 0) {
         stream.invalidate();
     }
 
@@ -1916,7 +1779,7 @@ STREAM& CustomizedA::bdexStreamIn(STREAM& stream, int version)
 inline
 void CustomizedA::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -1971,21 +1834,21 @@ BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(test::CustomizedA)
 
 inline
 bool test::operator==(const test::CustomizedA& lhs,
-                                 const test::CustomizedA& rhs)
+                      const test::CustomizedA& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
 bool test::operator!=(const test::CustomizedA& lhs,
-                                 const test::CustomizedA& rhs)
+                      const test::CustomizedA& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
-                                          const test::CustomizedA& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&            stream,
+                               const test::CustomizedA& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -1999,8 +1862,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 // ----------------------------------------------------------------------------
 
 // test_customizeda.cpp  -*-C++-*-
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -2039,43 +1900,15 @@ const char CustomizedA::CLASS_NAME[] = "CustomizedA";
 #ifndef INCLUDED_TEST_CUSTOMIZEDB
 #define INCLUDED_TEST_CUSTOMIZEDB
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: CustomizedB
+//@CLASSES:
+//  CustomizedB: a customized class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'CustomizedB'
 
 namespace BloombergLP {
 
@@ -2102,16 +1935,16 @@ class CustomizedB {
     // CREATORS
     explicit CustomizedB(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedB' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     CustomizedB(const CustomizedB&  original,
                 bslma::Allocator   *basicAllocator = 0);
-        // Create an object of type 'CustomizedB' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'CustomizedB' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     explicit CustomizedB(const bsl::string&  value,
                          bslma::Allocator   *basicAllocator = 0);
@@ -2140,8 +1973,8 @@ class CustomizedB {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int fromString(const bsl::string& value);
         // Convert from the specified 'value' to this type.  Return 0 if
@@ -2153,9 +1986,9 @@ class CustomizedB {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     int maxSupportedBdexVersion() const;
         // Return the most current 'bdex' streaming version number supported by
@@ -2198,8 +2031,8 @@ bool operator!=(const CustomizedB& lhs, const CustomizedB& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedB& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -2262,7 +2095,7 @@ STREAM& CustomizedB::bdexStreamIn(STREAM& stream, int version)
 inline
 void CustomizedB::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -2317,21 +2150,21 @@ BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(test::CustomizedB)
 
 inline
 bool test::operator==(const test::CustomizedB& lhs,
-                                 const test::CustomizedB& rhs)
+                      const test::CustomizedB& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
 bool test::operator!=(const test::CustomizedB& lhs,
-                                 const test::CustomizedB& rhs)
+                      const test::CustomizedB& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
-                                          const test::CustomizedB& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&            stream,
+                               const test::CustomizedB& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -2345,8 +2178,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 // ----------------------------------------------------------------------------
 
 // test_customizedb.cpp  -*-C++-*-
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -2385,35 +2216,15 @@ const char CustomizedB::CLASS_NAME[] = "CustomizedB";
 #ifndef INCLUDED_TEST_ENUMERATIONA
 #define INCLUDED_TEST_ENUMERATIONA
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: EnumerationA
+//@CLASSES:
+//  EnumerationA: an enumeration class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMERATORINFO
-#include <bdlat_enumeratorinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
+//  TBD: provide annotation for 'EnumerationA'
 
 namespace BloombergLP {
 
@@ -2439,7 +2250,7 @@ struct EnumerationA {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "EnumerationA")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -2476,15 +2287,15 @@ struct EnumerationA {
         // reference to the modifiable 'stream'.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
+        // undefined.  If 'version' is not supported, 'stream' is marked
+        // invalid, but 'value' is unaltered.  Note that no version is read
+        // from 'stream'.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&  stream,
@@ -2503,11 +2314,11 @@ struct EnumerationA {
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, EnumerationA::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -2534,8 +2345,8 @@ int EnumerationA::fromInt(EnumerationA::Value *result, int number)
 }
 
 inline
-bsl::ostream& EnumerationA::print(bsl::ostream&      stream,
-                                 EnumerationA::Value value)
+bsl::ostream& EnumerationA::print(bsl::ostream&       stream,
+                                  EnumerationA::Value value)
 {
     return stream << toString(value);
 }
@@ -2562,9 +2373,9 @@ const char *EnumerationA::toString(EnumerationA::Value value)
 
 template <class STREAM>
 inline
-STREAM& EnumerationA::bdexStreamIn(STREAM&             stream,
-                                  EnumerationA::Value& value,
-                                  int                 version)
+STREAM& EnumerationA::bdexStreamIn(STREAM&              stream,
+                                   EnumerationA::Value& value,
+                                   int                  version)
 {
     switch(version) {
       case 1: {
@@ -2585,9 +2396,9 @@ STREAM& EnumerationA::bdexStreamIn(STREAM&             stream,
 
 template <class STREAM>
 inline
-STREAM& EnumerationA::bdexStreamOut(STREAM&              stream,
-                                     EnumerationA::Value value,
-                                     int                version)
+STREAM& EnumerationA::bdexStreamOut(STREAM&             stream,
+                                    EnumerationA::Value value,
+                                    int                 version)
 {
     switch (version) {
       case 1: {
@@ -2599,9 +2410,7 @@ STREAM& EnumerationA::bdexStreamOut(STREAM&              stream,
 
 template <class STREAM>
 inline
-STREAM& streamIn(STREAM&                              stream,
-                 test::EnumerationA::Value& value,
-                 int                                  version)
+STREAM& streamIn(STREAM& stream, test::EnumerationA::Value& value, int version)
 {
     return test::EnumerationA::bdexStreamIn(stream, value, version);
 }
@@ -2614,9 +2423,9 @@ int maxSupportedVersion(test::EnumerationA::Value)
 
 template <class STREAM>
 inline
-STREAM& streamOut(STREAM& stream,
+STREAM& streamOut(STREAM&                          stream,
                   const test::EnumerationA::Value& value,
-                  int     version)
+                  int                              version)
 {
     return test::EnumerationA::bdexStreamOut(stream, value, version);
 }
@@ -2628,7 +2437,7 @@ BDLAT_DECL_ENUMERATION_TRAITS(test::EnumerationA)
 
 // FREE OPERATORS
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
+bsl::ostream& test::operator<<(bsl::ostream&             stream,
                                test::EnumerationA::Value rhs)
 {
     return test::EnumerationA::print(stream, rhs);
@@ -2644,13 +2453,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 // test_enumerationa.cpp  -*-C++-*-
 
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bsls_assert.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -2661,7 +2463,7 @@ namespace test {
 const char EnumerationA::CLASS_NAME[] = "EnumerationA";
     // the name of this class
 
-const bdeat_EnumeratorInfo EnumerationA::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo EnumerationA::ENUMERATOR_INFO_ARRAY[] = {
     {
         EnumerationA::VALUE1,
         "VALUE1",                 // name
@@ -2681,8 +2483,8 @@ const bdeat_EnumeratorInfo EnumerationA::ENUMERATOR_INFO_ARRAY[] = {
                                // -------------
 
 int EnumerationA::fromString(EnumerationA::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+                             const char          *string,
+                             int                  stringLength)
 {
 
     enum { SUCCESS = 0, NOT_FOUND = 1 };
@@ -2735,35 +2537,15 @@ int EnumerationA::fromString(EnumerationA::Value *result,
 #ifndef INCLUDED_TEST_ENUMERATIONB
 #define INCLUDED_TEST_ENUMERATIONB
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: EnumerationB
+//@CLASSES:
+//  EnumerationB: an enumeration class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMERATORINFO
-#include <bdlat_enumeratorinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
+//  TBD: provide annotation for 'EnumerationB'
 
 namespace BloombergLP {
 
@@ -2789,7 +2571,7 @@ struct EnumerationB {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "EnumerationB")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -2826,15 +2608,15 @@ struct EnumerationB {
         // reference to the modifiable 'stream'.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
+        // undefined.  If 'version' is not supported, 'stream' is marked
+        // invalid, but 'value' is unaltered.  Note that no version is read
+        // from 'stream'.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&  stream,
@@ -2853,11 +2635,11 @@ struct EnumerationB {
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, EnumerationB::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -2884,8 +2666,8 @@ int EnumerationB::fromInt(EnumerationB::Value *result, int number)
 }
 
 inline
-bsl::ostream& EnumerationB::print(bsl::ostream&      stream,
-                                 EnumerationB::Value value)
+bsl::ostream& EnumerationB::print(bsl::ostream&       stream,
+                                  EnumerationB::Value value)
 {
     return stream << toString(value);
 }
@@ -2912,9 +2694,9 @@ const char *EnumerationB::toString(EnumerationB::Value value)
 
 template <class STREAM>
 inline
-STREAM& EnumerationB::bdexStreamIn(STREAM&             stream,
-                                  EnumerationB::Value& value,
-                                  int                 version)
+STREAM& EnumerationB::bdexStreamIn(STREAM&              stream,
+                                   EnumerationB::Value& value,
+                                   int                  version)
 {
     switch(version) {
       case 1: {
@@ -2935,9 +2717,9 @@ STREAM& EnumerationB::bdexStreamIn(STREAM&             stream,
 
 template <class STREAM>
 inline
-STREAM& EnumerationB::bdexStreamOut(STREAM&              stream,
-                                     EnumerationB::Value value,
-                                     int                version)
+STREAM& EnumerationB::bdexStreamOut(STREAM&             stream,
+                                    EnumerationB::Value value,
+                                    int                 version)
 {
     switch (version) {
       case 1: {
@@ -2949,9 +2731,7 @@ STREAM& EnumerationB::bdexStreamOut(STREAM&              stream,
 
 template <class STREAM>
 inline
-STREAM& streamIn(STREAM&                              stream,
-                 test::EnumerationB::Value& value,
-                 int                                  version)
+STREAM& streamIn(STREAM& stream, test::EnumerationB::Value& value, int version)
 {
     return test::EnumerationB::bdexStreamIn(stream, value, version);
 }
@@ -2964,9 +2744,9 @@ int maxSupportedVersion(test::EnumerationB::Value)
 
 template <class STREAM>
 inline
-STREAM& streamOut(STREAM& stream,
+STREAM& streamOut(STREAM&                          stream,
                   const test::EnumerationB::Value& value,
-                  int     version)
+                  int                              version)
 {
     return test::EnumerationB::bdexStreamOut(stream, value, version);
 }
@@ -2978,7 +2758,7 @@ BDLAT_DECL_ENUMERATION_TRAITS(test::EnumerationB)
 
 // FREE OPERATORS
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
+bsl::ostream& test::operator<<(bsl::ostream&             stream,
                                test::EnumerationB::Value rhs)
 {
     return test::EnumerationB::print(stream, rhs);
@@ -2994,13 +2774,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 // test_enumerationb.cpp  -*-C++-*-
 
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bsls_assert.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -3011,7 +2784,7 @@ namespace test {
 const char EnumerationB::CLASS_NAME[] = "EnumerationB";
     // the name of this class
 
-const bdeat_EnumeratorInfo EnumerationB::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo EnumerationB::ENUMERATOR_INFO_ARRAY[] = {
     {
         EnumerationB::VALUE1,
         "VALUE1",                  // name
@@ -3031,8 +2804,8 @@ const bdeat_EnumeratorInfo EnumerationB::ENUMERATOR_INFO_ARRAY[] = {
                                // -------------
 
 int EnumerationB::fromString(EnumerationB::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+                             const char          *string,
+                             int                  stringLength)
 {
 
     enum { SUCCESS = 0, NOT_FOUND = 1 };
@@ -3085,47 +2858,15 @@ int EnumerationB::fromString(EnumerationB::Value *result,
 #ifndef INCLUDED_TEST_SEQUENCEA
 #define INCLUDED_TEST_SEQUENCEA
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: SequenceA
+//@CLASSES:
+//  SequenceA: a sequence class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'SequenceA'
 
 namespace BloombergLP {
 
@@ -3162,7 +2903,7 @@ class SequenceA {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "SequenceA")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -3173,11 +2914,11 @@ class SequenceA {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3186,16 +2927,16 @@ class SequenceA {
 
     // CREATORS
     explicit SequenceA(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'SequenceA' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'SequenceA' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     SequenceA(const SequenceA& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'SequenceA' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'SequenceA' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~SequenceA();
         // Destroy this object.
@@ -3217,33 +2958,33 @@ class SequenceA {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -3278,23 +3019,23 @@ class SequenceA {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -3303,20 +3044,20 @@ class SequenceA {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     const int& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bsl::string& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
 };
 
@@ -3336,11 +3077,11 @@ bool operator!=(const SequenceA& lhs, const SequenceA& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const SequenceA& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -3362,9 +3103,8 @@ SequenceA::SequenceA(bslma::Allocator *basicAllocator)
 }
 
 inline
-SequenceA::SequenceA(
-    const SequenceA& original,
-    bslma::Allocator *basicAllocator)
+SequenceA::SequenceA(const SequenceA&  original,
+                     bslma::Allocator *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
@@ -3411,8 +3151,8 @@ STREAM& SequenceA::bdexStreamIn(STREAM& stream, int version)
 inline
 void SequenceA::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -3461,12 +3201,12 @@ int SequenceA::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int SequenceA::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3547,12 +3287,12 @@ int SequenceA::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int SequenceA::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                               const char *name,
+                               int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -3594,7 +3334,7 @@ bool test::operator!=(const test::SequenceA& lhs, const test::SequenceA& rhs)
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
+bsl::ostream& test::operator<<(bsl::ostream&          stream,
                                const test::SequenceA& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -3610,14 +3350,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 // test_sequencea.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -3628,20 +3360,20 @@ namespace test {
 const char SequenceA::CLASS_NAME[] = "SequenceA";
     // the name of this class
 
-const bdeat_AttributeInfo SequenceA::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo SequenceA::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",              // name
         sizeof("Attribute1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",              // name
         sizeof("Attribute2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -3649,9 +3381,9 @@ const bdeat_AttributeInfo SequenceA::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *SequenceA::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *SequenceA::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 10: {
@@ -3682,7 +3414,7 @@ const bdeat_AttributeInfo *SequenceA::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *SequenceA::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *SequenceA::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -3706,10 +3438,9 @@ const bdeat_AttributeInfo *SequenceA::lookupAttributeInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& SequenceA::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& SequenceA::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -3770,47 +3501,15 @@ bsl::ostream& SequenceA::print(
 #ifndef INCLUDED_TEST_SEQUENCEB
 #define INCLUDED_TEST_SEQUENCEB
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: SequenceB
+//@CLASSES:
+//  SequenceB: a sequence class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'SequenceB'
 
 namespace BloombergLP {
 
@@ -3847,7 +3546,7 @@ class SequenceB {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "SequenceB")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -3858,11 +3557,11 @@ class SequenceB {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -3871,16 +3570,16 @@ class SequenceB {
 
     // CREATORS
     explicit SequenceB(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'SequenceB' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'SequenceB' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     SequenceB(const SequenceB& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'SequenceB' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'SequenceB' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~SequenceB();
         // Destroy this object.
@@ -3902,33 +3601,33 @@ class SequenceB {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -3963,23 +3662,23 @@ class SequenceB {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -3988,20 +3687,20 @@ class SequenceB {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     const bsl::string& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const int& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
 };
 
@@ -4021,11 +3720,11 @@ bool operator!=(const SequenceB& lhs, const SequenceB& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const SequenceB& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -4047,9 +3746,8 @@ SequenceB::SequenceB(bslma::Allocator *basicAllocator)
 }
 
 inline
-SequenceB::SequenceB(
-    const SequenceB& original,
-    bslma::Allocator *basicAllocator)
+SequenceB::SequenceB(const SequenceB&  original,
+                     bslma::Allocator *basicAllocator)
 : d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
 , d_attribute1(original.d_attribute1)
@@ -4096,8 +3794,8 @@ STREAM& SequenceB::bdexStreamIn(STREAM& stream, int version)
 inline
 void SequenceB::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
 }
 
 template <class MANIPULATOR>
@@ -4146,12 +3844,12 @@ int SequenceB::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int SequenceB::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                   const char   *name,
+                                   int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4232,12 +3930,12 @@ int SequenceB::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int SequenceB::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                               const char *name,
+                               int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4279,7 +3977,7 @@ bool test::operator!=(const test::SequenceB& lhs, const test::SequenceB& rhs)
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
+bsl::ostream& test::operator<<(bsl::ostream&          stream,
                                const test::SequenceB& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -4295,14 +3993,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 // test_sequenceb.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -4313,20 +4003,20 @@ namespace test {
 const char SequenceB::CLASS_NAME[] = "SequenceB";
     // the name of this class
 
-const bdeat_AttributeInfo SequenceB::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo SequenceB::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",              // name
         sizeof("Attribute2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",              // name
         sizeof("Attribute1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
@@ -4334,9 +4024,9 @@ const bdeat_AttributeInfo SequenceB::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *SequenceB::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *SequenceB::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 10: {
@@ -4367,7 +4057,7 @@ const bdeat_AttributeInfo *SequenceB::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *SequenceB::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *SequenceB::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE2:
@@ -4391,10 +4081,9 @@ const bdeat_AttributeInfo *SequenceB::lookupAttributeInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& SequenceB::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& SequenceB::print(bsl::ostream& stream,
+                               int           level,
+                               int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -4455,47 +4144,15 @@ bsl::ostream& SequenceB::print(
 #ifndef INCLUDED_TEST_EMPLOYEE
 #define INCLUDED_TEST_EMPLOYEE
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: Employee
+//@CLASSES:
+//  Employee: an employee class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'Employee'
 
 namespace BloombergLP {
 
@@ -4542,7 +4199,7 @@ class Employee {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Employee")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -4553,29 +4210,29 @@ class Employee {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
 
     // CREATORS
     explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'Employee' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'Employee' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~Employee();
         // Destroy this object.
@@ -4597,33 +4254,33 @@ class Employee {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -4665,23 +4322,23 @@ class Employee {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -4690,28 +4347,28 @@ class Employee {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     const bsl::string& name() const;
-        // Return a reference to the non-modifiable "Name"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Name" attribute of this
+        // object.
 
     const bsl::string& dept() const;
-        // Return a reference to the non-modifiable "Dept"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Dept" attribute of this
+        // object.
 
     const int& age() const;
-        // Return a reference to the non-modifiable "Age"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Age" attribute of this
+        // object.
 
     const float& salary() const;
-        // Return a reference to the non-modifiable "Salary"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Salary" attribute of this
+        // object.
 
 };
 
@@ -4731,11 +4388,11 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -4759,9 +4416,8 @@ Employee::Employee(bslma::Allocator *basicAllocator)
 }
 
 inline
-Employee::Employee(
-    const Employee&   original,
-    bslma::Allocator *basicAllocator)
+Employee::Employee(const Employee&   original,
+                   bslma::Allocator *basicAllocator)
 : d_name(original.d_name, bslma::Default::allocator(basicAllocator))
 , d_dept(original.d_dept, bslma::Default::allocator(basicAllocator))
 , d_age(original.d_age)
@@ -4815,10 +4471,10 @@ STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
 inline
 void Employee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_dept);
-    bdeat_ValueTypeFunctions::reset(&d_age);
-    bdeat_ValueTypeFunctions::reset(&d_salary);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_dept);
+    bdlat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_salary);
 }
 
 template <class MANIPULATOR>
@@ -4884,12 +4540,12 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                  const char   *name,
+                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -4999,12 +4655,12 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int Employee::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                              const char *name,
+                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5077,14 +4733,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Employee& rhs)
 
 // test_employee.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -5095,34 +4743,34 @@ namespace test {
 const char Employee::CLASS_NAME[] = "Employee";
     // the name of this class
 
-const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "Name",                    // name
         sizeof("Name") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_DEPT,
         "Dept",                    // name
         sizeof("Dept") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "Age",                     // name
         sizeof("Age") - 1,         // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_SALARY,
         "Salary",                     // name
         sizeof("Salary") - 1,         // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 
@@ -5130,9 +4778,9 @@ const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 3: {
@@ -5176,7 +4824,7 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -5204,10 +4852,9 @@ const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& Employee::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Employee::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -5288,47 +4935,15 @@ bsl::ostream& Employee::print(
 #ifndef INCLUDED_TEST_TRAINEE
 #define INCLUDED_TEST_TRAINEE
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: Trainee
+//@CLASSES:
+//  Trainee: a trainee class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'Trainee'
 
 namespace BloombergLP {
 
@@ -5370,7 +4985,7 @@ class Trainee {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "Trainee")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -5381,11 +4996,11 @@ class Trainee {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -5394,16 +5009,16 @@ class Trainee {
 
     // CREATORS
     explicit Trainee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Trainee' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'Trainee' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     Trainee(const Trainee& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Trainee' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'Trainee' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     ~Trainee();
         // Destroy this object.
@@ -5425,33 +5040,33 @@ class Trainee {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -5489,23 +5104,23 @@ class Trainee {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -5514,24 +5129,24 @@ class Trainee {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     const bsl::string& name() const;
-        // Return a reference to the non-modifiable "Name"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Name" attribute of this
+        // object.
 
     const bsl::string& dept() const;
-        // Return a reference to the non-modifiable "Dept"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Dept" attribute of this
+        // object.
 
     const int& age() const;
-        // Return a reference to the non-modifiable "Age"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Age" attribute of this
+        // object.
 
 };
 
@@ -5551,11 +5166,11 @@ bool operator!=(const Trainee& lhs, const Trainee& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Trainee& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -5578,9 +5193,7 @@ Trainee::Trainee(bslma::Allocator *basicAllocator)
 }
 
 inline
-Trainee::Trainee(
-    const Trainee& original,
-    bslma::Allocator *basicAllocator)
+Trainee::Trainee(const Trainee& original, bslma::Allocator *basicAllocator)
 : d_name(original.d_name, bslma::Default::allocator(basicAllocator))
 , d_dept(original.d_dept, bslma::Default::allocator(basicAllocator))
 , d_age(original.d_age)
@@ -5630,9 +5243,9 @@ STREAM& Trainee::bdexStreamIn(STREAM& stream, int version)
 inline
 void Trainee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_dept);
-    bdeat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_dept);
+    bdlat_ValueTypeFunctions::reset(&d_age);
 }
 
 template <class MANIPULATOR>
@@ -5688,12 +5301,12 @@ int Trainee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int Trainee::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                 const char   *name,
+                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5786,12 +5399,12 @@ int Trainee::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int Trainee::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                             const char *name,
+                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -5856,14 +5469,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Trainee& rhs)
 
 // test_trainee.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -5874,27 +5479,27 @@ namespace test {
 const char Trainee::CLASS_NAME[] = "Trainee";
     // the name of this class
 
-const bdeat_AttributeInfo Trainee::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Trainee::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_NAME,
         "Name",                    // name
         sizeof("Name") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_DEPT,
         "Dept",                    // name
         sizeof("Dept") - 1,        // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "Age",                     // name
         sizeof("Age") - 1,         // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     }
 };
 
@@ -5902,9 +5507,8 @@ const bdeat_AttributeInfo Trainee::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *Trainee::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *Trainee::lookupAttributeInfo(const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 3: {
@@ -5938,7 +5542,7 @@ const bdeat_AttributeInfo *Trainee::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Trainee::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Trainee::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_NAME:
@@ -5964,10 +5568,9 @@ const bdeat_AttributeInfo *Trainee::lookupAttributeInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& Trainee::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Trainee::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -6038,51 +5641,15 @@ bsl::ostream& Trainee::print(
 #ifndef INCLUDED_TEST_MIXEDSEQUENCE
 #define INCLUDED_TEST_MIXEDSEQUENCE
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: MixedSequence
+//@CLASSES:
+//  MixedSequence: a mixed sequence
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'MixedSequence'
 
 namespace BloombergLP {
 
@@ -6144,7 +5711,7 @@ class MixedSequence {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MixedSequence")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -6155,11 +5722,11 @@ class MixedSequence {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -6169,16 +5736,16 @@ class MixedSequence {
     // CREATORS
     explicit MixedSequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MixedSequence' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     MixedSequence(const MixedSequence&  original,
                   bslma::Allocator     *basicAllocator = 0);
-        // Create an object of type 'MixedSequence' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MixedSequence' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MixedSequence();
         // Destroy this object.
@@ -6200,33 +5767,33 @@ class MixedSequence {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -6281,23 +5848,23 @@ class MixedSequence {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -6306,40 +5873,40 @@ class MixedSequence {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     const ChoiceA& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const CustomizedA& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
     const bdlb::NullableValue<int>& attribute3() const;
-        // Return a reference to the non-modifiable "Attribute3"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute3" attribute of
+        // this object.
 
     const EnumerationA::Value& attribute4() const;
-        // Return a reference to the non-modifiable "Attribute4"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute4" attribute of
+        // this object.
 
     const int& attribute5() const;
-        // Return a reference to the non-modifiable "Attribute5"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute5" attribute of
+        // this object.
 
     const bsl::string& attribute6() const;
-        // Return a reference to the non-modifiable "Attribute6"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute6" attribute of
+        // this object.
 
     const SequenceA& attribute7() const;
-        // Return a reference to the non-modifiable "Attribute7"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute7" attribute of
+        // this object.
 
 };
 
@@ -6359,11 +5926,11 @@ bool operator!=(const MixedSequence& lhs, const MixedSequence& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MixedSequence& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -6390,9 +5957,8 @@ MixedSequence::MixedSequence(bslma::Allocator *basicAllocator)
 }
 
 inline
-MixedSequence::MixedSequence(
-    const MixedSequence&  original,
-    bslma::Allocator     *basicAllocator)
+MixedSequence::MixedSequence(const MixedSequence&  original,
+                             bslma::Allocator     *basicAllocator)
 : d_attribute1(original.d_attribute1,
                bslma::Default::allocator(basicAllocator))
 , d_attribute2(original.d_attribute2,
@@ -6462,13 +6028,13 @@ STREAM& MixedSequence::bdexStreamIn(STREAM& stream, int version)
 inline
 void MixedSequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
-    bdeat_ValueTypeFunctions::reset(&d_attribute3);
-    bdeat_ValueTypeFunctions::reset(&d_attribute4);
-    bdeat_ValueTypeFunctions::reset(&d_attribute5);
-    bdeat_ValueTypeFunctions::reset(&d_attribute6);
-    bdeat_ValueTypeFunctions::reset(&d_attribute7);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute3);
+    bdlat_ValueTypeFunctions::reset(&d_attribute4);
+    bdlat_ValueTypeFunctions::reset(&d_attribute5);
+    bdlat_ValueTypeFunctions::reset(&d_attribute6);
+    bdlat_ValueTypeFunctions::reset(&d_attribute7);
 }
 
 template <class MANIPULATOR>
@@ -6542,7 +6108,7 @@ int MixedSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_ATTRIBUTE3: {
         return manipulator(&d_attribute3,
                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE4: {
         return manipulator(&d_attribute4,
@@ -6572,12 +6138,12 @@ int MixedSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int MixedSequence::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                       const char   *name,
+                                       int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6718,7 +6284,7 @@ int MixedSequence::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ATTRIBUTE3: {
         return accessor(d_attribute3,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE3]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE4: {
         return accessor(d_attribute4,
@@ -6748,12 +6314,12 @@ int MixedSequence::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MixedSequence::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                   const char *name,
+                                   int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -6837,7 +6403,7 @@ bool test::operator!=(const test::MixedSequence& lhs,
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
+bsl::ostream& test::operator<<(bsl::ostream&              stream,
                                const test::MixedSequence& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -6853,15 +6419,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 // test_mixedsequence.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_nullablevalue.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -6872,55 +6429,55 @@ namespace test {
 const char MixedSequence::CLASS_NAME[] = "MixedSequence";
     // the name of this class
 
-const bdeat_AttributeInfo MixedSequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MixedSequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",                 // name
         sizeof("Attribute1") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",                 // name
         sizeof("Attribute2") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE3,
         "Attribute3",              // name
         sizeof("Attribute3") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE4,
         "Attribute4",                 // name
         sizeof("Attribute4") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE5,
         "Attribute5",              // name
         sizeof("Attribute5") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE6,
         "Attribute6",              // name
         sizeof("Attribute6") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE7,
         "Attribute7",                 // name
         sizeof("Attribute7") - 1,     // name length
         "TBD: provide annotation",    // annotation
-        bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
+        bdlat_FormattingMode::e_DEFAULT // formatting mode
     }
 };
 
@@ -6928,9 +6485,9 @@ const bdeat_AttributeInfo MixedSequence::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MixedSequence::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *MixedSequence::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 10: {
@@ -6986,7 +6543,7 @@ const bdeat_AttributeInfo *MixedSequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MixedSequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MixedSequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -7020,10 +6577,9 @@ const bdeat_AttributeInfo *MixedSequence::lookupAttributeInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& MixedSequence::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& MixedSequence::print(bsl::ostream& stream,
+                                   int           level,
+                                   int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -7185,7 +6741,7 @@ int hireTrainee(test::Employee       *result,
                 const test::Trainee&  trainee,
                 float                 salary)
 {
-    int retCode = bdeat_SymbolicConverter::convert(result, trainee);
+    int retCode = bdlat_SymbolicConverter::convert(result, trainee);
 
     result->salary() = salary;
 
@@ -7222,7 +6778,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+//  int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -7275,7 +6831,7 @@ int main(int argc, char *argv[])
         Type mY;  const Type& Y = mY;
         LOOP2_ASSERT(X, Y, X != Y);
 
-        int ret = bdeat_SymbolicConverter::convert(&mY, X);
+        int ret = bdlat_SymbolicConverter::convert(&mY, X);
         LOOP_ASSERT(ret, 0     == ret);
         LOOP2_ASSERT(X, Y, X == Y);
 
@@ -7304,7 +6860,7 @@ int main(int argc, char *argv[])
         test::CustomizedB b;
         b.fromString(VALUE);
 
-        int ret = bdeat_SymbolicConverter::convert(&a, b);
+        int ret = bdlat_SymbolicConverter::convert(&a, b);
         LOOP_ASSERT(ret, 0     == ret);
         LOOP_ASSERT(a,   VALUE == a);
 
@@ -7338,7 +6894,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b,            VALUE1 == b);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.toString(), VALUE1 == a.toString());
         }
@@ -7351,7 +6907,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b,            VALUE2 == b);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 != ret);
         }
 
@@ -7385,7 +6941,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b.toString(), VALUE1 == b.toString());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.toString(), VALUE1 == a.toString());
         }
@@ -7399,7 +6955,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.toString(), a.toString().empty());
             LOOP_ASSERT(b.toString(), VALUE2 == b.toString());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 != ret);
         }
 
@@ -7432,7 +6988,7 @@ int main(int argc, char *argv[])
 
             ASSERT(b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, ValueType() == a);
         }
@@ -7446,7 +7002,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a, b.value(), a != b.value());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP2_ASSERT(a, b.value(), a == b.value());
         }
@@ -7480,7 +7036,7 @@ int main(int argc, char *argv[])
 
             ASSERT(a.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP_ASSERT(a.value(), VALUE2 == a.value());
@@ -7495,7 +7051,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a.value(), b, a.value() != b);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP2_ASSERT(a.value(), b, a.value() == b);
@@ -7531,7 +7087,7 @@ int main(int argc, char *argv[])
             ASSERT(a.isNull());
             ASSERT(b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(a.isNull());
         }
@@ -7544,7 +7100,7 @@ int main(int argc, char *argv[])
             ASSERT(a.isNull());
             ASSERT(!b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP_ASSERT(a.value(), VALUE2 == a.value());
@@ -7558,7 +7114,7 @@ int main(int argc, char *argv[])
             ASSERT(!a.isNull());
             ASSERT(b.isNull());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(a.isNull());
         }
@@ -7573,7 +7129,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a.value(), b.value(), a.value() != b.value());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             ASSERT(!a.isNull());
             LOOP2_ASSERT(a.value(), b.value(), a.value() == b.value());
@@ -7603,7 +7159,7 @@ int main(int argc, char *argv[])
             const bsl::string VALUE1 = "VALUE1";
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7615,7 +7171,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             bsl::string value = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&value, a);
+            int ret = bdlat_SymbolicConverter::convert(&value, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(value, VALUE1 == value);
         }
@@ -7647,7 +7203,7 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(VALUE1 == test::EnumerationA::VALUE1);
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7658,7 +7214,7 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(VALUE1 == test::EnumerationA::VALUE1);
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7669,7 +7225,7 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(VALUE1 == test::EnumerationA::VALUE1);
 
             test::EnumerationA::Value a = test::EnumerationA::VALUE2;
-            int ret = bdeat_SymbolicConverter::convert(&a, VALUE1);
+            int ret = bdlat_SymbolicConverter::convert(&a, VALUE1);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a, test::EnumerationA::VALUE1 == a);
         }
@@ -7684,7 +7240,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             Number number = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&number, a);
+            int ret = bdlat_SymbolicConverter::convert(&number, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(number, static_cast<Number>(a) == number);
         }
@@ -7697,7 +7253,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             Number number = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&number, a);
+            int ret = bdlat_SymbolicConverter::convert(&number, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(number, static_cast<Number>(a) == number);
         }
@@ -7710,7 +7266,7 @@ int main(int argc, char *argv[])
             test::EnumerationA::Value a = test::EnumerationA::VALUE1;
             Number number = VALUE2;
 
-            int ret = bdeat_SymbolicConverter::convert(&number, a);
+            int ret = bdlat_SymbolicConverter::convert(&number, a);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(number, static_cast<Number>(a) == number);
         }
@@ -7735,7 +7291,7 @@ int main(int argc, char *argv[])
         test::EnumerationA::Value a = test::EnumerationA::VALUE1;
         test::EnumerationB::Value b = test::EnumerationB::VALUE2;
 
-        int ret = bdeat_SymbolicConverter::convert(&a, b);
+        int ret = bdlat_SymbolicConverter::convert(&a, b);
         LOOP_ASSERT(ret, 0 == ret);
         LOOP_ASSERT(a, test::EnumerationA::VALUE2 == a);
 
@@ -7770,7 +7326,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.size(), 0 == a.size());
             LOOP_ASSERT(b.size(), 0 == b.size());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.size(), 0 == a.size());
         }
@@ -7787,7 +7343,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.size(), 0 == a.size());
             LOOP_ASSERT(b.size(), 3 == b.size());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0        == ret);
             LOOP_ASSERT(a.size(), 3        == a.size());
             LOOP_ASSERT(a[0],     ELEMENT1 == a[0]);
@@ -7807,7 +7363,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(a.size(), 3 == a.size());
             LOOP_ASSERT(b.size(), 0 == b.size());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 0 == a.size());
         }
@@ -7835,7 +7391,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(a[1], b[1], a[1] != b[1]);
             LOOP2_ASSERT(a[2], b[2], a[2] != b[2]);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 3 == a.size());
             LOOP2_ASSERT(a[0], b[0], a[0] == b[0]);
@@ -7860,7 +7416,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a[0], b[0], a[0] != b[0]);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 1 == a.size());
             LOOP2_ASSERT(a[0], b[0], a[0] == b[0]);
@@ -7883,7 +7439,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(a[0], b[0], a[0] != b[0]);
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret,      0 == ret);
             LOOP_ASSERT(a.size(), 3 == a.size());
             LOOP2_ASSERT(a[0], b[0], a[0] == b[0]);
@@ -7931,7 +7487,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_SELECTION2
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION2
@@ -7958,7 +7514,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_SELECTION1
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION1
@@ -7986,7 +7542,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(a.selection1(),   b.selection1(),
                          a.selection1() != b.selection1());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION1
@@ -8009,7 +7565,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_UNDEFINED
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_UNDEFINED
@@ -8031,7 +7587,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_SELECTION1
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_SELECTION1
@@ -8051,7 +7607,7 @@ int main(int argc, char *argv[])
                         test::ChoiceB::SELECTION_ID_UNDEFINED
                                                            == b.selectionId());
 
-            int ret = bdeat_SymbolicConverter::convert(&a, b);
+            int ret = bdlat_SymbolicConverter::convert(&a, b);
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(a.selectionId(),
                         test::ChoiceA::SELECTION_ID_UNDEFINED
@@ -8090,7 +7646,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(a.attribute1(), ATTRIBUTE1_B != a.attribute1());
         LOOP_ASSERT(a.attribute2(), ATTRIBUTE2_B != a.attribute2());
 
-        int ret = bdeat_SymbolicConverter::convert(&a, b);
+        int ret = bdlat_SymbolicConverter::convert(&a, b);
         LOOP_ASSERT(ret, 0 == ret);
         LOOP_ASSERT(a.attribute1(), ATTRIBUTE1_B == a.attribute1());
         LOOP_ASSERT(a.attribute2(), ATTRIBUTE2_B == a.attribute2());
@@ -8123,7 +7679,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(a, VALUEB != a);
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0      == ret);
                 LOOP_ASSERT(a,   VALUEB == a);
@@ -8139,7 +7695,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(a, VALUEB != a);
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0      == ret);
                 LOOP_ASSERT(a,   VALUEB == a);
@@ -8155,7 +7711,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(a, VALUEB != a);
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0      == ret);
                 LOOP_ASSERT(a,   VALUEB == a);
@@ -8172,7 +7728,7 @@ int main(int argc, char *argv[])
                 int         a = VALUEA;
                 bsl::string b = VALUEB;
 
-                int ret = bdeat_SymbolicConverter::convert(&a, b);
+                int ret = bdlat_SymbolicConverter::convert(&a, b);
 
                 LOOP_ASSERT(ret, 0 != ret);
             }
@@ -8197,14 +7753,14 @@ int main(int argc, char *argv[])
         bool boolValue = false;
         int  intValue  = 1;
 
-        ASSERT(0 == bdeat_SymbolicConverter::convert(&boolValue, intValue));
+        ASSERT(0 == bdlat_SymbolicConverter::convert(&boolValue, intValue));
         ASSERT(true == boolValue);
 
         {
             ConvertibleType a, b;
             a.d_value = 30;
             b.d_value = 100;
-            ASSERT(0 == bdeat_SymbolicConverter::convert(&a, b));
+            ASSERT(0 == bdlat_SymbolicConverter::convert(&a, b));
             ASSERT(100 == a.d_value);
         }
 
@@ -8223,10 +7779,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

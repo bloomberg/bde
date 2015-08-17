@@ -683,7 +683,7 @@ STREAM& bdexStreamIn(STREAM&               stream,
     return stream;
 }
 
-}  // close ThirdParty namespace
+}  // close namespace ThirdParty
 
 class MyTestClass {
     // This test class is used for testing the streaming functionality.
@@ -702,7 +702,7 @@ class MyTestClass {
 };
 
 int MyTestClass::maxSupportedBdexVersion(int versionSelector) {
-    if (versionSelector >= 20131201) return 2;
+    if (versionSelector >= 20131201) return 2;                        // RETURN
     return 1;
 }
 

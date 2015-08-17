@@ -177,9 +177,9 @@ class DefaultAllocatorGuard {
 // ============================================================================
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::DefaultAllocatorGuard bslma_DefaultAllocatorGuard;
     // This alias is defined for backward compatibility.

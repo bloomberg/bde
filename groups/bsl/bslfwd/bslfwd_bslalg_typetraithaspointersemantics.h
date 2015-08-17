@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class TypeTraitHasPointerSemantics;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::TypeTraitHasPointerSemantics bslalg_TypeTraitHasPointerSemantics;
-}
+}  // close enterprise namespace
 
 #else
 

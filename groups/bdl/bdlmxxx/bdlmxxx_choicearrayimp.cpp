@@ -1,4 +1,4 @@
-// bdlmxxx_choicearrayimp.cpp                                            -*-C++-*-
+// bdlmxxx_choicearrayimp.cpp                                         -*-C++-*-
 #include <bdlmxxx_choicearrayimp.h>
 
 #include <bsls_ident.h>
@@ -576,13 +576,13 @@ bool bdlmxxx::operator==(const ChoiceArrayImp& lhs, const ChoiceArrayImp& rhs)
         && *lhs.catalog() == *rhs.catalog();
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlxxxx_versionfunctions.h                                            -*-C++-*-
+// bdlxxxx_versionfunctions.h                                         -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
 #define INCLUDED_BDLXXXX_VERSIONFUNCTIONS
 
@@ -186,7 +186,7 @@ namespace bdex_VersionFunctions {
 #pragma warning(push)
 #pragma warning(disable : 4100)  // VC2008 fails to detect use of 'object'.
 #endif
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int maxSupportedVersion_Imp(
                                 const TYPE&                             object,
@@ -208,7 +208,7 @@ namespace bdex_VersionFunctions {
 #pragma warning(pop)
 #endif
 
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int maxSupportedVersion_Imp(
                         const TYPE&,
@@ -223,7 +223,7 @@ namespace bdex_VersionFunctions {
         return BDEX_NO_VERSION_NUMBER;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     inline
     int maxSupportedVersion(const TYPE& object)
         // !DEPRECATED!: only detection of specific versions is supported.
@@ -264,7 +264,7 @@ namespace bdex_VersionFunctions {
 
     // This specialization implements 'maxSupportedVersion' for 'bsl::vector'.
 
-    template <typename TYPE, typename ALLOC>
+    template <class TYPE, class ALLOC>
     inline
     int maxSupportedVersion(const bsl::vector<TYPE, ALLOC>& object)
         // !DEPRECATED!: only detection of specific versions is supported.
@@ -279,27 +279,27 @@ namespace bdex_VersionFunctions {
         // else put out the version number specified by 'object'.
 
         if (0 == object.size()) {
-            return 1;
+            return 1;                                                 // RETURN
         }
         else {
             int version = maxSupportedVersion(object[0]);
-            return version <= 0 ? 1 : version;
+            return version <= 0 ? 1 : version;                        // RETURN
         }
     }
 
 }  // close namespace bdex_VersionFunctions
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 
 #endif // ! defined(INCLUDED_BDEX_VERSIONFUNCTIONS)
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

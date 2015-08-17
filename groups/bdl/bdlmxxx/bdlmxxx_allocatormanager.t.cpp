@@ -1,4 +1,4 @@
-// bdlmxxx_allocatormanager.t.cpp                                        -*-C++-*-
+// bdlmxxx_allocatormanager.t.cpp                                     -*-C++-*-
 
 #include <bdlmxxx_allocatormanager.h>
 
@@ -13,7 +13,7 @@ using namespace bsl;  // automatically added by script
 //                                   TESTPLAN
 //
 // ----------------------------------------------------------------------------
-// TBD
+//                                  TBD
 // ----------------------------------------------------------------------------
 // [ 1] USAGE example
 // [ 1] bdlmxxx::AggregateOption::AllocationStrategy
@@ -35,7 +35,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
@@ -74,11 +74,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

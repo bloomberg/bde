@@ -83,7 +83,7 @@ namespace bsl
     using native_std::wmemset;
     using native_std::wprintf;
     using native_std::wscanf;
-}
+}  // close package namespace
 
 #endif
 

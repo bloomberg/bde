@@ -1,4 +1,4 @@
-// ball_log.t.cpp         -*-C++-*-
+// ball_log.t.cpp                                                     -*-C++-*-
 #include <ball_log.h>
 
 #include <ball_administration.h>
@@ -248,7 +248,7 @@ int veryVeryVerbose;
   }
 //..
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -316,7 +316,7 @@ static int isBufferScribbled()
 
     while (p < end) {
         if (*p++ != (char)FILL) {
-            return 0;
+            return 0;                                                 // RETURN
         }
     }
     return 1;
@@ -354,7 +354,7 @@ static int isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
 }
 
 static int numIncCallback = 0;
-void incCallback(BloombergLP::ball::UserFieldValues *list) {
+void incCallback(BloombergLP::ball::UserFields *list) {
     ASSERT(list);
     ++numIncCallback;
     return;
@@ -371,7 +371,7 @@ class Point {
     const bsl::string& name() const { return d_name; };
 };
 
-void populateUsingPoint(BloombergLP::ball::UserFieldValues *list, const Point& point)
+void populateUsingPoint(BloombergLP::ball::UserFields *list, const Point& point)
 {
     list->appendString(point.name());
     list->appendInt64(point.x());
@@ -1079,7 +1079,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("callback test");
             const Point point;
-            bdlf::Function <void (*)(BloombergLP::ball::UserFieldValues *)> cb;
+            bdlf::Function <void (*)(BloombergLP::ball::UserFields *)> cb;
             cb = bdlf::BindUtil::bind(&populateUsingPoint,
                                      bdlf::PlaceHolders::_1,
                                      point);
@@ -2270,7 +2270,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == ball::LoggerManager::isInitialized());
                 BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::ball::UserFieldValues *)> callback =
+                        <void (*)(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
                 numIncCallback = 0;
 
@@ -2317,7 +2317,7 @@ int main(int argc, char *argv[])
                       << "Testing callback macro safety w/o LoggerManager\n"
                       << "===============================================\n";
 
-        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFieldValues *)> callback
+        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFields *)> callback
                                                                 = &incCallback;
 
         numIncCallback = 0;
@@ -2404,7 +2404,7 @@ int main(int argc, char *argv[])
                                << bsl::endl;
 
         BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::ball::UserFieldValues *)> callback =
+                        <void (*)(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
         numIncCallback = 0;
 
@@ -5994,11 +5994,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

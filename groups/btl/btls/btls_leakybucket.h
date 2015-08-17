@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 // hold a number of units beyond its capacity, as examined in Figure 2 below.,
 // these units are still contained in the leaky bucket.
 //
-// Figure 2 illustrates what happens if a leaky bucket exceeeds its capacity.
+// Figure 2 illustrates what happens if a leaky bucket exceeds its capacity.
 // This scenario is the same as that in Figure 1, but at time 't0 + 4s', we
 // submit 6 units instead of 2.
 //..
@@ -297,7 +297,8 @@ BSLS_IDENT("$Id: $")
 // time returned by the 'calculateTimeToSubmit' method:
 //..
 //      else {
-//          bsls::TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
+//          bsls::TimeInterval timeToSubmit =
+//                                           bucket.calculateTimeToSubmit(now);
 //
 //          // Round up the number of microseconds.
 //          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
@@ -313,8 +314,12 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -326,16 +331,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btls {
-                        //=======================
-                        // class LeakyBucket
-                        //=======================
+                            // =================
+                            // class LeakyBucket
+                            // =================
 
 class LeakyBucket {
     // This mechanism implements a leaky bucket that allows clients to monitor
     // whether a resource is being consumed at a particular rate.  The behavior
-    // of a leak bucket is determined by two properites: the drain rate (in
+    // of a leak bucket is determined by two properties: the drain rate (in
     // units/s) and capacity (in units), both of which can be specified at
     // construction or using the 'setRateAndCapacity' method.
     //
@@ -377,8 +381,7 @@ class LeakyBucket {
     bsls::Types::Uint64 d_drainRate;           // drain rate in units per
                                                // second
 
-    bsls::Types::Uint64 d_capacity;            // the bucket capacity in
-                                               // units
+    bsls::Types::Uint64 d_capacity;            // the bucket capacity in units
 
     bsls::Types::Uint64 d_unitsReserved;       // reserved units
 
@@ -390,10 +393,10 @@ class LeakyBucket {
                                                // that is carried from the
                                                // last drain operation
 
-    bsls::TimeInterval   d_lastUpdateTime;      // time of last drain, updated
+    bsls::TimeInterval  d_lastUpdateTime;      // time of last drain, updated
                                                // via the 'updateState' method
 
-    bsls::TimeInterval   d_maxUpdateInterval;   // time to drain maximum number
+    bsls::TimeInterval  d_maxUpdateInterval;   // time to drain maximum number
                                                // of units
 
     bsls::Types::Uint64 d_statSubmittedUnits;  // submitted unit counter,
@@ -404,7 +407,7 @@ class LeakyBucket {
                                                // submitted unit counter saved
                                                // during last update
 
-    bsls::TimeInterval   d_statisticsCollectionStartTime;
+    bsls::TimeInterval  d_statisticsCollectionStartTime;
                                                // start time for the submitted
                                                // unit counter
 
@@ -416,8 +419,8 @@ class LeakyBucket {
   public:
     // CLASS METHODS
     static bsls::TimeInterval calculateDrainTime(bsls::Types::Uint64 numUnits,
-                                                bsls::Types::Uint64 drainRate,
-                                                bool                ceilFlag);
+                                                 bsls::Types::Uint64 drainRate,
+                                                 bool                ceilFlag);
         // Return the time interval required to drain the specified 'numUnits'
         // at the specified 'drainRate', round up the number of nanoseconds in
         // the time interval if the specified 'ceilFlag' is set to 'true',
@@ -425,7 +428,8 @@ class LeakyBucket {
         // undefined unless the number of seconds in the calculated interval
         // may be represented by a 64-bit signed integral type.
 
-    static bsls::TimeInterval calculateTimeWindow(bsls::Types::Uint64 drainRate,
+    static bsls::TimeInterval calculateTimeWindow(
+                                                 bsls::Types::Uint64 drainRate,
                                                  bsls::Types::Uint64 capacity);
         // Return the time interval over which a leaky bucket *approximates* a
         // moving-total of submitted units, as the rounded-down ratio between
@@ -436,8 +440,8 @@ class LeakyBucket {
         // integral type.
 
     static bsls::Types::Uint64 calculateCapacity(
-                                          bsls::Types::Uint64      drainRate,
-                                          const bsls::TimeInterval& timeWindow);
+                                         bsls::Types::Uint64       drainRate,
+                                         const bsls::TimeInterval& timeWindow);
         // Return the capacity of a leaky bucket as the rounded-down product of
         // the specified 'drainRate' by the specified 'timeWindow'.  If the
         // result evaluates to 0, return 1.  The behavior is undefined unless
@@ -445,9 +449,9 @@ class LeakyBucket {
         // 64-bit unsigned integral type.
 
     // CREATORS
-    LeakyBucket(bsls::Types::Uint64      drainRate,
-                     bsls::Types::Uint64      capacity,
-                     const bsls::TimeInterval& currentTime);
+    LeakyBucket(bsls::Types::Uint64       drainRate,
+                bsls::Types::Uint64       capacity,
+                const bsls::TimeInterval& currentTime);
         // Create an empty leaky bucket having the specified 'drainRate', the
         // specified 'capacity', and the specified 'currentTime' as the initial
         // 'lastUpdateTime'.  The behavior is undefined unless '0 < newRate'
@@ -458,7 +462,7 @@ class LeakyBucket {
 
     // MANIPULATORS
     bsls::TimeInterval calculateTimeToSubmit(
-                                         const bsls::TimeInterval& currentTime);
+                                        const bsls::TimeInterval& currentTime);
         // If 1 more unit can be submitted to this leaky bucket without causing
         // it to overflow, then return a time interval of 0 immediately.
         // Otherwise, first update the state of this this leaky bucket to the
@@ -498,8 +502,7 @@ class LeakyBucket {
         // Reset the the following statistic counters for this leaky bucket to
         // 0: 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
         // 'unusedUnits'.  Set the 'lastUpdateTime' and the
-        // 'statisticCollectionStartTime' to the 'currentTime' of this leaky
-        // bucket.
+        // 'statisticCollectionStartTime' to the specified 'currentTime'.
 
     void resetStatistics();
         // Reset the statics collected for this leaky bucket by setting the
@@ -569,12 +572,12 @@ class LeakyBucket {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        //-----------------------
-                        // class LeakyBucket
-                        //-----------------------
+                            // -----------------
+                            // class LeakyBucket
+                            // -----------------
 
 // CREATORS
 inline
@@ -691,17 +694,24 @@ bsls::Types::Uint64 LeakyBucket::unitsReserved() const
 {
     return d_unitsReserved;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007-2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

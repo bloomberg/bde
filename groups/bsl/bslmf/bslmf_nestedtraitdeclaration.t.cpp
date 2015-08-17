@@ -85,7 +85,7 @@ template <class TYPE>
 struct RequiresLockTrait : bsl::false_type {
 };
 
-} // close namespace abcd
+}  // close namespace abcd
 
 ///Usage
 ///-----
@@ -167,7 +167,7 @@ struct RequiresLockTrait : bsl::false_type {
         // ...
     };
 
-    } // close package namespace
+    }  // close namespace xyza
 //..
 // Finally, code interacting with 'xyza::DoesNotRequireLockType',
 // 'xyza::RequiresLockType' or 'xyza::Container' objects will be able to choose
@@ -184,7 +184,7 @@ template <>
 struct RequiresLockTrait<xyza::RequiresLockType> : bsl::true_type {
 };
 
-} // close namespace abcd
+}  // close namespace abcd
 
 // ============================================================================
 //                              MAIN PROGRAM

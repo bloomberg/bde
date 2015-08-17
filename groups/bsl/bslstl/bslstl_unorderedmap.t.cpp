@@ -127,7 +127,7 @@ void aSsErT(bool b, const char *s, int i)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
-//                      TEST CONFIGURATION MACRO 
+//                      TEST CONFIGURATION MACRO
 // ----------------------------------------------------------------------------
 
 #if (defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_OPT)) \
@@ -5367,26 +5367,26 @@ void invokeAdlSwap(TYPE& a, TYPE& b)
 }
 #endif
 
-template <typename TYPE>
+template <class TYPE>
 const TYPE& my_max(const TYPE& x, const TYPE& y)
 {
     return x > y ? x : y;
 }
 
-template <typename TYPE>
+template <class TYPE>
 TYPE my_abs(const TYPE& x)
 {
     return x < 0 ? -x : x;
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool nearlyEqual(const TYPE& x, const TYPE& y)
 {
     TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
     return my_abs(x - y) <= tolerance;
 }
 
-template <typename TYPE>
+template <class TYPE>
 const char *testTypeName()
 {
     return "unrecognized type";
@@ -5777,7 +5777,7 @@ struct CharToPairConverter {
 
         bslma::Allocator *privateAllocator =
                                       &bslma::MallocFreeAllocator::singleton();
-        
+
         bsls::ObjectBuffer<KEY> tempKey;
         bsltf::TemplateTestFacility::emplace(
                                        bsls::Util::addressOf(tempKey.object()),
@@ -5797,7 +5797,7 @@ struct CharToPairConverter {
     }
 };
 
-template <typename OBJECT>
+template <class OBJECT>
 bool verifySpec(const OBJECT&  object,
                 const char    *spec,
                 bool           keysOnly = false)
@@ -6240,7 +6240,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                 ASSERTV(X.load_factor() <= X.max_load_factor());
                 ASSERTV(nearlyEqual<double>(X.load_factor(),
-                                            static_cast<double>(X.size()) 
+                                            static_cast<double>(X.size())
                                                     / static_cast<double>(BC)));
 
                 if (LENGTH > 0) {
@@ -6539,7 +6539,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
                   } break;
                   default: {
                     ASSERTV(0 && "unrecognized CONFIG");
-                    return;
+                    return;                                           // RETURN
                   }
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -9535,7 +9535,7 @@ void testImplicitInsert(CONTAINER& mX)
 }  // close namespace BREATHING_TEST
 
 //=============================================================================
-// MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

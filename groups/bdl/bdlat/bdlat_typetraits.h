@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bdlat_IsBasicChoice<TYPE>:           true for generated "choice" types
 //  bdlat_IsBasicSequence<TYPE>:         true for generated "sequence" types
 //  bdlat_IsBasicEnumeration<TYPE>:      true for generated "enumeration" types
-//  bdlat_BasicEnumerationWrapper<TYPE>: chararacteristics of enumeration type
+//  bdlat_BasicEnumerationWrapper<TYPE>: characteristics of enumeration type
 //  bdlat_IsBasicCustomizedType<TYPE>:   true for generated "customized" types
 //
 //@MACROS:
@@ -118,8 +118,8 @@ struct bdlat_TypeTraitBasicChoice {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bdlat_IsBasicChoice>
     {
-        // This class template ties the 'bdlat_TypeTraitBasicChoice'
-        // trait tag to the 'bdlat_IsBasicChoice' trait metafunction.
+        // This class template ties the 'bdlat_TypeTraitBasicChoice' trait tag
+        // to the 'bdlat_IsBasicChoice' trait metafunction.
     };
 
     template <class TYPE>
@@ -133,8 +133,8 @@ struct bdlat_TypeTraitBasicSequence {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bdlat_IsBasicSequence>
     {
-        // This class template ties the 'bdlat_TypeTraitBasicSequence'
-        // trait tag to the 'bdlat_IsBasicSequence' trait metafunction.
+        // This class template ties the 'bdlat_TypeTraitBasicSequence' trait
+        // tag to the 'bdlat_IsBasicSequence' trait metafunction.
     };
 
     template <class TYPE>
@@ -148,8 +148,8 @@ struct bdlat_TypeTraitBasicEnumeration {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bdlat_IsBasicEnumeration>
     {
-        // This class template ties the 'bdlat_TypeTraitBasicEnumeration'
-        // trait tag to the 'bdlat_IsBasicEnumeration' trait metafunction.
+        // This class template ties the 'bdlat_TypeTraitBasicEnumeration' trait
+        // tag to the 'bdlat_IsBasicEnumeration' trait metafunction.
     };
 
     template <class TYPE>
@@ -172,6 +172,8 @@ struct bdlat_TypeTraitBasicCustomizedType {
 };
 
 // Macros defined to facilitate declaring traits for generated code.
+
+// BDE_VERIFY pragma: -SLM01  // leaking macros is the whole point!
 
 #define BDLAT_DECL_CHOICE_TRAITS(ClassName)                                   \
     template <>                                                               \
@@ -290,10 +292,17 @@ struct bdlat_TypeTraitBasicCustomizedType {
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -46,9 +46,9 @@ BSLS_IDENT("$Id: $")
 // want to avoid causing crashes in production applications, since we expect
 // that frequently the overflow in "working" legacy code is only overwriting
 // the null terminating byte and is otherwise harmless.  We can use the
-// 'bdesu::AssertionLogger::failTrace' assertion-failure callback to replace the
-// default callback, which aborts the task, with one that will log the failure
-// and the call-stack at which it occurred.
+// 'bdesu::AssertionLogger::failTrace' assertion-failure callback to replace
+// the default callback, which aborts the task, with one that will log the
+// failure and the call-stack at which it occurred.
 //
 // First, we write a dubious legacy date routine:
 //..
@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: $")
 //      // Protect your job, too!
 //  {
 //      bsls::AssertFailureHandlerGuard guard(
-//                             balst::AssertionLogger::assertionFailureHandler);
+//                            balst::AssertionLogger::assertionFailureHandler);
 //      big_important_highly_visible_subsystem();
 //  }
 //..
@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 // trace can be merged against the executable program to determine the location
 // of the error.
 //..
-//  // [ [ ... balst_assertionlogger.cpp 55 Assertion.Failure 32 
+//  // [ [ ... balst_assertionlogger.cpp 55 Assertion.Failure 32
 //  // Assertion failed: (*this)[this->d_length] == CHAR_TYPE(),
 //  // file .../bslstl_string.h, line 3407
 //  // For stack trace, run 'showfunc.tsk <your_program_binary>
@@ -195,10 +195,10 @@ class AssertionLogger {
         // static class method as the 'callback' and a pointer to a particular
         // object as the 'closure'.
 
-    static void setDefaultLogSeverity(ball::Severity::Level level);
-        // Set, to the specified 'level', the default severity level at which
-        // assertion failures are logged.  This value is used if a log severity
-        // callback has not been supplied (by calling
+    static void setDefaultLogSeverity(ball::Severity::Level severity);
+        // Set, to the specified 'severity', the default severity level at
+        // which assertion failures are logged.  This value is used if a log
+        // severity callback has not been supplied (by calling
         // 'setLogSeverityCallback').  The default severity level is initially
         // 'ball::Severity::BAEL_FATAL'.
 
@@ -214,10 +214,17 @@ class AssertionLogger {
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

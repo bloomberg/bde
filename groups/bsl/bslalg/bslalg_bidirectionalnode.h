@@ -350,9 +350,9 @@ class BidirectionalNode : public bslalg::BidirectionalLink {
         // held by this object.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -----------------------
                         // class BidirectionalNode
@@ -372,7 +372,7 @@ const VALUE& BidirectionalNode<VALUE>::value() const
     return d_value;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 }  // close enterprise namespace
 

@@ -74,9 +74,9 @@ static void aSsErT(int c, const char *s, int i)
 #define TAB cout << '\t';                     // output the tab character.
 #define L_ __LINE__                           // current Line number
 
-//==========================================================================
+//=============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
         //   least as wide as an int.  Then case a few values of different
-        //   signs to it, and assert that the sign is correct.  
+        //   signs to it, and assert that the sign is correct.
         //
         // Testing:
         //   size_type

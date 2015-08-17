@@ -266,7 +266,7 @@ class Encoder {
         // Destroy this object.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::streambuf               *streamBuf,
                const TYPE&                   value,
                const EncoderOptions&  options);
@@ -277,7 +277,7 @@ class Encoder {
         // type referring to one of those types.  Return 0 on success, and a
         // non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::ostream&                stream,
                const TYPE&                  value,
                const EncoderOptions& options);
@@ -288,7 +288,7 @@ class Encoder {
         // referring to one of those types.  Return 0 on success, and a
         // non-zero value otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
@@ -297,7 +297,7 @@ class Encoder {
         // DEPRECATED: Use the 'encode' function passed a reference to a
         // non-modifiable 'EncoderOptions' object instead.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
         // specified 'streamBuf'.  Return 0 on success, and a non-zero value
@@ -437,46 +437,46 @@ class Encoder_EncodeImpl {
 
     int encodeImp(const bsl::vector<char>& value,
                   int,
-                  bdeat_TypeCategory::Array);
-    template <typename TYPE>
+                  bdlat_TypeCategory::Array);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
-                  bdeat_TypeCategory::Array);
-    template <typename TYPE>
+                  bdlat_TypeCategory::Array);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
-                  bdeat_TypeCategory::Choice);
-    template <typename TYPE>
+                  bdlat_TypeCategory::Choice);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
-                  bdeat_TypeCategory::CustomizedType);
-    template <typename TYPE>
+                  bdlat_TypeCategory::CustomizedType);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
-                  bdeat_TypeCategory::DynamicType);
-    template <typename TYPE>
+                  bdlat_TypeCategory::DynamicType);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
-                  bdeat_TypeCategory::Enumeration);
-    template <typename TYPE>
+                  bdlat_TypeCategory::Enumeration);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
-                  bdeat_TypeCategory::NullableValue);
-    template <typename TYPE>
+                  bdlat_TypeCategory::NullableValue);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int         mode,
-                  bdeat_TypeCategory::Sequence);
-    template <typename TYPE>
+                  bdlat_TypeCategory::Sequence);
+    template <class TYPE>
     int encodeImp(const TYPE& value,
                   int,
-                  bdeat_TypeCategory::Simple);
+                  bdlat_TypeCategory::Simple);
         // Encode the specified 'value', of a (template parameter) 'TYPE'
         // corresponding to the specified 'bdeat' category, into JSON onto the
         // 'streambuf' supplied at construction, using the specified formatting
         // 'mode'.  Return 0 on success and a non-zero value otherwise.  The
         // behavior is undefined unless 'value' corresponds to the specified
         // 'bdeat' category and 'mode' is a valid formatting mode as specified
-        // in 'bdeat_FormattingMode'.
+        // in 'bdlat_FormattingMode'.
 
   public:
     // CREATORS
@@ -495,7 +495,7 @@ class Encoder_EncodeImpl {
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of the document.
 
-    template <typename TYPE>
+    template <class TYPE>
     int encode(const TYPE& value, int mode);
         // Encode the specified 'value' in the JSON format using the specified
         // formatting 'mode'.  Return 0 on success and a non-zero value
@@ -531,12 +531,12 @@ struct Encoder_ElementVisitor {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& value);
         // Encode the specified 'value' in the JSON format.  Return 0 on
         // success and a non-zero value otherwise.
 
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO& info);
         // Encode the specified 'value' using the specified 'info' in the JSON
         // format.  Return 0 on success and a non-zero value otherwise.
@@ -548,7 +548,7 @@ struct Encoder_ElementVisitor {
 
 class Encoder_SequenceVisitor {
     // This functor class encodes element in a sequence.  It should be passed
-    // as an argument to the 'bdeat_SequenceFunctions::accessAttributes'
+    // as an argument to the 'bdlat_SequenceFunctions::accessAttributes'
     // function.  Note that the operators provided in this 'class' match the
     // function signatures required of visitors encoding elements of 'bdeat'
     // sequence types.
@@ -567,7 +567,7 @@ class Encoder_SequenceVisitor {
     template <class TYPE>
     bool skipNullableAttribute(const TYPE& value);
         // Return 'true' if the specified 'value' represents a
-        // 'bdeat_NullableValue' type and should be skipped, and 'false'
+        // 'bdlat_NullableValue' type and should be skipped, and 'false'
         // otherwise.
 
     template <class TYPE>
@@ -587,7 +587,7 @@ class Encoder_SequenceVisitor {
         // specified 'encoder'.
 
     // MANIPULATORS
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO &info);
         // Encode the specified 'value' using the specified 'info' in the JSON
         // format.  Return 0 on success and a non-zero value otherwise.
@@ -613,9 +613,9 @@ struct Encoder_DynamicTypeDispatcher {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE&, bslmf::Nil);
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int operator()(const TYPE& value, ANY_CATEGORY category);
         // Encode the specified 'value' of the specified 'bdeat' 'category' in
         // the JSON format.  Return 0 on success and a non-zero value
@@ -645,7 +645,7 @@ Encoder::Encoder(bslma::Allocator *basicAllocator)
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
 {
@@ -653,7 +653,7 @@ int Encoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
     return encode(streamBuf, value, options);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder::encode(bsl::ostream& stream, const TYPE& value)
 {
@@ -661,18 +661,18 @@ int Encoder::encode(bsl::ostream& stream, const TYPE& value)
     return encode(stream, value, options);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder::encode(bsl::streambuf               *streamBuf,
                            const TYPE&                   value,
                            const EncoderOptions&  options)
 {
     BSLS_ASSERT(streamBuf);
 
-    bdeat_TypeCategory::Value category =
-                                    bdeat_TypeCategoryFunctions::select(value);
-    if (bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY != category
-     && bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY != category
-     && bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY != category) {
+    bdlat_TypeCategory::Value category =
+                                    bdlat_TypeCategoryFunctions::select(value);
+    if (bdlat_TypeCategory::e_SEQUENCE_CATEGORY != category
+     && bdlat_TypeCategory::e_CHOICE_CATEGORY != category
+     && bdlat_TypeCategory::e_ARRAY_CATEGORY != category) {
         logStream()
                   << "Encoded object must be a Sequence, Choice or Array type."
                   << bsl::endl;
@@ -697,7 +697,7 @@ int Encoder::encode(bsl::streambuf               *streamBuf,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder::encode(bsl::ostream&                stream,
                            const TYPE&                  value,
                            const EncoderOptions& options)
@@ -752,53 +752,53 @@ bsl::ostream& Encoder_EncodeImpl::logStream()
     return d_encoder_p->logStream();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
-                                         bdeat_TypeCategory::CustomizedType)
+                                         bdlat_TypeCategory::CustomizedType)
 {
-    return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value),
+    return encode(bdlat_CustomizedTypeFunctions::convertToBaseType(value),
                   mode);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
-                                         bdeat_TypeCategory::DynamicType)
+                                         bdlat_TypeCategory::DynamicType)
 {
     Encoder_DynamicTypeDispatcher proxy = { this, mode };
-    return bdeat_TypeCategoryUtil::accessByCategory(value, proxy);
+    return bdlat_TypeCategoryUtil::accessByCategory(value, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
     bsl::string valueString;
-    bdeat_EnumFunctions::toString(&valueString, value);
+    bdlat_EnumFunctions::toString(&valueString, value);
     return encode(valueString, mode);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     d_formatter.indent();
     return PrintUtil::printValue(d_outputStream, value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
-                                         bdeat_TypeCategory::Sequence)
+                                         bdlat_TypeCategory::Sequence)
 {
-    if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
+    if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
         d_formatter.openObject();
     }
 
@@ -808,28 +808,28 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
     d_formatter.setIsArrayElement(false);
 
-    const int rc = bdeat_SequenceFunctions::accessAttributes(value, visitor);
+    const int rc = bdlat_SequenceFunctions::accessAttributes(value, visitor);
     if (rc) {
         return rc;                                                    // RETURN
     }
 
     d_formatter.setIsArrayElement(isArrayElement);
 
-    if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
+    if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
         d_formatter.closeObject();
     }
 
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
-                                         bdeat_TypeCategory::Choice)
+                                         bdlat_TypeCategory::Choice)
 {
-    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID !=
-                                   bdeat_ChoiceFunctions::selectionId(value)) {
-        if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID !=
+                                   bdlat_ChoiceFunctions::selectionId(value)) {
+        if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
             d_formatter.openObject();
         }
 
@@ -839,14 +839,14 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
         d_formatter.setIsArrayElement(false);
 
-        const int rc = bdeat_ChoiceFunctions::accessSelection(value, visitor);
+        const int rc = bdlat_ChoiceFunctions::accessSelection(value, visitor);
         if (rc) {
             return rc;                                                // RETURN
         }
 
         d_formatter.setIsArrayElement(isArrayElement);
 
-        if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
+        if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
             d_formatter.closeObject();
         }
     }
@@ -857,12 +857,12 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
-                                         bdeat_TypeCategory::Array)
+                                         bdlat_TypeCategory::Array)
 {
-    const int size = static_cast<int>(bdeat_ArrayFunctions::size(value));
+    const int size = static_cast<int>(bdlat_ArrayFunctions::size(value));
     if (0 < size) {
         d_formatter.openArray();
 
@@ -870,14 +870,14 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
 
         d_formatter.setIsArrayElement(true);
 
-        int rc = bdeat_ArrayFunctions::accessElement(value, visitor, 0);
+        int rc = bdlat_ArrayFunctions::accessElement(value, visitor, 0);
         if (rc) {
             return rc;                                                // RETURN
         }
 
         for (int i = 1; i < size; ++i) {
             d_formatter.closeElement();
-            rc = bdeat_ArrayFunctions::accessElement(value, visitor, i);
+            rc = bdlat_ArrayFunctions::accessElement(value, visitor, i);
             if (rc) {
                 return rc;                                            // RETURN
             }
@@ -895,26 +895,26 @@ int Encoder_EncodeImpl::encodeImp(const TYPE& value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Encoder_EncodeImpl::encodeImp(const TYPE& value,
                                          int         mode,
-                                         bdeat_TypeCategory::NullableValue)
+                                         bdlat_TypeCategory::NullableValue)
 {
-    if (bdeat_NullableValueFunctions::isNull(value)) {
+    if (bdlat_NullableValueFunctions::isNull(value)) {
         d_formatter.indent();
         d_outputStream << "null";
         return 0;                                                     // RETURN
     }
 
     Encoder_ElementVisitor visitor = { this, mode };
-    return bdeat_NullableValueFunctions::accessValue(value, visitor);
+    return bdlat_NullableValueFunctions::accessValue(value, visitor);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_EncodeImpl::encode(const TYPE& value, int mode)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
     return encodeImp(value, mode, TypeCategory());
 }
 
@@ -967,9 +967,9 @@ template <class TYPE>
 bool Encoder_SequenceVisitor::skipNullableAttribute(const TYPE& value,
                                                            bslmf::MetaInt<1>)
 {
-    if (bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY ==
-                                  bdeat_TypeCategoryFunctions::select(value)) {
-        return bdeat_NullableValueFunctions::isNull(value)
+    if (bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY ==
+                                  bdlat_TypeCategoryFunctions::select(value)) {
+        return bdlat_NullableValueFunctions::isNull(value)
             && !d_encoder_p->encoderOptions()->encodeNullElements();  // RETURN
     }
     return false;
@@ -980,7 +980,7 @@ inline
 bool Encoder_SequenceVisitor::skipNullableAttribute(const TYPE& value)
 {
     return skipNullableAttribute(value,
-                                 bslmf::MetaInt<bdeat_NullableValueFunctions
+                                 bslmf::MetaInt<bdlat_NullableValueFunctions
                                             ::IsNullableValue<TYPE>::VALUE>());
 }
 
@@ -996,9 +996,9 @@ inline
 bool Encoder_SequenceVisitor::isEmptyArray(const TYPE& value,
                                                   bslmf::MetaInt<1>)
 {
-    if (bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY ==
-                                  bdeat_TypeCategoryFunctions::select(value)) {
-        return 0 == bdeat_ArrayFunctions::size(value);                // RETURN
+    if (bdlat_TypeCategory::e_ARRAY_CATEGORY ==
+                                  bdlat_TypeCategoryFunctions::select(value)) {
+        return 0 == bdlat_ArrayFunctions::size(value);                // RETURN
     }
     return false;
 }
@@ -1009,7 +1009,7 @@ bool Encoder_SequenceVisitor::isEmptyArray(const TYPE& value)
 {
     return isEmptyArray(
                  value,
-                 bslmf::MetaInt<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE>());
+                 bslmf::MetaInt<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE>());
 }
 
 // CREATORS
@@ -1022,7 +1022,7 @@ Encoder_SequenceVisitor::Encoder_SequenceVisitor(
 }
 
 // MANIPULATORS
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 int Encoder_SequenceVisitor::operator()(const TYPE& value,
                                                const INFO& info)
 {
@@ -1050,21 +1050,21 @@ int Encoder_SequenceVisitor::operator()(const TYPE& value,
                     // struct Encoder_ElementVisitor
                     // ------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_ElementVisitor::operator()(const TYPE &value)
 {
     return d_encoder_p->encode(value, d_mode);
 }
 
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 int Encoder_ElementVisitor::operator()(const TYPE& value,
                                               const INFO& info)
 {
     // Skip encoding of anonymous elements
 
     const int mode = info.formattingMode();
-    if (!(bdeat_FormattingMode::BDEAT_UNTAGGED & mode)) {
+    if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
 
         const int rc = d_encoder_p->d_formatter.openElement(info.name());
         if (rc) {
@@ -1089,7 +1089,7 @@ int Encoder_ElementVisitor::operator()(const TYPE& value,
                     // -------------------------------------------
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Encoder_DynamicTypeDispatcher::operator()(const TYPE&, bslmf::Nil)
 {
@@ -1098,7 +1098,7 @@ int Encoder_DynamicTypeDispatcher::operator()(const TYPE&, bslmf::Nil)
     return -1;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
                                                      ANY_CATEGORY category)
@@ -1109,15 +1109,22 @@ int Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
 }  // close package namespace
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

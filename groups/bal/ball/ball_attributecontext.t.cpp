@@ -1,4 +1,4 @@
-// ball_attributecontext.t.cpp            -*-C++-*-
+// ball_attributecontext.t.cpp                                        -*-C++-*-
 
 #include <ball_attributecontext.h>
 
@@ -136,23 +136,23 @@ struct AttributeComparator {
     {
         int cmp = bsl::strcmp(lhs.name(), rhs.name());
         if (0 != cmp) {
-            return cmp < 0;
+            return cmp < 0;                                           // RETURN
         }
         if (lhs.value().typeIndex() != rhs.value().typeIndex()) {
-            return lhs.value().typeIndex() < rhs.value().typeIndex();
+            return lhs.value().typeIndex() < rhs.value().typeIndex(); // RETURN
         }
         switch (lhs.value().typeIndex()) {
           case 0: // unset?
             ASSERT(false);
-            return true;
+            return true;                                              // RETURN
           case 1: // int
-            return lhs.value().the<int>() < rhs.value().the<int>();
+            return lhs.value().the<int>() < rhs.value().the<int>();   // RETURN
           case 2: // int64
             return lhs.value().the<bsls::Types::Int64>()
-                <  rhs.value().the<bsls::Types::Int64>();
+                <  rhs.value().the<bsls::Types::Int64>();             // RETURN
           case 3: // string
             return lhs.value().the<bsl::string>()
-                <  rhs.value().the<bsl::string>();
+                <  rhs.value().the<bsl::string>();                    // RETURN
         }
         BSLS_ASSERT(false);
         return false;
@@ -230,7 +230,7 @@ bool AttributeSet::remove(const ball::Attribute& value)
                                                             d_set.find(value);
     if (it != d_set.end()) {
         d_set.erase(it);
-        return true;
+        return true;                                                  // RETURN
     }
     return false;
 }
@@ -328,7 +328,7 @@ namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
         return 0;
     }
 
-} // close namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
+}  // close namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
 
 //=============================================================================
 //                         CASE 6 RELATED ENTITIES
@@ -499,7 +499,7 @@ extern "C" void *workerThread3(void *args)
     return NULL;
 }
 
-} // namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_6
+}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_6
 
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
@@ -847,7 +847,7 @@ extern "C" void *case4ContextThread(void *args)
     return NULL;
 }
 
-} // namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_4
+}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_4
 
 //=============================================================================
 //                         CASE 3 RELATED ENTITIES
@@ -920,7 +920,7 @@ extern "C" void *case3ContextThread(void *arg)
     return NULL;
 }
 
-} // namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3
+}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3
 
 //=============================================================================
 //                         CASE 2 RELATED ENTITIES
@@ -960,7 +960,7 @@ extern "C" void *case2ContextThread(void *arg)
     return (void*)context;
 }
 
-} // namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2
+}  // close namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1703,11 +1703,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

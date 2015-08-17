@@ -4,50 +4,49 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balber_berdecoder_cpp,"$Id$ $CSID$")
 
-#include <balber_berencoder.h>            // for testing only
+#include <balber_berencoder.h>          // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>  // for testing only
 #include <bdlsb_memoutstreambuf.h>      // for testing only
 
 namespace BloombergLP {
 
-                   // -----------------------------------
+                   // --------------------------------------
                    // class balber::BerDecoder::MemOutStream
-                   // -----------------------------------
+                   // --------------------------------------
 // CREATORS
 balber::BerDecoder::MemOutStream::~MemOutStream()
 {
 }
 
 namespace balber {
-                   // ---------------------
+
+                   // ----------------
                    // class BerDecoder
-                   // ---------------------
+                   // ----------------
 
 // CREATORS
-BerDecoder::BerDecoder(
-                 const BerDecoderOptions *options,
-                 bslma::Allocator             *basicAllocator)
-: d_options       (options)
-, d_allocator     (bslma::Default::allocator(basicAllocator))
-, d_logStream     (0)
-, d_severity      (e_BER_SUCCESS)
-, d_streamBuf     (0)
-, d_currentDepth  (0)
+BerDecoder::BerDecoder(const BerDecoderOptions *options,
+                       bslma::Allocator        *basicAllocator)
+: d_options                  (options)
+, d_allocator                (bslma::Default::allocator(basicAllocator))
+, d_logStream                (0)
+, d_severity                 (e_BER_SUCCESS)
+, d_streamBuf                (0)
+, d_currentDepth             (0)
 , d_numUnknownElementsSkipped(0)
-, d_topNode       (0)
+, d_topNode                  (0)
 {
 }
 
 BerDecoder::~BerDecoder()
 {
-    if (d_logStream != 0) {
+    if (d_logStream) {
         d_logStream->~MemOutStream();
     }
 }
 
 // MANIPULATORS
-void
-BerDecoder::logErrorImp(const char *msg)
+void BerDecoder::logErrorImp(const char *msg)
 {
     if ((int) d_severity < (int) e_BER_ERROR) {
         d_severity = e_BER_ERROR;
@@ -55,8 +54,8 @@ BerDecoder::logErrorImp(const char *msg)
     logMsg("ERROR", msg);
 }
 
-BerDecoder::ErrorSeverity
-BerDecoder::logMsg(const char *prefix, const char *msg)
+BerDecoder::ErrorSeverity BerDecoder::logMsg(const char *prefix,
+                                             const char *msg)
 {
     bsl::ostream& out = logStream();
 
@@ -71,9 +70,9 @@ BerDecoder::logMsg(const char *prefix, const char *msg)
     return d_severity;
 }
 
-         // -------------------------------------------------------
+         // -----------------------------
          // private class BerDecoder_Node
-         // -------------------------------------------------------
+         // -----------------------------
 
 // ACCESSORS
 int
@@ -101,8 +100,7 @@ BerDecoder_Node::printStack(bsl::ostream& out) const
     }
 }
 
-void
-BerDecoder_Node::print(bsl::ostream&  out,
+void BerDecoder_Node::print(bsl::ostream&  out,
                             int            depth,
                             int            spacePerLevel,
                             const char    *prefixText) const
@@ -144,31 +142,21 @@ BerDecoder_Node::print(bsl::ostream&  out,
     const char *strTagNum = 0;
 
     switch(d_tagClass) {
-      case BerConstants::e_UNIVERSAL:
-        out << "UNV-";
+      case BerConstants::e_UNIVERSAL:        out << "UNV-";
         if (0 == BerUniversalTagNumber::fromInt(&eTagNum, d_tagNumber)) {
             strTagNum = BerUniversalTagNumber::toString(eTagNum);
         }
-        break;
-
-      case BerConstants::e_CONTEXT_SPECIFIC:
-        out << "CTX-";
-        break;
-      case BerConstants::e_APPLICATION:
-        out << "APP-";
-        break;
-      case BerConstants::e_PRIVATE:
-        out << "PRV-";
-        break;
-      default:
-        out << "***-";
-        break;
+                                                            break;
+      case BerConstants::e_CONTEXT_SPECIFIC: out << "CTX-"; break;
+      case BerConstants::e_APPLICATION:      out << "APP-"; break;
+      case BerConstants::e_PRIVATE:          out << "PRV-"; break;
+      default:                               out << "***-"; break;
     }
 
     switch(d_tagType) {
       case BerConstants::e_BDEM_CONSTRUCTED:  out << "C-";  break;
       case BerConstants::e_BDEM_PRIMITIVE:    out << "P-";  break;
-      default:                              out << "*-";  break;
+      default:                                out << "*-";  break;
     }
 
     if (!strTagNum) {
@@ -184,16 +172,11 @@ BerDecoder_Node::print(bsl::ostream&  out,
         out << " name=" << d_fieldName;
     }
 
-//     if (d_typeName != 0) {
-//         out << " type=" << d_typeName;
-//     }
-
     out << bsl::endl;
 }
 
 // MANIPULATORS
-int
-BerDecoder_Node::logError(const  char *msg)
+int BerDecoder_Node::logError(const char *msg)
 {
     BerDecoder::ErrorSeverity rc = d_decoder->logError(msg);
 
@@ -202,16 +185,15 @@ BerDecoder_Node::logError(const  char *msg)
     return rc;
 }
 
-int
-BerDecoder_Node::decode(bsl::vector<char> *variable,
-                             bdeat_TypeCategory::Array)
+int BerDecoder_Node::decode(bsl::vector<char> *variable,
+                            bdlat_TypeCategory::Array)
 {
-    switch(d_formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_BASE64:
-      case bdeat_FormattingMode::BDEAT_HEX:
-      case bdeat_FormattingMode::BDEAT_TEXT:
-        return this->readVectorChar(variable);
+    switch(d_formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_BASE64:
+      case bdlat_FormattingMode::e_HEX:
+      case bdlat_FormattingMode::e_TEXT:
+        return this->readVectorChar(variable);                        // RETURN
 
       default:
         break;
@@ -220,11 +202,10 @@ BerDecoder_Node::decode(bsl::vector<char> *variable,
     return this->decodeArray(variable);
 }
 
-int
-BerDecoder_Node::readTagHeader()
+int BerDecoder_Node::readTagHeader()
 {
     if (d_decoder->maxDepthExceeded()) {
-        return logError("Max depth exceeded");
+        return logError("Max depth exceeded");                        // RETURN
     }
 
     if (0 != BerUtil::getIdentifierOctets(d_decoder->d_streamBuf,
@@ -238,7 +219,7 @@ BerDecoder_Node::readTagHeader()
     if (0 != BerUtil::getLength(d_decoder->d_streamBuf,
                                      &d_expectedLength,
                                      &d_consumedHeaderBytes)) {
-        return logError("Error reading BER length");
+        return logError("Error reading BER length");                  // RETURN
     }
 
     if (d_decoder->decoderOptions()->traceLevel() > 0) {
@@ -250,19 +231,19 @@ BerDecoder_Node::readTagHeader()
     return BerDecoder::e_BER_SUCCESS;
 }
 
-int
-BerDecoder_Node::readTagTrailer()
+int BerDecoder_Node::readTagTrailer()
 {
     if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
 
         if (0 != BerUtil::getEndOfContentOctets(
                                             d_decoder->d_streamBuf,
                                             &d_consumedTailBytes)) {
-            return logError("Error reading end-of-contents octets");
+            return logError("Error reading end-of-contents octets");  // RETURN
         }
     }
     else if (d_expectedLength != d_consumedBodyBytes) {
         return logError("Expected length is not equal to consumed length");
+                                                                      // RETURN
     }
 
     if (d_decoder->decoderOptions()->traceLevel() > 0) {
@@ -274,20 +255,20 @@ BerDecoder_Node::readTagTrailer()
     return BerDecoder::e_BER_SUCCESS;
 }
 
-int
-BerDecoder_Node::skipField()
+int BerDecoder_Node::skipField()
 {
     if (!d_decoder->decoderOptions()->skipUnknownElements()) {
         return logError("Unknown element (skipping is disabled)");
+                                                                      // RETURN
     }
 
     if (BerUtil::e_INDEFINITE_LENGTH != d_expectedLength ) {
 
-        // We would do this, but not every streambuf is seekable :( .
-        //
-        // d_decoder->d_streamBuf->pubseekoff(d_expectedLength,
-        //                                    bsl::ios_base::cur,
-        //                                    bsl::ios_base::in);
+        // We would do this, but not every streambuf is seekable:
+        //..
+        //  d_decoder->d_streamBuf->pubseekoff(d_expectedLength,
+        //                                     bsl::ios_base::cur,
+        //..                                   bsl::ios_base::in);
 
         char buffer[1024];
         int  remainLength = d_expectedLength;
@@ -299,6 +280,7 @@ BerDecoder_Node::skipField()
 
             if (numRead != d_decoder->d_streamBuf->sgetn(buffer, numRead)) {
                 return logError("Error reading stream while skipping field");
+                                                                      // RETURN
             }
 
             d_consumedBodyBytes += numRead;
@@ -312,6 +294,7 @@ BerDecoder_Node::skipField()
     if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
         return logError(
             "Only CONSTRUCTED fields with INDEFINITE length can be skipped");
+                                                                      // RETURN
     }
 
     while (hasMore())  {
@@ -321,32 +304,36 @@ BerDecoder_Node::skipField()
         int rc = innerNode.readTagHeader();
         if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
+                                                                      // RETURN
         }
 
         rc = innerNode.skipField();
         if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
+                                                                      // RETURN
         }
 
         rc = innerNode.readTagTrailer();
         if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
+                                                                      // RETURN
         }
     }
 
     return BerDecoder::e_BER_SUCCESS;
 }
 
-int
-BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
+int BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
 {
     if (d_tagType != BerConstants::e_BDEM_PRIMITIVE) {
         return logError("Expected PRIMITIVE tag type for 'vector<char>'");
+                                                                      // RETURN
     }
 
     if (d_expectedLength < 0) {
         return logError("'vector<char>' with indefinite length "
                         "is not supported at this time");
+                                                                      // RETURN
 
         // TBD X.690 has a formula for transmitting string types in chunks,
         // where each chunk has pre-defined length but the overall string has
@@ -356,6 +343,7 @@ BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
     int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
     if (d_expectedLength > maxSize) {
         return logError("'vector<char>' length more then limit");
+                                                                      // RETURN
     }
 
     variable->resize(d_expectedLength);
@@ -364,21 +352,29 @@ BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
         d_expectedLength != d_decoder->d_streamBuf->sgetn(&(*variable)[0],
                                                           d_expectedLength)) {
         return logError("Stream error while reading 'vector<char>'");
+                                                                      // RETURN
     }
 
     d_consumedBodyBytes += d_expectedLength;
 
     return BerDecoder::e_BER_SUCCESS;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

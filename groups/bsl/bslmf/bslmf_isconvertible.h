@@ -696,9 +696,9 @@ struct IsConvertible : bsl::is_convertible<FROM_TYPE, TO_TYPE>::type {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_IsConvertible
 #undef bslmf_IsConvertible

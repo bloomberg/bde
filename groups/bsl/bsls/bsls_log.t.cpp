@@ -1489,7 +1489,7 @@ void handleErrorFlexible(const char *file, int line, int code)
 // Users may wrap their error function in a macro to automatically fill in the
 // file name and line number parameters, as done by the 'BSLS_LOG*' macros.
 
-}  // close UsageExamples namespace
+}  // close namespace UsageExamples
 
 
 //=============================================================================

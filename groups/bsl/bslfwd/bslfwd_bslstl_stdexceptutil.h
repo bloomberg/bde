@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslstl {
         class StdExceptUtil;
-    }
+    }  // close namespace bslstl
 
     typedef bslstl::StdExceptUtil bslstl_StdExceptUtil;
-}
+}  // close enterprise namespace
 
 #else
 

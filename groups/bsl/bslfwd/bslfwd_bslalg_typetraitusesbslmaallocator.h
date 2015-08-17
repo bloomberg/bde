@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class TypeTraitUsesBslmaAllocator;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::TypeTraitUsesBslmaAllocator bslalg_TypeTraitUsesBslmaAllocator;
-}
+}  // close enterprise namespace
 
 #else
 

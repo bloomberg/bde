@@ -142,9 +142,9 @@ void HashTableImpUtil::remove(HashTableAnchor    *anchor,
     }
 }
 
-}  // close namespace BloombergLP::bslalg
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 20: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -189,6 +189,45 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFieldValue'
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to create and use a
+// 'ball::UserFieldValue' object.  Note that 'ball::UserFieldValue' objects
+// are typically used in a description of a sequence of user fields (see
+// 'ball_userfields').
+//
+// First, we create a default 'ball::UserFieldValue', 'valueA', and observe
+// that it is in the unset state, meaning that 'isUnset' is true and its type
+// is 'ball::UserFieldValue::e_VOID':
+//..
+    ball::UserFieldValue valueA;
+//
+    ASSERT(true                        == valueA.isUnset());
+    ASSERT(ball::UserFieldType::e_VOID == valueA.type());
+//..
+// Next, we create a second 'ball::UserFieldValue' having the value 5, and
+// then confirm its value and observe that it does not compare equal to the
+// 'valueA':
+//..
+    ball::UserFieldValue valueB(5);
+//
+    ASSERT(false                        == valueB.isUnset());
+    ASSERT(ball::UserFieldType::e_INT64 == valueB.type());
+    ASSERT(5                            == valueB.theInt64())
+//
+    ASSERT(valueA != valueB);
+//..
+// Finally, we call 'reset' of 'valueB' resetting it to the unset state, and
+// observer that 'valueA' now compares equal to 'valueB':
+//..
+    valueB.reset();
+//
+    ASSERT(valueA == valueB);
+//..
 
       } break;
       case 1: {
@@ -271,7 +310,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
                              "\t\t{ w:0 x:A         }" << endl;
 
-        mX.setValue(VALUEA);
+        mX.setString(VALUEA);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
@@ -291,7 +330,7 @@ int main(int argc, char *argv[])
                              "\t\t{ w:0 x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
-        mY.setValue(VALUEA);
+        mY.setString(VALUEA);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ P(Y) }
@@ -435,7 +474,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

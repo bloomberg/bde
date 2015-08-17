@@ -52,7 +52,7 @@ using bsl::endl;
 using bsl::flush;
 
 //=============================================================================
-// TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
@@ -206,7 +206,7 @@ using bsl::flush;
 // traces.
 
 //=============================================================================
-// STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -275,7 +275,7 @@ enum { CAN_FIND_SYMBOLS = 0 };
 }  // close unnamed namespace
 
 //=============================================================================
-// GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
+//              GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
 typedef balst::StackTraceTestAllocator Obj;
@@ -994,7 +994,7 @@ void leakTwiceA()
 }
 
 //=============================================================================
-// MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -1162,15 +1162,15 @@ int main(int argc, char *argv[])
 //  ---------------------------------------------------------------------------
 //  Allocation trace 1, 1 block(s) in use.
 //  Stack trace at allocation time:
-//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x8
-//  05e741 in balst_stacktracetestallocator.t.dbg_exc_mt
+//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x
+//  805e741 in balst_stacktracetestallocator.t.dbg_exc_mt
 //  (1): BloombergLP::bslma::TestAllocator::allocate(int)+0x12c at 0x8077398 in
 //   balst_stacktracetestallocator.t.dbg_exc_mt
 //  (2): ShipsCrew::copy(bsl::basic_string<char, std::char_traits<char>, bsl::a
 //  llocator<char> > const&)+0x31 at 0x804c3db in balst_stacktracetestallocator
 //  .t.dbg_exc_mt
 //  (3): ShipsCrew::setCook(bsl::basic_string<char, std::char_traits<char>, bsl
-//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in baesu_stacktracetestalloca
+//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in balst_stacktracetestalloca
 //  tor.t.dbg_exc_mt
 //  (4): ShipsCrew::ShipsCrew(char const*, BloombergLP::bslma::Allocator*)+0x23
 //  4 at 0x804c738 in balst_stacktracetestallocator.t.dbg_exc_mt
@@ -1184,6 +1184,13 @@ int main(int argc, char *argv[])
 // we can now easily fix our leak.
 
         bdlsu::FilesystemUtil::remove("shipscrew.txt");
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // 'remove' above uses the default allocator on Windows, so suppress
+        // the default allocator check at the end.
+
+        expectedDefaultAllocations = -1;
+#endif
       }  break;
       case 21: {
         //---------------------------------------------------------------------
@@ -1656,7 +1663,7 @@ int main(int argc, char *argv[])
             }
 
             const bool FOUND = npos != ss.str().find(
-                               "BloombergLP::balst::StackTraceTestAllocator::");
+                              "BloombergLP::balst::StackTraceTestAllocator::");
             LOOP3_ASSERT(ss.str(), demangleExpected, FOUND,
                                                     FOUND == demangleExpected);
 
@@ -3202,8 +3209,8 @@ int main(int argc, char *argv[])
                 ASSERT((npos != report.find("woof")) == isWoof);
                 if (CAN_FIND_SYMBOLS) {
                     ASSERT(npos != report.find("BloombergLP"));
-                    ASSERT(npos != report.find(
-                                             "balst::StackTraceTestAllocator"));
+                    ASSERT(npos != report.find("balst"));
+                    ASSERT(npos != report.find("StackTraceTestAllocator"));
                     ASSERT(npos != report.find("allocate"));
                     ASSERT(npos != report.find("main"));
                 }
@@ -3319,11 +3326,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

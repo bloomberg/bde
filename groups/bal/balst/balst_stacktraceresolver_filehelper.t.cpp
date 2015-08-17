@@ -89,17 +89,17 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
+   || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlsu::FilesystemUtil                      FilesystemUtil;
-typedef FilesystemUtil::FileDescriptor            FdType;    // shorthand for file
-                                                       // descriptor
+typedef bdlsu::FilesystemUtil                FilesystemUtil;
+typedef FilesystemUtil::FileDescriptor       FdType;    // shorthand for file
+                                                        // descriptor
 typedef balst::StackTraceResolver_FileHelper Obj;
-typedef bsls::Types::Int64                  Int64;
+typedef bsls::Types::Int64                   Int64;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -156,21 +156,22 @@ int main(int argc, char *argv[])
     // Note that we only have to create a tmp file on Unix platforms -- this
     // component is not used and thus is not tested on Windows.
 
-#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
+   || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     const char *tmpDirName       = "/tmp";
     const char *fileNameTemplate =
-                          "/tmp/baesu_StackTraceResolver_FileHelper.%d.%d.txt";
+                          "/tmp/balst_StackTraceResolver_FileHelper.%d.%d.txt";
 
-    ASSERT(FilesystemUtil::exists(tmpDirName) && FilesystemUtil::isDirectory(tmpDirName));
+    ASSERT(FilesystemUtil::exists(tmpDirName) &&
+                                      FilesystemUtil::isDirectory(tmpDirName));
 #endif
 
     bslma::TestAllocator ta;
     bslma::DefaultAllocatorGuard guard(&ta);
 
     switch(test) { case 0:
-#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
+   || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -196,7 +197,7 @@ int main(int argc, char *argv[])
 
     char fileNameBuffer[100];
     sprintf(fileNameBuffer,
-            "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
+            "/tmp/balst_StackTraceResolver_FileHelper.usage.%d.txt",
             getProcessId());
 //..
 // Make sure file does not already exist.
@@ -866,11 +867,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

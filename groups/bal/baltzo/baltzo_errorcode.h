@@ -16,16 +16,16 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'baltzo::ErrorCode::Enum', which enumerates the set of named error codes
-// returned by functions across the 'baltzo' package.
+//@DESCRIPTION: This component provides a namespace, 'baltzo::ErrorCode', for
+// the 'enum' type 'baltzo::ErrorCode::Enum', which enumerates the set of named
+// error codes returned by functions across the 'baltzo' package.
 //
 ///Enumerators
 ///-----------
 //..
-//  Name                    Description
-//  ---------------------   --------------------------------------
-//  BALTZO_UNSUPPORTED_ID   Time zone identifier is not supported.
+//  Name               Description
+//  ----------------   --------------------------------------
+//  k_UNSUPPORTED_ID   Time zone identifier is not supported.
 //..
 //
 ///Usage
@@ -39,9 +39,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a variable 'value' of type 'baltzo::ErrorCode::Enum' and
 // initialize it with the enumerator value
-// 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID':
+// 'baltzo::ErrorCode::k_UNSUPPORTED_ID':
 //..
-//  baltzo::ErrorCode::Enum value = baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;
+//  baltzo::ErrorCode::Enum value = baltzo::ErrorCode::k_UNSUPPORTED_ID;
 //..
 // Now, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -87,10 +87,10 @@ struct ErrorCode {
   public:
     // TYPES
     enum Enum {
-        BALTZO_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
+        k_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-      , BAETZO_UNSUPPORTED_ID = BALTZO_UNSUPPORTED_ID
+      , e_UNSUPPORTED_ID = k_UNSUPPORTED_ID
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
     };
@@ -111,17 +111,17 @@ struct ErrorCode {
         // suppress indentation of the first line.  If 'spacesPerLevel' is
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  See 'toAscii' for
-        // what constitutes the string representation of a
-        // 'ErrorCode::Enum' value.
+        // what constitutes the string representation of a 'ErrorCode::Enum'
+        // value.
 
     static const char *toAscii(ErrorCode::Enum value);
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BALTZO_" prefix elided.  For
+        // corresponding enumerator name with the "k_" prefix elided.  For
         // example:
         //..
-        //  bsl::cout << ErrorCode::toAscii(ErrorCode::BALTZO_UNSUPPORTED_ID);
+        //  bsl::cout << ErrorCode::toAscii(ErrorCode::k_UNSUPPORTED_ID);
         //..
         // will print the following on standard output:
         //..
@@ -147,7 +147,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, ErrorCode::Enum value);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                             // ----------------

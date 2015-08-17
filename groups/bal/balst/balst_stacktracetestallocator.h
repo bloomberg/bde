@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a test allocator that reports the call stack for leaks.
 //
 //@CLASSES:
-//   balst::StackTraceTestAllocator: allocator that reports call stack for leaks
+//  balst::StackTraceTestAllocator: allocator that reports call stack for leaks
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -42,15 +42,15 @@ BSLS_IDENT("$Id: $")
 //                                         allocate
 //                                         deallocate
 //..
-// Note that allocation using a 'balst::StackTraceTestAllocator' is deliberately
-// incompatible with the default global 'new', 'malloc', 'delete', and 'free'.
-// Using 'delete' or 'free' to free memory supplied by this allocator will
-// corrupt the dynamic memory manager and also cause a memory leak (and will be
-// reported by purify as freeing mismatched memory, freeing unallocated memory,
-// or as a memory leak).  Using 'deallocate' to free memory supplied by global
-// 'new' or 'malloc' will immediately cause an error to be reported to the
-// associated 'ostream' and the abort handler (which can be configured to be
-// a no-op) called.
+// Note that allocation using a 'balst::StackTraceTestAllocator' is
+// deliberately incompatible with the default global 'new', 'malloc', 'delete',
+// and 'free'.  Using 'delete' or 'free' to free memory supplied by this
+// allocator will corrupt the dynamic memory manager and also cause a memory
+// leak (and will be reported by purify as freeing mismatched memory, freeing
+// unallocated memory, or as a memory leak).  Using 'deallocate' to free memory
+// supplied by global 'new' or 'malloc' will immediately cause an error to be
+// reported to the associated 'ostream' and the abort handler (which can be
+// configured to be a no-op) called.
 //
 ///Overhead / Efficiency
 ///---------------------
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // want a core dump to occur, it is recommended they do:
 //..
 //    stackTraceTestAllocator.setFailurehandler(
-//                                   &balst::StackTraceTestAllocator::failNoop);
+//                                  &balst::StackTraceTestAllocator::failNoop);
 //..
 // The stack trace test allocator is prepared for the failure handler to
 // return, throw (provided the client will catch the exception) or longjmp
@@ -256,7 +256,7 @@ BSLS_IDENT("$Id: $")
 //              if      (0 == bdlb::String::lowerCaseCmp(field, "captain")) {
 //                  setCaptain(name);
 //              }
-//              else if (0 == bdlb::String::lowerCaseCmp(field, "first mate")) {
+//              else if (0 == bdlb::String::lowerCaseCmp(field, "first mate")){
 //                  setFirstMate(name);
 //              }
 //              else if (0 == bdlb::String::lowerCaseCmp(field, "cook")) {
@@ -440,15 +440,15 @@ BSLS_IDENT("$Id: $")
 //  ---------------------------------------------------------------------------
 //  Allocation trace 1, 1 block(s) in use.
 //  Stack trace at allocation time:
-//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x8
-//  05e741 in balst_stacktracetestallocator.t.dbg_exc_mt
+//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x
+//  805e741 in balst_stacktracetestallocator.t.dbg_exc_mt
 //  (1): BloombergLP::bslma::TestAllocator::allocate(int)+0x12c at 0x8077398 in
 //   balst_stacktracetestallocator.t.dbg_exc_mt
 //  (2): ShipsCrew::copy(bsl::basic_string<char, std::char_traits<char>, bsl::a
 //  llocator<char> > const&)+0x31 at 0x804c3db in balst_stacktracetestallocator
 //  .t.dbg_exc_mt
 //  (3): ShipsCrew::setCook(bsl::basic_string<char, std::char_traits<char>, bsl
-//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in baesu_stacktracetestalloca
+//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in balst_stacktracetestalloca
 //  tor.t.dbg_exc_mt
 //  (4): ShipsCrew::ShipsCrew(char const*, BloombergLP::bslma::Allocator*)+0x23
 //  4 at 0x804c738 in balst_stacktracetestallocator.t.dbg_exc_mt
@@ -526,7 +526,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
 
   private:
     // PRIVATE TYPES
-    enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
+    enum AllocatorMagic { k_STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
 
     struct BlockHeader;                            // information stored in
                                                    // each block (defined in
@@ -542,12 +542,12 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     BlockHeader              *d_blocks;            // list of allocated,
                                                    // unfreed blocks
 
-    mutable bdlqq::Mutex       d_mutex;             // mutex used to synchronize
+    mutable bdlqq::Mutex      d_mutex;             // mutex used to synchronize
                                                    // access to this object
 
     const char               *d_name;              // name of this allocator
 
-    FailureHandler           d_failureHandler;    // function we are to call
+    FailureHandler            d_failureHandler;    // function we are to call
                                                    // on errors.  The default
                                                    // handler will call
                                                    // 'abort'.
@@ -718,15 +718,22 @@ bsl::size_t StackTraceTestAllocator::numBlocksInUse() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

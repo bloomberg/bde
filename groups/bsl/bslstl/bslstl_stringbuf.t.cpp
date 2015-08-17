@@ -29,7 +29,7 @@
 // methods of 'stringbuf' to exercise the functionality implemented in the
 // protected methods.  Those public methods are to create 'stringbuf', perform
 // input from 'stringbuf' and perform output into 'stringbuf'.
-// =============================
+// ============================================================================
 // STRINGBUF:
 // [ 2] stringbuf(const ALLOCATOR&)
 // [ 2] stringbuf(ios_base::openmode, const ALLOCATOR&)
@@ -50,9 +50,9 @@
 // [14] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 
-//==========================================================================
+//=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 using std::printf;
 using std::fflush;
@@ -572,7 +572,7 @@ public:
     }
 };
 
-template <typename SeekFunc>
+template <class SeekFunc>
 void testPutCharInTheMiddle(SeekFunc seekpos)
 {
     bsl::stringbuf buf("abcde");
@@ -586,7 +586,7 @@ void testPutCharInTheMiddle(SeekFunc seekpos)
     ASSERT(buf.str() == "ab3de");
 }
 
-template <typename SeekFunc>
+template <class SeekFunc>
 void testPutCharsInTheMiddle(SeekFunc seekpos)
 {
     bsl::stringbuf buf("abcde");
@@ -627,7 +627,7 @@ std::streampos bufPubseekoffEnd(bsl::stringbuf & buf)
     return buf.pubseekoff(-3, std::ios_base::end);
 }
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                               USAGE EXAMPLE

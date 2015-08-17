@@ -778,9 +778,9 @@ struct HashTableImpUtil {
         // the first node and the next address of the last node are 0.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //-----------------------
                         // class HashTableImpUtil
@@ -968,7 +968,7 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
     BidirectionalLink  *root  = anchor.listRootAddress();
 
     if (!array || !size) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (!root) {
@@ -1064,8 +1064,8 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
     return true;
 }
 
-}  // close namespace BloombergLP::bslalg
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

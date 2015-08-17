@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlat_TypeTraitBasicSequence' trait.
 //
 // Types that do not have the 'bdlat_TypeTraitBasicSequence' trait can be
-// plugged into the bdlat framework.  This is done by overloading the
+// plugged into the 'bdlat' framework.  This is done by overloading the
 // 'bdlat_sequence*' functions inside the namespace of the plugged in type.
 // For example, suppose there is a type called 'mine::MySequence'.  In order to
 // plug this type into the 'bdlat' framework as a "sequence", the following
@@ -499,8 +499,8 @@ BSLS_IDENT("$Id: $")
 //      <salary>12345.00</salary>
 //  </MySequence>
 //..
-// Using the 'balxml_decoder' component, we can now load this XML data
-// into a 'mine::MySequence' object:
+// Using the 'balxml_decoder' component, we can now load this XML data into a
+// 'mine::MySequence' object:
 //..
 //  #include <balxml_decoder.h>
 //
@@ -733,6 +733,7 @@ namespace bdlat_SequenceFunctions {
 
 #if ! defined(BSLS_PLATFORM_CMP_IBM)
     // OVERLOADABLE FUNCTIONS
+
     // The following functions should be overloaded for other types (in their
     // respective namespaces).  The following functions are the default
     // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
@@ -971,10 +972,10 @@ int bdlat_SequenceFunctions::bdlat_sequenceManipulateAttributes(
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_SequenceFunctions::bdlat_sequenceAccessAttribute(
-                                               const TYPE&  object,
-                                               ACCESSOR&   accessor,
-                                               const char *attributeName,
-                                               int         attributeNameLength)
+                                              const TYPE&  object,
+                                              ACCESSOR&    accessor,
+                                              const char  *attributeName,
+                                              int          attributeNameLength)
 {
     BSLMF_ASSERT(
                 (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE));
@@ -1046,10 +1047,17 @@ bool bdlat_SequenceFunctions::bdlat_sequenceHasAttribute(
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

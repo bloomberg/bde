@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balxml::Base64Parser: push parser for Base64 types
 //
-//@DESCRIPTION: The 'balxml::Base64Parser<TYPE>' class template provided by 
+//@DESCRIPTION: The 'balxml::Base64Parser<TYPE>' class template provided by
 // this component can be used to parse Base64 characters into one of the
 // supported Base64 types, which are 'bsl::vector<char>' and 'bsl::string'.
 // The 'TYPE' parameter can be one of these two types.
@@ -126,7 +126,7 @@ namespace balxml {
                           // class Base64Parser<TYPE>
                           // ========================
 
-template <typename TYPE>
+template <class TYPE>
 class Base64Parser {
     // This is a push parser for supported Base64 types ('bsl::vector<char>' or
     // 'bsl::string').
@@ -164,7 +164,7 @@ class Base64Parser {
         // associated with this parser.  Upon successful completion, the parser
         // will be disassociated with the object.
 
-    template <typename INPUT_ITERATOR>
+    template <class INPUT_ITERATOR>
     int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
         // Push the characters ranging from the specified 'begin' up to (but
         // not including) the specified 'end' into this parser.  Return 0 if
@@ -184,7 +184,7 @@ class Base64Parser {
 
 // CREATORS
 
-template <typename TYPE>
+template <class TYPE>
 Base64Parser<TYPE>::Base64Parser()
 : d_base64Decoder(true)  // 'true' indicates report errors
 , d_object_p(0)
@@ -193,7 +193,7 @@ Base64Parser<TYPE>::Base64Parser()
 
 // MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 int Base64Parser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
@@ -203,12 +203,12 @@ int Base64Parser<TYPE>::beginParse(TYPE *object)
     d_base64Decoder.resetState();
     d_object_p = object;
 
-    bdeat_ValueTypeFunctions::reset(d_object_p);
+    bdlat_ValueTypeFunctions::reset(d_object_p);
 
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Base64Parser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
@@ -220,7 +220,7 @@ int Base64Parser<TYPE>::endParse()
     int status = d_base64Decoder.endConvert(outputIterator);
 
     if (0 > status) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     BSLS_ASSERT_SAFE(0 == status);  // nothing should be retained by decoder
@@ -230,8 +230,8 @@ int Base64Parser<TYPE>::endParse()
     return BAEXML_SUCCESS;
 }
 
-template <typename TYPE>
-template <typename INPUT_ITERATOR>
+template <class TYPE>
+template <class INPUT_ITERATOR>
 int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
                                        INPUT_ITERATOR end)
 {
@@ -244,7 +244,7 @@ int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
     int status = d_base64Decoder.convert(outputIterator, begin, end);
 
     if (0 > status) {
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     BSLS_ASSERT_SAFE(0 == status);  // nothing should be retained by decoder
@@ -253,15 +253,22 @@ int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

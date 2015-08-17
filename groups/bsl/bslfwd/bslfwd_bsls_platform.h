@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class Platform;
-    }
+    }  // close namespace bsls
 
     typedef bsls::Platform bsls_Platform;
-}
+}  // close enterprise namespace
 
 #else
 

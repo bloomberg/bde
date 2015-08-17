@@ -1,4 +1,4 @@
-// bdlb_xxxstrtokeniter.cpp      -*-C++-*-
+// bdlb_xxxstrtokeniter.cpp                                           -*-C++-*-
 #include <bdlb_xxxstrtokeniter.h>
 
 #include <bsls_ident.h>
@@ -250,13 +250,13 @@ bool StrTokenIter::hasPreviousSoft() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

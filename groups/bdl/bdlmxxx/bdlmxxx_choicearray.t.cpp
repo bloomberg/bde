@@ -1,4 +1,4 @@
-// bdlmxxx_choicearray.t.cpp                                             -*-C++-*-
+// bdlmxxx_choicearray.t.cpp                                          -*-C++-*-
 #include <bdlmxxx_choicearray.h>
 
 #include <bdlmxxx_choice.h>            // testing only
@@ -166,9 +166,9 @@ using namespace bsl;  // automatically added by script
 OBJ.bdexStreamIn(STREAM, VERSION);\
 }
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -180,7 +180,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -469,7 +469,7 @@ bool bdlmxxx::operator!=(const Table& lhs, const Table& rhs)
     return !(lhs == rhs);
 }
 
-}
+}  // close enterprise namespace
 
 //=============================================================================
 //                           GLOBAL DATA FOR TESTING
@@ -1082,7 +1082,7 @@ void assign(TYPE *lhs, const CERef &rhs, char spec)
       case 'd': lhs->theModifiableTimeTzArray() = rhs.theTimeTzArray(); break;
       case 'e': lhs->theModifiableChoice() = rhs.theChoice(); break;
       case 'f': lhs->theModifiableChoiceArray() = rhs.theChoiceArray(); break;
-      default: return;
+      default: return;                                                // RETURN
     }
 }
 
@@ -5168,11 +5168,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

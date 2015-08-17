@@ -33,6 +33,8 @@ BSLS_IDENT_RCSID(baltzo_windowstimezoneutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace {
+
 typedef struct TimeZoneIdEntry {
     const char *d_key;   // given time-zone identifier
     const char *d_value; // time-zone identifier corresponding to the given
@@ -40,8 +42,8 @@ typedef struct TimeZoneIdEntry {
 
 static bool isLessThan(const TimeZoneIdEntry& a,
                        const TimeZoneIdEntry& b)
-    // Return 'true' if the "key" field of the specified 'a' is lexically
-    // less that the "key" field of the specified 'b', and 'false otherwise.
+    // Return 'true' if the "key" field of the specified 'a' is lexically less
+    // that the "key" field of the specified 'b', and 'false otherwise.
 {
     return bsl::strcmp(a.d_key, b.d_key) < 0;
 }
@@ -268,8 +270,6 @@ static const TimeZoneIdEntry * const zoneinfoToWindowsIdsBegin =
 static const TimeZoneIdEntry * const zoneinfoToWindowsIdsEnd  =
                                                           zoneinfoToWindowsIds
                                                      + numZoneinfoToWindowsIds;
-
-namespace {
 
 BSLMF_ASSERT(                     99 == numWindowsToZoneinfoIds);
 BSLMF_ASSERT(numWindowsToZoneinfoIds == numZoneinfoToWindowsIds);

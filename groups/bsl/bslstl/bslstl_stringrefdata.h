@@ -173,7 +173,7 @@ namespace bslstl {
                          // class StringRefData
                          // ===================
 
-template <typename CHAR_TYPE>
+template <class CHAR_TYPE>
 class StringRefData {
     // This complex-constrained in-core (value-semantic) attribute class
     // represents a reference to character string data.  See the Attributes
@@ -225,16 +225,16 @@ class StringRefData {
         // Empty string value is represented as (0, 0).
 };
 
-// ===========================================================================
+// ============================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // -------------------
                          // class StringRefData
                          // -------------------
 
 // CREATORS
-template <typename CHAR_TYPE>
+template <class CHAR_TYPE>
 inline
 StringRefData<CHAR_TYPE>::StringRefData()
 : d_begin_p(0)
@@ -242,7 +242,7 @@ StringRefData<CHAR_TYPE>::StringRefData()
 {
 }
 
-template <typename CHAR_TYPE>
+template <class CHAR_TYPE>
 inline
 StringRefData<CHAR_TYPE>
     ::StringRefData(const CHAR_TYPE *begin,
@@ -255,14 +255,14 @@ StringRefData<CHAR_TYPE>
 }
 
 // ACCESSORS
-template <typename CHAR_TYPE>
+template <class CHAR_TYPE>
 inline
 const CHAR_TYPE *StringRefData<CHAR_TYPE>::begin() const
 {
     return d_begin_p;
 }
 
-template <typename CHAR_TYPE>
+template <class CHAR_TYPE>
 inline
 const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 {
@@ -272,9 +272,9 @@ const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslstl_StringRefData
 #undef bslstl_StringRefData

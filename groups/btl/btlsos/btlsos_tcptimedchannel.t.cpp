@@ -109,7 +109,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -543,13 +543,13 @@ static int buildChannelHelper(
             btlso::SocketOptUtil::k_SOCKETLEVEL,
             btlso::SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     ret = btlso::SocketOptUtil::getOption(&rcvBufferSize, socketPair[1],
             btlso::SocketOptUtil::k_SOCKETLEVEL,
             btlso::SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     if (verbose) {
         P_T(sndBufferSize);
@@ -571,15 +571,14 @@ void fillBuffers(VECBUFFER *vecBuffers, int numBuffers, char ch)
     }
 }
 
-static int testExecutionHelper(
-                      btlsos::TcpTimedChannel                *channel,
-                      TestCommand                           *command,
-                      btlso::SocketHandle::Handle            *socketPair,
-                      bdlqq::ThreadUtil::Handle              *threadHandle,
-                      char                                  *buffer,
-                      const btls::Iovec                      *ioBuffer,
-                      const btls::Ovec                       *oBuffer,
-                      int                                    ioType)
+static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
+                               TestCommand                 *command,
+                               btlso::SocketHandle::Handle *socketPair,
+                               bdlqq::ThreadUtil::Handle   *threadHandle,
+                               char                        *buffer,
+                               const btls::Iovec           *ioBuffer,
+                               const btls::Ovec            *oBuffer,
+                               int                          ioType)
     // Process the specified 'command' to invoke some operation of the
     // specified 'channel', or the 'helperSocket' which is the control endpoint
     // of the socket pair.  For a read operation, load either 'buffer' or
@@ -1190,7 +1189,7 @@ int processTest(btlsos::TcpTimedChannel     *channel,
 }
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -1293,8 +1292,10 @@ int main(int argc, char *argv[]) {
                 char writeBuf[k_LEN] = "abcdefghij1234567890",
                      readBuf[k_LEN];
                 int numBytes = 0, augStatus = -1, interruptFlag = 1;
-                int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
-                                                     strlen(writeBuf));
+                int len = btlso::SocketImpUtil::write(handles[1],
+                                                      writeBuf,
+                                                      static_cast<int>(
+                                                            strlen(writeBuf)));
 
                 ASSERT(len == (int)strlen(writeBuf));
                 // Read 5 bytes from the channel.
@@ -6073,68 +6074,68 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WVO,          1,          0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WVO,          1,          0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-            {L_,   e_WVO,           7,         0,         e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+            {L_,   e_WVO,           7,         0,         e_CLOSED,     0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,   e_WVO,           2,         0,        e_INVALID,      0   },
-            {L_,   e_WVI,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,   e_WVO,           2,         0,        e_INVALID,     0, 0 },
+            {L_,   e_WVI,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WVI,           1,         0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WVI,           1,         0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-            {L_,   e_WVI,           7,         0,         e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+            {L_,   e_WVI,           7,         0,         e_CLOSED,     0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,   e_WVI,           2,         0,        e_INVALID,      0   },
-            {L_,   e_WVO,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,   e_WVI,           2,         0,        e_INVALID,     0, 0 },
+            {L_,   e_WVO,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 3: Close the channel from the peer side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,  e_WVOA,          1,          0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,  e_WVOA,          1,          0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-            {L_,  e_WVOA,           7,         0,         e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+            {L_,  e_WVOA,           7,         0,         e_CLOSED,     0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,  e_WVOA,           2,         0,        e_INVALID,      0   },
-            {L_,  e_WVIA,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,  e_WVOA,           2,         0,        e_INVALID,     0, 0 },
+            {L_,  e_WVIA,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 4: Close the channel from the peer side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,  e_WVIA,           1,         0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,  e_WVIA,           1,         0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-            {L_,  e_WVIA,           7,         0,         e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+            {L_,  e_WVIA,           7,         0,         e_CLOSED,     0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,  e_WVIA,           2,         0,        e_INVALID,      0   },
-            {L_,  e_WVOA,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,  e_WVIA,           2,         0,        e_INVALID,     0, 0 },
+            {L_,  e_WVOA,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
@@ -6142,95 +6143,95 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WVO,          1,          0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WVO,          1,          0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
-              {L_,   e_WVO,           7,         0,         e_ERR,       0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,        0, 0 },
+              {L_,   e_WVO,           7,         0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,   e_WVO,           2,         0,        e_INVALID,      0   },
-            {L_,   e_WVI,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,   e_WVO,           2,         0,        e_INVALID,     0, 0 },
+            {L_,   e_WVI,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 6: Close the channel at the channel side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WVI,           1,         0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WVI,           1,         0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
-              {L_,   e_WVI,           7,         0,         e_ERR,       0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,        0, 0 },
+              {L_,   e_WVI,           7,         0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,   e_WVI,           2,         0,        e_INVALID,      0   },
-            {L_,   e_WVO,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,   e_WVI,           2,         0,        e_INVALID,     0, 0 },
+            {L_,   e_WVO,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 7: Close the channel at the channel side to test the
             // behavior of the 'read' method w/ the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,  e_WVOA,          1,          0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,  e_WVOA,          1,          0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
-              {L_,  e_WVOA,           7,         0,         e_ERR,       0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,        0, 0 },
+              {L_,  e_WVOA,           7,         0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,  e_WVOA,           2,         0,        e_INVALID,      0   },
-            {L_,  e_WVIA,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,  e_WVOA,           2,         0,        e_INVALID,     0, 0 },
+            {L_,  e_WVIA,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 8: Close the channel at the channel side to test the
             // behavior of the 'read' method w/ the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,  e_WVIA,           1,         0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,  e_WVIA,           1,         0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
-              {L_,  e_WVIA,           7,         0,         e_ERR,       0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,        0, 0 },
+              {L_,  e_WVIA,           7,         0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,  e_WVIA,           2,         0,        e_INVALID,      0   },
-            {L_,  e_WVOA,           6,         0,        e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+            {L_,  e_WVIA,           2,         0,        e_INVALID,     0, 0 },
+            {L_,  e_WVOA,           6,         0,        e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             #endif
 
             #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WVO,           1,         0,           1,         0   },
-              {L_,   e_WVO,           7,         0,       17792,         0   },
-              {L_,    -1,           0,         0,           0,         0   },
+              {L_,   e_WVO,           1,         0,           1,        0, 0 },
+              {L_,   e_WVO,           7,         0,       17792,        0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WVI,           1,         0,           1,         0   },
-              {L_,   e_WVI,           7,         0,       17792,         0   },
-              {L_,    -1,           0,         0,           0,         0   },
+              {L_,   e_WVI,           1,         0,           1,        0, 0 },
+              {L_,   e_WVI,           7,         0,       17792,        0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_,  e_WVOA,           1,         0,           1,         0   },
-              {L_,  e_WVOA,           7,         0,       17792,         0   },
-              {L_,    -1,           0,         0,           0,         0   },
+              {L_,  e_WVOA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVOA,           7,         0,       17792,        0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_,  e_WVIA,           1,         0,           1,         0   },
-              {L_,  e_WVIA,           7,         0,       17792,         0   },
-              {L_,    -1,           0,         0,           0,         0   },
+              {L_,  e_WVIA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVIA,           7,         0,       17792,        0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             #else                                       // unix test data
@@ -6239,152 +6240,152 @@ int main(int argc, char *argv[]) {
             // commands set 9: to resolve concern 4 - 6.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_,   e_WVO,           1,         0,           1,         0   },
-              {L_,   e_WVO,           5,         0,         164,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WVO,           1,         0,           1,        0, 0 },
+              {L_,   e_WVO,           5,         0,         164,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,   e_WVO,           7,         1,        8192, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,   e_WVO,           7,         1,     8192, INTERRUPTED, 0 },
             },
 
             // commands set 10: to resolve concern 4 - 6.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_,   e_WVI,           1,         0,           1,         0   },
-              {L_,   e_WVI,           5,         0,         164,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WVI,           1,         0,           1,        0, 0 },
+              {L_,   e_WVI,           5,         0,         164,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,   e_WVI,           7,         1,        8192, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,   e_WVI,           7,         1,     8192, INTERRUPTED, 0 },
             },
 
             // commands set 11: to resolve concern 4 - 6.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_,  e_WVOA,           1,         0,           1,         0   },
-              {L_,  e_WVOA,           5,         0,         164,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,  e_WVOA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVOA,           5,         0,         164,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,  e_WVOA,           7,         1,        8192, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,  e_WVOA,           7,         1,     8192, INTERRUPTED, 0 },
             },
 
             // commands set 12: to resolve concern 4 - 6.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_,  e_WVIA,           1,         0,           1,         0   },
-              {L_,  e_WVIA,           5,         0,         164,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,  e_WVIA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVIA,           5,         0,         164,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,  e_WVIA,           7,         1,        8192, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,  e_WVIA,           7,         1,     8192, INTERRUPTED, 0 },
             },
 
             // commands set 13: to resolve concern 4 - 6.
             {
-             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,         2,       READ_OP,       0,          0   },
-             {L_,   e_WVO,           7,          0,      24740,          0   },
+             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0, 0 },
+             {L_,  e_SIGNAL,         2,       READ_OP,       0,         0, 0 },
+             {L_,   e_WVO,           7,          0,      24740,         0, 0 },
             },
 
             // commands set 14: to resolve concern 4 - 6.
             {
-             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,        2,       READ_OP,        0,          0   },
-             {L_,   e_WVI,          7,           0,      24740,          0   },
+             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0, 0 },
+             {L_,  e_SIGNAL,        2,       READ_OP,        0,         0, 0 },
+             {L_,   e_WVI,          7,           0,      24740,         0, 0 },
             },
 
             // commands set 15: to resolve concern 4 - 6.
             {
-             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,        2,       READ_OP,        0,          0   },
-             {L_,  e_WVOA,          7,           0,      24740,          0   },
+             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0, 0 },
+             {L_,  e_SIGNAL,        2,       READ_OP,        0,         0, 0 },
+             {L_,  e_WVOA,          7,           0,      24740,         0, 0 },
             },
 
             // commands set 16: to resolve concern 4 - 6.
             {
-             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,      0   },
-             {L_,  e_SIGNAL,        2,       READ_OP,        0,          0   },
-             {L_,  e_WVIA,          7,           0,      24740,          0   },
+             {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0, 0 },
+             {L_,  e_SIGNAL,        2,       READ_OP,        0,         0, 0 },
+             {L_,  e_WVIA,          7,           0,      24740,         0, 0 },
             },
             #elif BSLS_PLATFORM_OS_LINUX
 
             // commands set 5: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,   e_WVO,           1,         0,           1,         0   },
-              {L_,   e_WVO,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,   e_WVO,           1,         0,           1,        0, 0 },
+              {L_,   e_WVO,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         5,         0,           0,         0   },
-            {L_,   e_WVO,           7,         1,        1024, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         5,         0,           0,        0, 0 },
+              {L_,   e_WVO,           7,         1,   1024, e_INTERRUPTED, 0 },
             },
             // commands set 6: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,   e_WVI,           1,         0,           1,         0   },
-              {L_,   e_WVI,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,   e_WVI,           1,         0,           1,        0, 0 },
+              {L_,   e_WVI,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         5,         0,           0,         0   },
-            {L_,   e_WVI,           7,         1,        1024, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         5,         0,           0,        0, 0 },
+              {L_,   e_WVI,           7,         1,   1024, e_INTERRUPTED, 0 },
             },
             // commands set 7: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,  e_WVOA,           1,         0,           1,         0   },
-              {L_,  e_WVOA,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,  e_WVOA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVOA,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         5,         0,           0,         0   },
-            {L_,  e_WVOA,           8,         1,        1024, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         5,         0,           0,        0, 0 },
+              {L_,  e_WVOA,           8,         1,   1024, e_INTERRUPTED, 0 },
             },
             // commands set 8: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,  e_WVIA,           1,         0,           1,         0   },
-              {L_,  e_WVIA,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,  e_WVIA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVIA,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         5,         0,           0,         0   },
-            {L_,  e_WVIA,           8,         1,        1024, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         5,         0,           0,        0, 0 },
+              {L_,  e_WVIA,           8,         1,   1024, e_INTERRUPTED, 0 },
             },
 
             // commands set 9: to resolve concern 4 - 6.
             {
-              {L_,   e_WVO,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-             {L_,  e_SIGNAL,         5,       e_READ_OP,       0,        0   },
-              {L_,   e_WVO,           6,        0,         1608,        0   },
+              {L_,   e_WVO,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+             {L_,  e_SIGNAL,         5,       e_READ_OP,       0,      0, 0 },
+              {L_,   e_WVO,           6,        0,         1608,       0, 0 },
             },
             // commands set 10: to resolve concern 4 - 6.
             {
-              {L_,   e_WVI,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-             {L_,  e_SIGNAL,         2,       e_READ_OP,       0,        0   },
-              {L_,   e_WVI,           6,        0,         1608,        0   },
+              {L_,   e_WVI,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+             {L_,  e_SIGNAL,         2,       e_READ_OP,       0,      0, 0 },
+              {L_,   e_WVI,           6,        0,         1608,       0, 0 },
             },
             // commands set 11: to resolve concern 4 - 6.
             {
-              {L_,  e_WVOA,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-             {L_,  e_SIGNAL,         2,       e_READ_OP,       0,        0   },
-              {L_,  e_WVOA,           6,        0,         1608,        0   },
+              {L_,  e_WVOA,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+             {L_,  e_SIGNAL,         2,       e_READ_OP,       0,      0, 0 },
+              {L_,  e_WVOA,           6,        0,         1608,       0, 0 },
             },
             // commands set 12: to resolve concern 4 - 6.
             {
-              {L_,  e_WVIA,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-             {L_,  e_SIGNAL,         2,       e_READ_OP,       0,        0   },
-              {L_,  e_WVIA,           6,        0,         1608,        0   },
+              {L_,  e_WVIA,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+             {L_,  e_SIGNAL,         2,       e_READ_OP,       0,      0, 0 },
+              {L_,  e_WVIA,           6,        0,         1608,       0, 0 },
             },
 
             #else // ibm test data
@@ -6392,75 +6393,75 @@ int main(int argc, char *argv[]) {
             // commands set 5: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,   e_WVO,           1,         0,           1,         0   },
-              {L_,   e_WVO,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,   e_WVO,           1,         0,           1,        0, 0 },
+              {L_,   e_WVO,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,   e_WVO,           7,         1,        1024, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,   e_WVO,           7,         1,     1024, INTERRUPTED, 0 },
             },
             // commands set 6: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,   e_WVI,           1,         0,           1,         0   },
-              {L_,   e_WVI,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,   e_WVI,           1,         0,           1,        0, 0 },
+              {L_,   e_WVI,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,   e_WVI,           7,         1,        1024, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,   e_WVI,           7,         1,     1024, INTERRUPTED, 0 },
             },
             // commands set 7: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,  e_WVOA,           1,         0,           1,         0   },
-              {L_,  e_WVOA,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,  e_WVOA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVOA,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,  e_WVOA,           7,         1,        1024, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,  e_WVOA,           7,         1,     1024, INTERRUPTED, 0 },
             },
             // commands set 8: to resolve concern 4 - 6.
             {
                 // Each request writes expected bytes from the channel.
-              {L_,  e_WVIA,           1,         0,           1,         0   },
-              {L_,  e_WVIA,           5,         0,         164,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
+              {L_,  e_WVIA,           1,         0,           1,        0, 0 },
+              {L_,  e_WVIA,           5,         0,         164,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,  e_WVIA,           7,         1,        1024, INTERRUPTED },
+              {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
+              {L_,  e_WVIA,           7,         1,     1024, INTERRUPTED, 0 },
             },
 
             // commands set 9: to resolve concern 4 - 6.
             {
-              {L_,   e_WVO,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,  e_SIGNAL,         2,       READ_OP,       0,        0   },
-              {L_,   e_WVO,           6,        0,         1608,        0   },
+              {L_,   e_WVO,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,  e_SIGNAL,         2,       READ_OP,       0,       0, 0 },
+              {L_,   e_WVO,           6,        0,         1608,       0, 0 },
             },
             // commands set 10: to resolve concern 4 - 6.
             {
-              {L_,   e_WVI,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,  e_SIGNAL,         2,       READ_OP,       0,        0   },
-              {L_,   e_WVI,           6,        0,         1608,        0   },
+              {L_,   e_WVI,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,  e_SIGNAL,         2,       READ_OP,       0,       0, 0 },
+              {L_,   e_WVI,           6,        0,         1608,       0, 0 },
             },
             // commands set 11: to resolve concern 4 - 6.
             {
-              {L_,  e_WVOA,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,  e_SIGNAL,         2,       READ_OP,       0,        0   },
-              {L_,  e_WVOA,           6,        0,         1608,        0   },
+              {L_,  e_WVOA,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,  e_SIGNAL,         2,       READ_OP,       0,       0, 0 },
+              {L_,  e_WVOA,           6,        0,         1608,       0, 0 },
             },
             // commands set 12: to resolve concern 4 - 6.
             {
-              {L_,  e_WVIA,           1,        0,            1,        0   },
-              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,  e_SIGNAL,         2,       READ_OP,       0,        0   },
-              {L_,  e_WVIA,           6,        0,         1608,        0   },
+              {L_,  e_WVIA,           1,        0,            1,       0, 0 },
+              {L_,    e_WA, SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,  e_SIGNAL,         2,       READ_OP,       0,       0, 0 },
+              {L_,  e_WVIA,           6,        0,         1608,       0, 0 },
             },
 
             #endif
@@ -6619,20 +6620,20 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,    e_WR,          1,          0,           1,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,    e_WR,     BUF_WRITE,       0,         8192,        0   },
+              {L_,    e_WR,          1,          0,           1,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,    e_WR,     BUF_WRITE,       0,         8192,       0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.  The first
                 // write operation is just to help the second write 'hanging'
                 // there waiting to write.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-              {L_,    e_WR,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,    0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+              {L_,    e_WR,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,   0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_WR,         100,         0,        e_INVALID,    0   },
-              {L_,   e_WRA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,    e_WR,         100,         0,        e_INVALID,   0, 0 },
+              {L_,   e_WRA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
@@ -6641,18 +6642,18 @@ int main(int argc, char *argv[]) {
             // 'hanging' there waiting to write.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WRA,          1,          0,           1,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,    e_WR,     BUF_WRITE,       0,         8192,        0   },
+              {L_,   e_WRA,          1,          0,           1,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,    e_WR,     BUF_WRITE,       0,         8192,       0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,    0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,   0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,   e_WRA,         100,         0,        e_INVALID,    0   },
-              {L_,    e_WR,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,   e_WRA,         100,         0,        e_INVALID,   0, 0 },
+              {L_,    e_WR,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
@@ -6660,17 +6661,17 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,    e_WR,          1,          0,           1,         0   },
-              {L_,    e_WR,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,    e_WR,          1,          0,           1,        0, 0 },
+              {L_,    e_WR,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,          0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_WR,         100,         0,        e_INVALID,    0   },
-              {L_,   e_WRA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,    e_WR,         100,         0,        e_INVALID,   0, 0 },
+              {L_,   e_WRA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
 
             },
 
@@ -6678,32 +6679,32 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WRA,          1,          0,           1,         0   },
-              {L_,   e_WRA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WRA,          1,          0,           1,        0, 0 },
+              {L_,   e_WRA,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
-              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,          0, 0 },
+              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_WR,         100,         0,        e_INVALID,    0   },
-              {L_,   e_WRA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,    e_WR,         100,         0,        e_INVALID,   0, 0 },
+              {L_,   e_WRA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             #endif
 
             #if defined(BSLS_PLATFORM_OS_WINDOWS)  // windows test data
             {
-              {L_,   e_WRA,           1,         0,               1,     0   },
-              {L_,   e_WRA,         100,         0,             100,     0   },
-              {L_,    e_WR,          60,         0,              60,     0   },
-              {L_,    -1,           0,         0,               0,       0   },
+              {L_,   e_WRA,           1,         0,               1,    0, 0 },
+              {L_,   e_WRA,         100,         0,             100,    0, 0 },
+              {L_,    e_WR,          60,         0,              60,    0, 0 },
+              {L_,    -1,           0,         0,               0,      0, 0 },
             },
             {
-              {L_,    e_WR,           1,         0,               1,     0   },
-              {L_,    e_WR,         100,         0,             100,     0   },
-              {L_,    e_WR,          60,         0,              60,     0   },
-              {L_,    -1,           0,         0,               0,       0   },
+              {L_,    e_WR,           1,         0,               1,    0, 0 },
+              {L_,    e_WR,         100,         0,             100,    0, 0 },
+              {L_,    e_WR,          60,         0,              60,    0, 0 },
+              {L_,    -1,           0,         0,               0,      0, 0 },
             },
 
             #else                                  // unix test data
@@ -6712,18 +6713,18 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,    e_WR,          1,          0,           1,         0   },
-              {L_,    e_WR,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,    e_WR,          1,          0,           1,        0, 0 },
+              {L_,    e_WR,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         8192,        0   },
-              {L_, CLOSE_OBSERVE,  0,          0,           0,           0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
+              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         8192,       0, 0 },
+              {L_, CLOSE_OBSERVE,  0,          0,           0,          0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_WR,         100,         0,        e_INVALID,    0   },
-              {L_,   e_WRA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,    e_WR,         100,         0,        e_INVALID,   0, 0 },
+              {L_,   e_WRA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
 
             },
 
@@ -6731,84 +6732,84 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,   e_WRA,          1,          0,           1,         0   },
-              {L_,   e_WRA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,   e_WRA,          1,          0,           1,        0, 0 },
+              {L_,   e_WRA,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         8192,        0   },
-              {L_, CLOSE_OBSERVE,  0,          0,           0,           0   },
-              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
+              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         8192,       0, 0 },
+              {L_, CLOSE_OBSERVE,  0,          0,           0,          0, 0 },
+              {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_WR,         100,         0,        e_INVALID,    0   },
-              {L_,   e_WRA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,    e_WR,         100,         0,        e_INVALID,   0, 0 },
+              {L_,   e_WRA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_,    e_WR,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,    e_WR,   SYS_DEPENDENT_LEN,  1,        8192,        0   },
-              {L_,  e_SIGNAL,          2,   READ_OP,           0,        0   },
-              {L_,    e_WR,    BUF_WRITE,         1,       40960,        0   },
+              {L_,    e_WR,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,    e_WR,   SYS_DEPENDENT_LEN,  1,        8192,       0, 0 },
+              {L_,  e_SIGNAL,          2,   READ_OP,           0,       0, 0 },
+              {L_,    e_WR,    BUF_WRITE,         1,       40960,       0, 0 },
             },
 
             // commands set 6: to resolve concern 4 - 6.
             {
-              {L_,   e_WRA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,   e_WRA,   SYS_DEPENDENT_LEN,  1,        8192,        0   },
-              {L_,  e_SIGNAL,          2,      READ_OP,        0,        0   },
-              {L_,   e_WRA,    BUF_WRITE,         1,       40960,        0   },
+              {L_,   e_WRA,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,   e_WRA,   SYS_DEPENDENT_LEN,  1,        8192,       0, 0 },
+              {L_,  e_SIGNAL,          2,      READ_OP,        0,       0, 0 },
+              {L_,   e_WRA,    BUF_WRITE,         1,       40960,       0, 0 },
             },
             // commands set 7: to resolve concern 4 - 6.
             {
-              {L_,    e_WR,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,    e_WR,   SYS_DEPENDENT_LEN,  1,        8192,        0   },
-              {L_,  e_SIGNAL,          2,      READ_OP,        0,        0   },
-              {L_,    e_WR,   SYS_DEPENDENT_LEN,  0,   SYS_DEPENDENT_LEN,0   },
+              {L_,    e_WR,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,    e_WR,   SYS_DEPENDENT_LEN,  1,        8192,       0, 0 },
+              {L_,  e_SIGNAL,          2,      READ_OP,        0,       0, 0 },
+              {L_,    e_WR,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,0, 0 },
             },
 
             // commands set 8: to resolve concern 4 - 6.
             {
-              {L_,   e_WRA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,   e_WRA,   SYS_DEPENDENT_LEN,  1,        8192,        0   },
-              {L_,  e_SIGNAL,          2,      READ_OP,       0,         0   },
-              {L_,   e_WRA,        10000,         0,      10000,         0   },
+              {L_,   e_WRA,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,   e_WRA,   SYS_DEPENDENT_LEN,  1,        8192,       0, 0 },
+              {L_,  e_SIGNAL,          2,      READ_OP,       0,        0, 0 },
+              {L_,   e_WRA,        10000,         0,      10000,        0, 0 },
             },
             #else                // ibm test data
             // commands set 3: to resolve concern 4 - 6.
             {
-              {L_,    e_WR,            1,        0,           1,         0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN,  1,        1024,         0   },
-              {L_,   e_WR,    BUF_WRITE,        0,      BUF_WRITE,       0   },
-              {L_,  e_SIGNAL,          2,   e_READ_OP,        0,         0   },
-              {L_,    e_WR,    BUF_WRITE,        1,        1024,         0   },
+              {L_,    e_WR,            1,        0,           1,        0, 0 },
+              {L_,    e_W,   SYS_DEPENDENT_LEN,  1,        1024,        0, 0 },
+              {L_,   e_WR,    BUF_WRITE,        0,      BUF_WRITE,      0, 0 },
+              {L_,  e_SIGNAL,          2,   e_READ_OP,        0,        0, 0 },
+              {L_,    e_WR,    BUF_WRITE,        1,        1024,        0, 0 },
             },
             // commands set 4: to resolve concern 4 - 6.
             {
-              {L_,  e_WRA,            1,        0,           1,          0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        1024,          0   },
-              {L_,  e_WRA,    BUF_WRITE,        0,      BUF_WRITE,       0   },
-              {L_,  e_SIGNAL,         2,   e_READ_OP,        0,          0   },
-              {L_,  e_WRA,    BUF_WRITE,        1,        1024,          0   },
+              {L_,  e_WRA,            1,        0,           1,         0, 0 },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        1024,         0, 0 },
+              {L_,  e_WRA,    BUF_WRITE,        0,      BUF_WRITE,      0, 0 },
+              {L_,  e_SIGNAL,         2,   e_READ_OP,        0,         0, 0 },
+              {L_,  e_WRA,    BUF_WRITE,        1,        1024,         0, 0 },
             },
 
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_,    e_W,           1,         0,           1,          0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      e_READ_OP,      0,          0   },
-              {L_,   e_WR,        1000,         0,        1000,          0   },
+              {L_,    e_W,           1,         0,           1,         0, 0 },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,         0, 0 },
+              {L_,   e_WR,    BUF_WRITE,        0,        1024,         0, 0 },
+              {L_,  e_SIGNAL,        2,      e_READ_OP,      0,         0, 0 },
+              {L_,   e_WR,        1000,         0,        1000,         0, 0 },
             },
 
             // commands set 6: to resolve concern 4 - 6.
             {
-              {L_,   e_WA,           1,         0,           1,          0   },
-              {L_,   e_WA,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
-              {L_,  e_WRA,    BUF_WRITE,        0,        1024,          0   },
-              {L_,  e_SIGNAL,        2,      e_READ_OP,      0,          0   },
-              {L_,   e_WRA,       1000,         0,        1000,          0   },
+              {L_,   e_WA,           1,         0,           1,         0, 0 },
+              {L_,   e_WA,   SYS_DEPENDENT_LEN, 1,        8192,         0, 0 },
+              {L_,  e_WRA,    BUF_WRITE,        0,        1024,         0, 0 },
+              {L_,  e_SIGNAL,        2,      e_READ_OP,      0,         0, 0 },
+              {L_,   e_WRA,       1000,         0,        1000,         0, 0 },
             },
 
             #endif
@@ -6933,38 +6934,38 @@ int main(int argc, char *argv[]) {
             // behavior of the write method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,     e_W,          1,          0,           1,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,    e_WR,     BUF_WRITE,       0,         8192,        0   },
+              {L_,     e_W,          1,          0,           1,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,    e_WR,     BUF_WRITE,       0,         8192,       0, 0 },
                 // The channel will be closed by the peer when the write
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,    0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,   0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent write operations will not succeed any
                 // more.
-              {L_,     e_W,         100,         0,        e_INVALID,    0   },
-              {L_,    e_WA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,     e_W,         100,         0,        e_INVALID,   0, 0 },
+              {L_,    e_WA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the write method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,    e_WA,          1,          0,           1,         0   },
-              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,  0   },
-              {L_,    e_WR,     BUF_WRITE,       0,         8192,        0   },
+              {L_,    e_WA,          1,          0,           1,        0, 0 },
+              {L_,     e_W,  SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0, 0 },
+              {L_,    e_WR,     BUF_WRITE,       0,         8192,       0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,           0,         0   },
-              {L_,    e_WA,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,    0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,           0,        0, 0 },
+              {L_,    e_WA,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,   0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent write operations will not succeed any
                 // more.
-              {L_,    e_WA,         100,         0,        e_INVALID,    0   },
-              {L_,     e_W,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,    e_WA,         100,         0,        e_INVALID,   0, 0 },
+              {L_,     e_W,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
@@ -6973,51 +6974,51 @@ int main(int argc, char *argv[]) {
             // parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,     e_W,          1,          0,           1,         0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,     e_W,          1,          0,           1,        0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,          0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent write operations will not succeed any
                 // more.
-              {L_,     e_W,         100,         0,        e_INVALID,    0   },
-              {L_,    e_WA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,     e_W,         100,         0,        e_INVALID,   0, 0 },
+              {L_,    e_WA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
 
             // Command set 4: Close the channel at the channel side to test the
             // behavior of the write method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_,    e_WA,          1,          0,           1,         0   },
-              {L_,    e_WA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
+              {L_,    e_WA,          1,          0,           1,        0, 0 },
+              {L_,    e_WA,     BUF_WRITE,       0,      BUF_WRITE,     0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
-              {L_,    e_WA,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,          0, 0 },
+              {L_,    e_WA,   SYS_DEPENDENT_LEN, 0,         e_ERR,      0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent write operations will not succeed any
                 // more.
-              {L_,     e_W,         100,         0,        e_INVALID,    0   },
-              {L_,    e_WA,          60,         0,        e_INVALID,    0   },
-              {L_,    -1,           0,         0,           0,           0   },
+              {L_,     e_W,         100,         0,        e_INVALID,   0, 0 },
+              {L_,    e_WA,          60,         0,        e_INVALID,   0, 0 },
+              {L_,    -1,           0,         0,           0,          0, 0 },
             },
             #endif
 
             #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
             {
-              {L_,    e_WA,           1,         0,               1,     0   },
-              {L_,    e_WA,         100,         0,             100,     0   },
-              {L_,     e_W,          60,         0,              60,     0   },
-              {L_,    -1,           0,         0,               0,       0   },
+              {L_,    e_WA,           1,         0,               1,    0, 0 },
+              {L_,    e_WA,         100,         0,             100,    0, 0 },
+              {L_,     e_W,          60,         0,              60,    0, 0 },
+              {L_,    -1,           0,         0,               0,      0, 0 },
             },
             {
-              {L_,     e_W,           1,         0,               1,     0   },
-              {L_,     e_W,         100,         0,             100,     0   },
-              {L_,     e_W,          60,         0,              60,     0   },
-              {L_,    -1,           0,         0,               0,       0   },
+              {L_,     e_W,           1,         0,               1,    0, 0 },
+              {L_,     e_W,         100,         0,             100,    0, 0 },
+              {L_,     e_W,          60,         0,              60,    0, 0 },
+              {L_,    -1,           0,         0,               0,      0, 0 },
             },
 
             #else                                      // unix test data
@@ -7026,13 +7027,13 @@ int main(int argc, char *argv[]) {
             // commands set 5: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
-              {L_,     e_W,           1,         0,           1,        0   },
-              {L_,     e_W,          15,         0,          15,        0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0   },
+              {L_,     e_W,           1,         0,           1,       0, 0 },
+              {L_,     e_W,          15,         0,          15,       0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,    0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,        0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        8192,        0   },
+              {L_,  e_SIGNAL,         2,         0,           0,       0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        8192,       0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the write method w/o the
@@ -7041,12 +7042,12 @@ int main(int argc, char *argv[]) {
             // commands set 6: to resolve concern
             {
                 // Each request write expected number of bytes from channel.
-              {L_,    e_WA,           1,         0,           1,        0   },
-              {L_,    e_WA,          15,         0,          15,        0   },
-              {L_,    e_WA,     BUF_WRITE,       0,      BUF_WRITE,     0   },
+              {L_,    e_WA,           1,         0,           1,       0, 0 },
+              {L_,    e_WA,          15,         0,          15,       0, 0 },
+              {L_,    e_WA,     BUF_WRITE,       0,      BUF_WRITE,    0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,        0   },
+              {L_,  e_SIGNAL,         2,         0,           0,       0, 0 },
               {L_,    e_WA,         10000,       1,        8192,INTERRUPTED },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
@@ -7055,41 +7056,41 @@ int main(int argc, char *argv[]) {
             },
             // commands set 7: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,  e_SIGNAL,          2,         0,           0,        0   },
-              {L_,     e_W,        10000,         1,        8192,        0   },
+              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,  e_SIGNAL,          2,         0,           0,       0, 0 },
+              {L_,     e_W,        10000,         1,        8192,       0, 0 },
             },
 
             // commands set 8: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,  e_SIGNAL,          2,         0,           0,        0   },
-              {L_,    e_WA,        10000,         1,        8192,INTERRUPTED },
+              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,  e_SIGNAL,          2,         0,           0,       0, 0 },
+              {L_,    e_WA,        10000,         1,  8192, INTERRUPTED, 0 },
             },
             // commands set 9: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,  e_SIGNAL,          2,      READ_OP,       0,         0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN,  0,   SYS_DEPENDENT_LEN,0   },
+              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,  e_SIGNAL,          2,      READ_OP,       0,        0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,0, 0 },
             },
 
             // commands set 10: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,  e_SIGNAL,          2,      READ_OP,       0,         0   },
-              {L_,    e_WA,        10000,         0,      10000,         0   },
+              {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,    0, 0 },
+              {L_,  e_SIGNAL,          2,      READ_OP,       0,        0, 0 },
+              {L_,    e_WA,        10000,         0,      10000,        0, 0 },
             },
 
             #elif defined(BSLS_PLATFORM_OS_LINUX)
             // commands set 3: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
-              {L_,     e_W,           1,         0,           1,      0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,   0   },
+              {L_,     e_W,           1,         0,           1,     0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,  0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,      0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        0,         0   },
+              {L_,  e_SIGNAL,         2,         0,           0,     0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        0,        0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the write method w/o the
@@ -7098,13 +7099,13 @@ int main(int argc, char *argv[]) {
             // commands set 4: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
-              {L_,     e_WA,           1,         0,           1,        0   },
-              {L_,     e_WRA,     BUF_WRITE,       0,      BUF_WRITE,    0   },
-            //{L_,    e_WRA,       30000,         1,       30000,        0   },
+              {L_,     e_WA,           1,         0,           1,       0, 0 },
+              {L_,     e_WRA,     BUF_WRITE,       0,      BUF_WRITE,   0, 0 },
+            //{L_,    e_WRA,       30000,         1,       30000,       0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         30,          0,          0,        0   },
-              {L_,      e_WA,      60000,          1,   16383, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         30,          0,          0,       0, 0 },
+              {L_,      e_WA,      60000,         1, 16383, e_INTERRUPTED, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the "write" method w/o the
@@ -7113,18 +7114,18 @@ int main(int argc, char *argv[]) {
 
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,            1,         0,          1,         0   },
-              {L_,    e_WA,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0   },
-              {L_,  e_SIGNAL,          2,      e_READ_OP,       0,       0   },
-              {L_,     e_W,         2000,         0,       2000,         0   },
+              {L_,    e_WA,            1,         0,          1,        0, 0 },
+              {L_,    e_WA,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,0, 0 },
+              {L_,  e_SIGNAL,          2,      e_READ_OP,       0,      0, 0 },
+              {L_,     e_W,         2000,         0,       2000,        0, 0 },
             },
 
             // commands set 6: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,            1,         0,           1,        0   },
-              {L_,    e_WA,  SYS_DEPENDENT_LEN,   0,  SYS_DEPENDENT_LEN, 0   },
-              {L_,  e_SIGNAL,          2,      e_READ_OP,        0,      0   },
-              {L_,    e_WA,         2000,         0,        2000,        0   },
+              {L_,    e_WA,            1,         0,           1,       0, 0 },
+              {L_,    e_WA,  SYS_DEPENDENT_LEN,   0,  SYS_DEPENDENT_LEN,0, 0 },
+              {L_,  e_SIGNAL,          2,      e_READ_OP,        0,     0, 0 },
+              {L_,    e_WA,         2000,         0,        2000,       0, 0 },
             },
 
             #else           // ibm test data
@@ -7132,13 +7133,13 @@ int main(int argc, char *argv[]) {
             // commands set 3: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
-              {L_,     e_W,           1,         0,           1,        0   },
-              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,     0   },
-              {L_,     e_W,        30000,        1,       30000,        0   },
+              {L_,     e_W,           1,         0,           1,       0, 0 },
+              {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,    0, 0 },
+              {L_,     e_W,        30000,        1,       30000,       0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,         0,           0,        0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        8192,        0   },
+              {L_,  e_SIGNAL,         2,         0,           0,       0, 0 },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        8192,       0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the write method w/o the
@@ -7147,13 +7148,13 @@ int main(int argc, char *argv[]) {
             // commands set 4: to resolve concern 4 - 6.
             {
                 // Each request write expected number of bytes to the channel.
-              {L_,     e_WA,           1,         0,           1,        0   },
-              {L_,     e_WA,     BUF_WRITE,       0,      BUF_WRITE,     0   },
-              {L_,     e_WA,       30000,         1,       30000,        0   },
+              {L_,     e_WA,           1,         0,           1,       0, 0 },
+              {L_,     e_WA,     BUF_WRITE,       0,      BUF_WRITE,    0, 0 },
+              {L_,     e_WA,       30000,         1,       30000,       0, 0 },
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         2,          0,           0,        0   },
-              {L_,     e_WA,  SYS_DEPENDENT_LEN,  1,        8192,INTERRUPTED },
+              {L_,  e_SIGNAL,         2,          0,           0,       0, 0 },
+              {L_,     e_WA,  SYS_DEPENDENT_LEN,  1,     8192,INTERRUPTED, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the "write" method w/o the
@@ -7162,18 +7163,18 @@ int main(int argc, char *argv[]) {
 
             // commands set 5: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,            1,         0,          1,         0   },
-              {L_,    e_WA,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN, 0   },
-              {L_,  e_SIGNAL,          2,      READ_OP,       0,         0   },
-              {L_,     e_W,         2000,         0,       2000,         0   },
+              {L_,    e_WA,            1,         0,          1,        0, 0 },
+              {L_,    e_WA,   SYS_DEPENDENT_LEN,  0,  SYS_DEPENDENT_LEN,0, 0 },
+              {L_,  e_SIGNAL,          2,      READ_OP,       0,        0, 0 },
+              {L_,     e_W,         2000,         0,       2000,        0, 0 },
             },
 
             // commands set 6: to resolve concern 4 - 6.
             {
-              {L_,    e_WA,            1,         0,           1,        0   },
-              {L_,    e_WA,  SYS_DEPENDENT_LEN,   0,  SYS_DEPENDENT_LEN, 0   },
-              {L_,  e_SIGNAL,          2,      READ_OP,        0,        0   },
-              {L_,    e_WA,         2000,         0,        2000,        0   },
+              {L_,    e_WA,            1,         0,           1,       0, 0 },
+              {L_,    e_WA,  SYS_DEPENDENT_LEN,   0,  SYS_DEPENDENT_LEN,0, 0 },
+              {L_,  e_SIGNAL,          2,      READ_OP,        0,       0, 0 },
+              {L_,    e_WA,         2000,         0,        2000,       0, 0 },
             },
 
             #endif
@@ -7316,37 +7317,37 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_RBR,         1,         0,         1,         0   },
-              {L_,     e_RBR,        15,         0,        15,         0   },
-              {L_,     e_RBR,       100,         0,        34,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_RBR,         1,         0,         1,         0, 0 },
+              {L_,     e_RBR,        15,         0,        15,         0, 0 },
+              {L_,     e_RBR,       100,         0,        34,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,     e_RBR,       100,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,     e_RBR,       100,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,     e_RBR,       100,         0,      e_INVALID,      0   },
-              {L_,    e_RBRA,        60,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,     e_RBR,       100,         0,      e_INVALID,    0, 0 },
+              {L_,    e_RBRA,        60,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the 'read' method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RBRA,        10,         0,        10,         0   },
-              {L_,    e_RBRA,       100,         0,        40,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RBRA,        10,         0,        10,         0, 0 },
+              {L_,    e_RBRA,       100,         0,        40,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,    e_RBRA,       100,         0,       e_CLOSED,    0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,    e_RBRA,       100,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,     e_RBR,        100,         0,      e_INVALID,   0   },
-              {L_,    e_RBRA,         60,         0,      e_INVALID,   0   },
-              {L_,    -1,            0,         0,         0,         0   },
+              {L_,     e_RBR,        100,         0,      e_INVALID,   0, 0 },
+              {L_,    e_RBRA,         60,         0,      e_INVALID,   0, 0 },
+              {L_,    -1,            0,         0,         0,          0, 0 },
             },
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
@@ -7355,53 +7356,53 @@ int main(int argc, char *argv[]) {
             // behavior of the method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,      50,         0,        50,         0   },
-              {L_,     e_RBR,         16,         0,        16,         0   },
-              {L_,     e_RBR,         60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,      50,         0,        50,         0, 0 },
+              {L_,     e_RBR,         16,         0,        16,         0, 0 },
+              {L_,     e_RBR,         60,         0,        34,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,    0,         0,         0,         0   },
-              {L_,    e_RBRA,         20,         0,       e_ERR,       0   },
-             {L_,     e_RBR,         80,         0,      e_INVALID,      0   },
-             {L_,    e_RBRA,         40,         0,      e_INVALID,      0   },
-              {L_,    -1,            0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,    0,         0,         0,         0, 0 },
+              {L_,    e_RBRA,         20,         0,       e_ERR,       0, 0 },
+             {L_,     e_RBR,         80,         0,      e_INVALID,     0, 0 },
+             {L_,    e_RBRA,         40,         0,      e_INVALID,     0, 0 },
+              {L_,    -1,            0,         0,         0,           0, 0 },
             },
 
             // Command set 4: Close the channel at the channel side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,      50,         0,        50,         0   },
-              {L_,    e_RBRA,         16,         0,        16,         0   },
-              {L_,    e_RBRA,         60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,      50,         0,        50,         0, 0 },
+              {L_,    e_RBRA,         16,         0,        16,         0, 0 },
+              {L_,    e_RBRA,         60,         0,        34,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,    0,         0,         0,         0   },
-              {L_,    e_RBRA,         20,         1,       e_ERR,       0   },
-             {L_,     e_RBR,         80,         1,      e_INVALID,      0   },
-             {L_,    e_RBRA,         40,         1,      e_INVALID,      0   },
-              {L_,    -1,            0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,    0,         0,         0,         0, 0 },
+              {L_,    e_RBRA,         20,         1,       e_ERR,       0, 0 },
+             {L_,     e_RBR,         80,         1,      e_INVALID,     0, 0 },
+             {L_,    e_RBRA,         40,         1,      e_INVALID,     0, 0 },
+              {L_,    -1,            0,         0,         0,           0, 0 },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,  e_RBRA,           1,         0,         1,         0   },
-              {L_,  e_RBRA,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,          0, 0 },
+              {L_,  e_RBRA,           1,         0,         1,          0, 0 },
+              {L_,  e_RBRA,          25,         0,        25,          0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    -1,           0,         0,         0,            0, 0 },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RBR,           1,         0,         1,         0   },
-              {L_,   e_RBR,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,          0, 0 },
+              {L_,   e_RBR,           1,         0,         1,          0, 0 },
+              {L_,   e_RBR,          25,         0,        25,          0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-               {L_,   -1,           0,         0,         0,         0   },
+               {L_,   -1,           0,         0,         0,            0, 0 },
             },
 
             #else
@@ -7411,26 +7412,26 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,      50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,      50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,         1,         0,         0,         0   },
-              {L_,    e_RB,           80,         1,        50,e_INTERRUPTED },
+              {L_,   e_SIGNAL,         1,         0,         0,         0, 0 },
+              {L_,    e_RB,           80,         1,    50, e_INTERRUPTED, 0 },
                 // Now a "read" for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,    e_RBR,          40,         0,        40,         0   },
-              {L_,    e_RBR,           4,         0,         4,         0   },
-              {L_,    e_RBR,           2,         0,         2,         0   },
-              {L_,    e_RBR,           3,         0,         3,         0   },
-              {L_,   e_SIGNAL,         0,         1,         0,         0   },
+              {L_,    e_RBR,          40,         0,        40,         0, 0 },
+              {L_,    e_RBR,           4,         0,         4,         0, 0 },
+              {L_,    e_RBR,           2,         0,         2,         0, 0 },
+              {L_,    e_RBR,           3,         0,         3,         0, 0 },
+              {L_,   e_SIGNAL,         0,         1,         0,         0, 0 },
                 // Now there's no data in the internal buffer, any new "read"
                 // request has to read directly from the channel. the last one
                 // is a "raw" operation.
-              {L_,   e_RBRA,          50,         0,         1,         0  },
-              {L_, e_HELP_WRITE,      20,         0,        20,         0  },
-              {L_,   e_RBRA,          50,         0,        20,         0  },
+              {L_,   e_RBRA,          50,         0,         1,         0, 0 },
+              {L_, e_HELP_WRITE,      20,         0,        20,         0, 0 },
+              {L_,   e_RBRA,          50,         0,        20,         0, 0 },
             },
             // Commands set 6: Establish a channel and make the expected number
             // of bytes of data available in the channel's internal buffer,
@@ -7438,54 +7439,54 @@ int main(int argc, char *argv[]) {
             // 'augStatus' parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,          0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RBA,         80,         1,        50, e_INTERRUPTED },
+              {L_,   e_SIGNAL,        1,         0,         0,          0, 0 },
+              {L_,    e_RBA,         80,         1,     50, e_INTERRUPTED, 0 },
                 // Now a 'read' for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,    e_RBA,         40,         0,        40,         0   },
-              {L_,    e_RBA,          4,         0,         4,         0   },
-              {L_,    e_RBA,          2,         0,         2,         0   },
-              {L_,    e_RBA,          3,         0,         3,         0   },
+              {L_,    e_RBA,         40,         0,        40,          0, 0 },
+              {L_,    e_RBA,          4,         0,         4,          0, 0 },
+              {L_,    e_RBA,          2,         0,         2,          0, 0 },
+              {L_,    e_RBA,          3,         0,         3,          0, 0 },
                 // The next 'readRaw' can't find all data it needs, so it'll
                 // return data it can read.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,    e_RBA,         90,         0,        90,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,          0, 0 },
+              {L_,    e_RBA,         90,         0,        90,          0, 0 },
                 // Now there's no data in the internal buffer, any new "read"
                 // request has to read directly from the channel. the last one
                 // is a "raw" operation.
-              {L_,   e_RBRA,         50,         0,        11,         0   },
+              {L_,   e_RBRA,         50,         0,        11,          0, 0 },
             },
             // commands set 7: to resolve concern 6 - 8.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_RB,          1,         0,         1,         0   },
-              {L_,    e_RBA,         10,         0,        10,         0   },
-              {L_,     e_RB,         15,         0,        15,         0   },
-              {L_,    e_RBA,         20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,          0, 0 },
+              {L_,     e_RB,          1,         0,         1,          0, 0 },
+              {L_,    e_RBA,         10,         0,        10,          0, 0 },
+              {L_,     e_RB,         15,         0,        15,          0, 0 },
+              {L_,    e_RBA,         20,         0,        20,          0, 0 },
                 // When there is not enough data (but some data is available),
                 // a 'readRaw' will return the number of bytes it read.
-              {L_,    e_RBR,         25,         0,         4,         0   },
-              {L_, e_HELP_WRITE,     10,         0,        10,         0   },
-              {L_,   e_RRA,          35,         0,        10,         0   },
+              {L_,    e_RBR,         25,         0,         4,          0, 0 },
+              {L_, e_HELP_WRITE,     10,         0,        10,          0, 0 },
+              {L_,   e_RRA,          35,         0,        10,          0, 0 },
                 // There are no data left in the TCP buffer for next request,
                 // so even though an "asynchronous event" happens and the
                 // 'readRaw' will keep waiting for some data to come, no matter
                 // if it's in 'non-interruptible' or 'interruptible' mode.
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,    e_RBR,        105,         1,       100,         0   },
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,    e_RBR,        105,         0,       100,         0   },
+              {L_,  e_SIGNAL,         1,         1,         0,          0, 0 },
+              {L_,    e_RBR,        105,         1,       100,          0, 0 },
+              {L_,  e_SIGNAL,         1,         1,         0,          0, 0 },
+              {L_,    e_RBR,        105,         0,       100,          0, 0 },
                 // The same thing for 'readRaw' w/ 'augStatus' parameter
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,   e_RBRA,        105,         1,       100,         0   },
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,   e_RBRA,        105,         0,       100,         0   },
+              {L_,  e_SIGNAL,         1,         1,         0,          0, 0 },
+              {L_,   e_RBRA,        105,         1,       100,          0, 0 },
+              {L_,  e_SIGNAL,         1,         1,         0,          0, 0 },
+              {L_,   e_RBRA,        105,         0,       100,          0, 0 },
             },
             #endif
           };
@@ -7617,36 +7618,36 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_RB,          1,         0,         1,         0   },
-              {L_,     e_RB,         15,         0,        15,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_RB,          1,         0,         1,         0, 0 },
+              {L_,     e_RB,         15,         0,        15,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,     e_RB,        100,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,     e_RB,        100,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,     e_RB,        100,         0,      e_INVALID,      0   },
-              {L_,    e_RBA,         60,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,     e_RB,        100,         0,      e_INVALID,    0, 0 },
+              {L_,    e_RBA,         60,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the 'read' method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RBA,         10,         0,        10,         0   },
-              {L_,    e_RBA,         20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RBA,         10,         0,        10,         0, 0 },
+              {L_,    e_RBA,         20,         0,        20,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,    e_RBA,        100,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,    e_RBA,        100,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,     e_RB,        100,         0,      e_INVALID,      0   },
-              {L_,    e_RBA,         60,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,     e_RB,        100,         0,      e_INVALID,    0, 0 },
+              {L_,    e_RBA,         60,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
@@ -7655,55 +7656,55 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_RB,          1,         0,         1,         0   },
-              {L_,     e_RB,         30,         0,        30,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_RB,          1,         0,         1,         0, 0 },
+              {L_,     e_RB,         30,         0,        30,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    e_RBA,         20,         0,       e_ERR,       0   },
-              {L_,     e_RB,         80,         0,      e_INVALID,      0   },
-              {L_,    e_RBA,         40,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,    e_RBA,         20,         0,       e_ERR,       0, 0 },
+              {L_,     e_RB,         80,         0,      e_INVALID,    0, 0 },
+              {L_,    e_RBA,         40,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 4: Close the channel at the channel side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_RB,          1,         0,         1,         0   },
-              {L_,    e_RBA,         10,         0,        10,         0   },
-              {L_,     e_RB,         15,         0,        15,         0   },
-              {L_,    e_RBA,         20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_RB,          1,         0,         1,         0, 0 },
+              {L_,    e_RBA,         10,         0,        10,         0, 0 },
+              {L_,     e_RB,         15,         0,        15,         0, 0 },
+              {L_,    e_RBA,         20,         0,        20,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    e_RBA,         20,         1,       e_ERR,       0   },
-              {L_,     e_RB,         80,         1,      e_INVALID,      0   },
-              {L_,    e_RBA,         40,         1,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,    e_RBA,         20,         1,       e_ERR,       0, 0 },
+              {L_,     e_RB,         80,         1,      e_INVALID,    0, 0 },
+              {L_,    e_RBA,         40,         1,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RBA,           1,         0,         1,         0   },
-              {L_,   e_RBA,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RBA,           1,         0,         1,         0, 0 },
+              {L_,   e_RBA,          25,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RB,           1,         0,         1,         0   },
-              {L_,    e_RB,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RB,           1,         0,         1,         0, 0 },
+              {L_,    e_RB,          25,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-               {L_,   -1,           0,         0,         0,         0   },
+               {L_,   -1,           0,         0,         0,           0, 0 },
             },
 
             #else
@@ -7713,27 +7714,27 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50, e_INTERRUPTED },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,    50, e_INTERRUPTED, 0 },
                 // Now a 'read' for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,    e_RB,          40,         0,        40,         0   },
-              {L_,    e_RB,           4,         0,         4,         0   },
-              {L_,    e_RB,           2,         0,         2,         0   },
-              {L_,    e_RB,           3,         0,         3,         0   },
+              {L_,    e_RB,          40,         0,        40,         0, 0 },
+              {L_,    e_RB,           4,         0,         4,         0, 0 },
+              {L_,    e_RB,           2,         0,         2,         0, 0 },
+              {L_,    e_RB,           3,         0,         3,         0, 0 },
                 // The next 'readRaw' can't find all data it needs, so it'll
                 // return data it can read.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,    e_RB,          90,         0,        90,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,         0, 0 },
+              {L_,    e_RB,          90,         0,        90,         0, 0 },
                 // Now there's no data in the internal buffer, any new "read"
                 // request has to read directly from the channel. the last one
                 // is a "raw" operation.
-              {L_,   e_RBRA,         50,         0,        11,         0   },
+              {L_,   e_RBRA,         50,         0,        11,         0, 0 },
             },
             // Commands set 6: Establish a channel and make the expected number
             // of bytes of data available in the channel's internal buffer,
@@ -7741,65 +7742,65 @@ int main(int argc, char *argv[]) {
             // 'augStatus' parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RBA,         80,         1,        50, e_INTERRUPTED },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RBA,         80,         1,    50, e_INTERRUPTED, 0 },
                 // Now a 'read' for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,    e_RBA,         40,         0,        40,         0   },
-              {L_,    e_RBA,          4,         0,         4,         0   },
-              {L_,    e_RBA,          2,         0,         2,         0   },
-              {L_,    e_RBA,          3,         0,         3,         0   },
+              {L_,    e_RBA,         40,         0,        40,         0, 0 },
+              {L_,    e_RBA,          4,         0,         4,         0, 0 },
+              {L_,    e_RBA,          2,         0,         2,         0, 0 },
+              {L_,    e_RBA,          3,         0,         3,         0, 0 },
                 // The next 'readRaw' can't find all data it needs, so it'll
                 // return data it can read.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,    e_RBA,         90,         0,        90,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,         0, 0 },
+              {L_,    e_RBA,         90,         0,        90,         0, 0 },
                 // Now there's no data in the internal buffer, any new "read"
                 // request has to read directly from the channel. the last one
                 // is a "raw" operation.
-              {L_,   e_RBRA,         50,         0,        11,         0   },
+              {L_,   e_RBRA,         50,         0,        11,         0, 0 },
             },
             // commands set 7: to resolve concern 6 - 8.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_RB,          1,         0,         1,         0   },
-              {L_,    e_RBA,         10,         0,        10,         0   },
-              {L_,     e_RB,         15,         0,        15,         0   },
-              {L_,    e_RBA,         20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_RB,          1,         0,         1,         0, 0 },
+              {L_,    e_RBA,         10,         0,        10,         0, 0 },
+              {L_,     e_RB,         15,         0,        15,         0, 0 },
+              {L_,    e_RBA,         20,         0,        20,         0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         1,         0,         0,         0   },
-              {L_,    e_RBA,          5,         1,         4, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         1,         0,         0,         0, 0 },
+              {L_,    e_RBA,          5,         1,     4, e_INTERRUPTED, 0 },
                 // This request is to remove data in the internal buffer due to
                 // the previous partial read, and so some other tests can be
                 // done.
-              {L_,    e_RBA,          4,         1,         4,         0   },
+              {L_,    e_RBA,          4,         1,         4,         0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the 'read' method w/o the
                 // 'augStatus' argument.
-              {L_, e_HELP_WRITE,      1,         1,         1,         0   },
-              {L_,  e_SIGNAL,         1,         0,         0,         0   },
-              {L_,     e_RB,          5,         1,         1, e_INTERRUPTED },
+              {L_, e_HELP_WRITE,      1,         1,         1,         0, 0 },
+              {L_,  e_SIGNAL,         1,         0,         0,         0, 0 },
+              {L_,     e_RB,          5,         1,     1, e_INTERRUPTED, 0 },
                 // Test if a request is in 'non-interrupt' mode, it won't be
                 // interrupted by an "AE" but waiting for the more data to
                 // come.  The request will not return until all the requested
                 // data were read.  (Here the signal generating thread is
                 // implemented to write 100 bytes to the channel feed the (TBD
                 // - figure out what goes here).
-              {L_, e_HELP_WRITE,     20,         0,        20,         0   },
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,     e_RBA,        25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     20,         0,        20,         0, 0 },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,     e_RBA,        25,         0,        25,         0, 0 },
                 // The same situation for the 'read' operation, without the
                 // 'augStatus' as the parameter.  The behavior should be the
                 // same as above.
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,     e_RB,        150,         0,       150,         0   },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,     e_RB,        150,         0,       150,         0, 0 },
             },
             #endif
           };
@@ -7928,36 +7929,36 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RVR,          1,         0,         1,         0   },
-              {L_,    e_RVR,          7,         0,        49,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RVR,          1,         0,         1,         0, 0 },
+              {L_,    e_RVR,          7,         0,        49,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,    e_RVR,          6,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,    e_RVR,          6,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_RVR,          7,         0,      e_INVALID,      0   },
-              {L_,   e_RVRA,          6,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    e_RVR,          7,         0,      e_INVALID,    0, 0 },
+              {L_,   e_RVRA,          6,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RVRA,          1,         0,         1,         0   },
-              {L_,   e_RVRA,          7,         0,        49,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RVRA,          1,         0,         1,         0, 0 },
+              {L_,   e_RVRA,          7,         0,        49,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,   e_RVRA,          6,         0,      e_CLOSED,       0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,   e_RVRA,          6,         0,      e_CLOSED,     0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_RVR,          7,         0,     e_INVALID,       0   },
-              {L_,   e_RVRA,          6,         0,     e_INVALID,       0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    e_RVR,          7,         0,     e_INVALID,     0, 0 },
+              {L_,   e_RVRA,          6,         0,     e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
@@ -7966,53 +7967,53 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RVR,          1,         0,         1,         0   },
-              {L_,    e_RVR,          7,         0,        49,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RVR,          1,         0,         1,         0, 0 },
+              {L_,    e_RVR,          7,         0,        49,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,   e_RVRA,          6,         1,       e_ERR,       0   },
-              {L_,    e_RVR,          4,         1,     e_INVALID,       0   },
-              {L_,   e_RVRA,          5,         1,     e_INVALID,       0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,   e_RVRA,          6,         1,       e_ERR,       0, 0 },
+              {L_,    e_RVR,          4,         1,     e_INVALID,     0, 0 },
+              {L_,   e_RVRA,          5,         1,     e_INVALID,     0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 4: Close the channel at the channel side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RVRA,          2,         0,         4,         0   },
-              {L_,   e_RVRA,          7,         0,        46,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RVRA,          2,         0,         4,         0, 0 },
+              {L_,   e_RVRA,          7,         0,        46,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    e_RVR,          6,         1,       e_ERR,       0   },
-              {L_,    e_RVR,          4,         1,      e_INVALID,      0   },
-              {L_,   e_RVRA,          5,         1,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,    e_RVR,          6,         1,       e_ERR,       0, 0 },
+              {L_,    e_RVR,          4,         1,      e_INVALID,    0, 0 },
+              {L_,   e_RVRA,          5,         1,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,  e_RVRA,           1,         0,         1,         0   },
-              {L_,  e_RVRA,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,  e_RVRA,           1,         0,         1,         0, 0 },
+              {L_,  e_RVRA,           5,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RVR,           1,         0,         1,         0   },
-              {L_,   e_RVR,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RVR,           1,         0,         1,         0, 0 },
+              {L_,   e_RVR,           5,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-               {L_,   -1,           0,         0,         0,         0   },
+               {L_,   -1,           0,         0,         0,           0, 0 },
             },
 
             #else
@@ -8022,26 +8023,26 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a "read" will return right away because there's data in
                 // the internal buffer at this moment.
-              {L_,    e_RVR,          2,         0,         4,         0   },
-              {L_,    e_RVR,          3,         0,         9,         0   },
-              {L_,    e_RVR,          6,         0,        35,         0   },
+              {L_,    e_RVR,          2,         0,         4,         0, 0 },
+              {L_,    e_RVR,          3,         0,         9,         0, 0 },
+              {L_,    e_RVR,          6,         0,        35,         0, 0 },
                 // The next 'read' keep reading data it needs until no data in
                 // the internal buffer.
-              {L_,    e_RVR,          4,         0,         2,         0   },
+              {L_,    e_RVR,          4,         0,         2,         0, 0 },
                 // Now there's no data in the internal buffer, any new "read"
                 // request has to read directly from the channel. the last one
                 // is a "raw" operation.
-              {L_, e_HELP_WRITE,     25,         0,        25,         0   },
-              {L_,    e_RVR,          6,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     25,         0,        25,         0, 0 },
+              {L_,    e_RVR,          6,         0,        25,         0, 0 },
             },
 
             // Commands set 6: Establish a channel and make the expected number
@@ -8050,57 +8051,57 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a "read" will return right away because there's enough
                 // data in the internal buffer at this moment.
-              {L_,   e_RVRA,          2,         0,         4,         0   },
-              {L_,   e_RVRA,          3,         0,         9,         0   },
-              {L_,   e_RVRA,          6,         0,        35,         0   },
+              {L_,   e_RVRA,          2,         0,         4,         0, 0 },
+              {L_,   e_RVRA,          3,         0,         9,         0, 0 },
+              {L_,   e_RVRA,          6,         0,        35,         0, 0 },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
                 // which is at last available from the control endpoint through
                 // a thread.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,   e_RVRA,          4,         0,         2,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,         0, 0 },
+              {L_,   e_RVRA,          4,         0,         2,         0, 0 },
                 // There are enough data in the channel's TCP buffer, the
                 // following requests can all meet their expectations because
                 // the last one is a "raw" operation.
-              {L_,   e_RVRA,          6,         0,        35,         0   },
-              {L_,   e_RBR,         150,         0,        65,         0   },
+              {L_,   e_RVRA,          6,         0,        35,         0, 0 },
+              {L_,   e_RBR,         150,         0,        65,         0, 0 },
             },
 
             // commands set 7: to resolve concern 6 - 8.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RVR,          1,         0,         1,         0   },
-              {L_,   e_RVRA,          2,         0,         4,         0   },
-              {L_,    e_RVR,          4,         0,        16,         0   },
-              {L_,   e_RVRA,          5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RVR,          1,         0,         1,         0, 0 },
+              {L_,   e_RVRA,          2,         0,         4,         0, 0 },
+              {L_,    e_RVR,          4,         0,        16,         0, 0 },
+              {L_,   e_RVRA,          5,         0,        25,         0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, but a "raw" operation will still return.
-              {L_,    e_RVR,          3,         0,         4,         0   },
-              {L_, e_HELP_WRITE,     10,         0,        10,         0   },
-              {L_,   e_RVRA,          4,         1,        10,         0   },
+              {L_,    e_RVR,          3,         0,         4,         0, 0 },
+              {L_, e_HELP_WRITE,     10,         0,        10,         0, 0 },
+              {L_,   e_RVRA,          4,         1,        10,         0, 0 },
                 // There are no data left in the TCP buffer for next request,
                 // so even though an "asynchronous event" happens and the
                 // 'readRaw' will keep waiting for some data to come, no matter
                 // if it's in 'non-interruptible' or 'interruptible' mode.
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,    e_RVR,          8,         1,       100,         0   },
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,    e_RVR,          8,         0,       100,         0   },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,    e_RVR,          8,         1,       100,         0, 0 },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,    e_RVR,          8,         0,       100,         0, 0 },
                 // The same as above except w/ 'augStatus' parameter
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,   e_RVRA,          8,         1,       100,         0   },
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,   e_RVRA,          8,         0,       100,         0   },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,   e_RVRA,          8,         1,       100,         0, 0 },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,   e_RVRA,          8,         0,       100,         0, 0 },
             },
             #endif
           };
@@ -8252,36 +8253,36 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RV,           1,         0,         1,         0   },
-              {L_,    e_RV,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RV,           1,         0,         1,         0, 0 },
+              {L_,    e_RV,           5,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,    e_RV,           6,         0,    e_CLOSED,         0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,    e_RV,           6,         0,    e_CLOSED,       0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_RV,           7,         0,      e_INVALID,      0   },
-              {L_,   e_RVA,           6,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    e_RV,           7,         0,      e_INVALID,    0, 0 },
+              {L_,   e_RVA,           6,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RVA,           1,         0,         1,         0   },
-              {L_,   e_RVA,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RVA,           1,         0,         1,         0, 0 },
+              {L_,   e_RVA,           5,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,   e_RVA,           6,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,   e_RVA,           6,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_RV,           7,         0,      e_INVALID,      0   },
-              {L_,   e_RVA,           6,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    e_RV,           7,         0,      e_INVALID,    0, 0 },
+              {L_,   e_RVA,           6,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
@@ -8290,53 +8291,53 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RV,           1,         0,         1,         0   },
-              {L_,    e_RV,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RV,           1,         0,         1,         0, 0 },
+              {L_,    e_RV,           5,         0,        25,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,   e_RVA,           6,         1,       e_ERR,       0   },
-              {L_,    e_RV,           4,         1,      e_INVALID,      0   },
-              {L_,   e_RVA,           5,         1,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,   e_RVA,           6,         1,       e_ERR,       0, 0 },
+              {L_,    e_RV,           4,         1,      e_INVALID,    0, 0 },
+              {L_,   e_RVA,           5,         1,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 4: Close the channel at the channel side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RVA,           2,         0,         4,         0   },
-              {L_,   e_RVA,           6,         0,        35,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RVA,           2,         0,         4,         0, 0 },
+              {L_,   e_RVA,           6,         0,        35,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    e_RV,           6,         1,       e_ERR,       0   },
-              {L_,    e_RV,           4,         1,      e_INVALID,      0   },
-              {L_,   e_RVA,           5,         1,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,    e_RV,           6,         1,       e_ERR,       0, 0 },
+              {L_,    e_RV,           4,         1,      e_INVALID,    0, 0 },
+              {L_,   e_RVA,           5,         1,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RVA,           1,         0,         1,         0   },
-              {L_,   e_RVA,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RVA,           1,         0,         1,         0, 0 },
+              {L_,   e_RVA,           5,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RV,           1,         0,         1,         0   },
-              {L_,    e_RV,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RV,           1,         0,         1,         0, 0 },
+              {L_,    e_RV,           5,         0,        25,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-               {L_,   -1,           0,         0,         0,         0   },
+               {L_,   -1,           0,         0,         0,           0, 0 },
             },
 
             #else
@@ -8346,29 +8347,29 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a "read" will return right away because there's enough
                 // data in the internal buffer at this moment.
-              {L_,    e_RV,           2,         0,         4,         0   },
-              {L_,    e_RV,           3,         0,         9,         0   },
-              {L_,    e_RV,           6,         0,        35,         0   },
+              {L_,    e_RV,           2,         0,         4,         0, 0 },
+              {L_,    e_RV,           3,         0,         9,         0, 0 },
+              {L_,    e_RV,           6,         0,        35,         0, 0 },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
                 // which is at last available from the control endpoint through
                 // a thread.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,    e_RV,           4,         0,        16,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,         0, 0 },
+              {L_,    e_RV,           4,         0,        16,         0, 0 },
                 // There are enough data in the channel's TCP buffer, the
                 // following requests can all meet their expectations because
                 // the last one is a "raw" operation.
-              {L_,    e_RV,           6,         0,        35,         0   },
-              {L_,   e_RBR,         150,         0,        51,         0   },
+              {L_,    e_RV,           6,         0,        35,         0, 0 },
+              {L_,   e_RBR,         150,         0,        51,         0, 0 },
             },
 
             // Commands set 6: Establish a channel and make the expected number
@@ -8377,49 +8378,49 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a "read" will return right away because there's enough
                 // data in the internal buffer at this moment.
-              {L_,   e_RVA,           2,         0,         4,         0   },
-              {L_,   e_RVA,           3,         0,         9,         0   },
-              {L_,   e_RVA,           6,         0,        35,         0   },
+              {L_,   e_RVA,           2,         0,         4,         0, 0 },
+              {L_,   e_RVA,           3,         0,         9,         0, 0 },
+              {L_,   e_RVA,           6,         0,        35,         0, 0 },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
                 // which is at last available from the control endpoint through
                 // a thread.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,   e_RVA,           4,         0,        16,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,         0, 0 },
+              {L_,   e_RVA,           4,         0,        16,         0, 0 },
                 // There are enough data in the channel's TCP buffer, the
                 // following requests can all meet their expectations because
                 // the last one is a "raw" operation.
-              {L_,   e_RVA,           6,         0,        35,         0   },
-              {L_,   e_RBR,         150,         0,        51,         0   },
+              {L_,   e_RVA,           6,         0,        35,         0, 0 },
+              {L_,   e_RBR,         150,         0,        51,         0, 0 },
             },
 
             // commands set 7: to resolve concern 6 - 8.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RV,           1,         0,         1,         0   },
-              {L_,   e_RVA,           2,         0,         4,         0   },
-              {L_,    e_RV,           3,         0,         9,         0   },
-              {L_,   e_RVA,           6,         0,        35,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RV,           1,         0,         1,         0, 0 },
+              {L_,   e_RVA,           2,         0,         4,         0, 0 },
+              {L_,    e_RV,           3,         0,         9,         0, 0 },
+              {L_,   e_RVA,           6,         0,        35,         0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         1,         0,         0,         0   },
-              {L_,   e_RVA,           3,         1,         1, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         1,         0,         0,         0, 0 },
+              {L_,   e_RVA,           3,         1,     1, e_INTERRUPTED, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the 'read' method w/o the
                 // 'augStatus' argument.
-              {L_,  e_SIGNAL,         1,         0,         0,         0   },
-              {L_,    e_RV,           1,         1,         0,         0   },
+              {L_,  e_SIGNAL,         1,         0,         0,         0, 0 },
+              {L_,    e_RV,           1,         1,         0,         0, 0 },
                 // Test if a request is in 'non-interrupt' mode, it won't be
                 // interrupted by an "AE" but waiting for the more data to
                 // come.  The request will not return until all the requested
@@ -8427,28 +8428,28 @@ int main(int argc, char *argv[]) {
                 // implemented to write 100 bytes to the channel feed the (TBD
                 // - figure out what goes here).
 
-              {L_, e_HELP_WRITE,     20,         0,        20,         0   },
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,    e_RVA,          6,         0,        35,         0   },
+              {L_, e_HELP_WRITE,     20,         0,        20,         0, 0 },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,    e_RVA,          6,         0,        35,         0, 0 },
                 // The same situation for the 'read' operation, without the
                 // 'augStatus' as the parameter.  The behavior should be the
                 // same as above.
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,    e_RV,           7,         0,        85,         0   },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,    e_RV,           7,         0,        85,         0, 0 },
             },
             // commands set 8: to resolve concern 6 - 8.
             {
                 // Test the situation when multiple adjustments of the buffers
                 // are needed.
-              {L_, e_HELP_WRITE,     75,         0,        75,         0   },
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,   e_RVA,           8,         0,       175,         0   },
+              {L_, e_HELP_WRITE,     75,         0,        75,         0, 0 },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,   e_RVA,           8,         0,       175,         0, 0 },
 
                 // Test the situation when multiple adjustments of the buffers
                 // are needed.
-              {L_, e_HELP_WRITE,     75,         0,        75,         0   },
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,   e_RV,            8,         0,       175,         0   },
+              {L_, e_HELP_WRITE,     75,         0,        75,         0, 0 },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,   e_RV,            8,         0,       175,         0, 0 },
             },
             #endif
           };
@@ -8595,37 +8596,37 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RR,           1,         0,         1,         0   },
-              {L_,    e_RR,          15,         0,        15,         0   },
-              {L_,    e_RR,         100,         0,        34,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RR,           1,         0,         1,         0, 0 },
+              {L_,    e_RR,          15,         0,        15,         0, 0 },
+              {L_,    e_RR,         100,         0,        34,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,    e_RR,         100,         0,    e_CLOSED,         0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,    e_RR,         100,         0,    e_CLOSED,       0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_RR,         100,         0,      e_INVALID,      0   },
-              {L_,   e_RRA,          60,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    e_RR,         100,         0,      e_INVALID,    0, 0 },
+              {L_,   e_RRA,          60,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RRA,          10,         0,        10,         0   },
-              {L_,   e_RRA,         100,         0,        40,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RRA,          10,         0,        10,         0, 0 },
+              {L_,   e_RRA,         100,         0,        40,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,   e_RRA,         100,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,   e_RRA,         100,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,    e_RR,         100,         0,      e_INVALID,      0   },
-              {L_,   e_RRA,          60,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,    e_RR,         100,         0,      e_INVALID,    0, 0 },
+              {L_,   e_RRA,          60,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
@@ -8634,47 +8635,47 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RR,          16,         0,        16,         0   },
-              {L_,    e_RR,          60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RR,          16,         0,        16,         0, 0 },
+              {L_,    e_RR,          60,         0,        34,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    e_RR,          20,         1,       e_ERR,       0   },
-              {L_,    e_RR,          80,         1,      e_INVALID,      0   },
-              {L_,   e_RRA,          40,         1,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,    e_RR,          20,         1,       e_ERR,       0, 0 },
+              {L_,    e_RR,          80,         1,      e_INVALID,    0, 0 },
+              {L_,   e_RRA,          40,         1,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 4: Close the channel at the channel side to test the
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RRA,          16,         0,        16,         0   },
-              {L_,   e_RRA,          60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RRA,          16,         0,        16,         0, 0 },
+              {L_,   e_RRA,          60,         0,        34,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,   e_RRA,          20,         0,       e_ERR,       0   },
-              {L_,    e_RR,          80,         0,      e_INVALID,      0   },
-              {L_,   e_RRA,          40,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,   e_RRA,          20,         0,       e_ERR,       0, 0 },
+              {L_,    e_RR,          80,         0,      e_INVALID,    0, 0 },
+              {L_,   e_RRA,          40,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   e_RRA,           1,         0,         1,         0   },
-              {L_,   e_RRA,           5,         0,         5,         0   },
-              {L_,   e_RBR,         250,         0,        44,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,   e_RRA,           1,         0,         1,         0, 0 },
+              {L_,   e_RRA,           5,         0,         5,         0, 0 },
+              {L_,   e_RBR,         250,         0,        44,         0, 0 },
             },
             {
-              {L_, e_HELP_WRITE,    100,         0,         0,         0   },
-              {L_,    e_RR,           1,         0,         1,         0   },
-              {L_,    e_RR,           5,         0,         5,         0   },
-              {L_,   e_RBR,         250,         0,        94,         0   },
+              {L_, e_HELP_WRITE,    100,         0,         0,         0, 0 },
+              {L_,    e_RR,           1,         0,         1,         0, 0 },
+              {L_,    e_RR,           5,         0,         5,         0, 0 },
+              {L_,   e_RBR,         250,         0,        94,         0, 0 },
             },
 
             #else
@@ -8684,25 +8685,25 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a 'read' for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,    e_RR,          40,         0,        40,         0   },
-              {L_,    e_RR,           4,         0,         4,         0   },
+              {L_,    e_RR,          40,         0,        40,         0, 0 },
+              {L_,    e_RR,           4,         0,         4,         0, 0 },
                 // The next 'readRaw' can't find all data it needs, so it'll
                 // return data it can read.
-              {L_,    e_RR,          15,         0,         6,         10  },
+              {L_,    e_RR,          15,         0,         6,        10, 0 },
                 // Now there's no data in the internal buffer, any new "read"
                 // request has to read directly from the channel. the last one
                 // is a "raw" operation.
-              {L_, e_HELP_WRITE,     25,         0,        25,         0   },
-              {L_,   e_RRA,          50,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     25,         0,        25,         0, 0 },
+              {L_,   e_RRA,          50,         0,        25,         0, 0 },
             },
             // Commands set 6: Establish a channel and make the expected number
             // of bytes of data available in the channel's internal buffer,
@@ -8710,52 +8711,52 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a 'read' for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,    e_RRA,          40,         0,        40,         0  },
-              {L_,    e_RRA,          4,          0,         4,         0  },
+              {L_,    e_RRA,          40,         0,        40,        0, 0 },
+              {L_,    e_RRA,          4,          0,         4,        0, 0 },
                 // The next 'readRaw' can't find all data it needs, so it'll
                 // return data it can read.
-              {L_,    e_RRA,         15,          0,         6,         0  },
+              {L_,    e_RRA,         15,          0,         6,        0, 0 },
                 // Now there's no data in the internal buffer, any new "read"
                 // request has to read directly from the channel. the last one
                 // is a "raw" operation.
-              {L_, e_HELP_WRITE,      25,         0,        25,         0  },
-              {L_,   e_RRA,           50,         0,        25,         0  },
+              {L_, e_HELP_WRITE,      25,         0,        25,        0, 0 },
+              {L_,   e_RRA,           50,         0,        25,        0, 0 },
             },
             // commands set 7: to resolve concern 5 - 7.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RR,           1,         0,         1,         0   },
-              {L_,   e_RRA,          10,         0,        10,         0   },
-              {L_,    e_RR,          15,         0,        15,         0   },
-              {L_,   e_RRA,          20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RR,           1,         0,         1,         0, 0 },
+              {L_,   e_RRA,          10,         0,        10,         0, 0 },
+              {L_,    e_RR,          15,         0,        15,         0, 0 },
+              {L_,   e_RRA,          20,         0,        20,         0, 0 },
                 // When there is not enough data (but some data is available),
                 // a 'readRaw' will return the number of bytes it reads.
-              {L_,    e_RR,          25,         0,         4,         0   },
-              {L_, e_HELP_WRITE,     10,         0,        10,         0   },
-              {L_,   e_RRA,          35,         0,        10,         0   },
+              {L_,    e_RR,          25,         0,         4,         0, 0 },
+              {L_, e_HELP_WRITE,     10,         0,        10,         0, 0 },
+              {L_,   e_RRA,          35,         0,        10,         0, 0 },
                 // There are no data left in the TCP buffer for next request,
                 // so even though an "asynchronous event" happens and the
                 // 'readRaw' will keep waiting for some data to come, no matter
                 // if it's in 'non-interruptible' or 'interruptible' mode.
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,    e_RR,         105,         1,       100,         0   },
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,    e_RR,         105,         0,       100,         0   },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,    e_RR,         105,         1,       100,         0, 0 },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,    e_RR,         105,         0,       100,         0, 0 },
                 // The same thing for 'readRaw' w/ 'augStatus' parameter
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,   e_RRA,         105,         1,       100,         0   },
-              {L_,  e_SIGNAL,         1,         1,         0,         0   },
-              {L_,   e_RRA,         105,         0,       100,         0   },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,   e_RRA,         105,         1,       100,         0, 0 },
+              {L_,  e_SIGNAL,         1,         1,         0,         0, 0 },
+              {L_,   e_RRA,         105,         0,       100,         0, 0 },
             },
             #endif
           };
@@ -8886,36 +8887,36 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_R,           1,         0,         1,         0   },
-              {L_,     e_R,          15,         0,        15,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_R,           1,         0,         1,         0, 0 },
+              {L_,     e_R,          15,         0,        15,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,     e_R,         100,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,     e_R,         100,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,     e_R,         100,         0,      e_INVALID,      0   },
-              {L_,    e_RA,          60,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_,     e_R,         100,         0,      e_INVALID,    0, 0 },
+              {L_,    e_RA,          60,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 2: Close the channel from the peer side to test the
             // behavior of the 'read' method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RA,          10,         0,        10,         0   },
-              {L_,    e_RA,          20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RA,          10,         0,        10,         0, 0 },
+              {L_,    e_RA,          20,         0,        20,         0, 0 },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0   },
-              {L_,    e_RA,         100,         0,       e_CLOSED,      0   },
+              {L_, e_CLOSE_CONTROL,   0,         0,         0,         0, 0 },
+              {L_,    e_RA,         100,         0,       e_CLOSED,    0, 0 },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-              {L_,     e_R,         100,         0,      e_INVALID,      0   },
-              {L_,    e_RA,          60,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,           0,         0   },
+              {L_,     e_R,         100,         0,      e_INVALID,    0, 0 },
+              {L_,    e_RA,          60,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,           0,         0, 0 },
             },
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
@@ -8925,49 +8926,49 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_R,           1,         0,         1,         0   },
-              {L_,     e_R,          30,         0,        30,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_R,           1,         0,         1,         0, 0 },
+              {L_,     e_R,          30,         0,        30,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    e_RA,          20,         0,       e_ERR,         0   },
-              {L_,     e_R,          80,         0,      e_INVALID,      0   },
-              {L_,    e_RA,          40,         0,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,    e_RA,          20,         0,       e_ERR,       0, 0 },
+              {L_,     e_R,          80,         0,      e_INVALID,    0, 0 },
+              {L_,    e_RA,          40,         0,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
 
             // Command set 4: Close the channel at the channel side to test the
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_R,           1,         0,         1,         0   },
-              {L_,    e_RA,          10,         0,        10,         0   },
-              {L_,     e_R,          15,         0,        15,         0   },
-              {L_,    e_RA,          20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_R,           1,         0,         1,         0, 0 },
+              {L_,    e_RA,          10,         0,        10,         0, 0 },
+              {L_,     e_R,          15,         0,        15,         0, 0 },
+              {L_,    e_RA,          20,         0,        20,         0, 0 },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    e_RA,          20,         1,       e_ERR,       0   },
-              {L_,     e_R,          80,         1,      e_INVALID,      0   },
-              {L_,    e_RA,          40,         1,      e_INVALID,      0   },
-              {L_,    -1,           0,         0,         0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0, 0 },
+              {L_,    e_RA,          20,         1,       e_ERR,       0, 0 },
+              {L_,     e_R,          80,         1,      e_INVALID,    0, 0 },
+              {L_,    e_RA,          40,         1,      e_INVALID,    0, 0 },
+              {L_,    -1,           0,         0,         0,           0, 0 },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    e_RA,           1,         0,         1,         0   },
-              {L_,    e_RA,           5,         0,         5,         0   },
-              {L_,   e_RBR,         250,         0,        44,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,    e_RA,           1,         0,         1,         0, 0 },
+              {L_,    e_RA,           5,         0,         5,         0, 0 },
+              {L_,   e_RBR,         250,         0,        44,         0, 0 },
             },
             {
-              {L_, e_HELP_WRITE,     50,         0,         0,         0   },
-              {L_,     e_R,           1,         0,         1,         0   },
-              {L_,     e_R,           5,         0,         5,         0   },
-              {L_,   e_RBR,         250,         0,        44,         0   },
+              {L_, e_HELP_WRITE,     50,         0,         0,         0, 0 },
+              {L_,     e_R,           1,         0,         1,         0, 0 },
+              {L_,     e_R,           5,         0,         5,         0, 0 },
+              {L_,   e_RBR,         250,         0,        44,         0, 0 },
             },
 
             #else
@@ -8977,27 +8978,27 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a 'read' for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,     e_R,          40,         0,        40,         0   },
+              {L_,     e_R,          40,         0,        40,         0, 0 },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
                 // which is at last available from the control endpoint through
                 // a thread.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,     e_R,          15,         0,        15,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,         0, 0 },
+              {L_,     e_R,          15,         0,        15,         0, 0 },
                 // There are 95 bytes in the channel's TCP buffer, the
                 // following requests can all meet their expectations because
                 // the last one is a "raw" operation.
-              {L_,     e_R,          50,         0,        50,         0   },
-              {L_,   e_RBR,          50,         0,        45,         0   },
+              {L_,     e_R,          50,         0,        50,         0, 0 },
+              {L_,   e_RBR,          50,         0,        45,         0, 0 },
             },
 
             // Commands set 6: Establish a channel and make the expected number
@@ -9006,61 +9007,61 @@ int main(int argc, char *argv[]) {
             // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
                 // A 'bufferedRead' for 80 bytes is issued in 'interruptible'
                 // mode, while a signal 'SIGSYS' is generated, and so the
                 // returned 50 is stored in the internal buffer for later read
                 // try.
-              {L_,   e_SIGNAL,        1,         0,         0,         0   },
-              {L_,    e_RB,          80,         1,        50,         0   },
+              {L_,   e_SIGNAL,        1,         0,         0,         0, 0 },
+              {L_,    e_RB,          80,         1,        50,         0, 0 },
                 // Now a 'read' for 40 bytes will return right away because
                 // there's enough data in the internal buffer at this moment.
-              {L_,    e_RA,          40,         0,        40,         0   },
+              {L_,    e_RA,          40,         0,        40,         0, 0 },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
                 // which is at last available from the control endpoint through
                 // a thread.
-              {L_,   e_SIGNAL,        0,         1,         0,         0   },
-              {L_,    e_RA,          15,         0,        15,         0   },
+              {L_,   e_SIGNAL,        0,         1,         0,         0, 0 },
+              {L_,    e_RA,          15,         0,        15,         0, 0 },
                 // There are 95 bytes in the channel's TCP buffer, the
                 // following requests can all meet their expectations because
                 // the last one is a "raw" operation.
-              {L_,    e_RA,          50,         0,        50,         0   },
-              {L_,   e_RBR,          50,         0,        45,         0   },
+              {L_,    e_RA,          50,         0,        50,         0, 0 },
+              {L_,   e_RBR,          50,         0,        45,         0, 0 },
             },
             // commands set 7: to resolve concern 6 - 8.
             {
                 // Each request read expected number of bytes from the channel.
-              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     e_R,           1,         0,         1,         0   },
-              {L_,    e_RA,          10,         0,        10,         0   },
-              {L_,     e_R,          15,         0,        15,         0   },
-              {L_,    e_RA,          20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0, 0 },
+              {L_,     e_R,           1,         0,         1,         0, 0 },
+              {L_,    e_RA,          10,         0,        10,         0, 0 },
+              {L_,     e_R,          15,         0,        15,         0, 0 },
+              {L_,    e_RA,          20,         0,        20,         0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
-              {L_,  e_SIGNAL,         1,         0,         0,         0   },
-              {L_,    e_RA,           5,         1,         4, e_INTERRUPTED },
+              {L_,  e_SIGNAL,         1,         0,         0,         0, 0 },
+              {L_,    e_RA,           5,         1,     4, e_INTERRUPTED, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the 'read' method w/o the
                 // 'augStatus' argument.
-              {L_, e_HELP_WRITE,      1,         1,         1,         0   },
-              {L_,  e_SIGNAL,         1,         0,         0,         0   },
-              {L_,     e_R,           5,         1,         1,         0   },
+              {L_, e_HELP_WRITE,      1,         1,         1,         0, 0 },
+              {L_,  e_SIGNAL,         1,         0,         0,         0, 0 },
+              {L_,     e_R,           5,         1,         1,         0, 0 },
                 // Test if a request is in 'non-interrupt' mode, it won't be
                 // interrupted by an "AE" but waiting for the more data to
                 // come.  The request will not return until all the requested
                 // data were read.  (Here the signal generating thread is
                 // implemented to write 100 bytes to the channel feed the (TBD
                 // - figure out what goes here).
-              {L_, e_HELP_WRITE,     20,         0,        20,         0   },
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,     e_RA,         25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     20,         0,        20,         0, 0 },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,     e_RA,         25,         0,        25,         0, 0 },
                 // The same situation for the 'read' operation, without the
                 // 'augStatus' as the parameter.  The behavior should be the
                 // same as above.
-              {L_,   e_SIGNAL,        1,         1,         0,         0   },
-              {L_,     e_R,         150,         0,       150,         0   },
+              {L_,   e_SIGNAL,        1,         1,         0,         0, 0 },
+              {L_,     e_R,         150,         0,       150,         0, 0 },
             },
             #endif
           };

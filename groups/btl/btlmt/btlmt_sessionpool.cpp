@@ -121,7 +121,7 @@ static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
                                btlmt::SessionPool::ConnectResolutionMode mode)
 {
     if (mode == btlmt::SessionPool::RESOLVE_AT_EACH_ATTEMPT) {
-        return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;     // RETURN
+        return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;         // RETURN
     }
 
     BSLS_ASSERT(mode == btlmt::SessionPool::RESOLVE_ONCE);
@@ -182,7 +182,7 @@ void SessionPool::channelStateCb(int   channelId,
 
               d_channelPool_p->shutdown(channelId,
                                         ChannelPool::e_IMMEDIATE);
-              return;
+              return;                                                 // RETURN
           }
           if (SessionPool_Handle::LISTENER == handle->d_type) {
               // This connection originate from a listener socket,
@@ -302,7 +302,7 @@ void SessionPool::blobBasedReadCb(int          *numNeeded,
         d_channelPool_p->shutdown(channelId,
                                   ChannelPool::e_IMMEDIATE);
         *numNeeded   = 1;
-        return;
+        return;                                                       // RETURN
     }
 
     handle->d_channel_p->blobBasedDataCb(numNeeded, data);
@@ -365,7 +365,7 @@ void SessionPool::poolStateCb(int state, int source, int)
       case ChannelPool::e_ERROR_ACCEPTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
-            return;
+            return;                                                   // RETURN
         }
 
         // ACCEPT_FAILED is forwarded to both callbacks.  So we can move away
@@ -383,7 +383,7 @@ void SessionPool::poolStateCb(int state, int source, int)
       case ChannelPool::e_ERROR_CONNECTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
-            return;
+            return;                                                   // RETURN
         }
         bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
         if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
@@ -670,7 +670,7 @@ int SessionPool::closeHandle(int handleId)
 {
     HandlePtr handle;
     if (d_handles.find(handleId, &handle)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if(SessionPool_Handle::LISTENER == handle->d_type) {
@@ -1079,13 +1079,20 @@ int SessionPool::portNumber(int handle) const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

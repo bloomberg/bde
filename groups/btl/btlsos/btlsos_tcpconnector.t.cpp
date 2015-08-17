@@ -121,7 +121,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static bdlqq::Mutex  g_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) g_mutex.lock(); P(X); g_mutex.unlock();
@@ -251,7 +251,7 @@ void* threadAsServer(void *arg)
         if (verbose) {
             QT("thread exited. ");
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
     ASSERT(0 == info.d_serverSocket_p->listen(info.d_equeueSize));
 
@@ -335,11 +335,11 @@ static int numChannelToBeEstablished(const TestCommand *commands,
     return total;
 }
 
-static int testExecutionHelper(btlsos::TcpConnector         *connector,
-                               int                         *status,
-                               const TestCommand           *command,
-                               bsl::vector<btlsc::Channel*> *channels,
-                               btlsc::Channel              **newChannel)
+static int testExecutionHelper(btlsos::TcpConnector          *connector,
+                               int                           *status,
+                               const TestCommand             *command,
+                               bsl::vector<btlsc::Channel*>  *channels,
+                               btlsc::Channel               **newChannel)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
@@ -511,7 +511,7 @@ int processTest(
 //..
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -607,7 +607,7 @@ int main(int argc, char *argv[]) {
         bsl::cout << "Failed to connect to the peer." << bsl::endl;
         // In any case, invalidate the allocator, and exit.
         connector.invalidate();
-        return -1;
+        return -1;                                                    // RETURN
     }
 //..
 // Send 'NUM_PACKETS' packets to the server, wait for the response for each,

@@ -1,4 +1,4 @@
-// bdlxxxx_byteoutstream.t.cpp                                           -*-C++-*-
+// bdlxxxx_byteoutstream.t.cpp                                        -*-C++-*-
 
 #include <bdlxxxx_byteoutstream.h>
 
@@ -147,7 +147,7 @@ static int eq(const char *lhs, const char *rhs, int numBits)
 
     for (int i = 0; i < wholeBytes; ++i) {
         if (lhs[i] ^ rhs[i]) {
-            return 0;   // different
+            return 0;   // different                                  // RETURN
         }
     }
 
@@ -156,14 +156,14 @@ static int eq(const char *lhs, const char *rhs, int numBits)
         int remaingBits = 8 - extraBits;
         int mask = 0xff >> remaingBits << remaingBits;
         diff &= mask;   // if 0 != diff they're not equal
-        return 0 == diff;
+        return 0 == diff;                                             // RETURN
     }
 
     return 1;   // same
 }
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
                cout << "nextByte (int): " << (int)theChars[i] << endl;
            }
        }
-       return 0;
+       return 0;                                                      // RETURN
    }
 //..
 // Executing the above code results in the following output:
@@ -2366,11 +2366,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

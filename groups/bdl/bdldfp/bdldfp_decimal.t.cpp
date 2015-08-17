@@ -165,7 +165,7 @@ namespace BDEC = BloombergLP::bdldfp;
 
 namespace UsageExample {
   // TBD
-}  // close UsageExample namespace
+}  // close namespace UsageExample
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -326,7 +326,7 @@ void TestDriver::testCase4()
     // ------------------------------------------------------------------------
     // TESTING IOSTREAM OPERATORS
     //
-    // Concerns: 
+    // Concerns:
     //: 1 Calling 'operator<<' on a 'Decimal32', 'Decimal64', 'Decimal128' type
     //:   renders the decimals value to the appropriate stream.
     //:
@@ -369,7 +369,7 @@ void TestDriver::testCase4()
     //:
     //: o Testing a wider array of numbers, including values rendered in
     //:   scientific notation.
-    
+
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
 
     BDEC::Decimal32 INF_P = BDEC::Decimal32(

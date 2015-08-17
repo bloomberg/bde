@@ -4439,7 +4439,7 @@ struct UsesBslmaAllocator<bslstl::HashTable_ImplParameters<KEY_CONFIG,
     : bsl::is_convertible<Allocator*, ALLOCATOR>::type {
 };
 
-}  // close traits namespace
+}  // close namespace bslma
 
 namespace bslmf
 {
@@ -4454,7 +4454,7 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
                              && bslmf::IsBitwiseMoveable<ALLOCATOR>::value>
 {};
 
-}  // close traits namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
 #endif

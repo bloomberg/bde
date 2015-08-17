@@ -218,7 +218,7 @@ extern "C" void *workerThread(void *arg) {
 // memory allocations across our two thread-enabled vectors.  For the purpose
 // of this discussion, we first define a simple thread-enabled vector:
 //..
-    template <typename TYPE>
+    template <class TYPE>
     class ThreadEnabledVector {
         // This class defines a trivial thread-enabled vector.
 

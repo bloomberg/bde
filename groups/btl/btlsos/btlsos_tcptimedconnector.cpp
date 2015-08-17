@@ -44,18 +44,18 @@ enum {
 
 template <class RESULT>
 inline
-RESULT *allocate(int                                          *status,
-                 int                                           flags,
-                 const btlso::IPv4Address&                      peerAddress,
+RESULT *allocate(int                                            *status,
+                 int                                             flags,
+                 const btlso::IPv4Address&                       peerAddress,
                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 bdlma::Pool                                   *pool)
+                 bdlma::Pool                                    *pool)
 {
     BSLS_ASSERT(factory); BSLS_ASSERT(pool); BSLS_ASSERT(status);
 
     btlso::StreamSocket<btlso::IPv4Address> *socket_p = 0;
     socket_p = factory->allocate();
     if (!socket_p) {
-        return NULL;
+        return NULL;                                                  // RETURN
     }
     int rc = socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
 
@@ -67,12 +67,12 @@ RESULT *allocate(int                                          *status,
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = e_FAILED; // Any negative number satisfies the contract.
             factory->deallocate(socket_p);
-            return NULL;
+            return NULL;                                              // RETURN
         }
         if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
-            return NULL;
+            return NULL;                                              // RETURN
         }
     }
     RESULT *channel = new (*pool) RESULT(socket_p);
@@ -93,7 +93,7 @@ RESULT *timedAllocate(
 
     btlso::StreamSocket<btlso::IPv4Address> *socket = factory->allocate();
     if (!socket) {
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     int rc = socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
@@ -119,17 +119,17 @@ RESULT *timedAllocate(
             else if (s == btlso::SocketHandle::e_ERROR_TIMEDOUT) {
                 *status = 0;
                 factory->deallocate(socket);
-                return NULL;
+                return NULL;                                          // RETURN
             }
             else if (s && btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
                 *status = e_FAILED;
                 factory->deallocate(socket);
-                return NULL;
+                return NULL;                                          // RETURN
             }
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 *status = 1;  // Any positive number satisfies the contract.
                 factory->deallocate(socket);
-                return NULL;
+                return NULL;                                          // RETURN
             }
 
         } while (bdlt::CurrentTime::now() <= timeout);
@@ -138,12 +138,12 @@ RESULT *timedAllocate(
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = e_FAILED;
             factory->deallocate(socket);
-            return NULL;
+            return NULL;                                              // RETURN
         }
         if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket);
-            return NULL;
+            return NULL;                                              // RETURN
         }
     }
 
@@ -211,7 +211,7 @@ btlsc::Channel *TcpTimedConnector::allocate(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::Channel *channel = BloombergLP::allocate<TcpChannel>(
@@ -240,7 +240,7 @@ btlsc::TimedChannel *TcpTimedConnector::allocateTimed(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::TimedChannel *channel =
@@ -273,7 +273,7 @@ btlsc::Channel *TcpTimedConnector::timedAllocate(
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::Channel *channel =
@@ -307,7 +307,7 @@ btlsc::TimedChannel *TcpTimedConnector::timedAllocateTimed(
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::TimedChannel *channel =

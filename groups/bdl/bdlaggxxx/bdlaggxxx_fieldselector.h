@@ -1,4 +1,4 @@
-// bdlaggxxx_fieldselector.h                                               -*-C++-*-
+// bdlaggxxx_fieldselector.h                                          -*-C++-*-
 #ifndef INCLUDED_BDLAGGXXX_FIELDSELECTOR
 #define INCLUDED_BDLAGGXXX_FIELDSELECTOR
 

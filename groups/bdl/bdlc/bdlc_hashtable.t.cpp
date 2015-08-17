@@ -2,6 +2,8 @@
 
 #include <bdlc_hashtable.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlt_date.h>
 
 #include <bslma_testallocator.h>
@@ -16,10 +18,11 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The component under test is a mechanism for inserting, finding, and removing
@@ -35,29 +38,29 @@ using namespace BloombergLP;
 //
 // The accessors will be used and tested throughout the test to verify the
 // results of the manipulators.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] const unsigned int *ImpUtil::PRIME_NUMBERS;
 // [ 2] const unsigned int *ImpUtil::NUM_PRIME_NUMBERS;
 // [ 2] unsigned int ImpUtil::hashSize(Int64 hint);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 3] void DefTraits::load(BUCKET *dst, const BUCKET& src);
 // [ 3] bool DefTraits::areEqual(const KEY& key1, const key2);
 // [ 3] bool DefTraits::isNull(const BUCKET& bucket);
 // [ 3] void DefTraits::setToNull(BUCKET *bucket);
 // [ 3] bool DefTraits::isRemoved(const BUCKET& bucket);
 // [ 3] void DefTraits::setToRemoved(BUCKET *bucket);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 4] unsigned int DefHash1::operator()(const KEY& key);
 // [ 4] unsigned int DefHash1::operator()(const ConstCharPtr& key);
 // [ 4] unsigned int DefHash1::operator()(const bsl::string& key);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 4] unsigned int DefHash2::operator()(const KEY& key);
 // [ 4] unsigned int DefHash2::operator()(const ConstCharPtr& key);
 // [ 4] unsigned int DefHash2::operator()(const bsl::string& key);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 5] bdlc::HashTable(Int64 capacityHint, b_A *ba);
 // [ 5] bdlc::HashTable(Int64 capacityHint, HF hf1, HF hf2, b_A *ba);
 // [ 5] ~bdlc::HashTable();
@@ -75,251 +78,74 @@ using namespace BloombergLP;
 // [ 6] Int64 totalChain() const;
 // [ 6] const VALUE& value(const Handle& handle) const;
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-               aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { \
-              bsl::cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { \
-       bsl::cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { \
-       bsl::cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { \
-       bsl::cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-
-//=============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-    // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-    // Quote identifier literally.
-#define T_ bsl::cout << '\t' << bsl::flush;
-    // Print tab.
-#define P_(X) bsl::cout << #X " = " << (X) << ", "<< bsl::flush;
-    // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 namespace {
-//=============================================================================
+
+// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int PRIMES_1000[] = {
-    2,
-    3,
-    5,
-    7,
-    11,
-    13,
-    17,
-    19,
-    23,
-    29,
-    31,
-    37,
-    41,
-    43,
-    47,
-    53,
-    59,
-    61,
-    67,
-    71,
-    73,
-    79,
-    83,
-    89,
-    97,
-    101,
-    103,
-    107,
-    109,
-    113,
-    127,
-    131,
-    137,
-    139,
-    149,
-    151,
-    157,
-    163,
-    167,
-    173,
-    179,
-    181,
-    191,
-    193,
-    197,
-    199,
-    211,
-    223,
-    227,
-    229,
-    233,
-    239,
-    241,
-    251,
-    257,
-    263,
-    269,
-    271,
-    277,
-    281,
-    283,
-    293,
-    307,
-    311,
-    313,
-    317,
-    331,
-    337,
-    347,
-    349,
-    353,
-    359,
-    367,
-    373,
-    379,
-    383,
-    389,
-    397,
-    401,
-    409,
-    419,
-    421,
-    431,
-    433,
-    439,
-    443,
-    449,
-    457,
-    461,
-    463,
-    467,
-    479,
-    487,
-    491,
-    499,
-    503,
-    509,
-    521,
-    523,
-    541,
-    547,
-    557,
-    563,
-    569,
-    571,
-    577,
-    587,
-    593,
-    599,
-    601,
-    607,
-    613,
-    617,
-    619,
-    631,
-    641,
-    643,
-    647,
-    653,
-    659,
-    661,
-    673,
-    677,
-    683,
-    691,
-    701,
-    709,
-    719,
-    727,
-    733,
-    739,
-    743,
-    751,
-    757,
-    761,
-    769,
-    773,
-    787,
-    797,
-    809,
-    811,
-    821,
-    823,
-    827,
-    829,
-    839,
-    853,
-    857,
-    859,
-    863,
-    877,
-    881,
-    883,
-    887,
-    907,
-    911,
-    919,
-    929,
-    937,
-    941,
-    947,
-    953,
-    967,
-    971,
-    977,
-    983,
-    991,
-    997,
+      2,   3,   5,   7,  11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,
+     53,  59,  61,  67,  71,  73,  79,  83,  89,  97, 101, 103, 107, 109, 113,
+    127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197,
+    199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
+    283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379,
+    383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463,
+    467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569, 571,
+    577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
+    661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751, 757, 761,
+    769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863,
+    877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977,
+    983, 991, 997,
 };
 
-//=============================================================================
+// ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace TestCase3 {
 
@@ -405,9 +231,9 @@ unsigned int testHash3(int key)
 
 }  // close namespace TestCase5
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.
 // Suppose we wanted to store a table of 'int' keys and 'double' values.  We
@@ -466,9 +292,9 @@ void usageExample()
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                               MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -479,7 +305,7 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 5;
     int testAllocatorVerbosity = argc > 6;  // always the last
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     bslma::TestAllocator testAllocator(testAllocatorVerbosity);
 
@@ -502,12 +328,12 @@ int main(int argc, char *argv[])
         //   Usage example.
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Usage Example"
-                               << "\n=====================" << bsl::endl;
+        if (verbose) cout << "\nTesting Usage Example"
+                             "\n=====================\n";
 
         usageExample();
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -528,15 +354,15 @@ int main(int argc, char *argv[])
         //   VALUE& value(const Handle& handle);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Value Manipulator"
-                               << "\n=========================" << bsl::endl;
+        if (verbose) cout << "\nTesting Value Manipulator"
+                             "\n=========================\n";
 
-        if (verbose) bsl::cout << "\nTesting using 'bdlc::HashTable"
-                               << "<int, double>'" << bsl::endl;
+        if (verbose) cout << "\nTesting using 'bdlc::HashTable"
+                             "<int, double>'\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -561,20 +387,19 @@ int main(int argc, char *argv[])
         //   bool find(Handle *handle, const KEY& key) const;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Find Accessor"
-                               << "\n=====================" << bsl::endl;
+        if (verbose) cout << "\nTesting Find Accessor"
+                             "\n=====================\n";
 
-        if (verbose) bsl::cout << "\nTesting with 'bdlc::HashTable<int>'"
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting with 'bdlc::HashTable<int>'\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nTesting with 'bdlc::HashTable"
-                               << "<int, double>'" << bsl::endl;
+        if (verbose) cout << "\nTesting with 'bdlc::HashTable"
+                          << "<int, double>'\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -616,22 +441,22 @@ int main(int argc, char *argv[])
         //   const VALUE& value(const Handle& handle) const;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Insert Methods"
-                               << "\n======================" << bsl::endl;
+        if (verbose) cout << "\nTesting Insert Methods"
+                             "\n======================\n";
 
-        if (verbose) bsl::cout << "\nTesting: scale = 3" << bsl::endl;
+        if (verbose) cout << "\nTesting: scale = 3\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nTesting: scale = 7" << bsl::endl;
+        if (verbose) cout << "\nTesting: scale = 7\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nTesting: scale = 13" << bsl::endl;
+        if (verbose) cout << "\nTesting: scale = 13\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -676,21 +501,20 @@ int main(int argc, char *argv[])
         //   int scale() const;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Constructors"
-                               << "\n====================" << bsl::endl;
+        if (verbose) cout << "\nTesting Constructors"
+                             "\n====================\n";
 
-        if (verbose) bsl::cout << "\nTesting 'bdlc::HashTable"
-                               << "(Int64 scale, b_A *ba);'" << bsl::endl;
+        if (verbose) cout << "\nTesting 'bdlc::HashTable"
+                             "(Int64 scale, b_A *ba);'\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlc::HashTable"
-                               << "(Int64 scale, HF hf1, HF hf2, b_A *ba);'"
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting 'bdlc::HashTable"
+                             "(Int64 scale, HF hf1, HF hf2, b_A *ba);'\n";
         {
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -714,13 +538,11 @@ int main(int argc, char *argv[])
         //   unsigned int DefHash2::operator()(const bsl::string& key);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Default Hash Functors"
-                               << "\n============================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting Default Hash Functors"
+                             "\n=============================\n";
 
-        if (verbose) bsl::cout << "\nTesting 'unsigned int "
-                               << "DefHash1::operator()(const KEY& key);'"
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting 'unsigned int "
+                             "DefHash1::operator()(const KEY& key);'\n";
         {
             // Use oracle:
             //     bdlb::HashUtil::hash1((const char*)&key, sizeof key);
@@ -729,7 +551,7 @@ int main(int argc, char *argv[])
 
             typedef bdlc::HashTableDefaultHash1 Functor;
 
-            if (veryVerbose) bsl::cout << "\tUsing 'int'" << bsl::endl;
+            if (veryVerbose) cout << "\tUsing 'int'\n";
             {
                 typedef int Key;
 
@@ -758,9 +580,8 @@ int main(int argc, char *argv[])
                     const int LINE = DATA[i].d_lineNum;
                     const Key KEY  = DATA[i].d_key;
 
-                    unsigned int expected = bdlb::HashUtil::hash1(
-                                                             (const char*)&KEY,
-                                                             sizeof KEY);
+                    unsigned int expected =
+                          bdlb::HashUtil::hash1((const char*)&KEY, sizeof KEY);
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -774,7 +595,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) bsl::cout << "\tUsing 'double'" << bsl::endl;
+            if (veryVerbose) cout << "\tUsing 'double'\n";
             {
                 typedef double Key;
 
@@ -800,9 +621,8 @@ int main(int argc, char *argv[])
                     const int LINE = DATA[i].d_lineNum;
                     const Key KEY  = DATA[i].d_key;
 
-                    unsigned int expected = bdlb::HashUtil::hash1(
-                                                             (const char*)&KEY,
-                                                             sizeof KEY);
+                    unsigned int expected =
+                          bdlb::HashUtil::hash1((const char*)&KEY, sizeof KEY);
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -816,7 +636,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) bsl::cout << "\tUsing 'bdlt::Date'" << bsl::endl;
+            if (veryVerbose) cout << "\tUsing 'bdlt::Date'\n";
             {
                 typedef bdlt::Date Key;
 
@@ -836,9 +656,8 @@ int main(int argc, char *argv[])
                     const int LINE = DATA[i].d_lineNum;
                     const Key KEY  = DATA[i].d_key;
 
-                    unsigned int expected = bdlb::HashUtil::hash1(
-                                                             (const char*)&KEY,
-                                                             sizeof KEY);
+                    unsigned int expected =
+                          bdlb::HashUtil::hash1((const char*)&KEY, sizeof KEY);
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -853,10 +672,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout
-                           << "\nTesting 'unsigned int "
-                           << "DefHash1::operator()(const ConstCharPtr& key);'"
-                           << bsl::endl;
+        if (verbose)
+            cout << "\nTesting 'unsigned int "
+                    "DefHash1::operator()(const ConstCharPtr& key);'\n";
         {
             // Use oracle:
             //     bdlb::HashUtil::hash1(key, bsl::strlen(key));
@@ -883,8 +701,8 @@ int main(int argc, char *argv[])
                 const int LINE = DATA[i].d_lineNum;
                 const Key KEY  = DATA[i].d_key;
 
-                unsigned int expected = bdlb::HashUtil::hash1(KEY,
-                                                             bsl::strlen(KEY));
+                unsigned int expected =
+                                  bdlb::HashUtil::hash1(KEY, bsl::strlen(KEY));
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -898,10 +716,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout
-                            << "\nTesting 'unsigned int "
-                            << "DefHash1::operator()(const bsl::string& key);'"
-                            << bsl::endl;
+        if (verbose)
+            cout << "\nTesting 'unsigned int "
+                    "DefHash1::operator()(const bsl::string& key);'\n";
         {
             // Use oracle:
             //     bdlb::HashUtil::hash1(key.data(), key.length());
@@ -928,8 +745,8 @@ int main(int argc, char *argv[])
                 const int LINE = DATA[i].d_lineNum;
                 const Key KEY  = DATA[i].d_key;
 
-                unsigned int expected = bdlb::HashUtil::hash1(KEY.data(),
-                                                             KEY.length());
+                unsigned int expected =
+                               bdlb::HashUtil::hash1(KEY.data(), KEY.length());
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -943,9 +760,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'unsigned int "
-                               << "DefHash2::operator()(const KEY& key);'"
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting 'unsigned int "
+                             "DefHash2::operator()(const KEY& key);'\n";
         {
             // Use oracle:
             //     bdlb::HashUtil::hash2((const char*)&key, sizeof key);
@@ -954,7 +770,7 @@ int main(int argc, char *argv[])
 
             typedef bdlc::HashTableDefaultHash2 Functor;
 
-            if (veryVerbose) bsl::cout << "\tUsing 'int'" << bsl::endl;
+            if (veryVerbose) cout << "\tUsing 'int'\n";
             {
                 typedef int Key;
 
@@ -983,9 +799,8 @@ int main(int argc, char *argv[])
                     const int LINE = DATA[i].d_lineNum;
                     const Key KEY  = DATA[i].d_key;
 
-                    unsigned int expected = bdlb::HashUtil::hash2(
-                                                             (const char*)&KEY,
-                                                             sizeof KEY);
+                    unsigned int expected =
+                          bdlb::HashUtil::hash2((const char*)&KEY, sizeof KEY);
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -999,7 +814,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) bsl::cout << "\tUsing 'double'" << bsl::endl;
+            if (veryVerbose) cout << "\tUsing 'double'\n";
             {
                 typedef double Key;
 
@@ -1025,9 +840,8 @@ int main(int argc, char *argv[])
                     const int LINE = DATA[i].d_lineNum;
                     const Key KEY  = DATA[i].d_key;
 
-                    unsigned int expected = bdlb::HashUtil::hash2(
-                                                             (const char*)&KEY,
-                                                             sizeof KEY);
+                    unsigned int expected =
+                          bdlb::HashUtil::hash2((const char*)&KEY, sizeof KEY);
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -1041,7 +855,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) bsl::cout << "\tUsing 'bdlt::Date'" << bsl::endl;
+            if (veryVerbose) cout << "\tUsing 'bdlt::Date'\n";
             {
                 typedef bdlt::Date Key;
 
@@ -1061,9 +875,8 @@ int main(int argc, char *argv[])
                     const int LINE = DATA[i].d_lineNum;
                     const Key KEY  = DATA[i].d_key;
 
-                    unsigned int expected = bdlb::HashUtil::hash2(
-                                                             (const char*)&KEY,
-                                                             sizeof KEY);
+                    unsigned int expected =
+                          bdlb::HashUtil::hash2((const char*)&KEY, sizeof KEY);
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -1079,10 +892,9 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) bsl::cout
-                           << "\nTesting 'unsigned int "
-                           << "DefHash2::operator()(const ConstCharPtr& key);'"
-                           << bsl::endl;
+        if (verbose)
+            cout << "\nTesting 'unsigned int "
+                    "DefHash2::operator()(const ConstCharPtr& key);'\n";
         {
             // Use oracle:
             //     bdlb::HashUtil::hash2(key, bsl::strlen(key));
@@ -1109,8 +921,8 @@ int main(int argc, char *argv[])
                 const int LINE = DATA[i].d_lineNum;
                 const Key KEY  = DATA[i].d_key;
 
-                unsigned int expected = bdlb::HashUtil::hash2(KEY,
-                                                             bsl::strlen(KEY));
+                unsigned int expected =
+                                  bdlb::HashUtil::hash2(KEY, bsl::strlen(KEY));
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -1125,10 +937,9 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) bsl::cout
-                            << "\nTesting 'unsigned int "
-                            << "DefHash2::operator()(const bsl::string& key);'"
-                            << bsl::endl;
+        if (verbose)
+            cout << "\nTesting 'unsigned int "
+                    "DefHash2::operator()(const bsl::string& key);'\n";
         {
             // Use oracle:
             //     bdlb::HashUtil::hash2(key.data(), key.length());
@@ -1156,8 +967,8 @@ int main(int argc, char *argv[])
                 const int LINE = DATA[i].d_lineNum;
                 const Key KEY  = DATA[i].d_key;
 
-                unsigned int expected = bdlb::HashUtil::hash2(KEY.data(),
-                                                             KEY.length());
+                unsigned int expected =
+                               bdlb::HashUtil::hash2(KEY.data(), KEY.length());
 
                 if (veryVeryVerbose) {
                     T_ T_ P_(LINE) P_(KEY) P(expected)
@@ -1171,7 +982,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1232,12 +1043,12 @@ int main(int argc, char *argv[])
         //   void DefTraits::setToRemoved(BUCKET *bucket);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Default Traits"
-                               << "\n======================" << bsl::endl;
+        if (verbose) cout << "\nTesting Default Traits"
+                             "\n======================\n";
 
         typedef bdlc::HashTableDefaultTraits Traits;
 
-        if (verbose) bsl::cout << "\nTesting 'load' function." << bsl::endl;
+        if (verbose) cout << "\nTesting 'load' function.\n";
         {
             typedef int Bucket;
 
@@ -1284,10 +1095,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'areEqual'."
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting 'areEqual'.\n";
         {
-            if (veryVerbose) bsl::cout << "\nUsing 'int'" << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'int'\n";
             {
                 typedef int Key;
 
@@ -1336,7 +1146,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) bsl::cout << "\nUsing 'const char*'" << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'const char*'\n";
             {
                 typedef const char* Key;
 
@@ -1389,30 +1199,27 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'isNull'." << bsl::endl;
+        if (verbose) cout << "\nTesting 'isNull'.\n";
         {
-            if (veryVerbose) bsl::cout << "\nUsing 'int'." << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'int'.\n";
             {
                 typedef int Bucket;
                 TestCase3::testIsNullFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) bsl::cout << "\nUsing 'const char*'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'const char*'.\n";
             {
                 typedef const char* Bucket;
                 TestCase3::testIsNullFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) bsl::cout << "\nUsing 'bsl::pair<int, int>'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'bsl::pair<int, int>'.\n";
             {
                 typedef bsl::pair<int, int> Bucket;
                 TestCase3::testIsNullFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) bsl::cout << "\nUsing 'bsl::string'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'bsl::string'.\n";
             {
                 typedef bsl::string Bucket;
 
@@ -1447,9 +1254,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'setToNull'." << bsl::endl;
+        if (verbose) cout << "\nTesting 'setToNull'.\n";
         {
-            if (veryVerbose) bsl::cout << "Using 'int'." << bsl::endl;
+            if (veryVerbose) cout << "Using 'int'.\n";
             {
                 int obj = 1;
                 ASSERT(!Traits::isNull(obj));
@@ -1457,7 +1264,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isNull(obj));
             }
 
-            if (veryVerbose) bsl::cout << "Using 'const char*'." << bsl::endl;
+            if (veryVerbose) cout << "Using 'const char*'.\n";
             {
                 const char *obj = "Hello";
                 ASSERT(!Traits::isNull(obj));
@@ -1465,8 +1272,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isNull(obj));
             }
 
-            if (veryVerbose) bsl::cout << "Using 'bsl::pair<int, int>'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "Using 'bsl::pair<int, int>'.\n";
             {
                 bsl::pair<int, int> obj(1, 0);
                 ASSERT(!Traits::isNull(obj));
@@ -1486,7 +1292,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isNull(obj));
             }
 
-            if (veryVerbose) bsl::cout << "Using 'bsl::string'." << bsl::endl;
+            if (veryVerbose) cout << "Using 'bsl::string'.\n";
             {
                 bsl::string obj = "Hello";
                 ASSERT(!Traits::isNull(obj));
@@ -1495,30 +1301,27 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'isRemoved'." << bsl::endl;
+        if (verbose) cout << "\nTesting 'isRemoved'.\n";
         {
-            if (veryVerbose) bsl::cout << "\nUsing 'int'." << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'int'.\n";
             {
                 typedef int Bucket;
                 TestCase3::testIsRemovedFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) bsl::cout << "\nUsing 'const char*'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'const char*'.\n";
             {
                 typedef const char* Bucket;
                 TestCase3::testIsRemovedFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) bsl::cout << "\nUsing 'bsl::pair<int, int>'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'bsl::pair<int, int>'.\n";
             {
                 typedef bsl::pair<int, int> Bucket;
                 TestCase3::testIsRemovedFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) bsl::cout << "\nUsing 'bsl::string'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "\nUsing 'bsl::string'.\n";
             {
                 typedef bsl::string Bucket;
 
@@ -1553,9 +1356,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'setToRemoved'." << bsl::endl;
+        if (verbose) cout << "\nTesting 'setToRemoved'.\n";
         {
-            if (veryVerbose) bsl::cout << "Using 'int'." << bsl::endl;
+            if (veryVerbose) cout << "Using 'int'.\n";
             {
                 int obj = 0;
                 ASSERT(!Traits::isRemoved(obj));
@@ -1563,7 +1366,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isRemoved(obj));
             }
 
-            if (veryVerbose) bsl::cout << "Using 'const char*'." << bsl::endl;
+            if (veryVerbose) cout << "Using 'const char*'.\n";
             {
                 const char *obj = "Hello";
                 ASSERT(!Traits::isRemoved(obj));
@@ -1571,8 +1374,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isRemoved(obj));
             }
 
-            if (veryVerbose) bsl::cout << "Using 'bsl::pair<int, int>'."
-                                       << bsl::endl;
+            if (veryVerbose) cout << "Using 'bsl::pair<int, int>'.\n";
             {
                 bsl::pair<int, int> obj(1, 1);
                 Traits::setToRemoved(&obj.first);
@@ -1594,7 +1396,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isRemoved(obj));
             }
 
-            if (veryVerbose) bsl::cout << "Using 'bsl::string'." << bsl::endl;
+            if (veryVerbose) cout << "Using 'bsl::string'.\n";
             {
                 bsl::string obj = "Hello";
                 ASSERT(!Traits::isRemoved(obj));
@@ -1603,7 +1405,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1627,13 +1429,12 @@ int main(int argc, char *argv[])
         //   unsigned int ImpUtil::hashSize(int hint);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Imp Util"
-                               << "\n================" << bsl::endl;
+        if (verbose) cout << "\nTesting Imp Util"
+                             "\n================\n";
 
         typedef bdlc::HashTable_ImpUtil ImpUtil;
 
-        if (verbose) bsl::cout << "\nTesting 'PRIME_NUMBERS' array."
-                               << bsl::endl;
+        if (verbose) cout << "\nTesting 'PRIME_NUMBERS' array.\n";
         {
             // Use oracle: bool TestCase2::isPrime(unsigned int);
 
@@ -1651,8 +1452,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'unsigned int ImpUtil::hashSize"
-                               << "(int hint);'" << bsl::endl;
+        if (verbose) cout << "\nTesting 'unsigned int ImpUtil::hashSize"
+                             "(int hint);'\n";
         {
             static const struct {
                 int                d_lineNum;
@@ -1730,7 +1531,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+        if (verbose) cout << "\nEnd of test.\n";
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1751,10 +1552,10 @@ int main(int argc, char *argv[])
         //   This test case exercises basic functionality.
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nBREATHING TEST"
-                                  "\n==============" << bsl::endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                             "\n==============\n";
 
-        if (verbose) bsl::cout << "\nUsing '<const char*, int>'" << bsl::endl;
+        if (verbose) cout << "\nUsing '<const char*, int>'\n";
         {
             typedef const char                  *Key;
             typedef int                          Value;
@@ -1787,7 +1588,7 @@ int main(int argc, char *argv[])
             ASSERT(VALUE == X.value(handle));
         }
 
-        if (verbose) bsl::cout << "\nUsing '<const char*>'" << bsl::endl;
+        if (verbose) cout << "\nUsing '<const char*>'\n";
         {
             typedef const char           *Key;
             typedef bdlc::HashTable<Key>  Class;
@@ -1817,17 +1618,16 @@ int main(int argc, char *argv[])
             ASSERT(KEY == X.key(handle));
         }
 
-        if (verbose) bsl::cout << "\nEnd of Test." << bsl::endl;
+        if (verbose) cout << "\nEnd of Test.\n";
       } break;
       default: {
-        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        bsl::cerr << "Error, non-zero test status = "
-                  << testStatus << "." << bsl::endl;
+        cerr << "Error, non-zero test status = " << testStatus << ".\n";
     }
     return testStatus;
 }

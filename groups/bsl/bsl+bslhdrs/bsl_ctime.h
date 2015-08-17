@@ -42,7 +42,7 @@ namespace bsl
     using native_std::time;
     using native_std::time_t;
     using native_std::tm;
-}
+}  // close package namespace
 
 #endif
 

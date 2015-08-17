@@ -311,7 +311,7 @@ static bool areEqual(const short *array1, const short *array2, int numElement)
     // 'array1' and 'array2' have the same values, and 'false' otherwise.
 {
     for (int i = 0; i < numElement; ++i) {
-        if (array1[i] != array2[i]) return false;
+        if (array1[i] != array2[i]) return false;                     // RETURN
     }
     return true;
 }

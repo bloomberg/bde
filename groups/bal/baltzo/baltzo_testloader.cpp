@@ -13,7 +13,10 @@ BSLS_IDENT_RCSID(baltzo_testloader_cpp,"$Id$ $CSID$")
 #include <bslim_printer.h>
 #include <bslma_allocator.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_istream.h>
+#include <bsl_set.h>
 #include <bsl_utility.h>
 
 namespace BloombergLP {
@@ -71,7 +74,7 @@ int baltzo::TestLoader::loadTimeZone(Zoneinfo *result, const char *timeZoneId)
     TimeZoneMap::const_iterator it = d_timeZones.find(timeZoneId);
 
     if (it == d_timeZones.end()) {
-        return ErrorCode::BALTZO_UNSUPPORTED_ID;                      // RETURN
+        return ErrorCode::k_UNSUPPORTED_ID;                           // RETURN
     }
 
     *result = it->second;

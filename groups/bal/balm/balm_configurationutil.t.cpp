@@ -130,13 +130,13 @@ typedef balm::MetricDescription::UserDataKey Key;
 //-----------------------------------------------------------------------------
 
 ///Using a Metric's User Data
-///- - - - - - - - - - - - - 
-// In the following example we configure, using 'balm::ConfigurationUtil', 
+///- - - - - - - - - - - - -
+// In the following example we configure, using 'balm::ConfigurationUtil',
 // application specific thresholds for a series of metrics that will
 // be used by a publisher to determine whether each metric should be written
 // to the console.  For simplicity, the metric thresholds in this example will
 // be a simple unsigned integer value that will be compared with the metric's
-// total.  
+// total.
 //
 // We start by defining an application specific publisher implementation.
 // This implementation is supplied a user data key on construction, which it
@@ -150,7 +150,7 @@ typedef balm::MetricDescription::UserDataKey Key;
         // than an application specific threshold.
 //
         // DATA
-        balm::MetricDescription::UserDataKey d_thresholdKey;  // key for a 
+        balm::MetricDescription::UserDataKey d_thresholdKey;  // key for a
                                                              // metric's
                                                              // threshold
 //
@@ -201,13 +201,13 @@ typedef balm::MetricDescription::UserDataKey Key;
 // We now use the user data key to lookup the address of the threshold value.
 // If this address is 0, no threshold is specified for the metric.
 //..
-                const balm::MetricDescription& description = 
+                const balm::MetricDescription& description =
                                                 *gIt->metricId().description();
-                const unsigned int *thresholdPtr = 
+                const unsigned int *thresholdPtr =
                     (const unsigned int *)description.userData(d_thresholdKey);
                 if (thresholdPtr && gIt->total() > *thresholdPtr) {
-                    bsl::cout << "WARNING: " << gIt->metricId() 
-                              << " = "       << gIt->total() 
+                    bsl::cout << "WARNING: " << gIt->metricId()
+                              << " = "       << gIt->total()
                               << bsl::endl;
                 }
             }
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
 //..
 // Now we create a user data key for our threshold information:
 //..
-        balm::MetricDescription::UserDataKey thresholdKey = 
+        balm::MetricDescription::UserDataKey thresholdKey =
                                    balm::ConfigurationUtil::createUserDataKey();
 //..
 // Now we create an instance of our application specific publisher type,
@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
             registry.addId("A",   "A");
             registry.addId("AA",  "A");
             registry.addId("AAA", "A");
-            
+
             Obj::setUserData("A",   key0, (void *)1, &mgr);
             Obj::setUserData("AA",  key0, (void *)2, &mgr);
             Obj::setUserData("AAA", key0, (void *)3, &mgr);
@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
             registry.addId("A",   "A");
             registry.addId("AA",  "A");
             registry.addId("AAA", "A");
-            
+
             Obj::setUserData("A",   key0, (void *)1, &mgr);
             Obj::setUserData("AA",  key0, (void *)2, &mgr);
             Obj::setUserData("AAA", key0, (void *)3, &mgr);
@@ -671,7 +671,7 @@ int main(int argc, char *argv[])
 
             balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
-            
+
             Obj::setUserData("A", "A", key0, (void *)1, &mgr);
 
             ASSERT((void *)1 ==
@@ -704,7 +704,7 @@ int main(int argc, char *argv[])
 
             balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
-            
+
             Obj::setUserData("A", "A", key0, (void *)1);
 
             ASSERT((void *)1 ==
@@ -715,7 +715,7 @@ int main(int argc, char *argv[])
 
             ASSERT(registry.findId("A","B").isValid());
             ASSERT((void *)1 ==
-                   registry.getId("A", "B").description()->userData(key0));  
+                   registry.getId("A", "B").description()->userData(key0));
         }
       } break;
       case 4: {
@@ -1049,10 +1049,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

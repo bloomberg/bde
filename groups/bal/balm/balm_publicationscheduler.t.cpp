@@ -498,16 +498,16 @@ bool TestPublisher::InvocationIdLess::operator()(
                              const bsl::set<const balm::Category *>& rhs) const
 {
     if (lhs.size() < rhs.size()) {
-        return true;
+        return true;                                                  // RETURN
     }
     if (lhs.size() > rhs.size()) {
-        return false;
+        return false;                                                 // RETURN
     }
     bsl::set<const balm::Category *>::const_iterator lIt = lhs.begin();
     bsl::set<const balm::Category *>::const_iterator rIt = rhs.begin();
     for (; lIt != lhs.end(); ++lIt, ++rIt) {
-        if (*lIt < *rIt) return true;
-        if (*lIt > *rIt) return false;
+        if (*lIt < *rIt) return true;                                 // RETURN
+        if (*lIt > *rIt) return false;                                // RETURN
     }
     return false;
 }
@@ -584,7 +584,7 @@ const TestPublisher::InvocationSummary *TestPublisher::findInvocation(
 {
     InvocationMap::const_iterator it = d_invocations.find(categories);
     if (it == d_invocations.end()) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     return &it->second;
 }
@@ -992,7 +992,7 @@ void ConcurrencyTest::runTest()
 }
 
 //=============================================================================
-//                        Helper Functions
+//                              Helper Functions
 //=============================================================================
 
 inline bsls::TimeInterval invalidInterval()
@@ -1027,13 +1027,13 @@ bool equalSchedule(const CategoryScheduleOracle& oracle,
     // pair in 'oracle'.
 {
     if (oracle.size() != schedule.size()) {
-        return false;
+        return false;                                                 // RETURN
     }
     Schedule::const_iterator it = schedule.begin();
     for (; it != schedule.end(); ++it) {
         CategoryScheduleOracle::const_iterator fIt = oracle.find(it->first);
         if (fIt == oracle.end() || (it->second != fIt->second)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -1052,7 +1052,7 @@ bool stringDiff(const bsl::string& expectedValue,
     for (; *exp && (*exp == *act); ++exp, ++act, ++index) {
     }
     if (*exp == *act) {
-        return true;
+        return true;                                                  // RETURN
     }
     bsl::cout << "expcetedValue[" << index << "] = " << (int)*exp
               << " (" << *exp << ")" << bsl::endl
@@ -3177,10 +3177,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

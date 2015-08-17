@@ -35,9 +35,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we set up a test allocator as default allocator.  A
 // 'balst::StackTrace' object, by default, gets all its memory from an owned
-// 'bdlma::HeapBypassAllocator' object.  To demonstrate this default behavior we
-// start by setting the default allocator to a test allocator so we can verify
-// later that it was unused:
+// 'bdlma::HeapBypassAllocator' object.  To demonstrate this default behavior
+// we start by setting the default allocator to a test allocator so we can
+// verify later that it was unused:
 //..
 //  bslma::TestAllocator         da;
 //  bslma::DefaultAllocatorGuard guard(&da);
@@ -318,7 +318,6 @@ bool operator!=(const StackTrace& lhs, const StackTrace& rhs);
 
 bsl::ostream& operator<<(bsl::ostream&           stream,
                          const StackTrace& object);
-}  // close package namespace
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -327,9 +326,8 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     // 'object.print(stream, 0, -1)', but with the attribute names elided.
 
 // FREE FUNCTIONS
-void swap(balst::StackTrace& a, balst::StackTrace& b);
-
-namespace balst {    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+void swap(StackTrace& a, StackTrace& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
@@ -363,7 +361,7 @@ StackTrace::StackTrace(bslma::Allocator *basicAllocator)
 
 inline
 StackTrace::StackTrace(const StackTrace&  original,
-                                   bslma::Allocator        *basicAllocator)
+                       bslma::Allocator        *basicAllocator)
 : d_hbpAlloc()
 , d_frames(original.d_frames,
            basicAllocator ? basicAllocator : &d_hbpAlloc)
@@ -433,24 +431,30 @@ int StackTrace::length() const
 {
     return (int) d_frames.size();
 }
-}  // close package namespace
+
+// FREE FUNCTIONS
+inline
+void swap(StackTrace& a, StackTrace& b)
+{
+    a.swap(b);
+}
 
 // FREE OPERATORS
 inline
-bool balst::operator==(const StackTrace& lhs, const StackTrace& rhs)
+bool operator==(const StackTrace& lhs, const StackTrace& rhs)
 {
     return lhs.d_frames == rhs.d_frames;
 }
 
 inline
-bool balst::operator!=(const StackTrace& lhs,
+bool operator!=(const StackTrace& lhs,
                 const StackTrace& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& balst::operator<<(bsl::ostream&           stream,
+bsl::ostream& operator<<(bsl::ostream&     stream,
                          const StackTrace& object)
 {
     object.print(stream, 0, -1);
@@ -458,22 +462,24 @@ bsl::ostream& balst::operator<<(bsl::ostream&           stream,
     return stream;
 }
 
-// FREE FUNCTIONS
-inline
-void swap(balst::StackTrace& a, balst::StackTrace& b)
-{
-    a.swap(b);
-}
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

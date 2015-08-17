@@ -16,6 +16,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -391,7 +392,7 @@ Obj g(const char *spec)
 // First we declare the function 'utcToLocalTime' and its contract:
 //..
     static bdlt::DatetimeTz utcToLocalTime(const bdlt::Datetime&   utcTime,
-                                          const baltzo::Zoneinfo& timeZone)
+                                           const baltzo::Zoneinfo& timeZone)
     {
         // Return the 'bdlt::DatetimeTz' value representing the date, time and
         // offset from UTC (rounded to the minute) value of the local time,
@@ -972,7 +973,7 @@ int main(int argc, char *argv[])
 
             // Quash unused variable warning.
 
-            operatorAssignment;
+            (void)operatorAssignment;
         }
 
         if (verbose) cout <<
@@ -1250,7 +1251,7 @@ int main(int argc, char *argv[])
 
             // Quash unused variable warnings.
 
-            memberSwap; freeSwap;
+            (void)memberSwap; (void)freeSwap;
         }
 
         if (verbose) cout <<
@@ -2014,7 +2015,7 @@ int main(int argc, char *argv[])
 
             // Quash unused-variable warnings.
 
-            operatorEq; operatorNe;
+            (void)operatorEq; (void)operatorNe;
         }
 
         if (verbose) cout <<
@@ -2205,7 +2206,7 @@ int main(int argc, char *argv[])
 
             // Quash unused-variable warnings.
 
-            print; operatorOp;
+            (void)print; (void)operatorOp;
         }
 
         if (verbose) cout <<
@@ -2506,7 +2507,7 @@ int main(int argc, char *argv[])
 
             // Quash unused variable warning.
 
-            opLess;
+            (void)opLess;
         }
 
         if (verbose) cout <<
@@ -2705,7 +2706,7 @@ int main(int argc, char *argv[])
 
             // Quash unused variable warning.
 
-            operatorEq; operatorNe;
+            (void)operatorEq; (void)operatorNe;
         }
 
         if (verbose) cout <<
@@ -2852,7 +2853,7 @@ int main(int argc, char *argv[])
 
             // Quash unused variable warning.
 
-            print; operatorOp;
+            (void)print; (void)operatorOp;
 
         }
 
@@ -3602,15 +3603,15 @@ int main(int argc, char *argv[])
         //   denote unique, but otherwise arbitrary, object values, while 'U'
         //   denotes the valid, but "unknown", default object value.
         //
-        // 1. Create an object x1 (init. to VA).    { x1:VA }
-        // 2. Create an object x2 (copy from x1).   { x1:VA x2:VA }
-        // 3. Set x1 to VB.                         { x1:VB x2:VA }
-        // 4. Create an object x3 (default ctor).   { x1:VB x2:VA x3:U }
-        // 5. Create an object x4 (copy from x3).   { x1:VB x2:VA x3:U  x4:U }
-        // 6. Set x3 to VC.                         { x1:VB x2:VA x3:VC x4:U }
-        // 7. Assign x2 = x1.                       { x1:VB x2:VB x3:VC x4:U }
-        // 8. Assign x2 = x3.                       { x1:VB x2:VC x3:VC x4:U }
-        // 9. Assign x1 = x1 (aliasing).            { x1:VB x2:VB x3:VC x4:U }
+        // 1.  Create an object x1 (init. to VA).    { x1:VA }
+        // 2.  Create an object x2 (copy from x1).   { x1:VA x2:VA }
+        // 3.  Set x1 to VB.                         { x1:VB x2:VA }
+        // 4.  Create an object x3 (default ctor).   { x1:VB x2:VA x3:U }
+        // 5.  Create an object x4 (copy from x3).   { x1:VB x2:VA x3:U  x4:U }
+        // 6.  Set x3 to VC.                         { x1:VB x2:VA x3:VC x4:U }
+        // 7.  Assign x2 = x1.                       { x1:VB x2:VB x3:VC x4:U }
+        // 8.  Assign x2 = x3.                       { x1:VB x2:VC x3:VC x4:U }
+        // 9.  Assign x1 = x1 (aliasing).            { x1:VB x2:VB x3:VC x4:U }
         //
         // Testing:
         //   This Test Case exercises basic value-semantic functionality.

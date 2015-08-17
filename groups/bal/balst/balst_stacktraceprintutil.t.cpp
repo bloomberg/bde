@@ -51,7 +51,7 @@ using bsl::endl;
 using bsl::flush;
 
 //=============================================================================
-// TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 // CLASS METHOD
 // [ 2] bsl::ostream& printStackTrace(ostream& s, int max, bool demangle);
@@ -62,7 +62,7 @@ using bsl::flush;
 // [ 4] CONCERN: 'printStackTrace' works for inline routine on stack
 
 //=============================================================================
-// STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -131,7 +131,7 @@ namespace {
 typedef balst::StackTracePrintUtil           PrintUtil;
 typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 
-#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
@@ -144,13 +144,13 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 #   error unknown platform
 # endif
 
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
 #else
@@ -182,7 +182,7 @@ typedef bsls::Types::IntPtr    IntPtr;
 }  // close unnamed namespace
 
 //=============================================================================
-// GLOBAL HELPER VARIABLES FOR TESTING
+//                  GLOBAL HELPER VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
 
 static int verbose;
@@ -288,7 +288,8 @@ void top()
         // Windows doesn't provide the source file name for an inline routine.
 
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("balst::StackTracePrintUtil_Test");
+        matches.push_back("balst");
+        matches.push_back("StackTracePrintUtil_Test");
         matches.push_back("printStackTraceToString");
         matches.push_back(" source:balst_stacktraceprintutil.h");
         matches.push_back(" in balst_stacktraceprintutil.t");
@@ -305,7 +306,8 @@ void top()
     }
     else {
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("balst::StackTracePrintUtil_Test");
+        matches.push_back("balst");
+        matches.push_back("StackTracePrintUtil_Test");
         matches.push_back("printStackTraceToString");
         matches.push_back("\n");
         matches.push_back("CASE_4");
@@ -464,7 +466,7 @@ bool calledTop = false;
 static
 int top()
 {
-    if (calledTop) return 9;
+    if (calledTop) return 9;                                          // RETURN
     calledTop = true;
 
     bslma::TestAllocator ta;
@@ -507,7 +509,7 @@ bool calledHighMiddle = false;
 static
 int highMiddle(int i)
 {
-    if (calledHighMiddle) return 40;
+    if (calledHighMiddle) return 40;                                  // RETURN
     calledHighMiddle = true;
 
     calledTop = false;
@@ -533,7 +535,7 @@ bool calledLowMiddle = false;
 
 int lowMiddle()
 {
-    if (calledLowMiddle) return 30;
+    if (calledLowMiddle) return 30;                                   // RETURN
     calledLowMiddle = true;
 
     calledHighMiddle = false;
@@ -594,7 +596,7 @@ bool called = false;
 
 void top(bslma::Allocator *alloc)
 {
-    if (called) return;
+    if (called) return;                                               // RETURN
     called = true;
 
     bsl::vector<const char *> matches(alloc);
@@ -693,7 +695,7 @@ void recurseAndPrintStack(int *depth)
 // the program name is truncated to 32 characters in length.
 
 //=============================================================================
-// MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -950,11 +952,18 @@ int main()
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

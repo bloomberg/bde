@@ -20,7 +20,7 @@ FixedMemOutStreamBuf::seekoff(off_type                offset,
 {
     // This is an output buffer only, so cannot "seek" in "get" area.
     if (!(which & bsl::ios_base::out)) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     // Compute offset from current position.  In this stream, pptr() defines
@@ -32,7 +32,7 @@ FixedMemOutStreamBuf::seekoff(off_type                offset,
     // currOffset id invalid if it is positive or has an absolute-value >
     // length.
     if (currOffset > 0 || -currOffset > length()) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     pbump(static_cast<int>(currOffset));
@@ -48,7 +48,7 @@ FixedMemOutStreamBuf::seekpos(pos_type                position,
 }
 }  // close package namespace
 
-} // end namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

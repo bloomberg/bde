@@ -1,4 +1,4 @@
-// bdlxxxx_byteinstreamraw.cpp                                           -*-C++-*-
+// bdlxxxx_byteinstreamraw.cpp                                        -*-C++-*-
 #include <bdlxxxx_byteinstreamraw.h>
 
 #include <bsls_ident.h>
@@ -41,13 +41,13 @@ bsl::ostream& bdlxxxx::operator<<(bsl::ostream&               stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

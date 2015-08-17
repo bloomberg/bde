@@ -234,26 +234,26 @@ class Decoder {
     friend struct Decoder_ElementVisitor;
 
     // PRIVATE MANIPULATORS
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::DynamicType);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Sequence);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Choice);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Enumeration);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::CustomizedType);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Simple);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::Array);
-    template <typename TYPE>
-    int decodeImp(TYPE *value, int mode, bdeat_TypeCategory::NullableValue);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::DynamicType);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Choice);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Enumeration);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::CustomizedType);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Simple);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Array);
+    template <class TYPE>
+    int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::NullableValue);
     int decodeImp(bsl::vector<char> *value,
                   int                mode,
-                  bdeat_TypeCategory::Array);
-    template <typename TYPE, typename ANY_CATEGORY>
+                  bdlat_TypeCategory::Array);
+    template <class TYPE, class ANY_CATEGORY>
     int decodeImp(TYPE *value, ANY_CATEGORY category);
         // Decode into the specified 'value', of a (template parameter) 'TYPE'
         // corresponding to the specified 'bdeat' 'category', the JSON data
@@ -261,8 +261,8 @@ class Decoder {
         // the specified formatting 'mode'.  Return 0 on success and a non-zero
         // value otherwise.  The behavior is undefined unless 'value'
         // corresponds to the specified 'bdeat' category and 'mode' is a valid
-        // formatting mode as specified in 'bdeat_FormattingMode'.  Note that
-        // 'ANY_CATEGORY' shall be a tag-type defined in 'bdeat_TypeCategory'.
+        // formatting mode as specified in 'bdlat_FormattingMode'.  Note that
+        // 'ANY_CATEGORY' shall be a tag-type defined in 'bdlat_TypeCategory'.
 
     int skipUnknownElement(const bslstl::StringRef& elementName);
         // Skip the unknown element specified by 'elementName' by discarding
@@ -277,7 +277,7 @@ class Decoder {
         // is used.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::streambuf               *streamBuf,
                TYPE                         *value,
                const DecoderOptions&  options);
@@ -291,7 +291,7 @@ class Decoder {
         // attempt to update the input position of 'streambuf' to the last
         // unprocessed byte.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::istream&                 stream,
                TYPE                         *value,
                const DecoderOptions&  options);
@@ -305,7 +305,7 @@ class Decoder {
         // attempt to update the input position of 'stream' to the last
         // unprocessed byte.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
         // Decode an object of (template parameter) 'TYPE' from the specified
         // 'streamBuf' and load the result into the specified modifiable
@@ -314,7 +314,7 @@ class Decoder {
         // DEPRECATED: Use the 'decode' function passed a reference to a
         // non-modifiable 'DecoderOptions' object instead.
 
-    template <typename TYPE>
+    template <class TYPE>
     int decode(bsl::istream& stream, TYPE *value);
         // Decode an object of (template parameter) 'TYPE' from the specified
         // 'stream' and load the result into the specified modifiable
@@ -351,12 +351,12 @@ struct Decoder_ElementVisitor {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *value);
         // Decode into the specified 'value' the data in the JSON format.
         // Return 0 on success and a non-zero value otherwise.
 
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(TYPE *value, const INFO& info);
         // Decode into the specified 'value' using the specified 'info' the
         // data in the JSON format.  Return 0 on success and a non-zero value
@@ -382,10 +382,10 @@ struct Decoder_DecodeImpProxy {
     // this struct.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *, bslmf::Nil);
 
-    template <typename TYPE, typename ANY_CATEGORY>
+    template <class TYPE, class ANY_CATEGORY>
     int operator()(TYPE *object, ANY_CATEGORY category);
         // Dencode into the specified 'value' of the specified 'bdeat'
         // 'category' from the data in the JSON format.  Return 0 on success
@@ -401,32 +401,32 @@ struct Decoder_DecodeImpProxy {
                         // --------------------
 
 // PRIVATE MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
-                              bdeat_TypeCategory::DynamicType)
+                              bdlat_TypeCategory::DynamicType)
 {
     Decoder_DecodeImpProxy proxy = { this, mode };
-    return bdeat_TypeCategoryUtil::manipulateByCategory(value, proxy);
+    return bdlat_TypeCategoryUtil::manipulateByCategory(value, proxy);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
-                              bdeat_TypeCategory::Sequence)
+                              bdlat_TypeCategory::Sequence)
 {
-    if (bdeat_FormattingMode::BDEAT_UNTAGGED & mode) {
+    if (bdlat_FormattingMode::e_UNTAGGED & mode) {
         // This is an anonymous element.  Do not read anything and instead
         // decode into the corresponding sub-element.
 
-        if (bdeat_SequenceFunctions::hasAttribute(
+        if (bdlat_SequenceFunctions::hasAttribute(
                                    *value,
                                    d_elementName.data(),
                                    static_cast<int>(d_elementName.length()))) {
             Decoder_ElementVisitor visitor = { this, mode };
 
-            if (0 != bdeat_SequenceFunctions::manipulateAttribute(
+            if (0 != bdlat_SequenceFunctions::manipulateAttribute(
                                    value,
                                    visitor,
                                    d_elementName.data(),
@@ -481,7 +481,7 @@ int Decoder::decodeImp(TYPE *value,
                 return -1;                                            // RETURN
             }
 
-            if (bdeat_SequenceFunctions::hasAttribute(
+            if (bdlat_SequenceFunctions::hasAttribute(
                                      *value,
                                      elementName.data(),
                                      static_cast<int>(elementName.length()))) {
@@ -496,7 +496,7 @@ int Decoder::decodeImp(TYPE *value,
 
                 Decoder_ElementVisitor visitor = { this, mode };
 
-                if (0 != bdeat_SequenceFunctions::manipulateAttribute(
+                if (0 != bdlat_SequenceFunctions::manipulateAttribute(
                                    value,
                                    visitor,
                                    d_elementName.data(),
@@ -543,23 +543,23 @@ int Decoder::decodeImp(TYPE *value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
-                              bdeat_TypeCategory::Choice)
+                              bdlat_TypeCategory::Choice)
 {
-    if (bdeat_FormattingMode::BDEAT_UNTAGGED & mode) {
+    if (bdlat_FormattingMode::e_UNTAGGED & mode) {
         // This is an anonymous element.  Do not read anything and instead
         // decode into the corresponding sub-element.
 
         bslstl::StringRef selectionName;
         selectionName.assign(d_elementName.begin(), d_elementName.end());
 
-        if (bdeat_ChoiceFunctions::hasSelection(
+        if (bdlat_ChoiceFunctions::hasSelection(
                                    *value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
-            if (0 != bdeat_ChoiceFunctions::makeSelection(
+            if (0 != bdlat_ChoiceFunctions::makeSelection(
                                    value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
@@ -570,7 +570,7 @@ int Decoder::decodeImp(TYPE *value,
 
             Decoder_ElementVisitor visitor = { this, mode };
 
-            if (0 != bdeat_ChoiceFunctions::manipulateSelection(value,
+            if (0 != bdlat_ChoiceFunctions::manipulateSelection(value,
                                                                 visitor)) {
                 d_logStream << "Could not decode choice, selection "
                             << "was not decoded\n";
@@ -621,11 +621,11 @@ int Decoder::decodeImp(TYPE *value,
                 return -1;                                            // RETURN
             }
 
-            if (bdeat_ChoiceFunctions::hasSelection(
+            if (bdlat_ChoiceFunctions::hasSelection(
                                    *value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
-                if (0 != bdeat_ChoiceFunctions::makeSelection(
+                if (0 != bdlat_ChoiceFunctions::makeSelection(
                                    value,
                                    selectionName.data(),
                                    static_cast<int>(selectionName.length()))) {
@@ -643,7 +643,7 @@ int Decoder::decodeImp(TYPE *value,
 
                 Decoder_ElementVisitor visitor = { this, mode };
 
-                if (0 != bdeat_ChoiceFunctions::manipulateSelection(value,
+                if (0 != bdlat_ChoiceFunctions::manipulateSelection(value,
                                                                     visitor)) {
                     d_logStream << "Could not decode choice, selection "
                                 << "was not decoded\n";
@@ -686,10 +686,10 @@ int Decoder::decodeImp(TYPE *value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int,
-                              bdeat_TypeCategory::Enumeration)
+                              bdlat_TypeCategory::Enumeration)
 {
     enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
 
@@ -709,7 +709,7 @@ int Decoder::decodeImp(TYPE *value,
     }
 
     dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
-    rc = bdeat_EnumFunctions::fromString(value,
+    rc = bdlat_EnumFunctions::fromString(value,
                                          dataValue.data(),
                                          static_cast<int>(dataValue.length()));
 
@@ -720,10 +720,10 @@ int Decoder::decodeImp(TYPE *value,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int,
-                              bdeat_TypeCategory::CustomizedType)
+                              bdlat_TypeCategory::CustomizedType)
 {
     if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Customized element value was not found\n";
@@ -737,7 +737,7 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type valueBaseType;
+    typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type valueBaseType;
 
     rc = ParserUtil::getValue(&valueBaseType, dataValue);
     if (rc) {
@@ -746,7 +746,7 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    rc = bdeat_CustomizedTypeFunctions::convertFromBaseType(value,
+    rc = bdlat_CustomizedTypeFunctions::convertFromBaseType(value,
                                                             valueBaseType);
     if (rc) {
         d_logStream << "Could not convert base type to customized type, "
@@ -757,10 +757,10 @@ int Decoder::decodeImp(TYPE *value,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int,
-                              bdeat_TypeCategory::Simple)
+                              bdlat_TypeCategory::Simple)
 {
     if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Simple element value was not found\n";
@@ -780,7 +780,7 @@ int Decoder::decodeImp(TYPE *value,
 inline
 int Decoder::decodeImp(bsl::vector<char> *value,
                               int,
-                              bdeat_TypeCategory::Array)
+                              bdlat_TypeCategory::Array)
 {
     if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector<char> "
@@ -799,10 +799,10 @@ int Decoder::decodeImp(bsl::vector<char> *value,
     return ParserUtil::getValue(value, dataValue);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
-                              bdeat_TypeCategory::Array)
+                              bdlat_TypeCategory::Array)
 {
     if (Tokenizer::BAEJSN_START_ARRAY != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector, missing start token: '['\n";
@@ -820,11 +820,11 @@ int Decoder::decodeImp(TYPE *value,
          || Tokenizer::BAEJSN_START_OBJECT  ==
                                                      d_tokenizer.tokenType()) {
             ++i;
-            bdeat_ArrayFunctions::resize(value, i);
+            bdlat_ArrayFunctions::resize(value, i);
 
             Decoder_ElementVisitor visitor = { this, mode };
 
-            if (0 != bdeat_ArrayFunctions::manipulateElement(value,
+            if (0 != bdlat_ArrayFunctions::manipulateElement(value,
                                                              visitor,
                                                              i - 1)) {
                 d_logStream << "Error adding element '" << i - 1 << "'\n";
@@ -852,10 +852,10 @@ int Decoder::decodeImp(TYPE *value,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decodeImp(TYPE *value,
                               int   mode,
-                              bdeat_TypeCategory::NullableValue)
+                              bdlat_TypeCategory::NullableValue)
 {
     enum { BAEJSN_NULL_VALUE_LENGTH = 4 };
 
@@ -875,13 +875,13 @@ int Decoder::decodeImp(TYPE *value,
         }
     }
 
-    bdeat_NullableValueFunctions::makeValue(value);
+    bdlat_NullableValueFunctions::makeValue(value);
 
     Decoder_ElementVisitor visitor = { this, mode };
-    return bdeat_NullableValueFunctions::manipulateValue(value, visitor);
+    return bdlat_NullableValueFunctions::manipulateValue(value, visitor);
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder::decodeImp(TYPE *, ANY_CATEGORY)
 {
@@ -903,7 +903,7 @@ Decoder::Decoder(bslma::Allocator *basicAllocator)
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::streambuf               *streamBuf,
                            TYPE                         *value,
                            const DecoderOptions&  options)
@@ -911,12 +911,12 @@ int Decoder::decode(bsl::streambuf               *streamBuf,
     BSLS_ASSERT(streamBuf);
     BSLS_ASSERT(value);
 
-    bdeat_TypeCategory::Value category =
-                                bdeat_TypeCategoryFunctions::select(*value);
+    bdlat_TypeCategory::Value category =
+                                bdlat_TypeCategoryFunctions::select(*value);
 
-    if (bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY != category
-     && bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY   != category
-     && bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY    != category) {
+    if (bdlat_TypeCategory::e_SEQUENCE_CATEGORY != category
+     && bdlat_TypeCategory::e_CHOICE_CATEGORY   != category
+     && bdlat_TypeCategory::e_ARRAY_CATEGORY    != category) {
         d_logStream << "The object being decoded must be a Sequence, "
                     << "Choice, or Array type\n";
         return -1;                                                    // RETURN
@@ -925,7 +925,7 @@ int Decoder::decode(bsl::streambuf               *streamBuf,
     d_tokenizer.reset(streamBuf);
     d_tokenizer.setAllowStandAloneValues(false);
 
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
@@ -934,7 +934,7 @@ int Decoder::decode(bsl::streambuf               *streamBuf,
         return rc;                                                    // RETURN
     }
 
-    bdeat_ValueTypeFunctions::reset(value);
+    bdlat_ValueTypeFunctions::reset(value);
 
     d_logStream.clear();
     d_logStream.str("");
@@ -949,7 +949,7 @@ int Decoder::decode(bsl::streambuf               *streamBuf,
     return rc;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::istream&                 stream,
                            TYPE                         *value,
                            const DecoderOptions&  options)
@@ -966,14 +966,14 @@ int Decoder::decode(bsl::istream&                 stream,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::streambuf *streamBuf, TYPE *value)
 {
     const DecoderOptions options;
     return decode(streamBuf, value, options);
 }
 
-template <typename TYPE>
+template <class TYPE>
 int Decoder::decode(bsl::istream& stream, TYPE *value)
 {
     const DecoderOptions options;
@@ -991,19 +991,19 @@ bsl::string Decoder::loggedMessages() const
                     // struct Decoder_ElementVisitor
                     // ------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_ElementVisitor::operator()(TYPE *value)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
     return d_decoder_p->decodeImp(value, d_mode, TypeCategory());
 }
 
-template <typename TYPE, typename INFO>
+template <class TYPE, class INFO>
 inline
 int Decoder_ElementVisitor::operator()(TYPE *value, const INFO& info)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
     return d_decoder_p->decodeImp(value,
                                   info.formattingMode(),
                                   TypeCategory());
@@ -1014,7 +1014,7 @@ int Decoder_ElementVisitor::operator()(TYPE *value, const INFO& info)
                     // ------------------------------------
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int Decoder_DecodeImpProxy::operator()(TYPE *, bslmf::Nil)
 {
@@ -1023,7 +1023,7 @@ int Decoder_DecodeImpProxy::operator()(TYPE *, bslmf::Nil)
     return -1;
 }
 
-template <typename TYPE, typename ANY_CATEGORY>
+template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder_DecodeImpProxy::operator()(TYPE         *object,
                                               ANY_CATEGORY  category)
@@ -1032,15 +1032,22 @@ int Decoder_DecodeImpProxy::operator()(TYPE         *object,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -111,6 +111,7 @@ struct my_Mutex {
     int tryLock() { if ((++d_attempt)%2) lock(); else return 1; return 0; }
                                                                       // RETURN
                                                                       // RETURN
+                                                                      // RETURN
     void lock() { ++ d_count; }
     void unlock() { --d_count; }
 };
@@ -135,6 +136,7 @@ static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
         return;                              // MISTAKE! forgot to unlock mutex
                                                                       // RETURN
                                                                       // RETURN
+                                                                      // RETURN
     }
     obj->defaultMethod();
     mutex->unlock();
@@ -150,6 +152,7 @@ static void safeFunc(my_Object *obj, my_Mutex *mutex)
     } else if (someOtherCondition) {
         obj->someOtherMethod();
         return;                          // OK, mutex is automatically unlocked
+                                                                      // RETURN
                                                                       // RETURN
                                                                       // RETURN
     }

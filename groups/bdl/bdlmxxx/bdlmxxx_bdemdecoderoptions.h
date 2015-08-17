@@ -100,7 +100,7 @@ class BdemDecoderOptions {
 
     static const int DEFAULT_MAX_DEPTH;
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
@@ -110,11 +110,11 @@ class BdemDecoderOptions {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -275,7 +275,7 @@ bsl::ostream& operator<<(bsl::ostream& stream,
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}
+}  // close package namespace
 
 BDLAT_DECL_SEQUENCE_TRAITS(bdlmxxx::BdemDecoderOptions)
 
@@ -361,13 +361,13 @@ int BdemDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_bdemVersion,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxDepth,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -384,13 +384,15 @@ int BdemDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
       case ATTRIBUTE_ID_BDEM_VERSION: {
         return manipulator(&d_bdemVersion,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_MAX_DEPTH: {
         return manipulator(&d_maxDepth,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -403,10 +405,10 @@ int BdemDecoderOptions::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -448,13 +450,13 @@ int BdemDecoderOptions::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_bdemVersion,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxDepth,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -470,13 +472,15 @@ int BdemDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_BDEM_VERSION: {
         return accessor(d_bdemVersion,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDEM_VERSION]);
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_MAX_DEPTH: {
         return accessor(d_maxDepth,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -489,10 +493,10 @@ int BdemDecoderOptions::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return NOT_FOUND;                                              // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -540,7 +544,7 @@ bsl::ostream& bdlmxxx::operator<<(
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 #endif
 
 // GENERATED BY BLP_BAS_CODEGEN_3.0.19 Thu Jul 31 13:45:53 2008

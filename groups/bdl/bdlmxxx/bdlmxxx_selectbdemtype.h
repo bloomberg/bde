@@ -1,4 +1,4 @@
-// bdlmxxx_selectbdemtype.h                                              -*-C++-*-
+// bdlmxxx_selectbdemtype.h                                           -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_SELECTBDEMTYPE
 #define INCLUDED_BDLMXXX_SELECTBDEMTYPE
 
@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //    --------           ---------
 //    Array              bdlat_arrayfunctions
 //    CustomizedType     bdlat_customizedtypefunctions
-//    Enumeration        bdeat_enumeration
+//    Enumeration        bdlat_enumeration
 //    NullableValue      bdlat_nullablevaluefunctions
 //..
 // Types that do not fall in any of these categories are mapped as follows:
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // When the parameterized 'TYPE' is an 'Array', the corresponding
 // 'bdlmxxx::ElemType' of the array's element type is used to determine the array's
 // 'bdlmxxx::ElemType' and C++ type.  The array's element type is obtained using
-// 'bdeat_ArrayFunctions::ElementType<TYPE>::Type'.  The mapping is then
+// 'bdlat_ArrayFunctions::ElementType<TYPE>::Type'.  The mapping is then
 // performed based on the following table:
 //..
 //  -- array element --     ---------------------- array ----------------------
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 ///--------------------------------------
 // The 'bdlmxxx::ElemType' and C++ type of the base type are used for the
 // customized type's 'bdlmxxx::ElemType' and C++ type.  The base type is obtained
-// using 'bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type'.
+// using 'bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type'.
 //
 // Note that 'const' and 'volatile' qualifiers are removed from the base type
 // before evaluating the result.
@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------------------------
 // The 'bdlmxxx::ElemType' and C++ type of the value type are used for the nullable
 // value's 'bdlmxxx::ElemType' and C++ type.  The value type is obtained using
-// 'bdeat_NullableValueFunctions::ValueType<TYPE>::Type'.
+// 'bdlat_NullableValueFunctions::ValueType<TYPE>::Type'.
 //
 // Note that 'const' and 'volatile' qualifiers are removed from the value type
 // before evaluating the result.
@@ -223,45 +223,45 @@ class Table;
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlmxxx {class Choice;
 class ChoiceArray;
 class Row;
 class ChoiceArrayItem;
 
-template <typename TYPE, typename TYPE_CATEGORY>
+template <class TYPE, class TYPE_CATEGORY>
 struct SelectBdemType_ByCategory;
 
 template <int ELEM_TYPE>
 struct SelectBdemType_GetCppType;
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_Imp;
 
 template <int ELEM_TYPE>
@@ -271,7 +271,7 @@ struct SelectBdemType_ToArrayElemType;
                          // struct SelectBdemType
                          // ==========================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType {
     // This meta-function contains a 'VALUE' compile-time constant that
     // indicates the corresponding 'ElemType::Type' value for the
@@ -298,7 +298,7 @@ struct SelectBdemType {
          // struct SelectBdemType_ByCategory<TYPE, TYPE_CATEGORY>
          // ==========================================================
 
-template <typename TYPE, typename TYPE_CATEGORY>
+template <class TYPE, class TYPE_CATEGORY>
 struct SelectBdemType_ByCategory {
 
   private:
@@ -314,12 +314,12 @@ struct SelectBdemType_ByCategory {
              // struct SelectBdemType_ByCategory<TYPE, Array>
              // ==================================================
 
-template <typename TYPE>
-struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Array> {
+template <class TYPE>
+struct SelectBdemType_ByCategory<TYPE, bdlat_TypeCategory::Array> {
 
   private:
     typedef typename
-    bdeat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
+    bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
     typedef typename
     bslmf::RemoveCvq<ElementType>::Type                   ElementTypeNonCvq;
@@ -340,12 +340,12 @@ struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Array> {
         // struct SelectBdemType_ByCategory<TYPE, CustomizedType>
         // ===========================================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE,
-                                      bdeat_TypeCategory::CustomizedType> {
+                                      bdlat_TypeCategory::CustomizedType> {
   private:
     typedef typename
-    bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
 
     typedef typename
     bslmf::RemoveCvq<BaseType>::Type                    BaseTypeNonCvq;
@@ -362,8 +362,8 @@ struct SelectBdemType_ByCategory<TYPE,
           // struct SelectBdemType_ByCategory<TYPE, Enumeration>
           // ========================================================
 
-template <typename TYPE>
-struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Enumeration> {
+template <class TYPE>
+struct SelectBdemType_ByCategory<TYPE, bdlat_TypeCategory::Enumeration> {
     enum { VALUE = ElemType::BDEM_INT };
 };
 
@@ -371,12 +371,12 @@ struct SelectBdemType_ByCategory<TYPE, bdeat_TypeCategory::Enumeration> {
          // struct SelectBdemType_ByCategory<TYPE, NullableValue>
          // ==========================================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_ByCategory<TYPE,
-                                      bdeat_TypeCategory::NullableValue> {
+                                      bdlat_TypeCategory::NullableValue> {
   private:
     typedef typename
-    bdeat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
+    bdlat_NullableValueFunctions::ValueType<TYPE>::Type ValueType;
 
     typedef typename
     bslmf::RemoveCvq<ValueType>::Type                    ValueTypeNonCvq;
@@ -567,11 +567,11 @@ struct SelectBdemType_GetCppType<ElemType::BDEM_CHOICE_ARRAY_ITEM> {
             // struct SelectBdemType_Imp<TYPE>
             // ====================================
 
-template <typename TYPE>
+template <class TYPE>
 struct SelectBdemType_Imp {
 
   private:
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     typedef SelectBdemType_ByCategory<TYPE, TypeCategory> ByCategory;
 
@@ -819,15 +819,15 @@ SelectBdemType_ToArrayElemType<ElemType::BDEM_CHOICE_ARRAY_ITEM> {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

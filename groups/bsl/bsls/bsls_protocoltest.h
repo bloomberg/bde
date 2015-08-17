@@ -756,9 +756,9 @@ bool ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bsls_ProtocolTest
 #undef bsls_ProtocolTest

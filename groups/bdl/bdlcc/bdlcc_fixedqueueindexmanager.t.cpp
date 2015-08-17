@@ -945,7 +945,7 @@ void readerThread(Obj                    *x,
     }
 }
 
-}  // close PERFORMANCE_TEST namespace
+}  // close namespace PERFORMANCE_TEST
 
 //=============================================================================
 //                              MAIN PROGRAM

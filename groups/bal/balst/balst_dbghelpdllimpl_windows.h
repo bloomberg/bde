@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single class,
 // 'balst::DbghelpDllImpl_Windows', that provides Windows platform-specific
-// facilities in support of the 'baesu' stack trace facility.  This component
+// facilities in support of the 'balst' stack trace facility.  This component
 // is *not* intended for public use.
 //
 // The 'balst::DbghelpDllImpl_Windows' class:
@@ -74,8 +74,8 @@ BSLS_IDENT("$Id: $")
 //  bdlqq::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
 //..
 // Next, we set the options for the 'dbghelp.dll' library.  Note that any call
-// to any of the functions in 'balst::DbghelpDllImpl_Windows' other than 'qlock'
-// will load the 'dbghelp.dll' library if necessary.
+// to any of the functions in 'balst::DbghelpDllImpl_Windows' other than
+// 'qlock' will load the 'dbghelp.dll' library if necessary.
 //..
 //  balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
 //                                              | SYMOPT_LOAD_LINES
@@ -268,9 +268,9 @@ class DbghelpDllImpl_Windows {
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------------
+                        // ----------------------------
                         // class DbghelpDllImpl_Windows
-                        // ----------------------------------
+                        // ----------------------------
 
 // CLASS METHODS
 inline
@@ -287,10 +287,17 @@ bdlqq::QLock& DbghelpDllImpl_Windows::qLock()
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

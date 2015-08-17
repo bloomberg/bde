@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: 'Temperature Map'
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - -
 // There exist many applications in which the range of 'int' data that a
 // container will hold is not known at design time.  This means in order to
 // build a robust component one must default to 'bsl::vector<int>', which for
@@ -1340,9 +1340,9 @@ void swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b);
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------------
-                      // struct PackedIntArrayImp_Signed
-                      // -------------------------------
+                    // -------------------------------
+                    // struct PackedIntArrayImp_Signed
+                    // -------------------------------
 
 template <class STREAM>
 void PackedIntArrayImp_Signed::bdexGet8(STREAM& stream, int8_t& variable)
@@ -1400,9 +1400,9 @@ void PackedIntArrayImp_Signed::bdexPut64(STREAM& stream, int64_t value)
     stream.putInt64(static_cast<bsls::Types::Int64>(value));
 }
 
-                     // ---------------------------------
-                     // struct PackedIntArrayImp_Unsigned
-                     // ---------------------------------
+                    // ---------------------------------
+                    // struct PackedIntArrayImp_Unsigned
+                    // ---------------------------------
 
 template <class STREAM>
 void PackedIntArrayImp_Unsigned::bdexGet8(STREAM& stream, uint8_t& variable)
@@ -1460,9 +1460,9 @@ void PackedIntArrayImp_Unsigned::bdexPut64(STREAM& stream, uint64_t value)
     stream.putUint64(static_cast<bsls::Types::Uint64>(value));
 }
 
-                         // ------------------------
-                         // struct PackedIntArrayImp
-                         // ------------------------
+                        // ------------------------
+                        // struct PackedIntArrayImp
+                        // ------------------------
 
 // PRIVATE CLASS METHODS
 template <class STORAGE>

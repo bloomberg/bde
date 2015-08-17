@@ -31,7 +31,7 @@ namespace bsl
     using native_std::lconv;
     using native_std::localeconv;
     using native_std::setlocale;
-}
+}  // close package namespace
 
 #endif
 

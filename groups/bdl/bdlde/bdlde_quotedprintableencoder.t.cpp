@@ -1,4 +1,4 @@
-// bdlde_quotedprintableencoder.t.cpp            -*-C++-*-
+// bdlde_quotedprintableencoder.t.cpp                                 -*-C++-*-
 
 #include <bdlde_quotedprintableencoder.h>
 
@@ -103,9 +103,9 @@ using namespace bsl;  // automatically added by script
 //
 // ----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -117,7 +117,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
@@ -731,7 +731,7 @@ class StateTransitionMatrix {
                         d_stateAccessor_p->makeStateTransitionOnInput(m);
                         if (!d_stateAccessor_p->isState(
                                 (State) (d_matrix_p[i][j])))
-                            return false;
+                            return false;                             // RETURN
                     }
                 }
             }
@@ -752,19 +752,19 @@ const EquivalenceClass& findEquivalenceClass(char ch)
     // Find the equivalence class to which the specified 'ch' belongs.
 {
     if (ch == '\t' || ch == ' ') {
-        return whitespace;
+        return whitespace;                                            // RETURN
     }
     else if (ch == '\n') {
-        return newline;
+        return newline;                                               // RETURN
     }
     else if (ch == '\r') {
-        return carriageReturn;
+        return carriageReturn;                                        // RETURN
     }
     else if (33 <= ch && ch <= 60 || 62 <= ch && ch <= 126)   {
-        return printable;
+        return printable;                                             // RETURN
     }
     else {
-        return controlChar;
+        return controlChar;                                           // RETURN
     }
 }
 
@@ -848,7 +848,7 @@ void charToHex(char* hex, unsigned char ch, int numOut)
     static char HEX[] = "0123456789ABCDEF";
 
     if (numOut <= 1) {
-        return;
+        return;                                                       // RETURN
     }
     else if (numOut > 2) {
         hex[2] = 0;
@@ -1027,7 +1027,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
-            && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
+            && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
 
       }
       case STATE_ZERO: {
@@ -1104,7 +1104,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         }
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
-            && c0 && c6 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
+            && c0 && c6 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
 
       }
       case SAW_RETURN: {
@@ -1148,7 +1148,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         }
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
-            && c0 && c3 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
+            && c0 && c3 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
 
       }
       case SAW_WHITE: {
@@ -1196,7 +1196,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool d9 = -1  == bb[3];                         ASSERT(d9 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
-            && c0 && c3 && d0 && d1 && d2 && d3 && d8 && d9;
+            && c0 && c3 && d0 && d1 && d2 && d3 && d8 && d9;          // RETURN
 
       }
       case DONE_STATE: {
@@ -1225,7 +1225,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
-            && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
+            && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
 
       }
       case ERROR_STATE: {
@@ -1254,7 +1254,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
-            && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
+            && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
 
       }
       default: {
@@ -1272,7 +1272,7 @@ const char* getStateInText(bdlde::QuotedPrintableEncoder *object)
     for (int i = 0; i < NUM_STATES; ++i) {
         if (isState(object, (State) i)) {
             globalAssertsEnabled = oldGlobalAssertsEnabled;
-            return STATE_NAMES[i];
+            return STATE_NAMES[i];                                    // RETURN
         }
     }
     globalAssertsEnabled = oldGlobalAssertsEnabled;
@@ -5811,11 +5811,18 @@ line of text containing a space at pos=\r\n =3D 76\
 }
 
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

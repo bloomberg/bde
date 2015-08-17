@@ -1,4 +1,4 @@
-// bdlcfxxxu_vfunc6.h                                                     -*-C++-*-
+// bdlcfxxxu_vfunc6.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLCFXXXU_VFUNC6
 #define INCLUDED_BDLCFXXXU_VFUNC6
 
@@ -28,11 +28,11 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

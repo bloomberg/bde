@@ -92,7 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -297,7 +297,7 @@ struct TestCommand {
                                                            + d_connectTimeout);
                 ASSERT(0 == s);
             }
-            return;
+            return;                                                   // RETURN
         }
 
         ASSERT(0 >= status);    // Interrupts are not enabled.
@@ -310,7 +310,7 @@ struct TestCommand {
                    "(Connection %d of of %d)\n",
                    status, d_numConnections, d_maxConnections);
             d_allocator.invalidate();
-            return;
+            return;                                                   // RETURN
         }
         // In any case, except for hard error on allocator, enqueue another
         // connect request
@@ -565,7 +565,7 @@ void *echoClientThread(void *arg) {
         if (d_allocator.timedAllocateTimed(callback,
                                            bdlt::CurrentTime::now()
                                                          + d_connectTimeout)) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         callback = bdlf::BindUtil::bind(&my_DataStream::allocateCb,
@@ -651,7 +651,7 @@ void *threadToAcceptConnection(void *arg)
     }
 
     if (!info.d_numConnections) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     ASSERT(0 == info.d_serverSocket_p->listen(info.d_equeueSize));
 
@@ -677,9 +677,9 @@ void *threadToAcceptConnection(void *arg)
 }
 
 static int testExecutionHelper(btlsos::TcpTimedCbConnector *connector,
-                               int                        *numConnections,
+                               int                         *numConnections,
                                btlso::TcpTimerEventManager *manager,
-                               const TestCommand          *command,
+                               const TestCommand           *command,
                                const btlso::IPv4Address    *newPeer)
 {
     int rCode = 0;
@@ -822,7 +822,7 @@ int getMaxconnectValue(TestCommand *commands, int maxCommands)
     int i = 0;
     while (i < maxCommands) {
         if (0 == commands[i].d_commandCode) {
-            return i > 0? commands[i - 1].d_expNumChannels : 0;
+            return i > 0? commands[i - 1].d_expNumChannels : 0;       // RETURN
         }
         ++i;
     }
@@ -976,21 +976,20 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         btlsc::TimedCbChannel::BufferedReadCallback d_readFunctor;  // reused
 
       private:
-        void connectCb(btlsc::TimedCbChannel *serverChannel,
-                       int                   status);
+        void connectCb(btlsc::TimedCbChannel *serverChannel, int status);
             // Called when a new server channel has been established.  ...
 
-        void writeCb(int                   status,
-                     int                   asyncStatus,
+        void writeCb(int                    status,
+                     int                    asyncStatus,
                      btlsc::TimedCbChannel *serverChannel,
-                     int                   messageSize,
-                     int                   maxTicks);
+                     int                    messageSize,
+                     int                    maxTicks);
             // Called when a write operation to the server channel ends.  ...
 
-        void timeCb(int                  lastNumTicks,
-                    int                 *curNumTicks,
-                    int                  maxTicks,
-                    bsls::TimeInterval    lastTime);
+        void timeCb(int                 lastNumTicks,
+                    int                *curNumTicks,
+                    int                 maxTicks,
+                    bsls::TimeInterval  lastTime);
             // To calculate the tick send/receive rate (Ticks/second).
 
       private:  // Not implemented.
@@ -999,10 +998,10 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
 
       public:
         my_TickerplantSimulator(
-                             bsl::ostream&                  console,
-                             btlsc::TimedCbChannelAllocator *connector,
-                             btlso::TcpTimerEventManager    *d_eventManager_p,
-                             int                            inputSize);
+                              bsl::ostream&                   console,
+                              btlsc::TimedCbChannelAllocator *connector,
+                              btlso::TcpTimerEventManager    *d_eventManager_p,
+                              int                             inputSize);
             // Create a non-blocking ticker-plant simulator using the specified
             // 'input' channel to read ASCII tick records of the specified
             // 'inputSize' and convert each record to a 'my_Tick' structure;
@@ -1026,7 +1025,7 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
 
     void my_TickerplantSimulator::connectCb(
                                           btlsc::TimedCbChannel *serverChannel,
-                                          int                   status)
+                                          int                    status)
     {
         if (serverChannel) {     // Successfully created a connection.
             struct Tick {               // for usage example
@@ -1098,11 +1097,11 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         }
     }
 
-    void my_TickerplantSimulator::writeCb(int                   status,
-                                          int                   asyncStatus,
+    void my_TickerplantSimulator::writeCb(int                    status,
+                                          int                    asyncStatus,
                                           btlsc::TimedCbChannel *serverChannel,
-                                          int                   msgSize,
-                                          int                   maxTicks)
+                                          int                    msgSize,
+                                          int                    maxTicks)
     {
         static int curNumTicks = 0;
         ASSERT(serverChannel);
@@ -1187,9 +1186,9 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         }
     }
 
-    void my_TickerplantSimulator::timeCb(int                lastNumTicks,
-                                         int               *curNumTicks,
-                                         int                maxTicks,
+    void my_TickerplantSimulator::timeCb(int                 lastNumTicks,
+                                         int                *curNumTicks,
+                                         int                 maxTicks,
                                          bsls::TimeInterval  lastTime)
     {
         int numTicks = *curNumTicks - lastNumTicks;
@@ -1218,10 +1217,10 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
     }
 
     my_TickerplantSimulator::
-        my_TickerplantSimulator(bsl::ostream&                  console,
+        my_TickerplantSimulator(bsl::ostream&                   console,
                                 btlsc::TimedCbChannelAllocator *connector,
                                 btlso::TcpTimerEventManager    *eventManager,
-                                int                            inputSize)
+                                int                             inputSize)
     : d_connector_p(connector)
     , d_eventManager_p(eventManager)
     , d_console(console)

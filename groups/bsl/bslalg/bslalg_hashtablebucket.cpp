@@ -23,8 +23,8 @@ native_std::size_t HashTableBucket::countElements() const
     return result;
 }
 
-}  // close namespace bslalg
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

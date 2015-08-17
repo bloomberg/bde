@@ -75,9 +75,9 @@ using namespace bsl;
 // [6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
@@ -97,7 +97,7 @@ void aSsErT(int c, const char *s, int i) {
 }  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -457,7 +457,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
 }  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct my_CopyTrivial {};
 
@@ -484,7 +484,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
 }  // close namespace bslmf
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct my_NoTraits {};
 
@@ -548,7 +548,7 @@ struct TypeWithoutSwap {
 };
 
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 void swapTestHelper()
     // Test 'swap' method and free function for 'bsl::pair<T1, T2>'.
 {

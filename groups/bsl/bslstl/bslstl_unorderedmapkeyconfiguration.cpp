@@ -8,7 +8,7 @@ namespace BloombergLP {
 
 namespace bslstl {
 
-}  // close namespace bslstl
+}  // close package namespace
 }  // close enterprise namespace
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

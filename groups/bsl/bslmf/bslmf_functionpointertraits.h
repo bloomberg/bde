@@ -599,9 +599,9 @@ struct FunctionPointerTraits<PROTOTYPE * const volatile>
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslmf::FunctionPointerCPlusPlusLinkage
                                          bslmf_FunctionPointerCPlusPlusLinkage;

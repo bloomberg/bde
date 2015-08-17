@@ -1,4 +1,4 @@
-// bdlpuxxx_iso8601.t.cpp                  -*-C++-*-
+// bdlpuxxx_iso8601.t.cpp                                             -*-C++-*-
 
 #include <bdlpuxxx_iso8601.h>
 
@@ -186,7 +186,7 @@ void noopLogMessageHandler(const char *file, int line, const char *message)
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 int myParse(TYPE *dst, const char *str)
 {
     const int len = bsl::strlen(str);
@@ -268,7 +268,7 @@ void testTimezone(const char *tzStr,
 }
 
 //=============================================================================
-//                      TEST CASE 3
+//                              TEST CASE 3
 //-----------------------------------------------------------------------------
 
 // Note that the following test case is factored into function to avoid
@@ -780,7 +780,7 @@ void testCase3TestingParse()
 }
 
 //=============================================================================
-//                      TEST CASE 2
+//                              TEST CASE 2
 //-----------------------------------------------------------------------------
 
 // Note that the following test case is factored into function to avoid
@@ -2480,11 +2480,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

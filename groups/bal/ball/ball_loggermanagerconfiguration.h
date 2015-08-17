@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // 'ball::LoggerManagerConfiguration' class to simply the definition of some of
 // the attributes:
 //..
-#warning TBD: fix documentation xxxList
+// TBD: fix documentation xxxList
 //  TYPE                                         'typedef' alias
 //  ------------------------------------------   ------------------------------
 //  bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>
@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 // that the "set" methods called in this example cannot fail, so they return
 // 'void':
 //..
-//  config.setUserFieldDescriptors(schema, populator);
+//  config.setUserFieldsSchema(schema, populator);
 //  config.setCategoryNameFilterCallback(nameFilter);
 //  config.setDefaultThresholdLevelsCallback(defaultThresholds);
 //  config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
@@ -238,8 +238,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_loggermanagerdefaults.h>
 #endif
 
-#ifndef INCLUDED_BALL_USERFIELDDESCRIPTORS
-#include <ball_userfielddescriptors.h>
+#ifndef INCLUDED_BALL_USERFIELDSSCHEMA
+#include <ball_userfieldsschema.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -260,9 +260,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace ball {     
+namespace ball {
 
-class UserFieldValues;
+class UserFields;
 
                     // ================================
                     // class LoggerManagerConfiguration
@@ -287,13 +287,13 @@ class LoggerManagerConfiguration {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(ball::UserFieldValues *, 
-                                    const ball::UserFieldDescriptors& )>
+    typedef bdlf::Function<void (*)(ball::UserFields *,
+                                    const ball::UserFieldsSchema& )>
                                                    UserFieldsPopulatorCallback;
         // 'UserFieldsPopulatorCallback' is the type of a user-supplied
         // callback functor used to populate the user-defined fields in each
         // log record.  Note that the user-defined fields of each record must
-        // be type-consistent with the 'UserFieldDescriptors' of the user
+        // be type-consistent with the 'UserFieldsSchema' of the user
         // populator callback.
 
 
@@ -351,12 +351,12 @@ class LoggerManagerConfiguration {
                                                   // severity threshold levels
                                                   // for logger manager
 
-    ball::UserFieldDescriptors  
-                          d_userFieldDescriptors; // describes the fields
-                                                  // returned by 
+    ball::UserFieldsSchema
+                          d_userFieldsSchema;     // describes the fields
+                                                  // returned by
                                                   // 'd_userPopulatorCallback'
 
-    UserFieldsPopulatorCallback 
+    UserFieldsPopulatorCallback
                           d_userPopulator;        // user callback to add
                                                   // optional user-defined
                                                   // fields to a log record
@@ -452,7 +452,7 @@ class LoggerManagerConfiguration {
 
     int setDefaultThresholdLevelsIfValid(int passLevel);
         // Set the passthrough severity threshold level attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the 
+        // 'LoggerManagerDefaults' attribute of this object to the
         // specified 'passLevel', if it is in the range '[0 .. 255]', and set
         // all the other threshold levels (recordLevel, triggerLevel,
         // triggerAllLevel) to 0.  Return 0 on success, and a non-zero value
@@ -468,15 +468,15 @@ class LoggerManagerConfiguration {
         // 'triggerAllLevel' values if each level is in the range '[0 .. 255]'.
         // Return 0 on success, and a non-zero value otherwise with no effect
         // on this object.
-    
-    void setUserFieldDescriptors(
-                       const ball::UserFieldDescriptors   fieldDescriptions,
+
+    void setUserFieldsSchema(
+                       const ball::UserFieldsSchema   fieldDescriptions,
                        const UserFieldsPopulatorCallback& populatorCallback);
         // Set the user-defined-fields attributes of this object such that the
         // specified 'populatorCallback' will be invoked and supplied the
         // specified 'fieldDescriptions'.  Note that this method cannot
         // fail per se, but it is the user's responsibility to make sure that
-        // 'populatorCallback' can populate a 'ball::UserFieldValues' object
+        // 'populatorCallback' can populate a 'ball::UserFields' object
         // in a way consistent with the 'fieldDescriptions'.
 
     void setCategoryNameFilterCallback(
@@ -530,7 +530,7 @@ class LoggerManagerConfiguration {
         // 'LoggerManagerDefaults' attribute of this object.
 
 
-    const ball::UserFieldDescriptors& userFieldDescriptors() const;
+    const ball::UserFieldsSchema& userFieldsSchema() const;
         // Return a reference to the non-modifiable descriptors for user
         // fields.
 
@@ -600,15 +600,22 @@ bsl::ostream& operator<<(bsl::ostream&                          stream,
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

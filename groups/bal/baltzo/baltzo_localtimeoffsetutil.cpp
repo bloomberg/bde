@@ -8,8 +8,13 @@
 
 #include <bdlqq_readlockguard.h>
 #include <bdlqq_writelockguard.h>
+
 #include <bdlt_datetime.h>
+
 #include <bslma_default.h>
+
+#include <bsls_assert.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstdlib.h>  // getenv
 #include <bsl_cstring.h>  // memcpy

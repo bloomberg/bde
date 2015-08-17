@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
     using native_std::scoped_allocator_adaptor;
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

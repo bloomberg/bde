@@ -449,13 +449,13 @@ int g(Out *o, const char *spec) {
             if (!haveDigit) {
                 if (veryVerbose)
                     cout << "*** missing digit after letter ***" << endl;
-                return 0;     // discontinue processing this spec.
+                return 0;     // discontinue processing this spec.    // RETURN
             }
         } else {
             if (veryVerbose)
                 cout << "*** bad character ('" << spec[i] << "') in spec \""
                      << spec << "\" at position " << i << " ***" << endl;
-            return 0;         // discontinue processing this spec.
+            return 0;         // discontinue processing this spec.    // RETURN
         }
     }
     return 1;
@@ -912,7 +912,7 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
 // ============================================================================
 //               STRUCT 'ForEachIn<LIST, N>' FOR TESTING
 // ----------------------------------------------------------------------------
-template <typename LIST, int N = LIST::LENGTH>
+template <class LIST, int N = LIST::LENGTH>
 struct ForEachIn {
     // The struct 'ForEachIn' is a generic, parameterized structure that
     // implements meta-function 'testInputLimit'.  The function
@@ -944,7 +944,7 @@ struct ForEachIn {
 // ============================================================================
 //               STRUCT 'ForEachIn<LIST, 0>' FOR TESTING
 // ----------------------------------------------------------------------------
-template <typename LIST>
+template <class LIST>
 struct ForEachIn<LIST, 0> {
     // Partial specialization of struct 'ForEachIn' for N = 0
     static void testInputLimit(const InputLimitTestTable *,
@@ -958,7 +958,7 @@ struct ForEachIn<LIST, 0> {
 // ============================================================================
 //               STRUCT 'GetScalar' FOR TESTING
 // ----------------------------------------------------------------------------
-template <typename ElemType,
+template <class ElemType,
           Obj& (Obj::*getFunc)(ElemType&),
           TypeCode::Enum tc>
 struct GetScalar {
@@ -980,7 +980,7 @@ struct GetScalar {
 // ============================================================================
 //               STRUCT 'GetArray' FOR TESTING
 // ----------------------------------------------------------------------------
-template <typename ElemType,
+template <class ElemType,
           Obj& (Obj::*getFunc)(ElemType*, int),
           TypeCode::Enum tc,
           int numArrayElements>
@@ -1170,18 +1170,18 @@ struct GetArray {
                 if (!stream) {
                     d_firstName = "stream error";  // *might* be corrupted;
                                                    //  value for testing
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 stream.getString(d_lastName);
                 if (!stream) {
                     d_lastName = "stream error";  // *might* be corrupted;
                                                   //  value for testing
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 stream.getInt32(d_age);
                 if (!stream) {
                     d_age = 999;     // *might* be corrupted; value for testing
-                    return stream;
+                    return stream;                                    // RETURN
                 }
               } break;
               default: {

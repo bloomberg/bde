@@ -163,9 +163,9 @@ struct ArrayDestructionPrimitives {
         // calls).
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                   // ---------------------------------
                   // struct ArrayDestructionPrimitives
@@ -216,9 +216,9 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::ArrayDestructionPrimitives bslalg_ArrayDestructionPrimitives;
     // This alias is defined for backward compatibility.

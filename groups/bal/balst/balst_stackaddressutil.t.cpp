@@ -31,7 +31,7 @@ using bsl::endl;
 using bsl::flush;
 
 //=============================================================================
-// TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 // [ 3]  int getStackAddresses(void **buffer, int maxFrames);
 //-----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ using bsl::flush;
 // [-1] Speed benchmark of getStackAddresses
 
 //=============================================================================
-// STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -93,7 +93,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 //=============================================================================
-// GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
+//              GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
 typedef bsls::Types::UintPtr UintPtr;
@@ -109,7 +109,7 @@ const bool lamePlatform = false;
 #endif
 
 //=============================================================================
-// GLOBAL HELPER FUNCTIONS FOR TESTING
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 static bsl::string myHex(UintPtr up)
@@ -304,11 +304,11 @@ unsigned int func1()
     // Note that on some, but not all, platforms there is an extra 'narcissic'
     // frame describing 'getStackAddresses' itself at the beginning of
     // 'buffer'.  By starting our iteration through 'buffer' at
-    // 'BAESU_IGNORE_FRAMES', we guarantee that the first address we examine
-    // will be in 'func1' on all platforms.
+    // 'k_IGNORE_FRAMES', we guarantee that the first address we examine will
+    // be in 'func1' on all platforms.
 
     int funcIdx  = 1;
-    int stackIdx = balst::StackAddressUtil::BAESU_IGNORE_FRAMES;
+    int stackIdx = balst::StackAddressUtil::k_IGNORE_FRAMES;
     for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
         ASSERT(stackIdx < numAddresses);
         ASSERT(funcIdx == findIndex(buffer[stackIdx]));
@@ -405,7 +405,7 @@ CASE3_FUNC(4, 5)
 void func0(int *pi)
 {
     enum { BUFFER_LENGTH = 100,
-           IGNORE_FRAMES = balst::StackAddressUtil::BAESU_IGNORE_FRAMES
+           IGNORE_FRAMES = balst::StackAddressUtil::k_IGNORE_FRAMES
     };
 
     *pi += 2;
@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Finding Right Functions Test\n"
                              "============================\n";
 
-// #ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
         // 'thunk' functions which just call the actual routine.  I wish they
@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
 
         unsigned int result = CASE_FOUR::func6();
         LOOP2_ASSERT(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
-// #endif
+#endif
       }  break;
       case 3: {
         // --------------------------------------------------------------------
@@ -658,9 +658,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tgetStackAddresses" << endl;
             {
                 void *buf[1];
-                ASSERT_PASS(balst::StackAddressUtil::getStackAddresses(buf, 0));
+                ASSERT_PASS(balst::StackAddressUtil::getStackAddresses(buf,0));
                 ASSERT_FAIL(
-                           balst::StackAddressUtil::getStackAddresses(buf, -1));
+                          balst::StackAddressUtil::getStackAddresses(buf, -1));
             }
         }
       }  break;
@@ -777,11 +777,18 @@ int main()
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

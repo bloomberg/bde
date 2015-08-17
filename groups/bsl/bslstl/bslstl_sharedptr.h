@@ -1607,8 +1607,8 @@ namespace bslstl {
         // Forward declaration of 'SharedPtr_ImpUtil'. This is needed because
         // this struct is a friend of 'enable_shared_from_this' in the 'bsl'
         // namespace.
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 
 namespace bsl {

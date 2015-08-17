@@ -188,9 +188,9 @@ DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_DeallocatorGuard
 #undef bslma_DeallocatorGuard

@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class BufferAllocator;
-    }
+    }  // close namespace bslma
 
     typedef bslma::BufferAllocator bslma_BufferAllocator;
-}
+}  // close enterprise namespace
 
 #else
 

@@ -1,4 +1,4 @@
-// balxml_minireader.t.cpp  -*-C++-*-
+// balxml_minireader.t.cpp                                            -*-C++-*-
 #include <balxml_minireader.h>
 
 #include <bslma_testallocator.h>
@@ -165,7 +165,7 @@ void parseAndCompare(const char *name,
     reader.close ();
 }
 
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 XmlEl table91[] =
 {
     {0, 0, balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION ,
@@ -216,7 +216,7 @@ XmlEl table81[] =
     {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,   "\n", 0 }
 };
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Start of usage example, extract to the 'balxml::Reader' header file.
 //
 // Utility function to skip past white space.
@@ -446,7 +446,7 @@ int usageExample()
 //  Let make numElements and numElements static
 //  to be accessible out of scope parse () function for future analysis.
 //  Since test is single threaded, no MT-issues are here
-//===========================================================================
+//=============================================================================
 static int test = 0;
 
 static void  processNode(balxml::Reader *reader)
@@ -541,7 +541,7 @@ void addCloseTag(bsl::string& xmlStr, int indent, const char* tag, int n) {
 // Recursively add nested nodes from 'currentDepth' to 'depth' to 'xmlStr'.
 void addDepth(bsl::string& xmlStr, int currentDepth, int depth) {
     if (currentDepth == depth) {
-        return;
+        return;                                                       // RETURN
     }
     int indent = (4 * currentDepth) + 4;
     addOpenTag(xmlStr, indent, "Depth", currentDepth % 10);
@@ -558,7 +558,7 @@ void addNodes(bsl::string& xmlStr,
               int          currentDepth,
               int          depth) {
     if (currentNode == numNodes) {
-        return;
+        return;                                                       // RETURN
     }
     int indent = 4 * currentDepth;
     addOpenTag(xmlStr, indent, "Node", currentNode % 10);
@@ -583,7 +583,7 @@ void checkNodeName(Obj& reader, const char* tag, int n) {
 // Recursively read nested nodes from 'currentDepth' to 'depth' to 'xmlStr'.
 void readDepth(Obj& reader, int currentDepth, int depth) {
     if (currentDepth == depth) {
-        return;
+        return;                                                       // RETURN
     }
 
     // Note that 'currentDepth' does not equal 'reader.nodeDepth()', this is
@@ -644,7 +644,7 @@ void readNodes(Obj& reader,
                int currentDepth,
                int depth) {
     if (currentNode == numNodes) {
-        return;
+        return;                                                       // RETURN
     }
 
     int rc = advancePastWhiteSpace(reader);
@@ -2351,10 +2351,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

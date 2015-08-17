@@ -117,7 +117,7 @@ struct ClassWithDeletedOps {
 namespace {
 
 // define class template
-template <typename T>
+template <class T>
 class ExternTemplateClass {};
 
 // don't instantiate in this translation unit
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined only when 
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined only when
         //:    the compiler is able to compile code with 'noexcept'.
         //
         // Plan:
@@ -753,7 +753,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined then
-        //:   compile code that uses this feature to define constant 
+        //:   compile code that uses this feature to define constant
         //:   expressions functions.
         //
         // Testing:

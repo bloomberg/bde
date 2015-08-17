@@ -472,9 +472,9 @@ struct AlignmentImpMatch {
 #undef BSLS_ALIGNMENTIMP_MATCH_FUNC
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #if defined(BSLS_PLATFORM_CPU_X86)                                            \
  && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))

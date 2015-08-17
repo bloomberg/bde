@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //
 // More information about BER constructs can be found in the BER specification
 // (X.690).  A copy of the specification can be found at the URL:
-//: o  http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
+//: o http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
 //
 // Note that this is a low-level component that only encodes and decodes
 // primitive constructs.  Clients should use the 'balber_berencoder' and
@@ -34,6 +34,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1:  Reading and Writing Identifier Octets
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.
 // Suppose we want to write the identifier octets for a BER tag having the
 // following properties:
@@ -43,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //    Tag Number:  31
 //..
 // According to the BER specification, this should generate two octets
-// containing the values 0x9F and 0x1F.  Note that we will use 'bdesb' stream
+// containing the values 0x9F and 0x1F.  Note that we will use 'bdlsb' stream
 // buffers for in-core buffer management:
 //..
 //  #include <balber_berconstants.h>
@@ -58,14 +62,15 @@ BSLS_IDENT("$Id: $")
 //      bdlsb::MemOutStreamBuf osb;
 //
 //      balber::BerConstants::TagClass tagClass  =
-//                                         balber::BerConstants::CONTEXT_SPECIFIC;
-//      balber::BerConstants::TagType  tagType   = balber::BerConstants::PRIMITIVE;
-//      int                         tagNumber = 31;
+//                                      balber::BerConstants::CONTEXT_SPECIFIC;
+//      balber::BerConstants::TagType  tagType   =
+//                                             balber::BerConstants::PRIMITIVE;
+//      int                            tagNumber = 31;
 //
 //      int retCode = balber::BerUtil::putIdentifierOctets(&osb,
-//                                                      tagClass,
-//                                                      tagType,
-//                                                      tagNumber);
+//                                                          tagClass,
+//                                                          tagType,
+//                                                          tagNumber);
 //      assert(0    == retCode);
 //      assert(2    == osb.length());
 //      assert(0x9F == (unsigned char)osb.data()[0]);
@@ -78,14 +83,14 @@ BSLS_IDENT("$Id: $")
 //
 //      balber::BerConstants::TagClass tagClassIn;
 //      balber::BerConstants::TagType  tagTypeIn;
-//      int                         tagNumberIn;
-//      int                         numBytesConsumed = 0;
+//      int                            tagNumberIn;
+//      int                            numBytesConsumed = 0;
 //
 //      retCode = balber::BerUtil::getIdentifierOctets(&isb,
-//                                                  &tagClassIn,
-//                                                  &tagTypeIn,
-//                                                  &tagNumberIn,
-//                                                  &numBytesConsumed);
+//                                                     &tagClassIn,
+//                                                     &tagTypeIn,
+//                                                     &tagNumberIn,
+//                                                     &numBytesConsumed);
 //      assert(0         == retCode);
 //      assert(2         == numBytesConsumed);
 //      assert(tagClass  == tagClassIn);
@@ -142,49 +147,35 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-
-
 namespace BloombergLP {
-
-
 
 // Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
 // Updated declarations tagged with '// bdet -> bdlt'.
 
 namespace bdlt { class Date; }                                  // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+namespace bdet { typedef ::BloombergLP::bdlt::Date Date; }      // bdet -> bdlt
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+namespace bdet { typedef ::BloombergLP::bdlt::Datetime Datetime; }
+                                                                // bdet -> bdlt
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+namespace bdet { typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz; }
+                                                                // bdet -> bdlt
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+namespace bdet { typedef ::BloombergLP::bdlt::DateTz DateTz; }  // bdet -> bdlt
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+namespace bdet { typedef ::BloombergLP::bdlt::Time Time; }      // bdet -> bdlt
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+namespace bdet { typedef ::BloombergLP::bdlt::TimeTz TimeTz; }  // bdet -> bdlt
 
 namespace balber {
-                            // ===================
+                            // ==============
                             // struct BerUtil
-                            // ===================
+                            // ==============
 
 struct BerUtil {
     // This utility contains functions to encode and decode primitive BER
@@ -196,7 +187,7 @@ struct BerUtil {
 
     enum {
         e_INDEFINITE_LENGTH = -1  // used to indicate that the length is
-                                     // indefinite
+                                  // indefinite
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEM_INDEFINITE_LENGTH = e_INDEFINITE_LENGTH
@@ -213,11 +204,11 @@ struct BerUtil {
         // Return 0 on success, and a non-zero value otherwise.
 
     static int getIdentifierOctets(
-                           bsl::streambuf              *streamBuf,
-                           BerConstants::TagClass *tagClass,
-                           BerConstants::TagType  *tagType,
-                           int                         *tagNumber,
-                           int                         *accumNumBytesConsumed);
+                                bsl::streambuf         *streamBuf,
+                                BerConstants::TagClass *tagClass,
+                                BerConstants::TagType  *tagType,
+                                int                    *tagNumber,
+                                int                    *accumNumBytesConsumed);
         // Decode the identifier octets from the specified 'streamBuf' and load
         // the tag class, tag type, and tag number into the specified
         // 'tagClass', 'tagType', and 'tagNumber' respectively.  Add the number
@@ -228,7 +219,7 @@ struct BerUtil {
                          int            *result,
                          int            *accumNumBytesConsumed);
         // Decode the length octets from the specified 'streamBuf' and load the
-        // result into the specified 'length'.  If the length is indefinite
+        // result into the specified 'result'.  If the length is indefinite
         // (i.e., contents will be terminated by "end-of-content" octets) then
         // 'result' will be set to 'e_INDEFINITE_LENGTH'.  Add the number of
         // bytes consumed to the specified 'accumNumBytesConsumed'.  Return 0
@@ -239,11 +230,11 @@ struct BerUtil {
                         TYPE           *value,
                         int             length);
         // Decode the specified 'value' from the specified 'streamBuf',
-        // consuming exactly 'length' bytes.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that the value consists of the
-        // contents bytes only (no length prefix).  Also note that only
-        // fundamental C++ types, 'bsl::string', and BDE date/time types are
-        // supported.
+        // consuming exactly the specified 'length' bytes.  Return 0 on
+        // success, and a non-zero value otherwise.  Note that the value
+        // consists of the contents bytes only (no length prefix).  Also note
+        // that only fundamental C++ types, 'bsl::string', and BDE date/time
+        // types are supported.
 
     template <typename TYPE>
     static int getValue(bsl::streambuf *streamBuf,
@@ -262,7 +253,7 @@ struct BerUtil {
         // termination bytes for objects that have indefinite length.  Return 0
         // on success, and a non-zero value otherwise.
 
-    static int putIdentifierOctets(bsl::streambuf              *streamBuf,
+    static int putIdentifierOctets(bsl::streambuf         *streamBuf,
                                    BerConstants::TagClass  tagClass,
                                    BerConstants::TagType   tagType,
                                    int                          tagNumber);
@@ -282,8 +273,8 @@ struct BerUtil {
         // undefined unless '0 <= length'.
 
     template <typename TYPE>
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const TYPE&                   value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const TYPE&              value,
                         const BerEncoderOptions *options = 0);
         // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
         // on success, and a non-zero value otherwise.  Note that the value
@@ -292,11 +283,9 @@ struct BerUtil {
         // date/time types are supported.
 };
 
-// ---  Anything below this line is implementation specific.  Do not use.  ----
-
-                        // =======================
+                        // ==================
                         // struct BerUtil_Imp
-                        // =======================
+                        // ==================
 
 struct BerUtil_Imp {
     // This 'struct' contains implementation functions used by the namespace
@@ -305,8 +294,8 @@ struct BerUtil_Imp {
   private:
     // CONSTANTS
     enum {
-        // This 'enum' lists constants that are used for encoding date and
-        // time types in a binary encoding format.
+        // This 'enum' lists constants that are used for encoding date and time
+        // types in a binary encoding format.
 
         k_MAX_BINARY_DATE_LENGTH             = 3
       , k_MAX_BINARY_TIME_LENGTH             = 4
@@ -343,7 +332,7 @@ struct BerUtil_Imp {
         template <typename TYPE>
         static int maxLength();
             // Return the maximum length, in bytes, required to encode an
-            // object of the templated 'TYPE' in the binary ber format.
+            // object of the templated 'TYPE' in the binary BER format.
     };
 
     struct StringDateTimeFormat {
@@ -362,8 +351,8 @@ struct BerUtil_Imp {
         e_INDEFINITE_LENGTH       = BerUtil::e_INDEFINITE_LENGTH
       , e_BITS_PER_OCTET          = 8
       , e_MAX_INTEGER_LENGTH      = 9
-      , e_INDEFINITE_LENGTH_OCTET = 0x80  // value that indicates an
-                                          // indefinite length
+      , e_INDEFINITE_LENGTH_OCTET = 0x80  // value that indicates an indefinite
+                                          // length
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , INDEFINITE_LENGTH       = e_INDEFINITE_LENGTH
@@ -391,51 +380,51 @@ struct BerUtil_Imp {
                          int            *accumNumBytesConsumed);
 
     template <typename TYPE>
-    static int getValue(bsl::streambuf *streamBuf,
-                        TYPE           *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        bool           *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        char           *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        unsigned char  *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        signed char    *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        float          *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        double         *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        bsl::string    *value,
-                        int             length);
-    static int getValue(bsl::streambuf    *streamBuf,
-                        bslstl::StringRef *value,
-                        int                length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        bdlt::Date      *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        bdlt::Datetime  *value,
-                        int             length);
-    static int getValue(bsl::streambuf  *streamBuf,
-                        bdlt::DatetimeTz *value,
-                        int              length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        bdlt::DateTz    *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        bdlt::Time      *value,
-                        int             length);
-    static int getValue(bsl::streambuf *streamBuf,
-                        bdlt::TimeTz    *value,
-                        int             length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        TYPE                         *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bool                         *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        char                         *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        unsigned char                *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        signed char                  *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        float                        *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        double                       *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bsl::string                  *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bslstl::StringRef            *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdlt::Date                   *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdlt::Datetime               *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdlt::DatetimeTz             *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdlt::DateTz                 *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdlt::Time                   *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
+                        bdlt::TimeTz                 *value,
+                        int                           length);
     template <typename TYPE, typename TYPETZ>
     static int getValue(bsl::streambuf               *streamBuf,
                         bdlb::Variant2<TYPE, TYPETZ> *value,
@@ -451,34 +440,44 @@ struct BerUtil_Imp {
     static int getBinaryDateValue(bsl::streambuf *streamBuf,
                                   bdlt::Date      *value,
                                   int             length);
+
     static int getBinaryTimeValue(bsl::streambuf *streamBuf,
                                   bdlt::Time      *value,
                                   int             length);
+
     static int getBinaryDatetimeValue(bsl::streambuf *streamBuf,
                                       bdlt::Datetime  *value,
                                       int             length);
+
     static int getBinaryDateTzValue(bsl::streambuf *streamBuf,
                                     bdlt::DateTz    *value,
                                     int             length);
+
     static int getBinaryTimeTzValue(bsl::streambuf *streamBuf,
                                     bdlt::TimeTz    *value,
                                     int             length);
+
     static int getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
                                         bdlt::DatetimeTz *value,
                                         int              length);
 
     static int putBinaryDateValue(bsl::streambuf   *streamBuf,
                                   const bdlt::Date&  value);
+
     static int putBinaryTimeValue(bsl::streambuf   *streamBuf,
                                   const bdlt::Time&  value);
+
     static int putBinaryDatetimeValue(bsl::streambuf       *streamBuf,
                                       const bdlt::Datetime&  value);
+
     static int putBinaryDateTzValue(bsl::streambuf     *streamBuf,
                                     const bdlt::DateTz&  value);
+
     static int putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
                                     const bdlt::TimeTz&  value);
+
     static int putBinaryDatetimeTzValue(bsl::streambuf         *streamBuf,
-                                        const bdlt::DatetimeTz&  value);
+                                        const bdlt::DatetimeTz& value);
 
     static int putDoubleValue(bsl::streambuf *streamBuf, double value);
 
@@ -497,50 +496,50 @@ struct BerUtil_Imp {
                               int             valueLength);
 
     template <typename TYPE>
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const TYPE&                   value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const TYPE&              value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        bool                          value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        bool                     value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        char                          value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        char                     value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        unsigned char                 value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        unsigned char            value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        signed char                   value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        signed char              value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        float                         value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        float                    value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        double                        value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        double                   value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bsl::string&            value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bsl::string&       value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bslstl::StringRef&      value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bslstl::StringRef& value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bdlt::Date&              value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bdlt::Date&        value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bdlt::Datetime&          value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bdlt::Datetime&    value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bdlt::DatetimeTz&        value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bdlt::DatetimeTz&  value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bdlt::DateTz&            value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bdlt::DateTz&      value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bdlt::Time&              value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bdlt::Time&        value,
                         const BerEncoderOptions *options);
-    static int putValue(bsl::streambuf               *streamBuf,
-                        const bdlt::TimeTz&            value,
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bdlt::TimeTz&      value,
                         const BerEncoderOptions *options);
 };
 
@@ -548,9 +547,9 @@ struct BerUtil_Imp {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                            // -------------------
+                            // ----------------------
                             // struct balber::BerUtil
-                            // -------------------
+                            // ----------------------
 
 // PRIVATE CLASS METHODS
 template <>
@@ -640,32 +639,32 @@ int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::DatetimeTz>()
 // CLASS METHODS
 inline
 int BerUtil::getEndOfContentOctets(bsl::streambuf *streamBuf,
-                                        int            *accumNumBytesConsumed)
+                                   int            *accumNumBytesConsumed)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k__SUCCESS = 0, k__FAILURE = -1 };
 
     *accumNumBytesConsumed += 2;
 
     return 0 == streamBuf->sbumpc() && 0 == streamBuf->sbumpc()
-         ? k_BDEM_SUCCESS
-         : k_BDEM_FAILURE;
+         ? k__SUCCESS
+         : k__FAILURE;
 }
 
 inline
 int BerUtil::getLength(bsl::streambuf *streamBuf,
-                            int            *result,
-                            int            *accumNumBytesConsumed)
+                            int       *result,
+                            int       *accumNumBytesConsumed)
 {
     return BerUtil_Imp::getLength(streamBuf,
-                                       result,
-                                       accumNumBytesConsumed);
+                                  result,
+                                  accumNumBytesConsumed);
 }
 
 template <typename TYPE>
 inline
 int BerUtil::getValue(bsl::streambuf *streamBuf,
-                           TYPE           *value,
-                           int             length)
+                      TYPE           *value,
+                      int             length)
 {
     return BerUtil_Imp::getValue(streamBuf, value, length);
 }
@@ -673,47 +672,47 @@ int BerUtil::getValue(bsl::streambuf *streamBuf,
 template <typename TYPE>
 inline
 int BerUtil::getValue(bsl::streambuf *streamBuf,
-                           TYPE           *value,
-                           int            *accumNumBytesConsumed)
+                      TYPE           *value,
+                      int            *accumNumBytesConsumed)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     int length;
     if (BerUtil_Imp::getLength(streamBuf, &length, accumNumBytesConsumed))
     {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     if (getValue(streamBuf, value, length)) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     *accumNumBytesConsumed += length;
-    return k_BDEM_SUCCESS;
+    return k_SUCCESS;
 }
 
 inline
 int BerUtil::putEndOfContentOctets(bsl::streambuf *streamBuf)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     return 0 == streamBuf->sputc(0) && 0 == streamBuf->sputc(0)
-         ? k_BDEM_SUCCESS
-         : k_BDEM_FAILURE;
+         ? k_SUCCESS
+         : k_FAILURE;
 }
 
 inline
 int BerUtil::putIndefiniteLengthOctet(bsl::streambuf *streamBuf)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    // "extra" unsigned char cast needed to suppress warning on Windows.
+    // "Extra" unsigned char cast needed to suppress warning on Windows.
 
     return BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET
-               == streamBuf->sputc(static_cast<char>(
-                  (unsigned char)(BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET)))
-               ? k_BDEM_SUCCESS
-               : k_BDEM_FAILURE;
+        == streamBuf->sputc(static_cast<char>(
+                      (unsigned char)(BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET)))
+         ? k_SUCCESS
+         : k_FAILURE;
 }
 
 inline
@@ -724,39 +723,39 @@ int BerUtil::putLength(bsl::streambuf *streamBuf, int length)
 
 template <typename TYPE>
 inline
-int BerUtil::putValue(bsl::streambuf               *streamBuf,
-                           const TYPE&                   value,
-                           const BerEncoderOptions *options)
+int BerUtil::putValue(bsl::streambuf          *streamBuf,
+                      const TYPE&              value,
+                      const BerEncoderOptions *options)
 {
     return BerUtil_Imp::putValue(streamBuf, value, options);
 }
 
-                      // -----------------------
+                      // ------------------
                       // struct BerUtil_Imp
-                      // -----------------------
+                      // ------------------
 
 // CLASS METHODS
 template <typename TYPE>
 int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
-                                      TYPE           *value,
-                                      int             length)
+                                 TYPE           *value,
+                                 int             length)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     enum { k_SIGN_BIT_MASK = 0x80 };
 
     static const bool isUnsigned = (TYPE(-1) > TYPE(0));
 
     if (isUnsigned && (unsigned) length == sizeof(TYPE) + 1) {
-        // Length of an unsigned is allowed to be one larger then sizeof(TYPE)
-        // only if first byte is zero.  (This is so that large unsigned
-        // numbers don't appear as negative numbers in the BER stream).
-        // Remove the leading zero byte.
+        // Length of an unsigned is allowed to be one larger then
+        // 'sizeof(TYPE)' only if first byte is zero.  (This is so that large
+        // unsigned numbers do not appear as negative numbers in the BER
+        // stream).  Remove the leading zero byte.
 
         if (0 != streamBuf->sbumpc()) {
             // First byte was not zero.  Fail.
 
-            return k_BDEM_FAILURE;                                      // RETURN
+            return k_FAILURE;                                         // RETURN
         }
 
         --length;
@@ -765,7 +764,7 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     if ((unsigned) length > sizeof(TYPE)) {
         // Overflow.
 
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     *value = (TYPE)(streamBuf->sgetc() & k_SIGN_BIT_MASK ? -1 : 0);
@@ -773,99 +772,99 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     for (int i = 0; i < length; ++i) {
         int nextOctet = streamBuf->sbumpc();
         if (bsl::streambuf::traits_type::eof() == nextOctet) {
-            return k_BDEM_FAILURE;                                      // RETURN
+            return k_FAILURE;                                         // RETURN
         }
 
         *value = (TYPE)(*value << e_BITS_PER_OCTET);
         *value = (TYPE)(*value | (unsigned char)nextOctet);
     }
 
-    return k_BDEM_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <typename TYPE>
 inline
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               TYPE           *value,
-                               int             length)
+                          TYPE            *value,
+                          int              length)
 {
     return BerUtil_Imp::getIntegerValue(streamBuf, value, length);
 }
 
 inline
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               bool           *value,
-                               int             length)
+                          bool           *value,
+                          int             length)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     if (1 != length) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     int intValue = streamBuf->sbumpc();
     if (bsl::streambuf::traits_type::eof() == intValue) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     *value = 0 != intValue;
 
-    return k_BDEM_SUCCESS;
+    return k_SUCCESS;
 }
 
 inline
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               char           *value,
-                               int             length)
+                          char           *value,
+                          int             length)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     if (1 != length) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     int valueOctet = streamBuf->sbumpc();
     if (bsl::streambuf::traits_type::eof() == valueOctet) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     *value = (char) valueOctet;
-    return k_BDEM_SUCCESS;
+    return k_SUCCESS;
 }
 
 inline
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               unsigned char  *value,
-                               int             length)
+                          unsigned char  *value,
+                          int             length)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     short temp;
     if (BerUtil_Imp::getIntegerValue(streamBuf, &temp, length)) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
     *value = (unsigned char) temp;
-    return k_BDEM_SUCCESS;
+    return k_SUCCESS;
 }
 
 inline
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               signed char    *value,
-                               int             length)
+                          signed char    *value,
+                          int             length)
 {
     return getValue(streamBuf, (char *) value, length);
 }
 
 inline
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               float          *value,
-                               int             length)
+                          float          *value,
+                          int             length)
 {
     enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     double dvalue;
     if (BerUtil_Imp::getDoubleValue(streamBuf, &dvalue, length)) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                        // RETURN
     }
     *value = (float) dvalue;
     return k_BDEM_SUCCESS;
@@ -873,14 +872,14 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 
 inline
 int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                               double         *value,
-                               int             length)
+                               double    *value,
+                               int        length)
 {
     return BerUtil_Imp::getDoubleValue(streamBuf, value, length);
 }
 
 template <typename TYPE, typename TYPETZ>
-int BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
+int BerUtil_Imp::getValue(bsl::streambuf                    *streamBuf,
                                bdlb::Variant2<TYPE, TYPETZ> *value,
                                int                           length)
 {
@@ -893,8 +892,10 @@ int BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
 
     const int k_MAX_BINARY_TYPETZ_LENGTH =
                                      BinaryDateTimeFormat::maxLength<TYPETZ>();
-    const int k_MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
-    const int k_MAX_STRING_TYPE_LENGTH = StringDateTimeFormat::maxLength<TYPE>();
+    const int k_MAX_BINARY_TYPE_LENGTH =
+                                       BinaryDateTimeFormat::maxLength<TYPE>();
+    const int k_MAX_STRING_TYPE_LENGTH =
+                                       StringDateTimeFormat::maxLength<TYPE>();
 
     bool doesNotHaveTzOffset = length > k_MAX_BINARY_TYPETZ_LENGTH
                              ? length <= k_MAX_STRING_TYPE_LENGTH
@@ -909,7 +910,7 @@ int BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
                         length);                                      // RETURN
     }
 
-    // Decode into TYPETZ
+    // Decode into 'TYPETZ'.
 
     value->template createInPlace<TYPETZ>();
     return getValue(streamBuf, &value->template the<TYPETZ>(), length);
@@ -928,16 +929,16 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
     // narrower than 'int'.
 
     static const TYPE NEG_MASK = static_cast<TYPE>(
-             static_cast<TYPE>(0xff80) << ((sizeof(TYPE)-2) * e_BITS_PER_OCTET));
+           static_cast<TYPE>(0xff80) << ((sizeof(TYPE)-2) * e_BITS_PER_OCTET));
     if (0 == value) {
         numBytes = 1;
     }
     else if (value > 0) {
         static const TYPE SGN_BIT = static_cast<TYPE>(
-                  static_cast<TYPE>(1) << (sizeof(TYPE) * e_BITS_PER_OCTET - 1));
+                static_cast<TYPE>(1) << (sizeof(TYPE) * e_BITS_PER_OCTET - 1));
         if (value & SGN_BIT) {
-            // If value is > 0 but the high bit (sign bit) is set, then this
-            // is an unsigned value and a leading zero byte must be emitted to
+            // If 'value > 0' but the high bit (sign bit) is set, then this is
+            // an unsigned value and a leading zero byte must be emitted to
             // prevent the value from looking like a negative value on the
             // wire.  The leading zero is followed by all of the bytes of the
             // unsigned value.
@@ -945,8 +946,8 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
             return sizeof(TYPE) + 1;                                  // RETURN
         }
 
-        // mask that zeroes out the most significant byte and the first bit
-        // of the next byte.
+        // This mask zeroes out the most significant byte and the first bit of
+        // the next byte.
 
         static const TYPE POS_MASK = TYPE(~NEG_MASK);
         while ((value & POS_MASK) == value) {
@@ -967,13 +968,13 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
 
 template <typename TYPE>
 int BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
-                                            TYPE            value,
-                                            int             length)
+                                       TYPE            value,
+                                       int             length)
 {
     enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     if (length <= 0) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                        // RETURN
     }
 
     static const bool isUnsigned = (TYPE(-1) > TYPE(0));
@@ -981,23 +982,23 @@ int BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
     if (isUnsigned && (unsigned) length == sizeof(TYPE) + 1) {
         static const TYPE SGN_BIT =
             TYPE(TYPE(1) << (sizeof(TYPE) * e_BITS_PER_OCTET - 1));
-        // Length may be one greater than sizeof(TYPE) only if type is
+        // Length may be one greater than 'sizeof(TYPE)' only if type is
         // unsigned and the high bit (normally the sign bit) is set.  In this
         // case, a leading zero octet is emitted.
 
         if (! (value & SGN_BIT)) {
-            return k_BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                    // RETURN
         }
 
         if (0 != streamBuf->sputc(0)) {
-            return k_BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                    // RETURN
         }
 
         --length;
     }
 
     if ((unsigned) length > sizeof(TYPE)) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                        // RETURN
     }
 
 #if BSLS_PLATFORM_IS_BIG_ENDIAN
@@ -1012,7 +1013,7 @@ int BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
     for ( ; length > 0; --length) {
         unsigned char c = *--dst;
         if (c != streamBuf->sputc(c)) {
-            return k_BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                    // RETURN
         }
     }
 
@@ -1024,118 +1025,119 @@ int BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
 template <typename TYPE>
 inline
 int BerUtil_Imp::putIntegerValue(bsl::streambuf *streamBuf,
-                                      TYPE            value)
+                                 TYPE            value)
 {
-    enum { k_BDEM_FAILURE = -1 };
+    enum { k_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;
     const int length = numBytesToStream(value);
     if (length != streamBuf->sputc((char_type)length)) {
-        return k_BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     return putIntegerGivenLength(streamBuf, value, length);
 }
 
 inline
-int BerUtil_Imp::putStringValue(bsl::streambuf *streamBuf,
-                                     const char     *value,
-                                     int             valueLength)
+int BerUtil_Imp::putStringValue(bsl::streambuf  *streamBuf,
+                                const char      *value,
+                                int              valueLength)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     return BerUtil_Imp::putLength(streamBuf, valueLength)
         || valueLength != streamBuf->sputn(value, valueLength)
-         ? k_BDEM_FAILURE
-         : k_BDEM_SUCCESS;
+         ? k_FAILURE
+         : k_SUCCESS;
 }
 
 template <typename TYPE>
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const TYPE&                   value,
-                               const BerEncoderOptions *)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const TYPE&              value,
+                          const BerEncoderOptions *)
 {
     return BerUtil_Imp::putIntegerValue(streamBuf, value);
 }
 
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               bool                          value,
-                               const BerEncoderOptions *)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          bool                     value,
+                          const BerEncoderOptions *)
 {
     // It has been observed in practice that 'value' may refer to uninitialized
-    // or overwritten memory, in which case its value may neither be 'true'
-    // ('1') nor 'false' ('0').  We assert here to ensure that users get a
-    // useful error message.  Note that we assert (rather than returning an
-    // error code), as it is undefined behavior to examine the value of such an
-    // uninitialized 'bool'.  Also note that gcc complains about this assert
-    // when used with the '-Wlogical-op' flag.  Therefore, to silence this
-    // warning/error we cast the 'bool' value to a 'char *' and check the value
-    // referred to by the 'char *'.
+    // or overwritten memory, in which case its value may neither be 'true' (1)
+    // nor 'false' (0).  We assert here to ensure that users get a useful error
+    // message.  Note that we assert (rather than returning an error code), as
+    // it is undefined behavior to examine the value of such an uninitialized
+    // 'bool'.  Also note that gcc complains about this assert when used with
+    // the '-Wlogical-op' flag.  Therefore, to silence this warning/error we
+    // cast the 'bool' value to a 'char *' and check the value referred to by
+    // the 'char *'.
 
     BSLMF_ASSERT(sizeof(bool) == sizeof(char));
-    BSLS_ASSERT(0 == *(char *)&value || 1 == *(char *)&value);
+    BSLS_ASSERT(0             == *(char *)&value
+             || 1             == *(char *)&value);
 
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;
 
     return 1 == streamBuf->sputc(1)
         && (int)value == streamBuf->sputc((char_type)(value ? 1 : 0))
-         ? k_BDEM_SUCCESS
-         : k_BDEM_FAILURE;
+         ? k_SUCCESS
+         : k_FAILURE;
 }
 
 inline
 int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               char                          value,
+                               char                     value,
                                const BerEncoderOptions *)
 {
-    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     return 1 == streamBuf->sputc(1)
         && (unsigned char) value == streamBuf->sputc(value)
-         ? k_BDEM_SUCCESS
-         : k_BDEM_FAILURE;
+         ? k_SUCCESS
+         : k_FAILURE;
 }
 
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               unsigned char                 value,
-                               const BerEncoderOptions *)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          unsigned char            value,
+                          const BerEncoderOptions *)
 {
     return BerUtil_Imp::putIntegerValue(streamBuf, (unsigned short)value);
 }
 
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               signed char                   value,
-                               const BerEncoderOptions *options)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          signed char              value,
+                          const BerEncoderOptions *options)
 {
     return putValue(streamBuf, (char) value, options);
 }
 
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               float                         value,
-                               const BerEncoderOptions *)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          float                    value,
+                          const BerEncoderOptions *)
 {
     return BerUtil_Imp::putDoubleValue(streamBuf, (double) value);
 }
 
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               double                        value,
-                               const BerEncoderOptions *)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          double                   value,
+                          const BerEncoderOptions *)
 {
     return BerUtil_Imp::putDoubleValue(streamBuf, value);
 }
 
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bsl::string&            value,
-                               const BerEncoderOptions *)
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          const bsl::string&       value,
+                          const BerEncoderOptions *)
 {
     return putStringValue(streamBuf,
                           value.data(),
@@ -1143,25 +1145,32 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 }
 
 inline
-int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
-                               const bslstl::StringRef&      value,
-                               const BerEncoderOptions *)
+int BerUtil_Imp::putValue(bsl::streambuf           *streamBuf,
+                          const bslstl::StringRef&  value,
+                          const BerEncoderOptions  *)
 {
     return putStringValue(streamBuf,
                           value.data(),
                           static_cast<int>(value.length()));
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close namespace BloombergLP
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

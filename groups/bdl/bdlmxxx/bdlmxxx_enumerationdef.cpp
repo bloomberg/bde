@@ -1,4 +1,4 @@
-// bdlmxxx_enumerationdef.cpp              -*-C++-*-
+// bdlmxxx_enumerationdef.cpp                                         -*-C++-*-
 #include <bdlmxxx_enumerationdef.h>
 
 #include <bsls_ident.h>
@@ -159,14 +159,14 @@ int EnumerationDef::addEnumerator(const char *name, int id)
 {
     if (0 == name || bdltuxxx::Unset<int>::isUnset(id)) {
         // Invalid name or id.
-        return bdltuxxx::Unset<int>::unsetValue();                        // RETURN
+        return bdltuxxx::Unset<int>::unsetValue();                    // RETURN
     }
 
     // Check for duplicate name or Id
     if (d_enumByIdMap.end()   != d_enumByIdMap.find(id)
      || d_enumByNameMap.end() != d_enumByNameMap.find(name)) {
         // Insert failed -- duplicate.
-        return bdltuxxx::Unset<int>::unsetValue();                        // RETURN
+        return bdltuxxx::Unset<int>::unsetValue();                    // RETURN
     }
 
     // Make a private, permanent copy of the enumerator name.
@@ -178,7 +178,7 @@ int EnumerationDef::addEnumerator(const char *name, int id)
     idInsertResult = d_enumByIdMap.insert(IntCharptrMap::value_type(id, name));
     if (! idInsertResult.second) {
         // Insert failed.
-        return bdltuxxx::Unset<int>::unsetValue();                        // RETURN
+        return bdltuxxx::Unset<int>::unsetValue();                    // RETURN
     }
 
     // Proctor last insertion -- will undo insertion if next operation fails
@@ -190,7 +190,7 @@ int EnumerationDef::addEnumerator(const char *name, int id)
     // return an error value (the 'idProctor' will undo the previous insert).
     if (! d_enumByNameMap.insert(CharptrIntMap::value_type(name, id)).second) {
         // Insert failed.
-        return bdltuxxx::Unset<int>::unsetValue();                        // RETURN
+        return bdltuxxx::Unset<int>::unsetValue();                    // RETURN
     }
 
     if (id > d_maxId) {
@@ -254,7 +254,7 @@ int EnumerationDef::lookupId(const char *name) const
 {
     if (0 == name) {
         // Invalid name.
-        return bdltuxxx::Unset<int>::unsetValue();                        // RETURN
+        return bdltuxxx::Unset<int>::unsetValue();                    // RETURN
     }
 
     CharptrIntMap::const_iterator found = d_enumByNameMap.find(name);
@@ -281,7 +281,7 @@ EnumerationDef::nextLargerName(const char *name) const
     }
 
     if (found != d_enumByNameMap.end()) {
-        return *found;
+        return *found;                                                // RETURN
     }
 
     return bsl::make_pair((const char *)0, bdltuxxx::Unset<int>::unsetValue());
@@ -344,13 +344,13 @@ EnumerationDef::print(bsl::ostream& stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlb_hashutil.t.cpp    -*-C++-*-
+// bdlb_hashutil.t.cpp                                                -*-C++-*-
 
 #include <bdlb_hashutil.h>
 
@@ -281,6 +281,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
                 sigmaLength = bsl::numeric_limits<double>::infinity();
                 maxLength   = bsl::numeric_limits<double>::infinity();
                 return ExperimentalResult(maxLength, avgLength, sigmaLength);
+                                                                      // RETURN
             }
 
             avgLength   += chainLength;
@@ -641,7 +642,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // except 'hash2' is used in place of 'hash1' in 'computeChainingCollisions').
 //..
 // Displaying average(max) for chaining:
-// --------------------------------------
+// ----------------------------------------------------------------------------
 // Load factor:    0.2     0.4     0.6     0.8     1       1.2     1.4
 // Integers:       0.2(3)  0.4(5)  0.6(6)  0.8(6)  1(7)    1.2(7)  1.4(8)
 // Strings :       0.2(4)  0.4(4)  0.6(5)  0.8(7)  1(7)    1.2(7)  1.4(7)
@@ -658,14 +659,14 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // Vector  :       3(39)   3.2(40) 3.4(42) 3.6(45) 3.8(46)
 //
 // Displaying average(max) for double-hashing:
-// --------------------------------------------
+// ----------------------------------------------------------------------------
 // Load factor:    0.1      0.3     0.5      0.7      0.9
 // Integers:       0.046(2) 0.20(4) 0.37(10) 0.71(15) 1.6(59)
 // Strings :       0.064(2) 0.20(6) 0.40(12) 0.75(18) 1.6(50)
 // Vector  :       0.05(2)  0.19(5) 0.58(9)  1.20(15) 2.4(64)
 //..
 
-} // close namespace BDEU_HASHUTIL_USAGE_EXAMPLE
+}  // close namespace BDEU_HASHUTIL_USAGE_EXAMPLE
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1449,11 +1450,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

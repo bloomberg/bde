@@ -75,7 +75,7 @@ bsl::ostream& printCategorySet(
     return stream;
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 namespace balm {
                // ==========================================
@@ -389,7 +389,7 @@ int PublicationScheduler::cancelDefaultSchedule()
     // 'PublicationScheduler_ClockData' object to reflect that change.
 
     if (d_defaultInterval == INVALID_INTERVAL()) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bsls::TimeInterval interval = d_defaultInterval;
@@ -524,7 +524,7 @@ void PublicationScheduler::setDefaultSchedule(
     // If 'interval' equals the existing default schedule interval, return
     // immediately.
     if (interval == d_defaultInterval) {
-        return;
+        return;                                                       // RETURN
     }
 
     cancelDefaultSchedule();
@@ -582,7 +582,7 @@ int PublicationScheduler::cancelCategorySchedule(
     Categories::iterator cIt = d_categories.find(category);
     if (cIt == d_categories.end()) {
         // This category has no specific schedule.
-        return -1;                                                // RETURN
+        return -1;                                                    // RETURN
     }
     cancelCategory(cIt);
 
@@ -616,7 +616,7 @@ PublicationScheduler::findCategorySchedule(
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     Categories::const_iterator catIt = d_categories.find(category);
     if (catIt == d_categories.end()) {
-        return false;
+        return false;                                                 // RETURN
     }
     *result = catIt->second;
     return true;
@@ -627,7 +627,7 @@ PublicationScheduler::getDefaultSchedule(bsls::TimeInterval *result) const
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (d_defaultInterval == INVALID_INTERVAL()) {
-        return false;
+        return false;                                                 // RETURN
     }
     *result = d_defaultInterval;
     return true;
@@ -730,13 +730,20 @@ PublicationScheduler::print(bsl::ostream&   stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

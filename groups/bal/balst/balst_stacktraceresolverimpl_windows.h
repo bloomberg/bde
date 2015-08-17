@@ -17,13 +17,13 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
 //@DESCRIPTION: This class provides a class this able to take a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set, and sets
-// as many of the other fields in the stack trace frames as possible.  Elf
+// 'balst::StackTraceFrame's that have only their 'address' fields set, and
+// sets as many of the other fields in the stack trace frames as possible.  Elf
 // objects are used on Solaris, Linux, and HPUX platforms.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -53,10 +53,12 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
 
-namespace balst {template <typename RESOLVER_POLICY>
+namespace balst {
+
+template <typename RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
     // ===================================================================
@@ -113,7 +115,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
                                              // 0's.
         const int mask      = 0xa72c3dca;    // pure garbage
 
-        enum { LINE = __LINE__ };
+        enum { k_LINE = __LINE__ };
 
         for (int i = 0; !(i & loopGuard); ++i) {
             line ^= (i & mask);
@@ -128,25 +130,33 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
             break;
         }
 
-        line = LINE;
+        line = k_LINE;
         lineCopy = line;
     }
 
     return line;
 }
+
 }  // close package namespace
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

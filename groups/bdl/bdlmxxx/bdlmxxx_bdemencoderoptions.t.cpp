@@ -1,4 +1,4 @@
-// bdlmxxx_bdemencoderoptions.t.cpp   -*-C++-*-
+// bdlmxxx_bdemencoderoptions.t.cpp                                   -*-C++-*-
 #include <bdlmxxx_bdemencoderoptions.h>
 
 #include <bsls_ident.h>

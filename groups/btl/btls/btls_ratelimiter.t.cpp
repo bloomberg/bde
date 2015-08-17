@@ -1,22 +1,27 @@
-//btls_ratelimiter.t.cpp                                              -*-C++-*-
+// btls_ratelimiter.t.cpp                                             -*-C++-*-
 
 #include <btls_ratelimiter.h>
 
 #include <bdlqq_threadutil.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlt_currenttime.h>
 
 #include <bsls_asserttest.h>
 
+#include <bsl_climits.h>
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_c_math.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The component under test implements a mechanism.
@@ -42,7 +47,7 @@ using namespace bsl;
 //
 // Global Assumptions:
 //: o ACCESSOR methods are 'const' thread-safe.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // CREATORS
 // [ 2] btls::RateLimiter(sR, sRW, pR, pRW, currentTime);
@@ -69,51 +74,60 @@ using namespace bsl;
 // [ 9] void getStatistics(*submittedUnits, *unusedUnits) const;
 // [ 3] bsls::TimeInterval statisticsCollectionStartTime() const;
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
 // [ 3] All accessor methods are declared 'const'.
 // [ *] All creator/manipulator ptr./ref. parameters are 'const'.
-//=============================================================================
+// ============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE VARIADIC ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
 #define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
@@ -143,17 +157,17 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 typedef btls::RateLimiter    Obj;
 typedef bsls::TimeInterval   Ti;
 typedef bsls::Types::Uint64 Uint64;
 typedef unsigned int        uint;
 
-//=============================================================================
+// ============================================================================
 //                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -206,22 +220,22 @@ typedef unsigned int        uint;
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:
 //..
-bool sendData(size_t dataSize)
-      // Send a specified 'dataSize' amount of data over the network.
-      // Return 'true' if data was sent successfully and 'false' otherwise.
-{
-    (void)(dataSize);
+    bool sendData(size_t dataSize)
+        // Send a specified 'dataSize' amount of data over the network.  Return
+        // 'true' if data was sent successfully and 'false' otherwise.
+    {
+        (void)(dataSize);
 //..
 // For simplicity, 'sendData' will not actually send any data and will always
 // return 'true'.
 //..
-    return true;
-}
+        return true;
+    }
 //..
 
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -366,15 +380,15 @@ int main(int argc, char *argv[])
 
             Obj x(S_RATE, S_WND, P_RATE, P_WND, Ti(0));
 
-            btls::LeakyBucket peakLb(P_RATE,
-                                    btls::LeakyBucket::calculateCapacity(P_RATE,
-                                                                        P_WND),
-                                    Ti(0));
+            btls::LeakyBucket peakLb(
+                           P_RATE,
+                           btls::LeakyBucket::calculateCapacity(P_RATE, P_WND),
+                           Ti(0));
 
-            btls::LeakyBucket sustLb(S_RATE,
-                                    btls::LeakyBucket::calculateCapacity(S_RATE,
-                                                                        S_WND),
-                                    Ti(0));
+            btls::LeakyBucket sustLb(
+                           S_RATE,
+                           btls::LeakyBucket::calculateCapacity(S_RATE, S_WND),
+                           Ti(0));
 
             // C-1
             x.reserve(UNITS_TO_RESERVE);
@@ -714,7 +728,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The method updates 'lastUpdateTime'.
         //:
-        //: 2 The method udpdates 'lastUpdateTime' if the specified
+        //: 2 The method updates 'lastUpdateTime' if the specified
         //:   'currentTime' precedes 'lastUpdateTime'.
         //:
         //: 3 The method does not affect 'statisticsCollectionStartTime' if
@@ -987,7 +1001,7 @@ int main(int argc, char *argv[])
         //      void reserve(bsls::Types::Uint64 numOfUnits);
         //      bsls::Types::Uint64 unitsReserved();
         //      void submitReserved(bsls::Types::Uint64 numOfUnits);
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
@@ -1028,15 +1042,15 @@ int main(int argc, char *argv[])
             const Uint64 EXPECTED_UNITS_RESERVED =
                 DATA[ti].d_expectedUnitsReserved;
 
-            btls::LeakyBucket peakLb(P_RATE,
-                                    btls::LeakyBucket::calculateCapacity(P_RATE,
-                                                                        P_WND),
-                                    Ti(0));
+            btls::LeakyBucket peakLb(
+                           P_RATE,
+                           btls::LeakyBucket::calculateCapacity(P_RATE, P_WND),
+                           Ti(0));
 
-            btls::LeakyBucket sustLb(S_RATE,
-                                    btls::LeakyBucket::calculateCapacity(S_RATE,
-                                                                        S_WND),
-                                    Ti(0));
+            btls::LeakyBucket sustLb(
+                           S_RATE,
+                           btls::LeakyBucket::calculateCapacity(S_RATE, S_WND),
+                           Ti(0));
 
             Obj x(S_RATE, S_WND, P_RATE, P_WND, Ti(0));
 
@@ -1313,7 +1327,7 @@ int main(int argc, char *argv[])
         //   bsls::TimeInterval sustainedRateWindow() const;
         //   bsls::TimeInterval lastUpdateTime() const;
         //   bsls::TimeInterval statisticsCollectionStartTime() const;
-        //-----------------------------------------------------------------
+        // ----------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
@@ -1598,10 +1612,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

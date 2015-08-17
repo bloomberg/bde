@@ -662,7 +662,7 @@ void runtest(int numIterations, int numObjects, int numThreads)
 
     tg.joinAll();
 }
-}
+}  // close namespace bench
 
 //=============================================================================
 //                                MAIN PROGRAM

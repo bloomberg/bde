@@ -32,19 +32,19 @@ namespace {
 typedef BloombergLP::balst::StackAddressUtil AddressUtil;
 
 enum {
-    IGNORE_FRAMES = AddressUtil::BAESU_IGNORE_FRAMES,
+    k_IGNORE_FRAMES = AddressUtil::k_IGNORE_FRAMES,
         // On some platforms, gathering the stack pointers wastes one frame
         // gathering the address of 'AddressUtil::getStackAddresses', which is
-        // reflected in whether 'AddressUtil::BAESU_IGNORE_FRAMES' is 0 or 1.
-        // This constant allows us to adjust for this and not display that
-        // frame as it is of no interest to the user.
+        // reflected in whether 'AddressUtil::k_IGNORE_FRAMES' is 0 or 1.  This
+        // constant allows us to adjust for this and not display that frame as
+        // it is of no interest to the user.
 
-    MAX_ALIGNMENT = BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT,
+    k_MAX_ALIGNMENT = BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT,
 
-    DEFAULT_NUM_RECORDED_FRAMES = 12
+    k_DEFAULT_NUM_RECORDED_FRAMES = 12
 };
 
-BSLMF_ASSERT(0 == MAX_ALIGNMENT % sizeof(void *));
+BSLMF_ASSERT(0 == k_MAX_ALIGNMENT % sizeof(void *));
 
 typedef BloombergLP::bsls::Types::UintPtr UintPtr;
 
@@ -68,8 +68,8 @@ static
 const UintPtr HIGH_ONES = 0;
 #endif
 
-static const UintPtr ALLOCATED_BLOCK_MAGIC   = 1222222221 + HIGH_ONES;
-static const UintPtr DEALLOCATED_BLOCK_MAGIC = 1999999991 + HIGH_ONES;
+static const UintPtr k_ALLOCATED_BLOCK_MAGIC   = 1222222221 + HIGH_ONES;
+static const UintPtr k_DEALLOCATED_BLOCK_MAGIC = 1999999991 + HIGH_ONES;
 
                             // ----------------
                             // static functions
@@ -81,15 +81,17 @@ int getTraceBufferLength(int specifiedMaxRecordedFrames)
     // each block for storing frame pointers, given a specified
     // 'specifiedMaxRecordedFrames'.  The specify value may need to be
     // adjusted upward to include room for ignored frames, and for the buffer
-    // size in bytes being a multiple of 'MAX_ALIGNMENT'.
+    // size in bytes being a multiple of 'k_MAX_ALIGNMENT'.
 {
-    enum { PTRS_PER_MAX = MAX_ALIGNMENT / sizeof(void *) };
+    enum { k_PTRS_PER_MAX = k_MAX_ALIGNMENT / sizeof(void *) };
 
-    int ret = ((specifiedMaxRecordedFrames + IGNORE_FRAMES + PTRS_PER_MAX - 1)
-                                                / PTRS_PER_MAX) * PTRS_PER_MAX;
+    int ret =  specifiedMaxRecordedFrames + k_IGNORE_FRAMES;
+    ret     += k_PTRS_PER_MAX - 1;
+    ret     /= k_PTRS_PER_MAX;
+    ret     *= k_PTRS_PER_MAX;
 
     BSLS_ASSERT(ret >= specifiedMaxRecordedFrames);
-    BSLS_ASSERT(0 == ret % PTRS_PER_MAX);
+    BSLS_ASSERT(0 == ret % k_PTRS_PER_MAX);
 
     return ret;
 }
@@ -97,6 +99,7 @@ int getTraceBufferLength(int specifiedMaxRecordedFrames)
 namespace BloombergLP {
 
 namespace balst {
+
                 // ================================================
                 // class StackTraceTestAllocator::BlockHeader
                 // ================================================
@@ -124,12 +127,12 @@ struct StackTraceTestAllocator::BlockHeader {
                                                   // the linked list if there
                                                   // is no previous object
 
-    StackTraceTestAllocator *d_allocator_p; // allocator of block
+    StackTraceTestAllocator       *d_allocator_p; // allocator of block
 
     UintPtr                        d_magic;       // magic number -- has
-                                                  // different values for
-                                                  // an allocated block vs a
-                                                  // freed block
+                                                  // different values for an
+                                                  // allocated block vs a freed
+                                                  // block
 
     // CREATOR
     BlockHeader(BlockHeader                   *next,
@@ -140,26 +143,23 @@ struct StackTraceTestAllocator::BlockHeader {
         // 'next', 'prevNext', 'stackTraceTestAllocator', and 'magic'
         // arguments.
 };
-}  // close package namespace
-
 
 // CREATORS
 inline
-balst::StackTraceTestAllocator::BlockHeader::BlockHeader(
-                        BlockHeader                   *next,
-                        BlockHeader                  **prevNext,
-                        balst::StackTraceTestAllocator *stackTraceTestAllocator,
-                        UintPtr                        magic)
+StackTraceTestAllocator::BlockHeader::BlockHeader(
+                             BlockHeader              *next,
+                             BlockHeader             **prevNext,
+                             StackTraceTestAllocator  *stackTraceTestAllocator,
+                             UintPtr                   magic)
 : d_next_p(next)
 , d_prevNext_p(prevNext)
 , d_allocator_p(stackTraceTestAllocator)
 , d_magic(magic)
 {
-    BSLMF_ASSERT(0 == sizeof(BlockHeader) % MAX_ALIGNMENT);
+    BSLMF_ASSERT(0 == sizeof(BlockHeader) % k_MAX_ALIGNMENT);
     BSLMF_ASSERT(sizeof(BlockHeader) == 4 * sizeof(void *));
 }
 
-namespace balst {
                 // ------------------------------------------------
                 // class StackTraceTestAllocator::BlockHeader
                 // ------------------------------------------------
@@ -170,8 +170,8 @@ int StackTraceTestAllocator::checkBlockHeader(
 {
     int rc = 0;
 
-    if (ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
-        if (DEALLOCATED_BLOCK_MAGIC == blockHdr->d_magic) {
+    if (k_ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
+        if (k_DEALLOCATED_BLOCK_MAGIC == blockHdr->d_magic) {
             // Note: if '*d_ostream' is a stringstream based on this allocator,
             // this write may allocate the freed block, trashing '*blockHdr',
             // not much we can do about that.
@@ -191,7 +191,8 @@ int StackTraceTestAllocator::checkBlockHeader(
 
     if (this != blockHdr->d_allocator_p) {
         StackTraceTestAllocator *otherAlloc = blockHdr->d_allocator_p;
-        bool notOurs = STACK_TRACE_TEST_ALLOCATOR_MAGIC != otherAlloc->d_magic;
+        bool notOurs = k_STACK_TRACE_TEST_ALLOCATOR_MAGIC !=
+                                                           otherAlloc->d_magic;
         *d_ostream << "Error: attempt to free block by wrong"
                    << " allocator.\n    Block belongs to allocator '"
                    << (notOurs ? "<<Not a StackTraceTestAllocator>>"
@@ -218,8 +219,8 @@ int StackTraceTestAllocator::checkBlockHeader(
 
     const BlockHeader *next = blockHdr->d_next_p;
     if (next) {
-        if (ALLOCATED_BLOCK_MAGIC != next->d_magic) {
-            if (DEALLOCATED_BLOCK_MAGIC == next->d_magic) {
+        if (k_ALLOCATED_BLOCK_MAGIC != next->d_magic) {
+            if (k_DEALLOCATED_BLOCK_MAGIC == next->d_magic) {
                 *d_ostream << "Error: freed object on allocted block list"
                            << " of allocator '" << d_name << "' at "
                            << next << bsl::endl;
@@ -251,21 +252,21 @@ void StackTraceTestAllocator::failNoop()
 // CREATORS
 StackTraceTestAllocator::StackTraceTestAllocator(
                                               bslma::Allocator *basicAllocator)
-: d_magic(STACK_TRACE_TEST_ALLOCATOR_MAGIC)
+: d_magic(k_STACK_TRACE_TEST_ALLOCATOR_MAGIC)
 , d_numBlocksInUse(0)
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
 , d_failureHandler(basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
-, d_maxRecordedFrames(DEFAULT_NUM_RECORDED_FRAMES + IGNORE_FRAMES)
-, d_traceBufferLength(getTraceBufferLength(DEFAULT_NUM_RECORDED_FRAMES))
+, d_maxRecordedFrames(k_DEFAULT_NUM_RECORDED_FRAMES + k_IGNORE_FRAMES)
+, d_traceBufferLength(getTraceBufferLength(k_DEFAULT_NUM_RECORDED_FRAMES))
 , d_ostream(&bsl::cerr)
 , d_demangleFlag(true)
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
 {
-    BSLS_ASSERT_SAFE(d_maxRecordedFrames >= DEFAULT_NUM_RECORDED_FRAMES);
+    BSLS_ASSERT_SAFE(d_maxRecordedFrames >= k_DEFAULT_NUM_RECORDED_FRAMES);
     BSLS_ASSERT_SAFE(d_traceBufferLength >= d_maxRecordedFrames);
 
     // This must be assigned in a statement in the body of the c'tor rather
@@ -278,14 +279,14 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 StackTraceTestAllocator::StackTraceTestAllocator(
                                            int               numRecordedFrames,
                                            bslma::Allocator *basicAllocator)
-: d_magic(STACK_TRACE_TEST_ALLOCATOR_MAGIC)
+: d_magic(k_STACK_TRACE_TEST_ALLOCATOR_MAGIC)
 , d_numBlocksInUse(0)
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
 , d_failureHandler(basicAllocator ? basicAllocator
                                   : &bslma::MallocFreeAllocator::singleton())
-, d_maxRecordedFrames(numRecordedFrames + IGNORE_FRAMES)
+, d_maxRecordedFrames(numRecordedFrames + k_IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
 , d_ostream(&bsl::cerr)
 , d_demangleFlag(true)
@@ -333,18 +334,18 @@ void *StackTraceTestAllocator::allocate(size_type size)
     // large enough to accommodate whatever the alignment requirements of
     // whatever the client intends to store in their portion of the block.  We
     // can infer the requirements of our pointers and block header at compile
-    // time in 'FIXED_ALIGN', then we infer the alignment requirement of the
+    // time in 'k_FIXED_ALIGN', then we infer the alignment requirement of the
     // client's section from the size passed, and take the maximum of the two
     // to get the alignment required.  We then round the size we will pass to
     // the underlying allocator up to a multiple of 'align', so that the
     // underlying allocator cannot infer a lower value of the alignment
     // requirement.
 
-    enum { FIXED_ALIGN =
+    enum { k_FIXED_ALIGN =
                    Max<bsls::AlignmentFromType<void *>::VALUE,
                        bsls::AlignmentFromType<BlockHeader>::VALUE>::VALUE };
     const int align = bsl::max<int>(
-                        FIXED_ALIGN,
+                        k_FIXED_ALIGN,
                         bsls::AlignmentUtil::calculateAlignmentFromSize(size));
     const int lowBits = align - 1;
     BSLS_ASSERT_SAFE(0 == (align & lowBits));   // verify 'align' is power of 2
@@ -354,12 +355,13 @@ void *StackTraceTestAllocator::allocate(size_type size)
     void **framesBegin = (void **) d_allocator_p->allocate(
           d_traceBufferLength * sizeof(void *) + sizeof(BlockHeader) + size);
 
-    BlockHeader *blockHdr = (BlockHeader*) (framesBegin + d_traceBufferLength);
+    BlockHeader *blockHdr = reinterpret_cast<BlockHeader*>(
+                                            framesBegin + d_traceBufferLength);
 
     new (blockHdr) BlockHeader(d_blocks,
                                &d_blocks,
                                this,
-                               ALLOCATED_BLOCK_MAGIC);
+                               k_ALLOCATED_BLOCK_MAGIC);
     if (d_blocks) {
         d_blocks->d_prevNext_p = &blockHdr->d_next_p;
     }
@@ -409,9 +411,10 @@ void StackTraceTestAllocator::deallocate(void *address)
         blockHdr->d_next_p->d_prevNext_p = blockHdr->d_prevNext_p;
     }
     *blockHdr->d_prevNext_p = blockHdr->d_next_p;
-    blockHdr->d_magic = DEALLOCATED_BLOCK_MAGIC;
+    blockHdr->d_magic = k_DEALLOCATED_BLOCK_MAGIC;
 
-    d_allocator_p->deallocate((void **) blockHdr - d_traceBufferLength);
+    d_allocator_p->deallocate(reinterpret_cast<void **>(blockHdr) -
+                                                          d_traceBufferLength);
 
     --d_numBlocksInUse;
     BSLS_ASSERT(d_numBlocksInUse >= 0);
@@ -438,7 +441,8 @@ void StackTraceTestAllocator::release()
         BlockHeader *condemned = blockHdr;
         blockHdr = blockHdr->d_next_p;
 
-        d_allocator_p->deallocate((void **) condemned - d_traceBufferLength);
+        d_allocator_p->deallocate(reinterpret_cast<void **>(condemned) -
+                                                          d_traceBufferLength);
     }
 
     d_blocks = 0;
@@ -453,7 +457,7 @@ void StackTraceTestAllocator::setDemanglingPreferredFlag(bool value)
 }
 
 void StackTraceTestAllocator::setFailureHandler(
-                                         const bdlf::Function<void (*)()>& func)
+                                        const bdlf::Function<void (*)()>& func)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
@@ -479,8 +483,7 @@ void StackTraceTestAllocator::setOstream(bsl::ostream *ostream)
 }
 
 // ACCESSORS
-void StackTraceTestAllocator::reportBlocksInUse(
-                                                   bsl::ostream *ostream) const
+void StackTraceTestAllocator::reportBlocksInUse(bsl::ostream *ostream) const
 {
     typedef bsl::vector<const void *>    StackTraceVec;
     typedef bsl::map<StackTraceVec, int> StackTraceVecMap;
@@ -504,8 +507,8 @@ void StackTraceTestAllocator::reportBlocksInUse(
     int numBlocksInUse = 0;
     for (BlockHeader *blockHdr = d_blocks; blockHdr;
                                                blockHdr = blockHdr->d_next_p) {
-        if (ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
-            if (DEALLOCATED_BLOCK_MAGIC == blockHdr->d_magic) {
+        if (k_ALLOCATED_BLOCK_MAGIC != blockHdr->d_magic) {
+            if (k_DEALLOCATED_BLOCK_MAGIC == blockHdr->d_magic) {
                 *ostream << "StackTraceTestAllocator: freed block at "
                          << (blockHdr + 1) << " in allocated list\n";
             }
@@ -521,9 +524,10 @@ void StackTraceTestAllocator::reportBlocksInUse(
             }
         }
 
-        void **startTrace = (void **) blockHdr - d_traceBufferLength;
+        void **startTrace = reinterpret_cast<void **>(blockHdr) -
+                                                           d_traceBufferLength;
         void **endTrace   = startTrace + d_maxRecordedFrames;
-        startTrace += IGNORE_FRAMES;
+        startTrace += k_IGNORE_FRAMES;
 
         // trim off the zeroes at the end of the trace
 
@@ -590,11 +594,18 @@ void StackTraceTestAllocator::reportBlocksInUse(
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

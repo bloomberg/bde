@@ -1,4 +1,4 @@
-// bdlmxxx_choicearrayitem.t.cpp                                         -*-C++-*-
+// bdlmxxx_choicearrayitem.t.cpp                                      -*-C++-*-
 
 #include <bdlmxxx_choicearrayitem.h>
 
@@ -144,9 +144,9 @@ using namespace BloombergLP;
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -158,7 +158,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -566,7 +566,7 @@ bool bdlmxxx::operator!=(const Table& lhs, const Table& rhs)
     return !(lhs == rhs);
 }
 
-}
+}  // close enterprise namespace
 
 //=============================================================================
 //                           GLOBAL DATA FOR TESTING
@@ -1180,7 +1180,7 @@ void assign(TYPE *lhs, const CERef &rhs, char spec)
       case 'd': lhs->theModifiableTimeTzArray() = rhs.theTimeTzArray(); break;
       case 'e': lhs->theModifiableChoice() = rhs.theChoice(); break;
       case 'f': lhs->theModifiableChoiceArray() = rhs.theChoiceArray(); break;
-      default: return;
+      default: return;                                                // RETURN
     }
 }
 
@@ -1224,7 +1224,7 @@ void set(TYPE *lhs, const CERef &rhs, char spec)
       case 'd': lhs->theModifiableTimeTzArray() = rhs.theTimeTzArray(); break;
       case 'e': lhs->theModifiableChoice() = rhs.theChoice(); break;
       case 'f': lhs->theModifiableChoiceArray() = rhs.theChoiceArray(); break;
-      default: return;
+      default: return;                                                // RETURN
     }
 }
 
@@ -1234,7 +1234,7 @@ static EType::Type getElemType(char spec)
     // index of each letter is in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
 {
     if (!spec) {
-      return EType::BDEM_VOID;
+      return EType::BDEM_VOID;                                        // RETURN
     }
 
     char *p = bsl::strchr(SPECIFICATIONS, spec);
@@ -1250,7 +1250,7 @@ static const Desc *getDescriptor(char spec)
     // index of each letter is in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef".
 {
     if (!spec) {
-        return DESCRIPTORS[-1];
+        return DESCRIPTORS[-1];                                       // RETURN
     }
 
     char *p = bsl::strchr(SPECIFICATIONS, spec);
@@ -5342,11 +5342,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

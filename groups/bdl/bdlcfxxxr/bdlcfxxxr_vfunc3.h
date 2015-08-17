@@ -1,4 +1,4 @@
-// bdlcfxxxr_vfunc3.h               -*-C++-*-
+// bdlcfxxxr_vfunc3.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLCFXXXR_VFUNC3
 #define INCLUDED_BDLCFXXXR_VFUNC3
 
@@ -257,15 +257,15 @@ inline int Vfunc3<A1, A2, A3>::decrement()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

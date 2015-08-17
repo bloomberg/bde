@@ -1,4 +1,4 @@
-// btlso_eventmanagertester.t.cpp  -*-C++-*-
+// btlso_eventmanagertester.t.cpp                                     -*-C++-*-
 
 #include <btlso_eventmanagertester.h>
 
@@ -356,9 +356,9 @@ enum {
     FAIL    = -1
 };
 
-//==========================================================================
+//=============================================================================
 //                             HELPER CLASS
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 class HelperEventManager : public btlso::EventManager
 {
     // This helper class provides a dummy event manager to create an instance
@@ -637,7 +637,7 @@ int buildOpDetails(
               opDetails->push_back(info);
           }
           else {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
         } break;
         case '+': {
@@ -651,7 +651,7 @@ int buildOpDetails(
           // Read the <fd> field.
           rc = sscanf(script + 1, "%d", &fd);
           if (1 != rc) {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
           info.d_handle = fds[fd].observedFd();
 
@@ -661,7 +661,7 @@ int buildOpDetails(
             case 'w':
               rc = sscanf(script + 3, "%d", &bytes);
               if (1 == rc && 0 >= bytes) {
-                  return FAIL;
+                  return FAIL;                                        // RETURN
               }
               if (1 != rc) {
                   bytes = -1;
@@ -671,7 +671,7 @@ int buildOpDetails(
               case 'c':
                 break;
               default: {
-                return FAIL;
+                return FAIL;                                          // RETURN
               }
           }
           switch (d) {
@@ -691,7 +691,7 @@ int buildOpDetails(
               info.d_event = btlso::EventType::e_CONNECT;
               break;
             default:
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
           opDetails->push_back(info);
         } break;
@@ -704,7 +704,7 @@ int buildOpDetails(
           if (1 > rc) {
               rc = sscanf(script, "-%c", &c[0]);
               if (1 != rc || 'a' != c[0]) {
-                  return FAIL;
+                  return FAIL;                                        // RETURN
               }
               info.d_functionCode = HelperEventManager::DEREGISTERALL;
               info.d_handle = HelperEventManager::UNSET;
@@ -735,7 +735,7 @@ int buildOpDetails(
                 info.d_event = btlso::EventType::e_CONNECT;
             } break;
             default:
-                return FAIL;
+                return FAIL;                                          // RETURN
           }
           opDetails->push_back(info);
       } break;
@@ -753,7 +753,7 @@ int buildOpDetails(
 
           if (3 == sscanf(script, "D%c%d,%d%n", &ch, &msecs, &rc, &nbytes)) {
               if (0 > msecs || 0 > rc) {
-                  return FAIL;
+                  return FAIL;                                        // RETURN
               }
               info.d_timeout = msecs;
               info.d_functionCode = HelperEventManager::DISPATCHTIMEOUT;
@@ -765,13 +765,13 @@ int buildOpDetails(
                     // flags = 0;
                 } break;
                 default:
-                    return FAIL;
+                    return FAIL;                                      // RETURN
               }
           }
           else if (2 == sscanf(script, "D%c,%u%n", &ch, (unsigned *)&rc,
                                                                     &nbytes)) {
               if (0 > rc) {
-                  return FAIL;
+                  return FAIL;                                        // RETURN
               }
               switch (ch) {
                 case 'n': {
@@ -781,12 +781,12 @@ int buildOpDetails(
                     // flags = 0;
                 } break;
                 default:
-                    return FAIL;
+                    return FAIL;                                      // RETURN
               }
               info.d_functionCode = HelperEventManager::DISPATCH;
           }
           else {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
           opDetails->push_back(info);
 
@@ -842,13 +842,13 @@ int buildOpDetails(
         break;
 
       default:
-          return FAIL;
+          return FAIL;                                                // RETURN
       }
       while (' ' != *script && '{' != *script && '}' != *script &&
              ';' != *script && '\t' != *script) {
           // Go to next command.
           if ('\0' == *script) {
-              return SUCCESS;
+              return SUCCESS;                                         // RETURN
           }
           ++script;
       }
@@ -1832,12 +1832,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
-
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

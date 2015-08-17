@@ -1465,9 +1465,9 @@ class AssertFailureHandlerGuard {
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // =========================
@@ -1504,22 +1504,22 @@ typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
 
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 }  // close enterprise namespace
 
 #endif // deeper include guard
 
-// ========================================================
+// ============================================================================
 // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
 // ========================================================
 
 #undef BSLS_ASSERT_NORETURN
 #undef BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED
 
-// =========================================
+// ============================================================================
 // IMPLEMENTATION USING THE C++ PREPROCESSOR
 // =========================================
 // At most one of the following build options may be set during the compilation

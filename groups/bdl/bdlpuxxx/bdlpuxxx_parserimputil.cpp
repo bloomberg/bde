@@ -1,4 +1,4 @@
-// bdlpuxxx_parserimputil.cpp                                            -*-C++-*-
+// bdlpuxxx_parserimputil.cpp                                         -*-C++-*-
 #include <bdlpuxxx_parserimputil.h>
 
 #include <bsls_ident.h>
@@ -202,7 +202,7 @@ int ParserImpUtil::parseIdentifier(const char  **endPos,
     if (!(isalpha(static_cast<unsigned char>(*curPos)) || *curPos == '_'))
     {
         *endPos = curPos;
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     // Parse the rest of the identifier.
@@ -226,16 +226,16 @@ int ParserImpUtil::parseNull(const char **endPos,
     BSLS_ASSERT(inputString);
 
     if ('N' != bdlb::CharType::toUpper(*(*endPos = inputString++))) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if ('U' != bdlb::CharType::toUpper(*(*endPos = inputString++))) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if ('L' != bdlb::CharType::toUpper(*(*endPos = inputString++))) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     if ('L' != bdlb::CharType::toUpper(*(*endPos = inputString++))) {
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
     *endPos = inputString;
     return BDEPU_SUCCESS;
@@ -319,7 +319,7 @@ int ParserImpUtil::parseUnsignedInteger(
     *endPos = inputString;
     if (start == inputString) {
         // ERROR: The number must have at least one digit.
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     *result = res;
@@ -365,7 +365,7 @@ int ParserImpUtil::parseUnsignedInteger(
     *endPos = inputString;
     if (start == inputString) {
         // ERROR: The number must have at least one digit.
-        return BDEPU_FAILURE;
+        return BDEPU_FAILURE;                                         // RETURN
     }
 
     *result = res;
@@ -422,7 +422,7 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
         }
         if (*inputString != '/') {
             *endPos = inputString;
-            return BDEPU_SUCCESS;
+            return BDEPU_SUCCESS;                                     // RETURN
         }
         else {
             ++inputString;
@@ -433,7 +433,7 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
                     if ('\0' == *inputString) {
                         // Comment is erroneous.
                         *endPos = inputString;
-                        return BDEPU_FAILURE;
+                        return BDEPU_FAILURE;                         // RETURN
                     }
                     if ('*' == *inputString && '/' == *(inputString + 1)) {
                         // Found end of comment.
@@ -454,13 +454,13 @@ int ParserImpUtil::skipWhiteSpace(const char **endPos,
                     if ('\0' == *inputString) {
                         // Reached end of string.
                         *endPos = inputString;
-                        return BDEPU_SUCCESS;
+                        return BDEPU_SUCCESS;                         // RETURN
                     }
                     ++inputString;
                 }
             } else {
                 *endPos = inputString - 1;
-                return BDEPU_SUCCESS;
+                return BDEPU_SUCCESS;                                 // RETURN
             }
         }
     }
@@ -498,13 +498,13 @@ void ParserImpUtil::generateNull(bsl::vector<char> *buffer)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

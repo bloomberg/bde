@@ -395,6 +395,10 @@ struct SkipList_Control {
     // TYPES
     enum {
         k_NUM_REFERENCE_BITS = 20  // minimum; implementation may have more
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEC_NUM_REFERENCE_BITS = k_NUM_REFERENCE_BITS
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
@@ -473,6 +477,11 @@ class SkipList_RandomLevelGenerator {
         k_MAX_LEVEL = 31,         // Also defined in SkipList and PoolManager
 
         k_SEED      = 0x12b9b0a1  // arbitrary
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEC_MAX_LEVEL = k_MAX_LEVEL
+      , BCEC_SEED = k_SEED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
@@ -711,11 +720,16 @@ class SkipList {
         e_NOT_FOUND = 1,
         e_DUPLICATE = 2,
         e_INVALID   = 3
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , e_RET_SUCCESS    = e_SUCCESS
-      , e_RET_NOT_FOUND  = e_NOT_FOUND
-      , e_RET_DUPLICATE  = e_DUPLICATE
-      , e_RET_INVALID    = e_INVALID
+      , BCEC_SUCCESS   = e_SUCCESS
+      , BCEC_NOT_FOUND = e_NOT_FOUND
+      , BCEC_DUPLICATE = e_DUPLICATE
+      , BCEC_INVALID   = e_INVALID
+      , RET_SUCCESS    = e_SUCCESS
+      , RET_NOT_FOUND  = e_NOT_FOUND
+      , RET_DUPLICATE  = e_DUPLICATE
+      , RET_INVALID    = e_INVALID
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

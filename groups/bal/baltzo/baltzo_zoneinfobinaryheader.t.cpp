@@ -13,6 +13,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -82,9 +83,9 @@ using namespace bsl;
 //: o [10] -- BDEX streaming is not (yet) implemented for this class.
 //
 // This class *does* not support an allocator for memory so the standard tests
-// w.r.t. to allocators and exceptions from allocators are simplified to checks
-// that no memory is every allocated from neither the default nor the global
-// allocator.
+// with respect to to allocators and exceptions from allocators are simplified
+// to checks that no memory is every allocated from neither the default nor the
+// global allocator.
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -352,12 +353,12 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 // 'baltzo::ZoneinfoBinaryHeader' object.
 //..
     int getNextZoneinfoBinaryHeader(baltzo::ZoneinfoBinaryHeader *object,
-                                    bsl::istream&                stream)
-        // Set to the specified 'object' the value extracted from the
-        // specified 'stream'.  Return 0 on success, and a non-zero value
-        // otherwise, with no change to 'object'.  The 'stream' contains
-        // white-space separated decimal representations of the attributes
-        // of 'baltzo::ZoneinfoBinaryHeader' in the following order: 'version',
+                                    bsl::istream&                 stream)
+        // Set to the specified 'object' the value extracted from the specified
+        // 'stream'.  Return 0 on success, and a non-zero value otherwise, with
+        // no change to 'object'.  The 'stream' contains white-space separated
+        // decimal representations of the attributes of
+        // 'baltzo::ZoneinfoBinaryHeader' in the following order: 'version',
         // 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
         // 'numLocalTimeTypes', and 'abbrevDataSize'.
     {
@@ -592,7 +593,7 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // CLASS METHODS 'isValid*'
-        // Ensure that each method correctly identifies its valid range.
+        //   Ensure that each method correctly identifies its valid range.
         //
         // Concerns:
         //: 1 Each 'isValid*' method correctly identifies the valid range of
@@ -2507,8 +2508,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ P_(X) }
 
-                // Use untested functionality to help ensure the first row
-                // of the table contains the default-constructed value.
+                // Use untested functionality to help ensure the first row of
+                // the table contains the default-constructed value.
 
                 static bool firstFlag = true;
                 if (firstFlag) {
@@ -3297,8 +3298,7 @@ int main(int argc, char *argv[])
             ASSERT(tam.isTotalSame());
         }
 
-        // Verify no temporary memory is allocated from the default
-        // allocator.
+        // Verify no temporary memory is allocated from the default allocator.
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 

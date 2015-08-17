@@ -17,12 +17,12 @@ FixedMemInput::pubseekpos(FixedMemInput::pos_type position,
 {
     // This is an input buffer only, so cannot "seek" in "put" area.
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(which & bsl::ios_base::in))) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > d_bufferLength)
      || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(off_type(position) < 0)) {
-        return pos_type(-1);
+        return pos_type(-1);                                          // RETURN
     }
 
     return d_pos = position;

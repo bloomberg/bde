@@ -1,4 +1,4 @@
-// bdlxxxx_genericbyteoutstream.h                                        -*-C++-*-
+// bdlxxxx_genericbyteoutstream.h                                     -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_GENERICBYTEOUTSTREAM
 #define INCLUDED_BDLXXXX_GENERICBYTEOUTSTREAM
 
@@ -564,7 +564,7 @@ GenericByteOutStream<StreamBuf>&
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <class StreamBuf, typename OBJECT>
+template <class StreamBuf, class OBJECT>
 inline
 GenericByteOutStream<StreamBuf>&
   operator<<(GenericByteOutStream<StreamBuf>& stream,
@@ -580,9 +580,9 @@ GenericByteOutStream<StreamBuf>&
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------------------
                         // class GenericByteOutStream
@@ -1315,7 +1315,7 @@ bdlxxxx::GenericByteOutStream<StreamBuf>&
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <class StreamBuf, typename VALUE>
+template <class StreamBuf, class VALUE>
 inline
 bdlxxxx::GenericByteOutStream<StreamBuf>&
   bdlxxxx::operator<<(GenericByteOutStream<StreamBuf>& stream, const VALUE& value)
@@ -1325,15 +1325,15 @@ bdlxxxx::GenericByteOutStream<StreamBuf>&
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

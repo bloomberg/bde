@@ -62,7 +62,7 @@ namespace bsl
     using native_std::locale;
 
 # ifndef BSLS_PLATFORM_OS_DARWIN
-// This alias isn't available from <ios> in Maverick (OS X 10.9).  See DRQS 
+// This alias isn't available from <ios> in Maverick (OS X 10.9).  See DRQS
 // 54913937.
     using native_std::num_get;
 # endif
@@ -200,7 +200,7 @@ namespace bsl
         return native_std::nouppercase(str);
     }
 #endif
-}
+}  // close package namespace
 
 #endif
 

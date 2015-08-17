@@ -21,9 +21,9 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//===========================================================================
+//=============================================================================
 //                                TEST PLAN
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //CONCERNS:
 //  1) Do not overwrite memory (a) outside the assigned range, nor (b) beyond
 //     what you say you have written.  ((b) overlaps with (2a).)
@@ -113,7 +113,7 @@ using namespace bsl;
 //                                --------
 // Exercise boundary cases for both of the conversion mappings as well as
 // handling of buffer capacity issues.
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [15] USAGE EXAMPLE 2
 // [14] USAGE EXAMPLE 1
 // [13] BACKWARDS BYTE ORDER TEST
@@ -129,7 +129,7 @@ using namespace bsl;
 // [ 3] CONVERT UTF-8 TO UTF-16 and UTF-16 to UTF-8 in strings.
 // [ 2] SINGLE-VALUE, LEGAL VALUE TEST
 // [ 1] BREATHING/USAGE TEST
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [13] utf8ToUtf16 (all container overloads)
 // [13] utf16ToUtf8 (all container overloads)
 // [12] utf8ToUtf16 (single container overload)
@@ -152,9 +152,9 @@ using namespace bsl;
 // and the value is NOT passed from the place that allocates the space to the
 // place that does the work.
 
-//==========================================================================
+//=============================================================================
 //              MODIFIED "STANDARD" BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // There are two changes here.  First, the variable 'testStatus' and the
 // function 'aSsErT' are moved into the anonymous namespace; previously
@@ -182,9 +182,9 @@ bool aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
-//===========================================================================
+//=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << (I) << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -482,7 +482,7 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
 // destroying them.  FixedVector<TYPE, N> requires that TYPE allow default-
 // initialization.
 
-template<typename VALUE_TYPE, bsl::size_t ARRAY_SIZE>
+template<class VALUE_TYPE, bsl::size_t ARRAY_SIZE>
 class FixedVector {
   public:
     typedef VALUE_TYPE           value_type;
@@ -563,7 +563,7 @@ class FixedVector {
 //  We'll have a const and non-const version, and define appropriate
 //  comparisons and conversions.
 //  Non-const:
-template<typename VALUE_TYPE>
+template<class VALUE_TYPE>
 struct ArrayRange {
     // ArrayRange<> allows iteration through an array.  It combines the
     // starting pointer and the length in one object.
@@ -632,7 +632,7 @@ struct ArrayRange {
 };
 
 //  Const:
-template<typename VALUE_TYPE>
+template<class VALUE_TYPE>
 struct ConstArrayRange {
     typedef VALUE_TYPE           value_type;
     typedef VALUE_TYPE const&    const_reference;
@@ -686,7 +686,7 @@ struct ConstArrayRange {
     { return d_array + d_size; }
 };
 
-template<typename VALUE_TYPE>
+template<class VALUE_TYPE>
 inline
 bool operator!=(const ConstArrayRange<VALUE_TYPE>& lhs,
                 const ConstArrayRange<VALUE_TYPE>& rhs)
@@ -718,7 +718,7 @@ bool operator!=(const ConstArrayRange<VALUE_TYPE>& lhs,
 //        object, and false otherwise.
 
 // Generate/Check built from an ArrayRange
-template<typename ARRAY_RANGE>
+template<class ARRAY_RANGE>
 struct GenCheckArrRange {
     typedef ARRAY_RANGE        RangeType;
     typedef typename RangeType::value_type value_type;
@@ -748,7 +748,7 @@ struct GenCheckArrRange {
     // copy-to type, and we verify that they are comparable by doing one
     // character's copy by assignment.
 
-    template<typename TO_TYPE>
+    template<class TO_TYPE>
     void fill(TO_TYPE* toBuffer) const
     {
         if (size() > 0) {
@@ -766,7 +766,7 @@ struct GenCheckArrRange {
     // characters and 'short's from messing up the tests, we have to force a
     // static cast to the value type in the equality comparison.
 
-    template<typename CHECK_TYPE>
+    template<class CHECK_TYPE>
     bool check(const CHECK_TYPE* checkBuffer) const
         // Return true if the contents of the array addressed by '*checkBuffer'
         // are identical to the contents of the source buffer held by
@@ -810,7 +810,7 @@ void dummyfun( char* c, GenCheckArrRange<ArrayRange<const char> >& a)
 //      When we get to C++09, with char, signed char, and unsigned char
 //      as distinct types, we'll need another overload.
 
-template<typename SOURCE>
+template<class SOURCE>
 inline
 const SOURCE& deChar(const SOURCE& i)
 {
@@ -835,7 +835,7 @@ unsigned int deChar(unsigned char c)
 // The "hex" versions print all hexadecimal; the "mixed" versions print mixed
 // graphic and hex.
 
-template <typename T>
+template <class T>
 struct HexPrImpl {
     ConstArrayRange<T> d_av;
 
@@ -844,10 +844,10 @@ struct HexPrImpl {
     { }
 };
 
-template <typename T>
+template <class T>
 ostream &operator <<(ostream& os, const HexPrImpl<T>& t);
 
-template <typename T>
+template <class T>
 struct MixedPrImpl {
     ConstArrayRange<T> d_av;
 
@@ -856,23 +856,23 @@ struct MixedPrImpl {
     { }
 };
 
-template <typename T>
+template <class T>
 ostream &operator <<(ostream& os, const MixedPrImpl<T>& t);
 
 // Three forms of array range print-in-hex (using a HexPrImpl object)
 
-template <typename T>
+template <class T>
 HexPrImpl<T> prHexRange(const T *ptr, size_t size);
-template <typename T>
+template <class T>
 HexPrImpl<T> prHexRange(const T *first, const T *last);
-template <typename T, bsl::size_t N>
+template <class T, bsl::size_t N>
 inline
 HexPrImpl<T> prHexRange(const FixedVector<T, N>& v)
 {
     return HexPrImpl<T>(v.begin(), v.size());
 }
 
-template <typename T>
+template <class T>
 inline
 HexPrImpl<T> prHexRange(const ArrayRange<T>& v)
 {
@@ -882,18 +882,18 @@ HexPrImpl<T> prHexRange(const ArrayRange<T>& v)
 // Three forms of array range print-in-mixed (using a MixedPrImpl object)
 
 
-template <typename T>
+template <class T>
 MixedPrImpl<T> prMixedRange(const T *ptr, size_t size);
-template <typename T>
+template <class T>
 MixedPrImpl<T> prMixedRange(const T *first, const T *last);
-template <typename T, bsl::size_t N>
+template <class T, bsl::size_t N>
 inline
 MixedPrImpl<T> prMixedRange(const FixedVector<T, N>& v)
 {
     return MixedPrImpl<T>(v.begin(), v.size());
 }
 
-template <typename T>
+template <class T>
 inline
 MixedPrImpl<T> prMixedRange(
                                                         const ArrayRange<T>& v)
@@ -912,11 +912,11 @@ void printStr(const unsigned short *p);
 
 // Array fill and fill-check.  Used to verify that unsanctioned writes have
 // not occurred in a 'margin' around the intended output buffer.
-template<typename CHAR_TYPE, typename ITER>
+template<class CHAR_TYPE, class ITER>
 void fillArray(ITER      first,
                ITER      last,
                CHAR_TYPE ch);
-template<typename CHAR_TYPE, typename ITER>
+template<class CHAR_TYPE, class ITER>
 int checkFill(ITER      first,
               ITER      last,
               CHAR_TYPE ch);
@@ -925,7 +925,7 @@ int checkFill(ITER      first,
 //    OdomIter: Run multiple nested iterators by means of a single, flat loop
 //-----------------------------------------------------------------------------
 
-template<typename ITER, int N_ITER_PARM>
+template<class ITER, int N_ITER_PARM>
 struct OdomIter {
     // Compound "iterator" based on the odometer algorithm.  Note that this is
     // not really an iterator but a generator.  (It's big enough that to return
@@ -969,7 +969,7 @@ struct OdomIter {
     // because we want the behavior of a fixed end state and explicit
     // return-to-beginning from the end state rather that just rolling over.
 
-    template<typename COLLECTION>
+    template<class COLLECTION>
     explicit
     OdomIter(COLLECTION *const *init)
         // Create the Odom-Iter from the homogeneous list of collections
@@ -1182,7 +1182,7 @@ ostream& operator<<(ostream& os, const ConvRslt& cvr);
 // use for a test.  It does not contain the expected return and
 // return-by-argument values, which are stored in ConvRslt.
 
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 struct SrcSpec {
     const CHAR_TYPE  *d_source;
     CHAR_TYPE   d_errorChar;
@@ -1206,7 +1206,7 @@ struct SrcSpec {
 // It does not itself own the buffer because in some cases we run multiple
 // tests and buffers with the same WorkPiece.
 
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 struct WorkPiece {
     bsl::size_t d_memLength;
     bsl::size_t d_margin;
@@ -1252,7 +1252,7 @@ struct WorkPiece {
 // with the WorkPiece.  The interface parallels that of the WorkPiece; there
 // is no buffer pointer argument in the various individual member functions
 // and the buffer pointer and WorkPiece are both accessible.
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 struct BufferedWPiece {
     CHAR_TYPE *const d_buf;
     WorkPiece<CHAR_TYPE> d_wp;
@@ -1342,7 +1342,7 @@ int surrogateUtf8ToUtf16(unsigned short             *dstBuffer,
 //  The Conversion template is written as a struct so that each conversion can
 //  be represented by an object with a short local instance name.
 
-template <typename TO_CHAR, typename FROM_CHAR>
+template <class TO_CHAR, class FROM_CHAR>
 struct Conversion {
     typedef int (*Function)(TO_CHAR                   *dstBuf,
                             bsl::size_t                toSize,
@@ -1399,7 +1399,7 @@ struct Conversion {
 // ConversionArg<>: Metaprogram find of the function needed for a conversion
 //-----------------------------------------------------------------------------
 
-template<typename TO_CHAR, typename FROM_CHAR>
+template<class TO_CHAR, class FROM_CHAR>
 struct ConversionArg {
     // This template exists to be specialized; the specializations (below)
     // provide the arg needed for Conversion<>::Conversion.
@@ -1448,7 +1448,7 @@ struct ConversionArg<char, unsigned short> {
 // used in the debugging macros--which have also been simplified.)
 // @+@+@+@+@  Have to get a better way to print out failure.
 
-template<typename ARRAY_TYPE, bsl::size_t N_WAY>
+template<class ARRAY_TYPE, bsl::size_t N_WAY>
 void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
                    const ARRAY_TYPE&                             sv);
 
@@ -1463,7 +1463,7 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
 // The run-four-way mechanism is a mixture of a struct (to propagate the types
 // through the template and to hold state) with macros (to keep __LINE__
 // useful.)
-template <typename TO_CHAR, typename FROM_CHAR>
+template <class TO_CHAR, class FROM_CHAR>
 struct FourWayRunner {
     enum { N_WAY = 4 };
     typedef TO_CHAR ToChar;
@@ -2494,7 +2494,7 @@ namespace {
     int veryVeryVeryVeryVerbose;    // " " five or more args after the test no.
 }  // close unnamed namespace
 
-template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
+template<class TO_CHAR, class FROM_CHAR, class FILL_CHECK>
 bool testOneErrorCharConversion(
             int                          line,    // '__LINE__' where this
                                                   // function is invoked
@@ -2514,10 +2514,10 @@ bool testOneErrorCharConversion(
     // characters (a total of four tests).  It returns 'true' if all the tests
     // succeed, or 'false' if any test or tests fail.
 
-template<typename TO_CHAR,
-         typename TO_FILL_CHECK,
-         typename FR_CHAR,
-         typename FR_FILL_CHECK>
+template<class TO_CHAR,
+         class TO_FILL_CHECK,
+         class FR_CHAR,
+         class FR_FILL_CHECK>
 bool oneStringConversion(
             int                      line,          // '__LINE__' of this call
             BufferedWPiece<TO_CHAR>& toBuf,         // Destination workspace
@@ -4536,7 +4536,7 @@ unsigned char utf8MultiLang[] = {
 const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 
 
-template <typename UTF16_CHAR>
+template <class UTF16_CHAR>
 static
 int localUtf16Cmp(const UTF16_CHAR *a, const UTF16_CHAR *b)
 {
@@ -4549,7 +4549,7 @@ int localUtf16Cmp(const UTF16_CHAR *a, const UTF16_CHAR *b)
     return diff;
 }
 
-template <typename UTF16_CHAR>
+template <class UTF16_CHAR>
 static
 bsl::size_t localUtf16Len(const UTF16_CHAR *str)
 {
@@ -9855,19 +9855,19 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
     return testStatus;
 }
 
-template <typename T>
+template <class T>
 HexPrImpl<T> prHexRange(const T* ptr, size_t size)
 {
     return HexPrImpl<T>(ptr, size);
 }
 
-template <typename T>
+template <class T>
 HexPrImpl<T> prHexRange(const T *first, const T *last)
 {
     return HexPrImpl<T>(first, last - first);
 }
 
-template <typename T>
+template <class T>
 ostream &operator <<(ostream &os, const HexPrImpl<T> &t)
 {
     const ios_base::fmtflags flags = os.flags();
@@ -9901,19 +9901,19 @@ ostream &operator <<(ostream &os, const HexPrImpl<char> &t)
 }
 #endif
 
-template <typename T>
+template <class T>
 MixedPrImpl<T> prMixedRange(const T* ptr, size_t size)
 {
     return MixedPrImpl<T>(ptr, size);
 }
 
-template <typename T>
+template <class T>
 MixedPrImpl<T> prMixedRange(const T *first, const T *last)
 {
     return MixedPrImpl<T>(first, last - first);
 }
 
-template <typename T>
+template <class T>
 ostream &operator <<(ostream &os, const MixedPrImpl<T> &t)
 {
     const ios_base::fmtflags flags = os.flags();
@@ -10003,7 +10003,7 @@ void printStr(const unsigned short *p)
 // not define a partial order or a partitioning.  It requires that the end
 // of the string be marked by a sentinel which compares equal to zero.
 // Returns true if the two strings are equal, false otherwise.
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 int strEq(const CHAR_TYPE *lhs,
           const CHAR_TYPE *rhs)
 {
@@ -10018,7 +10018,7 @@ int strEq(const CHAR_TYPE *lhs,
 }
 
 //--   4-way  here ------------------------------------------------
-template <typename TO_CHAR, typename FROM_CHAR>
+template <class TO_CHAR, class FROM_CHAR>
 bool FourWayRunner<TO_CHAR, FROM_CHAR>::runAndCheck(int bufN, int line)
 {
     fillMargins(bufN);
@@ -10047,7 +10047,7 @@ template <> bool FourWayRunner<char, unsigned short>::runAndCheck(int, int);
 template <> bool FourWayRunner<unsigned short, char>::runAndCheck(int, int);
 #endif
 
-template <typename TO_CHAR, typename FROM_CHAR>
+template <class TO_CHAR, class FROM_CHAR>
 bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
 {
     // A rough guide to the 'runFourWays' function:
@@ -10156,7 +10156,7 @@ template <> bool FourWayRunner<unsigned short, char>::runFourWays(int);
 // did not work on Windows.  It returned what looked like a default-initialized
 // instance.)
 
-template<typename ARRAY_TYPE, bsl::size_t N_WAY>
+template<class ARRAY_TYPE, bsl::size_t N_WAY>
 void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
                    const ARRAY_TYPE&                             sv)
 {
@@ -10168,7 +10168,7 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
     eqClasses.resize(0);
 
     if (sv.size() == 0)
-        return;
+        return;                                                       // RETURN
 
     // Put the first thing in a class of its own.
     eqClasses.resize(1);
@@ -10200,7 +10200,7 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
 
     return;
 }
-//-----------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              char           *expected_output,
@@ -11560,7 +11560,7 @@ int runPlainTextPerformanceTest(void)
     return 0;
 }
 
-template< typename CHAR_TYPE, typename ITER >
+template< class CHAR_TYPE, class ITER >
 void fillArray(ITER first, ITER last, CHAR_TYPE ch)
 {
     for ( ; first != last; ++first) {
@@ -11568,7 +11568,7 @@ void fillArray(ITER first, ITER last, CHAR_TYPE ch)
     }
 }
 
-template< typename CHAR_TYPE, typename ITER >
+template< class CHAR_TYPE, class ITER >
 int checkFill(ITER first, ITER last, CHAR_TYPE ch)
 {
     for ( ; first != last; ++first) {
@@ -11588,7 +11588,7 @@ ostream& operator<<(ostream& os, const ConvRslt& cvr)
               << " symbols " << cvr.d_symbols << " units " << cvr.d_units ;
 }
 
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 void WorkPiece<CHAR_TYPE>::fillMargins(CHAR_TYPE* mem)
 {
     fillArray(&mem[0], &mem[d_margin], d_fillChar);
@@ -11600,7 +11600,7 @@ void WorkPiece<CHAR_TYPE>::fillMargins(CHAR_TYPE* mem)
         // from just beyond the working memory window to vector's end.
 }
 
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 int WorkPiece<CHAR_TYPE>::checkMargins(const CHAR_TYPE* mem) const
 {
     return checkFill(&mem[0], &mem[d_margin], d_fillChar)
@@ -11611,7 +11611,7 @@ int WorkPiece<CHAR_TYPE>::checkMargins(const CHAR_TYPE* mem) const
            // from just beyond the working memory window to margin's end.
 }
 
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 bool operator==(const ConstArrayRange<CHAR_TYPE>& lhs,
                 const ConstArrayRange<CHAR_TYPE>& rhs)
 {
@@ -11620,7 +11620,7 @@ bool operator==(const ConstArrayRange<CHAR_TYPE>& lhs,
                         0 == memcmp(lhs.d_array, rhs.d_array, lhs.d_size);
 }
 
-template<typename CHAR_TYPE>
+template<class CHAR_TYPE>
 ostream& operator<<(ostream&                     os,
                     const ArrayRange<CHAR_TYPE>& sv)
 {
@@ -11659,7 +11659,7 @@ ostream& operator<<(ostream&                     os,
     return os;
 }
 
-template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
+template<class TO_CHAR, class FROM_CHAR, class FILL_CHECK>
 bool testOneErrorCharConversion(
                 int                    line,   // '__LINE__' where this
                                                // function is invoked
@@ -11905,10 +11905,10 @@ bool testOneErrorCharConversion(
     return !failed;
 }
 
-template<typename TO_CHAR,
-         typename TO_FILL_CHECK,
-         typename FR_CHAR,
-         typename FR_FILL_CHECK>
+template<class TO_CHAR,
+         class TO_FILL_CHECK,
+         class FR_CHAR,
+         class FR_FILL_CHECK>
 bool oneStringConversion(
             int                      line,          // '__LINE__' of this call
             BufferedWPiece<TO_CHAR>& bwp,           // Destination workspace
@@ -12457,11 +12457,18 @@ Permuter<N>::print(ostream& os) const
 
 // ============================================================================
 
-// -------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE -------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

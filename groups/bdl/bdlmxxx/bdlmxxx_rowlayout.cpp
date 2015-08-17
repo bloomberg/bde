@@ -1,4 +1,4 @@
-// bdlmxxx_rowlayout.cpp                                                 -*-C++-*-
+// bdlmxxx_rowlayout.cpp                                              -*-C++-*-
 #include <bdlmxxx_rowlayout.h>
 
 #include <bsls_ident.h>
@@ -197,7 +197,7 @@ void RowLayout::insert(int                   dstIndex,
     BSLS_ASSERT(srcIndex + numElements <= srcRowLayout.length());
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     const int dstLength   = length();
@@ -232,7 +232,7 @@ void RowLayout::insert(int                          dstIndex,
     BSLS_ASSERT(0 <= numElements);
 
     if (0 == numElements) {
-        return;
+        return;                                                       // RETURN
     }
 
     const int dstLength   = length();
@@ -442,13 +442,13 @@ bsl::ostream& RowLayout::print(bsl::ostream& stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

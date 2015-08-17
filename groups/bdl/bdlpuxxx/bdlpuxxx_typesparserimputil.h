@@ -1,4 +1,4 @@
-// bdlpuxxx_typesparserimputil.h                                         -*-C++-*-
+// bdlpuxxx_typesparserimputil.h                                      -*-C++-*-
 #ifndef INCLUDED_BDLPUXXX_TYPESPARSERIMPUTIL
 #define INCLUDED_BDLPUXXX_TYPESPARSERIMPUTIL
 
@@ -1177,10 +1177,10 @@ int TypesParserImpUtil::parseString(const char  **endPos,
     BSLS_ASSERT_SAFE(inputString);
 
     if (*inputString == '\"') {
-        return parseQuotedString(endPos, result, inputString);
+        return parseQuotedString(endPos, result, inputString);        // RETURN
     }
     else {
-        return parseUnquotedString(endPos, result, inputString);
+        return parseUnquotedString(endPos, result, inputString);      // RETURN
     }
 }
 
@@ -1305,15 +1305,15 @@ void TypesParserImpUtil::generateTimeTz(bsl::vector<char>  *buffer,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

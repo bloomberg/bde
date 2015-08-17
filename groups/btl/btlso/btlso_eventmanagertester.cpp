@@ -1,4 +1,4 @@
-// btlso_eventmanagertester.cpp    -*-C++-*-
+// btlso_eventmanagertester.cpp                                       -*-C++-*-
 #include <btlso_eventmanagertester.h>
 
 #include <bsls_ident.h>
@@ -233,7 +233,7 @@ static const char *getNextCommand(const char *commandSeq)
         if (0 == curlyNotBalance && ';' == *commandSeq) {
             ++commandSeq;
             while (' ' == *commandSeq || '\t' == *commandSeq) ++commandSeq;
-            return commandSeq;
+            return commandSeq;                                        // RETURN
         }
         ++commandSeq;
     }
@@ -251,9 +251,9 @@ static const char *get1stCbCommand(const char *commandSeq)
     while ('{' != *commandSeq && ';' != *commandSeq
                               && '\0' != *commandSeq)  ++commandSeq;
     if (';' == *commandSeq || '\0' == *commandSeq)
-        return 0;
+        return 0;                                                     // RETURN
     else
-        return ++commandSeq;   // skip '{'
+        return ++commandSeq;   // skip '{'                            // RETURN
 }
 
 static const char *getNextCbCommand(const char *cbCmd, int *errCode=0)
@@ -273,6 +273,7 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode=0)
             curly--;
             if (0 == curly) { // No any more callback command
                 return 0;     // If there're valid commands, a ';' should be
+                                                                      // RETURN
                               // before this '}'.
             }
         }
@@ -283,7 +284,7 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode=0)
             else {
                 *errCode = SUCCESS;
             }
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (';' == *cbCmd) {
             if (1 == curly) {   // We still have more callback commands.
@@ -291,7 +292,7 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode=0)
                 break;
             }
             else if (0 == curly) { // no any more callback command
-                return 0;
+                return 0;                                             // RETURN
             }
         }
         ++cbCmd;
@@ -439,16 +440,16 @@ static int ggHelper(btlso::EventManager         *mX,
           rc = bsl::sscanf(test, "T%u,%u", (unsigned *)&nt, (unsigned *)&fd);
           if (1 == rc) {
               if (nt != mX->numEvents()) {
-                  return FAIL;
+                  return FAIL;                                        // RETURN
               }
           }
           else if (2 == rc){
               if (nt != mX->numSocketEvents(fds[fd].observedFd())) {
-                  return FAIL;
+                  return FAIL;                                        // RETURN
               }
           }
           else {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
       } break;
       case '+': {
@@ -457,7 +458,7 @@ static int ggHelper(btlso::EventManager         *mX,
         // Read the <fd> field.
         rc = bsl::sscanf(test + 1, "%d", &fd);
         if (1 != rc) {
-            return FAIL;
+            return FAIL;                                              // RETURN
         }
         char d = test[2];
         switch (d) {
@@ -465,7 +466,7 @@ static int ggHelper(btlso::EventManager         *mX,
           case 'w':
             rc = bsl::sscanf(test + 3, "%d", &bytes);
             if (1 == rc && 0 >= bytes) {
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
             if (1 != rc) {
                 bytes = -1;
@@ -475,7 +476,7 @@ static int ggHelper(btlso::EventManager         *mX,
           case 'c':
             break;
           default: {
-            return FAIL;
+            return FAIL;                                              // RETURN
           }
         }
 
@@ -512,7 +513,7 @@ static int ggHelper(btlso::EventManager         *mX,
                                     btlso::EventType::e_CONNECT, cb);
             break;
           default:
-            return FAIL;
+            return FAIL;                                              // RETURN
         }
       } break;
       case '-': {             // Commands such as "-1w; -0r; -a; -2" come here.
@@ -520,7 +521,7 @@ static int ggHelper(btlso::EventManager         *mX,
         if (1 > rc) {
             rc = bsl::sscanf(test, "-%c", &c[0]);
             if (1 != rc || 'a' != c[0]) {
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
             mX->deregisterAll();
             break;
@@ -529,10 +530,10 @@ static int ggHelper(btlso::EventManager         *mX,
         if (1 == rc) {
             int ret = mX->deregisterSocket(fds[fd].observedFd());
             if (0 <= ret) {
-                return SUCCESS;
+                return SUCCESS;                                       // RETURN
             }
             else {
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
         }
         // Start for "rc == 2".
@@ -555,7 +556,7 @@ static int ggHelper(btlso::EventManager         *mX,
                                       btlso::EventType::e_CONNECT);
           } break;
           default:
-                return FAIL;
+                return FAIL;                                          // RETURN
           }
         } break;
       case 'D': {
@@ -567,7 +568,7 @@ static int ggHelper(btlso::EventManager         *mX,
         //bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
         if (3 == bsl::sscanf(test, "D%c%d,%d%n", &ch, &msecs, &rc, &nbytes)) {
             if (0 > msecs || 0 > rc) {
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
             switch (ch) {
               case 'n': {
@@ -577,19 +578,19 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = bteso_Flag::k_ASYNC_INTERRUPT;
               } break;
               default:
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
             deadline.addMilliseconds(msecs);
             ret = mX->dispatch(deadline, flags);
 
             if (rc != ret) {
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
         }
         else if (2 == bsl::sscanf(test, "D%c,%u%n", &ch, (unsigned *)&rc,
                                                                     &nbytes)) {
             if (0 > rc) {
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
             switch (ch) {
               case 'n': {
@@ -599,15 +600,15 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = bteso_Flag::k_ASYNC_INTERRUPT;
               } break;
               default:
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
             ret = mX->dispatch(flags);
             if (rc != ret) {
-                return FAIL;
+                return FAIL;                                          // RETURN
             }
         }
         else {
-            return FAIL;
+            return FAIL;                                              // RETURN
         }
       } break;
       case 'E': {
@@ -617,35 +618,35 @@ static int ggHelper(btlso::EventManager         *mX,
                   ret = mX->isRegistered(fds[fd].observedFd(),
                                          btlso::EventType::e_ACCEPT);
                   if (1 != ret) {
-                        return FAIL;
+                        return FAIL;                                  // RETURN
                   }
               }
               if (bsl::strchr(buf, 'c')) {
                   ret = mX->isRegistered(fds[fd].observedFd(),
                                          btlso::EventType::e_CONNECT);
                   if (1 != ret) {
-                      return FAIL;
+                      return FAIL;                                    // RETURN
                   }
               }
               if (bsl::strchr(buf, 'r')) {
                   ret = mX->isRegistered(
                          fds[fd].observedFd(), btlso::EventType::e_READ);
                   if (1 != ret) {
-                      return FAIL;
+                      return FAIL;                                    // RETURN
                   }
               }
               if (bsl::strchr(buf, 'w')) {
                   ret = mX->isRegistered(fds[fd].observedFd(),
                                          btlso::EventType::e_WRITE);
                   if (1 != ret) {
-                      return FAIL;
+                      return FAIL;                                    // RETURN
                   }
               }
           }
           else {
               ret = mX->numSocketEvents(fds[fd].observedFd());
               if (0 != ret) {
-                  return FAIL;
+                  return FAIL;                                        // RETURN
               }
           }
       } break;
@@ -653,12 +654,12 @@ static int ggHelper(btlso::EventManager         *mX,
           int bytes = 0;
           rc = bsl::sscanf(test, "R%d,%u", &fd, (unsigned *)&bytes);
           if (2 != rc) {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
           int rc = btlso::SocketImpUtil::read(buf, fds[fd].observedFd(),
                                              bytes, 0);
           if (0 >= rc) {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
       } break;
       case 'W': {
@@ -666,25 +667,25 @@ static int ggHelper(btlso::EventManager         *mX,
           rc = bsl::sscanf(test, "W%d,%d", &fd, &bytes);
 
           if (2 != rc) {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
           bsl::memset(wBuffer, 0xAB, sizeof wBuffer); // to keep purify happy
           rc = btlso::SocketImpUtil::write(fds[fd].controlFd(), &wBuffer,
                                           bytes);
           if (0 >= rc) {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
       } break;
       case 'S': {
           int milliSeconds = 0;
           rc = bsl::sscanf(test, "S%d", &milliSeconds);
           if (1 != rc) {
-              return FAIL;
+              return FAIL;                                            // RETURN
           }
           bdlqq::ThreadUtil::microSleep(milliSeconds * 1000);
       } break;
       default:
-          return FAIL;
+          return FAIL;                                                // RETURN
     }
     return SUCCESS;
 }
@@ -709,7 +710,7 @@ int EventManagerTester::gg(EventManager *mX,
         bsl::fflush(stdout);
     }
     if (flags & EventManagerTester::k_DRY_RUN) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     while (script) {
@@ -1265,7 +1266,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
                             "failed. return: %d\n",
                             __LINE__, ret);
                 bsl::fflush(stdout);
-                return -1;
+                return -1;                                            // RETURN
             }
 
             if (flags & EventManagerTester::k_VERY_VERBOSE) {
@@ -1397,7 +1398,7 @@ EventManagerTester::testDispatchPerformance(
         }
         if (!inputSuccess) {
             bsl::cout << "  Test not run.\n";
-            return 1;
+            return 1;                                                 // RETURN
         }
 
         timeOut = timeOutDouble;
@@ -1413,7 +1414,7 @@ EventManagerTester::testDispatchPerformance(
         bsl::cout << "Process is currently limited to " << rl.rlim_cur / 2 <<
                                  " socket pairs.  You need to 'ulimit -n " <<
                                                           filesNeeded << "'\n";
-        return -1;
+        return -1;                                                    // RETURN
     }
 #endif
 
@@ -1480,7 +1481,7 @@ EventManagerTester::testDispatchPerformance(
             if (!socketPairs[i].isValid())  {
                 bsl::printf("Invalid socket pair index: %d\n", i);
                 bsl::fflush(stdout);
-                return 1;
+                return 1;                                             // RETURN
             }
         }
 
@@ -1660,11 +1661,11 @@ EventManagerTester::testRegisterPerformance(EventManager *mX,
 
     if (numSockets < 10) {
         bsl::cout << "<num sockets> must be >= 10\n";
-        return 1;
+        return 1;                                                     // RETURN
     }
     if (numSockets & 1) {
         bsl::cout << "<num sockets> must be even\n";
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     BSLS_ASSERT_OPT(numSockets >= 10);
@@ -1710,7 +1711,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX,
 #ifdef BSLS_PLATFORM_OS_UNIX
             bsl::cout << "Try 'ulimit -n " << (numSockets + 10) << "'\n";
 #endif
-            return 1;
+            return 1;                                                 // RETURN
         }
     }
 
@@ -1862,14 +1863,14 @@ EventManagerTestPair::setObservedBufferOptions(int bufferSize,
               SocketOptUtil::k_SOCKETLEVEL,
               SocketOptUtil::k_SENDBUFFER, bufferSize);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = SocketOptUtil::setOption(d_fds[0],
             SocketOptUtil::k_SOCKETLEVEL,
             SocketOptUtil::k_RECEIVEBUFFER, bufferSize);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
@@ -1908,14 +1909,14 @@ EventManagerTestPair::setControlBufferOptions(int bufferSize,
               SocketOptUtil::k_SOCKETLEVEL,
               SocketOptUtil::k_SENDBUFFER, bufferSize);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     ret = SocketOptUtil::setOption(d_fds[1],
             SocketOptUtil::k_SOCKETLEVEL,
             SocketOptUtil::k_RECEIVEBUFFER, bufferSize);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
@@ -1955,13 +1956,13 @@ int EventManagerTestPair::getObservedBufferOptions(int *sndBufferSize,
             SocketOptUtil::k_SOCKETLEVEL,
             SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     ret = SocketOptUtil::getOption(&rcvBufferSize, d_fds[0],
             SocketOptUtil::k_SOCKETLEVEL,
             SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
@@ -2000,13 +2001,13 @@ int EventManagerTestPair::getControlBufferOptions(int *sndBufferSize,
             SocketOptUtil::k_SOCKETLEVEL,
             SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
     ret = SocketOptUtil::getOption(&rcvBufferSize, d_fds[1],
             SocketOptUtil::k_SOCKETLEVEL,
             SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
@@ -2029,13 +2030,20 @@ int EventManagerTestPair::getControlBufferOptions(int *sndBufferSize,
 }
 }  // close package namespace
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
