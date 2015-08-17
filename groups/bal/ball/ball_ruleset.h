@@ -122,10 +122,11 @@ class RuleSet {
         // indicate rule subsets compactly.
 
     enum {
-        BAEL_MAX_NUM_RULES = 8 * sizeof(MaskType)
+        e_MAX_NUM_RULES = 8 * sizeof(MaskType)
            // The maximum number of rules managed by this object.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , MAX_NUM_RULES = BAEL_MAX_NUM_RULES
+      , BAEL_MAX_NUM_RULES = e_MAX_NUM_RULES
+      , MAX_NUM_RULES = e_MAX_NUM_RULES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -311,7 +312,7 @@ bsl::ostream& operator<<(bsl::ostream& output, const RuleSet& rules);
 inline
 int RuleSet::maxNumRules()
 {
-    return BAEL_MAX_NUM_RULES;
+    return e_MAX_NUM_RULES;
 }
 
 // ACCESSORS

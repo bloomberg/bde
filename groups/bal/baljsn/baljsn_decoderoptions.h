@@ -99,8 +99,11 @@ class DecoderOptions {
 
     // CONSTANTS
     enum {
-        BAEJSN_DEFAULT_MAX_DEPTH = 32  // default value for
+        e_DEFAULT_MAX_DEPTH = 32  // default value for
                                        // 'maxDepth' attribute
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_DEFAULT_MAX_DEPTH = e_DEFAULT_MAX_DEPTH
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
@@ -202,7 +205,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 // CREATORS
 inline
 DecoderOptions::DecoderOptions()
-: d_maxDepth(BAEJSN_DEFAULT_MAX_DEPTH)
+: d_maxDepth(e_DEFAULT_MAX_DEPTH)
 , d_skipUnknownElements(true)
 {
 }

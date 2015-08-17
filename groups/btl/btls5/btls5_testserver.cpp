@@ -902,7 +902,7 @@ void btls5::TestServer::SessionFactory::sessionStateCb(
     Socks5Session *s = dynamic_cast<Socks5Session *>(session);
     Socks5Session *cs = reinterpret_cast<Socks5Session*>(clientSession);
 
-    if (s && btlmt::SessionPool::SESSION_UP == state) {
+    if (s && btlmt::SessionPool::e_SESSION_UP == state) {
         if (cs) {
             s->startDestination(cs);
         }
@@ -915,15 +915,15 @@ void btls5::TestServer::SessionFactory::sessionStateCb(
             LOG_DEBUG << "client " << cs->d_peer
                       << ": destination connection state " << state;
             switch (state) {
-              case btlmt::SessionPool::CONNECT_ATTEMPT_FAILED: {
+              case btlmt::SessionPool::e_CONNECT_ATTEMPT_FAILED: {
                 // another attempt may succeed
 
                 return;                                               // RETURN
               } break;
-              case btlmt::SessionPool::SESSION_ALLOC_FAILED:
-              case btlmt::SessionPool::SESSION_STARTUP_FAILED:
-              case btlmt::SessionPool::CONNECT_FAILED:
-              case btlmt::SessionPool::CONNECT_ABORTED: {
+              case btlmt::SessionPool::e_SESSION_ALLOC_FAILED:
+              case btlmt::SessionPool::e_SESSION_STARTUP_FAILED:
+              case btlmt::SessionPool::e_CONNECT_FAILED:
+              case btlmt::SessionPool::e_CONNECT_ABORTED: {
                 Socks5ConnectResponse1 response;
                 response.d_base.d_reply = 4;  // Host unreachable
                 cs->clientWrite((char *) &response, sizeof(response));

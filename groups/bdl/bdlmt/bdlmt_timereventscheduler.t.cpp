@@ -1013,7 +1013,7 @@ void scheduleEvent(Obj            *scheduler,
         Obj::Handle handle = scheduler->scheduleEvent(
                                bdlt::CurrentTime::now(),
                                bdlf::BindUtil::bind(&countInvoked, numInvoked));
-        if (Obj::BCEP_INVALID_HANDLE == handle) {
+        if (Obj::e_INVALID_HANDLE == handle) {
             break;
         }
 
@@ -1032,7 +1032,7 @@ void startClock(Obj            *scheduler,
         Obj::Handle handle = scheduler->startClock(
                                bsls::TimeInterval(1),
                                bdlf::BindUtil::bind(&countInvoked, numInvoked));
-        if (Obj::BCEP_INVALID_HANDLE == handle) {
+        if (Obj::e_INVALID_HANDLE == handle) {
             break;
         }
 
@@ -3141,7 +3141,7 @@ int main(int argc, char *argv[])
         if (!veryVeryVerbose) {
             attr.setStackSize(80 * 1000 * 1000);
         }
-        attr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+        attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
         if (verbose) {
             cout << "StackSize: " << attr.stackSize() << endl;

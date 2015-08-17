@@ -196,9 +196,9 @@ typedef BloombergLP::bslstl::StringRef      StringRef;
 
 enum {
     INVALID_CHARS_BIT =
-                 BloombergLP::bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT,
+                 BloombergLP::bdlde::CharConvertStatus::k_INVALID_CHARS_BIT,
     OUT_OF_SPACE_BIT  =
-                 BloombergLP::bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT
+                 BloombergLP::bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT
 };
 
 typedef unsigned int UnicodeChar;

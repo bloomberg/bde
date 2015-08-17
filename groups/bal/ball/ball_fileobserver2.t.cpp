@@ -471,7 +471,7 @@ void publishRecord(Obj *mX, const char *message)
                                message);
     ball::Record record(attr, ball::UserFields());
 
-    ball::Context context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1);
+    ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
 
     mX->publish(record, context);
 }
@@ -869,10 +869,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_TRACE,
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1038,10 +1038,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_TRACE,
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1101,10 +1101,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_TRACE,
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1253,10 +1253,10 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_TRACE,
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_OFF));
 
         Obj mX(&ta); const Obj& X = mX;
 
@@ -1382,10 +1382,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_TRACE,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF));
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_TRACE,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1467,10 +1467,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_TRACE,
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1807,10 +1807,10 @@ int main(int argc, char *argv[])
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_TRACE,
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_OFF));
 
         Obj mX(&ta); const Obj& X = mX;
 
@@ -2110,10 +2110,10 @@ int main(int argc, char *argv[])
         // This configuration also guarantees that the observer will only see
         // each message only once.
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
 
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManager::initSingleton(&multiplexObserver,
@@ -2218,10 +2218,10 @@ int main(int argc, char *argv[])
         // see each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
 
         ball::MultiplexObserver multiplexObserver;
         ball::LoggerManagerScopedGuard guard(&multiplexObserver,
@@ -2407,10 +2407,10 @@ int main(int argc, char *argv[])
             // see each message only once.
 
             ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
 
             ball::MultiplexObserver multiplexObserver;
             ball::LoggerManager::initSingleton(&multiplexObserver,
@@ -2734,10 +2734,10 @@ int main(int argc, char *argv[])
             // see each message only once.
 
             ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_TRACE,
-                                                  ball::Severity::BAEL_OFF,
-                                                  ball::Severity::BAEL_OFF));
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_TRACE,
+                                                  ball::Severity::e_OFF,
+                                                  ball::Severity::e_OFF));
 
             ball::MultiplexObserver multiplexObserver;
             ball::LoggerManager::initSingleton(&multiplexObserver,
@@ -3249,10 +3249,10 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_TRACE,
-                                                     ball::Severity::BAEL_OFF,
-                                                     ball::Severity::BAEL_OFF));
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_TRACE,
+                                                     ball::Severity::e_OFF,
+                                                     ball::Severity::e_OFF));
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 

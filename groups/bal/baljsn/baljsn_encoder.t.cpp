@@ -30215,7 +30215,7 @@ void constructFeatureTestMessage(
                       << i << "): "
                       << decoder.loggedMessages() << bsl::endl;
         }
-        if (balb::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
+        if (balb::FeatureTestMessage::e_SELECTION_ID_UNDEFINED ==
                                                         object.selectionId()) {
             bsl::cout << "Decoded unselected choice from initialization data"
                       << " (LINE =" << XML_TEST_MESSAGES[i].d_line << ")"
@@ -30398,7 +30398,7 @@ int main(int argc, char *argv[])
     bsl::ostringstream os;
 //
     baljsn::EncoderOptions options;
-    options.setEncodingStyle(baljsn::EncoderOptions::BAEJSN_PRETTY);
+    options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
     options.setInitialIndentLevel(1);
     options.setSpacesPerLevel(4);
 //
@@ -30467,7 +30467,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30488,7 +30488,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30512,7 +30512,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30527,7 +30527,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30543,7 +30543,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30570,7 +30570,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30600,7 +30600,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30618,7 +30618,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30637,7 +30637,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30666,7 +30666,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30697,7 +30697,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30717,7 +30717,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30737,7 +30737,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30768,7 +30768,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_PRETTY,
+                Options::e_PRETTY,
                 0,
                 2,
                 // XML Text
@@ -30800,7 +30800,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30821,7 +30821,7 @@ int main(int argc, char *argv[])
             },
             {
                 L_,
-                Options::BAEJSN_COMPACT,
+                Options::e_COMPACT,
                 0,
                 0,
                 // XML Text
@@ -30923,7 +30923,7 @@ int main(int argc, char *argv[])
             baljsn::Encoder encoder;
 
             baljsn::EncoderOptions options;
-            options.setEncodingStyle(baljsn::EncoderOptions::BAEJSN_PRETTY);
+            options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
             options.setInitialIndentLevel(0);
             options.setSpacesPerLevel(2);
 
@@ -31326,8 +31326,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Encode 'vector<int>'" << endl;
         {
             typedef Options::EncodingStyle Style;
-            Style P = Options::BAEJSN_PRETTY;
-            Style C = Options::BAEJSN_COMPACT;
+            Style P = Options::e_PRETTY;
+            Style C = Options::e_COMPACT;
 
 #define NL "\n"
 
@@ -31844,7 +31844,7 @@ int main(int argc, char *argv[])
                 bsl::ostringstream oss;
 
                 baljsn::EncoderOptions options;
-                options.setEncodingStyle(Options::BAEJSN_PRETTY);
+                options.setEncodingStyle(Options::e_PRETTY);
                 options.setInitialIndentLevel(0);
                 options.setSpacesPerLevel(2);
                 options.setEncodeEmptyArrays(EEA);
@@ -31953,7 +31953,7 @@ int main(int argc, char *argv[])
                           << "ENCODING ENUMERATIONS" << endl
                           << "=====================" << endl;
 
-        const int NUM_ENUMERATORS = balb::Enumerated::NUM_ENUMERATORS;
+        const int NUM_ENUMERATORS = balb::Enumerated::k_NUM_ENUMERATORS;
         for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
             balb::Enumerated::Value mX = (balb::Enumerated::Value) ti;
             const balb::Enumerated::Value& X = mX;
@@ -32558,7 +32558,7 @@ int main(int argc, char *argv[])
             bsl::ostringstream oss;
 
             baljsn::EncoderOptions options;
-            options.setEncodingStyle(baljsn::EncoderOptions::BAEJSN_PRETTY);
+            options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
             options.setInitialIndentLevel(1);
             options.setSpacesPerLevel(4);
 

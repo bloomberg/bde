@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
             fixed.setProcessID(100);
             fixed.setThreadID(0);
             X.publish(ball::Record(fixed, userValues),
-                    ball::Context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1));
+                    ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
         }
 
         if (verbose) cout << "Publish a single message." << endl;
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
             fixed.setProcessID(100);
             fixed.setThreadID(0);
             X.publish(ball::Record(fixed, userValues),
-                      ball::Context(ball::Transmission::BAEL_PASSTHROUGH,
+                      ball::Context(ball::Transmission::e_PASSTHROUGH,
                                                0,
                                                1));
         }
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
                 fixed.setProcessID(201 + n);
                 fixed.setThreadID(31 + n);
                 X.publish(ball::Record(fixed, userValues),
-                          ball::Context(ball::Transmission::BAEL_TRIGGER,
+                          ball::Context(ball::Transmission::e_TRIGGER,
                                        n,
                                        NUM_MESSAGES));
             }
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
                 fixed.setProcessID(201 + n);
                 fixed.setThreadID(31 + n);
                 X.publish(ball::Record(fixed, userValues),
-                          ball::Context(ball::Transmission::BAEL_TRIGGER,
+                          ball::Context(ball::Transmission::e_TRIGGER,
                                        n,
                                        NUM_MESSAGES));
             }

@@ -7503,7 +7503,7 @@ int my_QueueProcessor::processOutgoingQueue() {
 
 int my_QueueProcessor::startProcessor() {
     bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    attributes.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                      &queueProc, (void*)this);
@@ -7980,7 +7980,7 @@ int my_QueueClient::processOutgoingQueue() {
 
 int my_QueueClient::startProcessor() {
     bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    attributes.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                      &queueClientProc, (void*)this);
@@ -13269,7 +13269,7 @@ void TestDriver::testCase15()
 
                 ASSERT(1 == handles.size());
                 if (1 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_LISTENING_CHANNEL
                                       == handles[0].d_channelType);
                     ASSERT(-1         == handles[0].d_channelId);
                     ASSERT(serverTime <= handles[0].d_creationTime);
@@ -13309,21 +13309,21 @@ void TestDriver::testCase15()
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (3 <= handles.size()) {
                     LOOP_ASSERT(handles[0].d_channelType,
-                                btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                                btlmt::ChannelType::e_LISTENING_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(-1                 == handles[0].d_channelId);
                     ASSERT(serverTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
                     LOOP_ASSERT(handles[1].d_channelType,
-                                btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                                btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[1].d_channelId);
                     ASSERT(acceptTime         <= handles[1].d_creationTime);
                     ASSERT(SERVER_ID          == handles[1].d_userId);
 
                     LOOP_ASSERT(handles[2].d_channelType,
-                                btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                                btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId1         == handles[2].d_channelId);
                     ASSERT(connectTime        <= handles[2].d_creationTime);
@@ -13371,25 +13371,25 @@ void TestDriver::testCase15()
                 ASSERT(4 == handles.size());
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (4 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_LISTENING_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(-1                 == handles[0].d_channelId);
                     ASSERT(serverTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[1].d_channelId);
                     ASSERT(acceptTime         == handles[1].d_creationTime);
                     ASSERT(SERVER_ID          == handles[1].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId1         == handles[2].d_channelId);
                     ASSERT(connectTime        == handles[2].d_creationTime);
                     ASSERT(CLIENT_ID1         == handles[2].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                               == handles[3].d_channelType);
                     ASSERT(channelId2         == handles[3].d_channelId);
                     ASSERT(importTime         <= handles[3].d_creationTime);
@@ -13410,19 +13410,19 @@ void TestDriver::testCase15()
                 ASSERT(3 == handles.size());
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (3 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[0].d_channelId);
                     ASSERT(acceptTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(channelId1         == handles[1].d_channelId);
                     ASSERT(connectTime        == handles[1].d_creationTime);
                     ASSERT(CLIENT_ID1         == handles[1].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId2         == handles[2].d_channelId);
                     ASSERT(importTime         == handles[2].d_creationTime);
@@ -13447,7 +13447,7 @@ void TestDriver::testCase15()
                 mX.getHandleStatistics(&handles);
 
                 ASSERT(1 == handles.size());
-                ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                                   == handles[0].d_channelType);
                 ASSERT(channelId2 == handles[0].d_channelId);
                 ASSERT(importTime == handles[0].d_creationTime);

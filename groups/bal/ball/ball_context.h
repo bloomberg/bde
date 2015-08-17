@@ -267,7 +267,7 @@ class Context {
                                                    // sequence
 
     // PRIVATE TYPES
-    enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     // FRIENDS
     friend bool operator==(const Context&, const Context&);
@@ -397,7 +397,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Context& rhs);
 // CREATORS
 inline
 Context::Context(bslma::Allocator *basicAllocator)
-: d_transmissionCause(Transmission::BAEL_PASSTHROUGH)
+: d_transmissionCause(Transmission::e_PASSTHROUGH)
 , d_recordIndex(0)
 , d_sequenceLength(1)
 {
@@ -453,9 +453,9 @@ int Context::setAttributes(Transmission::Cause transmissionCause,
 {
     if (isValid(transmissionCause, recordIndex, sequenceLength)) {
         setAttributesRaw(transmissionCause, recordIndex, sequenceLength);
-        return BAEL_SUCCESS;                                          // RETURN
+        return k_SUCCESS;                                             // RETURN
     }
-    return BAEL_FAILURE;
+    return k_FAILURE;
 }
 
 inline

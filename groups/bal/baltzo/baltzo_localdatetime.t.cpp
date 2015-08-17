@@ -208,6 +208,8 @@ typedef bslma::TestAllocator TestAllocator;
 typedef bslx::TestInStream   In;
 typedef bslx::TestOutStream  Out;
 
+#define VERSION_SELECTOR 20140601
+
 // ============================================================================
 //                     HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -612,7 +614,7 @@ int main(int argc, char *argv[])
 
             typedef In&  (Obj::*funcInPtr) (In&,  int);
             typedef Out& (Obj::*funcOutPtr)(Out&, int) const;
-            typedef int  (*funcVerPtr)();
+            typedef int  (*funcVerPtr)(int);
 
             funcInPtr  fIn  = &Obj::bdexStreamIn<In>;
             funcOutPtr fOut = &Obj::bdexStreamOut<Out>;
@@ -628,16 +630,16 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
-            ASSERT(1 == X.maxSupportedBdexVersion());
+            ASSERT(1 == X.maxSupportedBdexVersion(VERSION_SELECTOR));
             if (veryVerbose) cout << "\tusing class method syntax:" << endl;
-            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
         }
 
         // ------------------------------------
         // Values used in several stream tests.
         // ------------------------------------
 
-        const int MAX_VERSION = Obj::maxSupportedBdexVersion();
+        const int MAX_VERSION = Obj::maxSupportedBdexVersion(VERSION_SELECTOR);
 
         bdlt::DatetimeTz defaultDtz;
 

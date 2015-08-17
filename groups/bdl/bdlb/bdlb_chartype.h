@@ -328,44 +328,65 @@ struct CharType {
     enum Category {
         // Set of character categories supported by this component.
 
-        BDEU_UPPER,          // [A-Z]
-        BDEU_LOWER,          // [a-z]
-        BDEU_ALPHA,          // [A-Za-z]
-        BDEU_DIGIT,          // [0-9]
-        BDEU_XDIGIT,         // [0-9A-Fa-f]
-        BDEU_ALNUM,          // [0-9A-Za-z]
-        BDEU_SPACE,          // [space|tab|CR|NL|VT|FF]
-        BDEU_PRINT,          // any printable character including SPACE
-        BDEU_GRAPH,          // any printable character except SPACE
-        BDEU_PUNCT,          // any printable character except SPACE or ALNUM
-        BDEU_CNTRL,          // [\1-\37] and \177
-        BDEU_ASCII,          // [\0-\177]
-        BDEU_IDENT,          // [ALNUM|_]
-        BDEU_ALUND,          // [ALPHA|_]
-        BDEU_ALL,            // [\0-\377]
-        BDEU_NONE            // []
+        e_UPPER,          // [A-Z]
+        e_LOWER,          // [a-z]
+        e_ALPHA,          // [A-Za-z]
+        e_DIGIT,          // [0-9]
+        e_XDIGIT,         // [0-9A-Fa-f]
+        e_ALNUM,          // [0-9A-Za-z]
+        e_SPACE,          // [space|tab|CR|NL|VT|FF]
+        e_PRINT,          // any printable character including SPACE
+        e_GRAPH,          // any printable character except SPACE
+        e_PUNCT,          // any printable character except SPACE or ALNUM
+        e_CNTRL,          // [\1-\37] and \177
+        e_ASCII,          // [\0-\177]
+        e_IDENT,          // [ALNUM|_]
+        e_ALUND,          // [ALPHA|_]
+        e_ALL,            // [\0-\377]
+        e_NONE            // []
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , UPPER  = BDEU_UPPER
-      , LOWER  = BDEU_LOWER
-      , ALPHA  = BDEU_ALPHA
-      , DIGIT  = BDEU_DIGIT
-      , XDIGIT = BDEU_XDIGIT
-      , ALNUM  = BDEU_ALNUM
-      , SPACE  = BDEU_SPACE
-      , PRINT  = BDEU_PRINT
-      , GRAPH  = BDEU_GRAPH
-      , PUNCT  = BDEU_PUNCT
-      , CNTRL  = BDEU_CNTRL
-      , ASCII  = BDEU_ASCII
-      , IDENT  = BDEU_IDENT
-      , ALUND  = BDEU_ALUND
-      , ALL    = BDEU_ALL
-      , NONE   = BDEU_NONE
+      , BDEU_UPPER = e_UPPER
+      , BDEU_LOWER = e_LOWER
+      , BDEU_ALPHA = e_ALPHA
+      , BDEU_DIGIT = e_DIGIT
+      , BDEU_XDIGIT = e_XDIGIT
+      , BDEU_ALNUM = e_ALNUM
+      , BDEU_SPACE = e_SPACE
+      , BDEU_PRINT = e_PRINT
+      , BDEU_GRAPH = e_GRAPH
+      , BDEU_PUNCT = e_PUNCT
+      , BDEU_CNTRL = e_CNTRL
+      , BDEU_ASCII = e_ASCII
+      , BDEU_IDENT = e_IDENT
+      , BDEU_ALUND = e_ALUND
+      , BDEU_ALL = e_ALL
+      , BDEU_NONE = e_NONE
+      , UPPER  = e_UPPER
+      , LOWER  = e_LOWER
+      , ALPHA  = e_ALPHA
+      , DIGIT  = e_DIGIT
+      , XDIGIT = e_XDIGIT
+      , ALNUM  = e_ALNUM
+      , SPACE  = e_SPACE
+      , PRINT  = e_PRINT
+      , GRAPH  = e_GRAPH
+      , PUNCT  = e_PUNCT
+      , CNTRL  = e_CNTRL
+      , ASCII  = e_ASCII
+      , IDENT  = e_IDENT
+      , ALUND  = e_ALUND
+      , ALL    = e_ALL
+      , NONE   = e_NONE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum { BDEU_NUM_CATEGORIES = BDEU_NONE + 1 };
+    enum {
+        k_NUM_CATEGORIES = e_NONE + 1
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEU_NUM_CATEGORIES = k_NUM_CATEGORIES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
         // Current number of categories supported by this component.
 
   private:
@@ -1093,7 +1114,7 @@ STREAM& CharType::bdexStreamIn(STREAM&                   stream,
             stream.getInt8(newValue);
             if (stream) {
                 if (0 <= newValue
-                 && newValue < CharType::BDEU_NUM_CATEGORIES) {
+                 && newValue < CharType::k_NUM_CATEGORIES) {
                     value = CharType::Category(newValue);
                 }
                 else {

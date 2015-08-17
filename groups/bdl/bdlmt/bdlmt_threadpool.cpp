@@ -317,7 +317,7 @@ ThreadPool::ThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
     // Force all threads to be detached.
 
     d_threadAttributes.setDetachedState(
-                                       bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                                       bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet();

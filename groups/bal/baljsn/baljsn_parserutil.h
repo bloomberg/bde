@@ -299,20 +299,20 @@ int ParserUtil::getDateAndTimeValue(TYPE              *value,
                                            bslstl::StringRef  data,
                                            int                maxLength)
 {
-    enum { BAEJSN_STRING_LENGTH_WITH_QUOTES = 2 };
+    enum { k_STRING_LENGTH_WITH_QUOTES = 2 };
 
-    if (data.length()  < BAEJSN_STRING_LENGTH_WITH_QUOTES
+    if (data.length()  < k_STRING_LENGTH_WITH_QUOTES
      || '"'           != *data.begin()
      || '"'           != *(data.end() - 1)
      || data.length()  > static_cast<unsigned int>(maxLength)
-                                          + BAEJSN_STRING_LENGTH_WITH_QUOTES) {
+                                          + k_STRING_LENGTH_WITH_QUOTES) {
         return -1;                                                    // RETURN
     }
 
     return bdlt::Iso8601Util::parse(
            value,
            data.data() + 1,
-           static_cast<int>(data.length() - BAEJSN_STRING_LENGTH_WITH_QUOTES));
+           static_cast<int>(data.length() - k_STRING_LENGTH_WITH_QUOTES));
 }
 
 inline
@@ -397,7 +397,7 @@ int ParserUtil::getValue(bsl::string *value, bslstl::StringRef data)
 inline
 int ParserUtil::getValue(bdlt::Date *value, bslstl::StringRef data)
 {
-    return getDateAndTimeValue(value, data, bdlt::Iso8601Util::BDEPU_DATE_STRLEN);
+    return getDateAndTimeValue(value, data, bdlt::Iso8601Util::k_DATE_STRLEN);
 }
 
 inline
@@ -405,7 +405,7 @@ int ParserUtil::getValue(bdlt::Datetime *value, bslstl::StringRef data)
 {
     return getDateAndTimeValue(value,
                                data,
-                               bdlt::Iso8601Util::BDEPU_DATETIME_STRLEN);
+                               bdlt::Iso8601Util::k_DATETIME_STRLEN);
 }
 
 inline
@@ -413,7 +413,7 @@ int ParserUtil::getValue(bdlt::DatetimeTz *value, bslstl::StringRef data)
 {
     return getDateAndTimeValue(value,
                                data,
-                               bdlt::Iso8601Util::BDEPU_DATETIMETZ_STRLEN);
+                               bdlt::Iso8601Util::k_DATETIMETZ_STRLEN);
 }
 
 inline
@@ -421,13 +421,13 @@ int ParserUtil::getValue(bdlt::DateTz *value, bslstl::StringRef data)
 {
     return getDateAndTimeValue(value,
                                data,
-                               bdlt::Iso8601Util::BDEPU_DATETZ_STRLEN);
+                               bdlt::Iso8601Util::k_DATETZ_STRLEN);
 }
 
 inline
 int ParserUtil::getValue(bdlt::Time *value, bslstl::StringRef data)
 {
-    return getDateAndTimeValue(value, data, bdlt::Iso8601Util::BDEPU_TIME_STRLEN);
+    return getDateAndTimeValue(value, data, bdlt::Iso8601Util::k_TIME_STRLEN);
 }
 
 inline
@@ -435,7 +435,7 @@ int ParserUtil::getValue(bdlt::TimeTz *value, bslstl::StringRef data)
 {
     return getDateAndTimeValue(value,
                                data,
-                               bdlt::Iso8601Util::BDEPU_TIMETZ_STRLEN);
+                               bdlt::Iso8601Util::k_TIMETZ_STRLEN);
 }
 }  // close package namespace
 

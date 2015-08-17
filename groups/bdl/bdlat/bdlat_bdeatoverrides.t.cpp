@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
           { L_, "bdlat_ChoiceFunctions::..._UNDEFINED_SELECTION_ID",
             bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID,
-            bdlat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID
+            bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID
           },
           e(bdlat_FormattingMode, DEFAULT),
           e(bdlat_FormattingMode, DEC),

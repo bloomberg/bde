@@ -797,11 +797,11 @@ int main(int argc, char *argv[])
 
             if (ATTRIB_DETACHED == attrState) {
                 attrib.setDetachedState(
-                                       bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                                       bdlqq::ThreadAttributes::e_CREATE_DETACHED);
             }
             else if (ATTRIB_JOINABLE == attrState) {
                 attrib.setDetachedState(
-                                       bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+                                       bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
             }
 
             jobsCompleted = 0;

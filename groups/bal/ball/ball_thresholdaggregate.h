@@ -231,10 +231,10 @@ bool ThresholdAggregate::areValidThresholdLevels(int recordLevel,
                                                       int triggerLevel,
                                                       int triggerAllLevel)
 {
-    enum { BAEL_BITS_PER_CHAR = 8 };
+    enum { k_BITS_PER_CHAR = 8 };
 
     return !((recordLevel | passLevel | triggerLevel | triggerAllLevel)
-             >> BAEL_BITS_PER_CHAR);
+             >> k_BITS_PER_CHAR);
 }
 
 inline

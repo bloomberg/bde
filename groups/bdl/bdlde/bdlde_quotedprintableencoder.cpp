@@ -14,11 +14,11 @@ namespace BloombergLP {
                 // FILE-SCOPE STATIC DATA
                 // ======================
 
-const char PC = bdlde::QuotedPrintableEncoder::BDEDE_PC;
-const char CC = bdlde::QuotedPrintableEncoder::BDEDE_CC;
-const char CR = bdlde::QuotedPrintableEncoder::BDEDE_CR;
-const char LF = bdlde::QuotedPrintableEncoder::BDEDE_LF;
-const char WS = bdlde::QuotedPrintableEncoder::BDEDE_WS;
+const char PC = bdlde::QuotedPrintableEncoder::e_PC;
+const char CC = bdlde::QuotedPrintableEncoder::e_CC;
+const char CR = bdlde::QuotedPrintableEncoder::e_CR;
+const char LF = bdlde::QuotedPrintableEncoder::e_LF;
+const char WS = bdlde::QuotedPrintableEncoder::e_WS;
 
 // The following table is a map of an 8-bit index value to the
 // corresponding equivalence class.
@@ -84,11 +84,11 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 , d_maxLineLength(maxLineLength)
 , d_outputLength(0)
 , d_lineLength(0)
-, d_state(BDEDE_INITIAL_STATE)
+, d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
 {
-    if (d_maxLineLength == DEFAULT_MAX_LINELEN) {
+    if (d_maxLineLength == e_DEFAULT_MAX_LINELEN) {
         d_maxLineLength = s_defaultMaxLineLength;
     }
     else if (d_maxLineLength == 0) {
@@ -97,7 +97,7 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 
     BSLS_ASSERT(4 <= d_maxLineLength);
 
-    if (mode == BDEDE_CRLF_MODE) {
+    if (mode == e_CRLF_MODE) {
         // Use the default opcode table.
 
        d_equivClass_p = const_cast<char*>(s_defaultEquivClass_p);
@@ -113,7 +113,7 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
         d_equivClass_p['\n'] = LF;
     }
 
-    if (mode == BDEDE_LF_MODE) {
+    if (mode == e_LF_MODE) {
         // In addition, change the opcode for '\n' for BDEDE_LF_MODE.
 
         d_equivClass_p['\r'] = CC;
@@ -128,11 +128,11 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 , d_maxLineLength(maxLineLength)
 , d_outputLength(0)
 , d_lineLength(0)
-, d_state(BDEDE_INITIAL_STATE)
+, d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
 {
-    if (d_maxLineLength == DEFAULT_MAX_LINELEN) {
+    if (d_maxLineLength == e_DEFAULT_MAX_LINELEN) {
         d_maxLineLength = s_defaultMaxLineLength;
     }
     else if (d_maxLineLength == 0) {
@@ -157,15 +157,15 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
     // Put CRLF mapping last as it will override the caller's mistake of
     // including '\r' or '\n' in the 'extraCharsToEncode' array.
     switch (mode) {
-      case BDEDE_CRLF_MODE: {
+      case e_CRLF_MODE: {
         d_equivClass_p['\r'] = CR;
         d_equivClass_p['\n'] = CC;  // Stand-alone '\n' is encoded.
       } break;
-      case BDEDE_LF_MODE: {
+      case e_LF_MODE: {
         d_equivClass_p['\r'] = CC;  // Stand-alone '\r' is encoded.
         d_equivClass_p['\n'] = LF;
       } break;
-      case BDEDE_MIXED_MODE: {
+      case e_MIXED_MODE: {
         d_equivClass_p['\r'] = CR;
         d_equivClass_p['\n'] = LF;
       } break;
@@ -177,14 +177,14 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 QuotedPrintableEncoder::~QuotedPrintableEncoder()
 {
     // Assert invariants:
-    BSLS_ASSERT(BDEDE_ERROR_STATE <= d_state);
-    BSLS_ASSERT(d_state <= BDEDE_SAW_CR_STATE);
+    BSLS_ASSERT(e_ERROR_STATE <= d_state);
+    BSLS_ASSERT(d_state <= e_SAW_CR_STATE);
     BSLS_ASSERT(4 <= d_maxLineLength);
     BSLS_ASSERT(0 <= d_outputLength);
     BSLS_ASSERT(0 <= d_lineLength);
-    BSLS_ASSERT(BDEDE_CRLF_MODE  == d_lineBreakMode
-             || BDEDE_LF_MODE    == d_lineBreakMode
-             || BDEDE_MIXED_MODE == d_lineBreakMode);
+    BSLS_ASSERT(e_CRLF_MODE  == d_lineBreakMode
+             || e_LF_MODE    == d_lineBreakMode
+             || e_MIXED_MODE == d_lineBreakMode);
     BSLS_ASSERT(d_lineBreakMode <= 2);
 
     if (d_equivClass_p != s_defaultEquivClass_p) {
@@ -212,9 +212,9 @@ int QuotedPrintableEncoder::convert(char       *out,
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
 
-    if (BDEDE_ERROR_STATE == d_state || BDEDE_DONE_STATE == d_state) {
-        int rv = BDEDE_DONE_STATE == d_state ? -2 : -1;
-        d_state = BDEDE_ERROR_STATE;
+    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
+        int rv = e_DONE_STATE == d_state ? -2 : -1;
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         *numIn = 0;
         return rv;                                                    // RETURN
@@ -274,7 +274,7 @@ int QuotedPrintableEncoder::convert(char       *out,
                 --d_bufferLength;
             }
         }
-        else if (BDEDE_SAW_CR_STATE == d_state) {
+        else if (e_SAW_CR_STATE == d_state) {
             const char ch = *begin;
             if ('\n' == ch) {
                 // TBD fix
@@ -283,7 +283,7 @@ int QuotedPrintableEncoder::convert(char       *out,
                 d_lineStart = d_outputLength + 1;
                 d_buffer[0] = '\n';
                 d_bufferLength = 1;
-                d_state = BDEDE_INPUT_STATE;
+                d_state = e_INPUT_STATE;
                 ++begin;
             }
             else if (d_outputLength - d_lineStart > 72) {
@@ -305,7 +305,7 @@ int QuotedPrintableEncoder::convert(char       *out,
                 d_buffer[0] = '0';
                 d_buffer[1] = 'D';
                 d_bufferLength = 2;
-                d_state = BDEDE_INPUT_STATE;
+                d_state = e_INPUT_STATE;
             }
         }
         else {
@@ -316,15 +316,15 @@ int QuotedPrintableEncoder::convert(char       *out,
                 ++begin;
             }
             else if ('=' == ch || ch < 33 || ch > 126) {
-                if ('\r' == ch && QuotedPrintableEncoder::BDEDE_LF_MODE !=
+                if ('\r' == ch && QuotedPrintableEncoder::e_LF_MODE !=
                                                              d_lineBreakMode) {
-                    d_state = BDEDE_SAW_CR_STATE;
+                    d_state = e_SAW_CR_STATE;
                     ++begin;
                 }
                 else if ('\n' == ch &&
-                                     QuotedPrintableEncoder::BDEDE_CRLF_MODE !=
+                                     QuotedPrintableEncoder::e_CRLF_MODE !=
                                                              d_lineBreakMode) {
-                    d_state = BDEDE_SAW_CR_STATE;
+                    d_state = e_SAW_CR_STATE;
                     ++begin;
                 }
                 else if (d_outputLength - d_lineStart > 72) {
@@ -364,8 +364,8 @@ int QuotedPrintableEncoder::endConvert(char *out,
 {
     enum { BDEDE_ERR = -1 };
 
-    if (d_state == BDEDE_ERROR_STATE || isDone()) {
-        d_state = BDEDE_ERROR_STATE;
+    if (d_state == e_ERROR_STATE || isDone()) {
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         return BDEDE_ERR;                                             // RETURN
     }

@@ -236,7 +236,7 @@ template <class TYPE>
 inline
 int PrintUtil::printDateAndTime(bsl::ostream& stream, const TYPE& value)
 {
-    char buffer[bdlt::Iso8601Util::BDEPU_MAX_DATETIME_STRLEN + 1];
+    char buffer[bdlt::Iso8601Util::k_MAX_DATETIME_STRLEN + 1];
     bdlt::Iso8601Util::generate(buffer, value, sizeof buffer);
     return printValue(stream, buffer);
 }

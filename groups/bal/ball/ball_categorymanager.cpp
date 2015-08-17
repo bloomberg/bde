@@ -232,7 +232,7 @@ bool Category::isEnabled(int level) const
 // MANIPULATORS
 void CategoryHolder::reset()
 {
-    d_threshold  = BAEL_UNINITIALIZED_CATEGORY;
+    d_threshold  = e_UNINITIALIZED_CATEGORY;
     d_category_p = 0;
     d_next_p     = 0;
 }

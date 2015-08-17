@@ -1442,7 +1442,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1451,7 +1451,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1460,7 +1460,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = RESULT_TYPE_VISIT;
@@ -1469,7 +1469,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(VISITOR&       visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1478,7 +1478,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1487,7 +1487,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     applyRaw(const VISITOR& visitor) {
         d_lastVisitCall = VOID_VISIT;
@@ -1524,7 +1524,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1533,7 +1533,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1542,7 +1542,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 1,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 1,
                           typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = RESULT_TYPE_VISIT_CONST;
@@ -1551,7 +1551,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(VISITOR&       visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1560,7 +1560,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     apply(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;
@@ -1569,7 +1569,7 @@ class my_VariantWrapper {
 
     template <class VISITOR>
     typename bsl::enable_if<
-                          bdlb::Variant_ReturnValueHelper<VISITOR>::VALUE == 0,
+                          bdlb::Variant_ReturnValueHelper<VISITOR>::k_VaL == 0,
                           void>::type
     applyRaw(const VISITOR& visitor) const {
         d_lastVisitCall = VOID_VISIT_CONST;

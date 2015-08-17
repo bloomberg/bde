@@ -75,7 +75,7 @@ void AsyncFileObserver::logDroppedMessageWarning(int numDropped)
     // an observer->loggermanager dependency.
 
     populateWarnRecord(&d_droppedRecordWarning, __LINE__, numDropped);
-    Context context(Transmission::BAEL_PASSTHROUGH, 0, 0);
+    Context context(Transmission::e_PASSTHROUGH, 0, 0);
     d_fileObserver.publish(d_droppedRecordWarning, context);
 }
 
@@ -91,7 +91,7 @@ void AsyncFileObserver::publishThreadEntryPoint()
         // Publish the next log record on the queue only if the observer is
         // not shutting down.
 
-        if (Transmission::BAEL_END
+        if (Transmission::e_END
                 == asyncRecord.d_context.transmissionCause()
             || d_shuttingDownFlag) {
             done = true;
@@ -141,7 +141,7 @@ int AsyncFileObserver::stopThread()
         bsl::shared_ptr<const Record> record(
                                new (*d_allocator_p) Record(d_allocator_p),
                                d_allocator_p);
-        Context context(Transmission::BAEL_END, 0, 1);
+        Context context(Transmission::e_END, 0, 1);
         asyncRecord.d_record  = record;
         asyncRecord.d_context = context;
         d_recordQueue.pushBack(asyncRecord);
@@ -186,7 +186,7 @@ void AsyncFileObserver::construct()
     d_droppedRecordWarning.fixedFields().setFileName(__FILE__);
     d_droppedRecordWarning.fixedFields().setCategory(LOG_CATEGORY);
     d_droppedRecordWarning.fixedFields().setSeverity(
-                                          Severity::BAEL_WARN);
+                                          Severity::e_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
                                           bdlsu::ProcessUtil::getProcessId());
 }
@@ -197,7 +197,7 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
-, d_dropRecordsOnFullQueueThreshold(Severity::BAEL_OFF)
+, d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -210,7 +210,7 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
-, d_dropRecordsOnFullQueueThreshold(Severity::BAEL_OFF)
+, d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -225,7 +225,7 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_shuttingDownFlag(0)
-, d_dropRecordsOnFullQueueThreshold(Severity::BAEL_OFF)
+, d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {

@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
                                               "",
                                               0,
                                               "",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               "");
             ball::Record           mRecord(fixedFields, ball::UserFields());
             const ball::Record&    record = mRecord;
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
                                           filename,
                                           lineNum,
                                           "FOO.BAR.BAZ",
-                                          ball::Severity::BAEL_WARN,
+                                          ball::Severity::e_WARN,
                                           MSG);
 
         fixedFields.setTimestamp(bdlt::CurrentTime::utc());
@@ -936,7 +936,7 @@ int main(int argc, char *argv[])
                                                   filename,
                                                   lineNum,
                                                   "FOO.BAR.BAZ",
-                                                  ball::Severity::BAEL_WARN,
+                                                  ball::Severity::e_WARN,
                                                   MSG,
                                                   &oa);
                 fixedFields.setTimestamp(bdlt::CurrentTime::utc());

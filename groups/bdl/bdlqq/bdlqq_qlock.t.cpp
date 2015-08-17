@@ -180,7 +180,7 @@ MyTask::MyTask(TestFunc f, void *arg)
 , d_totalThreadsFinished(0)
 , d_barrier(0)
 {
-    d_attr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    d_attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     d_attr.setStackSize (1024*128);
 
     for (int i=0; i < MAX_THREADS; ++i) {

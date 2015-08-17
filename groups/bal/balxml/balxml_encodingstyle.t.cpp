@@ -137,13 +137,13 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 // line         enumerator value        expected result
                 // ----    -----------------------      -----------------
-                {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
+                {  L_,     Obj::e_COMPACT,         "COMPACT"         },
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                {  L_,     Obj::COMPACT,                "COMPACT"         },
+                {  L_,     Obj::e_COMPACT,                "COMPACT"         },
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-                {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
+                {  L_,     Obj::e_PRETTY,          "PRETTY"          },
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                {  L_,     Obj::PRETTY,                 "PRETTY"          },
+                {  L_,     Obj::e_PRETTY,                 "PRETTY"          },
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -172,14 +172,14 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 // line         enumerator value        expected result
                 // ----    -----------------------      -----------------
-                {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
-                {  L_,     Obj::BAEXML_COMPACT,         "compact"         },
-                {  L_,     Obj::BAEXML_COMPACT,         "BAEXML_COMPACT"  },
-                {  L_,     Obj::BAEXML_COMPACT,         "baexml_compact"  },
-                {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
-                {  L_,     Obj::BAEXML_PRETTY,          "pretty"          },
-                {  L_,     Obj::BAEXML_PRETTY,          "BAEXML_PRETTY"   },
-                {  L_,     Obj::BAEXML_PRETTY,          "baexml_pretty"   },
+                {  L_,     Obj::e_COMPACT,         "COMPACT"         },
+                {  L_,     Obj::e_COMPACT,         "compact"         },
+                {  L_,     Obj::e_COMPACT,         "BAEXML_COMPACT"  },
+                {  L_,     Obj::e_COMPACT,         "baexml_compact"  },
+                {  L_,     Obj::e_PRETTY,          "PRETTY"          },
+                {  L_,     Obj::e_PRETTY,          "pretty"          },
+                {  L_,     Obj::e_PRETTY,          "BAEXML_PRETTY"   },
+                {  L_,     Obj::e_PRETTY,          "baexml_pretty"   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

@@ -542,9 +542,9 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == y.numPrefixes());
 
-        ASSERT(Registry::BAEXML_XML == y.lookupNamespaceId("xml"));
-        ASSERT(Registry::BAEXML_XMLNS == y.lookupNamespaceId("xmlns"));
-        ASSERT(Registry::BAEXML_XMLSCHEMA_INSTANCE ==
+        ASSERT(Registry::e_XML == y.lookupNamespaceId("xml"));
+        ASSERT(Registry::e_XMLNS == y.lookupNamespaceId("xmlns"));
+        ASSERT(Registry::e_XMLSCHEMA_INSTANCE ==
                                                    y.lookupNamespaceId("xsi"));
 
         ASSERT(0 == strcmp("xml", y.lookupNamespacePrefix("xml")));
@@ -559,10 +559,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(X2, y.lookupNamespaceUri("xmlns")));
         ASSERT(0 == strcmp(X3, y.lookupNamespaceUri("xsi")));
 
-        ASSERT(0 == strcmp(X1, y.lookupNamespaceUri(Registry::BAEXML_XML)));
-        ASSERT(0 == strcmp(X2, y.lookupNamespaceUri(Registry::BAEXML_XMLNS)));
+        ASSERT(0 == strcmp(X1, y.lookupNamespaceUri(Registry::e_XML)));
+        ASSERT(0 == strcmp(X2, y.lookupNamespaceUri(Registry::e_XMLNS)));
         ASSERT(0 == strcmp(X3,
-                   y.lookupNamespaceUri(Registry::BAEXML_XMLSCHEMA_INSTANCE)));
+                   y.lookupNamespaceUri(Registry::e_XMLSCHEMA_INSTANCE)));
 
         ASSERT(0 == strcmp("xml", y.lookupNamespacePrefix("xml")));
         ASSERT(0 == strcmp("xmlns", y.lookupNamespacePrefix("xmlns")));

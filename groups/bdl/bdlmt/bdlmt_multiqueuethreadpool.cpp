@@ -36,7 +36,7 @@ inline
 MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
         bslma::Allocator *basicAllocator)
 : d_list(basicAllocator)
-, d_state(MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_ENABLED)
+, d_state(MultiQueueThreadPool_Queue::e_ENQUEUEING_ENABLED)
 {
 }
 
@@ -52,7 +52,7 @@ void MultiQueueThreadPool_Queue::reset()
     d_numEnqueued    = 0;
     d_numDequeued    = 0;
     d_numPendingJobs = 0;
-    d_state          = BCEP_ENQUEUEING_ENABLED;
+    d_state          = e_ENQUEUEING_ENABLED;
 }
 
 // MANIPULATORS
@@ -70,7 +70,7 @@ inline
 int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
 {
     int rc = 1;
-    if (MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_ENABLED == d_state) {
+    if (MultiQueueThreadPool_Queue::e_ENQUEUEING_ENABLED == d_state) {
         d_list.push_back(functor);
         rc = 0;
         ++d_numEnqueued;
@@ -82,7 +82,7 @@ inline
 int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
 {
     int rc = 1;
-    if (MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_BLOCKED != d_state) {
+    if (MultiQueueThreadPool_Queue::e_ENQUEUEING_BLOCKED != d_state) {
         d_list.push_front(functor);
         rc = 0;
         ++d_numEnqueued;
@@ -93,22 +93,22 @@ int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
 inline
 void MultiQueueThreadPool_Queue::block()
 {
-    d_state = MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_BLOCKED;
+    d_state = MultiQueueThreadPool_Queue::e_ENQUEUEING_BLOCKED;
 }
 
 inline
 void MultiQueueThreadPool_Queue::enable()
 {
-    if (MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_BLOCKED != d_state) {
-        d_state = MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_ENABLED;
+    if (MultiQueueThreadPool_Queue::e_ENQUEUEING_BLOCKED != d_state) {
+        d_state = MultiQueueThreadPool_Queue::e_ENQUEUEING_ENABLED;
     }
 }
 
 inline
 void MultiQueueThreadPool_Queue::disable()
 {
-    if (MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_BLOCKED != d_state) {
-        d_state = MultiQueueThreadPool_Queue::BCEP_ENQUEUEING_DISABLED;
+    if (MultiQueueThreadPool_Queue::e_ENQUEUEING_BLOCKED != d_state) {
+        d_state = MultiQueueThreadPool_Queue::e_ENQUEUEING_DISABLED;
     }
 }
 
@@ -280,7 +280,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int        id,
     {
         bdlqq::LockGuard<bdlqq::SpinLock> guard(&context->mutex());
         int                            status = -1;
-        if (BCEP_ENQUEUE_FRONT == where) {
+        if (e_ENQUEUE_FRONT == where) {
             // Only 'deleteQueue' requests are enqueued to the front of the
             // queue, and these require that the queue is also disabled.
             status = context->d_queue.pushFront(functor);
@@ -384,7 +384,7 @@ int MultiQueueThreadPool::deleteQueue(
                                 cleanupFunctor,
                                 (bdlqq::Barrier*)0));
 
-    return enqueueJobImpl(id, job, BCEP_ENQUEUE_FRONT);
+    return enqueueJobImpl(id, job, e_ENQUEUE_FRONT);
 }
 
 int MultiQueueThreadPool::deleteQueue(
@@ -399,7 +399,7 @@ int MultiQueueThreadPool::deleteQueue(
                                 CleanupFunctor(&noOp),
                                 &barrier));
 
-    int rc = enqueueJobImpl(id, job, BCEP_ENQUEUE_FRONT);
+    int rc = enqueueJobImpl(id, job, e_ENQUEUE_FRONT);
     if (0 == rc) {
         barrier.wait();
     }

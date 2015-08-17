@@ -2401,7 +2401,7 @@ int main(int argc, char *argv[])
         if (!veryVeryVerbose) {
             attr.setStackSize(80 * 1000 * 1000);
         }
-        attr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+        attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
 
         if (verbose) {
             cout << "StackSize: " << attr.stackSize() << endl;

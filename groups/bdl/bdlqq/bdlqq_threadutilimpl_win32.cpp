@@ -348,9 +348,9 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
     ThreadStartupInfo *startInfo = allocStartupInfo();
 
     int stackSize = attribute.stackSize();
-    if (ThreadAttributes::BCEMT_UNSET_STACK_SIZE == stackSize) {
+    if (ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
         stackSize = Configuration::defaultThreadStackSize();
-        if (ThreadAttributes::BCEMT_UNSET_STACK_SIZE == stackSize) {
+        if (ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
             stackSize = Configuration::nativeDefaultThreadStackSize();
         }
     }
@@ -375,7 +375,7 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
         freeStartupInfo(startInfo);
         return 1;                                                     // RETURN
     }
-    if (ThreadAttributes::BCEMT_CREATE_DETACHED ==
+    if (ThreadAttributes::e_CREATE_DETACHED ==
                                                    attribute.detachedState()) {
         HANDLE tmpHandle = handle->d_handle;
         handle->d_handle  = 0;

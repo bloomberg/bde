@@ -67,17 +67,17 @@ BSLS_IDENT("$Id: $")
 //
 //  int loadFromHexStream(bsl::vector<char> *result, bsl::istream& stream)
 //  {
-//      enum { BAEXML_FAILURE = -1 };
+//      enum { k_FAILURE = -1 };
 //
 //      balxml::HexParser<bsl::vector<char> > parser;
 //
 //      if (0 != parser.beginParse(result)) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
 //                                     bsl::istreambuf_iterator<char>())) {
-//          return BAEXML_FAILURE;
+//          return k_FAILURE;
 //      }
 //
 //      return parser.endParse();
@@ -229,14 +229,14 @@ int HexParser<TYPE>::beginParse(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-    enum { BAEXML_SUCCESS = 0 };
+    enum { k_SUCCESS = 0 };
 
     d_firstDigit = 0;
     d_object_p   = object;
 
     bdlat_ValueTypeFunctions::reset(d_object_p);
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 
 template <class TYPE>
@@ -244,11 +244,11 @@ int HexParser<TYPE>::endParse()
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     d_object_p = 0;
 
-    return 0 == d_firstDigit ? BAEXML_SUCCESS : BAEXML_FAILURE;
+    return 0 == d_firstDigit ? k_SUCCESS : k_FAILURE;
 }
 
 template <class TYPE>
@@ -258,7 +258,7 @@ int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     while (begin != end) {
         const char digit = *begin;
@@ -267,7 +267,7 @@ int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 
         if (!bdlb::CharType::isSpace(digit)) {
             if (!bdlb::CharType::isXdigit(digit)) {
-                return BAEXML_FAILURE;                                // RETURN
+                return k_FAILURE;                                     // RETURN
             }
 
             if (0 == d_firstDigit) {
@@ -281,7 +281,7 @@ int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
         }
     }
 
-    return BAEXML_SUCCESS;
+    return k_SUCCESS;
 }
 }  // close package namespace
 

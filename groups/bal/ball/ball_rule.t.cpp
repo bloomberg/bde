@@ -290,10 +290,10 @@ int main(int argc, char *argv[])
                           << endl;
 
         ball::Rule rule("WEEKEND*",                  // pattern
-                       ball::Severity::BAEL_OFF,     // record level
-                       ball::Severity::BAEL_INFO,    // pass-through level
-                       ball::Severity::BAEL_OFF,     // trigger level
-                       ball::Severity::BAEL_OFF);    // triggerAll level
+                       ball::Severity::e_OFF,     // record level
+                       ball::Severity::e_INFO,    // pass-through level
+                       ball::Severity::e_OFF,     // trigger level
+                       ball::Severity::e_OFF);    // triggerAll level
 
         ball::Predicate p1("uuid", 4044457);
         ball::Predicate p2("name", "Gang Chen");
@@ -313,20 +313,20 @@ int main(int argc, char *argv[])
         rule.setPattern("WEEKDAY*");
         ASSERT(0 == strcmp(rule.pattern(), "WEEKDAY*"));
 
-        ASSERT(ball::Severity::BAEL_OFF  == rule.recordLevel());
-        ASSERT(ball::Severity::BAEL_INFO == rule.passLevel());
-        ASSERT(ball::Severity::BAEL_OFF  == rule.triggerLevel());
-        ASSERT(ball::Severity::BAEL_OFF  == rule.triggerAllLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.recordLevel());
+        ASSERT(ball::Severity::e_INFO == rule.passLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.triggerLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.triggerAllLevel());
 
-        rule.setLevels(ball::Severity::BAEL_INFO,
-                       ball::Severity::BAEL_OFF,
-                       ball::Severity::BAEL_INFO,
-                       ball::Severity::BAEL_INFO);
+        rule.setLevels(ball::Severity::e_INFO,
+                       ball::Severity::e_OFF,
+                       ball::Severity::e_INFO,
+                       ball::Severity::e_INFO);
 
-        ASSERT(ball::Severity::BAEL_INFO == rule.recordLevel());
-        ASSERT(ball::Severity::BAEL_OFF  == rule.passLevel());
-        ASSERT(ball::Severity::BAEL_INFO == rule.triggerLevel());
-        ASSERT(ball::Severity::BAEL_INFO == rule.triggerAllLevel());
+        ASSERT(ball::Severity::e_INFO == rule.recordLevel());
+        ASSERT(ball::Severity::e_OFF  == rule.passLevel());
+        ASSERT(ball::Severity::e_INFO == rule.triggerLevel());
+        ASSERT(ball::Severity::e_INFO == rule.triggerAllLevel());
 
       } break;
       case 15: {

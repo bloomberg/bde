@@ -35,21 +35,21 @@ const bool balxml::DecoderOptions::DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS = t
 
 const bdlat_AttributeInfo balxml::DecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_MAX_DEPTH,
+        e_ATTRIBUTE_ID_MAX_DEPTH,
         "MaxDepth",
         sizeof("MaxDepth") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_FORMATTING_MODE,
+        e_ATTRIBUTE_ID_FORMATTING_MODE,
         "FormattingMode",
         sizeof("FormattingMode") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
+        e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
         "SkipUnknownElements",
         sizeof("SkipUnknownElements") - 1,
         "",
@@ -75,7 +75,7 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
              && (name[6]|0x20)=='t'
              && (name[7]|0x20)=='h')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH];
                                                                       // RETURN
             }
         } break;
@@ -95,7 +95,7 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
              && (name[12]|0x20)=='d'
              && (name[13]|0x20)=='e')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE];
                                                                       // RETURN
             }
         } break;
@@ -120,7 +120,7 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
              && (name[17]|0x20)=='t'
              && (name[18]|0x20)=='s')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
                                                                       // RETURN
             }
         } break;
@@ -131,12 +131,12 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
 const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH];
-      case ATTRIBUTE_ID_FORMATTING_MODE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE];
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
+      case e_ATTRIBUTE_ID_MAX_DEPTH:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH];
+      case e_ATTRIBUTE_ID_FORMATTING_MODE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE];
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
       default:
         return 0;
     }

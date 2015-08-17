@@ -180,13 +180,13 @@ typedef BloombergLP::bslma::TestAllocator    TestAllocator;
 typedef BloombergLP::ball::CategoryManager    CategoryManager;
 typedef BloombergLP::ball::ThresholdAggregate Thresholds;
 
-const int TRACE = Sev::BAEL_TRACE;
-const int DEBUG = Sev::BAEL_DEBUG;
-const int INFO  = Sev::BAEL_INFO;
-const int WARN  = Sev::BAEL_WARN;
-const int ERROR = Sev::BAEL_ERROR;
-const int FATAL = Sev::BAEL_FATAL;
-const int OFF   = Sev::BAEL_OFF;
+const int TRACE = Sev::e_TRACE;
+const int DEBUG = Sev::e_DEBUG;
+const int INFO  = Sev::e_INFO;
+const int WARN  = Sev::e_WARN;
+const int ERROR = Sev::e_ERROR;
+const int FATAL = Sev::e_FATAL;
+const int OFF   = Sev::e_OFF;
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -398,9 +398,9 @@ void *workerThread24(void *arg)
 {
     BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
-        BALL_LOG2(ball::Severity::BAEL_TRACE, msg, arg1, arg2);
-        BALL_LOG2(ball::Severity::BAEL_DEBUG, msg, arg1, arg2);
-        BALL_LOG2(ball::Severity::BAEL_INFO, msg, arg1, arg2);
+        BALL_LOG2(ball::Severity::e_TRACE, msg, arg1, arg2);
+        BALL_LOG2(ball::Severity::e_DEBUG, msg, arg1, arg2);
+        BALL_LOG2(ball::Severity::e_INFO, msg, arg1, arg2);
 //         BALL_LOG_WARN   << msg << BALL_LOG_END;
 //         BALL_LOG_ERROR  << msg << BALL_LOG_END;
     }
@@ -430,9 +430,9 @@ void *workerThread23(void *arg)
 {
     BALL_LOG_SET_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
-        BALL_LOG2(ball::Severity::BAEL_TRACE, msg, arg1, arg2);
-        BALL_LOG2(ball::Severity::BAEL_DEBUG, msg, arg1, arg2);
-        BALL_LOG2(ball::Severity::BAEL_INFO, msg, arg1, arg2);
+        BALL_LOG2(ball::Severity::e_TRACE, msg, arg1, arg2);
+        BALL_LOG2(ball::Severity::e_DEBUG, msg, arg1, arg2);
+        BALL_LOG2(ball::Severity::e_INFO, msg, arg1, arg2);
 //         BALL_LOG_WARN   << msg << BALL_LOG_END;
 //         BALL_LOG_ERROR  << msg << BALL_LOG_END;
     }
@@ -942,7 +942,7 @@ int main(int argc, char *argv[])
 // 'ball::Rule' is the wild-card value '*' so that the rule will apply to all
 // categories.
 //..
-    ball::Rule rule("*", 0, ball::Severity::BAEL_TRACE, 0, 0);
+    ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
     rule.addPredicate(ball::Predicate("uuid", 3938908));
     ball::LoggerManager::singleton().addRule(rule);
 
@@ -991,10 +991,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                       "EQUITY.NASD",
-                                      BloombergLP::ball::Severity::BAEL_TRACE,
-                                      BloombergLP::ball::Severity::BAEL_WARN,
-                                      BloombergLP::ball::Severity::BAEL_ERROR,
-                                      BloombergLP::ball::Severity::BAEL_FATAL);
+                                      BloombergLP::ball::Severity::e_TRACE,
+                                      BloombergLP::ball::Severity::e_WARN,
+                                      BloombergLP::ball::Severity::e_ERROR,
+                                      BloombergLP::ball::Severity::e_FATAL);
 
         if (verbose) bsl::cout << "ostrstream-based macro usage" << bsl::endl;
         {
@@ -1058,14 +1058,14 @@ int main(int argc, char *argv[])
             {
                 using BloombergLP::ball::Log;
                 using BloombergLP::ball::Severity;
-                if (category->isEnabled(ball::Severity::BAEL_INFO)) {
+                if (category->isEnabled(ball::Severity::e_INFO)) {
                     const char *formatSpec =
                                          "[7] %d shares of %s sold at %f\n";
                     ball::Log::format(messageBuffer(),
                                      messageBufferSize(),
                                      formatSpec, 400, "SUNW", 5.65);
                     ball::Log::logMessage(category,
-                                         BloombergLP::ball::Severity::BAEL_INFO,
+                                         BloombergLP::ball::Severity::e_INFO,
                                          __FILE__, __LINE__,
                                          messageBuffer());
                     if (veryVerbose) P(messageBuffer());
@@ -1245,24 +1245,24 @@ int main(int argc, char *argv[])
         using namespace BloombergLP;
 
         int VALUES[] = { 1,
-                         Sev::BAEL_FATAL - 1,
-                         Sev::BAEL_FATAL,
-                         Sev::BAEL_FATAL + 1,
-                         Sev::BAEL_ERROR - 1,
-                         Sev::BAEL_ERROR,
-                         Sev::BAEL_ERROR + 1,
-                         Sev::BAEL_WARN - 1,
-                         Sev::BAEL_WARN,
-                         Sev::BAEL_WARN + 1,
-                         Sev::BAEL_INFO - 1,
-                         Sev::BAEL_INFO,
-                         Sev::BAEL_INFO + 1,
-                         Sev::BAEL_DEBUG - 1,
-                         Sev::BAEL_DEBUG,
-                         Sev::BAEL_DEBUG + 1,
-                         Sev::BAEL_TRACE - 1,
-                         Sev::BAEL_TRACE,
-                         Sev::BAEL_TRACE + 1
+                         Sev::e_FATAL - 1,
+                         Sev::e_FATAL,
+                         Sev::e_FATAL + 1,
+                         Sev::e_ERROR - 1,
+                         Sev::e_ERROR,
+                         Sev::e_ERROR + 1,
+                         Sev::e_WARN - 1,
+                         Sev::e_WARN,
+                         Sev::e_WARN + 1,
+                         Sev::e_INFO - 1,
+                         Sev::e_INFO,
+                         Sev::e_INFO + 1,
+                         Sev::e_DEBUG - 1,
+                         Sev::e_DEBUG,
+                         Sev::e_DEBUG + 1,
+                         Sev::e_TRACE - 1,
+                         Sev::e_TRACE,
+                         Sev::e_TRACE + 1
         };
         const int NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES);
         bsl::vector<Thresholds> thresholds;
@@ -1281,7 +1281,7 @@ int main(int argc, char *argv[])
         int numBufferedRecords = 0;
         ball::LoggerManagerConfiguration lmc;
         lmc.setTriggerMarkers(
-                             ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+                             ball::LoggerManagerConfiguration::e_NO_MARKERS);
 
         ball::LoggerManager::initSingleton(TO, lmc, &ta);
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
@@ -1416,24 +1416,24 @@ int main(int argc, char *argv[])
         using namespace BloombergLP;
 
         int VALUES[] = { 1,
-                         Sev::BAEL_FATAL - 1,
-                         Sev::BAEL_FATAL,
-                         Sev::BAEL_FATAL + 1,
-                         Sev::BAEL_ERROR - 1,
-                         Sev::BAEL_ERROR,
-                         Sev::BAEL_ERROR + 1,
-                         Sev::BAEL_WARN - 1,
-                         Sev::BAEL_WARN,
-                         Sev::BAEL_WARN + 1,
-                         Sev::BAEL_INFO - 1,
-                         Sev::BAEL_INFO,
-                         Sev::BAEL_INFO + 1,
-                         Sev::BAEL_DEBUG - 1,
-                         Sev::BAEL_DEBUG,
-                         Sev::BAEL_DEBUG + 1,
-                         Sev::BAEL_TRACE - 1,
-                         Sev::BAEL_TRACE,
-                         Sev::BAEL_TRACE + 1
+                         Sev::e_FATAL - 1,
+                         Sev::e_FATAL,
+                         Sev::e_FATAL + 1,
+                         Sev::e_ERROR - 1,
+                         Sev::e_ERROR,
+                         Sev::e_ERROR + 1,
+                         Sev::e_WARN - 1,
+                         Sev::e_WARN,
+                         Sev::e_WARN + 1,
+                         Sev::e_INFO - 1,
+                         Sev::e_INFO,
+                         Sev::e_INFO + 1,
+                         Sev::e_DEBUG - 1,
+                         Sev::e_DEBUG,
+                         Sev::e_DEBUG + 1,
+                         Sev::e_TRACE - 1,
+                         Sev::e_TRACE,
+                         Sev::e_TRACE + 1
         };
         const int NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES);
 
@@ -1449,7 +1449,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\tSanity test without a logger manager" << bsl::endl;
         }
         for (int i = 0; i < NUM_VALUES; ++i) {
-            bool enabled = VALUES[i] <= Sev::BAEL_WARN;
+            bool enabled = VALUES[i] <= Sev::e_WARN;
             Holder holder = { 0, 0, 0};
             ASSERT(enabled == Obj::isCategoryEnabled(&holder, VALUES[i]));
         }
@@ -1569,10 +1569,10 @@ int main(int argc, char *argv[])
             BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
             BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
 
             categoryName  = "WithLoggerManager";
@@ -1640,10 +1640,10 @@ int main(int argc, char *argv[])
             BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
             BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
 
             categoryName  = "WithLoggerManager";
@@ -1709,10 +1709,10 @@ int main(int argc, char *argv[])
             BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
             BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
 
             categoryName  = "WithLoggerManager";
@@ -1777,10 +1777,10 @@ int main(int argc, char *argv[])
             BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
-               BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-               BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-               BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-               BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+               BloombergLP::ball::Severity::e_TRACE,  // record level
+               BloombergLP::ball::Severity::e_WARN,   // passthrough level
+               BloombergLP::ball::Severity::e_ERROR,  // trigger level
+               BloombergLP::ball::Severity::e_FATAL); // triggerAll level
             BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
 
             categoryName  = "WithLoggerManager";
@@ -1823,8 +1823,8 @@ int main(int argc, char *argv[])
                       << "Testing static functions\n"
                       << "========================\n";
 
-        const int UC = Holder::BAEL_UNINITIALIZED_CATEGORY;
-        const int DC = Holder::BAEL_DYNAMIC_CATEGORY;
+        const int UC = Holder::e_UNINITIALIZED_CATEGORY;
+        const int DC = Holder::e_DYNAMIC_CATEGORY;
 
         // Warning: Do not change the order of the test cases.  This test case
         // relies on having all the test cases that require the logger manager
@@ -2124,10 +2124,10 @@ int main(int argc, char *argv[])
         {
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
             BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc);
 
             // Re "sieve" category: (1) if recorded, then also published;
@@ -2135,8 +2135,8 @@ int main(int argc, char *argv[])
 
             BloombergLP::ball::Administration::addCategory(
                                          "sieve",
-                                         BloombergLP::ball::Severity::BAEL_INFO,
-                                         BloombergLP::ball::Severity::BAEL_INFO,
+                                         BloombergLP::ball::Severity::e_INFO,
+                                         BloombergLP::ball::Severity::e_INFO,
                                          0,
                                          0);
             BALL_LOG_SET_DYNAMIC_CATEGORY("sieve")
@@ -2157,7 +2157,7 @@ int main(int argc, char *argv[])
             ball::LoggerManager::singleton().setCategory(
                                          "sieve",
                                          0,
-                                         BloombergLP::ball::Severity::BAEL_WARN,
+                                         BloombergLP::ball::Severity::e_WARN,
                                          0,
                                          0);
 
@@ -2420,8 +2420,8 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                      "sieve",
-                                     BloombergLP::ball::Severity::BAEL_TRACE,
-                                     BloombergLP::ball::Severity::BAEL_TRACE,
+                                     BloombergLP::ball::Severity::e_TRACE,
+                                     BloombergLP::ball::Severity::e_TRACE,
                                      0,
                                      0);
         BALL_LOG_SET_CATEGORY("sieve")
@@ -2431,19 +2431,19 @@ int main(int argc, char *argv[])
         const Cat  *CAT   = BALL_LOG_CATEGORY;
         const char *FILE  = __FILE__;
 
-        const int TRACE = BloombergLP::ball::Severity::BAEL_TRACE;
-        const int DEBUG = BloombergLP::ball::Severity::BAEL_DEBUG;
-        const int INFO  = BloombergLP::ball::Severity::BAEL_INFO;
-        const int WARN  = BloombergLP::ball::Severity::BAEL_WARN;
-        const int ERROR = BloombergLP::ball::Severity::BAEL_ERROR;
-        const int FATAL = BloombergLP::ball::Severity::BAEL_FATAL;
+        const int TRACE = BloombergLP::ball::Severity::e_TRACE;
+        const int DEBUG = BloombergLP::ball::Severity::e_DEBUG;
+        const int INFO  = BloombergLP::ball::Severity::e_INFO;
+        const int WARN  = BloombergLP::ball::Severity::e_WARN;
+        const int ERROR = BloombergLP::ball::Severity::e_ERROR;
+        const int FATAL = BloombergLP::ball::Severity::e_FATAL;
 
         BloombergLP::ball::Administration::addCategory(
                                   "noTRACE",
-                                  BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                                  BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                                  BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                                  BloombergLP::ball::Severity::BAEL_TRACE - 1);
+                                  BloombergLP::ball::Severity::e_TRACE - 1,
+                                  BloombergLP::ball::Severity::e_TRACE - 1,
+                                  BloombergLP::ball::Severity::e_TRACE - 1,
+                                  BloombergLP::ball::Severity::e_TRACE - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOGCB_TRACE'" << bsl::endl;
@@ -2466,10 +2466,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noDEBUG",
-                                   BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                                   BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                                   BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                                   BloombergLP::ball::Severity::BAEL_DEBUG - 1);
+                                   BloombergLP::ball::Severity::e_DEBUG - 1,
+                                   BloombergLP::ball::Severity::e_DEBUG - 1,
+                                   BloombergLP::ball::Severity::e_DEBUG - 1,
+                                   BloombergLP::ball::Severity::e_DEBUG - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOGCB_DEBUG'" << bsl::endl;
@@ -2492,10 +2492,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                     "noINFO",
-                                    BloombergLP::ball::Severity::BAEL_INFO - 1,
-                                    BloombergLP::ball::Severity::BAEL_INFO - 1,
-                                    BloombergLP::ball::Severity::BAEL_INFO - 1,
-                                    BloombergLP::ball::Severity::BAEL_INFO - 1);
+                                    BloombergLP::ball::Severity::e_INFO - 1,
+                                    BloombergLP::ball::Severity::e_INFO - 1,
+                                    BloombergLP::ball::Severity::e_INFO - 1,
+                                    BloombergLP::ball::Severity::e_INFO - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOGCB_INFO'" << bsl::endl;
@@ -2518,10 +2518,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noWARN",
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1);
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOGCB_WARN'" << bsl::endl;
@@ -2544,10 +2544,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noERROR",
-                                   BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                   BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                   BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                   BloombergLP::ball::Severity::BAEL_ERROR - 1);
+                                   BloombergLP::ball::Severity::e_ERROR - 1,
+                                   BloombergLP::ball::Severity::e_ERROR - 1,
+                                   BloombergLP::ball::Severity::e_ERROR - 1,
+                                   BloombergLP::ball::Severity::e_ERROR - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOGCB_ERROR'" << bsl::endl;
@@ -2571,10 +2571,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noFATAL",
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1);
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOGCB_FATAL'" << bsl::endl;
@@ -2690,10 +2690,10 @@ int main(int argc, char *argv[])
         my_PublishCountingObserver observer;
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                 BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                 BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                 BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                 BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                 BloombergLP::ball::Severity::e_TRACE,  // record level
+                 BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                 BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                 BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
@@ -2745,10 +2745,10 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration,
@@ -2761,38 +2761,38 @@ int main(int argc, char *argv[])
 
             BALL_LOG_TRACE << "This will load the category" << BALL_LOG_END
 
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_TRACE));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_DEBUG));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_INFO));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_WARN));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_ERROR));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_FATAL));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
 
             manager.setCategory("TEST.CATEGORY",
-                                BloombergLP::ball::Severity::BAEL_WARN,
-                                BloombergLP::ball::Severity::BAEL_ERROR,
-                                BloombergLP::ball::Severity::BAEL_FATAL,
-                                BloombergLP::ball::Severity::BAEL_FATAL);
+                                BloombergLP::ball::Severity::e_WARN,
+                                BloombergLP::ball::Severity::e_ERROR,
+                                BloombergLP::ball::Severity::e_FATAL,
+                                BloombergLP::ball::Severity::e_FATAL);
 
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_TRACE));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_DEBUG));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_INFO));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_WARN));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_ERROR));
-            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_FATAL));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
+            ASSERT(BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
 
             manager.setCategory("TEST.CATEGORY",
-                                BloombergLP::ball::Severity::BAEL_OFF,
-                                BloombergLP::ball::Severity::BAEL_OFF,
-                                BloombergLP::ball::Severity::BAEL_OFF,
-                                BloombergLP::ball::Severity::BAEL_OFF);
+                                BloombergLP::ball::Severity::e_OFF,
+                                BloombergLP::ball::Severity::e_OFF,
+                                BloombergLP::ball::Severity::e_OFF,
+                                BloombergLP::ball::Severity::e_OFF);
 
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_TRACE));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_DEBUG));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_INFO));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_WARN));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_ERROR));
-            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::BAEL_FATAL));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_TRACE));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_DEBUG));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_INFO));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_WARN));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_ERROR));
+            ASSERT(!BAEL_IS_ENABLED(BloombergLP::ball::Severity::e_FATAL));
 
         }
       } break;
@@ -2835,10 +2835,10 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
@@ -2900,10 +2900,10 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-               BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-               BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-               BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-               BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+               BloombergLP::ball::Severity::e_TRACE,  // record level
+               BloombergLP::ball::Severity::e_WARN,   // passthrough level
+               BloombergLP::ball::Severity::e_ERROR,  // trigger level
+               BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
@@ -2964,10 +2964,10 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                BloombergLP::ball::Severity::e_TRACE,  // record level
+                BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
@@ -3029,10 +3029,10 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration);
@@ -3085,15 +3085,15 @@ int main(int argc, char *argv[])
         my_Observer observer;
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setLogOrder(
-            BloombergLP::ball::LoggerManagerConfiguration::BAEL_FIFO);
+            BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
         configuration.setDefaultThresholdLevelsIfValid(
-               BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-               BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-               BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-               BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+               BloombergLP::ball::Severity::e_TRACE,  // record level
+               BloombergLP::ball::Severity::e_WARN,   // passthrough level
+               BloombergLP::ball::Severity::e_ERROR,  // trigger level
+               BloombergLP::ball::Severity::e_FATAL); // triggerAll level
         configuration.setDefaultRecordBufferSizeIfValid(REC_BUF_LIMIT);
         configuration.setTriggerMarkers(
-               BloombergLP::ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+               BloombergLP::ball::LoggerManagerConfiguration::e_NO_MARKERS);
         BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
@@ -3161,10 +3161,10 @@ int main(int argc, char *argv[])
         // for simplicity we keep the passthrough level to be 'FATAL',
         // so that on trigger event, the message is published only once.
         configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_FATAL,  // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_FATAL,  // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration,
@@ -3218,15 +3218,15 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setLogOrder(
-                  BloombergLP::ball::LoggerManagerConfiguration::BAEL_FIFO);
+                  BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
 
         // for simplicity we keep the passthrough level to be 'FATAL',
         // so that on trigger event, the message is published only once.
         configuration.setDefaultThresholdLevelsIfValid(
-              BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-              BloombergLP::ball::Severity::BAEL_FATAL,  // passthrough level
-              BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-              BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+              BloombergLP::ball::Severity::e_TRACE,  // record level
+              BloombergLP::ball::Severity::e_FATAL,  // passthrough level
+              BloombergLP::ball::Severity::e_ERROR,  // trigger level
+              BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration,
@@ -3283,10 +3283,10 @@ int main(int argc, char *argv[])
         BloombergLP::ball::DefaultObserver observer(os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
-                  BloombergLP::ball::Severity::BAEL_TRACE,  // record level
-                  BloombergLP::ball::Severity::BAEL_WARN,   // passthrough level
-                  BloombergLP::ball::Severity::BAEL_ERROR,  // trigger level
-                  BloombergLP::ball::Severity::BAEL_FATAL); // triggerAll level
+                  BloombergLP::ball::Severity::e_TRACE,  // record level
+                  BloombergLP::ball::Severity::e_WARN,   // passthrough level
+                  BloombergLP::ball::Severity::e_ERROR,  // trigger level
+                  BloombergLP::ball::Severity::e_FATAL); // triggerAll level
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration,
@@ -3372,7 +3372,7 @@ int main(int argc, char *argv[])
                               << bsl::endl;
 
                 BloombergLP::ball::Severity::Level severity =
-                                  BloombergLP::ball::Severity::BAEL_FATAL;
+                                  BloombergLP::ball::Severity::e_FATAL;
 
                 BALL_LOG0(severity, "Hello!");
                 BALL_LOG1(severity, "Hello!", 1);
@@ -3445,7 +3445,7 @@ int main(int argc, char *argv[])
             bsl::cout << "Safely invoked stream-style macros" << bsl::endl;
 
         BloombergLP::ball::Severity::Level severity =
-            BloombergLP::ball::Severity::BAEL_FATAL;
+            BloombergLP::ball::Severity::e_FATAL;
 
         scribbleBuffer();
         BALL_LOG0(severity, "Hello!");
@@ -3522,8 +3522,8 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                 "sieve",
-                                BloombergLP::ball::Severity::BAEL_TRACE,
-                                BloombergLP::ball::Severity::BAEL_TRACE,
+                                BloombergLP::ball::Severity::e_TRACE,
+                                BloombergLP::ball::Severity::e_TRACE,
                                 0,
                                 0);
         BALL_LOG_SET_CATEGORY("sieve")
@@ -3533,19 +3533,19 @@ int main(int argc, char *argv[])
         const Cat  *CAT  = BALL_LOG_CATEGORY;
         const char *FILE = __FILE__;
 
-        const int TRACE = BloombergLP::ball::Severity::BAEL_TRACE;
-        const int DEBUG = BloombergLP::ball::Severity::BAEL_DEBUG;
-        const int INFO  = BloombergLP::ball::Severity::BAEL_INFO;
-        const int WARN  = BloombergLP::ball::Severity::BAEL_WARN;
-        const int ERROR = BloombergLP::ball::Severity::BAEL_ERROR;
-        const int FATAL = BloombergLP::ball::Severity::BAEL_FATAL;
+        const int TRACE = BloombergLP::ball::Severity::e_TRACE;
+        const int DEBUG = BloombergLP::ball::Severity::e_DEBUG;
+        const int INFO  = BloombergLP::ball::Severity::e_INFO;
+        const int WARN  = BloombergLP::ball::Severity::e_WARN;
+        const int ERROR = BloombergLP::ball::Severity::e_ERROR;
+        const int FATAL = BloombergLP::ball::Severity::e_FATAL;
 
         BloombergLP::ball::Administration::addCategory(
                            "noTRACE",
-                           BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                           BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                           BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                           BloombergLP::ball::Severity::BAEL_TRACE - 1);
+                           BloombergLP::ball::Severity::e_TRACE - 1,
+                           BloombergLP::ball::Severity::e_TRACE - 1,
+                           BloombergLP::ball::Severity::e_TRACE - 1,
+                           BloombergLP::ball::Severity::e_TRACE - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG_TRACE'" << bsl::endl;
@@ -3566,10 +3566,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                               "noDEBUG",
-                              BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                              BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                              BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                              BloombergLP::ball::Severity::BAEL_DEBUG - 1);
+                              BloombergLP::ball::Severity::e_DEBUG - 1,
+                              BloombergLP::ball::Severity::e_DEBUG - 1,
+                              BloombergLP::ball::Severity::e_DEBUG - 1,
+                              BloombergLP::ball::Severity::e_DEBUG - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG_DEBUG'" << bsl::endl;
@@ -3590,10 +3590,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                "noINFO",
-                               BloombergLP::ball::Severity::BAEL_INFO - 1,
-                               BloombergLP::ball::Severity::BAEL_INFO - 1,
-                               BloombergLP::ball::Severity::BAEL_INFO - 1,
-                               BloombergLP::ball::Severity::BAEL_INFO - 1);
+                               BloombergLP::ball::Severity::e_INFO - 1,
+                               BloombergLP::ball::Severity::e_INFO - 1,
+                               BloombergLP::ball::Severity::e_INFO - 1,
+                               BloombergLP::ball::Severity::e_INFO - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG_INFO'" << bsl::endl;
@@ -3614,10 +3614,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                   "noWARN",
-                                  BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                  BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                  BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                  BloombergLP::ball::Severity::BAEL_WARN - 1);
+                                  BloombergLP::ball::Severity::e_WARN - 1,
+                                  BloombergLP::ball::Severity::e_WARN - 1,
+                                  BloombergLP::ball::Severity::e_WARN - 1,
+                                  BloombergLP::ball::Severity::e_WARN - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG_WARN'" << bsl::endl;
@@ -3638,10 +3638,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                 "noERROR",
-                                BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                BloombergLP::ball::Severity::BAEL_ERROR - 1);
+                                BloombergLP::ball::Severity::e_ERROR - 1,
+                                BloombergLP::ball::Severity::e_ERROR - 1,
+                                BloombergLP::ball::Severity::e_ERROR - 1,
+                                BloombergLP::ball::Severity::e_ERROR - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG_ERROR'" << bsl::endl;
@@ -3662,10 +3662,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noFATAL",
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1);
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG_FATAL'" << bsl::endl;
@@ -3809,12 +3809,12 @@ int main(int argc, char *argv[])
         BloombergLP::ball::LoggerManagerConfiguration lmc;
         BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
 
-        const int TRACE = BloombergLP::ball::Severity::BAEL_TRACE;
-        const int DEBUG = BloombergLP::ball::Severity::BAEL_DEBUG;
-        const int INFO  = BloombergLP::ball::Severity::BAEL_INFO;
-        const int WARN  = BloombergLP::ball::Severity::BAEL_WARN;
-        const int ERROR = BloombergLP::ball::Severity::BAEL_ERROR;
-        const int FATAL = BloombergLP::ball::Severity::BAEL_FATAL;
+        const int TRACE = BloombergLP::ball::Severity::e_TRACE;
+        const int DEBUG = BloombergLP::ball::Severity::e_DEBUG;
+        const int INFO  = BloombergLP::ball::Severity::e_INFO;
+        const int WARN  = BloombergLP::ball::Severity::e_WARN;
+        const int ERROR = BloombergLP::ball::Severity::e_ERROR;
+        const int FATAL = BloombergLP::ball::Severity::e_FATAL;
 
         if (veryVerbose) bsl::cout << "\tTesting exception safety"
                                    << bsl::endl;
@@ -4038,10 +4038,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noTRACE",
-                                   BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                                   BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                                   BloombergLP::ball::Severity::BAEL_TRACE - 1,
-                                   BloombergLP::ball::Severity::BAEL_TRACE - 1);
+                                   BloombergLP::ball::Severity::e_TRACE - 1,
+                                   BloombergLP::ball::Severity::e_TRACE - 1,
+                                   BloombergLP::ball::Severity::e_TRACE - 1,
+                                   BloombergLP::ball::Severity::e_TRACE - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_TRACE'" << bsl::endl;
@@ -4195,10 +4195,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                   "noDEBUG",
-                                  BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                                  BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                                  BloombergLP::ball::Severity::BAEL_DEBUG - 1,
-                                  BloombergLP::ball::Severity::BAEL_DEBUG - 1);
+                                  BloombergLP::ball::Severity::e_DEBUG - 1,
+                                  BloombergLP::ball::Severity::e_DEBUG - 1,
+                                  BloombergLP::ball::Severity::e_DEBUG - 1,
+                                  BloombergLP::ball::Severity::e_DEBUG - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_DEBUG'" << bsl::endl;
@@ -4352,10 +4352,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                   "noINFO",
-                                  BloombergLP::ball::Severity::BAEL_INFO - 1,
-                                  BloombergLP::ball::Severity::BAEL_INFO - 1,
-                                  BloombergLP::ball::Severity::BAEL_INFO - 1,
-                                  BloombergLP::ball::Severity::BAEL_INFO - 1);
+                                  BloombergLP::ball::Severity::e_INFO - 1,
+                                  BloombergLP::ball::Severity::e_INFO - 1,
+                                  BloombergLP::ball::Severity::e_INFO - 1,
+                                  BloombergLP::ball::Severity::e_INFO - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_INFO'" << bsl::endl;
@@ -4509,10 +4509,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noWARN",
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1,
-                                   BloombergLP::ball::Severity::BAEL_WARN - 1);
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_WARN'" << bsl::endl;
@@ -4666,10 +4666,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                   "noERROR",
-                                  BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                  BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                  BloombergLP::ball::Severity::BAEL_ERROR - 1,
-                                  BloombergLP::ball::Severity::BAEL_ERROR - 1);
+                                  BloombergLP::ball::Severity::e_ERROR - 1,
+                                  BloombergLP::ball::Severity::e_ERROR - 1,
+                                  BloombergLP::ball::Severity::e_ERROR - 1,
+                                  BloombergLP::ball::Severity::e_ERROR - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_ERROR'" << bsl::endl;
@@ -4823,10 +4823,10 @@ int main(int argc, char *argv[])
 
         BloombergLP::ball::Administration::addCategory(
                                    "noFATAL",
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1,
-                                   BloombergLP::ball::Severity::BAEL_FATAL - 1);
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_FATAL'" << bsl::endl;
@@ -5719,8 +5719,8 @@ int main(int argc, char *argv[])
 
         // Sanity check BALL_LOG_CATEGORY & BALL_LOG_THRESHOLD
         {
-            const int UC = Holder::BAEL_UNINITIALIZED_CATEGORY;
-            const int DC = Holder::BAEL_DYNAMIC_CATEGORY;
+            const int UC = Holder::e_UNINITIALIZED_CATEGORY;
+            const int DC = Holder::e_DYNAMIC_CATEGORY;
 
             struct {
                 const int  d_line;
@@ -5925,7 +5925,7 @@ int main(int argc, char *argv[])
          if (veryVerbose) bsl::cout << "\tTesting 'logMessage'" << bsl::endl;
          {
              const Cat  *CAT  = ball::Log::setCategory("EQUITY.NASD");
-             const int   SEV  = BloombergLP::ball::Severity::BAEL_WARN;
+             const int   SEV  = BloombergLP::ball::Severity::e_WARN;
              const char *FILE = __FILE__;
              const int   LINE = 1066;
              const char *MSG  = "logMessage test";

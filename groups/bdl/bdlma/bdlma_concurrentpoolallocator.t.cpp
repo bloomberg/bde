@@ -1276,14 +1276,14 @@ int main(int argc, char *argv[])
             int status = bdlqq::ThreadUtil::create(&upHandle,
                                                   attributes,
                                                   &my3_up,
-                                                  a);
+                                                  static_cast<void *>(a));
             ASSERT(0 == status);
 
             bdlqq::ThreadUtil::Handle downHandle;
             status = bdlqq::ThreadUtil::create(&downHandle,
                                               attributes,
                                               &my3_down,
-                                              a);
+                                              static_cast<void *>(a));
             ASSERT(0 == status);
             status = bdlqq::ThreadUtil::join(upHandle);
             ASSERT(0 == status);

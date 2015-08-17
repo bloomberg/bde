@@ -25,39 +25,39 @@ const char *
 Reader::nodeTypeAsString(NodeType nodeType)
 {
     switch (nodeType) {
-      case BAEXML_NODE_TYPE_NONE :
+      case e_NODE_TYPE_NONE :
         return "NODE_TYPE_NONE";
-      case BAEXML_NODE_TYPE_ELEMENT :
+      case e_NODE_TYPE_ELEMENT :
         return "NODE_TYPE_ELEMENT";
-      case BAEXML_NODE_TYPE_TEXT :
+      case e_NODE_TYPE_TEXT :
         return "NODE_TYPE_TEXT";
-      case BAEXML_NODE_TYPE_CDATA :
+      case e_NODE_TYPE_CDATA :
         return "NODE_TYPE_CDATA";
-      case BAEXML_NODE_TYPE_ENTITY_REFERENCE :
+      case e_NODE_TYPE_ENTITY_REFERENCE :
         return "NODE_TYPE_ENTITY_REFERENCE";
-      case BAEXML_NODE_TYPE_ENTITY :
+      case e_NODE_TYPE_ENTITY :
         return "NODE_TYPE_ENTITY";
-      case BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION:
+      case e_NODE_TYPE_PROCESSING_INSTRUCTION:
         return "NODE_TYPE_PROCESSING_INSTRUCTION";
-      case BAEXML_NODE_TYPE_COMMENT :
+      case e_NODE_TYPE_COMMENT :
         return "NODE_TYPE_COMMENT";
-      case BAEXML_NODE_TYPE_DOCUMENT :
+      case e_NODE_TYPE_DOCUMENT :
         return "NODE_TYPE_DOCUMENT";
-      case BAEXML_NODE_TYPE_DOCUMENT_TYPE :
+      case e_NODE_TYPE_DOCUMENT_TYPE :
         return "NODE_TYPE_DOCUMENT_TYPE";
-      case BAEXML_NODE_TYPE_DOCUMENT_FRAGMENT :
+      case e_NODE_TYPE_DOCUMENT_FRAGMENT :
         return "NODE_TYPE_DOCUMENT_FRAGMENT";
-      case BAEXML_NODE_TYPE_NOTATION :
+      case e_NODE_TYPE_NOTATION :
         return "NODE_TYPE_NOTATION";
-      case BAEXML_NODE_TYPE_WHITESPACE :
+      case e_NODE_TYPE_WHITESPACE :
         return "NODE_TYPE_WHITESPACE";
-      case BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE:
+      case e_NODE_TYPE_SIGNIFICANT_WHITESPACE:
         return "NODE_TYPE_SIGNIFICANT_WHITESPACE";
-      case BAEXML_NODE_TYPE_END_ELEMENT :
+      case e_NODE_TYPE_END_ELEMENT :
         return "NODE_TYPE_END_ELEMENT";
-      case BAEXML_NODE_TYPE_END_ENTITY :
+      case e_NODE_TYPE_END_ENTITY :
         return "NODE_TYPE_END_ENTITY";
-      case BAEXML_NODE_TYPE_XML_DECLARATION :
+      case e_NODE_TYPE_XML_DECLARATION :
         return "NODE_TYPE_XML_DECLARATION";
     }
     return "(* UNKNOWN NODE TYPE *)";

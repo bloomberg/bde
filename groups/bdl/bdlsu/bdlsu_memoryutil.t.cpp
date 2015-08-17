@@ -104,9 +104,9 @@ int main(int argc, char *argv[])
         // this test expects BDESU_ACCESS_READ==1, BDESU_ACCESS_WRITE==2,
         // BDESU_ACCESS_EXECUTE==4
 
-        ASSERT(bdlsu::MemoryUtil::BDESU_ACCESS_READ == 1);
-        ASSERT(bdlsu::MemoryUtil::BDESU_ACCESS_WRITE == 2);
-        ASSERT(bdlsu::MemoryUtil::BDESU_ACCESS_EXECUTE == 4);
+        ASSERT(bdlsu::MemoryUtil::k_ACCESS_READ == 1);
+        ASSERT(bdlsu::MemoryUtil::k_ACCESS_WRITE == 2);
+        ASSERT(bdlsu::MemoryUtil::k_ACCESS_EXECUTE == 4);
 
         static const char*const operations[] = { "read", "write" };
         static const char*const modes[] = {
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         for (int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
             // do not try to set executable bit when on HP-UX
 #ifdef BSLS_PLATFORM_OS_HPUX
-            if (mode & bdlsu::MemoryUtil::BDESU_ACCESS_EXECUTE) {
+            if (mode & bdlsu::MemoryUtil::k_ACCESS_EXECUTE) {
                 continue;
             }
 #endif
@@ -132,8 +132,8 @@ int main(int argc, char *argv[])
                 op<sizeof(operations)/sizeof(*operations);
                 ++op)
             {
-                if (op == 0 && mode != bdlsu::MemoryUtil::BDESU_ACCESS_NONE
-                    && !(mode & bdlsu::MemoryUtil::BDESU_ACCESS_READ))
+                if (op == 0 && mode != bdlsu::MemoryUtil::k_ACCESS_NONE
+                    && !(mode & bdlsu::MemoryUtil::k_ACCESS_READ))
                 {
                     // do not test disabled read with write/execute
                     // allowed: most platforms do not have fine-grained
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
         // Make the memory write protected
 
         bdlsu::MemoryUtil::protect(data, pageSize,
-                                  bdlsu::MemoryUtil::BDESU_ACCESS_READ);
+                                  bdlsu::MemoryUtil::k_ACCESS_READ);
 
         // Once again, try writing into the buffer.  This should crash our
         // process.
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
         // crashed.
 
         bdlsu::MemoryUtil::protect(data, pageSize,
-                                  bdlsu::MemoryUtil::BDESU_ACCESS_READ_WRITE);
+                                  bdlsu::MemoryUtil::k_ACCESS_READ_WRITE);
         bdlsu::MemoryUtil::deallocate(data);
       } break;
       case -1: {
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
             ASSERT(((volatile char*)ptr)[i] == 0x55);
         }
         rc = bdlsu::MemoryUtil::protect(ptr, size,
-                                    bdlsu::MemoryUtil::BDESU_ACCESS_READ_WRITE);
+                                    bdlsu::MemoryUtil::k_ACCESS_READ_WRITE);
         ASSERT(0 == rc);
         rc = bdlsu::MemoryUtil::deallocate(ptr);
         ASSERT(0 == rc);
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
             ((volatile char*)ptr)[i] = 0x55;
         }
         rc = bdlsu::MemoryUtil::protect(ptr, size,
-                                    bdlsu::MemoryUtil::BDESU_ACCESS_READ_WRITE);
+                                    bdlsu::MemoryUtil::k_ACCESS_READ_WRITE);
         ASSERT(0 == rc);
         rc = bdlsu::MemoryUtil::deallocate(ptr);
         ASSERT(0 == rc);

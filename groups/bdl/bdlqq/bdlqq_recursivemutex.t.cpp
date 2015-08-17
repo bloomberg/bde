@@ -63,7 +63,7 @@ void My_Sleep(int ms)
 void My_CreateDetachedThread(ThreadFunction function,
                              void* userData) {
     bdlqq::ThreadAttributes attr;
-    attr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+    attr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_DETACHED);
     bdlqq::ThreadUtil::Handle dum;
     bdlqq::ThreadUtil::create(&dum, attr, function, userData);
 }

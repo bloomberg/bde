@@ -460,7 +460,7 @@ int Decoder::decodeImp(TYPE *value,
             return -1;                                                // RETURN
         }
 
-        if (Tokenizer::BAEJSN_START_OBJECT != d_tokenizer.tokenType()) {
+        if (Tokenizer::e_START_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode sequence, missing starting '{'\n";
             return -1;                                                // RETURN
         }
@@ -472,7 +472,7 @@ int Decoder::decodeImp(TYPE *value,
             return -1;                                                // RETURN
         }
 
-        while (Tokenizer::BAEJSN_ELEMENT_NAME ==
+        while (Tokenizer::e_ELEMENT_NAME ==
                                                      d_tokenizer.tokenType()) {
             bslstl::StringRef elementName;
             rc = d_tokenizer.value(&elementName);
@@ -532,7 +532,7 @@ int Decoder::decodeImp(TYPE *value,
             }
         }
 
-        if (Tokenizer::BAEJSN_END_OBJECT != d_tokenizer.tokenType()) {
+        if (Tokenizer::e_END_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode sequence, "
                         << "missing terminator '}' or seperator ','\n";
             return -1;                                                // RETURN
@@ -601,7 +601,7 @@ int Decoder::decodeImp(TYPE *value,
             return -1;                                                // RETURN
         }
 
-        if (Tokenizer::BAEJSN_START_OBJECT != d_tokenizer.tokenType()) {
+        if (Tokenizer::e_START_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode choice, missing starting {\n";
             return -1;                                                // RETURN
         }
@@ -613,7 +613,7 @@ int Decoder::decodeImp(TYPE *value,
             return -1;                                                // RETURN
         }
 
-        if (Tokenizer::BAEJSN_ELEMENT_NAME == d_tokenizer.tokenType()) {
+        if (Tokenizer::e_ELEMENT_NAME == d_tokenizer.tokenType()) {
             bslstl::StringRef selectionName;
             rc = d_tokenizer.value(&selectionName);
             if (rc) {
@@ -675,7 +675,7 @@ int Decoder::decodeImp(TYPE *value,
             }
         }
 
-        if (Tokenizer::BAEJSN_END_OBJECT != d_tokenizer.tokenType()) {
+        if (Tokenizer::e_END_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode choice, "
                         << "missing terminator '}'\n";
             return -1;                                                // RETURN
@@ -691,9 +691,9 @@ int Decoder::decodeImp(TYPE *value,
                               int,
                               bdlat_TypeCategory::Enumeration)
 {
-    enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
+    enum { k_MIN_ENUM_STRING_LENGTH = 2 };
 
-    if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
+    if (Tokenizer::e_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Enumeration element value was not found\n";
         return -1;                                                    // RETURN
     }
@@ -701,7 +701,7 @@ int Decoder::decodeImp(TYPE *value,
     bslstl::StringRef dataValue;
     int rc = d_tokenizer.value(&dataValue);
     if (rc
-     || dataValue.length() <= BAEJSN_MIN_ENUM_STRING_LENGTH
+     || dataValue.length() <= k_MIN_ENUM_STRING_LENGTH
      || '"'                != dataValue[0]
      || '"'                != dataValue[dataValue.length() - 1]) {
         d_logStream << "Error reading enumeration value\n";
@@ -725,7 +725,7 @@ int Decoder::decodeImp(TYPE *value,
                               int,
                               bdlat_TypeCategory::CustomizedType)
 {
-    if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
+    if (Tokenizer::e_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Customized element value was not found\n";
         return -1;                                                    // RETURN
     }
@@ -762,7 +762,7 @@ int Decoder::decodeImp(TYPE *value,
                               int,
                               bdlat_TypeCategory::Simple)
 {
-    if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
+    if (Tokenizer::e_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Simple element value was not found\n";
         return -1;                                                    // RETURN
     }
@@ -782,7 +782,7 @@ int Decoder::decodeImp(bsl::vector<char> *value,
                               int,
                               bdlat_TypeCategory::Array)
 {
-    if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
+    if (Tokenizer::e_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector<char> "
                     << "expected as an element value\n";
         return -1;                                                    // RETURN
@@ -804,7 +804,7 @@ int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdlat_TypeCategory::Array)
 {
-    if (Tokenizer::BAEJSN_START_ARRAY != d_tokenizer.tokenType()) {
+    if (Tokenizer::e_START_ARRAY != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector, missing start token: '['\n";
         return -1;                                                    // RETURN
     }
@@ -815,9 +815,9 @@ int Decoder::decodeImp(TYPE *value,
     }
 
     int i = 0;
-    while (Tokenizer::BAEJSN_END_ARRAY != d_tokenizer.tokenType()) {
-        if (Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()
-         || Tokenizer::BAEJSN_START_OBJECT  ==
+    while (Tokenizer::e_END_ARRAY != d_tokenizer.tokenType()) {
+        if (Tokenizer::e_ELEMENT_VALUE == d_tokenizer.tokenType()
+         || Tokenizer::e_START_OBJECT  ==
                                                      d_tokenizer.tokenType()) {
             ++i;
             bdlat_ArrayFunctions::resize(value, i);
@@ -844,7 +844,7 @@ int Decoder::decodeImp(TYPE *value,
         }
     }
 
-    if (Tokenizer::BAEJSN_END_ARRAY != d_tokenizer.tokenType()) {
+    if (Tokenizer::e_END_ARRAY != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector, missing end token: ']'\n";
         return -1;                                                    // RETURN
     }
@@ -857,16 +857,16 @@ int Decoder::decodeImp(TYPE *value,
                               int   mode,
                               bdlat_TypeCategory::NullableValue)
 {
-    enum { BAEJSN_NULL_VALUE_LENGTH = 4 };
+    enum { k_NULL_VALUE_LENGTH = 4 };
 
-    if (Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {
+    if (Tokenizer::e_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         bslstl::StringRef dataValue;
         const int rc = d_tokenizer.value(&dataValue);
         if (rc) {
             return rc;                                                // RETURN
         }
 
-        if (BAEJSN_NULL_VALUE_LENGTH == dataValue.length()
+        if (k_NULL_VALUE_LENGTH == dataValue.length()
          && 'n'                      == dataValue[0]
          && 'u'                      == dataValue[1]
          && 'l'                      == dataValue[2]

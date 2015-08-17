@@ -189,27 +189,27 @@ const DefaultDataRow DEFAULT_DATA[] =
     //----  ------   ---       -----                 ---    ---
 
     // default (must be first)
-    { L_,       0,       0,    Obj::BAEJSN_COMPACT,  false, false  },
+    { L_,       0,       0,    Obj::e_COMPACT,  false, false  },
 
     // 'initialIndentLevel'
-    { L_,       1,       0,    Obj::BAEJSN_PRETTY,   false, false  },
-    { L_, INT_MAX,       0,    Obj::BAEJSN_COMPACT,  false, false  },
+    { L_,       1,       0,    Obj::e_PRETTY,   false, false  },
+    { L_, INT_MAX,       0,    Obj::e_COMPACT,  false, false  },
 
     // 'spacesPerLevel'
-    { L_,       0,       1,    Obj::BAEJSN_PRETTY,   false, false  },
-    { L_,       0, INT_MAX,    Obj::BAEJSN_COMPACT,  false, false  },
+    { L_,       0,       1,    Obj::e_PRETTY,   false, false  },
+    { L_,       0, INT_MAX,    Obj::e_COMPACT,  false, false  },
 
     // 'encodingStyle'
-    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   false, false  },
-    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  false, false  },
+    { L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false  },
+    { L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false  },
 
     // 'encodeEmptyArrays'
-    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   true,  false  },
-    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  true,  false  },
+    { L_, INT_MAX,       1,    Obj::e_PRETTY,   true,  false  },
+    { L_,       1, INT_MAX,    Obj::e_COMPACT,  true,  false  },
 
     // 'encodeNullElements'
-    { L_, INT_MAX,       1,    Obj::BAEJSN_PRETTY,   false, true   },
-    { L_,       1, INT_MAX,    Obj::BAEJSN_COMPACT,  false, true   },
+    { L_, INT_MAX,       1,    Obj::e_PRETTY,   false, true   },
+    { L_,       1, INT_MAX,    Obj::e_COMPACT,  false, true   },
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
@@ -276,15 +276,15 @@ int main(int argc, char *argv[])
     baljsn::EncoderOptions options;
     ASSERT(0 == options.initialIndentLevel());
     ASSERT(0 == options.spacesPerLevel());
-    ASSERT(baljsn::EncoderOptions::BAEJSN_COMPACT == options.encodingStyle());
+    ASSERT(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
     ASSERT(false == options.encodeEmptyArrays());
     ASSERT(false == options.encodeNullElements());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
 //..
-    options.setEncodingStyle(baljsn::EncoderOptions::BAEJSN_PRETTY);
-    ASSERT(baljsn::EncoderOptions::BAEJSN_PRETTY == options.encodingStyle());
+    options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+    ASSERT(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
 //
     options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
     ASSERT(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
@@ -750,8 +750,8 @@ int main(int argc, char *argv[])
         // Attribute 3 Values: 'encodingStyle'
         // -----------------------------------
 
-        const T3 A3 = Obj::BAEJSN_COMPACT;         // baseline
-        const T3 B3 = Obj::BAEJSN_PRETTY;
+        const T3 A3 = Obj::e_COMPACT;         // baseline
+        const T3 B3 = Obj::e_PRETTY;
 
         // ---------------------------------------
         // Attribute 4 Values: 'encodeEmptyArrays'
@@ -950,8 +950,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
              "\nCreate a table of distinct value/format combinations." << endl;
 
-        Style C = Obj::BAEJSN_COMPACT;
-        Style P = Obj::BAEJSN_PRETTY;
+        Style C = Obj::e_COMPACT;
+        Style P = Obj::e_PRETTY;
 
         const bool T = true;
         const bool F = false;
@@ -1213,7 +1213,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = Obj::BAEJSN_COMPACT;  // 'encodingStyle'
+        const Style D3   = Obj::e_COMPACT;  // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
 
@@ -1223,7 +1223,7 @@ int main(int argc, char *argv[])
 
         const int   A1   = INT_MAX;              // 'initialIndentLevel'
         const int   A2   = 4;                    // 'spacesPerLevel'
-        const Style A3   = Obj::BAEJSN_PRETTY;   // 'encodingStyle'
+        const Style A3   = Obj::e_PRETTY;   // 'encodingStyle'
         const bool  A4   = true;                 // 'encodeEmptyArrays'
         const bool  A5   = true;                 // 'encodeNullElements'
 
@@ -1352,7 +1352,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = Obj::BAEJSN_COMPACT;  // 'encodingStyle'
+        const Style D3   = Obj::e_COMPACT;  // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
 
@@ -1360,7 +1360,7 @@ int main(int argc, char *argv[])
 
         const int   A1   = 1;                    // 'initialIndentLevel'
         const int   A2   = 4;                    // 'spacesPerLevel'
-        const Style A3   = Obj::BAEJSN_PRETTY;   // 'encodingStyle'
+        const Style A3   = Obj::e_PRETTY;   // 'encodingStyle'
         const bool  A4   = true;                 // 'encodeEmptyArrays'
         const bool  A5   = true;                 // 'encodeNullElements'
 
@@ -1368,7 +1368,7 @@ int main(int argc, char *argv[])
 
         const int   B1   = INT_MAX;               // 'initialIndentLevel'
         const int   B2   = INT_MAX;               // 'spacesPerLevel'
-        const Style B3   = Obj::BAEJSN_COMPACT;   // 'encodingStyle'
+        const Style B3   = Obj::e_COMPACT;   // 'encodingStyle'
         const bool  B4   = false;                 // 'encodeEmptyArrays'
         const bool  B5   = false;                 // 'encodeNullElements'
 
@@ -1619,7 +1619,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = Obj::BAEJSN_COMPACT;  // 'encodingStyle'
+        const Style D3   = Obj::e_COMPACT;  // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
 
@@ -1689,8 +1689,8 @@ int main(int argc, char *argv[])
 
         // Attribute 3 Values: 'encodingStyle'
 
-        const T3 D3 = Obj::BAEJSN_COMPACT;    // default value
-        const T3 A3 = Obj::BAEJSN_PRETTY;
+        const T3 D3 = Obj::e_COMPACT;    // default value
+        const T3 A3 = Obj::e_PRETTY;
 
         // Attribute 4 Values: 'encodeEmptyArrays'
 

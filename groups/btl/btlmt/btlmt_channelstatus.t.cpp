@@ -151,7 +151,7 @@ class MyChannel {
 int MyChannel::write(const btlb::Blob& blob)
 {
     (void)blob;
-    return btlmt::ChannelStatus::BTEMT_SUCCESS;
+    return btlmt::ChannelStatus::e_SUCCESS;
 }
 
 }  // close unnamed namespace
@@ -217,22 +217,22 @@ int main(int argc, char *argv[])
 // 'btlmt::ChannelStatus::Enum' to handle the different error conditions:
 //..
         switch(rc) {
-          case btlmt::ChannelStatus::BTEMT_SUCCESS:  // Success
+          case btlmt::ChannelStatus::e_SUCCESS:  // Success
           {
               // ...
           } break;
 
           // We handle the different types of failures in the cases below.
 
-          case btlmt::ChannelStatus::BTEMT_CACHE_OVERFLOW:
+          case btlmt::ChannelStatus::e_CACHE_OVERFLOW:
           {
               // ...
           } break;
-          case btlmt::ChannelStatus::BTEMT_CACHE_HIGHWATER:
+          case btlmt::ChannelStatus::e_CACHE_HIGHWATER:
           {
               // ...
           } break;
-          case btlmt::ChannelStatus::BTEMT_WRITE_CHANNEL_DOWN:
+          case btlmt::ChannelStatus::e_WRITE_CHANNEL_DOWN:
           {
               // ...
           } break;
@@ -294,24 +294,24 @@ int main(int argc, char *argv[])
 #define NL "\n"
         //line lvl spl enumerator                     result
         //---- --- --- -----------------------------  ----------------------
-        { L_,   0,  4, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
-        { L_,   0,  4, Obj::BTEMT_CACHE_OVERFLOW,     "CACHE_OVERFLOW" NL    },
-        { L_,   0,  4, Obj::BTEMT_CACHE_HIGHWATER,    "CACHE_HIGHWATER" NL   },
-        { L_,   0,  4, Obj::BTEMT_READ_CHANNEL_DOWN,  "READ_CHANNEL_DOWN" NL },
-        { L_,   0,  4, Obj::BTEMT_WRITE_CHANNEL_DOWN, "WRITE_CHANNEL_DOWN" NL},
-        { L_,   0,  4, Obj::BTEMT_ENQUEUE_HIGHWATER,  "ENQUEUE_HIGHWATER" NL },
-        { L_,   0,  4, Obj::BTEMT_UNKNOWN_ID,         "UNKNOWN_ID" NL        },
+        { L_,   0,  4, Obj::e_SUCCESS,            "SUCCESS" NL           },
+        { L_,   0,  4, Obj::e_CACHE_OVERFLOW,     "CACHE_OVERFLOW" NL    },
+        { L_,   0,  4, Obj::e_CACHE_HIGHWATER,    "CACHE_HIGHWATER" NL   },
+        { L_,   0,  4, Obj::e_READ_CHANNEL_DOWN,  "READ_CHANNEL_DOWN" NL },
+        { L_,   0,  4, Obj::e_WRITE_CHANNEL_DOWN, "WRITE_CHANNEL_DOWN" NL},
+        { L_,   0,  4, Obj::e_ENQUEUE_HIGHWATER,  "ENQUEUE_HIGHWATER" NL },
+        { L_,   0,  4, Obj::e_UNKNOWN_ID,         "UNKNOWN_ID" NL        },
         { L_,   0,  4, (Obj::Enum) 1,                 UNKNOWN_FORMAT NL      },
 
-        { L_,   0,  0, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
-        { L_,   0, -1, Obj::BTEMT_SUCCESS,            "SUCCESS"              },
-        { L_,   0,  2, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
-        { L_,   1,  1, Obj::BTEMT_SUCCESS,            " SUCCESS" NL          },
-        { L_,   1,  2, Obj::BTEMT_SUCCESS,            "  SUCCESS" NL         },
-        { L_,  -1,  2, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
-        { L_,  -2,  1, Obj::BTEMT_SUCCESS,            "SUCCESS" NL           },
-        { L_,   2,  1, Obj::BTEMT_SUCCESS,            "  SUCCESS" NL         },
-        { L_,   1,  3, Obj::BTEMT_SUCCESS,            "   SUCCESS" NL        },
+        { L_,   0,  0, Obj::e_SUCCESS,            "SUCCESS" NL           },
+        { L_,   0, -1, Obj::e_SUCCESS,            "SUCCESS"              },
+        { L_,   0,  2, Obj::e_SUCCESS,            "SUCCESS" NL           },
+        { L_,   1,  1, Obj::e_SUCCESS,            " SUCCESS" NL          },
+        { L_,   1,  2, Obj::e_SUCCESS,            "  SUCCESS" NL         },
+        { L_,  -1,  2, Obj::e_SUCCESS,            "SUCCESS" NL           },
+        { L_,  -2,  1, Obj::e_SUCCESS,            "SUCCESS" NL           },
+        { L_,   2,  1, Obj::e_SUCCESS,            "  SUCCESS" NL         },
+        { L_,   1,  3, Obj::e_SUCCESS,            "   SUCCESS" NL        },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -448,13 +448,13 @@ int main(int argc, char *argv[])
         } DATA[] = {
             //line  enumerator                      result
             //----  ------------------------------  --------------------
-            { L_,   Obj::BTEMT_SUCCESS,             "SUCCESS"            },
-            { L_,   Obj::BTEMT_CACHE_OVERFLOW,      "CACHE_OVERFLOW"     },
-            { L_,   Obj::BTEMT_CACHE_HIGHWATER,     "CACHE_HIGHWATER"    },
-            { L_,   Obj::BTEMT_READ_CHANNEL_DOWN,   "READ_CHANNEL_DOWN"  },
-            { L_,   Obj::BTEMT_WRITE_CHANNEL_DOWN,  "WRITE_CHANNEL_DOWN" },
-            { L_,   Obj::BTEMT_ENQUEUE_HIGHWATER,   "ENQUEUE_HIGHWATER"  },
-            { L_,   Obj::BTEMT_UNKNOWN_ID,          "UNKNOWN_ID"         },
+            { L_,   Obj::e_SUCCESS,             "SUCCESS"            },
+            { L_,   Obj::e_CACHE_OVERFLOW,      "CACHE_OVERFLOW"     },
+            { L_,   Obj::e_CACHE_HIGHWATER,     "CACHE_HIGHWATER"    },
+            { L_,   Obj::e_READ_CHANNEL_DOWN,   "READ_CHANNEL_DOWN"  },
+            { L_,   Obj::e_WRITE_CHANNEL_DOWN,  "WRITE_CHANNEL_DOWN" },
+            { L_,   Obj::e_ENQUEUE_HIGHWATER,   "ENQUEUE_HIGHWATER"  },
+            { L_,   Obj::e_UNKNOWN_ID,          "UNKNOWN_ID"         },
 
             { L_,   (Obj::Enum) 1,                  UNKNOWN_FORMAT       },
         };
@@ -588,13 +588,13 @@ int main(int argc, char *argv[])
         } DATA[] = {
          //line  enumerator                      value  ascii
          //----  ------------------------------  -----  --------------------
-         { L_,   Obj::BTEMT_SUCCESS,                0,  "SUCCESS"            },
-         { L_,   Obj::BTEMT_CACHE_OVERFLOW,        -1,  "CACHE_OVERFLOW"     },
-         { L_,   Obj::BTEMT_CACHE_HIGHWATER,       -2,  "CACHE_HIGHWATER"    },
-         { L_,   Obj::BTEMT_READ_CHANNEL_DOWN,     -6,  "READ_CHANNEL_DOWN"  },
-         { L_,   Obj::BTEMT_WRITE_CHANNEL_DOWN,    -3,  "WRITE_CHANNEL_DOWN" },
-         { L_,   Obj::BTEMT_ENQUEUE_HIGHWATER,     -4,  "ENQUEUE_HIGHWATER"  },
-         { L_,   Obj::BTEMT_UNKNOWN_ID,            -5,  "UNKNOWN_ID"         },
+         { L_,   Obj::e_SUCCESS,                0,  "SUCCESS"            },
+         { L_,   Obj::e_CACHE_OVERFLOW,        -1,  "CACHE_OVERFLOW"     },
+         { L_,   Obj::e_CACHE_HIGHWATER,       -2,  "CACHE_HIGHWATER"    },
+         { L_,   Obj::e_READ_CHANNEL_DOWN,     -6,  "READ_CHANNEL_DOWN"  },
+         { L_,   Obj::e_WRITE_CHANNEL_DOWN,    -3,  "WRITE_CHANNEL_DOWN" },
+         { L_,   Obj::e_ENQUEUE_HIGHWATER,     -4,  "ENQUEUE_HIGHWATER"  },
+         { L_,   Obj::e_UNKNOWN_ID,            -5,  "UNKNOWN_ID"         },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

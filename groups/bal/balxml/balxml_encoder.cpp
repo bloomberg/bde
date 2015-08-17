@@ -34,7 +34,7 @@ Encoder::Encoder(
 : d_options       (options)
 , d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
-, d_severity      (ErrorInfo::BAEXML_NO_ERROR)
+, d_severity      (ErrorInfo::e_NO_ERROR)
 , d_errorStream   (0)
 , d_warningStream (0)
 {
@@ -48,7 +48,7 @@ Encoder::Encoder(
 : d_options       (options)
 , d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
-, d_severity      (ErrorInfo::BAEXML_NO_ERROR)
+, d_severity      (ErrorInfo::e_NO_ERROR)
 , d_errorStream   (errorStream)
 , d_warningStream (warningStream)
 {
@@ -67,8 +67,8 @@ ErrorInfo::Severity  Encoder::logError(
                          int                     formattingMode,
                          int                     index)
 {
-    if ((int) d_severity < (int) ErrorInfo::BAEXML_ERROR) {
-        d_severity = ErrorInfo::BAEXML_ERROR;
+    if ((int) d_severity < (int) ErrorInfo::e_ERROR) {
+        d_severity = ErrorInfo::e_ERROR;
     }
 
     bsl::ostream& out = logStream();

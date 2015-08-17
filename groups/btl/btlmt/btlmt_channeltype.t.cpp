@@ -97,10 +97,10 @@ int main(int argc, char *argv[]) {
                           << "\n=====================" << endl;
 
 // First, create a variable 'channelType' of type 'btlmt::ChannelType::Value'
-// and initialize it to the value 'btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL'.
+// and initialize it to the value 'btlmt::ChannelType::e_CONNECTED_CHANNEL'.
 //..
     btlmt::ChannelType::Value channelType =
-                                    btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL;
+                                    btlmt::ChannelType::e_CONNECTED_CHANNEL;
 //..
 // Next, store its representation in a variable 'rep' of type 'const char*'.
 //..
@@ -135,13 +135,13 @@ int main(int argc, char *argv[]) {
         } DATA[] = {
             // line   Enumerated Value                  Expected output
             // ----   ----------------                  ---------------
-            {  L_,    Class::BTEMT_LISTENING_CHANNEL,   "LISTENING_CHANNEL"  },
-            {  L_,    Class::BTEMT_ACCEPTED_CHANNEL,    "ACCEPTED_CHANNEL"   },
-            {  L_,    Class::BTEMT_CONNECTING_CHANNEL,  "CONNECTING_CHANNEL" },
-            {  L_,    Class::BTEMT_CONNECTED_CHANNEL,   "CONNECTED_CHANNEL"  },
-            {  L_,    Class::BTEMT_IMPORTED_CHANNEL,    "IMPORTED_CHANNEL"   },
+            {  L_,    Class::e_LISTENING_CHANNEL,   "LISTENING_CHANNEL"  },
+            {  L_,    Class::e_ACCEPTED_CHANNEL,    "ACCEPTED_CHANNEL"   },
+            {  L_,    Class::e_CONNECTING_CHANNEL,  "CONNECTING_CHANNEL" },
+            {  L_,    Class::e_CONNECTED_CHANNEL,   "CONNECTED_CHANNEL"  },
+            {  L_,    Class::e_IMPORTED_CHANNEL,    "IMPORTED_CHANNEL"   },
             {  L_,    0,                                "(* UNKNOWN *)"      },
-            {  L_,    1 + Class::BTEMT_LENGTH,          "(* UNKNOWN *)"      },
+            {  L_,    1 + Class::e_LENGTH,          "(* UNKNOWN *)"      },
             {  L_,    10,                               "(* UNKNOWN *)"      }
         };
 

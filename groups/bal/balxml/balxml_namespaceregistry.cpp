@@ -34,7 +34,7 @@ int lookupPredefinedId(const bslstl::StringRef& namespaceUri)
 {
     for (int i = 0; i < ARRAY_LEN(predefinedNamespaces); ++i) {
         if (namespaceUri == predefinedNamespaces[i]) {
-            return i + balxml::NamespaceRegistry::BAEXML_PREDEF_MIN;  // RETURN
+            return i + balxml::NamespaceRegistry::e_PREDEF_MIN;  // RETURN
         }
     }
 
@@ -90,8 +90,8 @@ NamespaceRegistry::lookup(int id) const
     if (0 <= id && size_t(id) < d_namespaces.size()) {
         return  d_namespaces[id].c_str();                             // RETURN
     }
-    else if (BAEXML_PREDEF_MIN <= id && id < BAEXML_PREDEF_MAX) {
-        return predefinedNamespaces[id - BAEXML_PREDEF_MIN];          // RETURN
+    else if (e_PREDEF_MIN <= id && id < BAEXML_PREDEF_MAX) {
+        return predefinedNamespaces[id - e_PREDEF_MIN];          // RETURN
     }
 
     return "";

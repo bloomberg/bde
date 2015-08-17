@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
     ASSERT(   48 == config.defaultTriggerLevel());
     ASSERT(   32 == config.defaultTriggerAllLevel());
 //
-    ASSERT(ball::LoggerManagerConfiguration::BAEL_LIFO == config.logOrder());
+    ASSERT(ball::LoggerManagerConfiguration::e_LIFO == config.logOrder());
 //..
 // Next, set each attribute.  Note that the user schema and the corresponding
 // populator functor must be set atomically (i.e., with a single two-argument
@@ -282,16 +282,16 @@ int main(int argc, char *argv[])
        config.setUserFieldsSchema(descriptors, populator);
        config.setCategoryNameFilterCallback(nameFilter);
        config.setDefaultThresholdLevelsCallback(defaultThresholds);
-       config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
+       config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
        config.setTriggerMarkers(
-                      ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
+                      ball::LoggerManagerConfiguration::e_NO_MARKERS);
 //
        ASSERT(           descriptors == config.userFieldsSchema());
 //       ASSERT(        populator == config.userFieldsPopulatorCallback());
 //       ASSERT(       nameFilter == config.categoryNameFilterCallback());
 //       ASSERT(defaultThresholds == config.defaultThresholdLevelsCallback());
-       ASSERT(ball::LoggerManagerConfiguration::BAEL_FIFO == config.logOrder());
-       ASSERT(ball::LoggerManagerConfiguration::BAEL_NO_MARKERS
+       ASSERT(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
+       ASSERT(ball::LoggerManagerConfiguration::e_NO_MARKERS
                                                    == config.triggerMarkers());
 //..
 // The configuration object is now validly configured with our choice of
@@ -324,13 +324,13 @@ int main(int argc, char *argv[])
                  << "\n=================================================\n";
 
         Obj lmc;
-        ASSERT(lmc.triggerMarkers() == Obj::BAEL_BEGIN_END_MARKERS);
+        ASSERT(lmc.triggerMarkers() == Obj::e_BEGIN_END_MARKERS);
 
-        lmc.setTriggerMarkers(Obj::BAEL_NO_MARKERS);
-        ASSERT(lmc.triggerMarkers() == Obj::BAEL_NO_MARKERS);
+        lmc.setTriggerMarkers(Obj::e_NO_MARKERS);
+        ASSERT(lmc.triggerMarkers() == Obj::e_NO_MARKERS);
 
-        lmc.setTriggerMarkers(Obj::BAEL_BEGIN_END_MARKERS);
-        ASSERT(lmc.triggerMarkers() == Obj::BAEL_BEGIN_END_MARKERS);
+        lmc.setTriggerMarkers(Obj::e_BEGIN_END_MARKERS);
+        ASSERT(lmc.triggerMarkers() == Obj::e_BEGIN_END_MARKERS);
 
       } break;
       case 5: {
@@ -355,13 +355,13 @@ int main(int argc, char *argv[])
                           << "\n====================================" << endl;
 
         Obj lmc;
-        ASSERT(lmc.logOrder() == Obj::BAEL_LIFO);
+        ASSERT(lmc.logOrder() == Obj::e_LIFO);
 
-        lmc.setLogOrder(Obj::BAEL_FIFO);
-        ASSERT(lmc.logOrder() == Obj::BAEL_FIFO);
+        lmc.setLogOrder(Obj::e_FIFO);
+        ASSERT(lmc.logOrder() == Obj::e_FIFO);
 
-        lmc.setLogOrder(Obj::BAEL_LIFO);
-        ASSERT(lmc.logOrder() == Obj::BAEL_LIFO);
+        lmc.setLogOrder(Obj::e_LIFO);
+        ASSERT(lmc.logOrder() == Obj::e_LIFO);
 
       } break;
       case 4: {

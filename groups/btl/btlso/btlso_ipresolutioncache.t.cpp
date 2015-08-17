@@ -1587,7 +1587,7 @@ int main(int argc, char *argv[])
             args.d_retvalSet = 0;
             bdlqq::ThreadAttributes attr;
             attr.setDetachedState(
-                                bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                                bdlqq::ThreadAttributes::e_CREATE_DETACHED);
             bdlqq::ThreadUtil::Handle dum;
             bdlqq::ThreadUtil::create(&dum, attr, &MyThread, &args);
 
