@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //      void writeCb(int                    status,
 //                   int                    asyncStatus,
 //                   btlsc::TimedCbChannel *channel,
-//                   int                    numBytes);
+//                   int                    sequence);
 //
 //    private:
 //      // Not implemented:
@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //  my_EchoClient::my_EchoClient(
 //              btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
 //              btlso::TimerEventManager                       *manager,
-//              int                                             numConnections,
+//              int                                             maxConnections,
 //              int                                             numMessages,
 //              bslma::Allocator                               *basicAllocator)
 //  : d_allocator(factory, manager, basicAllocator)
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //  , d_readTimeout(20.0)
 //  , d_writeTimeout(5,0)
 //  , d_numConnections(0)
-//  , d_maxConnections(numConnections)
+//  , d_maxConnections(maxConnections)
 //  , d_numMessages(numMessages)
 //  {
 //      assert(factory);
@@ -365,7 +365,7 @@ BSLS_IDENT("$Id: $")
 //          // or 'manager' is 0.
 //
 //      ~my_DataStream();
-//      // Destroy this server.
+//          // Destroy this server.
 //
 //      // MANIPULATORS
 //      int setUpCallbacks();
@@ -450,10 +450,10 @@ BSLS_IDENT("$Id: $")
 //                        int                          cancelFlag)
 //      // Verify the result of an "ACCEPT" request by comparing against the
 //      // expected values: If the specified 'validChannel' is nonzero, a new
-//      // channel should be established; the return 'status' should be the
-//      // same as the specified 'expStatus'.  If the specified 'cancelFlag' is
-//      // nonzero, invoke the 'cancelAll()' on the specified 'acceptor' for
-//      // test.
+//      // 'btlsc::CbChannel' should be established; the specified return
+//      // 'status' should be the same as the specified 'expStatus'.  If the
+//      // specified 'cancelFlag' is nonzero, invoke the 'cancelAll()' on the
+//      // specified 'acceptor' for test.
 //  {
 //      if (validChannel) {
 //          assert(channel);
