@@ -337,7 +337,7 @@ class PublicationScheduler {
         // or completed (atomically) before rescheduling.  If the default
         // publication is rescheduled with the same 'interval' as it is
         // currently scheduled, this operation has no effect.  The behavior is
-        // undefined unless 'bsls::TimeInterval(0, 0) < interval'. Note that,
+        // undefined unless 'bsls::TimeInterval(0, 0) < interval'.  Note that,
         // to exclude a category from any publication, clients can disable the
         // category using the 'MetricsManager' object supplied at construction.
 

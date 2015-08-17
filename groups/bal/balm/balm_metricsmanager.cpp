@@ -116,7 +116,7 @@ struct MetricsManager_PublicationHelper {
         // that this operation does *not* test if 'category' is enabled.
 
     template <class ConstForwardCategoryIterator>
-    static void publish(MetricsManager                 *manager,
+    static void publish(MetricsManager                      *manager,
                         const ConstForwardCategoryIterator&  categoriesBegin,
                         const ConstForwardCategoryIterator&  categoriesEnd,
                         bool                                 resetFlag);
@@ -459,8 +459,8 @@ class MetricsManager_CallbackRegistry {
                bsl::vector<const RecordsCollectionCallback *> *callbacks,
                const Category                                 *category) const;
         // Append to the specified 'callbacks' the addresses to any metric
-        // collection callbacks registered for the specified 'category'. Return
-        // the number of callbacks found for the 'category'.
+        // collection callbacks registered for the specified 'category'.
+        // Return the number of callbacks found for the 'category'.
 };
 
 // ============================================================================

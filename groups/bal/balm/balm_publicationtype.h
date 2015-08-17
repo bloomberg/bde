@@ -17,9 +17,10 @@ BSLS_IDENT_PRAGMA_ONCE
 //
 //@AUTHOR: Henry Verschell (hverschell@bloomberg.net)
 //
-//@DESCRIPTION: This component defines an enumeration of aggregation
-// types that metrics may be published using.  Concrete 'balm::Publisher'
-// implementations may use this these types to configure their output.
+//@DESCRIPTION: This component defines an enumeration
+// 'balm::PublicationType::Value' of aggregation types to use to publish
+// metrics.  Concrete 'balm::Publisher' implementations may use this these
+// types to configure their output.
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -143,7 +144,6 @@ struct PublicationType {
 };
 
 // FREE OPERATORS
-inline
 bsl::ostream& operator<<(bsl::ostream&          stream,
                          PublicationType::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and return a
