@@ -365,11 +365,15 @@ class FixedThreadPool {
     typedef bdlcc::FixedQueue<Job>     Queue;
 
     enum {
-        BCEP_STOP
-      , BCEP_RUN
-      , BCEP_SUSPEND
-      , BCEP_DRAIN
+        e_STOP
+      , e_RUN
+      , e_SUSPEND
+      , e_DRAIN
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BCEP_STOP    = e_STOP
+      , BCEP_RUN     = e_RUN
+      , BCEP_SUSPEND = e_SUSPEND
+      , BCEP_DRAIN   = e_DRAIN
       , TP_STOP    = BCEP_STOP
       , TP_RUN     = BCEP_RUN
       , TP_SUSPEND = BCEP_SUSPEND
