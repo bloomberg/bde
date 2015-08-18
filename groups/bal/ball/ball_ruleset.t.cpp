@@ -167,6 +167,52 @@ bool verifyRuleSet(const ball::RuleSet& ruleSet)
     return count == ruleSet.numRules();
 }
 
+bool compareText(bslstl::StringRef lhs, 
+                 bslstl::StringRef rhs,
+                 bsl::ostream&     errorStream = bsl::cout)
+   // Return 'true' if the specified 'lhs' has the same value as the specified'
+   // rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
+   // which, if 'lhs' and 'rhs' are not the same', a description of how the
+   // two strings differ will be written.  If 'errorStream' is not supplied,
+   // 'stdout' will be used to report an error description.
+{
+    for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
+        if (lhs[i] != rhs[i]) {
+            errorStream << "lhs: \"" << lhs << "\"\n"
+                        << "rhs: \"" << rhs << "\"\n"
+                        << "Strings differ at index (" << i << ") "
+                        << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                        << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                        << endl;
+            return false;                                             // RETURN
+        }
+    }
+
+    if (lhs.length() < rhs.length()) {
+        unsigned int i = lhs.length();
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = END-OF-STRING "
+                    << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                    << endl;
+        return false;                                                 // RETURN
+
+    }
+    if (lhs.length() > rhs.length()) {
+        unsigned int i = rhs.length();
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                    << "rhs[i] = END-OF-STRING"
+                    << endl;
+        return false;                                                 // RETURN
+    }
+    return true;
+
+}
+
 //=============================================================================
 //       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING LISTS
 //-----------------------------------------------------------------------------
@@ -1096,26 +1142,22 @@ int main(int argc, char *argv[])
             const char *d_spec;            // spec
             const char *d_output;          // expected output format
         } DATA[] = {
-            // line spec      expected output
-            // ---- ----      ---------------
-            {  L_,  "R1",     "{  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]   }  } } "                  },
-            {  L_,  "R1R2",   "{  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]    [ A = 1 ]   }  }"
-                              "  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]   }  } } "                  },
-            {  L_,  "R1R2R3", "{  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]    [ A = 1 ]    [ A = 1 ]"
-                              "   }  }  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]    [ A = 1 ]   }  }"
-                              "  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]   }  } } "                  },
+ // line spec      expected output
+ // ---- ----      ---------------
+ {  L_,  "R1",     "[ [ pattern = \"eq\" "
+                   "thresholds = [    16    32    48    64   ] "
+                   " predicateSet = [  [ \"A\" = 1 ] ] ] ]" },
+ {  L_,  "R1R2R3", "[ [ pattern = \"eq\" "
+                   "thresholds = [    16    32    48    64   ] "
+                   " predicateSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ] "
+                   " [ \"A\" = 1 ] ] ] "
+                   "[ pattern = \"eq\" "
+                   "thresholds = [    16    32    48    64   ]  "
+                   "predicateSet = [  [ \"A\" = 1 ] "
+                   " [ \"A\" = 1 ] ] ] "
+                   "[ pattern = \"eq\" "
+                   "thresholds = [    16    32    48    64   ]  "
+                   "predicateSet = [  [ \"A\" = 1 ] ] ] ]"                  },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1128,7 +1170,8 @@ int main(int argc, char *argv[])
 
             ostringstream os;
             os << X;
-            LOOP_ASSERT(LINE, os.str() == DATA[i].d_output);
+
+            LOOP_ASSERT(LINE, compareText(os.str(), DATA[i].d_output));
 
             if (veryVerbose) {
                 P_(LINE);
@@ -1147,74 +1190,60 @@ int main(int argc, char *argv[])
             int         d_spacesPerLevel;  // spaces per level
            const char  *d_output;          // expected output format
         } PDATA[] = {
-            // line spec     level space expected
-            // ---- ----     ----- ----- -----------------------
-            {  L_,  "R1R2R3", 0, -1, "{  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]    [ A = 1 ]    [ A = 1 ]"
-                              "   }  }  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]    [ A = 1 ]   }  }"
-                              "  {   pattern = eq"
-                              "   [    16    32    48    64   ]"
-                              "   {    [ A = 1 ]   }  } } "                  },
-            {  L_,  "R1R2R3", 1, 2,  "  {\n"
-                                     "    {\n"
-                                     "      pattern = eq\n"
-                                     "      [\n"
-                                     "        16\n"
-                                     "        32\n"
-                                     "        48\n"
-                                     "        64\n"
-                                     "      ]\n"
-                                     "      {\n"
-                                     "        [ A = 1 ]\n"
-                                     "        [ A = 1 ]\n"
-                                     "        [ A = 1 ]\n"
-                                     "      }\n"
-                                     "    }\n"
-                                     "    {\n"
-                                     "      pattern = eq\n"
-                                     "      [\n"
-                                     "        16\n"
-                                     "        32\n"
-                                     "        48\n"
-                                     "        64\n"
-                                     "      ]\n"
-                                     "      {\n"
-                                     "        [ A = 1 ]\n"
-                                     "        [ A = 1 ]\n"
-                                     "      }\n"
-                                     "    }\n"
-                                     "    {\n"
-                                     "      pattern = eq\n"
-                                     "      [\n"
-                                     "        16\n"
-                                     "        32\n"
-                                     "        48\n"
-                                     "        64\n"
-                                     "      ]\n"
-                                     "      {\n"
-                                     "        [ A = 1 ]\n"
-                                     "      }\n"
-                                     "    }\n"
-                                     "  }\n"                                 },
-            {  L_,  "R1R2R3", -1,-2, "{     {       pattern = eq"
-                                     "       [         16         32"
-                                     "         48         64       ]"
-                                     "       {         [ A = 1 ]"
-                                     "         [ A = 1 ]         [ A = 1 ]"
-                                     "       }     }"
-                                     "     {       pattern = eq"
-                                     "       [         16         32"
-                                     "         48         64       ]"
-                                     "       {         [ A = 1 ]"
-                                     "         [ A = 1 ]       }     }"
-                                     "     {       pattern = eq"
-                                     "       [         16         32"
-                                     "         48         64       ]"
-                                     "       {         [ A = 1 ]       }"
-                                     "     }   } "                           },
+    // line spec     level space expected
+    // ---- ----     ----- ----- -----------------------
+ {  L_,  "R1R2R3",    1,   2,    "  [\n"
+                                 "    [\n"
+                                 "      pattern = \"eq\"\n"
+                                 "      thresholds = [\n"
+                                 "        16\n"
+                                 "        32\n"
+                                 "        48\n"
+                                 "        64\n"
+                                 "      ]\n"
+                                 "      predicateSet = [\n"
+                                 "                  [ \"A\" = 1 ]\n"
+                                 "                  [ \"A\" = 1 ]\n"
+                                 "                  [ \"A\" = 1 ]\n"
+                                 "      ]\n"
+                                 "    ]\n"
+                                 "    [\n"
+                                 "      pattern = \"eq\"\n"
+                                 "      thresholds = [\n"
+                                 "        16\n"
+                                 "        32\n"
+                                 "        48\n"
+                                 "        64\n"
+                                 "      ]\n"
+                                 "      predicateSet = [\n"
+                                 "                  [ \"A\" = 1 ]\n"
+                                 "                  [ \"A\" = 1 ]\n"
+                                 "      ]\n"
+                                 "    ]\n"
+                                 "    [\n"
+                                 "      pattern = \"eq\"\n"
+                                 "      thresholds = [\n"
+                                 "        16\n"
+                                 "        32\n"
+                                 "        48\n"
+                                 "        64\n"
+                                 "      ]\n"
+                                 "      predicateSet = [\n"
+                                 "                  [ \"A\" = 1 ]\n"
+                                 "      ]\n"
+                                 "    ]\n"
+                                 "  ]\n" 
+ },
+ {  L_,  "R1R2R3",    -1,   -2,  
+    "[ [ pattern = \"eq\" "
+    "thresholds = [         16         32         48         64       ] "
+    " predicateSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ]  [ \"A\" = 1 ] ] ] "
+    "[ pattern = \"eq\" "
+    "thresholds = [         16         32         48         64       ] "
+    " predicateSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ] ] ] "
+    "[ pattern = \"eq\" "
+    "thresholds = [         16         32         48         64       ] "
+    " predicateSet = [  [ \"A\" = 1 ] ] ] ]" }
         };
 
         const int NUM_PDATA = sizeof PDATA / sizeof *PDATA;
@@ -1235,7 +1264,7 @@ int main(int argc, char *argv[])
                 P(PDATA[i].d_output);
             }
 
-            LOOP_ASSERT(LINE, os.str() == PDATA[i].d_output);
+            LOOP_ASSERT(LINE, compareText(os.str(), PDATA[i].d_output));
         }
 
       } break;

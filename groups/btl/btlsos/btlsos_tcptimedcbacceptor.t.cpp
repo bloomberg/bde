@@ -1,10 +1,14 @@
 // btlsos_tcptimedcbacceptor.t.cpp                                    -*-C++-*-
 #include <btlsos_tcptimedcbacceptor.h>
+
 #include <btlsos_tcptimedcbchannel.h>
 #include <btlsos_tcpcbchannel.h>
+
 #include <btlso_ipv4address.h>
 #include <btlso_tcptimereventmanager.h>
 #include <btlso_inetstreamsocketfactory.h>
+
+#include <btlsc_timedcbchannel.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -20,6 +24,8 @@
 
 #include <bslma_testallocator.h>
 
+#include <bdlqq_mutex.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
@@ -28,11 +34,10 @@
 #include <bslx_byteinstream.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdio.h>
 #include <bsl_cstring.h>     // 'strcmp'
-#include <bsl_c_stdio.h>
-#include <bsl_vector.h>
-
 #include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -168,7 +173,7 @@ class my_EchoServer {
     char                        d_buffer[k_READ_SIZE];
 
     void allocateCb(btlsc::TimedCbChannel *channel, int status);
-         // Invoked by the socket event manager when a connection is accepted.
+        // Invoked by the socket event manager when a connection is accepted.
 
     void bufferedReadCb(const char            *buffer,
                         int                    status,
@@ -200,9 +205,9 @@ class my_EchoServer {
 
 // CREATORS
 my_EchoServer::my_EchoServer(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        btlso::TimerEventManager                      *manager,
-        bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                bslma::Allocator                               *basicAllocator)
 : d_allocator(factory, manager, basicAllocator)
 , d_acceptTimeout(120, 0)
 , d_readTimeout(5, 0)
@@ -447,10 +452,10 @@ class my_Tick {
         // to the modifiable 'stream'.  If 'stream' is initially invalid, this
         // operation has no effect.  If 'stream' becomes invalid during this
         // operation, this object is valid, but its value is undefined.  If the
-        // specified 'version' is not supported, 'stream' is marked invalid,
-        // but this object is unaltered.  Note that no version is read from
-        // 'stream'.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+        // 'version' is not supported, 'stream' is marked invalid, but this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // (See the package-group-level documentation for more information on
+        // 'bdex' streaming of container types.)
 
     void print(bsl::ostream& stream) const;
 };
@@ -576,18 +581,19 @@ class my_TickReporter {
         // To calculate the tick send/receive rate (Ticks/second).
 
   private:
-    my_TickReporter(const my_TickReporter&);             // not impl.
-    my_TickReporter& operator=(const my_TickReporter&);  // not impl.
+    // Not implemented:
+    my_TickReporter(const my_TickReporter&);
+    my_TickReporter& operator=(const my_TickReporter&);
 
   public:
     my_TickReporter(bsl::ostream&                   console,
                     btlsc::TimedCbChannelAllocator *acceptor,
-                    btlso::TcpTimerEventManager    *d_eventManager_p);
+                    btlso::TcpTimerEventManager    *eventManager);
         // Create a non-blocking tick-reporter using the specified 'acceptor'
         // to establish incoming client connections, each transmitting a single
         // 'my_Tick' value; write these values to the specified 'console'
-        // stream.  If the acceptor is idle for more than five minutes, print a
-        // message to the 'console' stream supplied at construction and
+        // stream.  If the 'acceptor' is idle for more than five minutes, print
+        // a message to the 'console' stream supplied at construction and
         // continue.  To guard against malicious clients, a connection that
         // does not produce a tick value within one minute will be summarily
         // dropped.
@@ -640,7 +646,8 @@ void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
                       , _1, _2, _3
                       , clientChannel));
 
-        // Install read callback (timeout, but no raw or async interrupt).
+        // Install read callback (timeout, but no raw or asynchronous
+        // interrupt).
 
         if (clientChannel->timedBufferedRead(numBytes,
                                              now + READ_TIME_LIMIT,
@@ -782,7 +789,7 @@ void my_TickReporter::timeCb(int                 lastNumTicks,
     d_eventManager_p->registerTimer(now + k_TIME_LEN, timerFunctor);
 }
 
-my_TickReporter::my_TickReporter(bsl::ostream&                  console,
+my_TickReporter::my_TickReporter(bsl::ostream&                   console,
                                  btlsc::TimedCbChannelAllocator *acceptor,
                                  btlso::TcpTimerEventManager    *eventManager)
 : d_acceptor_p(acceptor)
@@ -827,11 +834,11 @@ static void acceptCb(btlsc::CbChannel           *channel,
                      int                         closeFlag)
     // Verify the result of an "ACCEPT" request by comparing against the
     // expected values: If the specified 'channelFlag' is nonzero, a new
-    // channel should be established; the return 'status' should be the same as
-    // the specified 'expStatus'.  If the specified 'cancelFlag' is nonzero,
-    // invoke the 'cancelAll()' on the specified 'acceptor' to help the test.
-    // Similarly, if the specified 'closeFlag' is nonzero, invoke the 'close()'
-    // on the specified 'acceptor'.
+    // 'btlsc::CbChannel' should be established; the specified return 'status'
+    // should be the same as the specified 'expStatus'.  If the specified
+    // 'cancelFlag' is nonzero, invoke the 'cancelAll()' on the specified
+    // 'acceptor' to help the test.  Similarly, if the specified 'closeFlag' is
+    // nonzero, invoke the 'close()' on the 'acceptor'.
 {
     if (validChannel) {
         ASSERT (channel);
@@ -867,9 +874,8 @@ static void *threadToConnect(void *arg)
     // Create the specified number of client sockets, connect each client
     // socket with the server created with a 'btlsos::TcpTimedCbAcceptor'
     // object.  The following information will be pass in through the specified
-    // 'arg':
-    // the btlso::IPv4Address object of the server to be connected; the number
-    // of connections to be established.
+    // 'arg': the btlso::IPv4Address object of the server to be connected; the
+    // number of connections to be established.
 {
     ASSERT(arg);
     // Since 'bslma::TestAllocator' is not thread-safe, the helper thread can't
@@ -2560,7 +2566,7 @@ int main(int argc, char *argv[])
             address.setIpAddress(hostName);
 
             ASSERT(0 == mX.open(address, 5)); // Need to make sure that socket,
-                                              // etc. is called.
+                                              // etc., is called.
             ASSERT(0 == mX.close());
 
         } break;

@@ -24,7 +24,13 @@
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
+
 #include <bslma_testallocator.h>            // thread-safe allocator
+
+#include <bsls_platform.h>
+
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -32,6 +38,10 @@
 #endif
 
 #include <bsl_iostream.h>
+
+#include <signal.h>
+#include <unistd.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -219,7 +229,8 @@ static void signalHandler(int sig)
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
-    // Register the signal handler for the signal 'signo' to be generated.
+    // Register the specified signal 'handler' for the specified signal 'signo'
+    // to be generated.
 {
     struct sigaction act, oact;
 
@@ -272,7 +283,7 @@ void* threadAsClient(void *arg)
 
     for (int i = 0 ; i < info.d_numCommands ; ++i) {
 
-        // XXX This is still slighly racy .. we'd like to be sure that the
+        // XXX This is still slightly racy .. we'd like to be sure that the
         // helper thread is in the accept() call, hence the yield and sleep.
         info.d_barrier->wait();
         bdlqq::ThreadUtil::yield();
@@ -298,8 +309,8 @@ void* threadAsClient(void *arg)
         }
 
         // XXX at this point if the helper thread has left accept BUT has not
-        // set helperAfterAccept to 1, we will get false results... You may
-        // need to adjust the sleeping time above
+        // set helperAfterAccept to 1, we will get false results.  You may need
+        // to adjust the sleeping time above.
         if (info.d_commands[i].d_commandCode == 'A'
          && 0 == helperAfterAccept) {
 
@@ -387,14 +398,14 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
                                const TestCommand             *command,
                                bsl::vector<btlsc::Channel*>  *channels,
                                btlsc::Channel               **newChannel,
-                               bdlqq::Barrier                * syncBarrier)
+                               bdlqq::Barrier                *syncBarrier)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
     // specified 'newChannel' will be store the value returned.  If the
-    // 'command' is to deallocate a channel, the first channel in the array of
-    // 'channels' will be deallocated.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // 'command' is to deallocate a channel, the first channel in the specified
+    // array of 'channels' will be deallocated.  Return 0 on success, and a
+    // non-zero value otherwise.
 {
     int rCode = 0;
 
@@ -482,8 +493,7 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
     // client to submit the expected number of connection requests and/or
     // generate signals if d_signal is set.  Results after each test will be
     // compared against those expected which are also specified in the
-    // specified 'commands'.  Return 0 on success, and a non-zero value
-    // otherwise.
+    // 'commands'.  Return 0 on success, and a non-zero value otherwise.
 {
     btlso::IPv4Address serverAddr(acceptor->address());
 
@@ -572,7 +582,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     switch (test) { case 0:
-      case 24: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   This test is really just to make sure the syntax is correct.

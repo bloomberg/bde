@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == acceptor.isInvalid());
 //  if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
 //      bsl::cout << "Can't open listening socket" << bsl::endl;
-//      return -1;
+//      return -1;                                                    // RETURN
 //  }
 //  assert(acceptor.address() == serverAddress);
 //..

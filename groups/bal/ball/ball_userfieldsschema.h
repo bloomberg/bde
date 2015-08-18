@@ -167,7 +167,7 @@ class UserFieldsSchema {
     int appendFieldDescription(bslstl::StringRef         name,
                                ball::UserFieldType::Enum type);
         // Append a field description to this schema describing a field having
-        // the specified 'name' and 'type.  Return 0 on success, or a non-zero
+        // the specified 'name' and 'type'.  Return 0 on success, or a non-zero
         // value if this schema already contains a description for a field
         // with the supplied 'name'.
 
@@ -196,11 +196,13 @@ class UserFieldsSchema {
 
     bslstl::StringRef name(int index) const;
         // Return the name of the field at the specified 'index' in the
-        // described user fields object.
+        // described user fields object.  The behavior is undefined unless
+        // '0 <= index && index < length()'.
 
     ball::UserFieldType::Enum type(int index) const;
         // Return the data type of the field in the described user fields
-        // object at the specified 'index'.
+        // object at the specified 'index'.  The behavior is undefined unless
+        // '0 <= index && index < length()'.
 
                                   // Aspects
 
@@ -355,12 +357,14 @@ int UserFieldsSchema::indexOf(bslstl::StringRef name) const
 inline
 bslstl::StringRef UserFieldsSchema::name(int index) const
 {
+    BSLS_ASSERT(0 <= index && index < length());
     return d_names[index];
 }
 
 inline
 ball::UserFieldType::Enum UserFieldsSchema::type(int index) const
 {
+    BSLS_ASSERT(0 <= index && index < length());
     return d_types[index];
 }
 

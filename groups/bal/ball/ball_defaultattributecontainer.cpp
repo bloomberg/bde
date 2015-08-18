@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_defaultattributecontainer_cpp,"$Id$ $CSID$")
 
+#include <bslim_printer.h>
+
 namespace BloombergLP {
 
 int ball::DefaultAttributeContainer::s_initialSize = 8;
@@ -28,8 +30,7 @@ DefaultAttributeContainer::operator=(
 }
 
 // ACCESSORS
-bool DefaultAttributeContainer::hasValue(
-                                             const Attribute& value) const
+bool DefaultAttributeContainer::hasValue(const Attribute& value) const
 {
     return d_attributeSet.find(value) != d_attributeSet.end();
 }
@@ -40,21 +41,15 @@ bsl::ostream& DefaultAttributeContainer::print(
                                             int           level,
                                             int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-
-    stream << '{' <<  NL;
-
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
     for (const_iterator iter = begin(); iter != end(); ++iter) {
-        iter->print(stream, level + 1, spacesPerLevel);
-        stream << NL;
+        printer.printValue(*iter);
     }
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
-
+    printer.end();
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

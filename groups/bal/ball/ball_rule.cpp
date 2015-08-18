@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(ball_rule_cpp,"$Id$ $CSID$")
 #include <ball_defaultattributecontainer.h>     // for testing only
 
 #include <bdlb_hashutil.h>
+#include <bslim_printer.h>
 
 #include <bsl_iostream.h>
 
@@ -45,26 +46,22 @@ Rule& Rule::operator=(const Rule& rhs)
 
 // ACCESSORS
 bsl::ostream& Rule::print(bsl::ostream& stream,
-                               int           level,
-                               int           spacesPerLevel) const
+                          int           level,
+                          int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
+    bslim::Printer printer(&stream, level, spacesPerLevel);
 
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '{' <<  NL;
-
-    bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    stream << "pattern = " << d_pattern << NL;
-
-    d_thresholds.print(stream, level + 1, spacesPerLevel);
-
-    d_predicateSet.print(stream, level + 1, spacesPerLevel);
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
+    printer.start();
+    printer.printAttribute("pattern", d_pattern);
+    printer.printAttribute("thresholds", d_thresholds);
+    printer.printAttribute("predicateSet",
+                           d_predicateSet.begin(), 
+                           d_predicateSet.end());
+    printer.end();
 
     return stream;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

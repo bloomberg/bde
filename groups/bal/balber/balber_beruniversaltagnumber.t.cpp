@@ -2080,7 +2080,7 @@ typedef bdlat_TypeCategory                TC;
         LOOP2_ASSERT(expectedResult, result, expectedResult == result);       \
         balber::BerUniversalTagNumber::Value result2 =                        \
             balber::BerUniversalTagNumber::select(object,                     \
-                                         formattingMode | FM::BDEAT_UNTAGGED, \
+                                         formattingMode | FM::e_UNTAGGED, \
                                          &altTag);                            \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
         LOOP2_ASSERT(*otherTag, altTag, *otherTag == altTag);                 \

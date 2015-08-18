@@ -12,11 +12,16 @@ BSLS_IDENT_RCSID(btlsos_tcpcbchannel_cpp,"$Id$ $CSID$")
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
+
+#include <bslalg_scalardestructionprimitives.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdio.h>
+#include <bsl_iterator.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -25,9 +30,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 typedef btlsc::CbChannel::ReadCallback         ReadCb;
 typedef btlsc::CbChannel::BufferedReadCallback BReadCb;
@@ -164,12 +169,11 @@ TcpCbChannel_RReg::TcpCbChannel_RReg(
 }
 
 inline
-TcpCbChannel_RReg::TcpCbChannel_RReg(
-        const btls::Iovec *buffers,
-        int                      numBuffers,
-        int                      numSysCalls,
-        const ReadCb&            callback,
-        int                      flags)
+TcpCbChannel_RReg::TcpCbChannel_RReg(const btls::Iovec *buffers,
+                                     int                numBuffers,
+                                     int                numSysCalls,
+                                     const ReadCb&      callback,
+                                     int                flags)
 : d_requestLength(btls::IovecUtil::length(buffers, numBuffers))
 , d_category(e_VECTORED_I)
 , d_numSysCalls(numSysCalls)
@@ -227,7 +231,8 @@ TcpCbChannel_RReg::~TcpCbChannel_RReg() {
 
 // MANIPULATORS
 inline
-void TcpCbChannel_RReg::invoke(int status, int augStatus) const {
+void TcpCbChannel_RReg::invoke(int status, int augStatus) const
+{
     BSLS_ASSERT(e_VFUNC2 == d_callbackType);
     bdlf::Function<void (*)(int, int)> *cb =
         (bdlf::Function<void (*)(int, int)> *)
@@ -238,14 +243,16 @@ void TcpCbChannel_RReg::invoke(int status, int augStatus) const {
 inline
 void TcpCbChannel_RReg::invoke(const char *buffer,
                                int         status,
-                               int         augStatus) const {
+                               int         augStatus) const
+{
     BSLS_ASSERT(e_VFUNC3 == d_callbackType);
     BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(buffer, status, augStatus);
 }
 
 inline
-void TcpCbChannel_RReg::invokeConditionally(int status, int augStatus) const {
+void TcpCbChannel_RReg::invokeConditionally(int status, int augStatus) const
+{
     if (e_VFUNC2 == d_callbackType) {
         invoke(status, augStatus);
     }
@@ -254,21 +261,21 @@ void TcpCbChannel_RReg::invokeConditionally(int status, int augStatus) const {
     }
 }
 
-bsl::ostream& operator<<(bsl::ostream&                   out,
-                         const TcpCbChannel_RReg& reg) {
+bsl::ostream& operator<<(bsl::ostream& out, const TcpCbChannel_RReg& reg)
+{
     switch(reg.d_category) {
-       case TcpCbChannel_RReg::e_BUFFERED: {
-           out << "B" << reg.d_requestLength << ", "
-               << reg.d_data.d_s.d_length << ';' << bsl::flush;
-       } break;
-       case TcpCbChannel_RReg::e_NON_BUFFERED: {
-           out << "N" << reg.d_requestLength << ", "
-               << reg.d_data.d_s.d_length << ';' << bsl::flush;
-       } break;
-       case TcpCbChannel_RReg::e_VECTORED_I: {
-           out << "V" << reg.d_requestLength << ", "
-               << reg.d_data.d_vi.d_numBuffers << ';' << bsl::flush;
-       } break;
+      case TcpCbChannel_RReg::e_BUFFERED: {
+        out << "B" << reg.d_requestLength << ", "
+            << reg.d_data.d_s.d_length << ';' << bsl::flush;
+      } break;
+      case TcpCbChannel_RReg::e_NON_BUFFERED: {
+        out << "N" << reg.d_requestLength << ", "
+            << reg.d_data.d_s.d_length << ';' << bsl::flush;
+      } break;
+      case TcpCbChannel_RReg::e_VECTORED_I: {
+         out << "V" << reg.d_requestLength << ", "
+             << reg.d_data.d_vi.d_numBuffers << ';' << bsl::flush;
+      } break;
     }
     return out;
 }
@@ -351,11 +358,10 @@ public:
 // CREATORS
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        int            length,
-        int            numSysCalls,
-        const WriteCb& callback,
-        int            flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(int            length,
+                                     int            numSysCalls,
+                                     const WriteCb& callback,
+                                     int            flags)
 : d_callback(callback)
 , d_requestLength(length)
 , d_category(e_BUFFERED)
@@ -370,12 +376,11 @@ TcpCbChannel_WReg::TcpCbChannel_WReg(
 }
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        const btls::Iovec *buffers,
-        int                      numBuffers,
-        int                      numSysCalls,
-        const WriteCb&           callback,
-        int                      flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(const btls::Iovec *buffers,
+                                     int                numBuffers,
+                                     int                numSysCalls,
+                                     const WriteCb&     callback,
+                                     int                flags)
 : d_callback(callback)
 , d_requestLength(btls::IovecUtil::length(buffers, numBuffers))
 , d_category(e_VECTORED_I)
@@ -391,12 +396,11 @@ TcpCbChannel_WReg::TcpCbChannel_WReg(
 }
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        const btls::Ovec  *buffers,
-        int                      numBuffers,
-        int                      numSysCalls,
-        const WriteCb&           callback,
-        int                      flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(const btls::Ovec *buffers,
+                                     int               numBuffers,
+                                     int               numSysCalls,
+                                     const WriteCb&    callback,
+                                     int               flags)
 : d_callback(callback)
 , d_requestLength(btls::IovecUtil::length(buffers, numBuffers))
 , d_category(e_VECTORED_O)
@@ -412,12 +416,11 @@ TcpCbChannel_WReg::TcpCbChannel_WReg(
 }
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        const char    *buffer,
-        int            length,
-        int            numSysCalls,
-        const WriteCb& callback,
-        int            flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(const char    *buffer,
+                                     int            length,
+                                     int            numSysCalls,
+                                     const WriteCb& callback,
+                                     int            flags)
 : d_callback(callback)
 , d_requestLength(length)
 , d_category(e_NON_BUFFERED)
@@ -450,11 +453,13 @@ void TcpCbChannel_WReg::invokeConditionally(int status, int augStatus) const
 {
     d_callback(status, augStatus);
 }
+
 }  // close package namespace
 
-                       // ================================
-                       // local function completeOperation
-                       // ================================
+                     // ================================
+                     // local function completeOperation
+                     // ================================
+
 static inline
 int completeOperation(btlsos::TcpCbChannel_RReg *request,
                       bsl::vector<char>         *bufferPtr,
@@ -720,9 +725,11 @@ void TcpCbChannel::bufferedReadCb()
     }
     else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
         d_currentReadRequest_p = NULL;
-        return; // Fake wake up from the event manager The number of system
-                                                                      // RETURN
-                // calls is not counted
+
+        // Fake wake up from the event manager.  The number of system calls is
+        // not counted.
+
+        return;                                                       // RETURN
     }
     else {
         BSLS_ASSERT(s < 0);
@@ -1075,9 +1082,11 @@ void TcpCbChannel::bufferedWriteCb() {
     }
     else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
         d_currentWriteRequest_p = NULL;
-        return; // Fake wake up from the event manager The number of system
-                                                                      // RETURN
-                // calls is not counted
+
+        // Fake wake up from the event manager.  The number of system calls is
+        // not counted.
+
+        return;                                                       // RETURN
     }
     else {
         // Hard error on the channel -> invalidate and dequeue.
