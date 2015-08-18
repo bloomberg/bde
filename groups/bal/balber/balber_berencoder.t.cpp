@@ -8853,7 +8853,7 @@ bsl::ostream& TimingRequest::print(
             bdlat_AttributeInfo info;
 
             info.annotation()     = "Name of employee";
-            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = EmployeeRecord::NAME_ATTRIBUTE_ID;
             info.name()           = "name";
             info.nameLength()     = 4;
@@ -8864,7 +8864,7 @@ bsl::ostream& TimingRequest::print(
             bdlat_AttributeInfo info;
 
             info.annotation()     = "Age of employee";
-            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = EmployeeRecord::AGE_ATTRIBUTE_ID;
             info.name()           = "age";
             info.nameLength()     = 3;
@@ -8875,7 +8875,7 @@ bsl::ostream& TimingRequest::print(
             bdlat_AttributeInfo info;
 
             info.annotation()     = "Salary of employee";
-            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = EmployeeRecord::SALARY_ATTRIBUTE_ID;
             info.name()           = "salary";
             info.nameLength()     = 6;
@@ -8971,7 +8971,7 @@ bsl::ostream& TimingRequest::print(
             bdlat_AttributeInfo info;
 
             info.annotation()     = "Name of employee";
-            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = EmployeeRecord::NAME_ATTRIBUTE_ID;
             info.name()           = "name";
             info.nameLength()     = 4;
@@ -8982,7 +8982,7 @@ bsl::ostream& TimingRequest::print(
             bdlat_AttributeInfo info;
 
             info.annotation()     = "Age of employee";
-            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = EmployeeRecord::AGE_ATTRIBUTE_ID;
             info.name()           = "age";
             info.nameLength()     = 3;
@@ -8993,7 +8993,7 @@ bsl::ostream& TimingRequest::print(
             bdlat_AttributeInfo info;
 
             info.annotation()     = "Salary of employee";
-            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = EmployeeRecord::SALARY_ATTRIBUTE_ID;
             info.name()           = "salary";
             info.nameLength()     = 6;
