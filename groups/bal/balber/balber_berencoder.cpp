@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(balber_berencoder_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                   // -----------------------------------
+                   // --------------------------------------
                    // class balber::BerEncoder::MemOutStream
-                   // -----------------------------------
+                   // --------------------------------------
 
 // CREATORS
 balber::BerEncoder::MemOutStream::~MemOutStream()
@@ -19,13 +19,14 @@ balber::BerEncoder::MemOutStream::~MemOutStream()
 }
 
 namespace balber {
-                   // ---------------------
+
+                   // ----------------
                    // class BerEncoder
-                   // ---------------------
+                   // ----------------
 
 // CREATORS
 BerEncoder::BerEncoder(const BerEncoderOptions *options,
-                                 bslma::Allocator             *basicAllocator)
+                       bslma::Allocator        *basicAllocator)
 : d_options      (options)
 , d_allocator    (bslma::Default::allocator(basicAllocator))
 , d_logStream    (0)
@@ -45,11 +46,11 @@ BerEncoder::~BerEncoder()
 // PRIVATE MANIPULATORS
 BerEncoder::ErrorSeverity
 BerEncoder::logError(BerConstants::TagClass  tagClass,
-                          int                          tagNumber,
-                          const char                  *name,
-                          int                          index)
+                     int                     tagNumber,
+                     const char             *name,
+                     int                     index)
 {
-    if ((int) d_severity < (int) e_BER_ERROR) {
+    if (static_cast<int>(d_severity) < static_cast<int>(e_BER_ERROR)) {
         d_severity = e_BER_ERROR;
     }
 
@@ -57,18 +58,18 @@ BerEncoder::logError(BerConstants::TagClass  tagClass,
 }
 
 BerEncoder::ErrorSeverity
-BerEncoder::logMsg(const char                  *msg,
-                        BerConstants::TagClass  tagClass,
-                        int                          tagNumber,
-                        const char                  *name,
-                        int                          index)
+BerEncoder::logMsg(const char             *msg,
+                   BerConstants::TagClass  tagClass,
+                   int                     tagNumber,
+                   const char             *name,
+                   int                     index)
 {
     bsl::ostream& out = logStream();
 
     out << msg << ": depth=" << d_currentDepth << " tag=(";
 
     BerUniversalTagNumber::Value  eTagNum;
-    const char                        *strTagNum = 0;
+    const char                   *strTagNum = 0;
 
     switch (tagClass) {
       case BerConstants::e_UNIVERSAL: {
@@ -108,18 +109,18 @@ BerEncoder::logMsg(const char                  *msg,
        out << '[' << index << ']';
     }
 
-    out << bsl::endl;
+    out << '\n' << bsl::flush;
 
     return d_severity;
 }
 
-int BerEncoder::encodeImpl(const bsl::vector<char>&    value,
-                                BerConstants::TagClass tagClass,
-                                int                         tagNumber,
-                                int                         formattingMode,
-                                bdlat_TypeCategory::Array)
+int BerEncoder::encodeImpl(const bsl::vector<char>&  value,
+                           BerConstants::TagClass    tagClass,
+                           int                       tagNumber,
+                           int                       formattingMode,
+                           bdlat_TypeCategory::Array )
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
     switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
       case bdlat_FormattingMode::e_DEFAULT:
@@ -137,11 +138,10 @@ int BerEncoder::encodeImpl(const bsl::vector<char>&    value,
 
     const int size = value.size();
 
-    int status = BerUtil::putIdentifierOctets(
-                                             d_streamBuf,
-                                             tagClass,
-                                             BerConstants::e_BDEM_PRIMITIVE,
-                                             tagNumber);
+    int status = BerUtil::putIdentifierOctets(d_streamBuf,
+                                              tagClass,
+                                              BerConstants::e_PRIMITIVE,
+                                              tagNumber);
     status |= BerUtil::putLength(d_streamBuf, size);
 
     // If 'size == 0', don't call 'sputn()'.  If 'size != 0', then set 'status'
@@ -157,13 +157,13 @@ int BerEncoder::encodeImpl(const bsl::vector<char>&    value,
                  0 // bdlat_TypeName::name(value)
                 );
 
-        return BDEM_FAILURE;                                          // RETURN
+        return k_FAILURE;
     }
 
-    return BDEM_SUCCESS;
+    return k_SUCCESS;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

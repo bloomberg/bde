@@ -1,4 +1,4 @@
-// balber_berutil.cpp                                                   -*-C++-*-
+// balber_berutil.cpp                                                 -*-C++-*-
 #include <balber_berutil.h>
 
 #include <bsls_ident.h>
@@ -24,7 +24,7 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 //
 //: 1 If '0 < E < 255', then 'V = (-1) ** S * 2 ** (E - bias) * (1.F)', where
 //:   '1.F' is intended to represent the binary number created by prefixing 'F'
-//:   with an implicit leading 1 and a binary point. 'bias = 127'.
+//:   with an implicit leading 1 and a binary point.  'bias = 127'.
 //: 2 If 'E = 0', 'F' is non-zero, then
 //:   'V = (-1) ** S * 2 ** (-bias + 1) * (0.F)', where '0.F' is called the
 //:   denormalized value.
@@ -249,9 +249,9 @@ void parseDouble(int       *exponent,
                  long long *mantissa,
                  int       *sign,
                  double     value)
-    // Parse the specified 'value' and populate the specified
-    // 'exponent', specified 'mantissa', and specified 'sign' values from their
-    // value of exponent, mantissa, and sign in 'value' respectively.
+    // Parse the specified 'value' and populate the specified 'exponent',
+    // specified 'mantissa', and specified 'sign' values from their value of
+    // exponent, mantissa, and sign in 'value' respectively.
 {
     unsigned long long longLongValue
                                 = reinterpret_cast<unsigned long long&>(value);
@@ -266,14 +266,13 @@ inline
 void normalizeMantissaAndAdjustExp(long long *mantissa,
                                    int       *exponent,
                                    bool       denormalized)
-    // Normalize the specified '*mantissa' value by prepending the implicit
-    // 1 and adjusting the implicit decimal point to after the right most 1
-    // bit.  Adjust the '*exponent' value accordingly.  Use the specified
+    // Normalize the specified '*mantissa' value by prepending the implicit 1
+    // and adjusting the implicit decimal point to after the right most 1 bit.
+    // Adjust the '*exponent' value accordingly.  Use the specified
     // 'denormalized' to decide if the value is normalized or not.
 {
     if (!denormalized) {
-        // If number is not denormalized then need to prefix with implicit
-        // one.
+        // If number is not denormalized then need to prefix with implicit one.
 
         *mantissa |= DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
     }
@@ -292,9 +291,9 @@ inline
 int getValueUsingIso8601(bsl::streambuf *streamBuf,
                          TYPE           *value,
                          int             length)
-    // Load into the specified 'value' the object in the ISO 8601 format of
-    // the specified 'length' reading from the specified 'streamBuf'.  Return
-    // 0 on success and a non-zero value otherwise.
+    // Load into the specified 'value' the object in the ISO 8601 format of the
+    // specified 'length' reading from the specified 'streamBuf'.  Return 0 on
+    // success and a non-zero value otherwise.
 {
     enum { FAILURE = -1 };
 
@@ -336,8 +335,8 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
 }
 
 void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
-    // Read from the specified 'streamBuf' and load into the specified
-    // 'offset' the value of the time zone offset.
+    // Read from the specified 'streamBuf' and load into the specified 'offset'
+    // the value of the time zone offset.
 {
     const int firstOctet  = streamBuf->sbumpc();
     const int secondOctet = streamBuf->sbumpc();
@@ -1089,8 +1088,8 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 
     value->resize(length);
     // KLUDGE: The standard does not guarantee that the contents of a string
-    // are contiguous in memory.  For efficiency, we take advantage of the
-    // fact that our implementation (and almost every other implementation) is
+    // are contiguous in memory.  For efficiency, we take advantage of the fact
+    // that our implementation (and almost every other implementation) is
     // contiguous.  We assert this assumption here:
 
     BSLS_ASSERT(&value[length-1] == &value[0] + length - 1);
@@ -1204,7 +1203,9 @@ int BerUtil_Imp::numBytesToStream(int value)
         //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
 
-        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value) + 2;
+        numBits = 31
+                - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value)
+                + 2;
     }
     else {
         // For negative values, all but one 1 bits on the left are redundant.
@@ -1212,7 +1213,9 @@ int BerUtil_Imp::numBytesToStream(int value)
         //: o Add 1 to convert from an index to a count in range '[1 .. 31]'.
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
 
-        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value) + 2;
+        numBits = 31
+                - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value)
+                + 2;
     }
 
     // Round up to correct number of bytes:
@@ -1442,12 +1445,12 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
                           const bdlt::DateTz&      value,
                           const BerEncoderOptions *options)
 {
-    // Applications can create invalid 'bdlt::DateTz' objects in optimized build
-    // modes.  As this function assumes that 'value' is valid, it is possible
-    // to encode an invalid 'bdlt::DateTz' without returning an error.  Decoding
-    // the corresponding output can result in hard-to-trace decoding errors.
-    // So to identify such errors early, we return an error if 'value' is not
-    // valid.
+    // Applications can create invalid 'bdlt::DateTz' objects in optimized
+    // build modes.  As this function assumes that 'value' is valid, it is
+    // possible to encode an invalid 'bdlt::DateTz' without returning an error.
+    // Decoding the corresponding output can result in hard-to-trace decoding
+    // errors.  So to identify such errors early, we return an error if 'value'
+    // is not valid.
 
     if (0 != value.localDate().addDaysIfValid(0)
      || !bdlt::DateTz::isValid(value.localDate(), value.offset())) {
@@ -1478,7 +1481,7 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

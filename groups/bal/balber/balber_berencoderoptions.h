@@ -67,7 +67,7 @@ class BerEncoderOptions {
     // DATA
     int d_traceLevel;
         // trace (verbosity) level
-       
+
     int d_bdeVersionConformance;
         // The largest BDE version that can be assumed of the corresponding
         // decoder for the encoded message, expressed as
@@ -181,12 +181,12 @@ class BerEncoderOptions {
 
     // CREATORS
     BerEncoderOptions();
-        // Create an object of type 'BerEncoderOptions' having the
-        // default value.
+        // Create an object of type 'BerEncoderOptions' having the default
+        // value.
 
     BerEncoderOptions(const BerEncoderOptions& original);
-        // Create an object of type 'BerEncoderOptions' having the
-        // value of the specified 'original' object.
+        // Create an object of type 'BerEncoderOptions' having the value of the
+        // specified 'original' object.
 
     ~BerEncoderOptions();
         // Destroy this object.
@@ -209,33 +209,33 @@ class BerEncoderOptions {
         // value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -292,16 +292,16 @@ class BerEncoderOptions {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -310,8 +310,8 @@ class BerEncoderOptions {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -350,8 +350,8 @@ bool operator!=(const BerEncoderOptions& lhs, const BerEncoderOptions& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 
 }
@@ -371,7 +371,7 @@ namespace balber {
 
 // CLASS METHODS
 inline
-int BerEncoderOptions::maxSupportedBdexVersion(int versionSelector)
+int BerEncoderOptions::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;  // versions start at 1.
 }
@@ -686,7 +686,7 @@ bsl::ostream& balber::operator<<(bsl::ostream&            stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterpsie namespace
 #endif
 
 // ----------------------------------------------------------------------------

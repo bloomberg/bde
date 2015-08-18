@@ -1,4 +1,4 @@
-// balber_berdecoderoptions.cpp                                         -*-C++-*-
+// balber_berdecoderoptions.cpp                                       -*-C++-*-
 #include <balber_berdecoderoptions.h>
 
 #include <bsls_ident.h>
@@ -254,7 +254,7 @@ bsl::ostream& BerDecoderOptions::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

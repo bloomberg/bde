@@ -6,7 +6,9 @@ BSLS_IDENT_RCSID(ball_ruleset_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitstringutil.h>
 
+#include <bslim_printer.h>
 #include <bsls_assert.h>
+
 #include <bsl_functional.h>
 
 namespace BloombergLP {
@@ -190,29 +192,19 @@ int RuleSet::ruleId(const Rule& value) const
 }
 
 bsl::ostream& RuleSet::print(bsl::ostream& stream,
-                                  int           level,
-                                  int           spacesPerLevel) const
+                             int           level,
+                             int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
+    bslim::Printer printer(&stream, level, spacesPerLevel);
 
-    if (level < 0) {
-        level = -level;
-    }
-    else {
-        bdlb::Print::indent(stream, level, spacesPerLevel);
-    }
-
-    stream << '{' << NL;
-
+    printer.start();
     for (int i = 0; i < maxNumRules(); ++i) {
         const Rule *rule = getRuleById(i);
         if (rule) {
-            rule->print(stream, level + 1, spacesPerLevel);
+            printer.printValue(*rule);
         }
     }
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
+    printer.end();
 
     return stream;
 }

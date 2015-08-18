@@ -1,4 +1,4 @@
-// balber_berutil.h                                                     -*-C++-*-
+// balber_berutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BALBER_BERUTIL
 #define INCLUDED_BALBER_BERUTIL
 
@@ -38,8 +38,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1:  Reading and Writing Identifier Octets
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate the usage of this component.
-// Suppose we want to write the identifier octets for a BER tag having the
+// The following snippets of code illustrate the usage of this component.  Due
+// to the low-level nature of this component, an extended usage example is not
+// necessary.
+//
+// Suppose we wanted to write the identifier octets for a BER tag having the
 // following properties:
 //..
 //    Tag Class:   Context-specific
@@ -47,56 +50,46 @@ BSLS_IDENT("$Id: $")
 //    Tag Number:  31
 //..
 // According to the BER specification, this should generate two octets
-// containing the values 0x9F and 0x1F.  Note that we will use 'bdlsb' stream
-// buffers for in-core buffer management:
+// containing the values 0x9F and 0x1F.  The following function demonstrates
+// this:
 //..
-//  #include <balber_berconstants.h>
-//  #include <balber_berutil.h>
-//  #include <bdlsb_fixedmeminstreambuf.h>
-//  #include <bdlsb_memoutstreambuf.h>
+//  bdlsb::MemOutStreamBuf osb;
 //
-//  using namespace BloombergLP;
+//  balber::BerConstants::TagClass tagClass  =
+//                                    balber::BerConstants::e_CONTEXT_SPECIFIC;
+//  balber::BerConstants::TagType  tagType   =
+//                                           balber::BerConstants::e_PRIMITIVE;
+//  int                            tagNumber = 31;
 //
-//  void usageExample()
-//  {
-//      bdlsb::MemOutStreamBuf osb;
-//
-//      balber::BerConstants::TagClass tagClass  =
-//                                      balber::BerConstants::CONTEXT_SPECIFIC;
-//      balber::BerConstants::TagType  tagType   =
-//                                             balber::BerConstants::PRIMITIVE;
-//      int                            tagNumber = 31;
-//
-//      int retCode = balber::BerUtil::putIdentifierOctets(&osb,
-//                                                          tagClass,
-//                                                          tagType,
-//                                                          tagNumber);
-//      assert(0    == retCode);
-//      assert(2    == osb.length());
-//      assert(0x9F == (unsigned char)osb.data()[0]);
-//      assert(0x1F == (unsigned char)osb.data()[1]);
+//  int retCode = balber::BerUtil::putIdentifierOctets(&osb,
+//                                                     tagClass,
+//                                                     tagType,
+//                                                     tagNumber);
+//  assert(0    == retCode);
+//  assert(2    == osb.length());
+//  assert(0x9F == (unsigned char)osb.data()[0]);
+//  assert(0x1F == (unsigned char)osb.data()[1]);
 //..
 // The next part of the function will read the identifier octets from the
 // stream and verify its contents:
 //..
-//      bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());     // NO COPY
+//  bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
 //
-//      balber::BerConstants::TagClass tagClassIn;
-//      balber::BerConstants::TagType  tagTypeIn;
-//      int                            tagNumberIn;
-//      int                            numBytesConsumed = 0;
+//  balber::BerConstants::TagClass tagClassIn;
+//  balber::BerConstants::TagType  tagTypeIn;
+//  int                            tagNumberIn;
+//  int                            numBytesConsumed = 0;
 //
-//      retCode = balber::BerUtil::getIdentifierOctets(&isb,
-//                                                     &tagClassIn,
-//                                                     &tagTypeIn,
-//                                                     &tagNumberIn,
-//                                                     &numBytesConsumed);
-//      assert(0         == retCode);
-//      assert(2         == numBytesConsumed);
-//      assert(tagClass  == tagClassIn);
-//      assert(tagType   == tagTypeIn);
-//      assert(tagNumber == tagNumberIn);
-//  }
+//  retCode = balber::BerUtil::getIdentifierOctets(&isb,
+//                                                 &tagClassIn,
+//                                                 &tagTypeIn,
+//                                                 &tagNumberIn,
+//                                                 &numBytesConsumed);
+//  assert(0         == retCode);
+//  assert(2         == numBytesConsumed);
+//  assert(tagClass  == tagClassIn);
+//  assert(tagType   == tagTypeIn);
+//  assert(tagNumber == tagNumberIn);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -1155,8 +1148,7 @@ int BerUtil_Imp::putValue(bsl::streambuf           *streamBuf,
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
@@ -1173,4 +1165,4 @@ int BerUtil_Imp::putValue(bsl::streambuf           *streamBuf,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// ----------------------------- END-OF-FILE ----------------------------------
+// ------------------------------ END-OF-FILE ---------------------------------

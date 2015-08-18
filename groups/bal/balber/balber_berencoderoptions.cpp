@@ -1,16 +1,15 @@
-// balber_berencoderoptions.cpp-- GENERATED FILE - DO NOT EDIT ---*-C++-*-
+// balber_berencoderoptions.cpp - GENERATED FILE -                    -*-C++-*-
+#include <balber_berencoderoptions.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balber_berencoderoptions_cpp,"$Id$ $CSID$")
 
-#include <balber_berencoderoptions.h>
-
+#include <bdlat_attributeinfo.h>
 #include <bdlat_formattingmode.h>
 #include <bdlat_valuetypefunctions.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
-
 
 #include <bsls_assert.h>
 
@@ -20,22 +19,21 @@ BSLS_IDENT_RCSID(balber_berencoderoptions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                     // ----------------------------------
+                     // -------------------------------
                      // class balber::BerEncoderOptions
-                     // ----------------------------------
+                     // -------------------------------
 
 // CONSTANTS
-
-const char balber::BerEncoderOptions::CLASS_NAME[] = "balber::BerEncoderOptions";
-
-const int balber::BerEncoderOptions::DEFAULT_INITIALIZER_TRACE_LEVEL = 0;
-
-const int balber::BerEncoderOptions::DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE = 10500;
-
-const bool balber::BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS = true;
-
-const bool balber::BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = false;
-
+const char balber::BerEncoderOptions::CLASS_NAME[] =
+                                                   "balber::BerEncoderOptions";
+const int  balber::BerEncoderOptions::
+              DEFAULT_INITIALIZER_TRACE_LEVEL                          = 0;
+const int  balber::BerEncoderOptions::
+              DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE              = 10500;
+const bool balber::BerEncoderOptions::
+              DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS                  = true;
+const bool balber::BerEncoderOptions::
+              DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = false;
 const bdlat_AttributeInfo balber::BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         e_ATTRIBUTE_ID_TRACE_LEVEL,
@@ -68,11 +66,11 @@ const bdlat_AttributeInfo balber::BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
 };
 
 namespace balber {
-// CLASS METHODS
 
+// CLASS METHODS
 const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 10: {
@@ -110,7 +108,8 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
              && name[15]=='y'
              && name[16]=='s')
             {
-                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
+                return &ATTRIBUTE_INFO_ARRAY[
+                                        e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
                                                                       // RETURN
             }
         } break;
@@ -137,7 +136,8 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
              && name[19]=='c'
              && name[20]=='e')
             {
-                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
+                return &ATTRIBUTE_INFO_ARRAY[
+                                    e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
                                                                       // RETURN
             }
         } break;
@@ -173,7 +173,8 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
              && name[28]=='r'
              && name[29]=='y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
+                return &ATTRIBUTE_INFO_ARRAY[
+                       e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
                                                                       // RETURN
             }
         } break;
@@ -187,11 +188,13 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
       case e_ATTRIBUTE_ID_TRACE_LEVEL:
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL];
       case e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE:
-        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
+        return &ATTRIBUTE_INFO_ARRAY[
+                                    e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
       case e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS:
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
       case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY:
-        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
+        return &ATTRIBUTE_INFO_ARRAY[
+                       e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
       default:
         return 0;
     }
@@ -203,7 +206,8 @@ BerEncoderOptions::BerEncoderOptions()
 : d_traceLevel(DEFAULT_INITIALIZER_TRACE_LEVEL)
 , d_bdeVersionConformance(DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE)
 , d_encodeEmptyArrays(DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS)
-, d_encodeDateAndTimeTypesAsBinary(DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY)
+, d_encodeDateAndTimeTypesAsBinary(
+                      DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY)
 {
 }
 
@@ -225,20 +229,22 @@ BerEncoderOptions&
 BerEncoderOptions::operator=(const BerEncoderOptions& rhs)
 {
     if (this != &rhs) {
-        d_traceLevel = rhs.d_traceLevel;
-        d_bdeVersionConformance = rhs.d_bdeVersionConformance;
-        d_encodeEmptyArrays = rhs.d_encodeEmptyArrays;
-        d_encodeDateAndTimeTypesAsBinary = rhs.d_encodeDateAndTimeTypesAsBinary;
+        d_traceLevel                     = rhs.d_traceLevel;
+        d_bdeVersionConformance          = rhs.d_bdeVersionConformance;
+        d_encodeEmptyArrays              = rhs.d_encodeEmptyArrays;
+        d_encodeDateAndTimeTypesAsBinary =
+                                          rhs.d_encodeDateAndTimeTypesAsBinary;
     }
     return *this;
 }
 
 void BerEncoderOptions::reset()
 {
-    d_traceLevel = DEFAULT_INITIALIZER_TRACE_LEVEL;
+    d_traceLevel            = DEFAULT_INITIALIZER_TRACE_LEVEL;
     d_bdeVersionConformance = DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
-    d_encodeEmptyArrays = DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
-    d_encodeDateAndTimeTypesAsBinary = DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
+    d_encodeEmptyArrays     = DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
+    d_encodeDateAndTimeTypesAsBinary =
+                      DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
 }
 
 // ACCESSORS
@@ -264,23 +270,31 @@ bsl::ostream& BerEncoderOptions::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "TraceLevel = ";
-        bdlb::PrintMethods::print(stream, d_traceLevel,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_traceLevel,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "BdeVersionConformance = ";
-        bdlb::PrintMethods::print(stream, d_bdeVersionConformance,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_bdeVersionConformance,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "EncodeEmptyArrays = ";
-        bdlb::PrintMethods::print(stream, d_encodeEmptyArrays,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_encodeEmptyArrays,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "EncodeDateAndTimeTypesAsBinary = ";
-        bdlb::PrintMethods::print(stream, d_encodeDateAndTimeTypesAsBinary,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_encodeDateAndTimeTypesAsBinary,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -293,31 +307,34 @@ bsl::ostream& BerEncoderOptions::print(
         stream << ' ';
         stream << "TraceLevel = ";
         bdlb::PrintMethods::print(stream, d_traceLevel,
-                                 -levelPlus1, spacesPerLevel);
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "BdeVersionConformance = ";
         bdlb::PrintMethods::print(stream, d_bdeVersionConformance,
-                                 -levelPlus1, spacesPerLevel);
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "EncodeEmptyArrays = ";
         bdlb::PrintMethods::print(stream, d_encodeEmptyArrays,
-                                 -levelPlus1, spacesPerLevel);
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "EncodeDateAndTimeTypesAsBinary = ";
         bdlb::PrintMethods::print(stream, d_encodeDateAndTimeTypesAsBinary,
-                                 -levelPlus1, spacesPerLevel);
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
 
     return stream << bsl::flush;
 }
+
 }  // close package namespace
-
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

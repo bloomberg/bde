@@ -4,17 +4,20 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_attribute_cpp,"$Id$ $CSID$")
 
+#include <bdlb_bitutil.h>
 #include <bdlb_hashutil.h>
 
-#include <bsls_types.h>
+#include <bslim_printer.h>
 
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_ostream.h>
+#include <bsls_types.h>
 
 namespace BloombergLP {
 
 namespace ball {
+
 // CLASS METHODS
 int Attribute::hash(const Attribute& attribute, int size)
 {
@@ -43,20 +46,33 @@ int Attribute::hash(const Attribute& attribute, int size)
 
 // ACCESSORS
 bsl::ostream& Attribute::print(bsl::ostream& stream,
-                                    int           level,
-                                    int           spacesPerLevel) const
+                               int           level,
+                               int           spacesPerLevel) const
 {
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << "[ " << d_name << " = ";
-    d_value.print(stream, 0, -1);
+    // We use a negative spacesPerLevel to ensure the output is rendered on
+    // one line.
+
+    bslim::Printer indent(&stream, level, spacesPerLevel);
+    indent.printIndentation();
+
+    bslim::Printer printer(&stream, 0, -1);
+    stream << "[";
+    printer.printValue(d_name);
+    stream << " =";
+    printer.printValue(d_value);
     stream << " ]";
+
+    if (spacesPerLevel >= 0) {
+        stream << "\n";
+    }
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& ball::operator<<(bsl::ostream&            output,
-                         const Attribute&    attribute)
+bsl::ostream& ball::operator<<(bsl::ostream&    output,
+                               const Attribute& attribute)
 {
     attribute.print(output, 0, -1);
     return output;

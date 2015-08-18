@@ -4,17 +4,21 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_predicate_cpp,"$Id$ $CSID$")
 
+#include <bslim_printer.h>
+
 namespace BloombergLP {
 
 namespace ball {
 // ACCESSORS
 bsl::ostream& Predicate::print(bsl::ostream& stream,
-                                    int           level ,
-                                    int           spacesPerLevel) const
+                               int           level ,
+                               int           spacesPerLevel) const
 
 {
-    return d_attribute.print(stream, level, spacesPerLevel);
+    d_attribute.print(stream, level, spacesPerLevel);
+    return stream;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

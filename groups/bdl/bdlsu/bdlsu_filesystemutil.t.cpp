@@ -1060,7 +1060,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'createDirectories'\n";
         {
             const bsl::string& testBaseDir = ::tempFileName(test,
-                                         "tmp.bdesu_filesystemutil_16.mkdir1");
+                                         "tmp.bdlsu_filesystemutil_16.mkdir1");
             bsl::string fullPath = testBaseDir;
             bdlsu::PathUtil::appendRaw(&fullPath, "dir2");
 
@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
             typedef Obj::FileDescriptor FD;
 
             const bsl::string& testFile = ::tempFileName(test,
-                                       "tmp.bdesu_filesystemutil_15.open.txt");
+                                       "tmp.bdlsu_filesystemutil_15.open.txt");
             if (veryVerbose) P(testFile);
 
             (void) Obj::remove(testFile, false);
@@ -1201,9 +1201,9 @@ int main(int argc, char *argv[])
 
         typedef Obj::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdesu_filesystemutil_13.append.txt";
-        const char *tag1     = "tmp.bdesu_filesystemutil_13.tag.1.txt";
-        const char *success  = "tmp.bdesu_filesystemutil_13.success.txt";
+        const char *testFile = "tmp.bdlsu_filesystemutil_13.append.txt";
+        const char *tag1     = "tmp.bdlsu_filesystemutil_13.tag.1.txt";
+        const char *success  = "tmp.bdlsu_filesystemutil_13.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -2456,7 +2456,7 @@ int main(int argc, char *argv[])
         // Sun compiler, which complains about the character sequence "\*".
         // So let's hard-code it.
 
-        const char tripleQMarkLiteral[] = {'b','d','e','s','u','_','f','i','l',
+        const char tripleQMarkLiteral[] = {'b','d','l','s','u','_','f','i','l',
                                            'e','s','y','s','t','e','m','u','t',
                                            'i','l','.','t','e','m','p','.','3',
                                            '.','f','u','t','c','3','/','b',
@@ -4567,7 +4567,7 @@ int main(int argc, char *argv[])
         printf("file size = %d\n", fileSize);
         if (!rc) {
             for(int i=0; i<nPages; i++) {
-                bdesu::FilesystemUtilMapping fm =
+                bdlsu::FilesystemUtilMapping fm =
                                     Obj::map(fd, i * pageSize, pageSize, true);
                 memset(fm.addr(), 2, pageSize);
                 Obj::unmap(fm, pageSize);

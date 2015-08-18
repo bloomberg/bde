@@ -1,4 +1,4 @@
-// balber_berdecoder.h                  -*-C++-*-
+// balber_berdecoder.h                                                -*-C++-*-
 #ifndef INCLUDED_BALBER_BERDECODER
 #define INCLUDED_BALBER_BERDECODER
 
@@ -438,10 +438,10 @@ class BerDecoder_Node {
     template <typename TYPE>
     int decode(TYPE *variable, bdlat_TypeCategory::DynamicType);
         // Family of methods to decode current element into the specified
-        // 'variable' of category 'bdlat_TypeCategory'.  Return zero on success,
-        // and a non-zero value otherwise. the tag header is already read at
-        // the moment of call and input stream is positioned at the first byte
-        // of the body field.
+        // 'variable' of category 'bdlat_TypeCategory'.  Return zero on
+        // success, and a non-zero value otherwise. the tag header is already
+        // read at the moment of call and input stream is positioned at the
+        // first byte of the body field.
 
     template <typename TYPE>
     int decodeArray(TYPE *variable);
@@ -497,7 +497,7 @@ class BerDecoder_Node {
         // the decoder's log, and return a non-zero value.
 
     int readTagHeader();
-        // Read the node tag field  containing tag class, tag type and tag
+        // Read the node tag field containing tag class, tag type and tag
         // number, and the node length field.  Return zero on success, and a
         // non-zero value otherwise.
 
@@ -559,9 +559,9 @@ class BerDecoder_NodeVisitor {
     BerDecoder_Node *d_node;  // current node, held, not owned
 
     // NOT IMPLEMENTED
-    BerDecoder_NodeVisitor(const BerDecoder_NodeVisitor&);          // = delete;
+    BerDecoder_NodeVisitor(const BerDecoder_NodeVisitor&);         // = delete;
     BerDecoder_NodeVisitor& operator=(const BerDecoder_NodeVisitor&);
-                                                                    // = delete;
+                                                                   // = delete;
 
   public:
     // CREATORS
@@ -590,10 +590,12 @@ class BerDecoder_UniversalElementVisitor {
     // NOT IMPLEMENTED
     BerDecoder_UniversalElementVisitor(
                                const BerDecoder_UniversalElementVisitor&);
-                                                                    // = delete;
+                                                                    // =
+                                                                    // delete;
     BerDecoder_UniversalElementVisitor& operator=(
                                const BerDecoder_UniversalElementVisitor&);
-                                                                    // = delete;
+                                                                    // =
+                                                                    // delete;
 
   public:
     // CREATORS
@@ -643,7 +645,8 @@ class BerDecoder_Zeroer {
 
 // CREATORS
 inline
-balber::BerDecoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
+balber::BerDecoder::MemOutStream::MemOutStream(
+                                              bslma::Allocator *basicAllocator)
 : bsl::ostream(0)
 , d_sb(bslma::Default::allocator(basicAllocator))
 {
@@ -800,7 +803,7 @@ BerDecoder_Node::BerDecoder_Node(BerDecoder *decoder)
 : d_decoder            (decoder)
 , d_parent             (d_decoder->d_topNode)
 , d_tagClass           (BerConstants::e_UNIVERSAL)
-, d_tagType            (BerConstants::e_BDEM_PRIMITIVE)
+, d_tagType            (BerConstants::e_PRIMITIVE)
 , d_tagNumber          (0)
 , d_expectedLength     (0)
 , d_consumedHeaderBytes(0)
@@ -834,7 +837,7 @@ inline
 bool
 BerDecoder_Node::hasMore()
 {
-    BSLS_ASSERT_SAFE(d_tagType == BerConstants::e_BDEM_CONSTRUCTED);
+    BSLS_ASSERT_SAFE(d_tagType == BerConstants::e_CONSTRUCTED);
 
     if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
         return 0 != d_decoder->d_streamBuf->sgetc();
@@ -933,7 +936,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
     // However, if the element is anonymous (i.e., untagged), then there is no
     // inner tag.  This behavior is kept for backward compatibility.
 
-    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag type for choice");
     }
 
@@ -955,7 +958,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
                                "Expected CONTEXT tag class for tagged choice");
         }
 
-        if (innerNode.tagType() != BerConstants::e_BDEM_CONSTRUCTED) {
+        if (innerNode.tagType() != BerConstants::e_CONSTRUCTED) {
             return innerNode.logError(
                             "Expected CONSTRUCTED tag type for tagged choice");
         }
@@ -993,7 +996,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
     if (d_formattingMode & bdlat_FormattingMode::e_NILLABLE) {
         // nillable is encoded in BER as a sequence with one optional element
 
-        if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+        if (d_tagType != BerConstants::e_CONSTRUCTED) {
             return logError("Expected CONSTRUCTED tag type for nullable");
         }
 
@@ -1085,7 +1088,7 @@ template <typename TYPE>
 inline
 int BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Simple)
 {
-    if (d_tagType != BerConstants::e_BDEM_PRIMITIVE) {
+    if (d_tagType != BerConstants::e_PRIMITIVE) {
         return logError("Expected PRIMITIVE tag type for simple type");
     }
 
@@ -1104,7 +1107,7 @@ template <typename TYPE>
 int
 BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
 {
-    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag type for sequence");
     }
 
@@ -1212,7 +1215,7 @@ template <typename TYPE>
 int
 BerDecoder_Node::decodeArray(TYPE *variable)
 {
-    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag class for array");
     }
 
@@ -1311,7 +1314,7 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

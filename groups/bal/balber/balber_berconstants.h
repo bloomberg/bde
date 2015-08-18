@@ -1,4 +1,4 @@
-// balber_berconstants.h                  -*-C++-*-
+// balber_berconstants.h                                              -*-C++-*-
 #ifndef INCLUDED_BALBER_BERCONSTANTS
 #define INCLUDED_BALBER_BERCONSTANTS
 
@@ -77,15 +77,15 @@ struct BerConstants {
     enum TagType {
         // Enumeration of the two possible BER tag types.
 
-        e_BDEM_PRIMITIVE   = 0x00  // the primitive tag type
-      , e_BDEM_CONSTRUCTED = 0x20  // the constructed tag type
+        e_PRIMITIVE   = 0x00  // the primitive tag type
+      , e_CONSTRUCTED = 0x20  // the constructed tag type
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEM_PRIMITIVE   = e_BDEM_PRIMITIVE
-      , BDEM_CONSTRUCTED = e_BDEM_CONSTRUCTED
+      , BDEM_PRIMITIVE   = e_PRIMITIVE
+      , BDEM_CONSTRUCTED = e_CONSTRUCTED
 
-      , PRIMITIVE   = e_BDEM_PRIMITIVE
-      , CONSTRUCTED = e_BDEM_CONSTRUCTED
+      , PRIMITIVE   = e_PRIMITIVE
+      , CONSTRUCTED = e_CONSTRUCTED
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 };
@@ -102,8 +102,7 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
     // return a reference providing modifiable access to 'stream'.
 
 }  // close package namespace
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
