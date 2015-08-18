@@ -714,40 +714,6 @@ struct CharType {
         // Return the character in the 'UPPER' category corresponding to the
         // specified 'input' character from the 'LOWER' category or 'input'
         // itself if 'input' is not in category 'LOWER'.
-
-                        // *** bdex streaming ***
-
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-
-    template <class STREAM>
-    static STREAM& bdexStreamIn(STREAM&                  stream,
-                                CharType::Category& value,
-                                int                      version);
-        // Assign to the specified 'value' the value read from the specified
-        // input 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
-
-    template <class STREAM>
-    static STREAM& bdexStreamOut(STREAM&                 stream,
-                                 CharType::Category value,
-                                 int                     version);
-        // Write the specified 'value' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.  Optionally specify
-        // an explicit 'version' format; by default, the maximum supported
-        // version is written to 'stream' and used as the format.  If 'version'
-        // is specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
 };
 
 bsl::ostream& operator<<(bsl::ostream& out, CharType::Category category);
@@ -1094,104 +1060,7 @@ char CharType::toUpper(char input)
     return s_toUpper_p[static_cast<unsigned char>(input)];
 }
 
-                        // *** bdex streaming ***
-
-inline
-int CharType::maxSupportedBdexVersion()
-{
-    return 1;
-}
-
-template <class STREAM>
-STREAM& CharType::bdexStreamIn(STREAM&                   stream,
-                                     CharType::Category& value,
-                                     int                      version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            signed char newValue;
-            stream.getInt8(newValue);
-            if (stream) {
-                if (0 <= newValue
-                 && newValue < CharType::k_NUM_CATEGORIES) {
-                    value = CharType::Category(newValue);
-                }
-                else {
-                    stream.invalidate(); // Bad value in stream.
-                }
-            }
-          } break;
-          default: {
-            stream.invalidate();         // Unrecognized version number.
-          } break;
-       }
-    }
-    return stream;
-}
-
-template <class STREAM>
-STREAM& CharType::bdexStreamOut(STREAM&                  stream,
-                                      CharType::Category value,
-                                      int                     version)
-{
-    switch (version) {
-      case 1: {
-        stream.putInt8((signed char) value); // Write value as a single byte.
-      }
-    }
-    return stream;
-}
 }  // close package namespace
-
-// ============================================================================
-//                     namespace bdex_InStreamFunctions
-// ============================================================================
-
-namespace bdex_InStreamFunctions {
-
-template <class STREAM>
-inline
-STREAM& streamIn(STREAM&                  stream,
-                 bdlb::CharType::Category& value,
-                 int                      version)
-{
-    return bdlb::CharType::bdexStreamIn(stream, value, version);
-}
-
-}  // close namespace bdex_InStreamFunctions
-
-// ============================================================================
-//                      namespace bdex_VersionFunctions
-// ============================================================================
-
-namespace bdex_VersionFunctions {
-
-inline
-int maxSupportedVersion(bdlb::CharType::Category)
-{
-    return bdlb::CharType::maxSupportedBdexVersion();
-}
-
-}  // close namespace bdex_VersionFunctions
-
-// ============================================================================
-//                     namespace bdex_OutStreamFunctions
-// ============================================================================
-
-namespace bdex_OutStreamFunctions {
-
-template <class STREAM>
-inline
-STREAM& streamOut(STREAM&                        stream,
-                  const bdlb::CharType::Category& value,
-                  int                            version)
-{
-    return bdlb::CharType::bdexStreamOut(stream, value, version);
-}
-
-}  // close namespace bdex_OutStreamFunctions
-
 }  // close enterprise namespace
 
 #endif
