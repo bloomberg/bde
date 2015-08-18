@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // ONE-ARG CTOR 
+        // ONE-ARG CTOR
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
 
                 // default (must be first)
                 { L_,   'N',               "",      0  },
-                
+
                 // 'description'
                 { L_,   '?',              "a",      1  },
                 { L_,   '?',             "AB",     16  },

@@ -184,11 +184,11 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,   'Y', LONGEST_STRING,          "host6",        65535    },
 
     // 'hostname'
-    { L_,   '?',        "desc1",              "a",            1    },       
-    { L_,   '?',        "desc2",             "AB",           16    },       
-    { L_,   '?',        "desc3",     "1234567890",          255    },       
-    { L_,   'Y',        "desc4",      LONG_STRING,         9999    },       
-    { L_,   'Y',        "desc5",    LONGER_STRING,        32767    },       
+    { L_,   '?',        "desc1",              "a",            1    },
+    { L_,   '?',        "desc2",             "AB",           16    },
+    { L_,   '?',        "desc3",     "1234567890",          255    },
+    { L_,   'Y',        "desc4",      LONG_STRING,         9999    },
+    { L_,   'Y',        "desc5",    LONGER_STRING,        32767    },
     { L_,   'Y',        "desc6",   LONGEST_STRING,        65535    },
 
 };
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // ONE-ARG CTOR 
+        // ONE-ARG CTOR
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
 
                 // default (must be first)
                 { L_,   'N',             ""   },
-                
+
                 // 'description'
                 { L_,   '?',            "a"   },
                 { L_,   '?',           "AB"   },

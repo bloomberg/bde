@@ -25,6 +25,8 @@ BSLS_IDENT_RCSID(btls5_negotiator_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace btls5 {
+
 namespace {
 
 // SOCKS5 protocol messages as defined in RFCs 1928 and 1929.
@@ -94,59 +96,63 @@ struct ConnectRspBase {
     unsigned char d_atype;
 };
 
-}  // close unnamed namespace
-
-namespace btls5 {
-                     // ==================================
+                     // ============================
                      // class Negotiator_Negotiation
-                     // ==================================
+                     // ============================
 
 class Negotiator_Negotiation {
     // This mechanism class describes the state of a SOCKS connection
     // negotiation.  The object lifetime is managed by using a
-    // 'bsl::shared_ptr<Negotiator_Negotiation>' in callback
-    // registration.  A 'Negotiator_Negotiation' object is in one of two
-    // states: it is created in the normal state indicated by
-    // 'd_terminating == 0', and it enters a terminating state when
-    // 'd_terminating != 0'.
+    // 'bsl::shared_ptr<Negotiator_Negotiation>' in callback registration.  A
+    // 'Negotiator_Negotiation' object is in one of two states: it is created
+    // in the normal state indicated by 'd_terminating == 0', and it enters a
+    // terminating state when 'd_terminating != 0'.
 
   public:
     // DATA
-    Credentials           d_credentials;     // SOCKS5 credentials
-    btlso::Endpoint              d_destination;
+    Credentials                              d_credentials;     // SOCKS5
+                                                                // credentials
 
-    btlso::StreamSocket<btlso::IPv4Address>
-                               *d_socket_p;        // proxy socket
+    btlso::Endpoint                          d_destination;     // destination
 
-    btlso::SocketHandle::Handle  d_handle;          // OS-level socket
+    btlso::StreamSocket<btlso::IPv4Address> *d_socket_p;        // proxy socket
 
-    Negotiator::NegotiationStateCallback
-                                d_callback;        // result callback
+    btlso::SocketHandle::Handle              d_handle;          // OS-level
+                                                                // socket
 
-    btlmt::TcpTimerEventManager *d_eventManager_p;  // asynchronous event
-                                                   // registration manager,
-                                                   // not owned
+    Negotiator::NegotiationStateCallback     d_callback;        // result
+                                                                // callback
 
-    bsls::TimeInterval           d_timeout;         // timeout
-    void                       *d_timer;           // expiration timer
-    bdlqq::Mutex                 d_timerLock;       // 'd_timer' access
+    btlmt::TcpTimerEventManager             *d_eventManager_p;  // asynch event
+                                                                // registration
+                                                                // manager, not
+                                                                // owned
 
-    bsls::AtomicInt             d_terminating;     // negotiation being
-                                                   // terminated
+    bsls::TimeInterval                       d_timeout;         // timeout
+
+    void                                    *d_timer;           // expiration
+                                                                // timer
+
+    bdlqq::Mutex                             d_timerLock;       // 'd_timer'
+                                                                // access
+
+    bsls::AtomicInt                          d_terminating;     // negotiation
+                                                                // being
+                                                                // terminated
 
     // CREATORS
     Negotiator_Negotiation(
-                   btlso::StreamSocket<btlso::IPv4Address>      *socket,
-                   const btlso::Endpoint&                       destination,
-                   Negotiator::NegotiationStateCallback  callback,
-                   const bsls::TimeInterval&                    timeout,
-                   btlmt::TcpTimerEventManager                 *eventManager,
-                   bslma::Allocator                           *basicAllocator);
-        // Create a 'Negotiator_Negotiation' object to connect to the
-        // specified 'destination' over the specified 'socket' and
-        // asynchronously invoke the specified 'callback', using the specified
-        // 'eventManager' to schedule callbacks.  If the specified 'timeout' is
-        // equal to 'bsls::TimeInterval()' the negotiation will not time out.
+                      btlso::StreamSocket<btlso::IPv4Address> *socket,
+                      const btlso::Endpoint&                   destination,
+                      Negotiator::NegotiationStateCallback     callback,
+                      const bsls::TimeInterval&                timeout,
+                      btlmt::TcpTimerEventManager             *eventManager,
+                      bslma::Allocator                        *basicAllocator);
+        // Create a 'Negotiator_Negotiation' object to connect to the specified
+        // 'destination' over the specified 'socket' and asynchronously invoke
+        // the specified 'callback', using the specified 'eventManager' to
+        // schedule callbacks.  If the specified 'timeout' is equal to
+        // 'bsls::TimeInterval()' the negotiation will not time out.
         // Otherwise, the negotiation will conclude, either successfully or in
         // error, within the 'timeout' interval.  Use the specified
         // 'basicAllocator' to supply memory.
@@ -155,18 +161,18 @@ class Negotiator_Negotiation {
         // Destroy this object.
 };
 
-                     // -----------------------------------
+                     // -----------------------------
                      // struct Negotiator_Negotiation
-                     // -----------------------------------
+                     // -----------------------------
 
 // CREATORS
 Negotiator_Negotiation::Negotiator_Negotiation(
-                    btlso::StreamSocket<btlso::IPv4Address>      *socket,
-                    const btlso::Endpoint&                       destination,
-                    Negotiator::NegotiationStateCallback  callback,
-                    const bsls::TimeInterval&                    timeout,
-                    btlmt::TcpTimerEventManager                 *eventManager,
-                    bslma::Allocator                           *basicAllocator)
+                       btlso::StreamSocket<btlso::IPv4Address> *socket,
+                       const btlso::Endpoint&                   destination,
+                       Negotiator::NegotiationStateCallback     callback,
+                       const bsls::TimeInterval&                timeout,
+                       btlmt::TcpTimerEventManager             *eventManager,
+                       bslma::Allocator                        *basicAllocator)
 : d_credentials(basicAllocator)
 , d_destination(destination, basicAllocator)
 , d_socket_p(socket)
@@ -188,14 +194,14 @@ Negotiator_Negotiation::~Negotiator_Negotiation()
         d_eventManager_p->deregisterTimer(d_timer);
     }
 }
-}  // close package namespace
 
 // STATIC HELPER FUNCTIONS
 
-static void terminate(btls5::Negotiator::NegotiationHandle negotiation,
-                      btls5::Negotiator::NegotiationStatus status,
-                      const btls5::DetailedStatus&         error,
-                      bool                                canceledFlag = false)
+static void terminate(
+                     btls5::Negotiator::NegotiationHandle negotiation,
+                     btls5::Negotiator::NegotiationStatus status,
+                     const btls5::DetailedStatus&         error,
+                     bool                                 canceledFlag = false)
     // Terminate the specified 'negotiation'.  If the optionally specified
     // 'canceledFlag' is 'false', invoke the user-supplied callback with the
     // specified 'status' and 'error'.  If 'canceledFlag' is 'true', do not
@@ -228,17 +234,19 @@ typedef void (*ReadCallback)(btls5::Negotiator::NegotiationHandle negotiation);
     // specified 'negotiation'.
 
 static int registerReadCb(ReadCallback                         callback,
-                          btls5::Negotiator::NegotiationHandle  negotiation)
+                          btls5::Negotiator::NegotiationHandle negotiation)
     // Register the specified 'callback' to be invoked with the argument of the
     // specified 'negotiation' on read events on 'negotiation->d_handle'.
     // Return 0 on success and a negative value otherwise.
 {
-    btlso::EventManager::Callback
-        readCb = bdlf::BindUtil::bind(callback, negotiation);
+    btlso::EventManager::Callback readCb =
+                                   bdlf::BindUtil::bind(callback, negotiation);
+
     int rc = negotiation->d_eventManager_p->registerSocketEvent(
-                                                   negotiation->d_handle,
-                                                   btlso::EventType::e_READ,
-                                                   readCb);
+                                                      negotiation->d_handle,
+                                                      btlso::EventType::e_READ,
+                                                      readCb);
+
     if (rc < 0) {
         terminate(negotiation,
                   btls5::Negotiator::e_ERROR,
@@ -262,18 +270,23 @@ static void connectCallback(btls5::Negotiator::NegotiationHandle negotiation)
     ConnectRspBase hdr;
     int rc = negotiation->d_socket_p->read(reinterpret_cast<char *>(&hdr),
                                            sizeof hdr);
+
     if (sizeof hdr != rc) {
         e << "error reading: " << rc;
+
         terminate(negotiation,
-                  btls5::Negotiator::e_ERROR, btls5::DetailedStatus(e.str()));
+                  btls5::Negotiator::e_ERROR,
+                  btls5::DetailedStatus(e.str()));
         return;                                                       // RETURN
     }
 
     if (hdr.d_ver != VERSION) {
         e << "invalid SOCK version, expected " << VERSION
           << ", got " << hdr.d_ver;
+
         terminate(negotiation,
-                  btls5::Negotiator::e_ERROR, btls5::DetailedStatus(e.str()));
+                  btls5::Negotiator::e_ERROR,
+                  btls5::DetailedStatus(e.str()));
         return;                                                       // RETURN
     }
 
@@ -288,6 +301,7 @@ static void connectCallback(btls5::Negotiator::NegotiationHandle negotiation)
                                            1);
         if (1 != rc) {
             e << "error reading domainname length: " << rc;
+
             terminate(negotiation,
                       btls5::Negotiator::e_ERROR,
                       btls5::DetailedStatus(e.str()));
@@ -296,19 +310,23 @@ static void connectCallback(btls5::Negotiator::NegotiationHandle negotiation)
         addressLength = length;
     } else {
         e << "received invalid address type: " << hdr.d_atype;
+
         terminate(negotiation,
-                  btls5::Negotiator::e_ERROR, btls5::DetailedStatus(e.str()));
+                  btls5::Negotiator::e_ERROR,
+                  btls5::DetailedStatus(e.str()));
         return;                                                       // RETURN
     }
 
     // consume address and port (not presently used)
 
     char buf[255 + 2];  // maximum length of address + 2-byte port
-    BSLS_ASSERT(addressLength + 2 <= (int) sizeof buf);
+    BSLS_ASSERT(addressLength + 2 <= static_cast<int>(sizeof buf));
     rc = negotiation->d_socket_p->read(buf, addressLength + 2);
+
     if (addressLength + 2 != rc) {
         e << "error reading bound address, expected " << addressLength + 2
           << ", got " << rc;
+
         terminate(negotiation,
                   btls5::Negotiator::e_ERROR,
                   btls5::DetailedStatus(e.str()));
@@ -348,8 +366,9 @@ static void connectCallback(btls5::Negotiator::NegotiationHandle negotiation)
       } break;
     }
     terminate(negotiation,
-              REQUEST_GRANTED == hdr.d_rep ? btls5::Negotiator::e_SUCCESS
-                                           : btls5::Negotiator::e_ERROR,
+              REQUEST_GRANTED == hdr.d_rep
+              ? btls5::Negotiator::e_SUCCESS
+              : btls5::Negotiator::e_ERROR,
               btls5::DetailedStatus(e.str()));
 }
 
@@ -368,14 +387,13 @@ static void connectToEndpoint(btls5::Negotiator::NegotiationHandle negotiation)
                                negotiation->d_destination.hostname().c_str()));
     if (dottedDecimal) {
         req << static_cast<unsigned char>(IPv4ADDRESS);       // address type
-        btlso::IPv4Address ipv4Address(
+        btlso::IPv4Address   ipv4Address(
                                  negotiation->d_destination.hostname().c_str(),
                                  negotiation->d_destination.port());
-        const int ipAddress = ipv4Address.ipAddress();
-        const unsigned char *addrPtr
-            = reinterpret_cast<const unsigned char *>(&ipAddress);
+        const int            ipAddress = ipv4Address.ipAddress();
+        const unsigned char *addrPtr =
+                           reinterpret_cast<const unsigned char *>(&ipAddress);
         req << addrPtr[0] << addrPtr[1] << addrPtr[2] << addrPtr[3];
-
     } else {
         req << static_cast<unsigned char>(DOMAINNAME);        // address type
 
@@ -387,9 +405,9 @@ static void connectToEndpoint(btls5::Negotiator::NegotiationHandle negotiation)
     // encode 2-byte port in network (bigendian) order: MSB first
 
     req << static_cast<unsigned char>(
-            (negotiation->d_destination.port() >> 8) & 0xff)
+                               (negotiation->d_destination.port() >> 8) & 0xff)
         << static_cast<unsigned char>(
-            negotiation->d_destination.port() & 0xff);
+                                     negotiation->d_destination.port() & 0xff);
 
     if (registerReadCb(connectCallback, negotiation)) {
         return;                                                       // RETURN
@@ -440,7 +458,7 @@ static void authenticationCallback(
 }
 
 static void sendAuthenticationRequest(
-                               btls5::Negotiator::NegotiationHandle negotiation)
+                              btls5::Negotiator::NegotiationHandle negotiation)
     // Send an authentication request for the specified 'negotiation'.
 {
     // The Username/Password request (RFC 1929) format is:
@@ -453,10 +471,10 @@ static void sendAuthenticationRequest(
     bsl::ostringstream request;
     request << static_cast<unsigned char>(VERSION_USERNAME_PASSWORD_AUTH)
             << static_cast<unsigned char>(
-                negotiation->d_credentials.username().size())
+                                  negotiation->d_credentials.username().size())
             << negotiation->d_credentials.username()
             << static_cast<unsigned char>(
-                negotiation->d_credentials.password().size())
+                                  negotiation->d_credentials.password().size())
             << negotiation->d_credentials.password();
 
     if (registerReadCb(authenticationCallback, negotiation)) {
@@ -464,6 +482,7 @@ static void sendAuthenticationRequest(
     }
     const bsl::string& buf = request.str();
     int rc = negotiation->d_socket_p->write(buf.c_str(), buf.size());
+
     if (rc != static_cast<int>(buf.size())) {
         terminate(negotiation,
                   btls5::Negotiator::e_ERROR,
@@ -481,12 +500,11 @@ static void methodCallback(btls5::Negotiator::NegotiationHandle negotiation)
     }
 
     negotiation->d_eventManager_p->deregisterSocketEvent(
-                                                  negotiation->d_handle,
-                                                  btlso::EventType::e_READ);
+                                                     negotiation->d_handle,
+                                                     btlso::EventType::e_READ);
     MethodResponsePkt pkt;
-    int rc = negotiation->d_socket_p->read(
-                                  reinterpret_cast<char *>(&pkt),
-                                  sizeof pkt);
+    int rc = negotiation->d_socket_p->read(reinterpret_cast<char *>(&pkt),
+                                           sizeof pkt);
     if (sizeof pkt != rc) {
         bsl::ostringstream description;
         description << "error reading method response, rc " << rc;
@@ -515,7 +533,7 @@ static void methodCallback(btls5::Negotiator::NegotiationHandle negotiation)
         terminate(negotiation,
                   btls5::Negotiator::e_ERROR,
                   btls5::DetailedStatus(
-                    "proxy server rejected all authentication methods"));
+                          "proxy server rejected all authentication methods"));
       } break;
       default: {
         bsl::ostringstream description;
@@ -567,20 +585,20 @@ static int sendMethodRequest(btls5::Negotiator::NegotiationHandle negotiation)
     }
 
     if (bsls::TimeInterval() != negotiation->d_timeout) {
-        bsls::TimeInterval expiration
-            = bdlt::CurrentTime::now() + negotiation->d_timeout;
-        btlso::EventManager::Callback
-           cb = bdlf::BindUtil::bind(timeoutCallback, negotiation);
+        bsls::TimeInterval expiration =
+                             bdlt::CurrentTime::now() + negotiation->d_timeout;
+        btlso::EventManager::Callback cb =
+                            bdlf::BindUtil::bind(timeoutCallback, negotiation);
         {
             bdlqq::LockGuard<bdlqq::Mutex> lock(&negotiation->d_timerLock);
-            negotiation->d_timer
-                = negotiation->d_eventManager_p->registerTimer(expiration, cb);
+            negotiation->d_timer =
+                  negotiation->d_eventManager_p->registerTimer(expiration, cb);
         }
     }
 
     int rc = negotiation->d_socket_p->write(
-                                 reinterpret_cast<const char *>(&pkt),
-                                 length);
+                                          reinterpret_cast<const char *>(&pkt),
+                                          length);
     if (length != rc) {
         // Since we indicate an immediate error via return code, do not invoke
         // the callback.
@@ -596,14 +614,15 @@ static int sendMethodRequest(btls5::Negotiator::NegotiationHandle negotiation)
     return 0;
 }
 
-namespace btls5 {
-                           // ----------------------
+}  // close unnamed namespace
+
+                           // ----------------
                            // class Negotiator
-                           // ----------------------
+                           // ----------------
 
 // CREATORS
 Negotiator::Negotiator(btlmt::TcpTimerEventManager *eventManager,
-                                   bslma::Allocator           *basicAllocator)
+                       bslma::Allocator            *basicAllocator)
 : d_eventManager_p(eventManager)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -612,83 +631,83 @@ Negotiator::Negotiator(btlmt::TcpTimerEventManager *eventManager,
 
 // MANIPULATORS
 Negotiator::NegotiationHandle Negotiator::makeNegotiationHandle(
-                            btlso::StreamSocket<btlso::IPv4Address> *socket,
-                            const btlso::Endpoint&                  destination,
-                            NegotiationStateCallback               callback)
+                          btlso::StreamSocket<btlso::IPv4Address> *socket,
+                          const btlso::Endpoint&                   destination,
+                          NegotiationStateCallback                 callback)
 {
     BSLS_ASSERT(socket);
 
-    Negotiator::NegotiationHandle
-        negotiation(new (*d_allocator_p) Negotiator_Negotiation(
-                                                           socket,
-                                                           destination,
-                                                           callback,
-                                                           bsls::TimeInterval(),
-                                                           d_eventManager_p,
-                                                           d_allocator_p),
-                        d_allocator_p);
+    Negotiator::NegotiationHandle negotiation(
+              new (*d_allocator_p) Negotiator_Negotiation(socket,
+                                                          destination,
+                                                          callback,
+                                                          bsls::TimeInterval(),
+                                                          d_eventManager_p,
+                                                          d_allocator_p),
+              d_allocator_p);
+
     return negotiation;
 }
 
 Negotiator::NegotiationHandle Negotiator::makeNegotiationHandle(
-                            btlso::StreamSocket<btlso::IPv4Address> *socket,
-                            const btlso::Endpoint&                  destination,
-                            NegotiationStateCallback               callback,
-                            const bsls::TimeInterval&               timeout)
+                          btlso::StreamSocket<btlso::IPv4Address> *socket,
+                          const btlso::Endpoint&                   destination,
+                          NegotiationStateCallback                 callback,
+                          const bsls::TimeInterval&                timeout)
 {
     BSLS_ASSERT(socket);
 
-    Negotiator::NegotiationHandle
-        negotiation(new (*d_allocator_p) Negotiator_Negotiation(
-                                                              socket,
+    Negotiator::NegotiationHandle negotiation(
+                  new (*d_allocator_p) Negotiator_Negotiation(socket,
                                                               destination,
                                                               callback,
                                                               timeout,
                                                               d_eventManager_p,
                                                               d_allocator_p),
-                        d_allocator_p);
+                  d_allocator_p);
+
     return negotiation;
 }
 
 Negotiator::NegotiationHandle Negotiator::makeNegotiationHandle(
-                            btlso::StreamSocket<btlso::IPv4Address> *socket,
-                            const btlso::Endpoint&                  destination,
-                            NegotiationStateCallback               callback,
-                            const Credentials&               credentials)
+                          btlso::StreamSocket<btlso::IPv4Address> *socket,
+                          const btlso::Endpoint&                   destination,
+                          NegotiationStateCallback                 callback,
+                          const Credentials&                       credentials)
 {
     BSLS_ASSERT(socket);
 
-    Negotiator::NegotiationHandle
-        negotiation(new (*d_allocator_p) Negotiator_Negotiation(
-                                                           socket,
-                                                           destination,
-                                                           callback,
-                                                           bsls::TimeInterval(),
-                                                           d_eventManager_p,
-                                                           d_allocator_p),
-                        d_allocator_p);
+    Negotiator::NegotiationHandle negotiation(
+              new (*d_allocator_p) Negotiator_Negotiation(socket,
+                                                          destination,
+                                                          callback,
+                                                          bsls::TimeInterval(),
+                                                          d_eventManager_p,
+                                                          d_allocator_p),
+              d_allocator_p);
+
     negotiation->d_credentials = credentials;
     return negotiation;
 }
 
 Negotiator::NegotiationHandle Negotiator::makeNegotiationHandle(
-                            btlso::StreamSocket<btlso::IPv4Address> *socket,
-                            const btlso::Endpoint&                  destination,
-                            NegotiationStateCallback               callback,
-                            const bsls::TimeInterval&               timeout,
-                            const Credentials&               credentials)
+                          btlso::StreamSocket<btlso::IPv4Address> *socket,
+                          const btlso::Endpoint&                   destination,
+                          NegotiationStateCallback                 callback,
+                          const bsls::TimeInterval&                timeout,
+                          const Credentials&                       credentials)
 {
     BSLS_ASSERT(socket);
 
-    Negotiator::NegotiationHandle
-        negotiation(new (*d_allocator_p) Negotiator_Negotiation(
-                                                              socket,
+    Negotiator::NegotiationHandle negotiation(
+                  new (*d_allocator_p) Negotiator_Negotiation(socket,
                                                               destination,
                                                               callback,
                                                               timeout,
                                                               d_eventManager_p,
                                                               d_allocator_p),
-                        d_allocator_p);
+                  d_allocator_p);
+
     negotiation->d_credentials = credentials;
     return negotiation;
 }
@@ -705,6 +724,7 @@ void Negotiator::cancelNegotiation(const NegotiationHandle& handle)
               DetailedStatus("SOCKS5 negotiation canceled"),
               true);
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

@@ -215,7 +215,7 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,   "0nD"      },
     { L_,   "0xA"      },
     { L_,   "0yB"      },
-    
+
     { L_,   "1nD"      },
     { L_,   "1xA"      },
     { L_,   "1yB"      },
@@ -242,10 +242,10 @@ const DefaultDataRow DEFAULT_DATA[] =
 
     { L_,   "0nD1nA"    },
     { L_,   "0xD1xD"    },
-    
+
     { L_,   "0nD0nA"    },
     { L_,   "1xD1xD"    },
-    
+
     { L_,   "0xD1xA2xB"  },
     { L_,   "0xD1nA2xB"  },
     { L_,   "0xD1nA2xD"  },
@@ -531,14 +531,14 @@ int main(int argc, char *argv[])
 
             { L_,   "0nD1nA",              1,      ADDRS[1],   CREDS[1]    },
             { L_,   "0xD1xD",              2,      ADDRS[0],   CREDS[0]    },
-    
+
             { L_,   "0nD0nA",              1,      ADDRS[2],   CREDS[2]    },
             { L_,   "1xD1xD",              2,      ADDRS[0],   CREDS[0]    },
-    
+
             { L_,   "0xD1xA2xB",           0,      ADDRS[1],   CREDS[1]    },
             { L_,   "0xD1nA2xB",           1,      ADDRS[2],   CREDS[2]    },
             { L_,   "0xD1nA2xD",           2,      ADDRS[0],   CREDS[0]    },
-            
+
             { L_,   "0xD1nA2yB3xA4nB5yD",  1,      ADDRS[1],   CREDS[2]    },
             { L_,   "1xD1nA1yB1xA2nB2yD",  3,      ADDRS[0],   CREDS[1]    },
         };
@@ -570,7 +570,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(X, Z, X != Z);
             LOOP_ASSERT(ADDR, ADDR == (X.endLevel(LEVEL)  - 1)->address());
 
-            int ord2 = mY.addProxy(LEVEL, ADDR, CRED);
+            mY.addProxy(LEVEL, ADDR, CRED);
 
             LOOP2_ASSERT(Y, Z, Y != Z);
 
@@ -859,7 +859,7 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                Obj mX(&oa);   const Obj& X = gg(&mX, SPEC1);
+                Obj mX(&oa);   const Obj& X = gg(&mX, SPEC1);  (void) X;
 
                 Obj mZZ(&scratch);   const Obj& ZZ = gg(&mZZ, SPEC1);
 
@@ -1094,7 +1094,7 @@ int main(int argc, char *argv[])
                 const char *const SPEC2   = DATA[ti].d_spec_p;
 
                       Obj mX(XX, &oa);  const Obj& X = mX;
-                      
+
                       Obj mY(&oa);   const Obj& Y = gg(&mY, SPEC2);
                 const Obj YY(Y, &scratch);
 
@@ -2441,9 +2441,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting generator" << endl;
         {
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
-                const int         LINE      = DATA[ti].d_line;
-                const char *const SPEC      = DATA[ti].d_spec_p;
-                const int         NUM_ELEMS = ((int) strlen(SPEC)) / 3;
+                const int         LINE = DATA[ti].d_line;
+                const char *const SPEC = DATA[ti].d_spec_p;
 
                 vector<vector<ProxyDescription> > proxies;
 
@@ -2452,7 +2451,8 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = gg(&mX, SPEC);   // original spec
 
                 const int NUM_LEVELS = proxies.size();
-                LOOP_ASSERT(LINE, NUM_LEVELS == X.numLevels());
+                LOOP_ASSERT(LINE,
+                            NUM_LEVELS == static_cast<int>(X.numLevels()));
 
                 for (int i = 0; i < NUM_LEVELS; ++i) {
                     const int NUM_PROXIES = proxies[i].size();

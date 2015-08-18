@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide operations on 'btls5::NetworkDescription' objects.
 //
 //@CLASSES:
-//   btls5::NetworkDescriptionUtil: namespace for network description operations
+//  btls5::NetworkDescriptionUtil: namespace for network description operations
 //
 //@AUTHOR: David Brukman (dbrukman@bloomberg.net)
 //
@@ -18,10 +18,11 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace,
 // 'btls5::NetworkDescriptionUtil', containing utility functions on
-// 'btls5::NetworkDescription' objects, including setting credentials on some or
-// all proxies in the object, and checking a 'btls5::NetworkDescription' object
-// for being well-formed.  A 'btls5::NetworkDescription' object is well-formed
-// if it contains at least one level and each level has at least one proxy.
+// 'btls5::NetworkDescription' objects, including setting credentials on some
+// or all proxies in the object, and checking a 'btls5::NetworkDescription'
+// object for being well-formed.  A 'btls5::NetworkDescription' object is
+// well-formed if it contains at least one level and each level has at least
+// one proxy.
 //
 ///Usage
 ///-----

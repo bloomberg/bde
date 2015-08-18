@@ -28,10 +28,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Connect Without Authentication
 ///- - - - - - - - - - - - - - - - - - - - -
-// We would like to connect to a SOCKS5 proxy which requires no
-// authentication.  In typical applications, we would then use this connection
-// to negotiate a connection to the destination server; in this example we only
-// show the construction of the server and the initial connection.
+// We would like to connect to a SOCKS5 proxy which requires no authentication.
+// In typical applications, we would then use this connection to negotiate a
+// connection to the destination server; in this example we only show the
+// construction of the server and the initial connection.
 //
 // First, we construct a 'btls5::TestServer' object, which will create a
 // listening thread on the local server, and load its address into 'proxy'.
@@ -83,10 +83,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -101,13 +97,20 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace btlmt { class SessionPool; }
-namespace btlmt { class Session; }
+namespace bslma { class Allocator; }
+
+namespace btlmt {
+
+class SessionPool;
+class Session;
+
+}
 
 namespace btls5 {
-                         // ===========================
+
+                         // =====================
                          // struct TestServerArgs
-                         // ===========================
+                         // =====================
 
 struct TestServerArgs {
     // This struct is used to control behavior of 'TestServer' objects.
@@ -115,6 +118,7 @@ struct TestServerArgs {
     // TYPES
     enum Mode {
         // Modes of operation of the test SOCKS5 server.
+
         e_IGNORE,             // ignore any requests
         e_FAIL,               // send an error response
         e_SUCCEED_AND_CLOSE,  // send success and close the connection
@@ -124,31 +128,42 @@ struct TestServerArgs {
 
     enum Severity {
         // Severity of log messages.
-        e_NONE,   // no logging
-        e_ERROR,  // error condition
-        e_DEBUG,  // debugging information
-        e_TRACE   // trace: most verbose output
+
+        e_NONE,               // no logging
+        e_ERROR,              // error condition
+        e_DEBUG,              // debugging information
+        e_TRACE               // trace: most verbose output
     };
 
     // DATA
-    Mode              d_mode;
-    int               d_reply;  // SOCKS5 reply field
-    bsls::TimeInterval d_delay;  // if set, wait this much before every response
+    Mode                  d_mode;
 
-    btlso::Endpoint d_destination; // override the connection address if set
+    int                   d_reply;                // SOCKS5 reply field
 
+    bsls::TimeInterval    d_delay;                // if set, wait this much
+                                                  // before every response
+
+    btlso::Endpoint       d_destination;          // override the connection
+                                                  // address if set
     // logging settings
 
-    bsl::string   d_label;        // use this label for diagnostic output
-    Severity      d_verbosity;    // minimum severity for logging
-    bsl::ostream *d_logStream_p;  // stream to log to
+    bsl::string           d_label;                // use this label for
+                                                  // diagnostic output
+
+    Severity              d_verbosity;            // minimum severity for
+                                                  // logging
+
+    bsl::ostream         *d_logStream_p;          // stream to log to
 
     // The following values, if set (not 0) are used to validate request fields
 
-    bdlb::BigEndianInt32 d_expectedIp;
-    bdlb::BigEndianInt16 d_expectedPort;
+    bdlb::BigEndianInt32  d_expectedIp;
+
+    bdlb::BigEndianInt16  d_expectedPort;
+
     btlso::Endpoint       d_expectedDestination;
-    Credentials    d_expectedCredentials;  // if set, prompt and test
+
+    Credentials           d_expectedCredentials;  // if set, prompt and test
 
     // CREATORS
     explicit TestServerArgs(bslma::Allocator *basicAllocator = 0);
@@ -167,9 +182,9 @@ struct TestServerArgs {
         // used.
 };
 
-                        // ======================
+                        // ================
                         // class TestServer
-                        // ======================
+                        // ================
 
 class TestServer {
     // This class implements a test server that support a subset of the SOCKS5
@@ -181,9 +196,9 @@ class TestServer {
 
   private:
     // DATA
-    TestServerArgs               d_args;         // proxy configuration
-    bsl::shared_ptr<SessionFactory>    d_sessionFactory;
-    bslma::Allocator                  *d_allocator_p;  // not owned
+    TestServerArgs                   d_args;           // proxy configuration
+    bsl::shared_ptr<SessionFactory>  d_sessionFactory;
+    bslma::Allocator                *d_allocator_p;    // not owned
 
   private:
     // NOT IMPLEMENTED
@@ -192,25 +207,26 @@ class TestServer {
 
   public:
     // CREATORS
-    explicit TestServer(btlso::Endpoint             *proxy,
-                              bslma::Allocator           *basicAllocator = 0);
-    explicit TestServer(btlso::Endpoint             *proxy,
-                              const TestServerArgs *args,
-                              bslma::Allocator           *basicAllocator = 0);
-        // Create a 'TestServer' object, loading its address into the
-        // specified 'proxy'.  The server will run as a thread on 'localhost'
-        // with a system-assigned port.  Optionally specify 'args' to control
-        // the SOCKS5 server behavior, otherwise use a default-constructed
-        // 'testServerArgs' value to control behavior.  Optionally
-        // specify an 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless the lifetime of
-        // 'basicAllocator' extends past the end of the server thread, which
-        // may exist longer than the lifetime of this object.
+    explicit TestServer(btlso::Endpoint      *proxy,
+                        bslma::Allocator     *basicAllocator = 0);
+    explicit TestServer(btlso::Endpoint      *proxy,
+                        const TestServerArgs *args,
+                        bslma::Allocator     *basicAllocator = 0);
+        // Create a 'TestServer' object.  If the specified 'proxy' is not 0,
+        // load the address of the listening socket into 'proxy'.  The server
+        // will run as a thread on 'localhost' with a system-assigned port.
+        // Optionally specify 'args' to control the SOCKS5 server behavior,
+        // otherwise use a default-constructed 'testServerArgs' value to
+        // control behavior.  Optionally specify an 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless the
+        // lifetime of 'basicAllocator' extends past the end of the server
+        // thread, which may exist longer than the lifetime of this object.
 
     //! ~TestServer() = default;
         // Destroy this object.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace
