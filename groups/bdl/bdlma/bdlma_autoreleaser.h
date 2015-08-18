@@ -70,6 +70,9 @@ BSLS_IDENT("$Id: $")
 //      // PRIVATE MANIPULATORS
 //      void increaseSize();
 //
+//      // Not implemented:
+//      my_FastCstrArray(const my_FastCstrArray&);
+//
 //    public:
 //      // CREATORS
 //      my_FastCstrArray(bslma::Allocator *basicAllocator = 0);
@@ -86,6 +89,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // FREE OPERATORS
 //  ostream& operator<<(ostream& stream, const my_FastCstrArray& array);
+//
 //..
 // Then, we implement the methods:
 //..
@@ -108,8 +112,8 @@ BSLS_IDENT("$Id: $")
 //                  int                 length,
 //                  bslma::Allocator   *allocator)
 //      // Reallocate memory in the specified 'array' and update the specified
-//      // size to the specified 'newSize', using the specified 'allocator' to
-//      // supply memory.  The specified 'length' number of leading elements
+//      // 'size' to the specified 'newSize', using the specified 'allocator'
+//      // to supply memory.  The specified 'length' number of leading elements
 //      // are preserved.  If 'allocate' should throw an exception, this
 //      // function has no effect.  The behavior is undefined unless
 //      // '1 <= newSize', '0 <= length', and 'length <= newSize'.

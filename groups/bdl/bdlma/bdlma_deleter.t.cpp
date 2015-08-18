@@ -75,23 +75,33 @@ void aSsErT(int c, const char *s, int i)
 class my_Obj {
 };
 
-class my_Deleter : public bdlma::Deleter<my_Obj> {
-  // Test class used to verify protocol.
+class my_Deleter : public bdlma::Deleter<my_Obj>
+    // Test class used to verify protocol.
+{
+
     int *d_destructorFlag_p;
     int  d_fun;  // holds code describing function:
                  //   + 1 delete
+
+  private:
+    my_Deleter(const my_Deleter&);
+
   public:
     my_Deleter(bslma::Allocator *basicAllocator)
     : d_destructorFlag_p(0)
     {
-        (void *)basicAllocator;
+        (void)basicAllocator;
     }
 
-    my_Deleter(int *destructorFlag) : d_destructorFlag_p(destructorFlag) { }
+    my_Deleter(int *destructorFlag, bslma::Allocator *basicAllocator = 0)
+    : d_destructorFlag_p(destructorFlag)
+    {
+        (void)basicAllocator;
+    }
 
     virtual ~my_Deleter() { if (d_destructorFlag_p) *d_destructorFlag_p = 1; }
 
-    virtual void deleteObject(my_Obj *X)   { (void *)X;  d_fun = 1; }
+    virtual void deleteObject(my_Obj *X)   { (void)X;  d_fun = 1; }
 
     int fun() const { return d_fun; }
         // Return descriptive code for the function called.
@@ -140,7 +150,7 @@ int main(int argc, char *argv[]) {
 // deleter that implements this protocol can be passed.  Also note, on the
 // downside, that the lifetime of 'deleter' must be longer than the lifetime of
 // all associated instances.
-      };
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:

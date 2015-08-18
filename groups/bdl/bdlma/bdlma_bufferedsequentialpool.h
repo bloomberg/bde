@@ -97,6 +97,9 @@ BSLS_IDENT("$Id: $")
 //          // Increase the capacity of the internal arrays used to store
 //          // elements added to this array by at least one element.
 //
+//      // Not implemented:
+//      my_BufferedIntDoubleArray(const my_BufferedIntDoubleArray&);
+//
 //    public:
 //      // TYPES
 //      enum Type { k_MY_INT, k_MY_DOUBLE };
@@ -378,17 +381,17 @@ class BufferedSequentialPool {
 
   public:
     // CREATORS
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char             *buffer,
+                           int               size,
+                           bslma::Allocator *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           bsls::Alignment::Strategy    alignmentStrategy,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char                      *buffer,
+                           int                        size,
+                           bsls::Alignment::Strategy  alignmentStrategy,
+                           bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
@@ -413,20 +416,20 @@ class BufferedSequentialPool {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char             *buffer,
+                           int               size,
+                           int               maxBufferSize,
+                           bslma::Allocator *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            int                          maxBufferSize,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
-                           bsls::Alignment::Strategy    alignmentStrategy,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char                      *buffer,
+                           int                        size,
+                           int                        maxBufferSize,
+                           bsls::Alignment::Strategy  alignmentStrategy,
+                           bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            int                          maxBufferSize,

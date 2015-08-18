@@ -286,6 +286,10 @@ void stretchRemoveAll(Obj *object, int numElements)
         bsl::vector<T *>      d_array_p;  // array of pooled elements
         bdlma::ConcurrentPool d_pool;     // memory manager for array elements
 
+      private:
+        // Not implemented:
+        my_PooledArray(const my_PooledArray&);
+
       public:
         // CREATORS
         explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
@@ -393,6 +397,8 @@ class my_DoubleArray2 {
   private:
     void increaseSize();
 
+    // Not implemented:
+    my_DoubleArray2(const my_DoubleArray2&);
   public:
     // CREATORS
     explicit my_DoubleArray2(bslma::Allocator *basicAllocator);
@@ -437,7 +443,7 @@ static void reallocate(double           ***array,
                        int                 length,
                        bslma::Allocator   *basicAllocator)
     // Reallocate memory in the specified 'array' using the specified
-    // 'basicAllocator' and update the specified size to the specified
+    // 'basicAllocator' and update the specified 'size' to the specified
     // 'newSize'.  The specified 'length' number of leading elements are
     // preserved.  If 'new' should throw an exception, this function has no
     // effect.  The behavior is undefined unless '1 <= newSize', '0 <= length',

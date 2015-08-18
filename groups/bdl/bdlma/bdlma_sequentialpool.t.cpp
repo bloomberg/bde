@@ -253,6 +253,9 @@ static int calculateNextSize(int currSize, int size)
             // Increase the capacity of the internal arrays used to store
             // elements added to this array by at least one element.
 
+        // Not implemented:
+        my_IntDoubleArray(const my_IntDoubleArray&);
+
       public:
         // TYPES
         enum Type { k_MY_INT, k_MY_DOUBLE };
@@ -749,7 +752,7 @@ int main(int argc, char *argv[])
                 else if (STRAT == MAX) {
                     cout << "STRAT = MAXIMUM ALIGNMENT, ";
                 }
-                else {  // STRAT == BYT
+                else {  // STRAT == BYTE
                     cout << "STRAT = 1-BYTE ALIGNMENT, ";
                 }
                 P_(INITIALSIZE) P_(NEWSIZE) P(EXPOFFSET)
@@ -932,7 +935,7 @@ int main(int argc, char *argv[])
                 else if (STRAT == MAX) {
                     cout << "STRAT = MAXIMUM ALIGNMENT, ";
                 }
-                else {  // STRAT == BYT
+                else {  // STRAT == BYTE
                     cout << "STRAT = 1-BYTE ALIGNMENT, ";
                 }
                 P_(INITIALSIZE) P(EXPUSED)
@@ -1113,8 +1116,8 @@ int main(int argc, char *argv[])
             int d_requestSize;  // request size
             int d_numRequests;  // number of requests
         } DATA[] = {
-            // LINE     BUFSIZE     REQSIZE         NUMREQ
-            // ----     -------     -------         ------
+            //LINE      BUFSIZE     REQUEST SIZE    # REQUESTS
+            //----      -------     ------------    ----------
 
             {  L_,      1,          1,              2                 },
             {  L_,      1,          5,              2                 },

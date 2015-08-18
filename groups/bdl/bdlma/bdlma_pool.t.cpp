@@ -54,7 +54,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 4] Pool(bs, basicAllocator = 0);
 // [ 4] Pool(bs, gs, basicAllocator = 0);
-// [ 3] Pool(bs, gs, mbpc, basicAllocator = 0);
+// [ 3] Pool(bs, gs, maxBlocksPerChunk, basicAllocator = 0);
 // [ 6] ~Pool();
 // [ 4] void *allocate();
 // [ 5] void deallocate(address);
@@ -250,6 +250,10 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
         bsl::vector<TYPE *> d_array_p;  // array of pooled elements
         bdlma::Pool         d_pool;     // memory manager for array elements
 
+      private:
+        // Not implemented:
+        my_PooledArray(const my_PooledArray&);
+
       public:
         // CREATORS
         explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
@@ -373,6 +377,10 @@ class my_Type {
     // DATA
     char             *d_stuff_p;
     bslma::Allocator *d_allocator_p;
+
+  private:
+    // Not implemented:
+    my_Type(const my_Type&);
 
   public:
     // CREATORS
@@ -1156,8 +1164,8 @@ int main(int argc, char *argv[])
         const int NUM_REQUESTS = 100;
 
         // Note that after the NUM_REQUESTS allocations are performed, there
-        // will be unallocated blocks that will be used before the free list;
-        // 'd_availBlocks' provides the expected number of these unallocated
+        // will be un-allocated blocks that will be used before the free list;
+        // 'd_availBlocks' provides the expected number of these un-allocated
         // blocks.
 
         struct {
@@ -1167,14 +1175,14 @@ int main(int argc, char *argv[])
             Strategy d_strategy;
             int      d_availBlocks;
         } DATA[] = {
-            //    block                           avail
-            //LN  size    max chunk size   strat  blocks
-            //--  -----  ----------------  -----  ------
-            { L_,     1,                5,   CON,      0 },
-            { L_,     5,               10,   CON,      0 },
-            { L_,    12,                1,   GEO,      0 },
-            { L_,    24,                5,   GEO,      2 },
-            { L_,    32, k_MAX_CHUNK_SIZE,   GEO,     27 }
+            //    block                              avail
+            //LN  size    max chunk size   strategy  blocks
+            //--  -----  ----------------  --------  ------
+            { L_,     1,                5,      CON,      0 },
+            { L_,     5,               10,      CON,      0 },
+            { L_,    12,                1,      GEO,      0 },
+            { L_,    24,                5,      GEO,      2 },
+            { L_,    32, k_MAX_CHUNK_SIZE,      GEO,     27 }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1404,7 +1412,7 @@ int main(int argc, char *argv[])
         //   expected size.
         //
         // Testing:
-        //   Pool(bs, gs, mbps, basicAllocator);
+        //   Pool(bs, gs, maxBlocksPerChunk, basicAllocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "'growthStrategy' TEST" << endl
@@ -1424,6 +1432,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // LINE     BLOCKSIZE    STRATEGY     MAXBLOCKS
             // ----     ---------    --------     ---------
+
             // Constant growth
             {  L_,              1,       CON,           16 },
             {  L_,              1,       CON,           30 },
@@ -1697,9 +1706,9 @@ int main(int argc, char *argv[])
                 int d_maxNumBlocks;
                 int d_exp;
             } DATA[] = {
-                //line    Num.       Maximum         Expected
-                //no.     Blocks     Num. Blocks     Value
-                //----    -------    -----------     --------
+                //line               Maximum         Expected
+                //no.     # Blocks   # Blocks        Value
+                //----    --------   --------        --------
                 { L_,       1,          1,             1      },
                 { L_,       1,          2,             2      },
 

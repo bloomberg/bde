@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
             int d_numAlloc;       // number of allocations
             int d_deallocSeq[5];  // deallocation sequence
         } DATA[] = {
-            //LINE   NUM. ALLOC  DEALLOC. SEQUENCE
+            //LINE   # ALLOC     DEALLOC SEQUENCE
             //----   ----------  -----------------
             { L_,    1,          { 0 }             },
 

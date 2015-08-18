@@ -300,8 +300,8 @@ class BufferManager {
   public:
     // CREATORS
     explicit
-    BufferManager(bsls::Alignment::Strategy strategy =
-                                                bsls::Alignment::BSLS_NATURAL);
+    BufferManager(
+           bsls::Alignment::Strategy strategy = bsls::Alignment::BSLS_NATURAL);
         // Create a buffer manager for allocating memory blocks.  Optionally
         // specify an alignment 'strategy' used to align allocated memory
         // blocks.  If 'strategy' is not specified, natural alignment is used.
@@ -309,10 +309,10 @@ class BufferManager {
         // memory until an external buffer is provided by calling the
         // 'replaceBuffer' method.
 
-    BufferManager(char                      *buffer,
-                  int                        bufferSize,
-                  bsls::Alignment::Strategy  strategy
-                                              = bsls::Alignment::BSLS_NATURAL);
+    BufferManager(
+          char                      *buffer,
+          int                        bufferSize,
+          bsls::Alignment::Strategy  strategy = bsls::Alignment::BSLS_NATURAL);
         // Create a buffer manager for allocating memory blocks from the
         // specified external 'buffer' having the specified 'bufferSize' (in
         // bytes).  Optionally specify an alignment 'strategy' used to align

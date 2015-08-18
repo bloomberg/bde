@@ -140,6 +140,9 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
         bdlma::ConcurrentFixedPool  d_pool;
         bslma::Allocator           *d_allocator_p;
 
+        // Not implemented:
+        my_JobQueue(const my_JobQueue&);
+
       public:
         // CREATORS
         my_JobQueue(int maxJobs, bslma::Allocator *basicAllocator = 0);
@@ -197,8 +200,12 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 // destructors of all these objects, as the destructor of
 // 'bdlma::ConcurrentFixedPool' will not do so.
 
-void sum5(double* result, double op1, double op2,
-          double op3, double op4, double op5)
+void sum5(double* result,
+          double  op1,
+          double  op2,
+          double  op3,
+          double  op4,
+          double  op5)
 {
     *result = op1 + op2 + op3 + op4 + op5;
 }
@@ -352,8 +359,11 @@ void bench(Control *control)
     }
 }
 
-void runtest(int numIterations, int numObjects, int numThreads,
-             int load, int backoff)
+void runtest(int numIterations,
+             int numObjects,
+             int numThreads,
+             int load,
+             int backoff)
 {
     bdlma::ConcurrentFixedPool pool(sizeof(Item), numThreads * numObjects);
     pool.setBackoffLevel(backoff);

@@ -258,21 +258,22 @@ void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
     return result;
 }
 
-void SequentialPool::reserveCapacity(int size)
+void SequentialPool::reserveCapacity(int numBytes)
 {
-    BSLS_ASSERT(0 < size);
+    BSLS_ASSERT(0 < numBytes);
 
     // If 'd_buffer.bufferSize()' is 0, 'd_buffer' is not managing any buffer
     // currently.
 
-    if (0 != d_buffer.bufferSize() && d_buffer.hasSufficientCapacity(size)) {
+    if (0 != d_buffer.bufferSize()
+     && d_buffer.hasSufficientCapacity(numBytes)) {
         return;                                                       // RETURN
     }
 
-    int nextSize = calculateNextBufferSize(size);
+    int nextSize = calculateNextBufferSize(numBytes);
 
-    if (nextSize < size) {
-        nextSize = size;
+    if (nextSize < numBytes) {
+        nextSize = numBytes;
     }
 
     d_buffer.replaceBuffer(static_cast<char *>(d_blockList.allocate(nextSize)),

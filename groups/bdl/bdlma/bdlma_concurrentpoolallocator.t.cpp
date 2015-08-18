@@ -315,6 +315,11 @@ extern "C" void *my3_down(void *arg)
         bdlqq::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
+      private:
+        // Not implemented:
+        my1_WorkQueue(const my1_WorkQueue&);
+
+      public:
         // CREATORS
         explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
         : d_alloc_p(bslma::Default::allocator(basicAllocator))
@@ -537,6 +542,11 @@ extern "C" void *my3_down(void *arg)
         bdlqq::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
+      private:
+        // Not implemented:
+        my2_WorkQueue(const my2_WorkQueue&);
+
+      public:
         // CREATORS
         explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
         : d_queue(basicAllocator)
