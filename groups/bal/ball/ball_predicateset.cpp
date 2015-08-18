@@ -7,6 +7,8 @@ BSLS_IDENT_RCSID(ball_predicateset_cpp,"$Id$ $CSID$")
 #include <ball_attributecontainerlist.h>      // for testing only
 #include <ball_defaultattributecontainer.h>   // for testing only
 
+#include <bslim_printer.h>
+
 #include <bsl_iostream.h>
 
 namespace BloombergLP {
@@ -63,30 +65,22 @@ bool PredicateSet::evaluate(
 }
 
 bsl::ostream& PredicateSet::print(bsl::ostream& stream,
-                                       int           level,
-                                       int           spacesPerLevel) const
+                                  int           level,
+                                  int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-
-    stream << '{' <<  NL;
-
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
     for (const_iterator iter = begin(); iter != end(); ++iter) {
-        bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-        stream << *iter << NL;
+        printer.printValue(*iter);
     }
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
-
+    printer.end();
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bool ball::operator==(const PredicateSet& lhs,
-                const PredicateSet& rhs)
+bool ball::operator==(const PredicateSet& lhs, const PredicateSet& rhs)
 {
     if (lhs.numPredicates() != rhs.numPredicates()) {
         return false;                                                 // RETURN
@@ -102,8 +96,7 @@ bool ball::operator==(const PredicateSet& lhs,
     return true;
 }
 
-bool ball::operator!=(const PredicateSet& lhs,
-                const PredicateSet& rhs)
+bool ball::operator!=(const PredicateSet& lhs, const PredicateSet& rhs)
 {
     return !(lhs == rhs);
 }

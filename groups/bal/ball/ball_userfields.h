@@ -156,7 +156,7 @@ class UserFields {
 
     void removeAll();
         // Remove all of the user field values from this object.  After this
-        // method is called 'length' will be 0.
+        // method is called 'length' is 0.
 
     void append(const UserFieldValue& value);
         // Append the specified 'value' to this object.

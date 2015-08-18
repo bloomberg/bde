@@ -49,12 +49,22 @@ bsl::ostream& Attribute::print(bsl::ostream& stream,
                                int           level,
                                int           spacesPerLevel) const
 {
-    bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start();
-    printer.printAttribute("name", d_name);
-    printer.printAttribute("value", d_value);
-    printer.end();
+    // We use a negative spacesPerLevel to ensure the output is rendered on
+    // one line.
 
+    bslim::Printer indent(&stream, level, spacesPerLevel);
+    indent.printIndentation();
+
+    bslim::Printer printer(&stream, 0, -1);
+    stream << "[";
+    printer.printValue(d_name);
+    stream << " =";
+    printer.printValue(d_value);
+    stream << " ]";
+
+    if (spacesPerLevel >= 0) {
+        stream << "\n";
+    }
     return stream;
 }
 

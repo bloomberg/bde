@@ -213,6 +213,53 @@ Value createValue(int type, int v1, Int64 v2, const char *v3)
     return variant;
 }
 
+bool compareText(bslstl::StringRef lhs, 
+                 bslstl::StringRef rhs,
+                 bsl::ostream&     errorStream = bsl::cout)
+   // Return 'true' if the specified 'lhs' has the same value as the specified'
+   // rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
+   // which, if 'lhs' and 'rhs' are not the same', a description of how the
+   // two strings differ will be written.  If 'errorStream' is not supplied,
+   // 'stdout' will be used to report an error description.
+{
+    for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
+        if (lhs[i] != rhs[i]) {
+            errorStream << "lhs: \"" << lhs << "\"\n"
+                        << "rhs: \"" << rhs << "\"\n"
+                        << "Strings differ at index (" << i << ") "
+                        << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                        << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                        << endl;
+            return false;                                             // RETURN
+        }
+    }
+
+    if (lhs.length() < rhs.length()) {
+        unsigned int i = lhs.length();
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = END-OF-STRING "
+                    << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                    << endl;
+        return false;                                                 // RETURN
+
+    }
+    if (lhs.length() > rhs.length()) {
+        unsigned int i = rhs.length();
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                    << "rhs[i] = END-OF-STRING"
+                    << endl;
+        return false;                                                 // RETURN
+    }
+    return true;
+
+}
+
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -841,11 +888,11 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // line name type ivalue svalue expected
             // ---- ---- ---- ------ ------ --------
-            {  L_,  "",  0,   0,     0,    "[  = 0 ]"   },
-            {  L_,  "",  1,   0,     0,    "[  = 0 ]"   },
-            {  L_,  "",  2 ,  0,     "0",  "[  = 0 ]"   },
-            {  L_,  "A", 0,   1,     0,    "[ A = 1 ]"  },
-            {  L_,  "A", 2,   0,     "1",  "[ A = 1 ]"  },
+            {  L_,  "",  0,   0,     0,    " [ \"\" = 0 ]"   },
+            {  L_,  "",  1,   0,     0,    " [ \"\" = 0 ]"   },
+            {  L_,  "",  2 ,  0,     "0",  " [ \"\" = 0 ]"   },
+            {  L_,  "A", 0,   1,     0,    " [ \"A\" = 1 ]"  },
+            {  L_,  "A", 2,   0,     "1",  " [ \"A\" = 1 ]"  },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -868,7 +915,7 @@ int main(int argc, char *argv[])
                 P_(DATA[i].d_output);
                 P(os.str());
             }
-            LOOP_ASSERT(LINE, os.str() == DATA[i].d_output);
+            LOOP_ASSERT(LINE, compareText(os.str(), DATA[i].d_output));
         }
 
         static const struct {
@@ -881,9 +928,9 @@ int main(int argc, char *argv[])
         } PDATA[] = {
             // line name svalue level space expected
             // ---- ---- ------ ----- ----- -----------------------
-            {  L_,  "A", "1",   0,    -1,   "[ A = 1 ]"            },
-            {  L_,  "A", "1",   1,    2,    "  [ A = 1 ]"          },
-            {  L_,  "A", "1",   -1,   -2,   "[ A = 1 ]"            },
+            {  L_,  "A", "1",   0,    -1,   " [ \"A\" = 1 ]"       },
+            {  L_,  "A", "1",   4,    1,    "     [ \"A\" = 1 ]\n" },
+            {  L_,  "A", "1",   -1,   -2,   " [ \"A\" = 1 ]"       },
         };
 
         const int NUM_PDATA = sizeof PDATA / sizeof *PDATA;
@@ -905,7 +952,7 @@ int main(int argc, char *argv[])
                 P_(PDATA[i].d_output);
                 P(os.str());
             }
-            LOOP_ASSERT(LINE, os.str() == PDATA[i].d_output);
+            LOOP_ASSERT(LINE, compareText(os.str(), PDATA[i].d_output));
         }
 
       } break;
