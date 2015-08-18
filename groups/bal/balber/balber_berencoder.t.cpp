@@ -9023,7 +9023,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
 
 // TRAITS
 
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(usage::Address)
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(usage::Address)
 
 namespace usage {
 
@@ -9254,7 +9254,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
 
 // TRAITS
 
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(usage::Employee)
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(usage::Employee)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -9782,21 +9782,21 @@ const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
         "street",
         sizeof("street") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_CITY,
         "city",
         sizeof("city") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_STATE,
         "state",
         sizeof("state") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
@@ -9890,9 +9890,9 @@ int Address::fromAggregate(const bcem_Aggregate& aggregate)
 
 void Address::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_street);
-    bdeat_ValueTypeFunctions::reset(&d_city);
-    bdeat_ValueTypeFunctions::reset(&d_state);
+    bdlat_ValueTypeFunctions::reset(&d_street);
+    bdlat_ValueTypeFunctions::reset(&d_city);
+    bdlat_ValueTypeFunctions::reset(&d_state);
 }
 
 // ACCESSORS
@@ -9957,21 +9957,21 @@ const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
         "name",
         sizeof("name") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_TEXT
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",
         sizeof("homeAddress") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_AGE,
         "age",
         sizeof("age") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEC
+        bdlat_FormattingMode::e_DEC
     }
 };
 
@@ -10067,9 +10067,9 @@ int Employee::fromAggregate(const bcem_Aggregate& aggregate)
 
 void Employee::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_homeAddress);
-    bdeat_ValueTypeFunctions::reset(&d_age);
+    bdlat_ValueTypeFunctions::reset(&d_name);
+    bdlat_ValueTypeFunctions::reset(&d_homeAddress);
+    bdlat_ValueTypeFunctions::reset(&d_age);
 }
 
 // ACCESSORS
