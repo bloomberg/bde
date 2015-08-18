@@ -17,7 +17,10 @@ BSLS_IDENT_RCSID(btlsos_tcptimedconnector_cpp,"$Id$ $CSID$")
 #include <bsls_blockgrowth.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
 #include <bsl_vector.h>
+
+#include <errno.h>
 
 namespace BloombergLP {
 
@@ -25,9 +28,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     k_ARENA_SIZE = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
@@ -159,8 +162,8 @@ namespace btlsos {
 
 // CREATORS
 TcpTimedConnector::TcpTimedConnector(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
@@ -170,9 +173,9 @@ TcpTimedConnector::TcpTimedConnector(
 }
 
 TcpTimedConnector::TcpTimedConnector(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 int                                           numElements,
-                 bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                int                                             numElements,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE,
          bsls::BlockGrowth::BSLS_CONSTANT,
          numElements,
@@ -311,7 +314,7 @@ btlsc::TimedChannel *TcpTimedConnector::timedAllocateTimed(
     }
 
     btlsc::TimedChannel *channel =
-        BloombergLP::timedAllocate<TcpTimedChannel>(status,
+               BloombergLP::timedAllocate<TcpTimedChannel>(status,
                                                            flags,
                                                            d_peerAddress,
                                                            d_factory_p,

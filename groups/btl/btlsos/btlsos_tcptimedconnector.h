@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //                                  &status,
 //                                  bdlt::CurrentTime::now() + connectTimeout);
 //  if (!channel) {
-//      assert(0 >= status);  // Async interrupts are *not* enabled.
+//      assert(0 >= status);  // Asynchronous interrupts are *not* enabled.
 //      if (status) {
 //          bsl::cout << "Failed to connect to the peer."
 //                    << bsl::endl;
