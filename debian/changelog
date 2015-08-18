@@ -1,5 +1,15 @@
-bsl-internal (2.24.0.0) unstable; urgency=low
+bsl-internal (2.24.0.3) unstable; urgency=low
 
+  * 90726a1 [APPROVAL] OSS pending/master/bbldcu_initial_development-drqs-64659538 to master
+  * 9bc2166 [APPROVAL] pending/master/bbldcu_initial_development-drqs-64659538 to master
+  * 2570d3b [APPROVAL] add-thirdparty-deps to master
+  * 06c1d10 [APPROVAL] OSS pending/master/add_cpp11_headers_to_pub_file_drqs68717642 to master
+  * 11aee09 [APPROVAL] pending/master/add_cpp11_headers_to_pub_file_drqs68717642 to master
+  * d1c7281 [APPROVAL] INTERNAL pending/master/fix_stof_for_msvc_drqs68810473 to master
+  * aef9fff [APPROVAL] pending/master/fix_stof_for_msvc_drqs68810473 to master
+  * 3cf78b7 [APPROVAL] INTERNAL bump-version-to-2.24.0 to master
+  * cb6e659 [APPROVAL] bump-version-to-2.24.0 to master
+  * cee81ea bump debian/changelog to 2.24.0.0
   * 291abde Bump version to 2.24.0 for initial internal testing
   * 8b6dd89 [APPROVAL] INTERNAL adjust-bsls_compilerfeatures-doc to master
   * e55eab4 [APPROVAL] adjust-bsls_compilerfeatures-doc to master
@@ -431,6 +441,7 @@ bsl-internal (2.24.0.0) unstable; urgency=low
   * c40a730 [APPROVAL] ssysrandom_to_randomdevice-drqs-50471211 to master
   * 4473dd3 [APPROVAL] INTERNAL rebased-drqs-59774381-bslma_managedptr-release to master
   * ac400c9 [APPROVAL] rebased-drqs-59774381-bslma_managedptr-release to master
+  * 7fc76ce Return initialized result from release.
   * dddcdb5 [APPROVAL] OSS pr-156-fix-gcc-on-windwos-drqs-59840853 to master
   * 0d959a1 [APPROVAL] pr-156-fix-gcc-on-windwos-drqs-59840853 to master
   * b56225c [APPROVAL] OSS pending/master/mach-monotonic-clock-drqs-47763030-rebase to master
@@ -558,12 +569,16 @@ bsl-internal (2.24.0.0) unstable; urgency=low
   * ff063e1 [APPROVAL] bdlma_guardingallocator-bus-error-drqs_52306644 to bde2.22-master-fix
   * 20f10a6 converted 'serializationVersion' to 'versionSelector'
   * 5812b70 [APPROVAL] pending/master/decimal-ready-for-release to master
+  * a055170 Merge branches 'continuing-work' and 'fix-bdldfp-errata' into decimal-ready-for-release
   * 657fefb Add DPD conversion functions to 'DecimalImpUtil'.
   * 8e5b001 [APPROVAL] OSS pending/master/issue-134-remove-extraneoussemicolon-drqs-56528451 to master
   * c4db970 [APPROVAL] pending/master/issue-134-remove-extraneoussemicolon-drqs-56528451 to master
   * 30a6085 [APPROVAL] INTERNAL bslstl_list-uninit-drqs-56266333 to master
   * a032504 [APPROVAL] bslstl_list-uninit-drqs-56266333 to master
+  * af6b3f6 Merge branch 'intel-dfp-on-all-platforms' into decimal-ready-for-release
   * c8fb93f Added missing 'ASSERT's to binary conversion tests
+  * c07d290 Merge branch 'decimal-new-impl-design-cleanups' into decimal-ready-for-release
+  * 99e2028 Merge branch 'intelimpwrapper-test-fix' into decimal-ready-for-release
   * fb575ec [APPROVAL] pending/master/bdlma_guardingallocator-bus-error-drqs_52306644 to master
   * 2306d4f [APPROVAL] OSS pending/master/fix_warning_in_array_primitives_drqs56269537 to master
   * 897906d [APPROVAL] pending/master/fix_warning_in_array_primitives_drqs56269537 to master
@@ -639,7 +654,7 @@ bsl-internal (2.24.0.0) unstable; urgency=low
   * c9a58b6 [APPROVAL] pending/master/bdlb_bitutil to master
   * 0798a38 [APPROVAL] pending/master/correct_array_primitives_compiler_check_drqs51229610 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 30 Jul 2015 13:40:53 -0400
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 13 Aug 2015 10:40:55 -0400
 
 bsl-internal (2.20.2.2) git; urgency=low
 
@@ -893,8 +908,10 @@ bsl-internal (2.19.0.0) git; urgency=low
   * cdd47c1 [APPROVAL] pending/master/missing-multimap-stdlib-include-drqs-43053581 to master
   * f2629b1 [APPROVAL] pending/master/fix-rbtreenode-testdriver-warning-drqs43267441 to master
   * 348b634 [APPROVAL] meta-packages-in-binary-arch-drqs-43603654 to master
+  * 18bdd98 Finally poison 'hash<const char *>' for one BDE release
   * 677144f [APPROVAL] OSS review/bsls-mutex-drqs-41890133 to master
   * 509e753 [APPROVAL] review/bsls-mutex-drqs-41890133 to master
+  * bf881ea Finally poison 'hash<const char *>' for one BDE release
   * d391f00 [APPROVAL] OSS pending/master/bsl_gcc_warnings_remediation-drqs38366484_rebase to master
   * 0b9cfe0 [APPROVAL] pending/master/bsl_gcc_warnings_remediation-drqs38366484_rebase to master
   * 9eb7138 fixed -WConversion warnings in
