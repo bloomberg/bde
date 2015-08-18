@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide operations on 'btls5::NetworkDescription' objects.
 //
 //@CLASSES:
-//   btls5::NetworkDescriptionUtil: namespace for network description operations
+//  btls5::NetworkDescriptionUtil: namespace for network description operations
 //
 //@AUTHOR: David Brukman (dbrukman@bloomberg.net)
 //
@@ -18,10 +18,11 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace,
 // 'btls5::NetworkDescriptionUtil', containing utility functions on
-// 'btls5::NetworkDescription' objects, including setting credentials on some or
-// all proxies in the object, and checking a 'btls5::NetworkDescription' object
-// for being well-formed.  A 'btls5::NetworkDescription' object is well-formed
-// if it contains at least one level and each level has at least one proxy.
+// 'btls5::NetworkDescription' objects, including setting credentials on some
+// or all proxies in the object, and checking a 'btls5::NetworkDescription'
+// object for being well-formed.  A 'btls5::NetworkDescription' object is
+// well-formed if it contains at least one level and each level has at least
+// one proxy.
 //
 ///Usage
 ///-----
@@ -83,13 +84,14 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btls5 {
-                     // ===================================
+
+                     // =============================
                      // struct NetworkDescriptionUtil
-                     // ===================================
+                     // =============================
 
 struct NetworkDescriptionUtil {
-    // This 'struct' provides a namespace for utility functions that operate
-    // on 'NetworkDescription' objects.
+    // This 'struct' provides a namespace for utility functions that operate on
+    // 'NetworkDescription' objects.
 
     // CLASS METHODS
     static bool isWellFormed(const NetworkDescription& socks5Servers);
@@ -97,17 +99,18 @@ struct NetworkDescriptionUtil {
         // level, and each level has at least one proxy; and 'false' otherwise.
 
     static void setLevelCredentials(NetworkDescription *proxyNetwork,
-                                    bsl::size_t               level,
+                                    bsl::size_t         level,
                                     const Credentials&  credentials);
         // Assign the specified 'credentials' for authenticating with every
         // proxy in the specified 'level' of the specified 'proxyNetwork'.  The
         // behavior is undefined unless 'level < proxyNetwork->numLevels()'.
 
-    static void setAllCredentials(NetworkDescription      *proxyNetwork,
-                                  const Credentials&       credentials);
+    static void setAllCredentials(NetworkDescription *proxyNetwork,
+                                  const Credentials&  credentials);
         // Assign the specified 'credentials' for authenticating with every
         // proxy in the specified 'proxyNetwork'.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

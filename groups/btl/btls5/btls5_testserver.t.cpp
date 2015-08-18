@@ -3,6 +3,7 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <btlso_inetstreamsocketfactory.h>
@@ -26,11 +27,26 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// This component provides a test server to test other components in this
+// package.  Therefore, this test driver only tests that each method is
+// invoked but does not otherwise perform exhaustive testing.
+//-----------------------------------------------------------------------------
+//                       // --------------
+//                       // TestServerArgs
+//                       // --------------
 //
+// [ 1] explicit TestServerArgs(bslma::Allocator *basicAllocator = 0);
+//
+//                       // ----------
+//                       // TestServer
+//                       // ----------
+//
+// [ 1] explicit TestServer(Endpoint *p, *ba = 0);
+// [ 1] explicit TestServer(Endpoint *p, const TestServerArgs *a, *ba = 0);
+
 //-----------------------------------------------------------------------------
-// [ ]
-//-----------------------------------------------------------------------------
-// [1] BREATHING TEST
+// [ 1] BREATHING TEST
+// [ 2] USAGE TEST
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -99,6 +115,10 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
+typedef btls5::TestServer     Obj;
+typedef btls5::TestServerArgs Args;
+typedef btlso::Endpoint       Endpoint;
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -110,6 +130,8 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose, (void) veryVeryVerbose, (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -190,11 +212,35 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
-        btlso::Endpoint proxy;
-        btls5::TestServer server(&proxy);
-        if (verbose) {
-            cout << "SOCKS5 server started on " << proxy << endl;
+
+        {
+            Endpoint ep;
+
+            Obj mX(&ep);
         }
+
+        {
+            Endpoint ep;
+            Args     args;
+
+            Obj mX(&ep, &args);
+        }
+
+        bslma::TestAllocator ta;
+
+        {
+            Endpoint ep;
+
+            Obj mX(&ep, &ta);
+        }
+
+        {
+            Endpoint ep;
+            Args     args;
+
+            Obj mX(&ep, &args, &ta);
+        }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
