@@ -1072,6 +1072,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                 "\nAssign the address of each function to a variable." << endl;
         {
+            using namespace btls5;
+
             typedef void (Obj::*funcPtr)(Obj&);
             typedef void (*freeFuncPtr)(Obj&, Obj&);
 
