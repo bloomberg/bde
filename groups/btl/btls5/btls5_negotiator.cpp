@@ -96,6 +96,8 @@ struct ConnectRspBase {
     unsigned char d_atype;
 };
 
+}  // close unnamed namespace
+
                      // ============================
                      // class Negotiator_Negotiation
                      // ============================
@@ -613,8 +615,6 @@ static int sendMethodRequest(btls5::Negotiator::NegotiationHandle negotiation)
 
     return 0;
 }
-
-}  // close unnamed namespace
 
                            // ----------------
                            // class Negotiator
