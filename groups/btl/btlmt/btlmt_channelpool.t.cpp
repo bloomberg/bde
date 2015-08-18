@@ -36,11 +36,6 @@
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
 #include <bdlb_strtokenrefiter.h>
-#include <bdlxxxx_instreamfunctions.h>             // for testing only
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_byteoutstream.h>
-#include <bdlxxxx_byteinstream.h>
-#include <bdlxxxx_bytestreamimputil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -49,6 +44,10 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
+
+#include <bslx_byteoutstream.h>
+#include <bslx_byteinstream.h>
+#include <bslx_marshallingutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -2801,7 +2800,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
             return;                                                   // RETURN
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, msg->buffer(0).data());
+        bslx::MarshallingUtil::getInt32(&d_msgId, msg->buffer(0).data());
         ASSERT(0 <= d_msgId);
         btlb::BlobUtil::erase(msg, 0, sizeof(int));
 
@@ -2817,7 +2816,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
             return;                                                   // RETURN
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength,
+        bslx::MarshallingUtil::getInt32(&d_msgLength,
                                          msg->buffer(0).data());
         ASSERT(0 <= d_msgLength);
         btlb::BlobUtil::erase(msg, 0, sizeof(int));
@@ -2908,10 +2907,10 @@ void TestData::run()
     LOOP2_ASSERT(DATA_SIZE, MAX_DATA_SIZE, DATA_SIZE <= MAX_DATA_SIZE);
 
     int offset = 0;
-    bdlxxxx::ByteStreamImpUtil::putInt32(data, d_threadIntId);
+    bslx::MarshallingUtil::putInt32(data, d_threadIntId);
     offset += sizeof(int);
 
-    bdlxxxx::ByteStreamImpUtil::putInt32(data + offset, DATA_SIZE);
+    bslx::MarshallingUtil::putInt32(data + offset, DATA_SIZE);
     offset += sizeof(int);
 
     const int TOTAL_SIZE = DATA_SIZE + offset;
@@ -7300,7 +7299,7 @@ void vlm_EchoServer::blobCB(int          *numNeeded,
     // Find Message Boundary
 
     int length;
-    bdlxxxx::ByteStreamImpUtil::getInt32(&length, msg->buffer(0).data());
+    bslx::MarshallingUtil::getInt32(&length, msg->buffer(0).data());
     ASSERT(0 < length);
 
     if (length > msg->length() - INT_SIZE) {
@@ -7826,11 +7825,13 @@ namespace USAGE_EXAMPLE_M1_NAMESPACE {
 
 typedef bsl::pair<int, btlb::Blob> BlobTypeWithId;
 
+const int versionSelector = 20140601;
+
 static void
 generateMessage(btlb::Blob& msg, bslma::Allocator *basicAllocator = 0)
 {
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    bdlxxxx::ByteOutStream stream(basicAllocator);
+    bslx::ByteOutStream stream(versionSelector, basicAllocator);
     bdex_OutStreamFunctions::streamOut(stream, now, 1);
     int streamedLength = stream.length();
     msg.setLength(sizeof(int) + streamedLength);
@@ -8109,7 +8110,7 @@ void *usageExampleMinusOne(void *arg)
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         char *msgData = msg.second.buffer(0).data();
         msgData += sizeof(int);
-        bdlxxxx::ByteInStream stream(msgData, msg.second.length()
+        bslx::ByteInStream stream(msgData, msg.second.length()
                                      - sizeof(int));
         bsls::TimeInterval initialTime;
         bdex_InStreamFunctions::streamIn(stream, initialTime, 1);
@@ -9089,13 +9090,13 @@ void TestDriver::testCase37()
                 char                  rawLength[sizeof length];
 
                 length = strlen(TEXT) + 1;
-                bdlxxxx::ByteStreamImpUtil::putInt32(rawLength, length);
+                bslx::MarshallingUtil::putInt32(rawLength, length);
                 channel.write(rawLength, sizeof length);
                 channel.write(TEXT, length);
 
                 // Read Response
                 channel.read(rawLength, sizeof length);
-                bdlxxxx::ByteStreamImpUtil::getInt32(&length, rawLength);
+                bslx::MarshallingUtil::getInt32(&length, rawLength);
                 LOOP_ASSERT(i, 0 < length);
                 char   *text = new char[length];
                 channel.read(text, length);

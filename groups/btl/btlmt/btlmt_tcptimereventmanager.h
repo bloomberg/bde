@@ -212,10 +212,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_timequeue.h>
 #endif
 
-#ifndef INCLUDED_BDLCFXXX_VFUNC0
-#include <bdlcfxxx_vfunc0.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOL
 #include <bdlma_concurrentpool.h>
 #endif
@@ -378,11 +374,6 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
       , INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    typedef bdlcfxxx::Vfunc0                   Callback;
-        // DEPRECATED: Use 'btlso::TimerEventManager::Callback' instead.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
   private:
     // PRIVATE TYPES
