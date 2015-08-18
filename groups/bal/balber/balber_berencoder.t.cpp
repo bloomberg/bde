@@ -2,13 +2,18 @@
 
 #include <balber_berencoder.h>
 
+#include <balber_berconstants.h>   // for usage only
+#include <balber_berutil.h>   // for usage only
+
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_valuetypefunctions.h>
+#include <bdlat_sequencefunctions.h>  // Usage
 
 #include <bdlt_serialdateimputil.h>
 
 #include <bdlsb_memoutstreambuf.h>
+#include <bdlsb_fixedmeminstreambuf.h>        // for testing only               
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -26,6 +31,8 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
+#include <bsl_cassert.h>
+#include <bsl_cstring.h>  // 'bsl::strlen'
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 
@@ -6765,7 +6772,7 @@ bsl::ostream& test::operator<<(
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_messages.cpp   -*-C++-*-
 
@@ -8711,1525 +8718,564 @@ bsl::ostream& TimingRequest::print(
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
 
 // ************************ END OF GENERATED CODE **************************
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #if 0
+    #include <bdlat_sequencefunctions.h>
+    #include <bdlat_formattingmode.h>
+    #include <bdlat_attributeinfo.h>
+    #include <bdlb_string.h>
+    #include <string>
 
-// The following code was generated using the command:
-//..
-//   bas_codegen.pl -g h -g cpp -p test employee.xsd
-//..
-// where 'employeed.xsd' matches the schema shown in the example below:
-
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-// usage_schema.h           *GENERATED FILE - DO NOT EDIT*            -*-C++-*-
-#ifndef INCLUDED_USAGE_SCHEMA
-#define INCLUDED_USAGE_SCHEMA
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT_RCSID(usage_schema_h,"$Id$ $CSID$")
-BSLS_IDENT_PRAGMA_ONCE
-
-//@PURPOSE: Provide value-semantic attribute classes
 //
-//@AUTHOR: Steven BREITSTEIN (sbreitstein@bloomberg.net)
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
+//..
+    namespace BloombergLP {
+    namespace usage {
 
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
+    struct EmployeeRecord {
+        // This struct represents a sequence containing a 'string' member, an
+        // 'int' member, and a 'float' member.
 
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
-#include <bdlat_selectioninfo.h>
-#endif
+        // CONSTANTS
+        enum {
+            NAME_ATTRIBUTE_ID   = 1,
+            AGE_ATTRIBUTE_ID    = 2,
+            SALARY_ATTRIBUTE_ID = 3
+        };
 
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
-#include <bslx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
-#include <bslx_outstreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-namespace BloombergLP {
-
-class bcem_Aggregate;
-
-namespace bslma { class Allocator; }
-
-namespace usage { class Address; }
-namespace usage { class Employee; }
-namespace usage {
-
-                               // =============                                
-                               // class Address                                
-                               // =============                                
-
-class Address {
-
-    // INSTANCE DATA
-    bsl::string  d_street;
-    bsl::string  d_city;
-    bsl::string  d_state;
-
-  public:
-    // TYPES
-    enum {
-        ATTRIBUTE_ID_STREET = 0
-      , ATTRIBUTE_ID_CITY   = 1
-      , ATTRIBUTE_ID_STATE  = 2
+        // DATA MEMBERS
+        bsl::string d_name;
+        int         d_age;
+        float       d_salary;
     };
 
-    enum {
-        NUM_ATTRIBUTES = 3
-    };
-
-    enum {
-        ATTRIBUTE_INDEX_STREET = 0
-      , ATTRIBUTE_INDEX_CITY   = 1
-      , ATTRIBUTE_INDEX_STATE  = 2
-    };
-
-    // CONSTANTS
-    static const char CLASS_NAME[];
-
-    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-
-  public:
-    // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
-
-    static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
-
-    // CREATORS
-    explicit Address(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Address' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-
-    Address(const Address& original,
-            bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Address' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
-
-    ~Address();
-        // Destroy this object.
-
-    // MANIPULATORS
-    Address& operator=(const Address& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
-
-    int fromAggregate(const bcem_Aggregate& aggregate);
-        // Store the value of the specified 'aggregate' into this object.
-        // Return 0 on success, and a non-zero value otherwise.
-
-    void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
-
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
-
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
-
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
-                            const char   *name,
-                            int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
-
-    bsl::string& street();
-        // Return a reference to the modifiable "Street" attribute of this
-        // object.
-
-    bsl::string& city();
-        // Return a reference to the modifiable "City" attribute of this
-        // object.
-
-    bsl::string& state();
-        // Return a reference to the modifiable "State" attribute of this
-        // object.
-
-    // ACCESSORS
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
-
-    int toAggregate(bcem_Aggregate *result) const;
-        // Load the specified 'result' with the value of this object.  Return
-        // 0 on success, and a non-zero value otherwise.
-
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
-
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
-
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
-                        const char *name,
-                        int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
-
-    const bsl::string& street() const;
-        // Return a reference to the non-modifiable "Street" attribute of this
-        // object.
-
-    const bsl::string& city() const;
-        // Return a reference to the non-modifiable "City" attribute of this
-        // object.
-
-    const bsl::string& state() const;
-        // Return a reference to the non-modifiable "State" attribute of this
-        // object.
-};
-
-// FREE OPERATORS
-inline
-bool operator==(const Address& lhs, const Address& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
-
-inline
-bool operator!=(const Address& lhs, const Address& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
-
-}  // close package namespace
-
-// TRAITS
-
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(usage::Address)
-
-namespace usage {
-
-                               // ==============                               
-                               // class Employee                               
-                               // ==============                               
-
-class Employee {
-
-    // INSTANCE DATA
-    bsl::string  d_name;
-    Address      d_homeAddress;
-    int          d_age;
-
-  public:
-    // TYPES
-    enum {
-        ATTRIBUTE_ID_NAME         = 0
-      , ATTRIBUTE_ID_HOME_ADDRESS = 1
-      , ATTRIBUTE_ID_AGE          = 2
-    };
-
-    enum {
-        NUM_ATTRIBUTES = 3
-    };
-
-    enum {
-        ATTRIBUTE_INDEX_NAME         = 0
-      , ATTRIBUTE_INDEX_HOME_ADDRESS = 1
-      , ATTRIBUTE_INDEX_AGE          = 2
-    };
-
-    // CONSTANTS
-    static const char CLASS_NAME[];
-
-    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-
-  public:
-    // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
-
-    static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
-
-    // CREATORS
-    explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-
-    Employee(const Employee& original,
-             bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
-
-    ~Employee();
-        // Destroy this object.
-
-    // MANIPULATORS
-    Employee& operator=(const Employee& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
-
-    int fromAggregate(const bcem_Aggregate& aggregate);
-        // Store the value of the specified 'aggregate' into this object.
-        // Return 0 on success, and a non-zero value otherwise.
-
-    void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
-
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
-
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
-
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
-                            const char   *name,
-                            int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
-
-    bsl::string& name();
-        // Return a reference to the modifiable "Name" attribute of this
-        // object.
-
-    Address& homeAddress();
-        // Return a reference to the modifiable "HomeAddress" attribute of this
-        // object.
-
-    int& age();
-        // Return a reference to the modifiable "Age" attribute of this object.
-
-    // ACCESSORS
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
-
-    int toAggregate(bcem_Aggregate *result) const;
-        // Load the specified 'result' with the value of this object.  Return
-        // 0 on success, and a non-zero value otherwise.
-
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
-
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
-
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
-                        const char *name,
-                        int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
-
-    const bsl::string& name() const;
-        // Return a reference to the non-modifiable "Name" attribute of this
-        // object.
-
-    const Address& homeAddress() const;
-        // Return a reference to the non-modifiable "HomeAddress" attribute of
-        // this object.
-
-    int age() const;
-        // Return a reference to the non-modifiable "Age" attribute of this
-        // object.
-};
-
-// FREE OPERATORS
-inline
-bool operator==(const Employee& lhs, const Employee& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
-
-inline
-bool operator!=(const Employee& lhs, const Employee& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
-
-}  // close package namespace
-
-// TRAITS
-
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(usage::Employee)
-
-// ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-namespace usage {
-
-                               // -------------                                
-                               // class Address                                
-                               // -------------                                
-
-// CLASS METHODS
-inline
-int Address::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
-// MANIPULATORS
-template <class STREAM>
-STREAM& Address::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_street, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_city, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_state, 1);
-          } break;
+    }  // close namespace 'usage'
+//..
+// We can now make 'usage::EmployeeRecord' expose "sequence" behavior by
+// implementing the necessary 'bdlat_sequence*' functions for 'MySequence'
+// inside the 'usage' namespace.  First, we should forward declare all the
+// functions that we will implement inside the 'mine' namespace:
+//..
+    namespace usage {
+
+    template <typename MANIPULATOR>
+    int bdlat_sequenceManipulateAttribute(EmployeeRecord   *object,
+                                          MANIPULATOR&  manipulator,
+                                          const char   *attributeName,
+                                          int           attributeNameLength);
+    template <typename MANIPULATOR>
+    int bdlat_sequenceManipulateAttribute(EmployeeRecord   *object,
+                                          MANIPULATOR&  manipulator,
+                                          int           attributeId);
+    template <typename MANIPULATOR>
+    int bdlat_sequenceManipulateAttributes(EmployeeRecord   *object,
+                                           MANIPULATOR&  manipulator);
+    template <typename ACCESSOR>
+    int bdlat_sequenceAccessAttribute(const EmployeeRecord&  object,
+                                      ACCESSOR&          accessor,
+                                      const char        *attributeName,
+                                      int                attributeNameLength);
+    template <typename ACCESSOR>
+    int bdlat_sequenceAccessAttribute(const EmployeeRecord& object,
+                                      ACCESSOR&         accessor,
+                                      int               attributeId);
+    template <typename ACCESSOR>
+    int bdlat_sequenceAccessAttributes(const EmployeeRecord& object,
+                                       ACCESSOR&         accessor);
+    bool bdlat_sequenceHasAttribute(const EmployeeRecord&  object,
+                                    const char        *attributeName,
+                                    int                attributeNameLength);
+    bool bdlat_sequenceHasAttribute(const EmployeeRecord& object,
+                                    int               attributeId);
+
+    }  // close namespace 'usage'
+//..
+// Now, we will implement these functions.  Note that for this implementation,
+// we will create a temporary 'bdlat_AttributeInfo' object and pass it along
+// when invoking the manipulator or accessor.  See the 'bdlat_attributeinfo'
+// component-level documentation for more information.  The implementation of
+// the functions are as follows:
+//..
+    template <typename MANIPULATOR>
+    int usage::bdlat_sequenceManipulateAttribute(
+                                             EmployeeRecord   *object,
+                                             MANIPULATOR&  manipulator,
+                                             const char   *attributeName,
+                                             int           attributeNameLength)
+    {
+        enum { NOT_FOUND = -1 };
+
+        if (bdlb::String::areEqualCaseless("name",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceManipulateAttribute(
+                                                object,
+                                                manipulator,
+                                                EmployeeRecord::NAME_ATTRIBUTE_ID);
+        }
+
+        if (bdlb::String::areEqualCaseless("age",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceManipulateAttribute(
+                                                 object,
+                                                 manipulator,
+                                                 EmployeeRecord::AGE_ATTRIBUTE_ID);
+        }
+
+        if (bdlb::String::areEqualCaseless("salary",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceManipulateAttribute(
+                                              object,
+                                              manipulator,
+                                              EmployeeRecord::SALARY_ATTRIBUTE_ID);
+        }
+
+        return NOT_FOUND;
+    }
+
+    template <typename MANIPULATOR>
+    int usage::bdlat_sequenceManipulateAttribute(EmployeeRecord   *object,
+                                                 MANIPULATOR&  manipulator,
+                                                 int           attributeId)
+    {
+        enum { NOT_FOUND = -1 };
+
+        switch (attributeId) {
+          case EmployeeRecord::NAME_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Name of employee";
+            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.id()             = EmployeeRecord::NAME_ATTRIBUTE_ID;
+            info.name()           = "name";
+            info.nameLength()     = 4;
+
+            return manipulator(&object->d_name, info);
+          }
+          case EmployeeRecord::AGE_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Age of employee";
+            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.id()             = EmployeeRecord::AGE_ATTRIBUTE_ID;
+            info.name()           = "age";
+            info.nameLength()     = 3;
+
+            return manipulator(&object->d_age, info);
+          }
+          case EmployeeRecord::SALARY_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+
+            info.annotation()     = "Salary of employee";
+            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.id()             = EmployeeRecord::SALARY_ATTRIBUTE_ID;
+            info.name()           = "salary";
+            info.nameLength()     = 6;
+
+            return manipulator(&object->d_salary, info);
+          }
           default: {
-            stream.invalidate();
+              return NOT_FOUND;
           }
         }
     }
-    return stream;
-}
 
-template <class MANIPULATOR>
-int Address::manipulateAttributes(MANIPULATOR& manipulator)
-{
-    int ret;
+    template <typename MANIPULATOR>
+    int usage::bdlat_sequenceManipulateAttributes(EmployeeRecord   *object,
+                                                  MANIPULATOR&  manipulator)
+    {
+        int retVal;
 
-    ret = manipulator(&d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-    if (ret) {
-        return ret;
+        retVal = bdlat_sequenceManipulateAttribute(
+                                                object,
+                                                manipulator,
+                                                EmployeeRecord::NAME_ATTRIBUTE_ID);
+
+        if (0 != retVal) {
+            return retVal;
+        }
+
+        retVal = bdlat_sequenceManipulateAttribute(
+                                                 object,
+                                                 manipulator,
+                                                 EmployeeRecord::AGE_ATTRIBUTE_ID);
+
+        if (0 != retVal) {
+            return retVal;
+        }
+
+        retVal = bdlat_sequenceManipulateAttribute(
+                                              object,
+                                              manipulator,
+                                              EmployeeRecord::SALARY_ATTRIBUTE_ID);
+
+        return retVal;
     }
 
-    ret = manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-    if (ret) {
-        return ret;
-    }
+    // ACCESSORS
+    template <typename ACCESSOR>
+    int usage::bdlat_sequenceAccessAttribute(
+                                        const EmployeeRecord&  object,
+                                        ACCESSOR&          accessor,
+                                        const char        *attributeName,
+                                        int                attributeNameLength)
+    {
+        enum { NOT_FOUND = -1 };
 
-    ret = manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-    if (ret) {
-        return ret;
-    }
+        if (bdlb::String::areEqualCaseless("name",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(
+                                                object,
+                                                accessor,
+                                                EmployeeRecord::NAME_ATTRIBUTE_ID);
+        }
 
-    return ret;
-}
+        if (bdlb::String::areEqualCaseless("age",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(object,
+                                                 accessor,
+                                                 EmployeeRecord::AGE_ATTRIBUTE_ID);
+        }
 
-template <class MANIPULATOR>
-int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
-{
-    enum { NOT_FOUND = -1 };
+        if (bdlb::String::areEqualCaseless("salary",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(
+                                              object,
+                                              accessor,
+                                              EmployeeRecord::SALARY_ATTRIBUTE_ID);
+        }
 
-    switch (id) {
-      case ATTRIBUTE_ID_STREET: {
-        return manipulator(&d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-      } break;
-      case ATTRIBUTE_ID_CITY: {
-        return manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-      } break;
-      case ATTRIBUTE_ID_STATE: {
-        return manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-      } break;
-      default:
         return NOT_FOUND;
     }
-}
 
-template <class MANIPULATOR>
-int Address::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
-{
-    enum { NOT_FOUND = -1 };
+    template <typename ACCESSOR>
+    int usage::bdlat_sequenceAccessAttribute(const EmployeeRecord& object,
+                                             ACCESSOR&         accessor,
+                                             int               attributeId)
+    {
+        enum { NOT_FOUND = -1 };
 
-    const bdlat_AttributeInfo *attributeInfo =
-           lookupAttributeInfo(name, nameLength);
-    if (0 == attributeInfo) {
-        return NOT_FOUND;
-    }
+        switch (attributeId) {
+          case EmployeeRecord::NAME_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
 
-    return manipulateAttribute(manipulator, attributeInfo->d_id);
-}
+            info.annotation()     = "Name of employee";
+            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.id()             = EmployeeRecord::NAME_ATTRIBUTE_ID;
+            info.name()           = "name";
+            info.nameLength()     = 4;
 
-inline
-bsl::string& Address::street()
-{
-    return d_street;
-}
+            return accessor(object.d_name, info);
+          }
+          case EmployeeRecord::AGE_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
 
-inline
-bsl::string& Address::city()
-{
-    return d_city;
-}
+            info.annotation()     = "Age of employee";
+            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.id()             = EmployeeRecord::AGE_ATTRIBUTE_ID;
+            info.name()           = "age";
+            info.nameLength()     = 3;
 
-inline
-bsl::string& Address::state()
-{
-    return d_state;
-}
+            return accessor(object.d_age, info);
+          }
+          case EmployeeRecord::SALARY_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
 
-// ACCESSORS
-template <class STREAM>
-STREAM& Address::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_street, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_city, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_state, 1);
-      } break;
-    }
-    return stream;
-}
+            info.annotation()     = "Salary of employee";
+            info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+            info.id()             = EmployeeRecord::SALARY_ATTRIBUTE_ID;
+            info.name()           = "salary";
+            info.nameLength()     = 6;
 
-template <class ACCESSOR>
-int Address::accessAttributes(ACCESSOR& accessor) const
-{
-    int ret;
-
-    ret = accessor(d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-    if (ret) {
-        return ret;
-    }
-
-    return ret;
-}
-
-template <class ACCESSOR>
-int Address::accessAttribute(ACCESSOR& accessor, int id) const
-{
-    enum { NOT_FOUND = -1 };
-
-    switch (id) {
-      case ATTRIBUTE_ID_STREET: {
-        return accessor(d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
-      } break;
-      case ATTRIBUTE_ID_CITY: {
-        return accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
-      } break;
-      case ATTRIBUTE_ID_STATE: {
-        return accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
-      } break;
-      default:
-        return NOT_FOUND;
-    }
-}
-
-template <class ACCESSOR>
-int Address::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
-{
-    enum { NOT_FOUND = -1 };
-
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
-                                                                   nameLength);
-    if (!attributeInfo) {
-       return NOT_FOUND;
-    }
-
-    return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-inline
-const bsl::string& Address::street() const
-{
-    return d_street;
-}
-
-inline
-const bsl::string& Address::city() const
-{
-    return d_city;
-}
-
-inline
-const bsl::string& Address::state() const
-{
-    return d_state;
-}
-
-
-
-                               // --------------                               
-                               // class Employee                               
-                               // --------------                               
-
-// CLASS METHODS
-inline
-int Employee::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
-// MANIPULATORS
-template <class STREAM>
-STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_name, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_homeAddress, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_age, 1);
-          } break;
+            return accessor(object.d_salary, info);
+          }
           default: {
-            stream.invalidate();
+              return NOT_FOUND;
           }
         }
     }
-    return stream;
-}
 
-template <class MANIPULATOR>
-int Employee::manipulateAttributes(MANIPULATOR& manipulator)
-{
-    int ret;
-
-    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = manipulator(&d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-    if (ret) {
-        return ret;
-    }
-
-    return ret;
-}
-
-template <class MANIPULATOR>
-int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
-{
-    enum { NOT_FOUND = -1 };
-
-    switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-      } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
-        return manipulator(&d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-      } break;
-      case ATTRIBUTE_ID_AGE: {
-        return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-      } break;
-      default:
-        return NOT_FOUND;
-    }
-}
-
-template <class MANIPULATOR>
-int Employee::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
-{
-    enum { NOT_FOUND = -1 };
-
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
-                                                                   nameLength);
-    if (!attributeInfo) {
-        return NOT_FOUND;
-    }
-
-    return manipulateAttribute(manipulator, attributeInfo->d_id);
-}
-
-inline
-bsl::string& Employee::name()
-{
-    return d_name;
-}
-
-inline
-Address& Employee::homeAddress()
-{
-    return d_homeAddress;
-}
-
-inline
-int& Employee::age()
-{
-    return d_age;
-}
-
-// ACCESSORS
-template <class STREAM>
-STREAM& Employee::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_name, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_homeAddress, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_age, 1);
-      } break;
-    }
-    return stream;
-}
-
-template <class ACCESSOR>
-int Employee::accessAttributes(ACCESSOR& accessor) const
-{
-    int ret;
-
-    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-    if (ret) {
-        return ret;
-    }
-
-    return ret;
-}
-
-template <class ACCESSOR>
-int Employee::accessAttribute(ACCESSOR& accessor, int id) const
-{
-    enum { NOT_FOUND = -1 };
-
-    switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
-      } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
-        return accessor(d_homeAddress, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
-      } break;
-      case ATTRIBUTE_ID_AGE: {
-        return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
-      } break;
-      default:
-        return NOT_FOUND;
-    }
-}
-
-template <class ACCESSOR>
-int Employee::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
-{
-    enum { NOT_FOUND = -1 };
-
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
-                                                                   nameLength);
-    if (!attributeInfo) {
-       return NOT_FOUND;
-    }
-
-    return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-inline
-const bsl::string& Employee::name() const
-{
-    return d_name;
-}
-
-inline
-const Address& Employee::homeAddress() const
-{
-    return d_homeAddress;
-}
-
-inline
-int Employee::age() const
-{
-    return d_age;
-}
-
-}  // close package namespace
-
-// FREE FUNCTIONS
-
-inline
-bool usage::operator==(
-        const usage::Address& lhs,
-        const usage::Address& rhs)
-{
-    return  lhs.street() == rhs.street()
-         && lhs.city() == rhs.city()
-         && lhs.state() == rhs.state();
-}
-
-inline
-bool usage::operator!=(
-        const usage::Address& lhs,
-        const usage::Address& rhs)
-{
-    return  lhs.street() != rhs.street()
-         || lhs.city() != rhs.city()
-         || lhs.state() != rhs.state();
-}
-
-inline
-bsl::ostream& usage::operator<<(
-        bsl::ostream& stream,
-        const usage::Address& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool usage::operator==(
-        const usage::Employee& lhs,
-        const usage::Employee& rhs)
-{
-    return  lhs.name() == rhs.name()
-         && lhs.homeAddress() == rhs.homeAddress()
-         && lhs.age() == rhs.age();
-}
-
-inline
-bool usage::operator!=(
-        const usage::Employee& lhs,
-        const usage::Employee& rhs)
-{
-    return  lhs.name() != rhs.name()
-         || lhs.homeAddress() != rhs.homeAddress()
-         || lhs.age() != rhs.age();
-}
-
-inline
-bsl::ostream& usage::operator<<(
-        bsl::ostream& stream,
-        const usage::Employee& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-}  // close enterprise namespace
-#endif
-
-// GENERATED BY BLP_BAS_CODEGEN_3.8.4 Fri Aug 14 17:59:31 2015
-// USING bas_codegen.pl -g h -g cpp -p usage employee.xsd
-// SERVICE VERSION 
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-// usage_schema.cpp          *GENERATED FILE - DO NOT EDIT*           -*-C++-*-
-
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(usage_schema_cpp,"$Id$ $CSID$")
-
-#include <usage_schema.h>
-
-#include <bcem_aggregate.h>
-#include <bcem_aggregateutil.h>
-
-#include <bdlat_formattingmode.h>
-#include <bdlat_valuetypefunctions.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bdlb_string.h>
-
-#include <bsl_string.h>
-
-#include <bslim_printer.h>
-#include <bsls_assert.h>
-
-#include <bsl_iomanip.h>
-#include <bsl_limits.h>
-#include <bsl_ostream.h>
-
-namespace BloombergLP {
-namespace usage {
-
-                               // -------------                                
-                               // class Address                                
-                               // -------------                                
-
-// CONSTANTS
-
-const char Address::CLASS_NAME[] = "Address";
-
-const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
+    template <typename ACCESSOR>
+    int usage::bdlat_sequenceAccessAttributes(const EmployeeRecord& object,
+                                              ACCESSOR&         accessor)
     {
-        ATTRIBUTE_ID_STREET,
-        "street",
-        sizeof("street") - 1,
-        "",
-        bdeat_FormattingMode::BDEAT_TEXT
-    },
-    {
-        ATTRIBUTE_ID_CITY,
-        "city",
-        sizeof("city") - 1,
-        "",
-        bdeat_FormattingMode::BDEAT_TEXT
-    },
-    {
-        ATTRIBUTE_ID_STATE,
-        "state",
-        sizeof("state") - 1,
-        "",
-        bdeat_FormattingMode::BDEAT_TEXT
-    }
-};
+        int retVal;
 
-// CLASS METHODS
-const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
-                                                        int         nameLength)
-{
-    for (int i = 0; i < 3; ++i) {
-        const bdlat_AttributeInfo attributeInfo =
-                    Address::ATTRIBUTE_INFO_ARRAY[i];
+        retVal = bdlat_sequenceAccessAttribute(object,
+                                               accessor,
+                                               EmployeeRecord::NAME_ATTRIBUTE_ID);
 
-        if (nameLength == attributeInfo.d_nameLength
-        &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
-        {
-            return &attributeInfo;
+        if (0 != retVal) {
+            return retVal;
         }
-    }
 
-    return 0;
-}
+        retVal = bdlat_sequenceAccessAttribute(object,
+                                               accessor,
+                                               EmployeeRecord::AGE_ATTRIBUTE_ID);
 
-const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
-{
-    switch (id) {
-      case ATTRIBUTE_ID_STREET:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];
-      case ATTRIBUTE_ID_CITY:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];
-      case ATTRIBUTE_ID_STATE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];
-      default:
-        return 0;
-    }
-}
-
-// CREATORS
-
-Address::Address(bslma::Allocator *basicAllocator)
-: d_street(basicAllocator)
-, d_city(basicAllocator)
-, d_state(basicAllocator)
-{
-}
-
-Address::Address(const Address& original,
-                 bslma::Allocator *basicAllocator)
-: d_street(original.d_street, basicAllocator)
-, d_city(original.d_city, basicAllocator)
-, d_state(original.d_state, basicAllocator)
-{
-}
-
-Address::~Address()
-{
-}
-
-// MANIPULATORS
-
-Address&
-Address::operator=(const Address& rhs)
-{
-    if (this != &rhs) {
-        d_street = rhs.d_street;
-        d_city = rhs.d_city;
-        d_state = rhs.d_state;
-    }
-
-    return *this;
-}
-
-int Address::fromAggregate(const bcem_Aggregate& aggregate)
-{
-    int rc;
-    if ((rc = bcem_AggregateUtil::fromAggregate(
-                       &d_street,
-                       aggregate,
-                       ATTRIBUTE_ID_STREET)) ||
-        (rc = bcem_AggregateUtil::fromAggregate(
-                       &d_city,
-                       aggregate,
-                       ATTRIBUTE_ID_CITY)) ||
-        (rc = bcem_AggregateUtil::fromAggregate(
-                       &d_state,
-                       aggregate,
-                       ATTRIBUTE_ID_STATE)))
-    {
-        return rc;
-    }
-    return 0;
-}
-
-void Address::reset()
-{
-    bdeat_ValueTypeFunctions::reset(&d_street);
-    bdeat_ValueTypeFunctions::reset(&d_city);
-    bdeat_ValueTypeFunctions::reset(&d_state);
-}
-
-// ACCESSORS
-
-bsl::ostream& Address::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
-{
-    bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start();
-    printer.printAttribute("street", d_street);
-    printer.printAttribute("city", d_city);
-    printer.printAttribute("state", d_state);
-    printer.end();
-    return stream;
-}
-
-int Address::toAggregate(bcem_Aggregate *result) const
-{
-    int rc;
-
-    rc = bcem_AggregateUtil::toAggregate(
-                       result,
-                       ATTRIBUTE_ID_STREET,
-                       d_street);
-    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
-        return rc;
-    }
-
-    rc = bcem_AggregateUtil::toAggregate(
-                       result,
-                       ATTRIBUTE_ID_CITY,
-                       d_city);
-    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
-        return rc;
-    }
-
-    rc = bcem_AggregateUtil::toAggregate(
-                       result,
-                       ATTRIBUTE_ID_STATE,
-                       d_state);
-    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
-        return rc;
-    }
-
-    return 0;
-}
-
-
-                               // --------------                               
-                               // class Employee                               
-                               // --------------                               
-
-// CONSTANTS
-
-const char Employee::CLASS_NAME[] = "Employee";
-
-const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
-    {
-        ATTRIBUTE_ID_NAME,
-        "name",
-        sizeof("name") - 1,
-        "",
-        bdeat_FormattingMode::BDEAT_TEXT
-    },
-    {
-        ATTRIBUTE_ID_HOME_ADDRESS,
-        "homeAddress",
-        sizeof("homeAddress") - 1,
-        "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
-    },
-    {
-        ATTRIBUTE_ID_AGE,
-        "age",
-        sizeof("age") - 1,
-        "",
-        bdeat_FormattingMode::BDEAT_DEC
-    }
-};
-
-// CLASS METHODS
-
-const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
-{
-    for (int i = 0; i < 3; ++i) {
-        const bdlat_AttributeInfo attributeInfo =
-                    Employee::ATTRIBUTE_INFO_ARRAY[i];
-
-        if (nameLength == attributeInfo.d_nameLength
-        &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
-        {
-            return &attributeInfo;
+        if (0 != retVal) {
+            return retVal;
         }
+
+        retVal = bdlat_sequenceAccessAttribute(
+                                              object,
+                                              accessor,
+                                              EmployeeRecord::SALARY_ATTRIBUTE_ID);
+
+        return retVal;
     }
 
-    return 0;
-}
-
-const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
-{
-    switch (id) {
-      case ATTRIBUTE_ID_NAME:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
-      case ATTRIBUTE_ID_HOME_ADDRESS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
-      case ATTRIBUTE_ID_AGE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
-      default:
-        return 0;
-    }
-}
-
-// CREATORS
-
-Employee::Employee(bslma::Allocator *basicAllocator)
-: d_name(basicAllocator)
-, d_homeAddress(basicAllocator)
-, d_age()
-{
-}
-
-Employee::Employee(const Employee& original,
-                   bslma::Allocator *basicAllocator)
-: d_name(original.d_name, basicAllocator)
-, d_homeAddress(original.d_homeAddress, basicAllocator)
-, d_age(original.d_age)
-{
-}
-
-Employee::~Employee()
-{
-}
-
-// MANIPULATORS
-
-Employee&
-Employee::operator=(const Employee& rhs)
-{
-    if (this != &rhs) {
-        d_name = rhs.d_name;
-        d_homeAddress = rhs.d_homeAddress;
-        d_age = rhs.d_age;
-    }
-
-    return *this;
-}
-
-int Employee::fromAggregate(const bcem_Aggregate& aggregate)
-{
-    int rc;
-    if ((rc = bcem_AggregateUtil::fromAggregate(
-                       &d_name,
-                       aggregate,
-                       ATTRIBUTE_ID_NAME)) ||
-        (rc = bcem_AggregateUtil::fromAggregate(
-                       &d_homeAddress,
-                       aggregate,
-                       ATTRIBUTE_ID_HOME_ADDRESS)) ||
-        (rc = bcem_AggregateUtil::fromAggregate(
-                       &d_age,
-                       aggregate,
-                       ATTRIBUTE_ID_AGE)))
+    bool usage::bdlat_sequenceHasAttribute(
+                                        const EmployeeRecord&  ,
+                                        const char        *attributeName,
+                                        int                attributeNameLength)
     {
-        return rc;
-    }
-    return 0;
-}
-
-void Employee::reset()
-{
-    bdeat_ValueTypeFunctions::reset(&d_name);
-    bdeat_ValueTypeFunctions::reset(&d_homeAddress);
-    bdeat_ValueTypeFunctions::reset(&d_age);
-}
-
-// ACCESSORS
-
-bsl::ostream& Employee::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
-{
-    bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start();
-    printer.printAttribute("name", d_name);
-    printer.printAttribute("homeAddress", d_homeAddress);
-    printer.printAttribute("age", d_age);
-    printer.end();
-    return stream;
-}
-
-int Employee::toAggregate(bcem_Aggregate *result) const
-{
-    int rc;
-
-    rc = bcem_AggregateUtil::toAggregate(
-                       result,
-                       ATTRIBUTE_ID_NAME,
-                       d_name);
-    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
-        return rc;
+        return bdlb::String::areEqualCaseless("name",
+                                              attributeName,
+                                              attributeNameLength)
+            || bdlb::String::areEqualCaseless("age",
+                                              attributeName,
+                                              attributeNameLength)
+            || bdlb::String::areEqualCaseless("salary",
+                                              attributeName,
+                                              attributeNameLength);
     }
 
-    rc = bcem_AggregateUtil::toAggregate(
-                       result,
-                       ATTRIBUTE_ID_HOME_ADDRESS,
-                       d_homeAddress);
-    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
-        return rc;
+    bool usage::bdlat_sequenceHasAttribute(const EmployeeRecord& ,
+                                           int               attributeId)
+    {
+        return EmployeeRecord::NAME_ATTRIBUTE_ID   == attributeId
+            || EmployeeRecord::AGE_ATTRIBUTE_ID    == attributeId
+            || EmployeeRecord::SALARY_ATTRIBUTE_ID == attributeId;
     }
-
-    rc = bcem_AggregateUtil::toAggregate(
-                       result,
-                       ATTRIBUTE_ID_AGE,
-                       d_age);
-    if (rc != 0 && rc != bcem_Aggregate::BCEM_ERR_BAD_FIELDID) {
-        return rc;
-    }
-
-    return 0;
-}
-
-}  // close package namespace
-}  // close enterprise namespace
-
-// GENERATED BY BLP_BAS_CODEGEN_3.8.4 Fri Aug 14 17:59:31 2015
-// USING bas_codegen.pl -g h -g cpp -p usage employee.xsd
-// SERVICE VERSION 
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void usageExample()
-{
-///Usage
-///-----
-// This section illustrates intended use of this component.
-//
-///Example 1: Decoding an Employee Record
-/// - - - - - - - - - - - - - - - - - - -
-// Suppose we have an XML schema inside a file called 'employee.xsd':
 //..
-//  <?xml version='1.0' encoding='UTF-8'?>
-//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-//             xmlns:usage='http://bloomberg.com/schemas/usage'
-//             targetNamespace='http://bloomberg.com/schemas/usage'
-//             elementFormDefault='unqualified'>
-//  
-//      <xs:complexType name='Address'>
-//          <xs:sequence>
-//              <xs:element name='street' type='xs:string'/>
-//              <xs:element name='city'   type='xs:string'/>
-//              <xs:element name='state'  type='xs:string'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//  
-//      <xs:complexType name='Employee'>
-//          <xs:sequence>
-//              <xs:element name='name'        type='xs:string'/>
-//              <xs:element name='homeAddress' type='usage:Address'/>
-//              <xs:element name='age'         type='xs:int'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//  
-//  </xs:schema>
+// Finally, we need to specialize the 'IsSequence' meta-function in the
+// 'bdlat_SequenceFunctions' namespace for the 'usage::MySequence' type.  This
+// makes the 'bdlat' infrastructure recognize 'usage::MySequence' as a sequence
+// abstraction:
 //..
-// Using the 'bas_codegen.pl' tool, we can generate C++ classes for this
-// schema:
+    namespace bdlat_SequenceFunctions {
+
+        template <>
+        struct IsSequence<usage::EmployeeRecord> {
+            enum { VALUE = 1 };
+        };
+
+    }  // close namespace 'bdlat_SequenceFunctions'
+    }  // close enterprise namespace
 //..
-//  $ bas_codegen.pl -g h -g cpp -p usage employee.xsd
+
+
+
+// Note that the 'bdlat' framework can be used for functionality other than
+// encoding/decoding into XML.  When 'usage::EmployeeRecord' is plugged into the
+// framework, then it will be automatically usable within the framework.  For
+// example, the following snippets of code will print out all the attributes of
+// a sequence object:
 //..
-// This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
-//
-// Now suppose we want to encode information about a particular employee using
-// the BER encoding.  Note that we will use 'bdlsb' stream buffers for in-core
-// buffer management:
-//..
+    struct PrintAttribute {
+        // Print each visited object to the bound 'd_stream_p' object.
+
+        // DATA MEMBERS
+        bsl::ostream *d_stream_p;
+
+        template <typename TYPE, typename INFO>
+        int operator()(const TYPE& object, const INFO& info)
+        {
 #if 0
-    #include <bdlsb_memoutstreambuf.h>
-    #include <bdlsb_fixedmeminstreambuf.h>
-
-    #include <test_employee.h>
-
-    #include <balber_berencoder.h>
-    #include <balber_berdecoder.h>
+            (*d_stream_p) << info.name() << ": "
+                          << object << bsl::endl;
+#else
+            P(info.annotation())
+            P(info.formattingMode())
+            P(info.id())
+            P(info.name())
+            P(info.nameLength())
+            P(object)
 #endif
+            return 0;
+        }
+    };
 
+    template <typename TYPE>
+    void printSequenceAttributes(bsl::ostream& stream, const TYPE& object)
+    {
+        PrintAttribute accessor;
+        accessor.d_stream_p = &stream;
+
+        bdlat_SequenceFunctions::accessAttributes(object, accessor);
+    }
+//..
+// Now we have a generic function that takes an output stream and a sequence
+// object, and prints out each attribute with its name and value.  We can use
+// this generic function as follows:
+//..
+    void printEmployeeRecord(bsl::ostream& stream)
+    {
+        using namespace BloombergLP;
+
+        usage::EmployeeRecord object;
+
+        object.d_name   = "John Doe";
+        object.d_age    = 25;
+        object.d_salary = 12345.00;
+
+        stream << bsl::fixed << bsl::setprecision(2);
+
+        printSequenceAttributes(stream, object);
+    }
+//..
+// The function above will print the following to provided stream:
+//..
+//  name: John Doe
+//  age: 25
+//  salary: 12345.00
+//..
+
+
+
+
+
+
+
+
+
+static void  usageExample()
+{
     using namespace BloombergLP;
 
-    bdlsb::MemOutStreamBuf osb;
-    usage::Employee        bob;
+    usage::EmployeeRecord bob;
 
-    bob.name()                 = "Bob";
-    bob.homeAddress().street() = "Some Street";
-    bob.homeAddress().city()   = "Some City";
-    bob.homeAddress().state()  = "Some State";
-    bob.age()                  = 21;
+    assert(usage::bdlat_sequenceHasAttribute(bob,
+                                            "name",
+                                            bsl::strlen("name")));
+    assert(usage::bdlat_sequenceHasAttribute(bob,
+                                            "age",
+                                            bsl::strlen("age")));
+    assert(usage::bdlat_sequenceHasAttribute(bob,
+                                            "salary",
+                                            bsl::strlen("salary")));
+   
+    bob.d_name   = "John Doe";
+    bob.d_salary = 1234.00;
+    bob.d_age    = 56;
+
+    cout << bsl::fixed << bsl::setprecision(2);
+
+#if 0
+    printSequenceAttributes(cout, bob);
+#endif
+
+    bdlsb::MemOutStreamBuf osb;
 
     balber::BerEncoder encoder;
     int                retCode = encoder.encode(&osb, bob);
+    assert(0 == retCode);
 
-    ASSERT(0 == retCode);
-//..
-// At this point, 'osb' contains a representation of 'bob' in BER format.  Now
-// we will verify the contents of 'osb' using the 'balber_berdecoder'
-// component:
-//..
-    bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());    // NO COPY
-    usage::Employee            obj;
+    cout << "Byte count: " << osb.length() << '\n';
+    cout << "Data dump: Starts next line|\n";
 
-    balber::BerDecoder decoder;
-    retCode = decoder.decode(&isb, &obj);
+    write(2, osb.data(), osb.length());
 
-    ASSERT(0                          == retCode);
-    ASSERT(bob.name()                 == obj.name());
-    ASSERT(bob.homeAddress().street() == obj.homeAddress().street());
-    ASSERT(bob.homeAddress().city()   == obj.homeAddress().city());
-    ASSERT(bob.homeAddress().state()  == obj.homeAddress().state());
-    ASSERT(bob.age()                  == obj.age());
-//..
+    cout << "\n|Data dump: ended  previous line\n";
+
+    Q(Goon)
+
+    bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+
+    Q(getIdentifierOctets-1)
+
+    balber::BerConstants::TagClass tagClassIn;
+    balber::BerConstants::TagType  tagTypeIn;
+    int                            tagNumberIn;
+    int                            numBytesConsumed = 0;
+
+    retCode = balber::BerUtil::getIdentifierOctets(&isb,
+                                                   &tagClassIn,
+                                                   &tagTypeIn,
+                                                   &tagNumberIn,
+                                                   &numBytesConsumed),
+    assert(0 == retCode);
+    //assert(2 == numBytesConsumed);
+
+    P(tagClassIn)
+    P(tagTypeIn)
+    P(tagNumberIn)
+    P(numBytesConsumed)          
+
+    Q(getIdentifierOctets-2)
+    retCode = balber::BerUtil::getIdentifierOctets(&isb,
+                                                   &tagClassIn,
+                                                   &tagTypeIn,
+                                                   &tagNumberIn,
+                                                   &numBytesConsumed),
+    assert(0 == retCode);
+    //assert(2 == numBytesConsumed);
+
+    P(tagClassIn)
+    P(tagTypeIn)
+    P(tagNumberIn)
+    P(numBytesConsumed)          
+
+    Q(getIdentifierOctets-3)
+    retCode = balber::BerUtil::getIdentifierOctets(&isb,
+                                                   &tagClassIn,
+                                                   &tagTypeIn,
+                                                   &tagNumberIn,
+                                                   &numBytesConsumed),
+    assert(0 == retCode);
+    //assert(2 == numBytesConsumed);
+
+    P(tagClassIn)
+    P(tagTypeIn)
+    P(tagNumberIn)
+    P(numBytesConsumed)          
+
+    Q(getIdentifierOctets-4)
+    retCode = balber::BerUtil::getIdentifierOctets(&isb,
+                                                   &tagClassIn,
+                                                   &tagTypeIn,
+                                                   &tagNumberIn,
+                                                   &numBytesConsumed),
+    assert(0 == retCode);
+    //assert(2 == numBytesConsumed);
+
+    P(tagClassIn)
+    P(tagTypeIn)
+    P(tagNumberIn)
+    P(numBytesConsumed)          
+
+    Q(getLength)
+    int length;
+    retCode = balber::BerUtil::getLength(&isb,
+                                         &length,
+                                         &numBytesConsumed),
+    assert(0 == retCode);
+    P(length)
+
+    Q(getValue)
+    int value;
+    retCode = balber::BerUtil::getLength(&isb,
+                                         &value,
+                                         &numBytesConsumed),
+    assert(0 == retCode);
+    P(value)
 }
-#endif
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -10258,7 +9304,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Usage Example"
                                << "\n=====================" << bsl::endl;
 
-#if 0
+#if 1
         usageExample();
 #endif
 
@@ -10289,6 +9335,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year   month   day   opt  exp
   //----  -----  -----   ---   ---  ---
   {   L_, 2020,      1,    1,    1, "04 01 00"                       },
@@ -10404,7 +9451,7 @@ int main(int argc, char *argv[])
 
   {   L_,    1,      1,    1,    1, "04 03 F4BF70"                   },
   {   L_,    1,      1,    1,    0, "1a 0a 303030 312d3031 2d3031"   },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10456,6 +9503,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year   month   day   off   opt  exp
   //----  -----  -----   ---   ---   ---  ---
   {   L_, 2020,      1,    1,    0,    1, "04 01 00"                         },
@@ -10625,7 +9673,7 @@ int main(int argc, char *argv[])
   {   L_, 9999,     12,   31,-1439,    1, "04 05 FA612C79 4A"                },
   {   L_, 9999,     12,   31,-1439,    0,
                               "1A 10 393939 392d3132 2d33312D 32333A35 39"   },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10677,6 +9725,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  hour   min  sec  ms   opt  exp
   //----  -----  ---  ---  ---  ---  ---
   {   L_,     0,   0,   0,   0,   1, "04 01 00"                              },
@@ -10713,8 +9762,9 @@ int main(int argc, char *argv[])
   {   L_,    23,  59,  59, 999,   0, "1A 0C 32333A35 393A3539 2E393939"      },
 
   {   L_,    24,   0,   0,   0,   1, "04 01 00"                              },
-  // TBD: Current doesnt work
-//   {   L_,    24,   0,   0,   0,   0, "1A 0C 30303A30 303A3030 2E303030"   },
+// TBD: Current doesnt work
+// {  L_,    24,   0,   0,   0,   0, "1A 0C 30303A30 303A3030 2E303030"      },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10763,6 +9813,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  hour   min  sec  ms     off  opt  exp
   //----  -----  ---  ---  ---    ---  ---  ---
   {   L_,     0,   0,   0,   0,     0,  1, "04 01 00"                        },
@@ -10874,8 +9925,9 @@ int main(int argc, char *argv[])
                             "1A 12 32333A35 393A3539 2E393939 2D32333A 3539" },
 
   {   L_,    24,   0,   0,   0,     0,  1, "04 01 00"                        },
-  // TBD: Current doesnt work
-//   {   L_,    24,   0,   0,   0,   0, "04 0C 30303A30 303A3030 2E303030"   },
+// TBD: Current doesnt work
+// {  L_,    24,   0,   0,   0,   0, "04 0C 30303A30 303A3030 2E303030"      },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10928,6 +9980,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year  mon  day  hour   min  sec    ms    opt  exp
   //----  ----- ---  ---  ----   ---  ---    --    ---  ---
   {   L_, 2020,   1,   1,    0,    0,   0,    0,     1,
@@ -11254,6 +10307,7 @@ int main(int argc, char *argv[])
                                             "04 09 000000E5 0873B8F3 FF"     },
   {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,
                  "1A 17 39393939 2d31322d 33315432 333A3539 3A35392E 393939" },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11314,6 +10368,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year  mon  day  hour   min  sec    ms    off    opt  exp
   //----  ----- ---  ---  ----   ---  ---    --    ---    ---  ---
   {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,     1,
@@ -11705,7 +10760,7 @@ int main(int argc, char *argv[])
                                             "04 09 FA6100E5 0873B8F3 FF"     },
   {   L_, 9999,  12,  31,   23,   59,  59,  999, -1439,     0,
    "1A 1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392D 32333A35 39" },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

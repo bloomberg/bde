@@ -590,12 +590,10 @@ class BerDecoder_UniversalElementVisitor {
     // NOT IMPLEMENTED
     BerDecoder_UniversalElementVisitor(
                                const BerDecoder_UniversalElementVisitor&);
-                                                                    // =
-                                                                    // delete;
+                                                                   // = delete;
     BerDecoder_UniversalElementVisitor& operator=(
                                const BerDecoder_UniversalElementVisitor&);
-                                                                    // =
-                                                                    // delete;
+                                                                   // = delete;
 
   public:
     // CREATORS
@@ -1131,9 +1129,9 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
             BerDecoder_NodeVisitor visitor(&innerNode);
 
             rc = bdlat_SequenceFunctions::manipulateAttribute(
-                                                      variable,
-                                                      visitor,
-                                                      innerNode.tagNumber());
+                                                        variable,
+                                                        visitor,
+                                                        innerNode.tagNumber());
         }
         else {
             rc = innerNode.skipField();
@@ -1281,7 +1279,7 @@ BerDecoder_UniversalElementVisitor(BerDecoder *decoder)
 template <typename TYPE>
 int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 {
-    int alternateTag = -1;
+    int                          alternateTag      = -1;
     BerUniversalTagNumber::Value expectedTagNumber =
                          BerUniversalTagNumber::select(*variable,
                                                        d_node.formattingMode(),
@@ -1315,7 +1313,6 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 
 }  // close package namespace
 }  // close enterprise namespace
-
 #endif
 
 // ----------------------------------------------------------------------------

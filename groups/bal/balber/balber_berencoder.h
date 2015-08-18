@@ -310,14 +310,14 @@ class BerEncoder {
     ErrorSeverity logMsg(const char             *msg,
                          BerConstants::TagClass  tagClass,
                          int                     tagNumber,
-                         const char             *name  = 0,
+                         const char             *name  =  0,
                          int                     index = -1);
         // Log the specified 'msg' using the specified 'tagClass', 'tagNumber',
         // name, and 'index', and return 'errorSeverity()'.
 
     ErrorSeverity logError(BerConstants::TagClass  tagClass,
                            int                     tagNumber,
-                           const char             *name  = 0,
+                           const char             *name  =  0,
                            int                     index = -1);
         // Log error and upgrade the severity level.  Return 'errorSeverity()'.
 
@@ -395,7 +395,7 @@ class BerEncoder {
 
   public:
     // CREATORS
-    BerEncoder(const BerEncoderOptions *options = 0,
+    BerEncoder(const BerEncoderOptions *options        = 0,
                bslma::Allocator        *basicAllocator = 0);
         // Construct a encoder object.  Optionally specify decoder 'options'.
         // If 'options' is 0, 'BerEncoderOptions()' is used.  Optionally
@@ -463,7 +463,7 @@ class BerEncoder_Visitor {
     // encoding.  Produces always BER elements with CONTEXT_SPECIFIC BER tag.
 
     // DATA
-    BerEncoder             *d_encoder;   // encoder to write data to
+    BerEncoder             *d_encoder;     // encoder to write data to
     BerEncoder_LevelGuard   d_levelGuard;
 
     // NOT IMPLEMENTED
@@ -804,11 +804,10 @@ int BerEncoder::encodeImpl(const TYPE&                       value,
 
         // nillable is encoded in BER as a sequence with one optional element
 
-        int rc = BerUtil::putIdentifierOctets(
-                                           d_streamBuf,
-                                           tagClass,
-                                           BerConstants::e_CONSTRUCTED,
-                                           tagNumber);
+        int rc = BerUtil::putIdentifierOctets(d_streamBuf,
+                                              tagClass,
+                                              BerConstants::e_CONSTRUCTED,
+                                              tagNumber);
         if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
             return k_FAILURE;
         }
@@ -816,14 +815,13 @@ int BerEncoder::encodeImpl(const TYPE&                       value,
         if (!bdlat_NullableValueFunctions::isNull(value)) {
 
             BerEncoder_encodeProxy proxy1 = {
-                this,
-                BerConstants::e_CONTEXT_SPECIFIC, // tagClass
-                0,                                // tagNumber
-                formattingMode
-            };
+                                 this,
+                                 BerConstants::e_CONTEXT_SPECIFIC, // tagClass
+                                 0,                                // tagNumber
+                                 formattingMode };
 
-            if (0 != bdlat_NullableValueFunctions::accessValue(value, proxy1))
-            {
+            if (0 != bdlat_NullableValueFunctions::accessValue(value,
+                                                               proxy1)) {
                 return k_FAILURE;
             }
         } // end of bdlat_NullableValueFunctions::isNull(...)
@@ -841,7 +839,6 @@ int BerEncoder::encodeImpl(const TYPE&                       value,
         if (0 != bdlat_NullableValueFunctions::accessValue(value, proxy2)) {
                 return k_FAILURE;
         }
-
     }
 
     return k_SUCCESS;
@@ -1001,12 +998,11 @@ int BerEncoder::encodeImpl(const TYPE&                          value,
                                 int                             formattingMode,
                                 bdlat_TypeCategory::DynamicType )
 {
-    BerEncoder_encodeProxy proxy = {
-        this,
-        tagClass,
-        tagNumber,
-        formattingMode
-    };
+    BerEncoder_encodeProxy proxy = { this,
+                                     tagClass,
+                                     tagNumber,
+                                     formattingMode
+                                   };
 
     return bdlat_TypeCategoryUtil::accessByCategory(value, proxy);
 }

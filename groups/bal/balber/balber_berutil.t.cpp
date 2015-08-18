@@ -348,6 +348,7 @@ int main(int argc, char *argv[])
             int d_milliSecs; // milli seconds under test
             int d_tzoffset;  // time zone offset
         } DATA[] = {
+   //-------^
    //line no.  year   month   day   hour    min   sec    ms  offset
    //-------   -----  -----   ---   ----    ---   ---    --  ------
     {      L_,      1,     1,    1,     0,     0,    0,    0,      0     },
@@ -508,6 +509,7 @@ int main(int argc, char *argv[])
 
     {      L_,   9999,    12,   31,     0,     0,    0,    0,      0     },
     {      L_,   9999,    12,   31,    23,    59,   59,    0,   1439     },
+   //-------v
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -943,6 +945,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year   month   day   opt  exp
   //----  -----  -----   ---   ---  ---
   {   L_, 2020,      1,    1,    1, "01 00"                       },
@@ -1058,7 +1061,7 @@ int main(int argc, char *argv[])
 
   {   L_,    1,      1,    1,    1, "03 F4BF70"                   },
   {   L_,    1,      1,    1,    0, "0a 303030 312d3031 2d3031"   },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1124,6 +1127,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year   month   day   off   opt  exp
   //----  -----  -----   ---   ---   ---  ---
   {   L_, 2020,      1,    1,    0,    1, "01 00"                            },
@@ -1293,7 +1297,7 @@ int main(int argc, char *argv[])
   {   L_, 9999,     12,   31,-1439,    1, "05 FA612C79 4A"                   },
   {   L_, 9999,     12,   31,-1439,    0,
                                  "10 393939 392d3132 2d33312D 32333A35 39"   },
-
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1354,6 +1358,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  hour   min  sec  ms   opt  exp
   //----  -----  ---  ---  ---  ---  ---
   {   L_,     0,   0,   0,   0,   1, "01 00"                                 },
@@ -1390,8 +1395,9 @@ int main(int argc, char *argv[])
   {   L_,    23,  59,  59, 999,   0, "0C 32333A35 393A3539 2E393939"         },
 
   {   L_,    24,   0,   0,   0,   1, "01 00"                                 },
-  // TBD: Current doesnt work
-//   {   L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"      },
+// TBD: Current doesnt work
+// {  L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"         },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1454,6 +1460,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  hour   min  sec  ms     off  opt  exp
   //----  -----  ---  ---  ---    ---  ---  ---
   {   L_,     0,   0,   0,   0,     0,  1, "01 00"                           },
@@ -1565,8 +1572,9 @@ int main(int argc, char *argv[])
                                "12 32333A35 393A3539 2E393939 2D32333A 3539" },
 
   {   L_,    24,   0,   0,   0,     0,  1, "01 00"                           },
-  // TBD: Current doesnt work
-//   {   L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"      },
+// TBD: Current doesnt work
+//{   L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"         },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1634,6 +1642,7 @@ int main(int argc, char *argv[])
                 bool        d_useBinary; // whether to use binary format
                 const char *d_exp;       // expected output
             } DATA[] = {
+  //------------^
   //line  year  mon  day  hour   min  sec    ms    opt  exp
   //----  ----- ---  ---  ----   ---  ---    --    ---  ---
   {   L_, 2020,   1,   1,    0,    0,   0,    0,     1,
@@ -1960,6 +1969,7 @@ int main(int argc, char *argv[])
                                                "09 000000E5 0873B8F3 FF"     },
   {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,
                     "17 39393939 2d31322d 33315432 333A3539 3A35392E 393939" },
+  //------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

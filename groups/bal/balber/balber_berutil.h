@@ -876,11 +876,11 @@ int BerUtil_Imp::getValue(bsl::streambuf                    *streamBuf,
                                bdlb::Variant2<TYPE, TYPETZ> *value,
                                int                           length)
 {
-    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::DateTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Time, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::TimeTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Datetime, TYPE>::VALUE
+    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::DateTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Time,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::TimeTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Datetime,   TYPE  >::VALUE
                && bslmf::IsSame<bdlt::DatetimeTz, TYPETZ>::VALUE));
 
     const int k_MAX_BINARY_TYPETZ_LENGTH =
@@ -1165,4 +1165,4 @@ int BerUtil_Imp::putValue(bsl::streambuf           *streamBuf,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// ------------------------------ END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
