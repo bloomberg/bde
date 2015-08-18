@@ -5,6 +5,9 @@
 #include <balber_berconstants.h>   // for usage only
 #include <balber_berutil.h>        // for usage only
 
+#include <balber_berdecoder.h>        // experiment
+#include <balber_berdecoderoptions.h> // experiment
+
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_valuetypefunctions.h>
@@ -178,7 +181,7 @@ int compareBuffers(const char *stream, const char *buffer)
 }
 
 void printBuffer(const char *buffer, int length)
-    // Print the specified 'buffer' of the specified 'length' in hex form
+    // Print the specified 'buffer' of the specified 'length' in hex form.
 {
     bsl::cout << bsl::hex;
     int numOutput = 0;
@@ -6344,10 +6347,10 @@ bool test::operator==(
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_SELECTION1:
             return lhs.selection1() == rhs.selection1();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_SELECTION2:
             return lhs.selection2() == rhs.selection2();
-                                                                    // RETURN
+                                                                      // RETURN
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
@@ -6605,10 +6608,10 @@ bool test::operator==(
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_MY_CHOICE1:
             return lhs.myChoice1() == rhs.myChoice1();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_MY_CHOICE2:
             return lhs.myChoice2() == rhs.myChoice2();
-                                                                    // RETURN
+                                                                      // RETURN
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
@@ -6728,13 +6731,13 @@ bool test::operator==(
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_SQRT:
             return lhs.sqrt() == rhs.sqrt();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_BASIC:
             return lhs.basic() == rhs.basic();
-                                                                    // RETURN
+                                                                      // RETURN
           case Class::SELECTION_ID_BIG:
             return lhs.big() == rhs.big();
-                                                                    // RETURN
+                                                                      // RETURN
           default:
             BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
@@ -8740,19 +8743,64 @@ bsl::ostream& TimingRequest::print(
             SALARY_ATTRIBUTE_ID = 3
         };
 
-        // DATA MEMBERS
+        // DATA
         bsl::string d_name;
         int         d_age;
         float       d_salary;
+
+        // CREATORS
+        EmployeeRecord();
+            // Create an 'EmployeeRecord' having the attributes:
+            //..
+            //  d_name   == ""
+            //  d_age    == 0
+            //  d_salary = 0.0
+            //..
+        EmployeeRecord(const bsl::string& name, int age, float salary);
+            // Create an 'EmployeeRecord' object having the specified
+            // 'name', 'age', and 'salary' attributes.
+
+        // ACCESSORS
+        const bsl::string& name()   const;
+        int                age()    const;
+        float              salary() const;
     };
 
+    // CREATORS
+    EmployeeRecord::EmployeeRecord()
+    : d_name()
+    , d_age()
+    , d_salary()
+    {
+    }
+
+    EmployeeRecord::EmployeeRecord(const bsl::string &name,
+                                   int               age,
+                                   float             salary)
+    : d_name(name)
+    , d_age(age)
+    , d_salary(salary)
+    {
+    }
+
+    // ACCESSORS
+    const bsl::string& EmployeeRecord::name()   const
+    {
+        return d_name;
+    }
+
+    int EmployeeRecord::age()    const
+    {
+        return d_age;
+    }
+
+    float EmployeeRecord::salary() const
+    {
+        return d_salary;
+    }
+
     }  // close namespace 'usage'
-//..
-// We can now make 'usage::EmployeeRecord' expose "sequence" behavior by
-// implementing the necessary 'bdlat_sequence*' functions for 'MySequence'
-// inside the 'usage' namespace.  First, we should forward declare all the
-// functions that we will implement inside the 'usage' namespace:
-//..
+
     namespace usage {
 
     template <typename MANIPULATOR>
@@ -8788,13 +8836,7 @@ bsl::ostream& TimingRequest::print(
                                     int                   attributeId);
 
     }  // close namespace 'usage'
-//..
-// Now, we will implement these functions.  Note that for this implementation,
-// we will create a temporary 'bdlat_AttributeInfo' object and pass it along
-// when invoking the manipulator or accessor.  See the 'bdlat_attributeinfo'
-// component-level documentation for more information.  The implementation of
-// the functions are as follows:
-//..
+
     template <typename MANIPULATOR>
     int usage::bdlat_sequenceManipulateAttribute(
                                              EmployeeRecord   *object,
@@ -8802,11 +8844,12 @@ bsl::ostream& TimingRequest::print(
                                              const char   *attributeName,
                                              int           attributeNameLength)
     {
-        enum { NOT_FOUND = -1 };
+        enum { k_NOT_FOUND = -1 };
 
         if (bdlb::String::areEqualCaseless("name",
                                            attributeName,
                                            attributeNameLength)) {
+
             return bdlat_sequenceManipulateAttribute(
                                             object,
                                             manipulator,
@@ -8816,6 +8859,7 @@ bsl::ostream& TimingRequest::print(
         if (bdlb::String::areEqualCaseless("age",
                                            attributeName,
                                            attributeNameLength)) {
+
             return bdlat_sequenceManipulateAttribute(
                                              object,
                                              manipulator,
@@ -8825,13 +8869,14 @@ bsl::ostream& TimingRequest::print(
         if (bdlb::String::areEqualCaseless("salary",
                                            attributeName,
                                            attributeNameLength)) {
+
             return bdlat_sequenceManipulateAttribute(
                                           object,
                                           manipulator,
                                           EmployeeRecord::SALARY_ATTRIBUTE_ID);
         }
 
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     template <typename MANIPULATOR>
@@ -8839,7 +8884,7 @@ bsl::ostream& TimingRequest::print(
                                                  MANIPULATOR&     manipulator,
                                                  int              attributeId)
     {
-        enum { NOT_FOUND = -1 };
+        enum { k_NOT_FOUND = -1 };
 
         switch (attributeId) {
           case EmployeeRecord::NAME_ATTRIBUTE_ID: {
@@ -8876,14 +8921,15 @@ bsl::ostream& TimingRequest::print(
             return manipulator(&object->d_salary, info);
           }
           default: {
-              return NOT_FOUND;
+              return k_NOT_FOUND;
           }
         }
     }
 
     template <typename MANIPULATOR>
-    int usage::bdlat_sequenceManipulateAttributes(EmployeeRecord   *object,
-                                                  MANIPULATOR&  manipulator)
+    int usage::bdlat_sequenceManipulateAttributes(
+                                                 EmployeeRecord   *object,
+                                                 MANIPULATOR&      manipulator)
     {
         int retVal;
 
@@ -8921,7 +8967,7 @@ bsl::ostream& TimingRequest::print(
                                     const char            *attributeName,
                                     int                    attributeNameLength)
     {
-        enum { NOT_FOUND = -1 };
+        enum { k_NOT_FOUND = -1 };
 
         if (bdlb::String::areEqualCaseless("name",
                                            attributeName,
@@ -8944,13 +8990,14 @@ bsl::ostream& TimingRequest::print(
         if (bdlb::String::areEqualCaseless("salary",
                                            attributeName,
                                            attributeNameLength)) {
+
             return bdlat_sequenceAccessAttribute(
                                           object,
                                           accessor,
                                           EmployeeRecord::SALARY_ATTRIBUTE_ID);
         }
 
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     template <typename ACCESSOR>
@@ -8958,7 +9005,7 @@ bsl::ostream& TimingRequest::print(
                                              ACCESSOR&             accessor,
                                              int                   attributeId)
     {
-        enum { NOT_FOUND = -1 };
+        enum { k_NOT_FOUND = -1 };
 
         switch (attributeId) {
           case EmployeeRecord::NAME_ATTRIBUTE_ID: {
@@ -8995,7 +9042,7 @@ bsl::ostream& TimingRequest::print(
             return accessor(object.d_salary, info);
           }
           default: {
-              return NOT_FOUND;
+              return k_NOT_FOUND;
           }
         }
     }
@@ -9055,12 +9102,7 @@ bsl::ostream& TimingRequest::print(
             || EmployeeRecord::AGE_ATTRIBUTE_ID    == attributeId
             || EmployeeRecord::SALARY_ATTRIBUTE_ID == attributeId;
     }
-//..
-// Finally, we need to specialize the 'IsSequence' meta-function in the
-// 'bdlat_SequenceFunctions' namespace for the 'usage::MySequence' type.  This
-// makes the 'bdlat' infrastructure recognize 'usage::MySequence' as a sequence
-// abstraction:
-//..
+
     namespace bdlat_SequenceFunctions {
 
         template <>
@@ -9070,72 +9112,149 @@ bsl::ostream& TimingRequest::print(
 
     }  // close namespace 'bdlat_SequenceFunctions'
     }  // close enterprise namespace
+
+static void usageExample()
+{
+    using namespace BloombergLP;
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Encoding an Employee Record
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose that an "employee record" consists of a sequence of attributes --
+// 'name', 'age', and 'salary' -- that of are types 'bsl::string', 'int', and
+// 'float', respectively.  Furthermore, we have a need to BER encode employee
+// records as a sequence of values (for out-of-process consumption).
+//
+// First:
+//: o We define a class, 'usage::Employee', to represent employee record
+//:   values.  (Elided)
+//:
+//: o We define 'usage::Employee' specializations for the
+//:   'bdlat_SequenceFunctions' functions.  (Elided)
+//:
+//: o We specialize the 'IsSequence' meta-function in the
+//:   'bdlat_SequenceFunctions' namespace for 'EmployeeRecord' to inform the
+//:   infrastructure that our type should be represented a sequence.  (Elided)
+//
+// Then, we create an employee record object having typical values:
 //..
-
-
-// Note that the 'bdlat' framework can be used for functionality other than
-// encoding/decoding into XML.  When 'usage::EmployeeRecord' is plugged into the
-// framework, then it will be automatically usable within the framework.  For
-// example, the following snippets of code will print out all the attributes of
-// a sequence object:
+    usage::EmployeeRecord bob("Bob", 56, 1234.00);
+    assert("Bob"   == bob.name());
+    assert(  56    == bob.age());
+    assert(1234.00 == bob.salary());
 //..
-    struct PrintAttribute {
-        // Print each visited object to the bound 'd_stream_p' object.
-
-        // DATA MEMBERS
-        bsl::ostream *d_stream_p;
-
-        template <typename TYPE, typename INFO>
-        int operator()(const TYPE& object, const INFO& info)
-        {
-            (*d_stream_p) << info.name() << ": "
-                          << object << bsl::endl;
-            P(info.annotation())
-            P(info.formattingMode())
-            P(info.id())
-            P(info.name())
-            P(info.nameLength())
-            P(object)
-            return 0;
-        }
-    };
-
-    template <typename TYPE>
-    void printSequenceAttributes(bsl::ostream& stream, const TYPE& object)
-    {
-        PrintAttribute accessor;
-        accessor.d_stream_p = &stream;
-
-        bdlat_SequenceFunctions::accessAttributes(object, accessor);
-    }
+// Now, we create a 'balber::Encoder' object and use it to encode our 'bob'
+// object.  Here, to facilitate the examination of our results, the BER
+// encoding delivered to a 'bslsb::MemOutStreamBuf' object:
 //..
-// Now we have a generic function that takes an output stream and a sequence
-// object, and prints out each attribute with its name and value.  We can use
-// this generic function as follows:
+    bdlsb::MemOutStreamBuf osb;
+    balber::BerEncoder     encoder;
+    int                    rc = encoder.encode(&osb, bob);
+    ASSERT( 0 == rc);
+    ASSERT(18 == osb.length());
 //..
-    void printEmployeeRecord(bsl::ostream& stream)
-    {
-        using namespace BloombergLP;
-
-        usage::EmployeeRecord object;
-
-        object.d_name   = "John Doe";
-        object.d_age    = 25;
-        object.d_salary = 12345.00;
-
-        stream << bsl::fixed << bsl::setprecision(2);
-
-        printSequenceAttributes(stream, object);
-    }
+// Finally, we confirm that the generated BER encoding has the expected layout
+// and values.  We create an 'bdlsb::FixedMemInStreamBuf' to manage our access
+// to the data portion of the 'bdlsb::MemOutStreamBuf' where our BER encoding
+// resides:
 //..
-// The function above will print the following to provided stream:
+    bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
 //..
-//  name: John Doe
-//  age: 25
-//  salary: 12345.00
+// The 'balber_berutil' component provides functions that allow us to decode
+// the descriptive fields and values of the BER encoded sequence:
 //..
+    balber::BerConstants::TagClass tagClass;
+    balber::BerConstants::TagType  tagType;
+    int                            tagNumber;
+    int                            accumNumBytesConsumed = 0;
+    int                            length;
 
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    assert(0                                             == rc);
+    assert(balber::BerConstants::e_UNIVERSAL             == tagClass);
+    assert(balber::BerConstants::e_CONSTRUCTED           == tagType);
+    assert(balber::BerUniversalTagNumber::e_BER_SEQUENCE == tagNumber);
 
+    rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
+    assert(0                                    == rc);
+    assert(balber::BerUtil::e_INDEFINITE_LENGTH == length);
+//..
+// The 'UNIVERSAL' value in 'tagClass' indicates that the 'tagNumber' value
+// represents a type in the BER standard, a 'BER_SEQUENCE', as we requested of
+// the infrastructure (see the 'IsSequence' specialization above).  The
+// 'tagType' value of 'CONSTRUCTED' indicates that this is a non-primitive
+// type.  The 'INDEFINITE' value for length is typical for sequence encodings.
+// In these cases, the end-of-data is indicated by a sequence to two null
+// bytes.
+//
+// We now examine the tags and values corresponding to each of the data members
+// of 'usage::EmployeeRecord' class.  For each of these the 'tagClass' is
+// 'CONTEXT_SPECIFIC' (i.e., member of a larger construct) and the 'tagType' is
+// 'PRIMITIVE' ('bsl::string', 'int', and 'float' each correspond to a
+// primitive BER type.  The 'tagNumber' for each field was defined (in the
+// elided definiton) to correspond the position of the field in the
+// 'usage::EmployeeRecord' class.
+//..
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    assert(0                                        == rc);
+    assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+    assert(1                                        == tagNumber);
+
+    bsl::string name;
+    rc = balber::BerUtil::getValue(&isb, &name, &accumNumBytesConsumed);
+    assert(0     == rc);
+    assert("Bob" == name);
+
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    assert(0                                        == rc);
+    assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+    assert(2                                        == tagNumber);
+
+    int age;
+    rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
+    assert(0  == rc);
+    assert(56 == age);
+
+    rc = balber::BerUtil::getIdentifierOctets(&isb,
+                                              &tagClass,
+                                              &tagType,
+                                              &tagNumber,
+                                              &accumNumBytesConsumed);
+    assert(0 == rc);
+    assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+    assert(3                                        == tagNumber);
+
+    float salary;
+    rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
+    assert(0       == rc);
+    assert(1234.00 == salary);
+//..
+// Lastly, we confirm that end-of-data sequence (two null bytes) are found we
+// expect them and that we have entirely consumed the data that we generated by
+// our encoding.
+//..
+    rc = balber::BerUtil::getEndOfContentOctets(&isb, &accumNumBytesConsumed);
+    assert(0            == rc);
+    assert(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
+//..
+}
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -9155,24 +9274,27 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Usage Example"
-                               << "\n=====================" << bsl::endl;
-
-#if 0
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
         usageExample();
-#endif
 
-        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
       case 13: {
         // --------------------------------------------------------------------
