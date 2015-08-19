@@ -100,6 +100,9 @@ BSLS_IDENT("$Id: $")
 //          // Increase the capacity of the internal arrays used to store
 //          // elements added to this array by at least one element.
 //
+//      // Not implemented:
+//      my_IntDoubleArray(const my_IntDoubleArray&);
+//
 //    public:
 //      // TYPES
 //      enum Type { k_MY_INT, k_MY_DOUBLE };
@@ -368,16 +371,16 @@ class SequentialPool {
   public:
     // CREATORS
     explicit
-    SequentialPool(bslma::Allocator                *basicAllocator = 0);
+    SequentialPool(bslma::Allocator *basicAllocator = 0);
     explicit
-    SequentialPool(bsls::BlockGrowth::Strategy      growthStrategy,
-                   bslma::Allocator                *basicAllocator = 0);
+    SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                   bslma::Allocator            *basicAllocator = 0);
     explicit
-    SequentialPool(bsls::Alignment::Strategy        alignmentStrategy,
-                   bslma::Allocator                *basicAllocator = 0);
-    SequentialPool(bsls::BlockGrowth::Strategy      growthStrategy,
-                   bsls::Alignment::Strategy        alignmentStrategy,
-                   bslma::Allocator                *basicAllocator = 0);
+    SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
+                   bslma::Allocator          *basicAllocator = 0);
+    SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                   bsls::Alignment::Strategy    alignmentStrategy,
+                   bslma::Allocator            *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks from a
         // sequence of dynamically-allocated buffers.  Optionally specify a
         // 'basicAllocator' used to supply memory for the dynamically-allocated
@@ -394,14 +397,13 @@ class SequentialPool {
         // always be the same as the implementation-defined value.
 
     explicit
-    SequentialPool(int                          initialSize,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int initialSize, bslma::Allocator *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bslma::Allocator            *basicAllocator = 0);
-    SequentialPool(int                          initialSize,
-                   bsls::Alignment::Strategy    alignmentStrategy,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int                        initialSize,
+                   bsls::Alignment::Strategy  alignmentStrategy,
+                   bslma::Allocator          *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bsls::Alignment::Strategy    alignmentStrategy,
@@ -424,17 +426,17 @@ class SequentialPool {
         // size of the internal buffers will always be the same as
         // 'initialSize'.
 
-    SequentialPool(int                          initialSize,
-                   int                          maxBufferSize,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int               initialSize,
+                   int               maxBufferSize,
+                   bslma::Allocator *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    int                          maxBufferSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bslma::Allocator            *basicAllocator = 0);
-    SequentialPool(int                          initialSize,
-                   int                          maxBufferSize,
-                   bsls::Alignment::Strategy    alignmentStrategy,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int                        initialSize,
+                   int                        maxBufferSize,
+                   bsls::Alignment::Strategy  alignmentStrategy,
+                   bslma::Allocator          *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    int                          maxBufferSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,

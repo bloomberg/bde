@@ -176,6 +176,9 @@ enum { k_DEFAULT_SIZE = 256 };
         void increaseCapacity();
             // Increase the capacity of this stack by at least one element.
 
+        // Not implemented:
+        my_DoubleStack(const my_DoubleStack&);
+
       public:
         // CREATORS
         explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
@@ -259,8 +262,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator.
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -561,7 +564,7 @@ int main(int argc, char *argv[])
                 else if (STRAT == MAX) {
                     cout << "STRAT = MAXIMUM ALIGNMENT, ";
                 }
-                else {  // STRAT == BYT
+                else {  // STRAT == BYTE
                     cout << "STRAT = 1-BYTE ALIGNMENT, ";
                 }
                 P_(INITIALSIZE) P_(NEWSIZE) P(EXPOFFSET)
@@ -747,7 +750,7 @@ int main(int argc, char *argv[])
                 else if (STRAT == MAX) {
                     cout << "STRAT = MAXIMUM ALIGNMENT, ";
                 }
-                else {  // STRAT == BYT
+                else {  // STRAT == BYTE
                     cout << "STRAT = 1-BYTE ALIGNMENT, ";
                 }
                 P_(INITIALSIZE) P(EXPUSED)

@@ -18,7 +18,7 @@
 #include <bdlsu_processutil.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_currenttime.h>
-#include <bdlb_xxxstrtokeniter.h>
+#include <bdlb_strtokenrefiter.h>
 
 #include <bsls_platform.h>                    // for testing only
 
@@ -495,9 +495,9 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     ASSERT(result)
     ASSERT(ascii)
 
-    for (bdlb::StrTokenIter itr(ascii, 0, "\n"); itr; ++itr) {
-       if (bsl::strlen(itr()) > 0) {
-           result->push_back(itr());
+    for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
+       if (bsl::strlen(itr().data()) > 0) {
+           result->push_back(itr().data());
        }
     }
 }

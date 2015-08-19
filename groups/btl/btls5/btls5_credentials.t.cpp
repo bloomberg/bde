@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-3)
         //
         // Testing:
-        //   operator=(const baltzo::LocalTimeDescriptor& rhs);
+        //   operator=(const Credentials& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

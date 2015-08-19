@@ -141,13 +141,13 @@ typedef void *(*ThreadFunction)(void *arg);
 // ----------------------------------------------------------------------------
 
 static
-ThreadId createThread(ThreadFunction func, void *arg)
+ThreadId createThread(ThreadFunction function, void *arg)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)func, arg, 0, 0);
+    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)function, arg, 0, 0);
 #else
     ThreadId id;
-    pthread_create(&id, 0, func, arg);
+    pthread_create(&id, 0, function, arg);
     return id;
 #endif
 }

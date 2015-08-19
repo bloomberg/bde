@@ -158,6 +158,10 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<TYPE *> d_array_p;  // array of pooled elements
 //      bdlma::Pool         d_pool;     // memory manager for array elements
 //
+//    private:
+//      // Not implemented:
+//      my_PooledArray(const my_PooledArray&);
+//
 //    public:
 //      // CREATORS
 //      explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
@@ -352,8 +356,7 @@ class Pool {
   public:
     // CREATORS
     explicit
-    Pool(int                          blockSize,
-         bslma::Allocator            *basicAllocator = 0);
+    Pool(int blockSize, bslma::Allocator *basicAllocator = 0);
     Pool(int                          blockSize,
          bsls::BlockGrowth::Strategy  growthStrategy,
          bslma::Allocator            *basicAllocator = 0);

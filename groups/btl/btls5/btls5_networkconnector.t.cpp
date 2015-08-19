@@ -40,15 +40,13 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] btls5::NetworkConnector(net, fact, eventMgr, *a = 0);
-// [  ] btls5::NetworkConnector(net, fact, eventMgr, min, max, *a = 0);
-// [  ] btls5::NetworkConnector(net, fact, eventMgr, prov, *a = 0);
-// [  ] btls5::NetworkConnector(net, fact, eventMgr, min, max, prov, *a = 0);
+// [ 2] btls5::NetworkConnector(net, fact, eventMgr, min, max, *a = 0);
 // [ 2] ~btls5::NetworkConnector();
 // MANIPULATORS
 // [ 2] makeConnectionAttemptHandle(cB, proxyTO, totalTO, server);
 // [ 2] startConnectionAttempt(ConnectionAttemptHandle& attempt);
-// [ 8] cancelConnectionAttempt(ConnectionAttemptHandle& attempt);
 // [11] startConnectionAttemptStrict(ConnectionAttemptHandle& attempt);
+// [ 8] cancelConnectionAttempt(ConnectionAttemptHandle& attempt);
 // ACCESSORS
 // [ 9] socks5Servers()
 //-----------------------------------------------------------------------------
@@ -158,11 +156,11 @@ bool veryVeryVeryVerbose = 0;
 //                     CLASSES AND FUNCTIONS USED IN TESTS
 // ----------------------------------------------------------------------------
 void breathingTestCb(
-    btls5::NetworkConnector::ConnectionStatus                   status,
-    btlso::StreamSocket<btlso::IPv4Address>                     *socket,
-    btlso::StreamSocketFactory<btlso::IPv4Address>              *socketFactory,
-    const btls5::DetailedStatus&                                 error,
-    bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus> *queue)
+   btls5::NetworkConnector::ConnectionStatus                     status,
+   btlso::StreamSocket<btlso::IPv4Address>                      *socket,
+   btlso::StreamSocketFactory<btlso::IPv4Address>               *socketFactory,
+   const btls5::DetailedStatus&                                  error,
+   bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus> *queue)
     // Process a SOCKS5 connection response with the specified 'status' and
     // 'error', with the specified 'socket' allocated by the specified
     // 'socketFactory', and append 'status' to the specified 'queue'.
@@ -192,7 +190,7 @@ void poolStateCb(int state, int source, void *)
 void sessionStateCb(int            state,
                     int            ,
                     btlmt::Session *,
-                    void          *)
+                    void           *)
 {
     if (veryVerbose) { T_ P(state) }
 }
@@ -236,14 +234,14 @@ class SessionFactory : public btlmt::SessionFactory {
     }
 };
 
-void socks5Cb(btls5::NetworkConnector::ConnectionStatus      status,
+void socks5Cb(btls5::NetworkConnector::ConnectionStatus       status,
               btlso::StreamSocket<btlso::IPv4Address>        *socket,
               btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
               const btls5::DetailedStatus&                    error,
-              btlmt::SessionPool                            *sessionPool,
-              bdlqq::Mutex                                  *stateLock,
-              bdlqq::Condition                              *stateChanged,
-              volatile int                                 *state)
+              btlmt::SessionPool                             *sessionPool,
+              bdlqq::Mutex                                   *stateLock,
+              bdlqq::Condition                               *stateChanged,
+              volatile int                                   *state)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(stateLock);
     if (status == btls5::NetworkConnector::e_SUCCESS) {
@@ -347,7 +345,7 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus      status,
         const bsls::TimeInterval totalTimeout(30.0);
         bdlqq::Mutex     stateLock;
         bdlqq::Condition stateChanged;
-        volatile int    state = 0; // value > 0 indicates success, < 0 is error
+        volatile int     state = 0; // value > 0 indicates success, < 0 error
         using namespace bdlf::PlaceHolders;
         btls5::NetworkConnector::ConnectionAttemptHandle attempt =
            connector.makeConnectionAttemptHandle(bdlf::BindUtil::bind(
@@ -484,7 +482,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("test1", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&ta);
 
-        btlso::Endpoint destination;
+        btlso::Endpoint       destination;
         btls5::TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
@@ -493,7 +491,7 @@ int main(int argc, char *argv[])
             cout << "destination server started on " << destination << endl;
         }
 
-        btlso::Endpoint proxy;
+        btlso::Endpoint       proxy;
         btls5::TestServerArgs proxyArgs;
         proxyArgs.d_verbosity = verbosity;
         proxyArgs.d_label = "proxy";
@@ -514,10 +512,10 @@ int main(int argc, char *argv[])
         const int minSourcePort = 445;  // SMB over IP
         const int maxSourcePort = minSourcePort;
         btls5::NetworkConnector connector(proxies,
-                                         &factory,
-                                         &eventManager,
-                                         minSourcePort,
-                                         maxSourcePort);
+                                          &factory,
+                                          &eventManager,
+                                          minSourcePort,
+                                          maxSourcePort);
         const bsls::TimeInterval proxyTimeout(2);
         const bsls::TimeInterval totalTimeout(10);
         bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus> queue(1);
@@ -568,7 +566,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("test1", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&ta);
 
-        btlso::Endpoint destination;
+        btlso::Endpoint       destination;
         btls5::TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
@@ -577,7 +575,7 @@ int main(int argc, char *argv[])
             cout << "destination server started on " << destination << endl;
         }
 
-        btlso::Endpoint proxy;
+        btlso::Endpoint       proxy;
         btls5::TestServerArgs proxyArgs;
         proxyArgs.d_verbosity = verbosity;
         proxyArgs.d_label = "proxy";
@@ -598,10 +596,10 @@ int main(int argc, char *argv[])
         const int minSourcePort = 445;  // SMB over IP
         const int maxSourcePort = minSourcePort;
         btls5::NetworkConnector connector(proxies,
-                                         &factory,
-                                         &eventManager,
-                                         minSourcePort,
-                                         maxSourcePort);
+                                          &factory,
+                                          &eventManager,
+                                          minSourcePort,
+                                          maxSourcePort);
         const bsls::TimeInterval proxyTimeout(2);
         const bsls::TimeInterval totalTimeout(10);
         bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus> queue(1);
@@ -665,10 +663,9 @@ int main(int argc, char *argv[])
                     }
                 }
                 btls5::NetworkDescription copy(proxies, &ta);
-
-                btls5::NetworkConnector connector(proxies,
-                                                 &factory,
-                                                 &eventManager);
+                btls5::NetworkConnector   connector(proxies,
+                                                    &factory,
+                                                    &eventManager);
 
                 const int testCase = LEVELS * 100 + SERVERS;
                 LOOP_ASSERT(testCase, proxies == copy);
@@ -699,13 +696,13 @@ int main(int argc, char *argv[])
         bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
-        btlso::Endpoint destination;
+        btlso::Endpoint       destination;
         btls5::TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
         btls5::TestServer destinationServer(&destination, &destinationArgs);
 
-        btlso::Endpoint proxy;
+        btlso::Endpoint       proxy;
         btls5::TestServerArgs proxyArgs;
         proxyArgs.d_verbosity = verbosity;
         proxyArgs.d_label = "unresponsive proxy";
@@ -723,17 +720,23 @@ int main(int argc, char *argv[])
         btls5::NetworkConnector::ConnectionStatus status;
 
         using namespace bdlf::PlaceHolders;
-        btls5::NetworkConnector::ConnectionStateCallback
-            cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
+        btls5::NetworkConnector::ConnectionStateCallback cb =
+                                          bdlf::BindUtil::bind(breathingTestCb,
+                                                               _1,
+                                                               _2,
+                                                               _3,
+                                                               _4,
+                                                               &queue);
         {
+            const bsls::TimeInterval TO(9);
             btls5::NetworkConnector connector(proxies,
                                               &factory,
                                               &eventManager);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt
-                = connector.makeConnectionAttemptHandle(cb,
-                                              bsls::TimeInterval(9), // proxy
-                                              bsls::TimeInterval(9), // total
-                                              destination);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  TO, // proxy
+                                                                  TO, // total
+                                                                  destination);
             connector.startConnectionAttempt(attempt);
             connector.cancelConnectionAttempt(attempt);
             queue.popFront(&status);
@@ -815,17 +818,20 @@ int main(int argc, char *argv[])
         btls5::NetworkConnector::ConnectionStatus status;
 
         using namespace bdlf::PlaceHolders;
-        btls5::NetworkConnector::ConnectionStateCallback
-            cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
+        btls5::NetworkConnector::ConnectionStateCallback cb =
+                 bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
 
         if (veryVerbose) { P_(destination) P(proxies) }
 
         btls5::NetworkConnector connector(proxies, &factory, &eventManager);
-        btls5::NetworkConnector::ConnectionAttemptHandle attempt
-            = connector.makeConnectionAttemptHandle(cb,
-                                          bsls::TimeInterval(0.5), // proxy
-                                          bsls::TimeInterval(5.0), // total
-                                          destination);
+
+        const bsls::TimeInterval T1(0.5), T2(5.0);
+
+        btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  T1, // proxy
+                                                                  T2, // total
+                                                                  destination);
         connector.startConnectionAttempt(attempt);
         queue.popFront(&status);
         LOOP_ASSERT(status, btls5::NetworkConnector::e_SUCCESS == status);
@@ -916,7 +922,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Concurrent attempts via 2 connectors" << endl;
 
         for (int t1 = 0; t1 < NUM_DATA; t1++) {
-            const int               LINE  (DATA[t1].d_line);
+            const int                LINE  (DATA[t1].d_line);
             const bsls::TimeInterval DELAY1(DATA[t1].d_proxy1DelaySeconds);
             const bsls::TimeInterval DELAY2(DATA[t1].d_proxy2DelaySeconds);
             const bsls::TimeInterval LAG   (DATA[t1].d_lagSeconds);
@@ -927,45 +933,45 @@ int main(int argc, char *argv[])
 
             args.d_delay = DELAY1;
             args.d_label = "proxy1";
-            btls5::TestServer proxy1(&proxy, &args);
+            btls5::TestServer         proxy1(&proxy, &args);
             btls5::NetworkDescription proxies1;
             proxies1.addProxy(0, proxy, credentials);
             btls5::NetworkConnector connector1(proxies1,
-                                              &factory,
-                                              &eventManager);
+                                               &factory,
+                                               &eventManager);
 
             bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus>
-                queue1(1);
+                                                                     queue1(1);
             btls5::NetworkConnector::ConnectionStatus status1;
-            btls5::NetworkConnector::ConnectionStateCallback
-                cb1 = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
-                                         &queue1);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt1
-              = connector1.makeConnectionAttemptHandle(cb1,
-                                             proxyTimeout,
-                                             totalTimeout,
-                                             destination);
+            btls5::NetworkConnector::ConnectionStateCallback cb1 =
+                          bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
+                                               &queue1);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt1 =
+                           connector1.makeConnectionAttemptHandle(cb1,
+                                                                  proxyTimeout,
+                                                                  totalTimeout,
+                                                                  destination);
             connector1.startConnectionAttempt(attempt1);
 
             args.d_delay = DELAY2;
             args.d_label = "proxy2";
-            btls5::TestServer proxy2(&proxy, &args);
+            btls5::TestServer         proxy2(&proxy, &args);
             btls5::NetworkDescription proxies2;
             proxies2.addProxy(0, proxy, credentials);
             btls5::NetworkConnector connector2(proxies2,
-                                              &factory,
-                                              &eventManager);
+                                               &factory,
+                                               &eventManager);
             bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus>
-                queue2(1);
+                                                                     queue2(1);
             btls5::NetworkConnector::ConnectionStatus status2;
-            btls5::NetworkConnector::ConnectionStateCallback
-                cb2 = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
-                                          &queue2);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt2
-              = connector2.makeConnectionAttemptHandle(cb2,
-                                             proxyTimeout,
-                                             totalTimeout,
-                                             destination);
+            btls5::NetworkConnector::ConnectionStateCallback cb2 =
+                          bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
+                                               &queue2);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt2 =
+                           connector2.makeConnectionAttemptHandle(cb2,
+                                                                  proxyTimeout,
+                                                                  totalTimeout,
+                                                                  destination);
             if (bsls::TimeInterval() != LAG) {
                 bdlqq::ThreadUtil::sleep(LAG);
             }
@@ -1000,7 +1006,7 @@ int main(int argc, char *argv[])
                           << "UNRESOLVED PROXY" << endl
                           << "================" << endl;
 
-        btlso::Endpoint destination;
+        btlso::Endpoint       destination;
         btls5::TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
@@ -1018,18 +1024,20 @@ int main(int argc, char *argv[])
         btls5::NetworkConnector::ConnectionStatus status;
 
         using namespace bdlf::PlaceHolders;
-        btls5::NetworkConnector::ConnectionStateCallback
-            cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
+        btls5::NetworkConnector::ConnectionStateCallback cb =
+                 bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
         {
+            const bsls::TimeInterval T1(1), T2(5);
+
             if (verbose) cout << "\nUnresolvable proxy" << endl;
             btls5::NetworkConnector connector(proxies,
                                               &factory,
                                               &eventManager);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt
-                = connector.makeConnectionAttemptHandle(cb,
-                                              bsls::TimeInterval(1), // proxy
-                                              bsls::TimeInterval(5), // total
-                                              destination);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  T1, // proxy
+                                                                  T2, // total
+                                                                  destination);
             connector.startConnectionAttempt(attempt);
             queue.popFront(&status);
             LOOP_ASSERT(status, btls5::NetworkConnector::e_ERROR == status);
@@ -1069,7 +1077,7 @@ int main(int argc, char *argv[])
         args.d_label = "destination";
         btls5::TestServer destinationServer(&destination, &args);
 
-        btlso::Endpoint proxy;  // address of just-started proxy server
+        btlso::Endpoint           proxy;  // address of just-started proxy srv
         btls5::NetworkDescription proxies;
 
         args.d_label = "unresponsive-0.0";
@@ -1103,19 +1111,21 @@ int main(int argc, char *argv[])
         btls5::NetworkConnector::ConnectionStatus status;
 
         using namespace bdlf::PlaceHolders;
-        btls5::NetworkConnector::ConnectionStateCallback
-            cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
+        btls5::NetworkConnector::ConnectionStateCallback cb =
+                 bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
         {
             if (veryVerbose) { P_(destination) P(proxies) }
+
+            const bsls::TimeInterval T1(0.5), T2(5.0);
 
             btls5::NetworkConnector connector(proxies,
                                               &factory,
                                               &eventManager);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt
-                = connector.makeConnectionAttemptHandle(cb,
-                                              bsls::TimeInterval(0.5), // proxy
-                                              bsls::TimeInterval(5.0), // total
-                                              destination);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  T1, // proxy
+                                                                  T2, // total
+                                                                  destination);
             connector.startConnectionAttempt(attempt);
             queue.popFront(&status);
             LOOP_ASSERT(status, btls5::NetworkConnector::e_SUCCESS == status);
@@ -1146,13 +1156,13 @@ int main(int argc, char *argv[])
         bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
-        btlso::Endpoint destination;
+        btlso::Endpoint       destination;
         btls5::TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
         btls5::TestServer destinationServer(&destination, &destinationArgs);
 
-        btlso::Endpoint proxy;
+        btlso::Endpoint       proxy;
         btls5::TestServerArgs proxyArgs;
         proxyArgs.d_verbosity = verbosity;
         proxyArgs.d_label = "unresponsive proxy";
@@ -1170,18 +1180,21 @@ int main(int argc, char *argv[])
         btls5::NetworkConnector::ConnectionStatus status;
 
         using namespace bdlf::PlaceHolders;
-        btls5::NetworkConnector::ConnectionStateCallback
-            cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
+        btls5::NetworkConnector::ConnectionStateCallback cb =
+                 bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
         {
             if (verbose) cout << "\nSingle Proxy Timeout" << endl;
+
+            const bsls::TimeInterval T1(2), T2(5);
+
             btls5::NetworkConnector connector(proxies,
                                               &factory,
                                               &eventManager);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt
-                = connector.makeConnectionAttemptHandle(cb,
-                                              bsls::TimeInterval(2), // proxy
-                                              bsls::TimeInterval(5), // total
-                                              destination);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  T1, // proxy
+                                                                  T2, // total
+                                                                  destination);
             connector.startConnectionAttempt(attempt);
             queue.popFront(&status);
             LOOP_ASSERT(status, btls5::NetworkConnector::e_ERROR == status);
@@ -1189,14 +1202,17 @@ int main(int argc, char *argv[])
 /***
         {
             if (verbose) cout << "\nTotal Attempt Timeout" << endl;
+
+            const bsls::TimeInterval T1(2), T2(5);
+
             btls5::NetworkConnector connector(proxies,
                                               &factory,
                                               &eventManager);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt
-                = connector.makeConnectionAttemptHandle(cb,
-                                              bsls::TimeInterval(5), // proxy
-                                              bsls::TimeInterval(2), // total
-                                              destination);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  T1, // proxy
+                                                                  T2, // total
+                                                                  destination);
             connector.startConnectionAttempt(attempt);
             queue.popFront(&status);
             LOOP_ASSERT(status, btls5::NetworkConnector::e_TIMEOUT == status);
@@ -1206,6 +1222,8 @@ int main(int argc, char *argv[])
 
             // add another, good proxy server to the network description
 
+            const bsls::TimeInterval T1(2), T2(5);
+
             proxyArgs.d_label = "good proxy";
             proxyArgs.d_mode = btls5::TestServerArgs::e_CONNECT;
             btls5::TestServer goodServer(&proxy, &proxyArgs);
@@ -1214,11 +1232,11 @@ int main(int argc, char *argv[])
             btls5::NetworkConnector connector(proxies,
                                               &factory,
                                               &eventManager);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt
-                = connector.makeConnectionAttemptHandle(cb,
-                                              bsls::TimeInterval(2), // proxy
-                                              bsls::TimeInterval(5), // total
-                                              destination);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  T1, // proxy
+                                                                  T2, // total
+                                                                  destination);
             connector.startConnectionAttempt(attempt);
             queue.popFront(&status);
             LOOP_ASSERT(status, btls5::NetworkConnector::e_SUCCESS == status);
@@ -1295,25 +1313,26 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval proxyTimeout(10.0);
         bdlqq::Mutex     stateLock;
         bdlqq::Condition stateChanged;
-        volatile int    state = 0; // value > 0 indicates success, < 0 is error
+        volatile int     state = 0; // value > 0 indicates success, < 0 error
         bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
 
-        btls5::NetworkConnector::ConnectionStateCallback
-            cb = bdlf::BindUtil::bind(socks5Cb,
-                                      _1, _2, _3, _4,
-                                      &sessionPool,
-                                      &stateLock,
-                                      &stateChanged,
-                                      &state);
+        btls5::NetworkConnector::ConnectionStateCallback cb =
+                                           bdlf::BindUtil::bind(socks5Cb,
+                                                                _1, _2, _3, _4,
+                                                                &sessionPool,
+                                                                &stateLock,
+                                                                &stateChanged,
+                                                                &state);
 
         btls5::NetworkConnector connector(socks5Servers,
-                                         &socketFactory,
-                                         &eventManager);
+                                          &socketFactory,
+                                          &eventManager);
 
-        btls5::NetworkConnector::ConnectionAttemptHandle attempt
-            = connector.makeConnectionAttemptHandle(cb,
-                                          proxyTimeout, bsls::TimeInterval(),
-                                          destination);
+        btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                    connector.makeConnectionAttemptHandle(cb,
+                                                          proxyTimeout,
+                                                          bsls::TimeInterval(),
+                                                          destination);
         connector.startConnectionAttempt(attempt);
         while (!state) {
             stateChanged.wait(&stateLock);
@@ -1349,7 +1368,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("test1", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&ta);
 
-        btlso::Endpoint destination;
+        btlso::Endpoint       destination;
         btls5::TestServerArgs destinationArgs;
         destinationArgs.d_verbosity = verbosity;
         destinationArgs.d_label = "destination";
@@ -1358,7 +1377,7 @@ int main(int argc, char *argv[])
             cout << "destination server started on " << destination << endl;
         }
 
-        btlso::Endpoint proxy;
+        btlso::Endpoint       proxy;
         btls5::TestServerArgs proxyArgs;
         proxyArgs.d_verbosity = verbosity;
         proxyArgs.d_label = "proxy";
@@ -1375,7 +1394,7 @@ int main(int argc, char *argv[])
         btlmt::TcpTimerEventManager eventManager;
         eventManager.enable();
 
-        btls5::NetworkConnector connector(proxies, &factory, &eventManager);
+        btls5::NetworkConnector  connector(proxies, &factory, &eventManager);
         const bsls::TimeInterval proxyTimeout(2);
         const bsls::TimeInterval totalTimeout(10);
         bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus> queue(1);
@@ -1422,14 +1441,14 @@ int main(int argc, char *argv[])
         eventManager.enable();
         const bsls::TimeInterval proxyTimeout(2);
         const bsls::TimeInterval totalTimeout(3);
-        const btlso::Endpoint destination("api1.bloomberg.net", 8394);
+        const btlso::Endpoint    destination("api1.bloomberg.net", 8394);
 
         bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus> queue(1);
         using namespace bdlf::PlaceHolders;
-        btls5::NetworkConnector::ConnectionStateCallback
-            cb = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
+        btls5::NetworkConnector::ConnectionStateCallback cb =
+                 bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4, &queue);
 
-        const btlso::Endpoint proxy("10.16.21.6", 1080);
+        const btlso::Endpoint     proxy("10.16.21.6", 1080);
         btls5::NetworkDescription proxies;
         proxies.addProxy(0, proxy);
         btls5::NetworkConnector connector(proxies, &factory, &eventManager);
@@ -1450,16 +1469,16 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; i++) {
             const int LINE = DATA[i].d_line;
             const btlso::Endpoint DESTINATION(DATA[i].d_hostname,
-                                             DATA[i].d_port);
+                                              DATA[i].d_port);
             const bool SUCCESS = DATA[i].d_success;
 
             if (veryVerbose) { T_ P_(LINE) P_(proxy) P(DESTINATION) }
 
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt
-                = connector.makeConnectionAttemptHandle(cb,
-                                              proxyTimeout,
-                                              totalTimeout,
-                                              DESTINATION);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+                            connector.makeConnectionAttemptHandle(cb,
+                                                                  proxyTimeout,
+                                                                  totalTimeout,
+                                                                  DESTINATION);
             connector.startConnectionAttempt(attempt);
 
             // wait for connection result and check for success
@@ -1558,7 +1577,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int t1 = 0; t1 < NUM_DATA; t1++) {
-            const int               LINE  (DATA[t1].d_line);
+            const int                LINE  (DATA[t1].d_line);
             const bsls::TimeInterval DELAY1(DATA[t1].d_proxy1DelaySeconds);
             const bsls::TimeInterval DELAY2(DATA[t1].d_proxy2DelaySeconds);
             const bsls::TimeInterval LAG   (DATA[t1].d_lagSeconds);
@@ -1588,31 +1607,33 @@ int main(int argc, char *argv[])
             // create a queue to convey status and start the 1st connection
 
             bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus>
-                queue1(1);
+                                                                     queue1(1);
             btls5::NetworkConnector::ConnectionStatus status1;
-            btls5::NetworkConnector::ConnectionStateCallback
-                cb1 = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
-                                         &queue1);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt1
-              = connector.makeConnectionAttemptHandle(cb1,
-                                             proxyTimeout,
-                                             totalTimeout,
-                                             destination1);
+            btls5::NetworkConnector::ConnectionStateCallback cb1 =
+                                          bdlf::BindUtil::bind(breathingTestCb,
+                                                               _1, _2, _3, _4,
+                                                               &queue1);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt1 =
+                           connector.makeConnectionAttemptHandle(cb1,
+                                                                 proxyTimeout,
+                                                                 totalTimeout,
+                                                                 destination1);
             connector.startConnectionAttempt(attempt1);
 
             // create a queue and, after a lag, start the 2nd connection
 
             bdlcc::FixedQueue<btls5::NetworkConnector::ConnectionStatus>
-                queue2(1);
+                                                                     queue2(1);
             btls5::NetworkConnector::ConnectionStatus status2;
-            btls5::NetworkConnector::ConnectionStateCallback
-                cb2 = bdlf::BindUtil::bind(breathingTestCb, _1, _2, _3, _4,
-                                          &queue2);
-            btls5::NetworkConnector::ConnectionAttemptHandle attempt2
-              = connector.makeConnectionAttemptHandle(cb2,
-                                             proxyTimeout,
-                                             totalTimeout,
-                                             destination2);
+            btls5::NetworkConnector::ConnectionStateCallback cb2 =
+                                          bdlf::BindUtil::bind(breathingTestCb,
+                                                               _1, _2, _3, _4,
+                                                               &queue2);
+            btls5::NetworkConnector::ConnectionAttemptHandle attempt2 =
+                           connector.makeConnectionAttemptHandle(cb2,
+                                                                 proxyTimeout,
+                                                                 totalTimeout,
+                                                                 destination2);
             bdlqq::ThreadUtil::sleep(LAG);
             connector.startConnectionAttempt(attempt2);
 

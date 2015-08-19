@@ -389,10 +389,10 @@ void printSpec(const char *spec)
 }
 
 void verify(Obj         *o1,
-            vector<int> &handles1,
+            vector<int>  &handles1,
             my_Obj      *o2,
-            vector<int> &handles2,
-            int         maxHandles)
+            vector<int>  &handles2,
+            int          maxHandles)
     // Verify that '*o1' is correct by comparing it with '*o2'.
 {
     int v1, v2;
@@ -418,9 +418,9 @@ void verify(Obj         *o1,
 }
 
 void gg(Obj         *o1,
-        vector<int> &handles1,
+        vector<int>  &handles1,
         my_Obj      *o2,
-        vector<int> &handles2,
+        vector<int>  &handles2,
         const char  *spec,
         const int    gens = 0)
     // Bring the object '*o1' into the state specified by the specified 'spec'
@@ -955,10 +955,10 @@ namespace OBJECTCATALOG_TEST_CASE_9
 typedef bdlcc::ObjectCatalogIter<int> Iter;
 
 void verifyAccessors(Obj         *o1,
-                     vector<int> &handles1,
+                     vector<int>  &handles1,
                      my_Obj      *o2,
-                     vector<int> &handles2,
-                     int         maxHandles)
+                     vector<int>  &handles2,
+                     int          maxHandles)
     // Verify the catalog accessors (including iterator) by comparing with
     // alternate implementation.
 {

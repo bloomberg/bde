@@ -414,15 +414,16 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
       }
    };
 
-   inline void createCase13(void *address, bslma::Allocator *,
-                            bsls::AtomicInt *created) {
+   inline void createCase13(void             *address,
+                            bslma::Allocator *,
+                            bsls::AtomicInt  *created) {
       new (address) Case13Type;
       ++(*created);
    }
 
-   void case13Thread(bdlcc::ObjectPool<Case13Type> *mX,
+   void case13Thread(bdlcc::ObjectPool<Case13Type>  *mX,
                      bdlcc::FixedQueue<Case13Type*> *queue,
-                     int numIterations) {
+                     int                             numIterations) {
       for (int i = 0; i < numIterations; ++i) {
          Case13Type *obj;
          while (1) {
@@ -443,9 +444,9 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
       }
    }
 
-void case13Processor(bdlcc::ObjectPool<Case13Type> *mX,
+void case13Processor(bdlcc::ObjectPool<Case13Type>  *mX,
                      bdlcc::FixedQueue<Case13Type*> *queue,
-                     bsls::AtomicInt          *done)
+                     bsls::AtomicInt                *done)
 {
    while (1) {
       Case13Type* obj;
@@ -1195,8 +1196,8 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-    extern "C" void serverThread(bsls::AtomicInt *queries,
-                                 int              max,
+    extern "C" void serverThread(bsls::AtomicInt             *queries,
+                                 int                          max,
                                  void(*queryHandler)(Query*))
     {
         while (++(*queries) <= max) {

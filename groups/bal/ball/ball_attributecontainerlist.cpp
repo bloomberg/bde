@@ -20,8 +20,8 @@ namespace ball {
 
 // CREATORS
 AttributeContainerList::AttributeContainerList(
-                           const AttributeContainerList&  original,
-                           bslma::Allocator                   *basicAllocator)
+                                 const AttributeContainerList&  original,
+                                 bslma::Allocator              *basicAllocator)
 : d_head_p(0)
 , d_free_p(0)
 , d_length(0)
@@ -79,8 +79,7 @@ AttributeContainerList& AttributeContainerList::operator=(
 }
 
 AttributeContainerList::iterator
-AttributeContainerList::pushFront(
-                                      const AttributeContainer *container)
+AttributeContainerList::pushFront(const AttributeContainer *container)
 {
     Node *node;
     if (d_free_p) {
@@ -173,8 +172,8 @@ bool AttributeContainerList::hasValue(const Attribute& value) const
 
 bsl::ostream&
 AttributeContainerList::print(bsl::ostream& stream,
-                                   int           level,
-                                   int           spacesPerLevel) const
+                              int           level,
+                              int           spacesPerLevel) const
 {
     char EL = (spacesPerLevel < 0) ? ' ' : '\n';
 
@@ -194,7 +193,7 @@ AttributeContainerList::print(bsl::ostream& stream,
 
 // FREE OPERATORS
 bool ball::operator==(const AttributeContainerList& lhs,
-                const AttributeContainerList& rhs)
+                      const AttributeContainerList& rhs)
 {
     if (lhs.numContainers() != rhs.numContainers()) {
         return false;                                                 // RETURN

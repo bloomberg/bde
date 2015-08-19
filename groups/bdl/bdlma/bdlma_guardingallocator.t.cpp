@@ -46,7 +46,7 @@ using namespace bsl;
 // in this test driver.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] GuardingAllocator(GuardPageLocation loc = e_AFTER_USER_BLOCK);
+// [ 2] GuardingAllocator(GuardPageLocation l = e_AFTER_USER_BLOCK);
 // [ 2] ~GuardingAllocator();
 //
 // MANIPULATORS
@@ -220,7 +220,7 @@ struct AfterUserBlockDeallocationData
     // guard page location is 'e_AFTER_USER_BLOCK'.
 {
     void *d_firstPage; // address we need to deallocate
-    void *d_guardPage; // address of the page we need to unprotect
+    void *d_guardPage; // address of the page we need to un-protect
 };
 
 AfterUserBlockDeallocationData *getDataBlockAddress(void *address)
@@ -316,13 +316,13 @@ void overwritePadding(void *address, int size, Enum location, int pageSize)
 }
 
 static
-ThreadId createThread(ThreadFunction func, void *arg)
+ThreadId createThread(ThreadFunction function, void *arg)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)func, arg, 0, 0);
+    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)function, arg, 0, 0);
 #else
     ThreadId id;
-    pthread_create(&id, 0, func, arg);
+    pthread_create(&id, 0, function, arg);
     return id;
 #endif
 }
@@ -490,13 +490,16 @@ extern "C" void *threadFunction3(void *arg)
         static int outputSize(my_DataStyle outputStyle,
                               my_DataStyle inputStyle,
                               int          inputLength);
-           // Return the buffer size (in bytes) required to store the result of
-           // converting input data of the specified 'inputLength' (in bytes),
-           // in the specified 'inputStyle', into the specified 'outputStyle'.
-           // The behavior is undefined unless '0 <= inputLength'.
+            // Return the buffer size (in bytes) required to store the result
+            // of converting input data of the specified 'inputLength' (in
+            // bytes), in the specified 'inputStyle', into the specified
+            // 'outputStyle'.  The behavior is undefined unless
+            // '0 <= inputLength'.
 
-        static int translate(      char *output, my_DataStyle outputStyle,
-                             const char *input,  my_DataStyle inputStyle);
+        static int translate(char         *output,
+                             my_DataStyle  outputStyle,
+                             const char   *input,
+                             my_DataStyle  inputStyle);
             // Load into the specified 'output' buffer the result of converting
             // the specified 'input' data, in the specified 'inputStyle', into
             // the specified 'outputStyle'.  Return 0 on success, and a
@@ -519,6 +522,10 @@ extern "C" void *threadFunction3(void *arg)
         my_DataStyle      d_altStyle;    // alternative style (if requested)
         char             *d_altBuffer;   // buffer for alternative style
         bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
+
+      private:
+        // Not implemented:
+        my_DataHandler(const my_DataHandler&);
 
       public:
         // CREATORS
@@ -636,8 +643,10 @@ int my_DataTranslationUtil::outputSize(my_DataStyle outputStyle,
     return 2 * inputLength;
 }
 
-int my_DataTranslationUtil::translate(  char *output, my_DataStyle outputStyle,
-                                  const char *input,  my_DataStyle inputStyle)
+int my_DataTranslationUtil::translate(char         *output,
+                                      my_DataStyle  outputStyle,
+                                      const char   *input,
+                                      my_DataStyle  inputStyle)
 {
     (void)outputStyle;
     (void)inputStyle;
@@ -868,8 +877,8 @@ int main(int argc, char *argv[])
         //:
         //: 6 'deallocate' returns memory back to the system facility.
         //:
-        //: 7 'deallocate' unprotects the guard page associated with the memory
-        //:   block.
+        //: 7 'deallocate' un-protects the guard page associated with the
+        //:   memory block.
         //:
         //: 8 Calling 'deallocate' with 0 has no effect.
         //:
@@ -1149,7 +1158,7 @@ int main(int argc, char *argv[])
         //:   effect on any outstanding allocated memory.  (C-4)
         //
         // Testing:
-        //   GuardingAllocator(GuardPageLocation loc = e_AFTER_USER_BLOCK);
+        //   GuardingAllocator(GuardPageLocation l = e_AFTER_USER_BLOCK);
         //   ~GuardingAllocator();
         // --------------------------------------------------------------------
 

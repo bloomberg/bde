@@ -191,6 +191,11 @@ BSLS_IDENT("$Id: $")
 //      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
+//    private:
+//      // Not implemented:
+//      my1_WorkQueue(const my1_WorkQueue&);
+//
+//    public:
 //      // CREATORS
 //      explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
 //      : d_alloc_p(bslma::Default::allocator(basicAllocator))
@@ -439,6 +444,11 @@ BSLS_IDENT("$Id: $")
 //      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
+//    private:
+//      // Not implemented:
+//      my2_WorkQueue(const my2_WorkQueue&);
+//
+//    public:
 //      // CREATORS
 //      explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
 //      : d_queue(basicAllocator)
@@ -649,7 +659,7 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
   public:
     // CREATORS
     explicit
-    ConcurrentPoolAllocator(bslma::Allocator            *basicAllocator = 0);
+    ConcurrentPoolAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
     ConcurrentPoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
                             bslma::Allocator            *basicAllocator = 0);
@@ -676,8 +686,8 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
         // '1 <= maxBlocksPerChunk'.
 
     explicit
-    ConcurrentPoolAllocator(size_type                    blockSize,
-                            bslma::Allocator            *basicAllocator = 0);
+    ConcurrentPoolAllocator(size_type         blockSize,
+                            bslma::Allocator *basicAllocator = 0);
     ConcurrentPoolAllocator(size_type                    blockSize,
                             bsls::BlockGrowth::Strategy  growthStrategy,
                             bslma::Allocator            *basicAllocator = 0);

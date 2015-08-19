@@ -213,9 +213,9 @@ bsl::ostream& operator<<(bsl::ostream&                        stream,
 //                                               ^-popIndex
 //..
 
-void gg(Obj      *result,
-        unsigned  int pushCombinedIndex,
-        unsigned  int popCombinedIndex)
+void gg(Obj          *result,
+        unsigned int  pushCombinedIndex,
+        unsigned int  popCombinedIndex)
     // Initialize the specified 'result' to have the specified
     // 'pushCombinedIndex' and the specified 'popCombinedIndex'.  The behavior
     // is undefined unless 'result' is empty, the push and pop index refer to
@@ -550,9 +550,9 @@ void dirtyAdjustGeneration(Obj *result, unsigned int generation)
    data->d_popIndex  = static_cast<int>(generation * capacity);
 }
 
-void dirtyGG(Obj      *result,
-             unsigned  int pushCombinedIndex,
-             unsigned  int popCombinedIndex)
+void dirtyGG(Obj          *result,
+             unsigned int  pushCombinedIndex,
+             unsigned int  popCombinedIndex)
     // Initialize the specified 'result' to have the specified
     // 'pushCombinedIndex' and the specified 'popCombinedIndex'.
 {

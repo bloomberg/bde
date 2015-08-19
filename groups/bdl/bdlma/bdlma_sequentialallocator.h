@@ -113,6 +113,9 @@ BSLS_IDENT("$Id: $")
 //      void increaseCapacity();
 //          // Increase the capacity of this stack by at least one element.
 //
+//      // Not implemented:
+//      my_DoubleStack(const my_DoubleStack&);
+//
 //    public:
 //      // CREATORS
 //      explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
@@ -249,13 +252,13 @@ class SequentialAllocator : public ManagedAllocator {
   public:
     // CREATORS
     explicit
-    SequentialAllocator(bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
     SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
     explicit
-    SequentialAllocator(bsls::Alignment::Strategy    alignmentStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(bsls::Alignment::Strategy  alignmentStrategy,
+                        bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
                         bsls::Alignment::Strategy    alignmentStrategy,
                         bslma::Allocator            *basicAllocator = 0);
@@ -272,14 +275,13 @@ class SequentialAllocator : public ManagedAllocator {
         // geometric growth is used.
 
     explicit
-    SequentialAllocator(int                          initialSize,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int initialSize, bslma::Allocator *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
-                        bsls::Alignment::Strategy    alignmentStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int                        initialSize,
+                        bsls::Alignment::Strategy  alignmentStrategy,
+                        bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bsls::Alignment::Strategy    alignmentStrategy,
@@ -302,17 +304,17 @@ class SequentialAllocator : public ManagedAllocator {
         // internal buffers will always be the same as the
         // implementation-defined value.
 
-    SequentialAllocator(int                          initialSize,
-                        int                          maxBufferSize,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int               initialSize,
+                        int               maxBufferSize,
+                        bslma::Allocator *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         int                          maxBufferSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
-                        int                          maxBufferSize,
-                        bsls::Alignment::Strategy    alignmentStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int                        initialSize,
+                        int                        maxBufferSize,
+                        bsls::Alignment::Strategy  alignmentStrategy,
+                        bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         int                          maxBufferSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
@@ -545,9 +547,7 @@ void SequentialAllocator::release()
 }
 
 inline
-int SequentialAllocator::truncate(void *address,
-                                  int   originalSize,
-                                  int   newSize)
+int SequentialAllocator::truncate(void *address, int originalSize, int newSize)
 {
     return d_sequentialPool.truncate(address, originalSize, newSize);
 }

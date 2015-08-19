@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlb::Float: namespace for floating-point classification types and functions
 //
-//@SEE_ALSO: bdlimpxxx_fuzzy
-//
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: In C99, the '<math.h>' library includes macros such as 'isinf'

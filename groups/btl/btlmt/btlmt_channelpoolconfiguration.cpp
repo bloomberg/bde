@@ -480,17 +480,6 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
         return 0;
     }
 }
-                               // -------------
-                               // CLASS METHODS
-                               // -------------
-
-int ChannelPoolConfiguration::maxSupportedBdexVersion() {
-    return 5;
-}
-
-int ChannelPoolConfiguration::maxSupportedVersion() {
-    return maxSupportedBdexVersion();
-}
 
                                   // --------
                                   // CREATORS

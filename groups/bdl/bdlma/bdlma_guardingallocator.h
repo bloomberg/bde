@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BDLMA_GUARDINGALLOCATOR
 #define INCLUDED_BDLMA_GUARDINGALLOCATOR
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide a memory allocator that guards against buffer overruns.
 //
 //@CLASSES:
@@ -126,13 +131,16 @@
 //      static int outputSize(my_DataStyle outputStyle,
 //                            my_DataStyle inputStyle,
 //                            int          inputLength);
-//         // Return the buffer size (in bytes) required to store the result of
-//         // converting input data of the specified 'inputLength' (in bytes),
-//         // in the specified 'inputStyle', into the specified 'outputStyle'.
-//         // The behavior is undefined unless '0 <= inputLength'.
+//          // Return the buffer size (in bytes) required to store the result
+//          // of converting input data of the specified 'inputLength' (in
+//          // bytes), in the specified 'inputStyle', into the specified
+//          // 'outputStyle'.  The behavior is undefined unless
+//          // '0 <= inputLength'.
 //
-//      static int translate(      char *output, my_DataStyle outputStyle,
-//                           const char *input,  my_DataStyle inputStyle);
+//      static int translate(char         *output,
+//                           my_DataStyle  outputStyle,
+//                           const char   *input,
+//                           my_DataStyle  inputStyle);
 //          // Load into the specified 'output' buffer the result of converting
 //          // the specified 'input' data, in the specified 'inputStyle', into
 //          // the specified 'outputStyle'.  Return 0 on success, and a
@@ -155,6 +163,10 @@
 //      my_DataStyle      d_altStyle;    // alternative style (if requested)
 //      char             *d_altBuffer;   // buffer for alternative style
 //      bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
+//
+//    private:
+//      // Not implemented:
+//      my_DataHandler(const my_DataHandler&);
 //
 //    public:
 //      // CREATORS

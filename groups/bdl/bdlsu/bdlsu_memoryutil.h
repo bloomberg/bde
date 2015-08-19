@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //      bdlsu::MemoryUtil: struct which scopes memory system utilities.
 //
-//@SEE_ALSO: bdlma_xxxprotectableblocklist,
-//           bdlmca_xxxprotectablesequentialallocator
-//
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov)
 //
 //@DESCRIPTION: This component defines a platform-independent interface for

@@ -6,12 +6,15 @@
 #include <ball_attribute.h>
 
 #include <bdlb_print.h>
+#include <bdls_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
 #include <bsl_set.h>
@@ -32,7 +35,7 @@ using namespace bsl;  // automatically added by script
 // CREATORS
 // [ 3] ball::AttributeContainerListIterator();
 // [ 5] ball::AttributeContainerListIterator(
-//                                const ball::AttributeContainerListIterator& );
+//                               const ball::AttributeContainerListIterator& );
 // [ 3] ball::AttributeContainerListIterator(
 //                                        ball::AttributeContainerList_Node *);
 // MANIPULATORS
@@ -80,40 +83,61 @@ using namespace bsl;  // automatically added by script
 // [ 2] BREATHING TEST 2
 // [  ] free list
 // [17] USAGE EXAMPLE
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/VARIABLES FOR TESTING
@@ -181,8 +205,8 @@ bslma::TestAllocator testAllocator;
       public:
 
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(AttributeSet,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(AttributeSet,
+                                       bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit
@@ -199,10 +223,10 @@ bslma::TestAllocator testAllocator;
 
         // MANIPULATORS
         void insert(const ball::Attribute& value);
-            // Add the specified value to this attribute set.
+            // Add the specified 'value' to this attribute set.
 
         bool remove(const ball::Attribute& value);
-            // Remove the specified value from this attribute set, return
+            // Remove the specified 'value' from this attribute set, return
             // 'true' if the attribute was found, and 'false' if 'value' was
             // not a member of this set.
 
@@ -293,8 +317,8 @@ class TestPrintContainer : public ball::AttributeContainer {
   public:
 
     TestPrintContainer() : d_char('X') {}
-        // Create a 'TestPrintContainer' that will print 'X' when 'print'
-        // is invoked.
+        // Create a 'TestPrintContainer' that will print 'X' when 'print' is
+        // invoked.
 
     TestPrintContainer(char c) : d_char(c) {}
         // Create a 'TestPrintContainer' that will print the specified 'c'
@@ -305,8 +329,8 @@ class TestPrintContainer : public ball::AttributeContainer {
 
     // MANIPULATORS
     void setChar(char c) { d_char = c; }
-        // Set to the character to be printed by this object to the
-        // specified 'c'.
+        // Set to the character to be printed by this object to the specified
+        // 'c'.
 
     // ACCESSORS
     virtual bool hasValue(const ball::Attribute& value) const {return true;}
@@ -983,7 +1007,7 @@ int main(int argc, char *argv[])
         //   as w.
         //
         // Testing:
-        //   ball::AttributeContainerList(const ball::AttributeContainerList& );
+        //   ball::AttributeContainerList(const AttributeContainerList& );
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1229,7 +1253,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ball::AttributeContainerListIterator& operator=(
-        //                     const ball::AttributeContainerListIterator& rhs);
+        //                    const ball::AttributeContainerListIterator& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1293,7 +1317,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ball::AttributeContainerListIterator(const
-        //                              ball::AttributeContainerListIterator& );
+        //                             ball::AttributeContainerListIterator& );
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1389,7 +1413,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING BASIC MANIPULATORS and ACCESSORS (BOOTSTRAP):
-        //                                  ball::AttributeContainerListIterator
+        //                                 ball::AttributeContainerListIterator
         // Concerns:
         //   The primary fields must be correctly modifiable and accessible.
         //
@@ -1586,7 +1610,7 @@ int main(int argc, char *argv[])
           ASSERT(!MX.hasValue(ball::Attribute("A", 2)));
           ASSERT(!MX.hasValue(ball::Attribute("C", 1)));
 
-      };
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:

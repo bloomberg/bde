@@ -838,8 +838,8 @@ class TestClass6 {
   public:
     // CREATORS
     TestClass6(bdlcc::Queue<Element> *queue,
-               MyBarrier       *barrier,
-               const Element&       value)
+               MyBarrier             *barrier,
+               const Element&         value)
     : d_queue_p(queue)
     , d_barrier_p(barrier)
     , d_stage(0)
@@ -911,9 +911,9 @@ class TestClass5back {
   public:
     // CREATORS
     TestClass5back(bdlcc::Queue<Element> *queue,
-                   MyBarrier       *barrier,
-                   bsls::TimeInterval    timeout,
-                   Element              value)
+                   MyBarrier             *barrier,
+                   bsls::TimeInterval     timeout,
+                   Element                value)
     : d_queue_p(queue)
     , d_barrier_p(barrier)
     , d_timeout(timeout)
@@ -967,9 +967,9 @@ class TestClass5front {
   public:
     // CREATORS
     TestClass5front(bdlcc::Queue<Element> *queue,
-                    MyBarrier       *barrier,
-                    bsls::TimeInterval    timeout,
-                    Element              value)
+                    MyBarrier             *barrier,
+                    bsls::TimeInterval     timeout,
+                    Element                value)
     : d_queue_p(queue)
     , d_barrier_p(barrier)
     , d_timeout(timeout)
@@ -1040,8 +1040,7 @@ class TestClass4back {
 
   public:
     // CREATORS
-    TestClass4back(bdlcc::Queue<Element> *queue,
-                   const Element&       value)
+    TestClass4back(bdlcc::Queue<Element> *queue, const Element& value)
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_toBeInserted(value)
@@ -1075,8 +1074,7 @@ class TestClass4front {
 
   public:
     // CREATORS
-    TestClass4front(bdlcc::Queue<Element> *queue,
-                    const Element&       value)
+    TestClass4front(bdlcc::Queue<Element> *queue, const Element& value)
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_toBeInserted(value)
@@ -1138,9 +1136,9 @@ class TestClass3back {
   public:
     // CREATORS
     TestClass3back(bdlcc::Queue<Element> *queue,
-                   MyBarrier       *barrier,
-                   bsls::TimeInterval    timeout,
-                   Element              val)
+                   MyBarrier             *barrier,
+                   bsls::TimeInterval     timeout,
+                   Element                val)
     : d_queue_p(queue)
     , d_barrier_p(barrier)
     , d_timeout(timeout)
@@ -1194,9 +1192,9 @@ class TestClass3front {
   public:
     // CREATORS
     TestClass3front(bdlcc::Queue<Element> *queue,
-                    MyBarrier       *barrier,
-                    bsls::TimeInterval    timeout,
-                    Element              value)
+                    MyBarrier             *barrier,
+                    bsls::TimeInterval     timeout,
+                    Element                value)
     : d_queue_p(queue)
     , d_barrier_p(barrier)
     , d_timeout(timeout)
@@ -1302,8 +1300,7 @@ class TestClass2back {
 
   public:
     // CREATORS
-    TestClass2back(bdlcc::Queue<Element> *queue,
-                   const Element&       value)
+    TestClass2back(bdlcc::Queue<Element> *queue, const Element& value)
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_expected(value)
@@ -1336,8 +1333,7 @@ class TestClass2front {
 
   public:
     // CREATORS
-    TestClass2front(bdlcc::Queue<Element> *queue,
-                    const Element&       value)
+    TestClass2front(bdlcc::Queue<Element> *queue, const Element& value)
     : d_queue_p(queue)
     , d_waitingFlag(0)
     , d_expected(value)

@@ -26,32 +26,32 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-// Implementation Note:  The 'AttributeContext' makes uses a cache of
-// rule evaluations ('AttributeContext_RuleEvaluationCache') when
-// evaluating the 'hasRelevantActiveRules' and the 'getThresholdLevels' methods
-// for a category.  When accessing this cache, the singleton rule mutex,
+// Implementation Note: The 'AttributeContext' makes uses a cache of rule
+// evaluations ('AttributeContext_RuleEvaluationCache') when evaluating the
+// 'hasRelevantActiveRules' and the 'getThresholdLevels' methods for a
+// category.  When accessing this cache, the singleton rule mutex,
 // 's_categoryManager_p->_ruleMutex()', is intentionally *not* locked.  For
 // performance reasons this component (and the 'bael' package in general)
 // attempts to be consistent, but does *not* provide a *guarantee* that
 // messages will (or will not) be logged if any state is modified while the
 // logging occurs.  When using the cached rule evaluations - if the
-// rule-sequence number is correct at *any* point in the operation, that
-// cached data is reasonably up to date (i.e., it's "good enough").  Note that
-// if a client required strictly synchronized results for these methods, a
-// lock would need to be held outside of this component (until the message was
+// rule-sequence number is correct at *any* point in the operation, that cached
+// data is reasonably up to date (i.e., it's "good enough").  Note that if a
+// client required strictly synchronized results for these methods, a lock
+// would need to be held outside of this component (until the message was
 // actually written to the log).
 
-               // -----------------------------------------------
+               // ------------------------------------------
                // class AttributeContext_RuleEvaluationCache
-               // -----------------------------------------------
+               // ------------------------------------------
 
 // MANIPULATORS
 RuleSet::MaskType
 AttributeContext_RuleEvaluationCache::update(
-                        int                                 sequenceNumber,
-                        RuleSet::MaskType              relevantRuleMask,
-                        const RuleSet&                 rules,
-                        const AttributeContainerList&  attributes)
+                               int                            sequenceNumber,
+                               RuleSet::MaskType              relevantRuleMask,
+                               const RuleSet&                 rules,
+                               const AttributeContainerList&  attributes)
 
 {
     // If the sequence number as changed, the cache is entirely out of data.
@@ -108,9 +108,9 @@ AttributeContext_RuleEvaluationCache::print(
 
 }
 
-                        // ----------------------------------
+                        // -----------------------------
                         // class AttributeContextProctor
-                        // ----------------------------------
+                        // -----------------------------
 
 // CREATORS
 AttributeContextProctor::~AttributeContextProctor()
@@ -128,9 +128,9 @@ AttributeContextProctor::~AttributeContextProctor()
 }
 }  // close package namespace
 
-                        // ---------------------------
+                        // ----------------------------
                         // class ball::AttributeContext
-                        // ---------------------------
+                        // ----------------------------
 
 namespace {
 
@@ -138,6 +138,7 @@ namespace {
 // platforms) that will serve as cache for 'bdlqq::ThreadUtil::getSpecific'.
 // Note that the memory will still be managed by 'bdlqq::ThreadUtil' thread
 // specific storage.
+
 #ifdef BCES_THREAD_LOCAL_VARIABLE
 BCES_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
 #endif
@@ -146,14 +147,15 @@ BCES_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
 
 // CLASS MEMBERS
 ball::CategoryManager *ball::AttributeContext::s_categoryManager_p = 0;
-bslma::Allocator     *ball::AttributeContext::s_globalAllocator_p = 0;
+
+bslma::Allocator      *ball::AttributeContext::s_globalAllocator_p = 0;
 
 namespace ball {
+
 // PRIVATE CREATORS
-AttributeContext
-::AttributeContext(bslma::Allocator *basicAllocator)
-: d_containerList(basicAllocator)
-, d_allocator_p(bslma::Default::globalAllocator(basicAllocator))
+AttributeContext::AttributeContext(bslma::Allocator *globalAllocator)
+: d_containerList(globalAllocator)
+, d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
 {
 }
 
@@ -194,8 +196,8 @@ void AttributeContext::removeContext(void *arg)
 
 // CLASS METHODS
 void
-AttributeContext::initialize(CategoryManager *categoryManager,
-                                  bslma::Allocator     *globalAllocator)
+AttributeContext::initialize(CategoryManager  *categoryManager,
+                             bslma::Allocator *globalAllocator)
 {
     if (s_globalAllocator_p) {
         bsl::fprintf(
@@ -214,8 +216,7 @@ AttributeContext *AttributeContext::lookupContext()
 #ifdef BCES_THREAD_LOCAL_VARIABLE
     return g_threadLocalContext;
 #else
-    return (AttributeContext*)
-                                bdlqq::ThreadUtil::getSpecific(contextKey());
+    return (AttributeContext*) bdlqq::ThreadUtil::getSpecific(contextKey());
 #endif
 }
 
@@ -264,8 +265,7 @@ AttributeContext *AttributeContext::getContext()
 }
 
 // ACCESSORS
-bool AttributeContext::hasRelevantActiveRules(
-                                          const Category *category) const
+bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 {
     RuleSet::MaskType relevantRuleMask = category->relevantRuleMask();
 
@@ -294,9 +294,8 @@ bool AttributeContext::hasRelevantActiveRules(
 }
 
 void
-AttributeContext::determineThresholdLevels(
-                                     ThresholdAggregate *levels,
-                                     const Category     *category) const
+AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
+                                           const Category     *category) const
 {
     if (!category) {
         return;                                                       // RETURN
@@ -377,8 +376,8 @@ AttributeContext::determineThresholdLevels(
 
 // ACCESSORS
 bsl::ostream& AttributeContext::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     char EL = (spacesPerLevel < 0) ? ' ' : '\n';
 

@@ -77,8 +77,8 @@ void *ConcurrentFixedPool::allocateNew()
 
 // CREATORS
 ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
-                                 int               poolSize,
-                                 bslma::Allocator *basicAllocator)
+                                         int               poolSize,
+                                         bslma::Allocator *basicAllocator)
 : d_freeList(0)
 , d_sizeMask(bdlb::BitUtil::roundUpToBinaryPower(
                                       static_cast<uint32_t>(poolSize + 1)) - 1)

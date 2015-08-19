@@ -165,8 +165,8 @@ BSLS_IDENT("$Id: $")
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-//  extern "C" void serverThread(bsls::AtomicInt *queries,
-//                               int              max,
+//  extern "C" void serverThread(bsls::AtomicInt             *queries,
+//                               int                          max,
 //                               void(*queryHandler)(Query*))
 //  {
 //      while (++(*queries) <= max) {

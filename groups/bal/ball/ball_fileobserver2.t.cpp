@@ -28,7 +28,7 @@
 
 #include <bsls_platform.h>                    // for testing only
 
-#include <bdlb_xxxstrtokeniter.h>
+#include <bdlb_strtokenrefiter.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -595,9 +595,9 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     ASSERT(result)
     ASSERT(ascii)
 
-    for (bdlb::StrTokenIter itr(ascii, 0, "\n"); itr; ++itr) {
-       if (bsl::strlen(itr()) > 0) {
-           result->push_back(itr());
+    for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
+       if (bsl::strlen(itr().data()) > 0) {
+           result->push_back(itr().data());
        }
     }
 }

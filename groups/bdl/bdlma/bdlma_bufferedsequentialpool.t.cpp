@@ -257,6 +257,9 @@ static int calculateNextSize(int currSize, int size)
             // Increase the capacity of the internal arrays used to store
             // elements added to this array by at least one element.
 
+        // Not implemented:
+        my_BufferedIntDoubleArray(const my_BufferedIntDoubleArray&);
+
       public:
         // TYPES
         enum Type { k_MY_INT, k_MY_DOUBLE };
