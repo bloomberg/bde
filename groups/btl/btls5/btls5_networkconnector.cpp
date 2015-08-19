@@ -102,7 +102,6 @@ class NetworkConnector::Connector {
         // 'minSourcePort <= maxSourcePort' and 'maxSourcePort <= 65535'.
 };
 
-}  // close package namespace
 
                               // ---------------
                               // class Connector
@@ -131,7 +130,6 @@ btls5::NetworkConnector::Connector::Connector(
     BSLS_ASSERT(basicAllocator);
 }
 
-namespace btls5 {
                            // =======================
                            // class ConnectionAttempt
                            // =======================
@@ -186,9 +184,13 @@ class NetworkConnector::ConnectionAttempt {
   public:
     // DATA
     const ConnectionStateCallback  d_callback;      // client callback
+
     bsls::TimeInterval             d_proxyTimeout;  // step timeout
+
     bsls::TimeInterval             d_totalTimeout;  // total attempt timeout
+
     btlso::Endpoint                d_server;        // destination address
+
     btlso::SocketHandle::Handle    d_handle;        // OS-level socket
 
     bsl::shared_ptr<Connector>     d_connector;     // persistent state of the
@@ -260,7 +262,6 @@ class NetworkConnector::ConnectionAttempt {
         // Connection attempts already in progress may continue, and their
         // callbacks be invoked after this object is destroyed.
 };
-}  // close package namespace
 
 namespace {
 
@@ -301,7 +302,7 @@ static void terminate(
 
     if (attempt->d_timer) {
         attempt->d_connector->d_eventManager_p->deregisterTimer(
-                                                         attempt->d_timer);
+                                                             attempt->d_timer);
     }
     if (btls5::NetworkConnector::e_SUCCESS == status) {
         bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
@@ -313,14 +314,14 @@ static void terminate(
         {
             bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
             if (attempt->d_socket_p) {
-                attempt->d_connector->d_socketFactory_p
-                                             ->deallocate(attempt->d_socket_p);
+                attempt->d_connector->d_socketFactory_p->deallocate(
+                                                          attempt->d_socket_p);
                 attempt->d_socket_p = 0;
             }
         }
         if (btls5::NetworkConnector::e_TIMEOUT == status
-                || btls5::NetworkConnector::e_CANCEL == status
-                || !attempt->d_numRetries) {
+         || btls5::NetworkConnector::e_CANCEL  == status
+         || !attempt->d_numRetries) {
             attempt->d_callback(status,
                                 0,
                                 attempt->d_connector->d_socketFactory_p,
@@ -382,13 +383,13 @@ static void socksConnectCb(
         const bsl::size_t index = attempt->d_indices[level];
             // last failed proxy
 
-        const btls5::ProxyDescription& proxy
-            = attempt->d_connector->d_socks5Servers.beginLevel(level)[index];
+        const btls5::ProxyDescription& proxy =
+                attempt->d_connector->d_socks5Servers.beginLevel(level)[index];
 
         // See if we have just tried the last proxy at 'level'.
 
-        while (++attempt->d_indices[level]
-                == attempt->d_connector->d_socks5Servers.numProxies(level)) {
+        while (++attempt->d_indices[level] ==
+                     attempt->d_connector->d_socks5Servers.numProxies(level)) {
             if (!level) {
                 btls5::DetailedStatus e(detailedStatus);
                 e.setAddress(proxy.address());
@@ -402,8 +403,8 @@ static void socksConnectCb(
         // restart connection.
 
         for (bsl::size_t li = level + 1;
-                 li < attempt->d_connector->d_socks5Servers.numLevels();
-                 ++li) {
+             li < attempt->d_connector->d_socks5Servers.numLevels();
+             ++li) {
             attempt->d_indices[li] = 0;
         }
 
@@ -411,7 +412,7 @@ static void socksConnectCb(
             bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
             if (attempt->d_socket_p) {
                 attempt->d_connector->d_socketFactory_p->deallocate(
-                                                      attempt->d_socket_p);
+                                                          attempt->d_socket_p);
                 attempt->d_socket_p = 0;
             }
         }
@@ -426,46 +427,49 @@ static void socksConnect(
 {
     const bsl::size_t level = attempt->d_level;          // proxy level to try
     const bsl::size_t index = attempt->d_indices[level]; // specific proxy
-    const btls5::ProxyDescription& proxy
-        = attempt->d_connector->d_socks5Servers.beginLevel(level)[index];
+    const btls5::ProxyDescription& proxy =
+                attempt->d_connector->d_socks5Servers.beginLevel(level)[index];
 
-    const bsl::size_t nextLevel = level + 1;
+    const bsl::size_t      nextLevel = level + 1;
     const btlso::Endpoint *destination;
     if (nextLevel == attempt->d_connector->d_socks5Servers.numLevels()) {
         destination = &attempt->d_server;
     } else {
         const bsl::size_t nextIndex = attempt->d_indices[nextLevel];
 
-        destination = &attempt->d_connector->d_socks5Servers
-            .beginLevel(nextLevel)[nextIndex].address();
+        destination = &attempt->d_connector->d_socks5Servers.
+                                    beginLevel(nextLevel)[nextIndex].address();
     }
 
     using namespace bdlf::PlaceHolders;
-    btls5::Negotiator::NegotiationStateCallback
-        cb = bdlf::BindUtil::bind(socksConnectCb, attempt, _1, _2);
+    btls5::Negotiator::NegotiationStateCallback cb =
+                                           bdlf::BindUtil::bind(socksConnectCb,
+                                                                attempt,
+                                                                _1,
+                                                                _2);
 
     int rc;
     {
         bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
         if (attempt->d_socket_p) {
             if (proxy.credentials().username().length()) {
-                attempt->d_negotiation
-                    = attempt->d_negotiator.makeNegotiationHandle(
+                attempt->d_negotiation =
+                     attempt->d_negotiator.makeNegotiationHandle(
                                                        attempt->d_socket_p,
                                                        *destination,
                                                        cb,
                                                        attempt->d_proxyTimeout,
                                                        proxy.credentials());
             } else {
-                attempt->d_negotiation
-                    = attempt->d_negotiator.makeNegotiationHandle(
+                attempt->d_negotiation =
+                     attempt->d_negotiator.makeNegotiationHandle(
                                                       attempt->d_socket_p,
                                                       *destination,
                                                       cb,
                                                       attempt->d_proxyTimeout);
             }
-            rc =
-                attempt->d_negotiator.startNegotiation(attempt->d_negotiation);
+            rc = attempt->d_negotiator.startNegotiation(
+                                                       attempt->d_negotiation);
         } else {  // socket has disconnected, e.g. after cancel
             rc = -1;
         }
@@ -475,7 +479,7 @@ static void socksConnect(
         socksConnectCb(attempt,
                        btls5::Negotiator::e_ERROR,
                        btls5::DetailedStatus("Unable to negotiate.",
-                                            proxy.address()));
+                                             proxy.address()));
     }
 }
 
@@ -492,8 +496,8 @@ static void tcpConnectCb(
         return;                                                       // RETURN
     }
 
-    btls5::NetworkConnector::ConnectionAttemptHandle
-        attempt(connectionAttempt);
+    btls5::NetworkConnector::ConnectionAttemptHandle attempt(
+                                                            connectionAttempt);
         // copy shared ptr because 'deregisterSocket' removes the reference
 
     const bsl::size_t index = attempt->d_indices[0];
@@ -514,8 +518,8 @@ static void tcpConnectCb(
         }
 
         if (attempt->d_socket_p) {
-            const btlso::SocketHandle::Handle
-                handle = attempt->d_socket_p->handle();
+            const btlso::SocketHandle::Handle handle =
+                                                 attempt->d_socket_p->handle();
             attempt->d_connector->d_eventManager_p->deregisterSocket(handle);
             if (hasTimedOut) {
                 rc = -1;
@@ -547,7 +551,7 @@ static void tcpConnectCb(
             btls5::DetailedStatus error(
                             connectionError.str(),
                             attempt->d_connector->d_socks5Servers.beginLevel(0)
-                                [index].address());
+                                                            [index].address());
             terminate(attempt, btls5::NetworkConnector::e_ERROR, error);
         }
     } else {
@@ -587,7 +591,7 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
         return 0;                                                     // RETURN
     }
     btlso::StreamSocketFactoryAutoDeallocateGuard<btlso::IPv4Address>
-        socketGuard(socket, socketFactory);
+                                            socketGuard(socket, socketFactory);
 
     int rc = 0;  // return code for socket operations
 
@@ -608,8 +612,8 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
     if (minSourcePort > 0) {
         int port = minSourcePort;
         for (; port <= maxSourcePort; ++port) {
-            btlso::IPv4Address
-                srcAddress(btlso::IPv4Address::k_ANY_ADDRESS, port);
+            btlso::IPv4Address srcAddress(btlso::IPv4Address::k_ANY_ADDRESS,
+                                          port);
             rc = socket->bind(srcAddress);
             if (!rc) {
                 break;  // bound successfully
@@ -662,11 +666,11 @@ static void tcpConnect(
 {
     btls5::DetailedStatus error("TCP connect to first-level proxy.");
 
-    btls5::NetworkDescription::ProxyIterator
-        it = attempt->d_connector->d_socks5Servers.beginLevel(0);
+    btls5::NetworkDescription::ProxyIterator it =
+                           attempt->d_connector->d_socks5Servers.beginLevel(0);
     it += attempt->d_indices[0];
-    const btls5::NetworkDescription::ProxyIterator
-        end = attempt->d_connector->d_socks5Servers.endLevel(0);
+    const btls5::NetworkDescription::ProxyIterator end =
+                             attempt->d_connector->d_socks5Servers.endLevel(0);
     for (; end != it; ++it, ++attempt->d_indices[0]) {
         const btlso::Endpoint& destination = it->address();
         btlso::IPv4Address server;
@@ -716,25 +720,31 @@ static void tcpConnect(
             attempt->d_proxyTimer = 0;
             const bool hasTimedOut = false;
             attempt->d_connector->d_eventManager_p->execute(
-                     bdlf::BindUtil::bind(tcpConnectCb, attempt, hasTimedOut));
+                                            bdlf::BindUtil::bind(tcpConnectCb,
+                                                                 attempt,
+                                                                 hasTimedOut));
             break;
         } else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
-            btlso::EventManager::Callback
-                cb = bdlf::BindUtil::bind(tcpConnectCb, attempt, false);
+            btlso::EventManager::Callback cb = bdlf::BindUtil::bind(
+                                                                  tcpConnectCb,
+                                                                  attempt,
+                                                                  false);
             if (attempt->d_socket_p) {
-                rc = attempt->d_connector->d_eventManager_p
-                    ->registerSocketEvent(attempt->d_socket_p->handle(),
-                                          btlso::EventType::e_CONNECT,
-                                          cb);
+                rc = attempt->d_connector->d_eventManager_p->
+                             registerSocketEvent(attempt->d_socket_p->handle(),
+                                                 btlso::EventType::e_CONNECT,
+                                                 cb);
             }
 
             if (bsls::TimeInterval() != attempt->d_proxyTimeout) {
                 bsls::TimeInterval expiration = bdlt::CurrentTime::now()
-                    + attempt->d_proxyTimeout;
-                btlso::EventManager::Callback
-                    cb = bdlf::BindUtil::bind(tcpConnectCb, attempt, true);
-                attempt->d_proxyTimer
-                    = attempt->d_connector->d_eventManager_p->registerTimer(
+                                                     + attempt->d_proxyTimeout;
+                btlso::EventManager::Callback cb = bdlf::BindUtil::bind(
+                                                                  tcpConnectCb,
+                                                                  attempt,
+                                                                  true);
+                attempt->d_proxyTimer =
+                         attempt->d_connector->d_eventManager_p->registerTimer(
                                                                     expiration,
                                                                     cb);
             }
@@ -794,10 +804,9 @@ btls5::NetworkConnector::ConnectionAttempt::ConnectionAttempt(
     BSLS_ASSERT(basicAllocator);
 }
 
-namespace btls5 {
-                        // ----------------------------
+                        // ----------------------
                         // class NetworkConnector
-                        // ----------------------------
+                        // ----------------------
 
 // CREATORS
 NetworkConnector::NetworkConnector(
@@ -869,12 +878,13 @@ void NetworkConnector::startConnectionAttempt(
     BSLS_ASSERT(d_connector->d_eventManager_p->isEnabled());
 
     if (bsls::TimeInterval() != handle->d_totalTimeout) {
-        bsls::TimeInterval expiration
-            = bdlt::CurrentTime::now() + handle->d_totalTimeout;
-        btlso::EventManager::Callback
-            cb = bdlf::BindUtil::bind(timeoutAttempt, handle);
-        handle->d_timer = handle->d_connector
-           ->d_eventManager_p->registerTimer(expiration, cb);
+        bsls::TimeInterval expiration =
+                             bdlt::CurrentTime::now() + handle->d_totalTimeout;
+        btlso::EventManager::Callback cb = bdlf::BindUtil::bind(timeoutAttempt,
+                                                                handle);
+        handle->d_timer = handle->d_connector->d_eventManager_p->registerTimer(
+                                                                    expiration,
+                                                                    cb);
     }
     tcpConnect(handle);
 }
@@ -889,9 +899,7 @@ void NetworkConnector::startConnectionAttemptStrict(
 void NetworkConnector::cancelConnectionAttempt(
                                          const ConnectionAttemptHandle& handle)
 {
-    terminate(handle,
-              NetworkConnector::e_CANCEL,
-              DetailedStatus("Canceled"));
+    terminate(handle, NetworkConnector::e_CANCEL, DetailedStatus("Canceled"));
 }
 
 // ACCESSORS
@@ -900,6 +908,7 @@ NetworkConnector::socks5Servers() const
 {
     return d_connector->d_socks5Servers;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

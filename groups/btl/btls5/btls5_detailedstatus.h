@@ -245,15 +245,17 @@ DetailedStatus::DetailedStatus(const bslstl::StringRef&  description,
 : d_description(description, basicAllocator)
 , d_address(basicAllocator)
 {
+    BSLS_ASSERT_SAFE(0 != description.data());
 }
 
 inline
 DetailedStatus::DetailedStatus(const bslstl::StringRef&  description,
-                               const btlso::Endpoint&     address,
+                               const btlso::Endpoint&    address,
                                bslma::Allocator         *basicAllocator)
 : d_description(description, basicAllocator)
 , d_address(address, basicAllocator)
 {
+    BSLS_ASSERT_SAFE(0 != description.data());
 }
 
 inline
@@ -268,7 +270,9 @@ DetailedStatus::DetailedStatus(const DetailedStatus&  original,
 inline
 void DetailedStatus::setDescription(const bslstl::StringRef& value)
 {
-    d_description = value;
+    BSLS_ASSERT_SAFE(0 != value.data());
+
+    d_description.assign(value.begin(), value.end());
 }
 
 inline
