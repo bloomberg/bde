@@ -3,6 +3,8 @@
 
 #include <ball_attribute.h>             // for testing only
 
+#include <bdls_testutil.h>
+
 #include <bslim_printer.h>
 #include <bsls_assert.h>
 #include <bsls_protocoltest.h>
