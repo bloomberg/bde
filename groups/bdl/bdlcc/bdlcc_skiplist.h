@@ -28,12 +28,14 @@ BSLS_IDENT("$Id: $")
 // 'KEY' value.
 //
 // Associations (pairings of data objects with key values) in the list are
-// identified by 'PairHandle' objects or 'Pair' pointers.  'Pair' pointers must
-// be used with caution: See the "'Pair' Usage Rules" below.  'Pair' and
-// 'PairHandle' objects are optionally populated when new associations are
-// added, and are also populated whenever associations are looked up (either by
-// key or by position).  There is an implementation-defined maximum number of
-// references (whether by 'PairHandle' or 'Pair' pointer) to any single
+// identified by 'bdlcc::SkipListPairHandle' objects or 'bdlcc::SkipListPair'
+// pointers.  'bdlcc::SkipListPair' pointers must be used with caution: See the
+// "'bdlcc::SkipListPair' Usage Rules" below.  'bdlcc::SkipListPair' and
+// 'bdlcc::SkipListPairHandle' objects are optionally populated when new
+// associations are added, and are also populated whenever associations are
+// looked up (either by key or by position).  There is an
+// implementation-defined maximum number of references (whether by
+// 'bdlcc::SkipListPairHandle' or 'bdlcc::SkipListPair' pointer) to any single
 // association element in the list, not less than
 // '2^bdlcc::SkipList_Control::k_NUM_REFERENCE_BITS - 1'.  The behavior of this
 // component is undefined if more than that number of references are
@@ -63,16 +65,18 @@ BSLS_IDENT("$Id: $")
 //
 //   * Pair: An element of the list; a pairing (association) of a data object
 //           with a key value.  Also a type name used for *references* to such
-//           objects ('Pair' objects cannot be constructed directly).
+//           objects ('bdlcc:SkipListPair' objects cannot be constructed
+//           directly).
 //
 //   * PairHandle: An object (of type 'bdlcc::SkipListPairHandle') with scope
 //                 and copy semantics which make it easier to manage and use
-//                 than a raw 'Pair*'.
+//                 than a raw 'bdlcc::SkipListPair*'.
 //
 //   * R: Stands for "Reverse search" (see '"R" Methods' documentation below).
 //
-//   * Reference: An object referring to a pair; either a 'Pair*' which has not
-//                yet been released, or a 'PairHandle' object.
+//   * Reference: An object referring to a pair; either a
+//                'bdlcc::SkipListPair*' which has not yet been released, or a
+//                'bdlcc::SkipListPairHandle' object.
 //
 ///"R" Methods: Optimized Search From The Back Of The List
 ///------------------------------------------------------
@@ -87,24 +91,25 @@ BSLS_IDENT("$Id: $")
 // pair found by 'find' may (or may not) be different from the one found by
 // 'findR'.
 //
-///'Pair' Usage Rules
-///------------------
-// For safe and correct behavior of this component, it is critical that 'Pair'
-// pointers be treated similarly to HANDLEs in the Windows API:
-// they should be released (using 'releaseReferenceRaw') when they are no
-// longer needed, they must not be used after being released, and they must be
-// released only once.  To use a 'Pair' pointer that refers to a particular
-// pair in multiple places - e.g., in different functions or in different
-// threads - use the 'addPairReferenceRaw' method to add additional references
-// to the same pair.  Remember that 'releaseReferenceRaw' must be called for
-// *each* such pair reference when it is no longer needed.
+///'bdlcc::SkipListPair' Usage Rules
+///---------------------------------
+// For safe and correct behavior of this component, it is critical that
+// 'bdlcc::SkipListPair' pointers be treated similarly to HANDLEs in the
+// Windows API: they should be released (using 'releaseReferenceRaw') when they
+// are no longer needed, they must not be used after being released, and they
+// must be released only once.  To use a 'bdlcc::SkipListPair' pointer that
+// refers to a particular pair in multiple places - e.g., in different
+// functions or in different threads - use the 'addPairReferenceRaw' method to
+// add additional references to the same pair.  Remember that
+// 'releaseReferenceRaw' must be called for *each* such pair reference when it
+// is no longer needed.
 //
 ///Thread Safety
 ///-------------
 // 'bdlcc::SkipList' is thread-safe and thread-aware; that is, multiple threads
 // may use their own Skip List objects or may concurrently use the same object.
-// Note that safe usage of the component depends upon correct usage of 'Pair'
-// objects (see above).
+// Note that safe usage of the component depends upon correct usage of
+// 'bdlcc::SkipListPair' objects (see above).
 //
 // 'bdlcc::SkipListPairHandle' is only *const* *thread-safe*.  It is not safe
 // for multiple threads to invoke non-const methods on the same PairHandle
@@ -409,22 +414,22 @@ struct SkipList_Control {
 
     // MANIPULATORS
     void init(int level);
-       // Set the value of this control word to the initial state for a node at
-       // the specified 'level'.
+        // Set the value of this control word to the initial state for a node
+        // at the specified 'level'.
 
     int incrementRefCount();
-       // Add 1 to the reference count portion of this control word.  Return
-       // the new reference count.  The behavior is undefined if the reference
-       // count is at the implementation-defined maximum.
+        // Add 1 to the reference count portion of this control word.  Return
+        // the new reference count.  The behavior is undefined if the reference
+        // count is at the implementation-defined maximum.
 
     int decrementRefCount();
-       // Subtract 1 from the reference count portion of this control word.
-       // Return the new reference count.  The behavior is undefined if the
-       // reference count is 0.
+        // Subtract 1 from the reference count portion of this control word.
+        // Return the new reference count.  The behavior is undefined if the
+        // reference count is 0.
 
     // ACCESSORS
     int level() const;
-       // Return the level stored in this control word.
+        // Return the level stored in this control word.
 };
 
                         // =========================
@@ -452,7 +457,7 @@ struct SkipList_Node {
     KEY            d_key;
 
     Ptrs           d_ptrs[1];    // Must be last; each node has space for extra
-                                 // Ptrs allocated based on its level.
+                                 // 'Ptrs' allocated based on its level.
 
     // MANIPULATORS
     void initControlWord(int level);
@@ -487,18 +492,19 @@ class SkipList_RandomLevelGenerator {
     // DATA
     bsls::AtomicInt d_seed;        // current random seed
 
-    bsls::AtomicInt d_randomBits;  // 14 random bits and a sentinel bit at
-                                  // the 15th position
+    bsls::AtomicInt d_randomBits;  // 14 random bits and a sentinel bit at the
+                                   // 15th position
 
   public:
     // CREATORS
     SkipList_RandomLevelGenerator();
-       // Construct a thread-aware random-level generator.
+        // Construct a thread-aware random-level generator.
 
     // MANIPULATORS
     int randomLevel();
-       // Return a random integer between 0 and k_MAX_LEVEL.
+        // Return a random integer between 0 and k_MAX_LEVEL.
 };
+
 }  // close package namespace
 
                    // ====================================
@@ -515,30 +521,30 @@ struct SkipList_PoolUtil {
 
     // CLASS METHODS
     static void *allocate(PoolManager *poolManager, int level);
-       // Reserve sufficient space for a node at the specified 'level' from the
-       // specified 'poolManager', and return the address of the reserved
-       // memory.
+        // Reserve sufficient space for a node at the specified 'level' from
+        // the specified 'poolManager', and return the address of the reserved
+        // memory.
 
     static void deallocate(PoolManager *poolManager, void *address);
-       // Return the node at the specified 'address' to the specified
-       // 'poolManager'.  The behavior is undefined if 'address' was not
-       // allocated from 'poolManager'.
+        // Return the node at the specified 'address' to the specified
+        // 'poolManager'.  The behavior is undefined if 'address' was not
+        // allocated from 'poolManager'.
 
     static PoolManager *createPoolManager(int              *objectSizes,
                                           int               numLevels,
                                           bslma::Allocator *basicAllocator);
-       // Create a new pooled node allocator which manages nodes up to the
-       // specified 'numLevels' as described by the specified 'objectSizes'.
-       // For i in [0, numLevels), a node at level i will have size
-       // 'objectSizes[i]' bytes.  Use the specified 'basicAllocator' to supply
-       // memory.  Return the address of the new allocator.  Note that the
-       // behavior is undefined if 'basicAllocator' is 0.
+        // Create a new pooled node allocator which manages nodes up to the
+        // specified 'numLevels' as described by the specified 'objectSizes'.
+        // For 'i' in '[0, numLevels)', a node at level 'i' will have size
+        // 'objectSizes[i]' bytes.  Use the specified 'basicAllocator' to
+        // supply memory.  Return the address of the new allocator.  Note that
+        // the behavior is undefined if 'basicAllocator' is 0.
 
     static void deletePoolManager(bslma::Allocator *basicAllocator,
                                   PoolManager      *poolManager);
-       // Destroy the specified 'poolManager' which was allocated from the
-       // specified 'basicAllocator'.  The behavior is undefined if
-       // 'poolManager' was not allocated from 'basicAllocator'.
+        // Destroy the specified 'poolManager' which was allocated from the
+        // specified 'basicAllocator'.  The behavior is undefined if
+        // 'poolManager' was not allocated from 'basicAllocator'.
 };
 
                  // =======================================
@@ -567,25 +573,25 @@ class SkipList_NodeCreationHelper {
     SkipList_NodeCreationHelper(PoolManager      *poolManager,
                                 Node             *node,
                                 bslma::Allocator *basicAllocator = 0);
-      // Create a new scoped guard object to assist in exception-safe
-      // initialization of the specified 'node', which was allocated from the
-      // specified 'poolManager'.  Use the specified 'basicAllocator' to supply
-      // memory.  If 'basicAllocator' is 0, the currently installed default
-      // allocator is used.
+        // Create a new scoped guard object to assist in exception-safe
+        // initialization of the specified 'node', which was allocated from the
+        // specified 'poolManager'.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~SkipList_NodeCreationHelper();
-      // Destroy this scoped guard.  If the guard currently manages a node,
-      // destroy its data as necessary and return it to the pool.
+        // Destroy this scoped guard.  If the guard currently manages a node,
+        // destroy its data as necessary and return it to the pool.
 
     // MANIPULATORS
     void construct(const KEY& key, const DATA& data);
-      // Attempt to copy-construct the specified 'key' and 'data' into the node
-      // specified at construction; then release the node from management.
-      // Note that if an exception is thrown during the invocation of either
-      // constructor, the node will remain under management and thus the
-      // destructor of this object will do the appropriate cleanup.  The
-      // behavior is undefined if 'construct' has already been invoked on this
-      // scoped guard object.
+        // Attempt to copy-construct the specified 'key' and 'data' into the
+        // node specified at construction; then release the node from
+        // management.  Note that if an exception is thrown during the
+        // invocation of either constructor, the node will remain under
+        // management and thus the destructor of this object will do the
+        // appropriate cleanup.  The behavior is undefined if 'construct' has
+        // already been invoked on this scoped guard object.
 };
 
                             // ==================
@@ -630,8 +636,9 @@ class SkipListPair {
 template <class KEY, class DATA>
 class SkipListPairHandle {
     // Objects of this class refer to an association (pair) in a 'SkipList'.  A
-    // 'PairHandle' is implicitly convertible to a 'const Pair*' and thus may
-    // be used anywhere in the 'SkipList' API that a 'const Pair*' is expected.
+    // 'bdlcc::SkipListPairHandle' is implicitly convertible to a 'const Pair*'
+    // and thus may be used anywhere in the 'SkipList' API that a 'const Pair*'
+    // is expected.
 
     // PRIVATE TYPES
     typedef SkipListPair<KEY, DATA> Pair;
@@ -646,60 +653,62 @@ class SkipListPairHandle {
   private:
     // PRIVATE MANIPULATORS
     SkipListPairHandle(SkipList<KEY, DATA> *list, Pair *reference);
-          // Construct a new pair handle for the specified 'list' that manages
-          // the specified 'reference'.  Note that it is assumed that the
-          // creating (calling) scope already owns the 'reference'.
+        // Construct a new pair handle for the specified 'list' that manages
+        // the specified 'reference'.  Note that it is assumed that the
+        // creating (calling) scope already owns the 'reference'.
 
     void reset(const SkipList<KEY, DATA> *list, Pair *reference);
-          // Change this 'PairHandle' to refer to manage the specified
-          // 'reference' in the specified 'list'.  If this 'PairHandle' refers
-          // to a pair, release the reference.  Note that it is assumed that
-          // the calling scope already owns the 'reference'.
+        // Change this 'SkipListPairHandle' to refer to manage the specified
+        // 'reference' in the specified 'list'.  If this 'SkipListPairHandle'
+        // refers to a pair, release the reference.  Note that it is assumed
+        // that the calling scope already owns the 'reference'.
 
   public:
     // CREATORS
     SkipListPairHandle();
-          // Construct a new PairHandle that does not refer to a pair.
+        // Construct a new PairHandle that does not refer to a pair.
 
     SkipListPairHandle(const SkipListPairHandle& original);
-          // Construct a new pair reference for the same list and pair as the
-          // specified 'original'.
+        // Construct a new pair reference for the same list and pair as the
+        // specified 'original'.
 
     ~SkipListPairHandle();
-          // Destroy this 'PairHandle'.  If this 'PairHandle' refers to a pair
-          // in the list, release the reference.
+        // Destroy this 'SkipListPairHandle'.  If this 'SkipListPairHandle'
+        // refers to a pair in the list, release the reference.
 
     // MANIPULATORS
     SkipListPairHandle& operator=(const SkipListPairHandle& rhs);
-          // Change this 'PairHandle' to refer to the same list and pair as the
-          // specified 'rhs'.  If this 'PairHandle' initially refers to a pair,
-          // release the reference.  Return '*this'.
+        // Change this 'SkipListPairHandle' to refer to the same list and pair
+        // as the specified 'rhs'.  If this 'SkipListPairHandle' initially
+        // refers to a pair, release the reference.  Return '*this'.
 
     void release();
-          // Release the reference (if any) managed by this 'PairHandle'.
+        // Release the reference (if any) managed by this 'SkipListPairHandle'.
 
     void releaseReferenceRaw(SkipList<KEY, DATA> **list, Pair **reference);
-          // Invoke 'release' and populate the specified 'list' and 'reference'
-          // pointers with the list and reference values of this 'PairHandle'.
+        // Invoke 'release' and populate the specified 'list' and 'reference'
+        // pointers with the list and reference values of this
+        // 'SkipListPairHandle'.
 
     // ACCESSORS
     bool isValid() const;
-          // Return 'true' if this PairHandle currently refers to a pair, and
-          // 'false' otherwise.
+        // Return 'true' if this PairHandle currently refers to a pair, and
+        // 'false' otherwise.
 
     const KEY& key() const;
-          // Return a reference to the non-modifiable "key" value of the pair
-          // referred to by this object.  The behavior is undefined unless
-          // 'isValid' returns 'true'.
+        // Return a reference to the non-modifiable "key" value of the pair
+        // referred to by this object.  The behavior is undefined unless
+        // 'isValid' returns 'true'.
 
     DATA& data() const;
-          // Return a reference to the "data" value of the pair referred to by
-          // this object.  The behavior is undefined unless 'isValid' returns
-          //  'true'.
+        // Return a reference to the "data" value of the pair referred to by
+        // this object.  The behavior is undefined unless 'isValid' returns
+        //  'true'.
 
     operator const Pair*() const;
-          // Return the address of the pair referred to by this 'PairHandle',
-          // or 0 if this handle does not manage a reference.
+        // Return the address of the pair referred to by this
+        // 'SkipListPairHandle', or 0 if this handle does not manage a
+        // reference.
 };
 
                               // ==============
@@ -780,12 +789,12 @@ class SkipList {
         // a 'false' value otherwise.
 
     void addNodeImpR(bool *newFrontFlag, Node *newNode, bool lock);
-        // Acquire the lock if 'lock' is 'true', add the specified 'newNode' to
-        // the list, and release the lock (if acquired).  Search for the
-        // correct position for 'newNode' from the back of the list (in
-        // descending order by key value).  If the specified 'newFrontFlag' is
-        // not 0, load into it a 'true' value if the node is at the front of
-        // the list, and a 'false' value otherwise.
+        // Acquire the lock if the specified 'lock' is 'true', add the
+        // specified 'newNode' to the list, and release the lock (if acquired).
+        // Search for the correct position for 'newNode' from the back of the
+        // list (in descending order by key value).  If the specified
+        // 'newFrontFlag' is not 0, load into it a 'true' value if the node is
+        // at the front of the list, and a 'false' value otherwise.
 
     void addNodeR(bool *newFrontFlag, Node *newNode);
         // Invoke 'addNodeImpR' with lock='true'.  IMPLEMENTATION NOTE: this
@@ -812,26 +821,27 @@ class SkipList {
         // the list.
 
     Node *allocateNode(int level, const KEY& key, const DATA& data);
-       // Allocate a node from the node pool of this list, and set its key
-       // value to the specified 'key' and data value to the specified 'data'.
-       // Set the node's level to the specified 'level' if 'level' is less than
-       // or equal to the highest level of any node previously in the list, or
-       // to one greater than that value otherwise.  Return the allocated node.
-       // Note that this method neither acquires nor requires the lock.
+        // Allocate a node from the node pool of this list, and set its key
+        // value to the specified 'key' and data value to the specified 'data'.
+        // Set the node's level to the specified 'level' if 'level' is less
+        // than or equal to the highest level of any node previously in the
+        // list, or to one greater than that value otherwise.  Return the
+        // allocated node.  Note that this method neither acquires nor requires
+        // the lock.
 
     void initialize();
         // Populate the members of a new Skip List.  This private manipulator
         // must be called only once, by the constructor.
 
     void insertImp(bool *newFrontFlag, Node *location[], Node *node);
-        // Add 'node' into the list at 'location' (populated by 'lookupImp' or
-        // 'lookupImpR').  Load into 'newFrontFlag' a 'true' value if the node
-        // is at the front.  This internal method must be called under the
-        // lock.
-
-    void moveImp(bool *isNewFront, Node *location[], Node *node);
-        // Like 'insert', but 'node' must already be present in the list.  This
+        // Add the specified 'node' into the list at the specified 'location'
+        // (populated by 'lookupImp' or 'lookupImpR').  Load into the specified
+        // 'newFrontFlag' a 'true' value if the node is at the front.  This
         // internal method must be called under the lock.
+
+    void moveImp(bool *newFrontFlag, Node *location[], Node *node);
+        // Like 'insert', but the specified 'node' must already be present in
+        // the list.  This internal method must be called under the lock.
 
     Node *popFrontImp();
         // Acquire the lock, remove the front of the list, and release the
@@ -839,38 +849,40 @@ class SkipList {
         // the list was empty.
 
     void releaseNode(Node *node);
-       // Decrement the reference count of the specified 'node', and if it
-       // reaches 0, destroy 'node' and return it to the pool.  Note that this
-       // method neither acquires nor requires the lock.
+        // Decrement the reference count of the specified 'node', and if it
+        // reaches 0, destroy 'node' and return it to the pool.  Note that this
+        // method neither acquires nor requires the lock.
 
     int removeAllImp(bsl::vector<Pair *> *removed, bool unlock);
-      // Remove all items from this list, and then unlock the mutex if the
-      // specified 'unlock' flag is 'true'.  Load into the 'removed' vector
-      // pointers which can be used to refer to the removed items.  *Each* such
-      // pointer must be released (using 'releaseReferenceRaw') when it is no
-      // longer needed.  Note that the pairs in 'removed' will be in ascending
-      // order by key value.  Return the number of items that were removed from
-      // the list.  This internal method must be called under the lock.
+        // Remove all items from this list, and then unlock the mutex if the
+        // specified 'unlock' flag is 'true'.  Load into the 'removed' vector
+        // pointers which can be used to refer to the removed items.  *Each*
+        // such pointer must be released (using 'releaseReferenceRaw') when it
+        // is no longer needed.  Note that the pairs in 'removed' will be in
+        // ascending order by key value.  Return the number of items that were
+        // removed from the list.  This internal method must be called under
+        // the lock.
 
     int removeNode(Node *node);
-        // Acquire the lock, remove 'node' from the list, and release the lock.
-        // Return 0 on success, and 'e_NOT_FOUND' if the node is no longer in
-        // the list.
+        // Acquire the lock, remove the specified 'node' from the list, and
+        // release the lock.  Return 0 on success, and 'e_NOT_FOUND' if the
+        // 'node' is no longer in the list.
 
-    int updateNode(bool       *isNewFront,
+    int updateNode(bool       *newFrontFlag,
                    Node       *node,
                    const KEY&  newKey,
                    bool        allowDuplicates);
         // Acquire the lock, move the specified 'node' to the correct position
         // for the specified 'newKey', and release the lock.  Update the key
-        // value of 'node' to the specified 'newKey' value.  If 'isNewFront' is
-        // not 0, load into it a 'true' value if the new location of the node
-        // is the front of the list, and a 'false' value otherwise.  Return 0
-        // on success, 'e_NOT_FOUND' if the node is no longer in the list, or
-        // 'e_DUPLICATE' if 'allowDuplicates' is 'false' and 'newKey' already
-        // appears in the list.
+        // value of 'node' to the 'newKey' value.  If the specified
+        // 'newFrontFlag' is not 0, load into it a 'true' value if the new
+        // location of the node is the front of the list, and a 'false' value
+        // otherwise.  Return 0 on success, 'e_NOT_FOUND' if the node is no
+        // longer in the list, or 'e_DUPLICATE' if the specified
+        // 'allowDuplicates' is 'false' and 'newKey' already appears in the
+        // list.
 
-    int updateNodeR(bool       *isNewFront,
+    int updateNodeR(bool       *newFrontFlag,
                     Node       *node,
                     const KEY&  newKey,
                     bool        allowDuplicates);
@@ -878,71 +890,74 @@ class SkipList {
         // for the specified 'newKey', and release the lock.  The search for
         // the correct location for 'newKey' proceeds from the back of the list
         // in descending order by by key value.  Update the key value of 'node'
-        // to the specified 'newKey' value.  If 'isNewFront' is not 0, load
-        // into it a 'true' value if the new location of the node is the front
-        // of the list, and a 'false' value otherwise.  Return 0 on success,
-        // 'e_NOT_FOUND' if the node is no longer in the list, or 'e_DUPLICATE'
-        // if 'allowDuplicates' is 'false' and 'newKey' already appears in the
-        // list.
+        // to the 'newKey' value.  If the specified 'newFrontFlag' is not 0,
+        // load into it a 'true' value if the new location of the node is the
+        // front of the list, and a 'false' value otherwise.  Return 0 on
+        // success, 'e_NOT_FOUND' if the node is no longer in the list, or
+        // 'e_DUPLICATE' if the specified 'allowDuplicates' is 'false' and
+        // 'newKey' already appears in the list.
 
     // PRIVATE ACCESSORS
     Node *backNode() const;
-      // Return the node at the back of the list, or 0 if the list is empty.
-      // Note that this method acquires and releases the lock.
+        // Return the node at the back of the list, or 0 if the list is empty.
+        // Note that this method acquires and releases the lock.
 
     Node *findNode(const KEY& key) const;
     Node *findNodeR(const KEY& key) const;
-       // Return the node with the specified 'key', or 0 if no node could be
-       // found.  Note that this method acquires and releases the lock.
+        // Return the node with the specified 'key', or 0 if no node could be
+        // found.  Note that this method acquires and releases the lock.
 
     Node *frontNode() const;
-      // Return the node at the front of the list, or 0 if the list is empty.
-      // Note that this method acquires and releases the lock.
+        // Return the node at the front of the list, or 0 if the list is empty.
+        // Note that this method acquires and releases the lock.
 
     void lookupImp(Node *update[], const KEY& key) const;
-        // Populate 'update' with the first node less than or equal to 'key' at
-        // each level in the list.  Note that if 'key' does not appear in the
-        // list, either 'd_head_p' (if the list is empty) or a node not equal
-        // to 'key' will be loaded into update[0].  This internal method must
-        // be called under the lock.
+        // Populate the specified 'update' with the first node less than or
+        // equal to the specified 'key' at each level in the list.  Note that
+        // if 'key' does not appear in the list, either 'd_head_p' (if the list
+        // is empty) or a node not equal to 'key' will be loaded into
+        // update[0].  This internal method must be called under the lock.
 
     void lookupImpR(Node *update[], const KEY& key) const;
-        // Searching from the back, populate 'update' with the first node less
-        // than or equal to 'key' at each level in the list.  Note that if
-        // 'key' does not appear in the list, either d_head_p (if the list is
-        // empty) or a node not equal to 'key' will be loaded into update[0].
-        // This internal method must be called under the lock.
+        // Searching from the back, populate the specified 'update' with the
+        // first node less than or equal to the specified 'key' at each level
+        // in the list.  Note that if 'key' does not appear in the list, either
+        // d_head_p (if the list is empty) or a node not equal to 'key' will be
+        // loaded into update[0].  This internal method must be called under
+        // the lock.
 
     Node *nextNode(Node *node) const;
-      // Return the node after to the specified 'node', or 0 if 'node' is at
-      // the back of the list.  Note that this method acquires and releases the
-      // lock.
+        // Return the node after to the specified 'node', or 0 if 'node' is at
+        // the back of the list.  Note that this method acquires and releases
+        // the lock.
 
     Node *prevNode(Node *node) const;
-      // Return the node prior to the specified 'node', or 0 if 'node' is at
-      // the front of the list.  Note that this method acquires and releases
-      // the lock.
+        // Return the node prior to the specified 'node', or 0 if 'node' is at
+        // the front of the list.  Note that this method acquires and releases
+        // the lock.
 
     int skipBackward(Node **node) const;
-      // If the item identified by the specified 'node' is not at the front of
-      // the list, load a reference to the previous item in the list into
-      // 'node'; otherwise load 0 into 'node'.  Return 0 on success, and
-      // 'e_NOT_FOUND' (with no effect on the value of 'node') if 'node' is no
-      // longer in the list.  Note that this method acquires and releases the
-      // lock.
+        // If the item identified by the specified 'node' is not at the front
+        // of the list, load a reference to the previous item in the list into
+        // 'node'; otherwise load 0 into 'node'.  Return 0 on success, and
+        // 'e_NOT_FOUND' (with no effect on the value of 'node') if 'node' is
+        // no longer in the list.  Note that this method acquires and releases
+        // the lock.
 
     int skipForward(Node **node) const;
-      // If the item identified by the specified 'node' is not at the back of
-      // the list, load a reference to the next item in the list into 'node';
-      // otherwise load 0 into 'node'.  Return 0 on success, and 'e_NOT_FOUND'
-      // (with no effect on the value of 'node') if 'node' is no longer in the
-      // list.  Note that this method acquires and releases the lock.
+        // If the item identified by the specified 'node' is not at the back of
+        // the list, load a reference to the next item in the list into 'node';
+        // otherwise load 0 into 'node'.  Return 0 on success, and
+        // 'e_NOT_FOUND' (with no effect on the value of 'node') if 'node' is
+        // no longer in the list.  Note that this method acquires and releases
+        // the lock.
 
     // NOT IMPLEMENTED
     void addPairReferenceRaw(const PairHandle&);
     void releaseReferenceRaw(const PairHandle&);
-      // These methods are declared 'private' and not implemented to prevent
-      // the accidental casting of a 'PairHandle' to a 'Pair *'.
+        // These methods are declared 'private' and not implemented to prevent
+        // the accidental casting of a 'SkipListPairHandle' to a
+        // 'SkipListPair *'.
 
     // FRIENDS
     friend class SkipListPair<KEY, DATA>;
@@ -954,12 +969,12 @@ class SkipList {
 
     // PRIVATE CLASS METHODS
     static const KEY& key(const Pair *reference);
-      // Return a non-modifiable reference to the "key" value of the pair
-      // identified by the specified 'reference'.
+        // Return a non-modifiable reference to the "key" value of the pair
+        // identified by the specified 'reference'.
 
     static DATA& data(const Pair *reference);
-      // Return a reference to the modifiable "data" value of the pair
-      // identified by the specified 'reference'.
+        // Return a reference to the modifiable "data" value of the pair
+        // identified by the specified 'reference'.
 
   public:
     // TRAITS
@@ -968,262 +983,262 @@ class SkipList {
 
     // CLASS METHODS
     static int level(const Pair *reference);
-      // Return the level of the pair identified by the specified 'reference'.
-      // This method is provided for testing.
+        // Return the level of the pair identified by the specified
+        // 'reference'.  This method is provided for testing.
 
     // CREATORS
     explicit SkipList(bslma::Allocator *basicAllocator = 0);
-      // Create a new Skip List.  Optionally specify a 'basicAllocator' used to
-      // supply memory.  If 'basicAllocator' is 0, the currently installed
-      // default allocator is used.
+        // Create a new Skip List.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     SkipList(const SkipList& original, bslma::Allocator *basicAllocator = 0);
-      // Create a new Skip List initialized to the value of the specified
-      // 'original' list.  Optionally specify a 'basicAllocator' used to supply
-      // memory.  If 'basicAllocator' is 0, the currently installed default
-      // allocator is used.
+        // Create a new Skip List initialized to the value of the specified
+        // 'original' list.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     ~SkipList();
-      // Destroy this Skip List.  The behavior is undefined if references are
-      // outstanding to any pairs in the list.
+        // Destroy this Skip List.  The behavior is undefined if references are
+        // outstanding to any pairs in the list.
 
     // MANIPULATORS
     SkipList& operator=(const SkipList& rhs);
-      // Assign to this Skip List the value of the specified 'rhs' list and
-      // return a reference to the modifiable list.
+        // Assign to this Skip List the value of the specified 'rhs' list and
+        // return a reference to the modifiable list.
 
     void releaseReferenceRaw(const Pair *reference);
-      // Release the specified 'reference'.  After calling this method, the
-      // value of 'reference' must not be used or released again.
+        // Release the specified 'reference'.  After calling this method, the
+        // value of 'reference' must not be used or released again.
 
                          // Insertion Methods
 
     void add(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list.  Load into the
-       // the optionally specified 'newFrontFlag' a 'true' value if the pair is
-       // at the front of the list, and a 'false' value otherwise.
+        // Add the specified 'key' / 'data' pair to this list.  Load into the
+        // the optionally specified 'newFrontFlag' a 'true' value if the pair
+        // is at the front of the list, and a 'false' value otherwise.
 
     void add(PairHandle  *result,
              const KEY&   key,
              const DATA&  data,
              bool        *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  Load into
-       // the the optionally specified 'newFrontFlag' a 'true' value if the
-       // pair is at the front of the list, and a 'false' value otherwise.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  Load
+        // into the the optionally specified 'newFrontFlag' a 'true' value if
+        // the pair is at the front of the list, and a 'false' value otherwise.
 
     void addAtLevelRaw(Pair        **result,
                        int           level,
                        const KEY&    key,
                        const DATA&   data,
                        bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list at the specified
-       // 'level', and load into the specified 'result' a reference to the pair
-       // in the list.  The 'result' reference must be released (using
-       // 'releaseReferenceRaw') when it is no longer needed.  Load into the
-       // the optionally specified 'newFrontFlag' a 'true' value if the pair is
-       // at the front of the list, and a 'false' value otherwise.  The
-       // behavior is undefined if 'level' is greater than the
-       // implementation-defined maximum level of this class, or if 'level' is
-       // negative.  Note that this method is provided for testing purposes.
+        // Add the specified 'key' / 'data' pair to this list at the specified
+        // 'level', and load into the specified 'result' a reference to the
+        // pair in the list.  The 'result' reference must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  Load into the
+        // the optionally specified 'newFrontFlag' a 'true' value if the pair
+        // is at the front of the list, and a 'false' value otherwise.  The
+        // behavior is undefined if 'level' is greater than the
+        // implementation-defined maximum level of this class, or if 'level' is
+        // negative.  Note that this method is provided for testing purposes.
 
     int addAtLevelUniqueRaw(Pair        **result,
                             int           level,
                             const KEY&    key,
                             const DATA&   data,
                             bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list at the specified
-       // 'level', and load into the specified 'result' a reference to the pair
-       // in the list.  The 'result' reference must be released (using
-       // 'releaseReferenceRaw') when it is no longer needed.  Load into the
-       // the optionally specified 'newFrontFlag' a 'true' value if the pair is
-       // at the front of the list, and a 'false' value otherwise.  The
-       // behavior is undefined if 'level' is greater than the
-       // implementation-defined maximum level of this class, or if 'level' is
-       // negative.  Return 0 on success, and a non-zero value (with no effect
-       // on the list) if 'key' is already in the list.  Note that this method
-       // is provided for testing purposes.
+        // Add the specified 'key' / 'data' pair to this list at the specified
+        // 'level', and load into the specified 'result' a reference to the
+        // pair in the list.  The 'result' reference must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  Load into the
+        // the optionally specified 'newFrontFlag' a 'true' value if the pair
+        // is at the front of the list, and a 'false' value otherwise.  The
+        // behavior is undefined if 'level' is greater than the
+        // implementation-defined maximum level of this class, or if 'level' is
+        // negative.  Return 0 on success, and a non-zero value (with no effect
+        // on the list) if 'key' is already in the list.  Note that this method
+        // is provided for testing purposes.
 
     void addRaw(Pair        **result,
                 const KEY&    key,
                 const DATA&   data,
                 bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  The 'result'
-       // reference must be released (using 'releaseReferenceRaw') when it is
-       // no longer needed.  Load into the the optionally specified
-       // 'newFrontFlag' a 'true' value if the pair is at the front of the
-       // list, and a 'false' value otherwise.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  The
+        // 'result' reference must be released (using 'releaseReferenceRaw')
+        // when it is no longer needed.  Load into the the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.
 
     int addUnique(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list.  Load into the
-       // the optionally specified 'newFrontFlag' a 'true' value if the pair is
-       // at the front of the list, and a 'false' value otherwise.  Return 0 on
-       // success, and a non-zero value (with no effect on the list) if 'key'
-       // is already in the list.
+        // Add the specified 'key' / 'data' pair to this list.  Load into the
+        // the optionally specified 'newFrontFlag' a 'true' value if the pair
+        // is at the front of the list, and a 'false' value otherwise.  Return
+        // 0 on success, and a non-zero value (with no effect on the list) if
+        // 'key' is already in the list.
 
     int addUnique(PairHandle  *result,
                   const KEY&   key,
                   const DATA&  data,
                   bool        *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  Load into
-       // the the optionally specified 'newFrontFlag' a 'true' value if the
-       // pair is at the front of the list, and a 'false' value otherwise.
-       // Return 0 on success, and a non-zero value (with no effect on the
-       // list) if 'key' is already in the list.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  Load
+        // into the the optionally specified 'newFrontFlag' a 'true' value if
+        // the pair is at the front of the list, and a 'false' value otherwise.
+        // Return 0 on success, and a non-zero value (with no effect on the
+        // list) if 'key' is already in the list.
 
     int addUniqueRaw(Pair        **result,
                      const KEY&    key,
                      const DATA&   data,
                      bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  The 'result'
-       // reference must be released (using 'releaseReferenceRaw') when it is
-       // no longer needed.  Load into the the optionally specified
-       // 'newFrontFlag' a 'true' value if the pair is at the front of the
-       // list, and a 'false' value otherwise.  Return 0 on success, and a
-       // non-zero value (with no effect on the list) if 'key' is already in
-       // the list.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  The
+        // 'result' reference must be released (using 'releaseReferenceRaw')
+        // when it is no longer needed.  Load into the the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.  Return 0 on success, and a
+        // non-zero value (with no effect on the list) if 'key' is already in
+        // the list.
 
                          // Insertion Methods (Reverse Search)
 
     void addR(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list.  Search for the
-       // correct position for 'key' from the back of the list (in descending
-       // order by key value).  Load into the the optionally specified
-       // 'newFrontFlag' a 'true' value if the pair is at the front of the
-       // list, and a 'false' value otherwise.
+        // Add the specified 'key' / 'data' pair to this list.  Search for the
+        // correct position for 'key' from the back of the list (in descending
+        // order by key value).  Load into the the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.
 
     void addR(PairHandle  *result,
               const KEY&   key,
               const DATA&  data,
               bool        *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  Search for
-       // the correct position for 'key' from the back of the list (in
-       // descending order by key value).  Load into the the optionally
-       // specified 'newFrontFlag' a 'true' value if the pair is at the front
-       // of the list, and a 'false' value otherwise.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  Search
+        // for the correct position for 'key' from the back of the list (in
+        // descending order by key value).  Load into the the optionally
+        // specified 'newFrontFlag' a 'true' value if the pair is at the front
+        // of the list, and a 'false' value otherwise.
 
     void addAtLevelRawR(Pair        **result,
                         int           level,
                         const KEY&    key,
                         const DATA&   data,
                         bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list at the specified
-       // 'level', and load into the specified 'result' a reference to the pair
-       // in the list.  Search for the correct position for 'key' from the back
-       // of the list (in descending order by key value).  The 'result'
-       // reference must be released (using 'releaseReferenceRaw') when it is
-       // no longer needed.  Load into the the optionally specified
-       // 'newFrontFlag' a 'true' value if the pair is at the front of the
-       // list, and a 'false' value otherwise.  The behavior is undefined if
-       // 'level' is greater than the implementation-defined maximum level of
-       // this class, or if 'level' is negative.  Note that this method is
-       // provided for testing purposes.
+        // Add the specified 'key' / 'data' pair to this list at the specified
+        // 'level', and load into the specified 'result' a reference to the
+        // pair in the list.  Search for the correct position for 'key' from
+        // the back of the list (in descending order by key value).  The
+        // 'result' reference must be released (using 'releaseReferenceRaw')
+        // when it is no longer needed.  Load into the the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.  The behavior is undefined if
+        // 'level' is greater than the implementation-defined maximum level of
+        // this class, or if 'level' is negative.  Note that this method is
+        // provided for testing purposes.
 
     int addAtLevelUniqueRawR(Pair        **result,
                              int           level,
                              const KEY&    key,
                              const DATA&   data,
                              bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list at the specified
-       // 'level', and load into the specified 'result' a reference to the pair
-       // in the list.  Search for the correct position for 'key' from the back
-       // of the list (in descending order by key value).  The 'result'
-       // reference must be released (using 'releaseReferenceRaw') when it is
-       // no longer needed.  Load into the the optionally specified
-       // 'newFrontFlag' a 'true' value if the pair is at the front of the
-       // list, and a 'false' value otherwise.  The behavior is undefined if
-       // 'level' is greater than the implementation-defined maximum level of
-       // this class, or if 'level' is negative.  Return 0 on success, and a
-       // non-zero value (with no effect on the list) if 'key' is already in
-       // the list.  Note that this method is provided for testing purposes.
+        // Add the specified 'key' / 'data' pair to this list at the specified
+        // 'level', and load into the specified 'result' a reference to the
+        // pair in the list.  Search for the correct position for 'key' from
+        // the back of the list (in descending order by key value).  The
+        // 'result' reference must be released (using 'releaseReferenceRaw')
+        // when it is no longer needed.  Load into the the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.  The behavior is undefined if
+        // 'level' is greater than the implementation-defined maximum level of
+        // this class, or if 'level' is negative.  Return 0 on success, and a
+        // non-zero value (with no effect on the list) if 'key' is already in
+        // the list.  Note that this method is provided for testing purposes.
 
     void addRawR(Pair        **result,
                  const KEY&    key,
                  const DATA&   data,
                  bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  Search for
-       // the correct position for 'key' from the back of the list (in
-       // descending order by key value).  The 'result' reference must be
-       // released (using 'releaseReferenceRaw') when it is no longer needed.
-       // Load into the the optionally specified 'newFrontFlag' a 'true' value
-       // if the pair is at the front of the list, and a 'false' value
-       // otherwise.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  Search
+        // for the correct position for 'key' from the back of the list (in
+        // descending order by key value).  The 'result' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+        // Load into the the optionally specified 'newFrontFlag' a 'true' value
+        // if the pair is at the front of the list, and a 'false' value
+        // otherwise.
 
     int addUniqueR(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list.  Search for the
-       // correct position for 'key' from the back of the list (in descending
-       // order by key value).  Load into the the optionally specified
-       // 'newFrontFlag' a 'true' value if the pair is at the front of the
-       // list, and a 'false' value otherwise.  Return 0 on success, and a
-       // non-zero value (with no effect on the list) if 'key' is already in
-       // the list.
+        // Add the specified 'key' / 'data' pair to this list.  Search for the
+        // correct position for 'key' from the back of the list (in descending
+        // order by key value).  Load into the the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.  Return 0 on success, and a
+        // non-zero value (with no effect on the list) if 'key' is already in
+        // the list.
 
     int addUniqueR(PairHandle  *result,
                    const KEY&   key,
                    const DATA&  data,
                    bool        *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  Search for
-       // the correct position for 'key' from the back of the list (in
-       // descending order by key value).  Load into the the optionally
-       // specified 'newFrontFlag' a 'true' value if the pair is at the front
-       // of the list, and a 'false' value otherwise.  Return 0 on success, and
-       // a non-zero value (with no effect on the list) if 'key' is already in
-       // the list.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  Search
+        // for the correct position for 'key' from the back of the list (in
+        // descending order by key value).  Load into the the optionally
+        // specified 'newFrontFlag' a 'true' value if the pair is at the front
+        // of the list, and a 'false' value otherwise.  Return 0 on success,
+        // and a non-zero value (with no effect on the list) if 'key' is
+        // already in the list.
 
     int addUniqueRawR(Pair        **result,
                       const KEY&    key,
                       const DATA&   data,
                       bool         *newFrontFlag = 0);
-       // Add the specified 'key' / 'data' pair to this list, and load into the
-       // specified 'result' a reference to the pair in the list.  Search for
-       // the correct position for 'key' from the back of the list (in
-       // descending order by key value).  The 'result' reference must be
-       // released (using 'releaseReferenceRaw') when it is no longer needed.
-       // Load into the the optionally specified 'newFrontFlag' a 'true' value
-       // if the pair is at the front of the list, and a 'false' value
-       // otherwise.  Return 0 on success, and a non-zero value (with no effect
-       // on the list) if 'key' is already in the list.
+        // Add the specified 'key' / 'data' pair to this list, and load into
+        // the specified 'result' a reference to the pair in the list.  Search
+        // for the correct position for 'key' from the back of the list (in
+        // descending order by key value).  The 'result' reference must be
+        // released (using 'releaseReferenceRaw') when it is no longer needed.
+        // Load into the the optionally specified 'newFrontFlag' a 'true' value
+        // if the pair is at the front of the list, and a 'false' value
+        // otherwise.  Return 0 on success, and a non-zero value (with no
+        // effect on the list) if 'key' is already in the list.
 
                          // Removal Methods
 
     int popFront(PairHandle *item = 0);
-      // Remove the first item from the list and load a reference to it into
-      // the optionally specified 'item'.  Return 0 on success, and a non-zero
-      // value if the list is empty.
+        // Remove the first item from the list and load a reference to it into
+        // the optionally specified 'item'.  Return 0 on success, and a
+        // non-zero value if the list is empty.
 
     int popFrontRaw(Pair **item);
-      // Remove the first item from the list and load a reference to it into
-      // the specified 'item'.  This reference must be released (using
-      // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
-      // success, and a non-zero value if the list is empty.
+        // Remove the first item from the list and load a reference to it into
+        // the specified 'item'.  This reference must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
+        // success, and a non-zero value if the list is empty.
 
     int remove(const Pair *reference);
-      // Remove the item identified by the specified 'reference' from the list.
-      // Return 0 on success, and a non-zero value if the pair has already been
-      // removed from the list.
+        // Remove the item identified by the specified 'reference' from the
+        // list.  Return 0 on success, and a non-zero value if the pair has
+        // already been removed from the list.
 
     int removeAll(bsl::vector<PairHandle> *removed = 0);
-      // Remove all items from this list.  Load into the optionally specified
-      // 'remove' vector handles which can be used to refer to the removed
-      // items.  Note that the items in 'removed' will be in ascending order by
-      // key value.  Note also that all references in 'removed' must be
-      // released (i.e., destroyed) before this skip list is destroyed.  Return
-      // the number of items that were removed from this list.
+        // Remove all items from this list.  Load into the optionally specified
+        // 'removed' vector handles which can be used to refer to the removed
+        // items.  Note that the items in 'removed' will be in ascending order
+        // by key value.  Note also that all references in 'removed' must be
+        // released (i.e., destroyed) before this skip list is destroyed.
+        // Return the number of items that were removed from this list.
 
     int removeAllRaw(bsl::vector<Pair *> *removed);
-      // Remove all items from this list.  Load into the 'removed' vector
-      // pointers which can be used to refer to the removed items.  *Each* such
-      // pointer must be released (using 'releaseReferenceRaw') when it is no
-      // longer needed.  Note that the pairs in 'removed' will be in ascending
-      // order by key value.  Note also that all references must be released
-      // before this skip list is destroyed.  Return the number of items that
-      // were removed from this list.
+        // Remove all items from this list.  Load into the specified 'removed'
+        // vector pointers which can be used to refer to the removed items.
+        // *Each* such pointer must be released (using 'releaseReferenceRaw')
+        // when it is no longer needed.  Note that the pairs in 'removed' will
+        // be in ascending order by key value.  Note also that all references
+        // must be released before this skip list is destroyed.  Return the
+        // number of items that were removed from this list.
 
                          // Update Methods
 
@@ -1231,173 +1246,180 @@ class SkipList {
                const KEY&  newKey,
                bool       *newFrontFlag = 0,
                bool        allowDuplicates = true);
-      // Assign the specified 'newKey' value to the pair identified by the
-      // specified 'reference', moving the pair within the list as necessary.
-      // Load into the optionally specified 'newFrontFlag' a 'true' value if
-      // the new location of the pair is the front of the list.  Return 0 on
-      // success, 'e_NOT_FOUND' if the pair referred to by 'reference' is no
-      // longer in the list, or 'e_DUPLICATE' if 'allowDuplicates' is 'false'
-      // and 'newKey' already appears in the list.
+        // Assign the specified 'newKey' value to the pair identified by the
+        // specified 'reference', moving the pair within the list as necessary.
+        // Load into the optionally specified 'newFrontFlag' a 'true' value if
+        // the new location of the pair is the front of the list.  Return 0 on
+        // success, 'e_NOT_FOUND' if the pair referred to by 'reference' is no
+        // longer in the list, or 'e_DUPLICATE' if the optionally specified
+        // 'allowDuplicates' is 'false' and 'newKey' already appears in the
+        // list.
 
     int updateR(const Pair *reference,
                 const KEY&  newKey,
                 bool       *newFrontFlag = 0,
                 bool        allowDuplicates = true);
-      // Assign the specified 'newKey' value to the pair identified by the
-      // specified 'reference', moving the pair within the list as necessary.
-      // Search for the new position from the back of the list (in descending
-      // order by key value).  Load into the optionally specified
-      // 'newFrontFlag' a 'true' value if the new location of the pair is the
-      // front of the list.  Return 0 on success, 'e_NOT_FOUND' if the pair
-      // referred to by 'reference' is no longer in the list, or 'e_DUPLICATE'
-      // if 'allowDuplicates' is 'false' and 'newKey' already appears in the
-      // list.
+        // Assign the specified 'newKey' value to the pair identified by the
+        // specified 'reference', moving the pair within the list as necessary.
+        // Search for the new position from the back of the list (in descending
+        // order by key value).  Load into the optionally specified
+        // 'newFrontFlag' a 'true' value if the new location of the pair is the
+        // front of the list.  Return 0 on success, 'e_NOT_FOUND' if the pair
+        // referred to by 'reference' is no longer in the list, or
+        // 'e_DUPLICATE' if the optionally specified 'allowDuplicates' is
+        // 'false' and 'newKey' already appears in the list.
 
     // ACCESSORS
     Pair *addPairReferenceRaw(const Pair *reference) const;
-      // Increment the reference count for the list element referred to by the
-      // specified 'reference'.  There must be a corresponding call to
-      // 'releaseReferenceRaw' when the reference is no longer needed.  The
-      // behavior is undefined 'item' has already been released.  Return
-      // 'reference'.
+        // Increment the reference count for the list element referred to by
+        // the specified 'reference'.  There must be a corresponding call to
+        // 'releaseReferenceRaw' when the reference is no longer needed.  The
+        // behavior is undefined 'item' has already been released.  Return
+        // 'reference'.
 
     int back(PairHandle *back) const;
-      // Load into the specified 'back' a reference to the last item in the
-      // list.  Return 0 on success, and a non-zero value (with no effect on
-      // 'back') if the list is empty.
+        // Load into the specified 'back' a reference to the last item in the
+        // list.  Return 0 on success, and a non-zero value (with no effect on
+        // 'back') if the list is empty.
 
     int backRaw(Pair **back) const;
-      // Load into the specified 'back' a reference to the last item in the
-      // list.  The 'back' reference must be released (using
-      // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
-      // success, and a non-zero value if the list is empty.  Note that if the
-      // list is empty, the value of '*back' is undefined.
+        // Load into the specified 'back' a reference to the last item in the
+        // list.  The 'back' reference must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
+        // success, and a non-zero value if the list is empty.  Note that if
+        // the list is empty, the value of '*back' is undefined.
 
     bool exists(const KEY& key) const;
-      // Return 'true' if there is a pair in the list with the specified 'key',
-      // and 'false' otherwise.
+        // Return 'true' if there is a pair in the list with the specified
+        // 'key', and 'false' otherwise.
 
     int find(PairHandle *item, const KEY& key) const;
-      // Load into the specified 'item' a reference to the item in the list
-      // with the specified 'key'.  If there are multiple items with the
-      // specified 'key', it is not defined which one will be returned.  Return
-      // 0 on success, and a non-zero value if no such item could be found.
+        // Load into the specified 'item' a reference to the element in the
+        // list with the specified 'key'.  If there are multiple elements with
+        // the 'key', it is not defined which one will be returned.  Return 0
+        // on success, and a non-zero value if no such item could be found.
 
     int findRaw(Pair **item, const KEY& key) const;
-      // Load into the specified 'item' a reference to the item in the list
-      // with the specified 'key'.  If there are multiple items with the
-      // specified 'key', it is not defined which one will be returned.  The
-      // 'item' reference must be released (using 'releaseReferenceRaw') when
-      // it is no longer needed.  Return 0 on success, and a non-zero value if
-      // no such item could be found.
+        // Load into the specified 'item' a reference to the element in the
+        // list with the specified 'key'.  If there are multiple elements with
+        // the 'key', it is not defined which one will be returned.  The 'item'
+        // reference must be released (using 'releaseReferenceRaw') when it is
+        // no longer needed.  Return 0 on success, and a non-zero value if no
+        // such item could be found.
 
     int findR(PairHandle *item, const KEY& key) const;
-      // 'findR' is a synonym for 'find', except that the search for the item
-      // proceeds from the right-hand side of the light in descending order of
-      // key values.
+        // Load into the specified 'item' a reference to the element in the
+        // list with the specified 'key' found by searching the list in
+        // descending order.  If there are multiple elements with the 'key', it
+        // is not defined which one will be returned.  Return 0 on success, and
+        // a non-zero value if no such item could be found.
 
     int findRRaw(Pair **item, const KEY& key) const;
-      // 'findRRaw' is a synonym for 'findRaw', except that the search for the
-      // item proceeds from the right-hand side of the light in descending
-      // order of key values.
+        // Load into the specified 'item' a reference to the element in the
+        // list with the specified 'key' found by searching the list in
+        // descending order.  If there are multiple elements with the 'key', it
+        // is not defined which one will be returned.  The 'item' reference
+        // must be released (using 'releaseReferenceRaw') when it is no longer
+        // needed.  Return 0 on success, and a non-zero value if no such item
+        // could be found.
 
     int front(PairHandle *front) const;
-      // Load into the specified 'front' a reference to the first item in the
-      // list.  Return 0 on success, and a non-zero value (with no effect on
-      // 'front') if the list is empty.
+        // Load into the specified 'front' a reference to the first item in the
+        // list.  Return 0 on success, and a non-zero value (with no effect on
+        // 'front') if the list is empty.
 
     int frontRaw(Pair **front) const;
-      // Load into the specified 'front' a reference to the first item in the
-      // list.  The 'front' reference must be released (using
-      // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
-      // success, and a non-zero value if the list is empty.
+        // Load into the specified 'front' a reference to the first item in the
+        // list.  The 'front' reference must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
+        // success, and a non-zero value if the list is empty.
 
     bool isEmpty() const;
-      // Return 'true' if this list is empty, and 'false' otherwise.
+        // Return 'true' if this list is empty, and 'false' otherwise.
 
     int length() const;
-      // Return the number of items in this list.
+        // Return the number of items in this list.
 
     int next(PairHandle *next, const Pair *reference) const;
-      // Load into the specified 'next' a reference to the item that appears in
-      // the list after the item identified by the specified 'reference'.
-      // Return 0 on success, or a non-zero value if 'reference' refers to the
-      // back of the list.
+        // Load into the specified 'next' a reference to the item that appears
+        // in the list after the item identified by the specified 'reference'.
+        // Return 0 on success, or a non-zero value if 'reference' refers to
+        // the back of the list.
 
     int nextRaw(Pair **next, const Pair *reference) const;
-      // Load into the specified 'next' a reference to the item that appears in
-      // the list after the item identified by the specified 'reference'.  The
-      // 'next' reference must be released (using 'releaseReferenceRaw') when
-      // it is no longer needed.  Return 0 on success, or a non-zero value if
-      // 'reference' refers to the back of the list.
+        // Load into the specified 'next' a reference to the item that appears
+        // in the list after the item identified by the specified 'reference'.
+        // The 'next' reference must be released (using 'releaseReferenceRaw')
+        // when it is no longer needed.  Return 0 on success, or a non-zero
+        // value if 'reference' refers to the back of the list.
 
     int previous(PairHandle *prevPair, const Pair *reference) const;
-      // Load into the specified 'prevPair' a reference to the pair that
-      // appears in the list before the pair identified by the specified
-      // 'reference'.  Return 0 on success, or a non-zero value if 'reference'
-      // refers to the front of the list.
+        // Load into the specified 'prevPair' a reference to the pair that
+        // appears in the list before the pair identified by the specified
+        // 'reference'.  Return 0 on success, or a non-zero value if
+        // 'reference' refers to the front of the list.
 
     int previousRaw(Pair **prevPair, const Pair *reference) const;
-      // Load into the specified 'prevPair' a reference to the pair that
-      // appears in the list before the pair identified by the specified
-      // 'reference'.  The 'prevPair' reference must be released (using
-      // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
-      // success, or a non-zero value if 'reference' refers to the front of the
-      // list.
+        // Load into the specified 'prevPair' a reference to the pair that
+        // appears in the list before the pair identified by the specified
+        // 'reference'.  The 'prevPair' reference must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  Return 0 on
+        // success, or a non-zero value if 'reference' refers to the front of
+        // the list.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-      // Format this list object to the specified output 'stream' at the
-      // (absolute value of) the optionally specified indentation 'level' and
-      // return a reference to 'stream'.  If 'level' is specified, optionally
-      // specify 'spacesPerLevel', the number of spaces per indentation level
-      // for this and all of its nested objects.  If 'level' is negative,
-      // suppress indentation of the first line.  If 'spacesPerLevel' is
-      // negative, suppress all indentation AND format the entire output on one
-      // line.  If 'stream' is not valid on entry, this operation has no
-      // effect.
+        // Format this list object to the specified output 'stream' at the
+        // (absolute value of) the optionally specified indentation 'level' and
+        // return a reference to 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, suppress all indentation AND format the entire output on
+        // one line.  If 'stream' is not valid on entry, this operation has no
+        // effect.
 
     int skipBackward(PairHandle *item) const;
     int skipBackwardRaw(Pair **item) const;
-      // If the item identified by the specified 'item' is not at the front of
-      // the list, load a reference to the previous item in the list into
-      // 'item'; otherwise reset the value of 'item'.  Return 0 on success, and
-      // 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item' is no
-      // longer in the list.
+        // If the item identified by the specified 'item' is not at the front
+        // of the list, load a reference to the previous item in the list into
+        // 'item'; otherwise reset the value of 'item'.  Return 0 on success,
+        // and 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item'
+        // is no longer in the list.
 
     int skipForward(PairHandle *item) const;
     int skipForwardRaw(Pair **item) const;
-      // If the item identified by the specified 'item' is not at the end of
-      // the list, load a reference to the next item in the list into 'item';
-      // otherwise reset the value of 'item'.  Return 0 on success, and
-      // 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item' is no
-      // longer in the list.
+        // If the item identified by the specified 'item' is not at the end of
+        // the list, load a reference to the next item in the list into 'item';
+        // otherwise reset the value of 'item'.  Return 0 on success, and
+        // 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item' is
+        // no longer in the list.
 };
 
 // FREE OPERATORS
 template <class KEY, class DATA>
 bool operator==(const SkipList<KEY, DATA>& lhs,
                 const SkipList<KEY, DATA>& rhs);
-      // Return 'true' if the specified 'lhs' list has the same value as the
-      // specified 'rhs' list, and 'false' otherwise.  Two lists A and B have
-      // the same value if they have the same number of elements, and if for
-      // all i in the range [0, numberOfElements), the i'th pair from the front
-      // of A has the same key and data values as the i'th pair from the front
-      // of B.  Note that if there are duplicate key values in a list, the
-      // order of iteration over those pairs may be different than for another
-      // list which was constructed from the same sequence of values (and thus
-      // the lists may not compare equal).
+    // Return 'true' if the specified 'lhs' list has the same value as the
+    // specified 'rhs' list, and 'false' otherwise.  Two lists A and B have the
+    // same value if they have the same number of elements, and if for all i in
+    // the range [0, numberOfElements), the i'th pair from the front of A has
+    // the same key and data values as the i'th pair from the front of B.  Note
+    // that if there are duplicate key values in a list, the order of iteration
+    // over those pairs may be different than for another list which was
+    // constructed from the same sequence of values (and thus the lists may not
+    // compare equal).
 
 template <class KEY, class DATA>
 bool operator!=(const SkipList<KEY, DATA>& lhs,
                 const SkipList<KEY, DATA>& rhs);
-      // Return 'true' if the specified 'lhs' list list has a different value
-      // from the specified 'rhs' list, and 'false' otherwise.  Two lists A and
-      // B have different values if they have a different of elements, or if
-      // there exists an i in the range [0, numberOfElements) such that the
-      // i'th pair from the front of A differs in key or data values from i'th
-      // pair from the front of B.
+    // Return 'true' if the specified 'lhs' list list has a different value
+    // from the specified 'rhs' list, and 'false' otherwise.  Two lists A and B
+    // have different values if they have a different of elements, or if there
+    // exists an i in the range [0, numberOfElements) such that the i'th pair
+    // from the front of A differs in key or data values from i'th pair from
+    // the front of B.
 
 template<class KEY, class DATA>
 bsl::ostream& operator<<(bsl::ostream&              stream,
@@ -1640,21 +1662,21 @@ void SkipList_NodeCreationHelper<KEY, DATA>::construct(const KEY&  key,
 
 // PRIVATE MANIPULATORS
 template<class KEY, class DATA>
-void SkipList<KEY, DATA>::addNode(bool *newFrontFlag, Node *node)
+void SkipList<KEY, DATA>::addNode(bool *newFrontFlag, Node *newNode)
 {
     LockGuard guard(&d_lock);
 
-    BSLS_ASSERT(0 == node->d_ptrs[0].d_next_p);
+    BSLS_ASSERT(0 == newNode->d_ptrs[0].d_next_p);
 
     Node *update[k_MAX_NUM_LEVELS];
-    lookupImp(update, node->d_key);
+    lookupImp(update, newNode->d_key);
 
-    insertImp(newFrontFlag, update, node);
+    insertImp(newFrontFlag, update, newNode);
 }
 
 template<class KEY, class DATA>
 void SkipList<KEY, DATA>::addNodeImpR(bool *newFrontFlag,
-                                      Node *node,
+                                      Node *newNode,
                                       bool  lock)
 {
     LockGuard lockGuard(&d_lock, !lock);
@@ -1662,57 +1684,57 @@ void SkipList<KEY, DATA>::addNodeImpR(bool *newFrontFlag,
         lockGuard.release();
     }
 
-    BSLS_ASSERT(0 == node->d_ptrs[0].d_next_p);
+    BSLS_ASSERT(0 == newNode->d_ptrs[0].d_next_p);
 
     Node *update[k_MAX_NUM_LEVELS];
-    lookupImpR(update, node->d_key);
+    lookupImpR(update, newNode->d_key);
 
-    insertImp(newFrontFlag, update, node);
+    insertImp(newFrontFlag, update, newNode);
 }
 
 template<class KEY, class DATA>
 inline
-void SkipList<KEY, DATA>::addNodeR(bool *newFrontFlag, Node *node)
+void SkipList<KEY, DATA>::addNodeR(bool *newFrontFlag, Node *newNode)
 {
-    addNodeImpR(newFrontFlag, node, true);  // true -> lock
+    addNodeImpR(newFrontFlag, newNode, true);  // true -> lock
 }
 
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::addNodeUnique(bool *newFrontFlag, Node *node)
+int SkipList<KEY, DATA>::addNodeUnique(bool *newFrontFlag, Node *newNode)
 {
     LockGuard guard(&d_lock);
 
-    BSLS_ASSERT(0 == node->d_ptrs[0].d_next_p);
+    BSLS_ASSERT(0 == newNode->d_ptrs[0].d_next_p);
 
     Node *update[k_MAX_NUM_LEVELS];
-    lookupImp(update, node->d_key);
+    lookupImp(update, newNode->d_key);
 
     Node *q = update[0]->d_ptrs[0].d_next_p;
-    if (q != d_tail_p && q->d_key == node->d_key) {
+    if (q != d_tail_p && q->d_key == newNode->d_key) {
         return e_DUPLICATE;                                           // RETURN
     }
 
-    insertImp(newFrontFlag, update, node);
+    insertImp(newFrontFlag, update, newNode);
 
     return 0;
 }
 
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::addNodeUniqueR(bool *newFrontFlag, Node *node)
+int SkipList<KEY, DATA>::addNodeUniqueR(bool *newFrontFlag, Node *newNode)
 {
     LockGuard guard(&d_lock);
 
-    BSLS_ASSERT(0 == node->d_ptrs[0].d_next_p);
+    BSLS_ASSERT(0 == newNode->d_ptrs[0].d_next_p);
 
     Node *update[k_MAX_NUM_LEVELS];
-    lookupImpR(update, node->d_key);
+    lookupImpR(update, newNode->d_key);
 
     Node *q = update[0]->d_ptrs[0].d_next_p;
-    if (q != d_tail_p && q->d_key == node->d_key) {
+    if (q != d_tail_p && q->d_key == newNode->d_key) {
         return e_DUPLICATE;                                           // RETURN
     }
 
-    insertImp(newFrontFlag, update, node);
+    insertImp(newFrontFlag, update, newNode);
 
     return 0;
 }
@@ -1778,7 +1800,7 @@ void SkipList<KEY, DATA>::initialize()
 }
 
 template<class KEY, class DATA>
-void SkipList<KEY, DATA>::insertImp(bool *isNewFront,
+void SkipList<KEY, DATA>::insertImp(bool *newFrontFlag,
                                     Node *location[],
                                     Node *node)
 {
@@ -1808,15 +1830,15 @@ void SkipList<KEY, DATA>::insertImp(bool *isNewFront,
         q->d_ptrs[k].d_prev_p = node;
     }
 
-    if (isNewFront) {
-        *isNewFront = (location[0] == d_head_p);
+    if (newFrontFlag) {
+        *newFrontFlag = (location[0] == d_head_p);
     }
 
     ++d_length;
 }
 
 template<class KEY, class DATA>
-void SkipList<KEY, DATA>::moveImp(bool *isNewFront,
+void SkipList<KEY, DATA>::moveImp(bool *newFrontFlag,
                                   Node *location[],
                                   Node *node)
 {
@@ -1846,8 +1868,8 @@ void SkipList<KEY, DATA>::moveImp(bool *isNewFront,
         newQ->d_ptrs[k].d_prev_p = node;
     }
 
-    if (isNewFront) {
-        *isNewFront = (location[0] == d_head_p);
+    if (newFrontFlag) {
+        *newFrontFlag = (location[0] == d_head_p);
     }
 }
 
@@ -1959,9 +1981,9 @@ int SkipList<KEY, DATA>::removeNode(Node *node)
 }
 
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
+int SkipList<KEY, DATA>::updateNode(bool       *newFrontFlag,
                                     Node       *node,
-                                    const KEY&  key,
+                                    const KEY&  newKey,
                                     bool        allowDuplicates)
 {
     LockGuard guard(&d_lock);
@@ -1971,27 +1993,27 @@ int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
     }
 
     Node *update[k_MAX_NUM_LEVELS];
-    lookupImp(update, key);
+    lookupImp(update, newKey);
 
     if (!allowDuplicates) {
         Node *q = update[0]->d_ptrs[0].d_next_p;
-        if (q != d_tail_p && q != node && q->d_key == key) {
+        if (q != d_tail_p && q != node && q->d_key == newKey) {
             return e_DUPLICATE;                                       // RETURN
         }
     }
 
-    node->d_key = key;  // may throw
+    node->d_key = newKey;  // may throw
 
     // now we are committed: change the list!
-    moveImp(isNewFront, update, node);
+    moveImp(newFrontFlag, update, node);
 
     return 0;
 }
 
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::updateNodeR(bool       *isNewFront,
+int SkipList<KEY, DATA>::updateNodeR(bool       *newFrontFlag,
                                      Node       *node,
-                                     const KEY&  key,
+                                     const KEY&  newKey,
                                      bool        allowDuplicates)
 {
     LockGuard guard(&d_lock);
@@ -2001,19 +2023,19 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *isNewFront,
     }
 
     Node *update[k_MAX_NUM_LEVELS];
-    lookupImpR(update, key);
+    lookupImpR(update, newKey);
 
     if (!allowDuplicates) {
         Node *p = update[0];
-        if (p != d_head_p && p != node && p->d_key == key) {
+        if (p != d_head_p && p != node && p->d_key == newKey) {
             return e_DUPLICATE;                                       // RETURN
         }
     }
 
-    node->d_key = key;  // may throw
+    node->d_key = newKey;  // may throw
 
     // now we are committed: change the list!
-    moveImp(isNewFront, update, node);
+    moveImp(newFrontFlag, update, node);
 
     return 0;
 }
@@ -2148,60 +2170,60 @@ SkipList<KEY, DATA>::prevNode(Node *node) const
 }
 
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::skipBackward(Node **node_p) const
+int SkipList<KEY, DATA>::skipBackward(Node **node) const
 {
-    Node *node = *node_p;
-    BSLS_ASSERT(node);
-    BSLS_ASSERT(node != d_head_p && node != d_tail_p);
+    Node *current = *node;
+    BSLS_ASSERT(current);
+    BSLS_ASSERT(current != d_head_p && current != d_tail_p);
 
     LockGuard guard(&d_lock);
 
-    if (0 == node->d_ptrs[0].d_next_p) {
+    if (0 == current->d_ptrs[0].d_next_p) {
         // We set this pointer to 0 only when removing from the list.
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    const int count = node->decrementRefCount();
+    const int count = current->decrementRefCount();
     BSLS_ASSERT(count);
     (void) count;    // suppress 'unused variable' warnings
 
-    Node *prev = node->d_ptrs[0].d_prev_p;
+    Node *prev = current->d_ptrs[0].d_prev_p;
     if (d_head_p == prev) {
-        *node_p = 0;
+        *node = 0;
         return 0;                                                     // RETURN
     }
 
     prev->incrementRefCount();
-    *node_p = prev;
+    *node = prev;
     return 0;
 }
 
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::skipForward(Node **node_p) const
+int SkipList<KEY, DATA>::skipForward(Node **node) const
 {
-    Node *node = *node_p;
-    BSLS_ASSERT(node);
-    BSLS_ASSERT(node != d_head_p && node != d_tail_p);
+    Node *current = *node;
+    BSLS_ASSERT(current);
+    BSLS_ASSERT(current != d_head_p && current != d_tail_p);
 
     LockGuard guard(&d_lock);
 
-    if (0 == node->d_ptrs[0].d_next_p) {
+    if (0 == current->d_ptrs[0].d_next_p) {
         // We set this pointer to 0 only when removing from the list.
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    const int count = node->decrementRefCount();
+    const int count = current->decrementRefCount();
     BSLS_ASSERT(count);
     (void) count;    // suppress 'unused variable' warnings
 
-    Node *next = node->d_ptrs[0].d_next_p;
+    Node *next = current->d_ptrs[0].d_next_p;
     if (d_tail_p == next) {
-        *node_p = 0;
+        *node = 0;
         return 0;                                                     // RETURN
     }
 
     next->incrementRefCount();
-    *node_p = next;
+    *node = next;
     return 0;
 }
 
@@ -2339,15 +2361,15 @@ int SkipList<KEY, DATA>::popFront(PairHandle *item)
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::popFrontRaw(Pair **handle)
+int SkipList<KEY, DATA>::popFrontRaw(Pair **item)
 {
     Node *node = popFrontImp();
     if (!node) {
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    if (handle) {
-        *handle = reinterpret_cast<Pair *>(node);
+    if (item) {
+        *item = reinterpret_cast<Pair *>(node);
     }
     else {
         releaseNode(node);
@@ -2936,41 +2958,41 @@ SkipList<KEY, DATA>::print(bsl::ostream& stream,
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::skipBackward(PairHandle *handle) const
+int SkipList<KEY, DATA>::skipBackward(PairHandle *item) const
 {
-    BSLS_ASSERT_SAFE(handle->isValid());
+    BSLS_ASSERT_SAFE(item->isValid());
 
-    Node **node_p = reinterpret_cast<Node **>(&handle->d_node_p);
+    Node **node_p = reinterpret_cast<Node **>(&item->d_node_p);
     return skipBackward(node_p);
 }
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::skipForward(PairHandle *handle) const
+int SkipList<KEY, DATA>::skipForward(PairHandle *item) const
 {
-    BSLS_ASSERT_SAFE(handle->isValid());
+    BSLS_ASSERT_SAFE(item->isValid());
 
-    Node **node_p = reinterpret_cast<Node **>(&handle->d_node_p);
+    Node **node_p = reinterpret_cast<Node **>(&item->d_node_p);
     return skipForward(node_p);
 }
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::skipForwardRaw(Pair **handle) const
+int SkipList<KEY, DATA>::skipForwardRaw(Pair **item) const
 {
-    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_SAFE(item);
 
-    Node **node_p = reinterpret_cast<Node **>(handle);
+    Node **node_p = reinterpret_cast<Node **>(item);
     return skipForward(node_p);
 }
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::skipBackwardRaw(Pair **handle) const
+int SkipList<KEY, DATA>::skipBackwardRaw(Pair **item) const
 {
-    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_SAFE(item);
 
-    Node **node_p = reinterpret_cast<Node **>(handle);
+    Node **node_p = reinterpret_cast<Node **>(item);
     return skipBackward(node_p);
 }
 

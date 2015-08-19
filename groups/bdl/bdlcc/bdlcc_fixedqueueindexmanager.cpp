@@ -221,7 +221,7 @@ static const unsigned int k_NUM_REPRESENTABLE_COMBINED_INDICES =
 // and generation count from 'd_states' elements.
 
 inline
-static unsigned int encodeElementState(unsigned     int generation,
+static unsigned int encodeElementState(unsigned int generation,
                                        ElementState indexState)
     // Return an encoded state value comprising the specified 'generation' and
     // the specified 'indexState'.  Note that the resulting encoded value is
@@ -663,8 +663,8 @@ void FixedQueueIndexManager::enable()
 int FixedQueueIndexManager::reservePopIndexForClear (
                                               unsigned int *disposedGeneration,
                                               unsigned int *disposedIndex,
-                                              unsigned int endGeneration,
-                                              unsigned int endIndex)
+                                              unsigned int  endGeneration,
+                                              unsigned int  endIndex)
 {
     BSLS_ASSERT(disposedGeneration);
     BSLS_ASSERT(disposedIndex);

@@ -392,8 +392,8 @@ class TestLockObject {
     // CREATORS
     explicit
     TestLockObject(const bdlcc::TimeQueue<TestLockObject> *queue = 0,
-                   int                                  *numDestructions = 0,
-                   int                                   verbose = 0);
+                   int                                    *numDestructions = 0,
+                   int                                     verbose = 0);
         // Create a test object that holds a reference to the specified
         // 'queue'.
 
@@ -465,10 +465,10 @@ enum {
 };
 
 void threadFunc(bdlcc::TimeQueue<int> *timeQueue,
-                int                  numIterations,
-                int                  sendCount,
-                int                  rcvCount,
-                int                  delay)
+                int                    numIterations,
+                int                    sendCount,
+                int                    rcvCount,
+                int                    delay)
 {
     bsl::vector<int> timers;
     timers.resize(sendCount);
@@ -668,7 +668,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
         void dataAvailable(my_Connection *connection,
                            void          *buffer_p,
-                           int           length);
+                           int            length);
             // Receive in 'buffer_p' a pointer to a data buffer of 'length'
             // bytes, and pass this to 'connection' to be processed.  Behavior
             // is undefined if 'connection' is not currently added to this
@@ -785,8 +785,8 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 // connection to the queue with a new time value.
 //..
     void my_Server::dataAvailable(my_Connection *connection,
-                                  void *data,
-                                  int length)
+                                  void          *data,
+                                  int            length)
     {
         if (connection->d_timerId) {
             if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
