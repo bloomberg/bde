@@ -29,11 +29,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bdlf {
 template <int I>
 struct PlaceHolder {
+    BSLMF_NESTED_TRAIT_DECLARATION(PlaceHolder, bslmf::IsBitwiseMoveable);
     enum { VALUE = I };
 };
 

@@ -121,6 +121,12 @@ int main(int argc, char *argv[])
         ASSERT( 1 == bdlf::PlaceHolder< 1>::VALUE);
         ASSERT( 2 == bdlf::PlaceHolder< 2>::VALUE);
 
+        ASSERT(bslmf::IsBitwiseMoveable<bdlf::PlaceHolder<-2> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bdlf::PlaceHolder<-1> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bdlf::PlaceHolder< 0> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bdlf::PlaceHolder< 1> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bdlf::PlaceHolder< 2> >::value);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

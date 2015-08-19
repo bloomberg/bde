@@ -319,6 +319,124 @@ typedef bdlf::PlaceHolder<14> PH14;
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
+DEFINE_TEST_CASE(17) {
+        // ------------------------------------------------------------------
+        // TESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L>>'
+        //
+        // Concerns:
+        //: 1 The bitwise moveable trait is true for 'Bind<RET,FUNC,LIST>'
+        //:   if the bitwise moveable trait is true for 'FUNC' and for all
+        //:   of the types in 'LIST'.
+        //: 2 Placeholders are treated as bitwise moveable.
+        //: 3 The bitwise moveable trait is false for
+        //:   'Bind<RET,FUNC,LIST>' if the bitwise moveable trait is
+        //:   false for 'FUNC'.
+        //: 4 The bitwise moveable trait is false for
+        //:   'Bind<RET,FUNC,LIST>' if the bitwise moveable trait is
+        //:   false for any of the types in 'LIST'.
+        //: 5 The 'RET' type has no affect on whether
+        //:   'Bind<RET,FUNC,LIST>' has the bitwise moveable trait.
+        //: 6 The concerns above apply to the types as returned from
+        //:   'BindUtil::bind', 'BindUtil::bindA', and
+        //:   'BindUtil::bindR'.
+        //
+        // Plan:
+        //: 1 For concern 1, instantate 'Bind' with a bitwise moveable
+        //:   'FUNC' and a 'LIST' type comprising types that are all bitwise
+        //:   moveable.  Verify that the resulting specialization has the
+        //:   bitwise moveable trait.
+        //: 2 For concern 2, repeat step 1 except replace one of the types in
+        //:   'LIST' with a placeholder.  Verify that the resulting
+        //:   specialization has the bitwise moveable trait.
+        //: 3 For concern 3, repeat step 2 except replace 'FUNC' with a type
+        //:   that is not bitwise moveable.  Verify that the resulting
+        //:   specialization *does not* have the bitwise moveable trait.
+        //: 4 For concern 4, repeat step 2 except replace one of the types in
+        //:   'LIST' with a type that is not bitwise moveable.  Verify that
+        //:   the resulting specialization *does not* have the bitwise
+        //:   moveable trait.
+        //: 5 For concern 5, repeat step 2 except replace 'RET' with a type
+        //:   that is not bitwise moveable.  Verify that the resulting
+        //:   specialization *still has* the bitwise moveable trait.
+        //: 6 For concern 6, create a function template,
+        //:   'isBitwiseMoveableArg(const T&)', that returns true iff 'T' has
+        //:   the bitwise moveable trait. Invoke 'isBitwiseMoveableArg' on
+        //:   calls to
+        //:   'BindUtil::bind', 'BindUtil::bindA', and
+        //:   'BindUtil::bindR' with arguments that would result in the
+        //:   various combinations above.
+        //
+        // Testing:
+        //      bslmf::IsBitwiseMoveable<bdlf::Bind<RET,FUNC,LIST>>
+
+        if (verbose)
+            printf("\nTESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L>>'"
+                   "\n====================================================\n");
+
+        (void) veryVeryVerbose;
+
+        typedef bdlf::Bind_TestArgNoAlloc<1> BitwiseArg;
+        typedef bdlf::Bind_TestArgNoAlloc<2> BitwiseRet;
+        typedef bdlf::Bind_TestTypeNoAlloc   BitwiseInvocable;
+
+        typedef bdlf::Bind_TestArgAlloc<1>   NonBitwiseArg;
+        typedef bdlf::Bind_TestArgAlloc<2>   NonBitwiseRet;
+        typedef bdlf::Bind_TestTypeAlloc     NonBitwiseInvocable;
+
+#define MIDDLE_ARG_TS int,int,int,int,int,int,int,int,int
+#define MIDDLE_ARGS 2,3,4,5,6,7,8,9,10
+
+        typedef bdlf::Bind_BoundTuple11<int,MIDDLE_ARG_TS,int> IntList;
+        typedef bdlf::Bind_BoundTuple11<bdlf::PlaceHolder<1>,MIDDLE_ARG_TS,
+                                       BitwiseArg> BitwiseList;
+        typedef bdlf::Bind_BoundTuple11<bdlf::PlaceHolder<1>,MIDDLE_ARG_TS,
+                                       NonBitwiseArg> NonBitwiseList;
+
+        typedef bdlf::Bind_TestUtil TU;
+
+        BitwiseArg           bwFirstArg(1);
+        BitwiseArg           bwLastArg(11);
+        BitwiseInvocable     bwFunc;
+        NonBitwiseArg        nonBwFirstArg(1);
+        NonBitwiseArg        nonBwLastArg(11);
+        NonBitwiseInvocable  nonBwFunc;
+        bslma::TestAllocator alloc0(veryVeryVerbose);
+
+        using namespace bdlf::PlaceHolders;
+
+#define BWM_TEST(R,F,L,EXP) \
+        ASSERT(!EXP == !(bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L> >::VALUE));
+
+        if (veryVerbose) printf("Testing Bind\n");
+        //       Return type    Invocable type       Args list       Exp
+        //       =============  ===================  ==============  =====
+        BWM_TEST(bslmf::Nil   , BitwiseInvocable   , IntList       , true );
+        BWM_TEST(BitwiseRet   , BitwiseInvocable   , BitwiseList   , true );
+        BWM_TEST(BitwiseRet   , NonBitwiseInvocable, BitwiseList   , false);
+        BWM_TEST(BitwiseRet   , BitwiseInvocable   , NonBitwiseList, false);
+        BWM_TEST(NonBitwiseRet, BitwiseInvocable   , BitwiseList   , true );
+#undef BWM_TEST
+
+#define BWM_TEST(RET,FUNC,FIRST,LAST,EXPECT)                                  \
+        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
+                  bdlf::BindUtil::bind((FUNC),(FIRST),MIDDLE_ARGS,(LAST))))); \
+        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
+            bdlf::BindUtil::bindR<RET>((FUNC),(FIRST),MIDDLE_ARGS,(LAST))))); \
+        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
+            bdlf::BindUtil::bindA(&alloc0,(FUNC),(FIRST),MIDDLE_ARGS,(LAST)))))
+
+        if (veryVerbose) printf("Testing BindUtil::bind[RA]\n");
+        //       Return type    Invocable  First Arg      Last Arg      Exp
+        //       =============  =========  =============  ============  =====
+        BWM_TEST(bslmf::Nil   , bwFunc   , bwFirstArg   , bwLastArg   , true );
+        BWM_TEST(BitwiseRet   , bwFunc   , _1           , bwLastArg   , true );
+        BWM_TEST(BitwiseRet   , nonBwFunc, _1           , bwLastArg   , false);
+        BWM_TEST(BitwiseRet   , bwFunc   , _1           , nonBwLastArg, false);
+        BWM_TEST(NonBitwiseRet, bwFunc   , _1           , bwLastArg   , true );
+#undef BWM_TEST
+
+      }
+
 DEFINE_TEST_CASE(16) {
         DECLARE_MAIN_VARIABLES
         // ------------------------------------------------------------------
@@ -3156,6 +3274,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER)                                                     \
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
+        CASE(17);
         CASE(16);
         CASE(15);
         CASE(14);

@@ -75,7 +75,7 @@ using namespace bsl;  // automatically added by script
 // or 'bindR'), the nature of the bound object (free function pointer or
 // reference, member function pointer, and function object by reference or by
 // value), and the allocation model, when invoked with 'N' arguments to the
-// component 'bdef::bind_testN'.  It remains here only to test the concerns
+// component 'bdlf::bind_testN'.  It remains here only to test the concerns
 // that do not explicitly depend on the number of arguments passed to the bound
 // object.
 //
@@ -146,6 +146,8 @@ void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+typedef bsls::Types::Int64 Int64;
 
 int globalVerbose = 0;
 
@@ -1178,7 +1180,7 @@ using namespace bdlf::PlaceHolders;
     void bindTest6() {
         bslma::TestAllocator allocator;
         MyString myString((const char*)"p3", &allocator);
-        const int NUM_ALLOCS = allocator.numAllocations();
+        const Int64 NUM_ALLOCS = allocator.numAllocations();
 //..
 // To expose that the default allocator is not used, we will use a default
 // allocator guard, which will re-route any default allocation to the
@@ -1186,7 +1188,7 @@ using namespace bdlf::PlaceHolders;
 //..
         bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
-        const int NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
+        const Int64 NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
 // We now create a binder object with allocator using 'bindA'.  If the bound
 // object were an instance of a class taking an allocator, then 'allocator'
@@ -1523,7 +1525,7 @@ using namespace bdlf::PlaceHolders;
 // function of section "Elementary construction and usage of 'bdlf::Bind'
 // objects" above can be bound to 'printf':
 //..
-    void bindTest7(bslma::Allocator *allocator = 0)
+    void bindTest7(bslma::Allocator * = 0)
     {
         using namespace BDEF_BIND_BREATHING_TEST; // for testing only
 #if 0
@@ -2034,7 +2036,7 @@ DEFINE_TEST_CASE(5) {
                                 // than a distinct reference_wrapper object.
 #endif
 
-            // 'bdef_Bind_FuncTraitsHasNoEllipsis' will return 0 even for
+            // 'bdlf::Bind_FuncTraitsHasNoEllipsis' will return 0 even for
             // functions that does not have an ellipsis in its function
             // signature.  When this happens, implicit version of 'bdlf::Bind'
             // will be used, and X2 will be forwarded (thanks to the wrapper)
