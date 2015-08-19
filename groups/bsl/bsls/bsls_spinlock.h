@@ -95,6 +95,167 @@ BSLS_IDENT("$: $")
 //..
 //   }
 //..
+//
+///Example 2: Fine-grained locking
+///- - - - - - - - - - - - - - - -
+// Suppose that we have a large array of objects to be manipulated concurrently
+// by multiple threads, but the size of the array itself does not change.
+// (This might be because it represents an inherently fixed number of objects
+// or because changes to the array size are infrequent and controlled by some
+// other synchronization mechanism like a "reader-writer" lock). Thus one
+// thread can manipulate a particular object in the array concurrently with a
+// different thread manipulating another. If the manipulations are short and
+// contention is likely to be low, SpinLock might be suitable due to its small
+// size.
+//
+// In particular, imagine we want a threadsafe "multi-queue". In this case,
+// we would have an array of queues, each with a SpinLock member for
+// fine-grained locking.  First, we define the type to be held in the array. 
+//..
+//  template<typename TYPE>
+//  class LightweightThreadsafeQueue {
+//     // This type implements a threadsafe queue with a small memory
+//     // footprint and low initialization costs. It is designed for
+//     // low-contention use only.
+//
+//     // TYPES
+//     struct Node {
+//          TYPE  d_item;
+//          Node *d_next_p;
+//
+//          Node(const TYPE& item) : d_item(item), d_next_p(0) {}
+//      };
+//       
+//     // DATA
+//     Node           *d_front_p; // Front of queue, or 0 if empty
+//     Node           *d_back_p; // Back of queue, or 0 if empty
+//     bsls::SpinLock  d_lock;
+//
+//   public:
+//     // CREATORS
+//     LightweightThreadsafeQueue();
+//       // Create an empty queue.
+//
+//     ~LightweightThreadsafeQueue();
+//       // Destroy this object.
+//
+//     // MANIPULATORS
+//     int dequeue(TYPE* value);
+//        // Remove the element at the front of the queue and load it into the
+//        // specified 'value'. Return '0' on success, or a nonzero value if
+//        // the queue is empty.
+//
+//     void enqueue(const TYPE& value);
+//        // Add the specified 'value' to the back of the queue.
+//   };
+//..
+// Next, we implement the creators. Note that a different idiom is used
+// to initialize member variables of 'SpinLock' type than is used for static
+// variables:
+//..
+//  template<typename TYPE>
+//  LightweightThreadsafeQueue<TYPE>::LightweightThreadsafeQueue()
+//  : d_front_p(0)
+//  , d_back_p(0)
+//  , d_lock(bsls::SpinLock::s_unlocked)
+//  {}
+//
+//  template<typename TYPE>
+//  LightweightThreadsafeQueue<TYPE>::~LightweightThreadsafeQueue() {
+//     for (Node *node = d_front_p; 0 != node; ) {
+//         Node *next = node->d_next_p;
+//         delete node;
+//         node = next;
+//     }
+//  }
+//..
+// Then we implement the manipulator functions using 'SpinLockGuard' to ensure
+// thread safety.  Note that we do memory allocation and deallocation outside
+// the scope of the lock, as these may involve system calls that should be
+// avoided in the scope of a SpinLock.
+//..
+//  template<typename TYPE>
+//  int LightweightThreadsafeQueue<TYPE>::dequeue(TYPE* value) {
+//     Node *front;
+//     {
+//        bsls::SpinLockGuard guard(&d_lock);
+//        front = d_front_p;
+//        if (0 == front) {
+//          return 1;
+//        }
+//
+//        *value = front->d_item;
+//
+//        if (d_back_p == front) {
+//           d_front_p = d_back_p = 0;
+//        } else {
+//           d_front_p = front->d_next_p;
+//        }
+//     }
+//     delete front;
+//     return 0;
+//  }
+//
+//  template<typename TYPE>
+//  void LightweightThreadsafeQueue<TYPE>::enqueue(const TYPE& value) {
+//     Node *node = new Node(value);
+//     bsls::SpinLockGuard guard(&d_lock);
+//     if (0 == d_front_p && 0 == d_back_p) {
+//        d_front_p = d_back_p = node;
+//     } else {
+//        d_back_p->d_next_p = node;
+//        d_back_p = node;
+//     }
+//  }
+//..
+//  To illustrate fine-grained locking with this queue, we create a thread
+//  function that will manipulate queues out of a large array at random.
+//  Since each element in the array is locked independently, these threads
+//  will rarely contend for the same queue and can run largely in parallel.
+//..
+// const int NUM_QUEUES = 10000;
+// const int NUM_ITERATIONS = 20000;
+//
+// struct QueueElement {
+//    int d_threadId;
+//    int d_value;
+// };
+//
+// struct ThreadParam {
+//    LightweightThreadsafeQueue<QueueElement> *d_queues_p;
+//    int                                       d_threadId;
+// };
+//
+// void *addToRandomQueues(void *paramAddr) {
+//    ThreadParam *param = (ThreadParam*)paramAddr;
+//    LightweightThreadsafeQueue<QueueElement> *queues = param->d_queues_p;
+//    int threadId = param->d_threadId;
+//    unsigned seed = threadId;
+//    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+//       int queueIndex = rand_r(&seed) % NUM_QUEUES;
+//       LightweightThreadsafeQueue<QueueElement> *queue = queues + queueIndex;
+//       QueueElement value = { threadId, i };
+//       queue->enqueue(value);
+//    }
+//    return 0;
+// }
+//..
+// Finally, we create the "multi-queue" and several of these threads to
+// manipulate it.  We assume the existence of a createThread() function that
+// starts a new thread of execution with a parameter, and we omit details of
+// "joining" these threads.
+//..
+// enum { NUM_THREADS = 3};
+// LightweightThreadsafeQueue<QueueElement> multiQueue[NUM_QUEUES];
+// ThreadParam threadParams[NUM_THREADS];
+// for (int i = 0; i < NUM_THREADS; ++i) {
+//   threadParams[i].d_queues_p = multiQueue;
+//   threadParams[i].d_threadId = i + 1;
+//   createThread(addToRandomQueues, threadParams + i);
+// }
+//..
+//
+
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
@@ -119,28 +280,34 @@ namespace bsls {
                              // ==============
 struct SpinLock {
     // A statically-initializable synchronization primitive that "spins"
-    // (i.e., executes user instructions in a tight loop) rather than blocking
-    // waiting threads using system calls.  The following idiom is used to
-    // initialize 'SpinLock' objects:
+    // (i.e., executes user instructions in a tight loop) rather than
+    // blocking waiting threads using system calls. The following idiom is
+    // used to initialize 'SpinLock' variables:
     //..
     //  SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
+    //..
+    // A class member 'd_lock' of type 'SpinLock' may be initialized using the
+    // following idiom:
+    //..
+    //  , d_lock(SpinLock::s_unlocked)
     //..
 
   private:
     // NOT IMPLEMENTED
     SpinLock& operator=(const SpinLock&);
-
-    // We would like to prohibit copy construction, but then this class would
-    // not be a POD and could not be initialized statically:
-    // SpinLock(const SpinLock&);
-
+    
     // PRIVATE TYPES
     enum {
         e_UNLOCKED = 0, // unlocked state value
         e_LOCKED = 1    // locked state value
     };
-
+    
   public:
+    // PUBLIC CLASS DATA
+    static const SpinLock s_unlocked;
+        // This constant SpinLock is always unlocked. It is suitable for use
+        // initializing class members of SpinLock type.
+
     // DATA
     AtomicOperations::AtomicTypes::Int d_state;
         // Public to allow this type to be a statically-initializable POD. Do
@@ -185,8 +352,13 @@ class SpinLockGuard {
         // 'lock->lock()'.
 
     ~SpinLockGuard();
-        // Destroy this proctor object and invoke 'unlock()' on the lock
-        // managed by this object.
+       // Destroy this proctor object and invoke 'unlock()' on the lock managed
+       // by this object.
+
+    // MANIPULATORS
+    void release();
+       // Stop managing the lock specified on construction, without any
+       // effect on the lock (that is, the lock is left in the locked state).
 };
 
 // ============================================================================
@@ -246,11 +418,20 @@ SpinLockGuard::SpinLockGuard(SpinLock *lock)
 inline
 SpinLockGuard::~SpinLockGuard()
 {
-    d_lock_p->unlock();
+    if (0 != d_lock_p) {
+        d_lock_p->unlock();
+    }
 }
-
+    
+// MANIPULATORS
+inline
+void SpinLockGuard::release() {
+    d_lock_p = 0;
+}
+    
 }  // close package namespace
 }  // close enterprise namespace
+
 
 #endif
 

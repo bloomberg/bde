@@ -16,6 +16,23 @@
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef HANDLE    ThreadId;
+
+// no rand_r on Windows, so put a simple definition here
+static int rand_r(unsigned *seed) {
+    unsigned int next = *seed;
+    int result;
+    
+    next *= 1103515245; next += 12345;
+    result = (unsigned int) (next / 65536) % 2048;
+    
+    next *= 1103515245; next += 12345;
+    result <<= 10;
+    result ^= (unsigned int) (next / 65536) % 1024;
+
+    *seed = next;
+    return result;
+}
+
 #else
 typedef pthread_t ThreadId;
 #endif
@@ -180,6 +197,142 @@ extern "C" void *usageExampleFn(void *arg) {
     return 0;
 }
 
+// Suppose that we have a large array of objects to be manipulated concurrently
+// by multiple threads, but the size of the array itself does not change.
+// (This might be because it represents an inherently fixed number of objects
+// or because changes to the array size are infrequent and controlled by some
+// other synchronization mechanism like a "reader-writer" lock). Thus one
+// thread can manipulate a particular object in the array concurrently with a
+// different thread manipulating another. If the manipulations are short and
+// contention is likely to be low, SpinLock might be suitable due to its small
+// size.
+//
+// In particular, imagine we want a threadsafe "multi-queue". In this case,
+// we would have an array of queues, each with a SpinLock member for
+// fine-grained locking.  First, we define the type to be held in the array. 
+template<typename TYPE>
+class LightweightThreadsafeQueue {
+  // This type implements a threadsafe queue with a small memory
+  // footprint and low initialization costs. It is designed for
+  // low-contention use only.
+
+  // TYPES
+  struct Node {
+       TYPE  d_item;
+       Node *d_next_p;
+
+       Node(const TYPE& item) : d_item(item), d_next_p(0) {}
+   };
+    
+  // DATA
+  Node           *d_front_p; // Front of queue, or 0 if empty
+  Node           *d_back_p; // Back of queue, or 0 if empty
+  bsls::SpinLock  d_lock;
+
+ public:
+  // CREATORS
+  LightweightThreadsafeQueue();
+    // Create an empty queue.
+
+  ~LightweightThreadsafeQueue();
+    // Destroy this object.
+
+  // MANIPULATORS
+  int dequeue(TYPE* value);
+     // Remove the element at the front of the queue and load it into the
+     // specified 'value'. Return '0' on success, or a nonzero value if
+     // the queue is empty.
+
+  void enqueue(const TYPE& value);
+     // Add the specified 'value' to the back of the queue.
+};
+
+// Next, we implement the creators. Note that a different idiom is used
+// to initialize member variables of 'SpinLock' type than is used for static
+// variables:
+template<typename TYPE>
+LightweightThreadsafeQueue<TYPE>::LightweightThreadsafeQueue()
+: d_front_p(0)
+, d_back_p(0)
+, d_lock(bsls::SpinLock::s_unlocked)
+{}
+
+template<typename TYPE>
+LightweightThreadsafeQueue<TYPE>::~LightweightThreadsafeQueue() {
+   for (Node *node = d_front_p; 0 != node; ) {
+       Node *next = node->d_next_p;
+       delete node;
+       node = next;
+   }
+}
+
+// Then we implement the manipulator functions using 'SpinLockGuard' to ensure
+// thread safety.
+template<typename TYPE>
+int LightweightThreadsafeQueue<TYPE>::dequeue(TYPE* value) {
+   Node *front;
+   {
+      bsls::SpinLockGuard guard(&d_lock);
+      front = d_front_p;
+      if (0 == front) {
+        return 1;
+      }
+
+      *value = front->d_item;
+
+      if (d_back_p == front) {
+         d_front_p = d_back_p = 0;
+      } else {
+         d_front_p = front->d_next_p;
+      }
+   }
+   delete front;
+   return 0;
+}
+
+template<typename TYPE>
+void LightweightThreadsafeQueue<TYPE>::enqueue(const TYPE& value) {
+   Node *node = new Node(value);
+   bsls::SpinLockGuard guard(&d_lock);
+   if (0 == d_front_p && 0 == d_back_p) {
+      d_front_p = d_back_p = node;
+   } else {
+      d_back_p->d_next_p = node;
+      d_back_p = node;
+   }
+}
+
+//  To illustrate fine-grained locking with this queue, we create a thread
+//  function that will manipulate queues out of a large array at random.
+//  Since each element in the array is locked independently, these threads
+//  will rarely contend for the same queue and can run largely in parallel.
+
+const int NUM_QUEUES = 10000;
+const int NUM_ITERATIONS = 20000;
+
+struct QueueElement {
+   int d_threadId;
+   int d_value;
+};
+
+struct ThreadParam {
+   LightweightThreadsafeQueue<QueueElement> *d_queues_p;
+   int                                       d_threadId;
+};
+
+void *addToRandomQueues(void *paramAddr) {
+   ThreadParam *param = (ThreadParam*)paramAddr;
+   LightweightThreadsafeQueue<QueueElement> *queues = param->d_queues_p;
+   int threadId = param->d_threadId;
+   unsigned seed = threadId;
+   for (int i = 0; i < NUM_ITERATIONS; ++i) {
+      int queueIndex = rand_r(&seed) % NUM_QUEUES;
+      LightweightThreadsafeQueue<QueueElement> *queue = queues + queueIndex;
+      QueueElement value = { threadId, i };
+      queue->enqueue(value);
+   }
+   return 0;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -197,35 +350,84 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
     case 1: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLES
         //
         // Concern:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The usage examples provided in the component header file compile,
+        //:   link, and run as shown.
         // 
         // Plan:
-        //: 1 Place the block of code from the usage example in a function
+        //: 1 Place the block of code from usage example 1 in a function
         //:   to be executed by N threads. In the parallelizable region, sleep
         //:   for a second. This should allow all N threads to be in that region
         //:   concurrently. Validate that the "maxThreads" count is N after the
         //:   threads are joined.
+        //:
+        //: 2 Execute usage example 2, validating that all elements from all
+        //:   threads are present in the multiqueue after joining the worker
+        //:   threads.
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        enum { NUM_THREADS = 10 };
+        {
+            if (veryVerbose) printf("Example 1...\n");
+            enum { NUM_THREADS = 10 };
+            
+            ThreadId threads[NUM_THREADS];
+            
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                threads[i] = createThread(&usageExampleFn, 0);
+            }
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                joinThread(threads[i]);
+            }
+            
+            ASSERTV(usageExampleThreadCount,
+                    0 == usageExampleThreadCount);
+            ASSERTV(usageExampleMaxThreads,
+                    NUM_THREADS == usageExampleMaxThreads);
+        }
 
-        ThreadId threads[NUM_THREADS];
-        
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            threads[i] = createThread(&usageExampleFn, 0);
+        {
+            if (veryVerbose) printf("Example 2...\n");
+
+// Finally, we create the "multi-queue" and several of these threads to
+// manipulate it.  We assume the existence of a createThread() function that
+// starts a new thread of execution with a parameter, and we omit details of
+// "joining" these threads.
+            enum { NUM_THREADS = 3};
+            LightweightThreadsafeQueue<QueueElement> multiQueue[NUM_QUEUES];
+            ThreadParam threadParams[NUM_THREADS];
+            ThreadId threadIds[NUM_THREADS];
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                threadParams[i].d_queues_p = multiQueue;
+                threadParams[i].d_threadId = i + 1;
+                threadIds[i] =
+                    createThread(addToRandomQueues, threadParams + i);
+            }
+            
+            // Join the threads, then count the number of values pushed by
+            // each thread into all queues. This should be exactly
+            // NUM_ITERATIONS for each. 
+            int elementCount[NUM_THREADS];
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                joinThread(threadIds[i]);
+                elementCount[i] = 0;
+            }
+
+            for (int i = 0; i < NUM_QUEUES; ++i) {
+                QueueElement element;
+                while (0 == multiQueue[i].dequeue(&element)) {
+                    ++elementCount[element.d_threadId - 1];
+                }
+            }
+            
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                ASSERTV(i, elementCount[i],
+                        NUM_ITERATIONS == elementCount[i]);
+            }
         }
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            joinThread(threads[i]);
-        }
-        
-        ASSERTV(usageExampleThreadCount, 0 == usageExampleThreadCount);
-        ASSERTV(usageExampleMaxThreads, NUM_THREADS == usageExampleMaxThreads);
     } break;
         
       default: {
