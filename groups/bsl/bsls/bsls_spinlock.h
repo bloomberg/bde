@@ -102,15 +102,15 @@ BSLS_IDENT("$: $")
 // by multiple threads, but the size of the array itself does not change.
 // (This might be because it represents an inherently fixed number of objects
 // or because changes to the array size are infrequent and controlled by some
-// other synchronization mechanism like a "reader-writer" lock). Thus one
+// other synchronization mechanism like a "reader-writer" lock).  Thus one
 // thread can manipulate a particular object in the array concurrently with a
-// different thread manipulating another. If the manipulations are short and
+// different thread manipulating another.  If the manipulations are short and
 // contention is likely to be low, SpinLock might be suitable due to its small
 // size.
 //
-// In particular, imagine we want a threadsafe "multi-queue". In this case,
-// we would have an array of queues, each with a SpinLock member for
-// fine-grained locking.  First, we define the type to be held in the array. 
+// In particular, imagine we want a threadsafe "multi-queue". In this case, we
+// would have an array of queues, each with a SpinLock member for fine-grained
+// locking.  First, we define the type to be held in the array.
 //..
 //  template<typename TYPE>
 //  class LightweightThreadsafeQueue {
@@ -125,7 +125,7 @@ BSLS_IDENT("$: $")
 //
 //          Node(const TYPE& item) : d_item(item), d_next_p(0) {}
 //      };
-//       
+//
 //     // DATA
 //     Node           *d_front_p; // Front of queue, or 0 if empty
 //     Node           *d_back_p; // Back of queue, or 0 if empty
@@ -149,8 +149,8 @@ BSLS_IDENT("$: $")
 //        // Add the specified 'value' to the back of the queue.
 //   };
 //..
-// Next, we implement the creators. Note that a different idiom is used
-// to initialize member variables of 'SpinLock' type than is used for static
+// Next, we implement the creators. Note that a different idiom is used to
+// initialize member variables of 'SpinLock' type than is used for static
 // variables:
 //..
 //  template<typename TYPE>
@@ -280,9 +280,9 @@ namespace bsls {
                              // ==============
 struct SpinLock {
     // A statically-initializable synchronization primitive that "spins"
-    // (i.e., executes user instructions in a tight loop) rather than
-    // blocking waiting threads using system calls. The following idiom is
-    // used to initialize 'SpinLock' variables:
+    // (i.e., executes user instructions in a tight loop) rather than blocking
+    // waiting threads using system calls.  The following idiom is used to
+    // initialize 'SpinLock' variables:
     //..
     //  SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
     //..
@@ -295,13 +295,13 @@ struct SpinLock {
   private:
     // NOT IMPLEMENTED
     SpinLock& operator=(const SpinLock&);
-    
+
     // PRIVATE TYPES
     enum {
         e_UNLOCKED = 0, // unlocked state value
         e_LOCKED = 1    // locked state value
     };
-    
+
   public:
     // PUBLIC CLASS DATA
     static const SpinLock s_unlocked;
@@ -352,13 +352,13 @@ class SpinLockGuard {
         // 'lock->lock()'.
 
     ~SpinLockGuard();
-       // Destroy this proctor object and invoke 'unlock()' on the lock managed
-       // by this object.
+        // Destroy this proctor object and invoke 'unlock()' on the lock
+        // managed by this object.
 
     // MANIPULATORS
     void release();
-       // Stop managing the lock specified on construction, without any
-       // effect on the lock (that is, the lock is left in the locked state).
+        // Stop managing the lock specified on construction, without any effect
+        // on the lock (that is, the lock is left in the locked state).
 };
 
 // ============================================================================
@@ -422,13 +422,13 @@ SpinLockGuard::~SpinLockGuard()
         d_lock_p->unlock();
     }
 }
-    
+
 // MANIPULATORS
 inline
 void SpinLockGuard::release() {
     d_lock_p = 0;
 }
-    
+
 }  // close package namespace
 }  // close enterprise namespace
 
