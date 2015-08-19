@@ -10,6 +10,7 @@
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -117,9 +118,9 @@ const int NUM_VALUES = 2;
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
-// =========================================================================
+// ============================================================================
 //                               MAIN PROGRAM
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -599,11 +600,11 @@ if (veryVerbose) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

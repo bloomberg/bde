@@ -16,12 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: John Lakos (jlakos)
 //
-//@DESCRIPTION: This component provides a pair of template types (each
-// parameterized separately on both input and output iterators) that can be
-// used respectively to encode and to decode byte sequences of arbitrary length
-// into and from the printable Base64 representation described in Section 6.8
-// "Base64 Content Transfer Encoding" of RFC 2045, "Multipurpose Internet Mail
-// Extensions (MIME) Part One: Format of Internet Message Bodies."
+//@DESCRIPTION: This component provides a 'class', 'bdlde::Base64Encoder',
+// which provides a pair of template functions (each parameterized separately
+// on both input and output iterators) that can be used respectively to encode
+// and to decode byte sequences of arbitrary length into and from the printable
+// Base64 representation described in Section 6.8 "Base64 Content Transfer
+// Encoding" of RFC 2045, "Multipurpose Internet Mail Extensions (MIME) Part
+// One: Format of Internet Message Bodies."
 //
 // Each instance of either the encoder or decoder retains the state of the
 // conversion from one supplied input to the next, enabling the processing of
@@ -187,8 +188,8 @@ BSLS_IDENT("$Id: $")
 //         IO_ERROR     = -2
 //     };
 //..
-// We declare a 'bdlde::Base64Encoder' object 'converter', which will encode the
-// input data.  Note that various internal buffers and cursors are used as
+// We declare a 'bdlde::Base64Encoder' object 'converter', which will encode
+// the input data.  Note that various internal buffers and cursors are used as
 // needed without further comment.  We read as much data as is available from
 // the user-supplied input stream 'is' *or* as much as will fit in
 // 'inputBuffer' before beginning conversion.
@@ -409,9 +410,9 @@ class Base64Encoder {
     enum {
         // Symbolic state values.
 
-        BDEDE_ERROR_STATE     = -1, // Input is irreparably invalid.
-        BDEDE_INITIAL_STATE   =  0, // Ready to accept input.
-        BDEDE_DONE_STATE      =  1  // Any additional input is an error.
+        e_ERROR_STATE     = -1, // Input is irreparably invalid.
+        e_INITIAL_STATE   =  0, // Ready to accept input.
+        e_DONE_STATE      =  1  // Any additional input is an error.
     };
 
     // CLASS DATA
@@ -618,8 +619,8 @@ class Base64Encoder {
 // PRIVATE MANIPULATORS
 template <class OUTPUT_ITERATOR>
 void Base64Encoder::append(OUTPUT_ITERATOR *out,
-                                 char             value,
-                                 int              maxLength)
+                           char             value,
+                           int              maxLength)
 {
     BSLS_ASSERT(out);
 
@@ -738,7 +739,7 @@ bool Base64Encoder::isResidualOutput(int numBytes, int maxLineLength)
 // CREATORS
 inline
 Base64Encoder::Base64Encoder()
-: d_state(BDEDE_INITIAL_STATE)
+: d_state(e_INITIAL_STATE)
 , d_maxLineLength(s_defaultMaxLineLength)
 , d_lineLength(0)
 , d_outputLength(0)
@@ -749,7 +750,7 @@ Base64Encoder::Base64Encoder()
 
 inline
 Base64Encoder::Base64Encoder(int maxLineLength)
-: d_state(BDEDE_INITIAL_STATE)
+: d_state(e_INITIAL_STATE)
 , d_maxLineLength(maxLineLength)
 , d_lineLength(0)
 , d_outputLength(0)
@@ -762,8 +763,8 @@ Base64Encoder::Base64Encoder(int maxLineLength)
 // MANIPULATORS
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Encoder::convert(OUTPUT_ITERATOR out,
-                                 INPUT_ITERATOR  begin,
-                                 INPUT_ITERATOR  end)
+                           INPUT_ITERATOR  begin,
+                           INPUT_ITERATOR  end)
 {
     int dummyNumOut;
     int dummyNumIn;
@@ -773,11 +774,11 @@ int Base64Encoder::convert(OUTPUT_ITERATOR out,
 
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Encoder::convert(OUTPUT_ITERATOR  out,
-                                 int             *numOut,
-                                 int             *numIn,
-                                 INPUT_ITERATOR   begin,
-                                 INPUT_ITERATOR   end,
-                                 int              maxNumOut)
+                           int             *numOut,
+                           int             *numIn,
+                           INPUT_ITERATOR   begin,
+                           INPUT_ITERATOR   end,
+                           int              maxNumOut)
 {
     int dummyNumOut;
     if (!numOut) {
@@ -788,8 +789,8 @@ int Base64Encoder::convert(OUTPUT_ITERATOR  out,
         numIn  = &dummyNumIn;
     }
 
-    if (BDEDE_ERROR_STATE == d_state || BDEDE_DONE_STATE == d_state) {
-        d_state = BDEDE_ERROR_STATE;
+    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         *numIn  = 0;
         return -1;                                                    // RETURN
@@ -841,18 +842,18 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR out)
 
 template <class OUTPUT_ITERATOR>
 int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
-                                    int             *numOut,
-                                    int              maxNumOut)
+                              int             *numOut,
+                              int              maxNumOut)
 {
     BSLS_ASSERT(numOut);
 
-    if (BDEDE_ERROR_STATE == d_state || isDone()) {
-        d_state = BDEDE_ERROR_STATE;
+    if (e_ERROR_STATE == d_state || isDone()) {
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         return -1;                                                    // RETURN
     }
 
-    d_state = BDEDE_DONE_STATE;
+    d_state = e_DONE_STATE;
 
     const int initialLength = d_outputLength;
     const int maxLength = d_outputLength + maxNumOut;
@@ -889,7 +890,7 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
 inline
 void Base64Encoder::resetState()
 {
-    d_state        = BDEDE_INITIAL_STATE;
+    d_state        = e_INITIAL_STATE;
     d_outputLength = 0;
     d_lineLength   = 0;
     d_stack        = 0;
@@ -900,13 +901,13 @@ void Base64Encoder::resetState()
 inline
 bool Base64Encoder::isAcceptable() const
 {
-    return BDEDE_ERROR_STATE != d_state;
+    return e_ERROR_STATE != d_state;
 }
 
 inline
 bool Base64Encoder::isDone() const
 {
-    return BDEDE_DONE_STATE == d_state
+    return e_DONE_STATE == d_state
         && !d_bitsInStack
         && !isResidualOutput(d_outputLength, d_maxLineLength);
 }
@@ -914,19 +915,19 @@ bool Base64Encoder::isDone() const
 inline
 bool Base64Encoder::isError() const
 {
-    return BDEDE_ERROR_STATE == d_state;
+    return e_ERROR_STATE == d_state;
 }
 
 inline
 bool Base64Encoder::isInitialState() const
 {
-    return 0 == d_outputLength && BDEDE_INITIAL_STATE == d_state;
+    return 0 == d_outputLength && e_INITIAL_STATE == d_state;
 }
 
 inline
 bool Base64Encoder::isMaximal() const
 {
-    return BDEDE_DONE_STATE == d_state &&
+    return e_DONE_STATE == d_state &&
           (d_bitsInStack || isResidualOutput(d_outputLength, d_maxLineLength));
 }
 

@@ -17,10 +17,10 @@ namespace bdlde {
                         // ----------------------
 
 // CLASS METHODS
-bsl::ostream& ByteOrder::print(bsl::ostream&         stream,
-                                     ByteOrder::Enum value,
-                                     int                   level,
-                                     int                   spacesPerLevel)
+bsl::ostream& ByteOrder::print(bsl::ostream&  stream,
+                              ByteOrder::Enum value,
+                              int             level,
+                              int             spacesPerLevel)
 {
     bdlb::Print::indent(stream, level, spacesPerLevel);
 

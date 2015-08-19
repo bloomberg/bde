@@ -103,24 +103,24 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
 
-// =========================================================================
+// ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef bdlde::CharConvertStatus::Enum Enum;
 typedef bdlde::CharConvertStatus       Obj;
 
-// =========================================================================
+// ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 const int NUM_ENUMERATORS = 2;
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
-// =========================================================================
+// ============================================================================
 //                               MAIN PROGRAM
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 // 'enum'.
 //..
         bdlde::CharConvertStatus::Enum value =
-                              bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT;
+                                 bdlde::CharConvertStatus::k_INVALID_CHARS_BIT;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -251,25 +251,23 @@ int main(int argc, char *argv[])
 
             //line level spl    enumerator value           expected result
             //---- ----- --- ----------------------       -----------------
-            { L_,    0,   4, Obj::BDEDE_INVALID_CHARS_BIT,
-                                                       "INVALID_CHARS_BIT\n" },
-            { L_,    0,   4, Obj::BDEDE_OUT_OF_SPACE_BIT,
-                                                       "OUT_OF_SPACE_BIT\n" },
+            { L_,    0,   4, Obj::k_INVALID_CHARS_BIT, "INVALID_CHARS_BIT\n" },
+            { L_,    0,   4, Obj::k_OUT_OF_SPACE_BIT,  "OUT_OF_SPACE_BIT\n" },
 
             { L_,    0,   4, (Enum)(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT NL },
             { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL },
             { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL },
             { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL },
 
-            { L_,    0,  -1, Obj::BDEDE_INVALID_CHARS_BIT, ICM },
-            { L_,    0,   0, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
-            { L_,    0,   2, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
-            { L_,    1,   1, Obj::BDEDE_INVALID_CHARS_BIT, " " ICM NL },
-            { L_,    1,   2, Obj::BDEDE_INVALID_CHARS_BIT, "  " ICM NL },
-            { L_,   -1,   2, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
-            { L_,   -2,   1, Obj::BDEDE_INVALID_CHARS_BIT, ICM NL },
-            { L_,    2,   1, Obj::BDEDE_INVALID_CHARS_BIT, "  " ICM NL },
-            { L_,    1,   3, Obj::BDEDE_INVALID_CHARS_BIT, "   " ICM NL },
+            { L_,    0,  -1, Obj::k_INVALID_CHARS_BIT,    ICM },
+            { L_,    0,   0, Obj::k_INVALID_CHARS_BIT,    ICM NL },
+            { L_,    0,   2, Obj::k_INVALID_CHARS_BIT,    ICM NL },
+            { L_,    1,   1, Obj::k_INVALID_CHARS_BIT,    " " ICM NL },
+            { L_,    1,   2, Obj::k_INVALID_CHARS_BIT,    "  " ICM NL },
+            { L_,   -1,   2, Obj::k_INVALID_CHARS_BIT,    ICM NL },
+            { L_,   -2,   1, Obj::k_INVALID_CHARS_BIT,    ICM NL },
+            { L_,    2,   1, Obj::k_INVALID_CHARS_BIT,    "  " ICM NL },
+            { L_,    1,   3, Obj::k_INVALID_CHARS_BIT,    "   " ICM NL },
 #undef ICM
 #undef NL
         };
@@ -354,7 +352,7 @@ int main(int argc, char *argv[])
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
 
             const FuncPtr FP = &Obj::print;
-            if (veryVerbose) (*FP)(cout, Obj::BDEDE_INVALID_CHARS_BIT, 0, 0);
+            if (veryVerbose) (*FP)(cout, Obj::k_INVALID_CHARS_BIT, 0, 0);
         }
 
       } break;
@@ -399,8 +397,8 @@ int main(int argc, char *argv[])
         } DATA[] = {
             //line       enumerator value              expected result
             //----    ----------------------          -----------------
-            { L_,     Obj::BDEDE_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
-            { L_,     Obj::BDEDE_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
+            { L_,     Obj::k_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
+            { L_,     Obj::k_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
 
             { L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
             { L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
@@ -467,7 +465,7 @@ int main(int argc, char *argv[])
 
             const FuncPtr FP = &operator<<;
 
-            if (veryVerbose) (*FP)(cout, Obj::BDEDE_INVALID_CHARS_BIT);
+            if (veryVerbose) (*FP)(cout, Obj::k_INVALID_CHARS_BIT);
         }
       } break;
       case 1: {
@@ -509,8 +507,8 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // line         enumerator value            expected result
             // ----    ---------------------------     -----------------
-            {  L_,     Obj::BDEDE_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
-            {  L_,     Obj::BDEDE_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
+            {  L_,     Obj::k_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
+            {  L_,     Obj::k_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
 
             {  L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
@@ -552,7 +550,7 @@ int main(int argc, char *argv[])
 
             const FuncPtr FP = &Obj::toAscii;
 
-            (*FP)(Obj::BDEDE_INVALID_CHARS_BIT);
+            (*FP)(Obj::k_INVALID_CHARS_BIT);
         }
 
       } break;
@@ -571,11 +569,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

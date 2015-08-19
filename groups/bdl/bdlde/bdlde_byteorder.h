@@ -115,11 +115,10 @@ struct ByteOrder {
 
   public:
     // CLASS METHODS
-    static bsl::ostream& print(
-                            bsl::ostream& stream,
-                            Enum          value,
-                            int           level          = 0,
-                            int           spacesPerLevel = 4);
+    static bsl::ostream& print(bsl::ostream& stream,
+                               Enum          value,
+                               int           level          = 0,
+                               int           spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose

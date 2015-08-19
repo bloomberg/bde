@@ -1,4 +1,4 @@
-// bdlde_charconvertucs2.cpp                -*-C++-*-
+// bdlde_charconvertucs2.cpp                                          -*-C++-*-
 
 #include <bdlde_charconvertucs2.h>
 
@@ -140,25 +140,26 @@ enum {
 // documentation.
 
 enum {
-    BDEDE_SUCCESS                 = 0,
-    BDEDE_INVALID_INPUT_CHARACTER =
-                 BloombergLP::bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT,
-    BDEDE_OUTPUT_BUFFER_TOO_SMALL =
-                 BloombergLP::bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT
+    k_SUCCESS                 = 0,
+    k_INVALID_INPUT_CHARACTER =
+                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_CHARS_BIT,
+    k_OUTPUT_BUFFER_TOO_SMALL =
+                    BloombergLP::bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT
 };
 
 namespace {
 
 // LOCAL HELPER FUNCTION
 void insertUcs2Character(unsigned short **dstBufferPtr,
-                         bsl::size_t    *dstCapacityPtr,
-                         bsl::size_t    *charsWrittenPtr,
-                         unsigned short  character)
+                         bsl::size_t     *dstCapacityPtr,
+                         bsl::size_t     *charsWrittenPtr,
+                         unsigned short   character)
     // If 'character' is non-0, insert the UCS-2 (16-bit) 'character' into the
-    // location pointed to by '**dstBufferPtr', and bump '*dstBufferPtr'
-    // forward, increment '*charsWrittenPtr', and decrement '*dstCapacityPtr'.
-    // If 'character' is 0, this function has no effect (in order to support
-    // the "skipping" behavior of utf8ToUcs2 for 0 'errorCharacter' arguments).
+    // location pointed to by the specified '**dstBufferPtr', and bump
+    // '*dstBufferPtr' forward, increment the specified '*charsWrittenPtr', and
+    // decrement the specified '*dstCapacityPtr'.  If 'character' is 0, this
+    // function has no effect (in order to support the "skipping" behavior of
+    // utf8ToUcs2 for 0 'errorCharacter' arguments).
 {
     // If the invalid character placeholder is '\0', we "skip" bad characters.
     // This routine is not used for null termination.
@@ -181,14 +182,15 @@ void skipBadUtf8Data(unsigned short      **dstBufferPtr,
                      unsigned short        errorCharacter,
                      int                  *retCode,
                      int                   octetsToSkip)
-    // Skip past 'octetsToSkip' invalid characters in '*srcPtr', setting
-    // the 'BDEDE_INVALID_INPUT_CHARACTER' bit in '*retCode', and calling
-    // 'insertUcs2Character' to update '*dstBufferPtr' with 'errorCharacter',
-    // and updating '*dstCapacityPtr' 'charsWrittenPtr'.
+    // Skip past the specified 'octetsToSkip' invalid characters in the
+    // specified '*srcPtr', setting the 'k_INVALID_INPUT_CHARACTER' bit in the
+    // specified '*retCode', and calling 'insertUcs2Character' to update the
+    // specified '*dstBufferPtr' with the specified 'errorCharacter', and
+    // updating '*dstCapacityPtr' and the specified 'charsWrittenPtr'.
 {
     *srcPtr  += octetsToSkip;
 
-    *retCode |= BDEDE_INVALID_INPUT_CHARACTER;
+    *retCode |= k_INVALID_INPUT_CHARACTER;
 
     insertUcs2Character(dstBufferPtr,
                         dstCapacityPtr,
@@ -205,8 +207,8 @@ void convertUtf8ToUcs2(unsigned short      **dstBufferPtr,
                        int                  *retCode)
     // Convert one multi-octet UTF-8 character to one UCS-2 character, if the
     // multi-octet sequence is valid.  If the sequence is invalid, insert
-    // 'errorCharacter' instead, and turn on the
-    // 'BDEDE_INVALID_INPUT_CHARACTER' bit in '*retCode'.
+    // the specified 'errorCharacter' instead, and turn on the
+    // 'k_INVALID_INPUT_CHARACTER' bit in the specified '*retCode'.
 {
     const unsigned char *src       = *srcPtr;
     unsigned char        firstByte = *src;
@@ -352,7 +354,7 @@ void convertUtf8ToUcs2(unsigned short      **dstBufferPtr,
     // If we get here, we have got something we can't handle - 'firstByte' is
     // not correct for a 2, 3, or 4-octet character.
 
-    *retCode |= BDEDE_INVALID_INPUT_CHARACTER;
+    *retCode |= k_INVALID_INPUT_CHARACTER;
 
     insertUcs2Character(dstBufferPtr,
                         dstCapacityPtr,
@@ -461,8 +463,7 @@ void convertUcs2ToUtf8(unsigned char        **dstBufferPtr,
         return;                                                       // RETURN
     }
 
-    // There is enough space: populate the 2-octet output, using this
-    // bitmap:
+    // There is enough space: populate the 2-octet output, using this bitmap:
     //..
     // 0800-FFFF | 1110xxxx 10xxxxxx 10xxxxxx
     //..
@@ -484,17 +485,17 @@ void convertUcs2ToUtf8(unsigned char        **dstBufferPtr,
 }  // close unnamed namespace
 
 namespace BloombergLP {
-
 namespace bdlde {
-                        // ----------------------------
-                        // struct CharConvertUcs2
-                        // ----------------------------
+
+                            // ----------------------
+                            // struct CharConvertUcs2
+                            // ----------------------
 
 int CharConvertUcs2::utf8ToUcs2(unsigned short *dstBuffer,
-                                      bsl::size_t     dstCapacity,
-                                      const char     *srcString,
-                                      bsl::size_t    *numCharsWritten,
-                                      unsigned short  errorCharacter)
+                                bsl::size_t     dstCapacity,
+                                const char     *srcString,
+                                bsl::size_t    *numCharsWritten,
+                                unsigned short  errorCharacter)
 {
     // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
     // an "as tight as possible" inner loop for characters that fit in 7 bits,
@@ -510,14 +511,14 @@ int CharConvertUcs2::utf8ToUcs2(unsigned short *dstBuffer,
         }
 
         if (srcString && *srcString) {
-            return BDEDE_OUTPUT_BUFFER_TOO_SMALL;                     // RETURN
+            return k_OUTPUT_BUFFER_TOO_SMALL;                         // RETURN
         }
         else {
             if (dstCapacity) {
-                return BDEDE_SUCCESS;                                 // RETURN
+                return k_SUCCESS;                                     // RETURN
             }
 
-            return BDEDE_OUTPUT_BUFFER_TOO_SMALL;                     // RETURN
+            return k_OUTPUT_BUFFER_TOO_SMALL;                         // RETURN
         }
     }
 
@@ -528,7 +529,7 @@ int CharConvertUcs2::utf8ToUcs2(unsigned short *dstBuffer,
     const unsigned char *src
                          = reinterpret_cast<const unsigned char *>(srcString);
 
-    int retCode = BDEDE_SUCCESS;
+    int retCode = k_SUCCESS;
 
     while (*src && dstCapacity) {
         if (*src <= ONE_OCTET_CHARACTER_UPPER_BOUND) {
@@ -564,7 +565,7 @@ int CharConvertUcs2::utf8ToUcs2(unsigned short *dstBuffer,
 
         --dstBuffer;
 
-        retCode |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+        retCode |= k_OUTPUT_BUFFER_TOO_SMALL;
     }
 
     *dstBuffer = 0;
@@ -576,10 +577,9 @@ int CharConvertUcs2::utf8ToUcs2(unsigned short *dstBuffer,
     return retCode;
 }
 
-int CharConvertUcs2::utf8ToUcs2(
-                                   bsl::vector<unsigned short> *result,
-                                   const char                  *srcString,
-                                   unsigned short               errorCharacter)
+int CharConvertUcs2::utf8ToUcs2(bsl::vector<unsigned short> *result,
+                                const char                  *srcString,
+                                unsigned short               errorCharacter)
 {
     // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
     // an "as tight as possible" inner loop for characters that fit in 7 bits,
@@ -588,7 +588,7 @@ int CharConvertUcs2::utf8ToUcs2(
     bsl::size_t charsWritten = 0;
     const unsigned char *src
                          = reinterpret_cast<const unsigned char *>(srcString);
-    int retCode = BDEDE_SUCCESS;
+    int retCode = k_SUCCESS;
 
     // We're going to work in 'buffer' and only update '*result' when 'buffer'
     // fills up.
@@ -642,11 +642,10 @@ int CharConvertUcs2::utf8ToUcs2(
 }
 
 int CharConvertUcs2::ucs2ToUtf8(char                 *dstBuffer,
-                                      bsl::size_t           dstCapacity,
-                                      const unsigned short *srcString,
-                                      bsl::size_t          *numCharsWritten,
-                                      bsl::size_t          *numBytesWritten
-                                      )
+                                bsl::size_t           dstCapacity,
+                                const unsigned short *srcString,
+                                bsl::size_t          *numCharsWritten,
+                                bsl::size_t          *numBytesWritten)
 {
     // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
     // an "as tight as possible" inner loop for characters that fit in 7 bits,
@@ -666,14 +665,14 @@ int CharConvertUcs2::ucs2ToUtf8(char                 *dstBuffer,
         }
 
         if (srcString && *srcString) {
-            return BDEDE_OUTPUT_BUFFER_TOO_SMALL;                     // RETURN
+            return k_OUTPUT_BUFFER_TOO_SMALL;                         // RETURN
         }
         else {
             if (dstCapacity) {
-                return BDEDE_SUCCESS;                                 // RETURN
+                return k_SUCCESS;                                     // RETURN
             }
 
-            return BDEDE_OUTPUT_BUFFER_TOO_SMALL;                     // RETURN
+            return k_OUTPUT_BUFFER_TOO_SMALL;                         // RETURN
         }
     }
 
@@ -681,7 +680,7 @@ int CharConvertUcs2::ucs2ToUtf8(char                 *dstBuffer,
     // null-terminator).
 
     unsigned char *dst = reinterpret_cast<unsigned char *>(dstBuffer);
-    int retCode = BDEDE_SUCCESS;
+    int retCode = k_SUCCESS;
 
     bsl::size_t charsWritten = 0;
     bsl::size_t bytesWritten = 0;
@@ -727,7 +726,7 @@ int CharConvertUcs2::ucs2ToUtf8(char                 *dstBuffer,
 
         --dst;
 
-        retCode |= BDEDE_OUTPUT_BUFFER_TOO_SMALL;
+        retCode |= k_OUTPUT_BUFFER_TOO_SMALL;
     }
 
     *dst = 0;
@@ -744,8 +743,8 @@ int CharConvertUcs2::ucs2ToUtf8(char                 *dstBuffer,
 }
 
 int CharConvertUcs2::ucs2ToUtf8(bsl::string          *result,
-                                      const unsigned short *srcString,
-                                      bsl::size_t          *numCharsWritten)
+                                const unsigned short *srcString,
+                                bsl::size_t          *numCharsWritten)
 {
     // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
     // an "as tight as possible" inner loop for characters that fit in 7 bits,
@@ -761,7 +760,7 @@ int CharConvertUcs2::ucs2ToUtf8(bsl::string          *result,
 
     result->resize(0);
 
-    int retCode = BDEDE_SUCCESS;
+    int retCode = k_SUCCESS;
 
     bsl::size_t charsWritten = 0;
     bsl::size_t bytesWritten = 0;
@@ -818,15 +817,15 @@ int CharConvertUcs2::ucs2ToUtf8(bsl::string          *result,
 
     return retCode;
 }
+
 }  // close package namespace
+}  // close enterprise namespace
 
-}  // close namespace BloombergLP
-
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE -------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

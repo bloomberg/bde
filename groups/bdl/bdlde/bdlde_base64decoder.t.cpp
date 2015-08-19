@@ -1,8 +1,10 @@
-// bdlde_base64decoder.t.cpp            -*-C++-*-
+// bdlde_base64decoder.t.cpp                                          -*-C++-*-
 
 #include <bdlde_base64decoder.h>
 
 #include <bdlde_base64encoder.h>        // for testing only
+
+#include <bdls_testutil.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>   // atoi()
@@ -10,6 +12,8 @@
 #include <bsl_cctype.h>    // isgraph()
 #include <bsl_climits.h>   // INT_MIN
 #include <bsl_strstream.h> // ostrstream
+
+#include <stdio.h>
 
 #undef SS  // Solaris 5.10/x86 sys/regset.h via stdlib.h
 #undef ES
@@ -198,57 +202,49 @@ using namespace bsl;  // automatically added by script
 //*[10] STRESS TEST: The decoder properly decodes all encoded output.
 //-----------------------------------------------------------------------------
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
 #define V(X) { if (verbose) { cout << "\t" << X << endl; } } // no () to allow
                                                              // stringing <<
 #define VV(X) { if (veryVerbose) { cout << "\t\t" << X << endl; } }
@@ -261,12 +257,12 @@ static void aSsErT(int c, const char *s, int i) {
 
 void loopMeter(unsigned index, unsigned length, unsigned size = 50)
     // Create a visual display for a computation of the specified 'length' and
-    // emit updates to 'cerr' as appropriate for each 'index'.  Optionally
-    // specify the 'size' of the display.  The behavior is undefined
+    // emit updates to 'cerr' as appropriate for the specified 'index'.
+    // Optionally specify the 'size' of the display.  The behavior is undefined
     // unless 0 <= index, 0 <= length, 0 < size, and index <= length.  Note
-    // that it is expected that indices will be presented in order from 0
-    // to 'length', inclusive, without intervening output to 'stderr';
-    // however, intervening output to 'stdout' may be redirected productively.
+    // that it is expected that indices will be presented in order from 0 to
+    // 'length', inclusive, without intervening output to 'stderr'; however,
+    // intervening output to 'stdout' may be redirected productively.
 {
     ASSERT(0 < size);
     ASSERT(index <= length);
@@ -464,7 +460,11 @@ ostream& operator<<(ostream& stream, State enumerator)
                         // ==============
 
 template <class T>
-inline T myMin(const T& a, const T& b) { return a < b ? a : b; }
+inline
+T myMin(const T& a, const T& b)
+{
+    return a < b ? a : b;
+}
 
                         // ===================
                         // Function printCharN
@@ -472,7 +472,7 @@ inline T myMin(const T& a, const T& b) { return a < b ? a : b; }
 
 ostream& printCharN(ostream& output, const char* sequence, int length)
     // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'stream' and return a reference to the modifiable 'stream'
+    // specified 'output' and return a reference to the modifiable 'stream'
     // (if a character is not graphical, its hexadecimal code is printed
     // instead).  The behavior is undefined unless 0 <= 'length' and sequence
     // refers to a valid area of memory of size at least 'length'.
@@ -516,9 +516,10 @@ void setState(Obj *object, int state)
                                       // this assertion should be true!
 
     char b[3];
-    int numOut = -1;
-    int numIn = -1;
+    int  numOut = -1;
+    int  numIn = -1;
     char input = 'A';
+
     const char *const begin = &input;
     const char *const end = &input + 1;
 
@@ -678,6 +679,7 @@ class EnabledGuard {
     bool d_state;
 
   public:
+    explicit
     EnabledGuard(bool flag)
         // Create a guard to control the activation of individual assertions
         // in the '::isState' test helper function using the specified
@@ -703,12 +705,13 @@ bool isState(Obj *object, int state)
 
     char b[3] = { -1, -1, -1 };
     char input = 'A';
+    int  numOut = -1;
+    int  numIn = -1;
+    int  result = INT_MIN;
+    bool rv = false;
+
     const char *const begin = &input;
     const char *const end = &input + 1;
-    int numOut = -1;
-    int numIn = -1;
-    int result = INT_MIN;
-    bool rv = false;
 
     switch (state) {
       case INITIAL_STATE: {
@@ -945,7 +948,9 @@ bool isState(Obj *object, int state)
         bool b2 = 1 == object->isError();               ASSERT(b2 || !enabled);
         bool b3 = 0 == object->isMaximal();             ASSERT(b3 || !enabled);
         bool b4 = 0 == object->isInitialState();        ASSERT(b4 || !enabled);
-/* TBD remove; changed test
+
+#if 0
+// TBD remove; changed test
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 0 == numOut;                          ASSERT(c1 || !enabled);
 
@@ -956,7 +961,8 @@ bool isState(Obj *object, int state)
         return a0 && a1 && a2 && a3 && a4
             && b0 && b1 && b2 && b3 && b4
             && c0 && c1 && d0 && d1 && d2;
-*/
+#endif
+
         rv = a0 && a1 && a2 && a3 && a4
           && b0 && b1 && b2 && b3 && b4;
 
@@ -969,8 +975,8 @@ bool isState(Obj *object, int state)
         bool a4 = 0 == object->isInitialState();        ASSERT(a4 || !enabled);
 
         char b[3] = { -1, -1, -1 };
-        int numOut = -1;
-        int result = object->endConvert(b, &numOut);
+        int  numOut = -1;
+        int  result = object->endConvert(b, &numOut);
 
         // ERROR_STATE
         bool b0 = 0 == object->isAcceptable();          ASSERT(b0 || !enabled);
@@ -1039,7 +1045,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
                                            input,   inputEnd,
                                            outputEnd - output);
             if (status < 0) {
-                return ENCODE_ERROR;                               // RETURN
+                return ENCODE_ERROR;                                  // RETURN
             }
 
             output += numOut;
@@ -1048,7 +1054,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
             if (output == outputEnd) {  // output buffer full; write data
                 os.write(outputBuffer, sizeof outputBuffer);
                 if (os.fail()) {
-                    return IO_ERROR;                               // RETURN
+                    return IO_ERROR;                                  // RETURN
                 }
                 output = outputBuffer;
             }
@@ -1061,7 +1067,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
 
         int more = converter.endConvert(output, &numOut, outputEnd-output);
         if (more < 0) {
-            return ENCODE_ERROR;                                   // RETURN
+            return ENCODE_ERROR;                                      // RETURN
         }
 
         output += numOut;
@@ -1074,7 +1080,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
 
         os.write (outputBuffer, sizeof outputBuffer);  // write buffer
         if (os.fail()) {
-            return IO_ERROR;                                       // RETURN
+            return IO_ERROR;                                          // RETURN
         }
         output = outputBuffer;
     }
@@ -1121,7 +1127,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
                                            input,   inputEnd,
                                            outputEnd - output);
             if (status < 0) {
-                return DECODE_ERROR;                               // RETURN
+                return DECODE_ERROR;                                  // RETURN
             }
 
             output += numOut;
@@ -1130,7 +1136,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
             if (output == outputEnd) {  // output buffer full; write data
                 os.write(outputBuffer, sizeof outputBuffer);
                 if (os.fail()) {
-                    return IO_ERROR;                               // RETURN
+                    return IO_ERROR;                                  // RETURN
                 }
                 output = outputBuffer;
             }
@@ -1143,7 +1149,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
         int more = converter.endConvert(output, &numOut, outputEnd-output);
         if (more < 0) {
-            return DECODE_ERROR;                                   // RETURN
+            return DECODE_ERROR;                                      // RETURN
         }
 
         output += numOut;
@@ -1156,7 +1162,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
         os.write (outputBuffer, sizeof outputBuffer);  // write buffer
         if (os.fail()) {
-            return IO_ERROR;                                       // RETURN
+            return IO_ERROR;                                          // RETURN
         }
         output = outputBuffer;
     }
@@ -1168,7 +1174,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
     return is.eof() && os.good() ? SUCCESS : IO_ERROR;
 }
 
-} // Close namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                              TEST CASES
@@ -1177,7 +1183,8 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose,   \
                                                       bool veryVeryVeryVerbose)
 
-DEFINE_TEST_CASE(11) {
+DEFINE_TEST_CASE(11)
+{
         // --------------------------------------------------------------------
         // STRESS TEST
         //   Demonstrate that the encoder/decoder can encode/decode a large
@@ -1213,13 +1220,14 @@ DEFINE_TEST_CASE(11) {
             const char sample[] = "Education is a useful tool.";
 
             int maxLineLength = 0;
+
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1266,13 +1274,14 @@ DEFINE_TEST_CASE(11) {
             const char sample[] = "Education is also a lot of fun.";
 
             int maxLineLength = 0;
+
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1320,13 +1329,14 @@ DEFINE_TEST_CASE(11) {
             const char sample[] = "Education was originally a tool.";
 
             int maxLineLength = 0;
+
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1374,13 +1384,14 @@ DEFINE_TEST_CASE(11) {
                 "NXTW MSG 1 * 401817628 453493 0<GO>NXTW 97<GO>";
 
             int maxLineLength = 0;
+
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1427,13 +1438,14 @@ DEFINE_TEST_CASE(11) {
             const char sample[] = "NXTW PRLS 78358<GO>";
 
             int maxLineLength = 0;
+
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1480,13 +1492,14 @@ DEFINE_TEST_CASE(11) {
             const char sample[] = "NXTW BICQ > 11 57 401806044<GO>";
 
             int maxLineLength = 0;
+
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1536,13 +1549,14 @@ DEFINE_TEST_CASE(11) {
             const char* sample = BLOOMBERG_NEWS;
 
             int maxLineLength = 0;
+
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1588,13 +1602,14 @@ DEFINE_TEST_CASE(11) {
             const char* sample = BLOOMBERG_NEWS;
 
             int maxLineLength = 76;
+
             bdlde::Base64Encoder encoder;
             bdlde::Base64Decoder decoder(true);
 
-            int origSize = strlen(sample);
-            int encodedLen = encoder.encodedLength(origSize, maxLineLength);
+            int   origSize = strlen(sample);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
-            int maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -1636,7 +1651,8 @@ DEFINE_TEST_CASE(11) {
         }
 }
 
-DEFINE_TEST_CASE(10) {
+DEFINE_TEST_CASE(10)
+{
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Demonstrate that the example compiles, links, and runs.
@@ -1680,8 +1696,8 @@ DEFINE_TEST_CASE(10) {
 //     // negative value otherwise.
 //..
         bsl::istrstream inStream(BLOOMBERG_NEWS, sizeof(BLOOMBERG_NEWS));
-        bsl::strstream outStream;
-        bsl::strstream backInStream;
+        bsl::strstream  outStream;
+        bsl::strstream  backInStream;
 
         ASSERT(0 == streamEncoder(outStream, inStream));
         ASSERT(0 == streamDecoder(backInStream, outStream));
@@ -1689,7 +1705,8 @@ DEFINE_TEST_CASE(10) {
         ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.rdbuf()->str()));
 }
 
-DEFINE_TEST_CASE(9) {
+DEFINE_TEST_CASE(9)
+{
         // --------------------------------------------------------------------
         // RESET STATE
         //   Verify the 'resetState' method.
@@ -1753,7 +1770,8 @@ DEFINE_TEST_CASE(9) {
         }
 }
 
-DEFINE_TEST_CASE(8) {
+DEFINE_TEST_CASE(8)
+{
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS.
         //   Complete the testing of 'convert' and 'endConvert'.
@@ -2751,7 +2769,7 @@ DEFINE_TEST_CASE(8) {
 
                 // The following partitions the table in verbose mode.
 
-                if (depth != newDepth) {
+                if (newDepth != depth) {
                     if (verbose) cout << "\tDepth = " << newDepth << endl;
                     LOOP_ASSERT(LINE, newDepth > depth);
                     depth = newDepth;
@@ -2799,8 +2817,8 @@ DEFINE_TEST_CASE(8) {
 
                 // **  Prepare to process first 'convert' or 'endConvert'.  **
 
-                int totalOut = 0;
-                int totalIn = 0;
+                int   totalOut = 0;
+                int   totalIn = 0;
                 char *b = outputBuffer;
 
                 int result1;
@@ -2812,10 +2830,10 @@ DEFINE_TEST_CASE(8) {
                     result1 = obj.convert(b, &nOut1, &nIn1, B, E, LIMIT1);
                     {
                         char z[OUTPUT_BUFFER_SIZE];
-                        int no = -1;
-                        int ni = -1;
-                        int r1 = obj1.convert(z, &no, &ni, B, E, LIMIT1);
-                        int r2 = obj2.convert(z, &no, &ni, B, E, LIMIT1);
+                        int  no = -1;
+                        int  ni = -1;
+                        int  r1 = obj1.convert(z, &no, &ni, B, E, LIMIT1);
+                        int  r2 = obj2.convert(z, &no, &ni, B, E, LIMIT1);
                         LOOP3_ASSERT(LINE, result1, r1, result1 == r1);
                         LOOP3_ASSERT(LINE, result1, r2, result1 == r2);
                     }
@@ -2826,9 +2844,9 @@ DEFINE_TEST_CASE(8) {
                     result1 = obj.endConvert(b, &nOut1, LIMIT1);
                     {
                         char z[OUTPUT_BUFFER_SIZE];
-                        int no = -1;
-                        int r1 = obj1.endConvert(z, &no, LIMIT1);
-                        int r2 = obj2.endConvert(z, &no, LIMIT1);
+                        int  no = -1;
+                        int  r1 = obj1.endConvert(z, &no, LIMIT1);
+                        int  r2 = obj2.endConvert(z, &no, LIMIT1);
                         LOOP3_ASSERT(LINE, result1, r1, result1 == r1);
                         LOOP3_ASSERT(LINE, result1, r2, result1 == r2);
                     }
@@ -2853,9 +2871,9 @@ DEFINE_TEST_CASE(8) {
                     result2 = obj.convert(b, &nOut2, &nIn2, B, E, LIMIT2);
                     {
                         char z[OUTPUT_BUFFER_SIZE];
-                        int no = -1;
-                        int ni = -1;
-                        int r2 = obj2.convert(z, &no, &ni, B, E, LIMIT2);
+                        int  no = -1;
+                        int  ni = -1;
+                        int  r2 = obj2.convert(z, &no, &ni, B, E, LIMIT2);
                         LOOP3_ASSERT(LINE, result2, r2, result2 == r2);
                     }
                     totalOut += nOut2;
@@ -2865,8 +2883,8 @@ DEFINE_TEST_CASE(8) {
                     result2 = obj.endConvert(b, &nOut2, LIMIT2);
                     {
                         char z[OUTPUT_BUFFER_SIZE];
-                        int no = -1;
-                        int r2 = obj2.endConvert(z, &no, LIMIT2);
+                        int  no = -1;
+                        int  r2 = obj2.endConvert(z, &no, LIMIT2);
                         LOOP3_ASSERT(LINE, result2, r2, result2 == r2);
                     }
                     totalOut += nOut2;
@@ -2921,7 +2939,7 @@ DEFINE_TEST_CASE(8) {
                 for (int index = 0; index <= LEN1; ++index) {
                     if (veryVeryVerbose) { T_ T_ T_ T_ P(index) }
 
-                    Obj localObj(MODE);
+                    Obj  localObj(MODE);
                     char localBuf[sizeof outputBuffer];
                     memset(localBuf, '$', sizeof localBuf);
                     char *lb = localBuf;
@@ -2935,10 +2953,10 @@ DEFINE_TEST_CASE(8) {
                         result1 = obj.convert(b, &nOut1, &nIn1, B, E, LIMIT1);
                     {
                         char z[OUTPUT_BUFFER_SIZE];
-                        int no = -1;
-                        int ni = -1;
-                        int r1 = obj1.convert(z, &no, &ni, B, E, LIMIT1);
-                        int r2 = obj2.convert(z, &no, &ni, B, E, LIMIT1);
+                        int  no = -1;
+                        int  ni = -1;
+                        int  r1 = obj1.convert(z, &no, &ni, B, E, LIMIT1);
+                        int  r2 = obj2.convert(z, &no, &ni, B, E, LIMIT1);
                         LOOP3_ASSERT(LINE, result1, r1, result1 == r1);
                         LOOP3_ASSERT(LINE, result1, r2, result1 == r2);
                     }
@@ -2949,9 +2967,9 @@ DEFINE_TEST_CASE(8) {
                     result1 = obj.endConvert(b, &nOut1, LIMIT1);
                     {
                         char z[OUTPUT_BUFFER_SIZE];
-                        int no = -1;
-                        int r1 = obj1.endConvert(z, &no, LIMIT1);
-                        int r2 = obj2.endConvert(z, &no, LIMIT1);
+                        int  no = -1;
+                        int  r1 = obj1.endConvert(z, &no, LIMIT1);
+                        int  r2 = obj2.endConvert(z, &no, LIMIT1);
                         LOOP3_ASSERT(LINE, result1, r1, result1 == r1);
                         LOOP3_ASSERT(LINE, result1, r2, result1 == r2);
                     }
@@ -2969,8 +2987,8 @@ DEFINE_TEST_CASE(8) {
                     char localBuf[sizeof outputBuffer];
                     memset(localBuf, '$', sizeof localBuf);
                     char *lb = localBuf;
-                    int localNumIn;
-                    int localNumOut;
+                    int   localNumIn;
+                    int   localNumOut;
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 1: ";
@@ -3071,7 +3089,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         } // end block
 }
 
-DEFINE_TEST_CASE(7) {
+DEFINE_TEST_CASE(7)
+{
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS WITH DEFAULT ARGUMENTS.
         //   Continue testing 'convert' and 'endConvert' with defaults
@@ -3149,18 +3168,19 @@ DEFINE_TEST_CASE(7) {
         if (verbose) cout << endl << "\nVerifying State Transitions." << endl;
         {
             static const struct {
-                int d_lineNum;          // source line number
+                int         d_lineNum;      // source line number
 
-                bool d_strictMode;      // supplied to primary constructor
-                const char *d_input_p;  // input characters (null terminated)
-                int d_stateOne;         // state after input data
-                char d_char;            // transition character
-                int d_stateTwo;         // state after transition character
+                bool        d_strictMode;   // supplied to primary constructor
+                const char *d_input_p;      // input characters (0 terminated)
+                int         d_stateOne;     // state after input data
+                char        d_char;         // transition character
+                int         d_stateTwo;     // state after transition character
 
-                bool d_isError;         // if true ERROR_STATE else DONE_STATE
-                int d_numOut;           // number of output characters
-                int d_numIn;            // number of input characters
-                const char *d_output_p; // expected output data
+                bool        d_isError;      // if true ERROR_STATE else
+                                            // DONE_STATE
+                int         d_numOut;       // number of output characters
+                int         d_numIn;        // number of input characters
+                const char *d_output_p;     // expected output data
             } DATA[] = {
 //--------------^
 
@@ -3686,7 +3706,7 @@ DEFINE_TEST_CASE(7) {
                 if (newDepth < depth) {
                     if (verbose) cout << "\nVerifying Decoding Logic." << endl;
                 }
-                if (depth != newDepth) {
+                if (newDepth != depth) {
                     if (verbose) cout << "\tDepth = " << newDepth << endl;
                     depth = newDepth;
                 }
@@ -3706,17 +3726,17 @@ DEFINE_TEST_CASE(7) {
 
                 // Prepare to invoke 'convert' on initial input.
 
-                char *b = outputBuffer;
-                int nOut = -1;
-                int nIn = -1;
+                char     *b = outputBuffer;
+                int       nOut = -1;
+                int       nIn = -1;
                 const int RES = obj.convert(b, &nOut, &nIn, B, E);
-                int totalOut = nOut;
-                int totalIn = nIn;
+                int       totalOut = nOut;
+                int       totalIn = nIn;
                 b += nOut;
                 {
                     char b[OUTPUT_BUFFER_SIZE];
-                    int nOut;
-                    int nIn;
+                    int  nOut;
+                    int  nIn;
                     obj1.convert(b, &nOut, &nIn, B, E); // update S1 control
                     obj2.convert(b, &nOut, &nIn, B, E); // update S2 control
 
@@ -3735,8 +3755,8 @@ DEFINE_TEST_CASE(7) {
                 b += nOut;
                 {
                     char b[OUTPUT_BUFFER_SIZE];
-                    int nOut;
-                    int nIn;
+                    int  nOut;
+                    int  nIn;
                     obj2.convert(b, &nOut, &nIn, BB, EE); // update S2 control
 
                     // Verify state after additional transition character.
@@ -3797,23 +3817,24 @@ DEFINE_TEST_CASE(7) {
                 LOOP_ASSERT(LINE, '?' == outputBuffer[sizeof outputBuffer - 1])
 
                 // ORTHOGONAL PERTURBATION:
-                // For each index in [0, LENGTH], partition the input
-                // into two sequences, apply these sequences, in turn, to a
-                // newly created instance, and verify that the result is
-                // identical to that of the original (unpartitioned) sequence.
+
+                // For each index in [0, LENGTH], partition the input into two
+                // sequences, apply these sequences, in turn, to a newly
+                // created instance, and verify that the result is identical to
+                // that of the original (unpartitioned) sequence.
 
                 for (int index = 0; index <= LENGTH; ++index) {
                     if (veryVeryVerbose) { T_ T_ T_ T_ P(index) }
 
                     // Prepare for first call to 'convert'.
 
-                    Obj localObj(MODE);
+                    Obj               localObj(MODE);
                     const char *const M = B + index;
-                    char localBuf[sizeof outputBuffer];
+                    char              localBuf[sizeof outputBuffer];
                     memset(localBuf, '$', sizeof localBuf);
-                    char *lb = localBuf;
-                    int localNumIn;
-                    int localNumOut;
+                    char             *lb = localBuf;
+                    int               localNumIn;
+                    int               localNumOut;
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 1: ";
@@ -3918,7 +3939,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         } // end block
 }
 
-DEFINE_TEST_CASE(6) {
+DEFINE_TEST_CASE(6)
+{
         // --------------------------------------------------------------------
         // VERIFY INTERNAL TABLES.
         //   Ensure that each internal table has the appropriate entries.
@@ -3948,9 +3970,9 @@ DEFINE_TEST_CASE(6) {
                 "\nVerify is numeric Base64 char (256 entries)." << endl;
         {
             static const struct {
-                int d_lineNum;  // source line number
-                int d_upto;     // indicated ending character code
-                bool d_valid;   // true if expected member of set
+                int  d_lineNum;  // source line number
+                int  d_upto;     // indicated ending character code
+                bool d_valid;    // true if expected member of set
 
             } DATA[] = {
                 //lin  UpTo Valid
@@ -3969,12 +3991,12 @@ DEFINE_TEST_CASE(6) {
 
             const int  INPUT_LENGTH = 4;
             const int  INPUT_INDEX  = 0;
-            char input[INPUT_LENGTH] = { '_', 'A', 'A', 'A' };
+            char       input[INPUT_LENGTH] = { '_', 'A', 'A', 'A' };
 
             const char *const B = input, *const E = B + INPUT_LENGTH;
-            char b[3];
-            int nOut;
-            int nIn;
+            char              b[3];
+            int               nOut;
+            int               nIn;
 
             int end = 0;
 
@@ -4016,9 +4038,9 @@ DEFINE_TEST_CASE(6) {
                 "\nVerify ignorable chars/Strict mode (256 entries)." << endl;
         {
             static const struct {
-                int d_lineNum;  // source line number
-                int d_upto;     // indicated ending character code
-                bool d_valid;   // true if expected member of set
+                int  d_lineNum;  // source line number
+                int  d_upto;     // indicated ending character code
+                bool d_valid;    // true if expected member of set
 
             } DATA[] = {
                 //lin  UpTo  Valid
@@ -4033,12 +4055,13 @@ DEFINE_TEST_CASE(6) {
 
             const int INPUT_LENGTH = 1;
             const int INPUT_INDEX  = 0;
-            char input[INPUT_LENGTH] = { '_' };
+            char      input[INPUT_LENGTH] = { '_' };
 
             const char *const B = input, *const E = B + INPUT_LENGTH;
+
             char b[3];
-            int nOut;
-            int nIn;
+            int  nOut;
+            int  nIn;
 
             int end = 0;
 
@@ -4080,9 +4103,9 @@ DEFINE_TEST_CASE(6) {
                 "\nVerify ignorable chars/Relaxed mode (256 entries)." << endl;
         {
             static const struct {
-                int d_lineNum;  // source line number
-                int d_upto;     // indicated ending character code
-                bool d_valid;   // true if expected member of set
+                int  d_lineNum;  // source line number
+                int  d_upto;     // indicated ending character code
+                bool d_valid;    // true if expected member of set
 
             } DATA[] = {
                 { L_,  43,  true  },
@@ -4101,12 +4124,13 @@ DEFINE_TEST_CASE(6) {
 
             const int INPUT_LENGTH = 1;
             const int INPUT_INDEX  = 0;
-            char input[INPUT_LENGTH] = { '_' };
+            char      input[INPUT_LENGTH] = { '_' };
 
             const char *const B = input, *const E = B + INPUT_LENGTH;
+
             char b[3];
-            int nOut;
-            int nIn;
+            int  nOut;
+            int  nIn;
 
             int end = 0;
 
@@ -4148,9 +4172,9 @@ DEFINE_TEST_CASE(6) {
                 "\nVerify chars before '=' in state 2 (256 entries)." << endl;
         {
             static const struct {
-                int d_lineNum;  // source line number
-                int d_upto;     // indicated ending character code
-                bool d_valid;   // true if expected member of set
+                int  d_lineNum;  // source line number
+                int  d_upto;     // indicated ending character code
+                bool d_valid;    // true if expected member of set
 
             } DATA[] = {
                 //lin  UpTo  Valid
@@ -4169,11 +4193,11 @@ DEFINE_TEST_CASE(6) {
 
             const int INPUT_LENGTH = 4;
             const int INPUT_INDEX  = 1;
-            char input[INPUT_LENGTH] = { 'A', '_', '=', '=' };
+            char      input[INPUT_LENGTH] = { 'A', '_', '=', '=' };
 
             const char *const B = input, *const E = B + INPUT_LENGTH;
-            int nIn;
 
+            int nIn;
             int end = 0;
 
             // MAIN TEST-TABLE LOOP
@@ -4200,9 +4224,9 @@ DEFINE_TEST_CASE(6) {
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-                    int nOut = -1;
+                    int  nOut = -1;
                     char b[1] = { -1 };
-                    Obj obj(false); // Do this test in Relaxed mode.
+                    Obj  obj(false); // Do this test in Relaxed mode.
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     if (VALID) {
@@ -4227,9 +4251,9 @@ DEFINE_TEST_CASE(6) {
                 "\nVerify chars before '=' in state 3 (256 entries)." << endl;
         {
             static const struct {
-                int d_lineNum;  // source line number
-                int d_upto;     // indicated ending character code
-                bool d_valid;   // true if expected member of set
+                int  d_lineNum;  // source line number
+                int  d_upto;     // indicated ending character code
+                bool d_valid;    // true if expected member of set
 
             } DATA[] = {
                 //lin  UpTo  Valid
@@ -4275,11 +4299,11 @@ DEFINE_TEST_CASE(6) {
 
             const int INPUT_LENGTH = 4;
             const int INPUT_INDEX  = 2;
-            char input[INPUT_LENGTH] = { 'A', 'A', '_', '=' };
+            char      input[INPUT_LENGTH] = { 'A', 'A', '_', '=' };
 
             const char *const B = input, *const E = B + INPUT_LENGTH;
-            int nIn;
 
+            int nIn;
             int end = 0;
 
             // MAIN TEST-TABLE LOOP
@@ -4306,9 +4330,9 @@ DEFINE_TEST_CASE(6) {
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-                    int nOut = -1;
+                    int  nOut = -1;
                     char b[2] = { -1, -1 };
-                    Obj obj(true); // Do this test in Strict Mode.
+                    Obj  obj(true); // Do this test in Strict Mode.
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     LOOP3_ASSERT(LINE, i, nOut,
@@ -4340,7 +4364,7 @@ DEFINE_TEST_CASE(6) {
 
             const int INPUT_LENGTH = 4;
             const int INPUT_INDEX  = 3;
-            char input[INPUT_LENGTH] = { 'A', 'A', 'A', '_' };
+            char      input[INPUT_LENGTH] = { 'A', 'A', 'A', '_' };
 
             const char *const B = input, *const E = B + INPUT_LENGTH;
 
@@ -4349,10 +4373,10 @@ DEFINE_TEST_CASE(6) {
 
             // MAIN TEST-TABLE LOOP
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE   = DATA[ti].d_lineNum;
+                const int  LINE   = DATA[ti].d_lineNum;
                 const char FROM  = DATA[ti].d_from;
                 const char TO    = DATA[ti].d_to;
-                const int OFFSET = DATA[ti].d_offset;
+                const int  OFFSET = DATA[ti].d_offset;
 
                 LOOP3_ASSERT(LINE, FROM, TO, TO >= FROM);
                 LOOP3_ASSERT(LINE, OFFSET, oldOffset, OFFSET > oldOffset);
@@ -4373,10 +4397,11 @@ DEFINE_TEST_CASE(6) {
                     if (veryVeryVerbose) { T_ T_ P_(c) P(int(c)) }
 
                     char b[3] = { -1, -1, -1 };
-                    int nOut = -1;
-                    int nIn = -1;
+                    int  nOut = -1;
+                    int  nIn = -1;
                     input[INPUT_INDEX] = c;
-                    Obj obj(false); // Do test in Relaxed Mode.
+                    Obj  obj(false); // Do test in Relaxed Mode.
+
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
 
                     LOOP3_ASSERT(ti, c, res,       0 == res);
@@ -4391,7 +4416,8 @@ DEFINE_TEST_CASE(6) {
         }
 }
 
-DEFINE_TEST_CASE(5) {
+DEFINE_TEST_CASE(5)
+{
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'convert' - transitions
         //   Verify 'convert' transitions for all states.
@@ -4428,11 +4454,11 @@ DEFINE_TEST_CASE(5) {
         if (verbose) cout << "\nVerify 'convert' - transitions." << endl;
         {
             static const struct {
-                int d_lineNum;          // source line number
-                int d_startState;       // indicated starting state
-                const char *d_input_p;  // input characters
-                int d_expNumIn;         // expected num input chars consumed
-                int d_endState;         // expected ending state
+                int         d_lineNum;     // source line number
+                int         d_startState;  // indicated starting state
+                const char *d_input_p;     // input characters
+                int         d_expNumIn;    // expected num input chars consumed
+                int         d_endState;    // expected ending state
 
             } DATA[] = {//-----------input-------v  v---output-----v
                 //lin  Starting State  Input Chars  nIn Ending State Depth = 0
@@ -4597,28 +4623,28 @@ DEFINE_TEST_CASE(5) {
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             char b[3];
-            int nOut;
-            int nIn;
+            int  nOut;
+            int  nIn;
 
             int lastInputLength = -1;
 
             // MAIN TEST-TABLE LOOP
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE          = DATA[ti].d_lineNum;
-                const int START         = DATA[ti].d_startState;
-                const char *const INPUT = DATA[ti].d_input_p;
-                const int EXP_NUM_IN    = DATA[ti].d_expNumIn;
-                const int END           = DATA[ti].d_endState;
-                const int RTN           = ERROR_STATE == END
+                const int         LINE       = DATA[ti].d_lineNum;
+                const int         START      = DATA[ti].d_startState;
+                const char *const INPUT      = DATA[ti].d_input_p;
+                const int         EXP_NUM_IN = DATA[ti].d_expNumIn;
+                const int         END        = DATA[ti].d_endState;
+                const int         RTN        = ERROR_STATE == END
                                                 ? DONE_STATE == START ? -2 : -1
                                                 : 0;
-                const int LENGTH        = strlen(INPUT);
-                const char *const B     = INPUT;
-                const char *const E     = B + LENGTH;
+                const int         LENGTH     = strlen(INPUT);
+                const char *const B          = INPUT;
+                const char *const E          = B + LENGTH;
 
                 Obj obj(false);
 
-                if (lastInputLength != LENGTH) {
+                if (LENGTH != lastInputLength) {
                     if (verbose) cout << '\t' << LENGTH << " input character"
                                       << (1 == LENGTH ? "." : "s.") << endl;
                     lastInputLength = LENGTH;
@@ -4640,7 +4666,8 @@ DEFINE_TEST_CASE(5) {
         } // end block
 }
 
-DEFINE_TEST_CASE(4) {
+DEFINE_TEST_CASE(4)
+{
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'endConvert' - transitions
         //   Verify 'endConvert' transitions for all states.
@@ -4688,7 +4715,7 @@ DEFINE_TEST_CASE(4) {
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             char b[3];
-            int numOut;
+            int  numOut;
 
             // MAIN TEST-TABLE LOOP
             for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -4714,7 +4741,8 @@ DEFINE_TEST_CASE(4) {
         } // end block
 }
 
-DEFINE_TEST_CASE(3) {
+DEFINE_TEST_CASE(3)
+{
         // --------------------------------------------------------------------
         // SET-STATE, IS-STATE, AND BASIC ACCESSORS.
         //   Ensure that we can bring an object to any attainable state.
@@ -4746,7 +4774,7 @@ DEFINE_TEST_CASE(3) {
         //
         //   We can now declare the basic accessors to have been tested,
         //   mindful that the state values they return are calculated by the
-        //   the primary manipulators which have not yet been fully tested.
+        //   the primary manipulators that have not yet been fully tested.
         //
         // Tactics:
         //   - Ad-Hoc and Area Data Selection Methods
@@ -4805,8 +4833,8 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(0 == obj.outputLength());
 
                 char b[3] = { -1, -1, -1 };
-                int numOut = -1;
-                int result = obj.endConvert(b, &numOut);
+                int  numOut = -1;
+                int  result = obj.endConvert(b, &numOut);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
                 ASSERT(1 == obj.isAcceptable());
@@ -4835,10 +4863,10 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[3] = { -1, -1, -1 };
-                int numOut = -1;
-                int numIn = -1;
-                const char input = 'A';
+                char              b[3] = { -1, -1, -1 };
+                int               numOut = -1;
+                int               numIn = -1;
+                const char        input = 'A';
                 const char *const B = &input;
                 const char *const E = B + 1;
 
@@ -4904,10 +4932,10 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(1 == obj.outputLength());
 
-                char b[3] = { 0, -1, -1 };
-                int numOut = -1;
-                int numIn = -1;
-                const char input = 'A';
+                char              b[3] = { 0, -1, -1 };
+                int               numOut = -1;
+                int               numIn = -1;
+                const char        input = 'A';
                 const char *const B = &input;
                 const char *const E = B + 1;
 
@@ -4957,10 +4985,10 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(2 == obj.outputLength());
 
-                char b[3] = { 0, 0, -1 };
-                int numOut = -1;
-                int numIn = -1;
-                const char input = 'A';
+                char              b[3] = { 0, 0, -1 };
+                int               numOut = -1;
+                int               numIn = -1;
+                const char        input = 'A';
                 const char *const B = &input;
                 const char *const E = B + 1;
 
@@ -4994,10 +5022,10 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(3 == obj.outputLength());
 
-                char b[3] = { -1, -1, -1 };
-                int numOut = -1;
-                int numIn = -1;
-                char input = 'A';
+                char              b[3] = { -1, -1, -1 };
+                int               numOut = -1;
+                int               numIn = -1;
+                char              input = 'A';
                 const char *const B = &input;
                 const char *const E = B + 1;
 
@@ -5031,10 +5059,10 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[3] = { -1, -1, -1 };
-                int numOut = -1;
-                int numIn = -1;
-                const char input = 'A';
+                char              b[3] = { -1, -1, -1 };
+                int               numOut = -1;
+                int               numIn = -1;
+                const char        input = 'A';
                 const char *const B = &input;
                 const char *const E = B + 1;
 
@@ -5069,8 +5097,8 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(2 == obj.outputLength());  // "AAA="
 
                 char b[4] = { -1, -1, -1, -1 };
-                int numOut = -1;
-                int result = obj.endConvert(b, &numOut);
+                int  numOut = -1;
+                int  result = obj.endConvert(b, &numOut);
 
                 // DONE_STATE
                 ASSERT(1 == obj.isUnrecognizedAnError());
@@ -5103,9 +5131,10 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(1 == obj.outputLength());
 
                 char b[3] = { -1, -1, -1 };
-                int numOut = -1;
-                int numIn = -1;
-                const char input = '=';
+                int  numOut = -1;
+                int  numIn = -1;
+
+                const char        input = '=';
                 const char *const B = &input;
                 const char *const E = B + 1;
 
@@ -5140,9 +5169,10 @@ DEFINE_TEST_CASE(3) {
                 ASSERT(0 == obj.outputLength());
 
                 char b[3] = { -1, -1, -1 };
-                int numOut = -1;
-                int numIn = -1;
-                const char input = 'A';
+                int  numOut = -1;
+                int  numIn = -1;
+
+                const char        input = 'A';
                 const char *const B = &input;
                 const char *const E = B + 1;
 
@@ -5191,7 +5221,8 @@ DEFINE_TEST_CASE(3) {
         }
 }
 
-DEFINE_TEST_CASE(2) {
+DEFINE_TEST_CASE(2)
+{
         // --------------------------------------------------------------------
         // PRIMARY CONSTRUCTOR AND CONFIGURATION STATE ACCESSORS
         //   Make sure we can bring the object to any attainable state.
@@ -5245,7 +5276,8 @@ DEFINE_TEST_CASE(2) {
         }
 }
 
-DEFINE_TEST_CASE(1) {
+DEFINE_TEST_CASE(1)
+{
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case is available to be used as a developers' sandbox.
@@ -5291,7 +5323,7 @@ DEFINE_TEST_CASE(1) {
                                                                        << endl;
         {
             static char buf[100];
-            ostrstream out(buf, sizeof buf);
+            ostrstream  out(buf, sizeof buf);
 
             const char in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                               "e" "\x10" "f" "\x80" "g" "\xFF";
@@ -5315,9 +5347,9 @@ DEFINE_TEST_CASE(1) {
 
             char out[1000];
             memset(out, '@', sizeof out);  // initialize to unusual char
-            int outIdx = 0;
-            int numIn = 0;
-            int numOut = 0;
+            int  outIdx = 0;
+            int  numIn = 0;
+            int  numOut = 0;
 
             //              begin:    0   1  3   4   7   8  10     13   19END
             //                end:    1   3  4   7   8  10  13     19   20INPUT
@@ -5329,7 +5361,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: ^A." << endl;
             {
                 const char *const begin = input + 0;
-                const char *const   end = input + 1;
+                const char *const end   = input + 1;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5346,7 +5378,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: A^AA." << endl;
             {
                 const char *const begin = input + 1;
-                const char *const   end = input + 3;
+                const char *const end   = input + 3;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5363,7 +5395,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: AAA^A." << endl;
             {
                 const char *const begin = input + 3;
-                const char *const   end = input + 4;
+                const char *const end   = input + 4;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5381,7 +5413,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: AAAA^AAA." << endl;
             {
                 const char *const begin = input + 4;
-                const char *const   end = input + 7;
+                const char *const end   = input + 7;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5399,7 +5431,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: AAAAAAA^A." << endl;
             {
                 const char *const begin = input + 7;
-                const char *const   end = input + 8;
+                const char *const end   = input + 8;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5417,7 +5449,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: AAAAAAAA^AA." << endl;
             {
                 const char *const begin = input + 8;
-                const char *const   end = input + 10;
+                const char *const end   = input + 10;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5435,7 +5467,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: AAAAAAAAAA^AAA." << endl;
             {
                 const char *const begin = input + 10;
-                const char *const   end = input + 13;
+                const char *const end   = input + 13;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5453,7 +5485,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: AAAAAAAAAAAAA^AAAAA=." << endl;
             {
                 const char *const begin = input + 13;
-                const char *const   end = input + 19;
+                const char *const end   = input + 19;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5471,7 +5503,7 @@ DEFINE_TEST_CASE(1) {
             if (verbose) cout << "\tDecode: AAAAAAAAAAAAAAAAAA=^=." << endl;
             {
                 const char *const begin = input + 19;
-                const char *const   end = input + 20;
+                const char *const end   = input + 20;
 
                 decoder.convert(out + outIdx, &numOut, &numIn, begin, end);
                 outIdx += numOut;
@@ -5523,9 +5555,9 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#define CASE(NUMBER)                                                           \
-  case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,         \
-                                                     veryVeryVeryVerbose); break
+#define CASE(NUMBER)                                                          \
+  case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,        \
+                                                    veryVeryVeryVerbose); break
 
         CASE(11);
         CASE(10);
@@ -5552,11 +5584,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

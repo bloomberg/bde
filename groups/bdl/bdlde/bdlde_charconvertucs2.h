@@ -316,10 +316,10 @@ struct CharConvertUcs2 {
         // invalid input characters are ignored (i.e., produce no corresponding
         // output characters).  Return 0 on success and a bitwise-or of the
         // masks specified by 'CharConvertStatus::Enum' otherwise, with
-        // 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' set to indicate
-        // that at least one invalid input sequence was encountered, and
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set to indicate
-        // that 'dstCapacity' was insufficient to accommodate the output.  If
+        // 'CharConvertStatus::k_INVALID_CHARS_BIT' set to indicate that at
+        // least one invalid input sequence was encountered, and
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set to indicate that
+        // 'dstCapacity' was insufficient to accommodate the output.  If
         // 'dstCapacity' was insufficient, the maximal null-terminated prefix
         // of the properly converted result string is loaded into 'dstBuffer',
         // and (unless null) '*numCharsWritten' is set to 'dstCapacity'.  The
@@ -362,23 +362,22 @@ struct CharConvertUcs2 {
         // into which the number of *bytes* written (including the null
         // terminator) is to be loaded.  Return 0 on success and a bitwise-or
         // of the masks specified by 'CharConvertStatus::Enum' otherwise,
-        // with 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' set to
-        // indicate that at least one invalid input sequence was encountered,
-        // and 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set to
-        // indicate that 'dstCapacity' was insufficient to accommodate the
-        // output.  If 'dstCapacity' was insufficient, the maximal
-        // null-terminated prefix of the properly converted result string is
-        // loaded into 'dstBuffer'.  The behavior is undefined unless
-        // '0 <= dstCapacity', 'dstBuffer' refers to an array of at least
-        // 'dstCapacity' elements, and 'srcString' is null-terminated.  Note
-        // that if 'dstCapacity' is 0, this function returns exactly 2 and
-        // '*numCharsWritten' and '*numBytesWritten' (if not null) are loaded
-        // with 0 (since there is insufficient space for the null terminator
-        // even for an empty input string).  Also note that since UTF-8 is a
-        // variable-length encoding, it is possible for 'numBytesWritten' to be
-        // greater than 'numCharsWritten', and therefore that an input
-        // 'srcString' of 'dstCapacity - 1' *characters* may not fit into
-        // 'dstBuffer'.
+        // with 'CharConvertStatus::k_INVALID_CHARS_BIT' set to indicate that
+        // at least one invalid input sequence was encountered, and
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set to indicate that
+        // 'dstCapacity' was insufficient to accommodate the output.  If
+        // 'dstCapacity' was insufficient, the maximal null-terminated prefix
+        // of the properly converted result string is loaded into 'dstBuffer'.
+        // The behavior is undefined unless '0 <= dstCapacity', 'dstBuffer'
+        // refers to an array of at least 'dstCapacity' elements, and
+        // 'srcString' is null-terminated.  Note that if 'dstCapacity' is 0,
+        // this function returns exactly 2 and '*numCharsWritten' and
+        // '*numBytesWritten' (if not null) are loaded with 0 (since there is
+        // insufficient space for the null terminator even for an empty input
+        // string).  Also note that since UTF-8 is a variable-length encoding,
+        // it is possible for 'numBytesWritten' to be greater than
+        // 'numCharsWritten', and therefore that an input 'srcString' of
+        // 'dstCapacity - 1' *characters* may not fit into 'dstBuffer'.
 
     static int ucs2ToUtf8(bsl::string          *result,
                           const unsigned short *srcString,

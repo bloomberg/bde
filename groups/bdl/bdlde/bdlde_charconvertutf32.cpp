@@ -126,9 +126,9 @@ enum {
     // is never set.
 
     k_INVALID_CHARS_BIT =
-                 BloombergLP::bdlde::CharConvertStatus::BDEDE_INVALID_CHARS_BIT,
+                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_CHARS_BIT,
     k_OUT_OF_SPACE_BIT  =
-                 BloombergLP::bdlde::CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT
+                    BloombergLP::bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT
 };
 
 enum Utf8Bits {

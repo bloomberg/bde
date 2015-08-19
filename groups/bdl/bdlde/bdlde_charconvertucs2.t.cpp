@@ -1,10 +1,11 @@
-// bdlde_charconvertucs2.t.cpp              -*-C++-*-
+// bdlde_charconvertucs2.t.cpp                                        -*-C++-*-
 
 #include <bdlde_charconvertucs2.h>
 
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 #include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
 #include <bsls_stopwatch.h>
@@ -13,26 +14,26 @@ using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 
-//===========================================================================
+//=============================================================================
 //                                TEST PLAN
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
 // Exercise boundary cases for both of the conversion mappings as well as
 // handling of buffer capacity issues.
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 3] utf8ToUcs2
 // [ 4] ucs2ToUtf8
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] Breathing test
 // [ 2] Enumeration
 // [ 5] USAGE EXAMPLE 1
 // [ 6] USAGE EXAMPLE 2
 // [ 7] USAGE EXAMPLE 3
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static int testStatus = 0;
 
@@ -47,9 +48,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//===========================================================================
+//=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -90,13 +91,13 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
 //=============================================================================
-//                  CUSTOM TEST APPARATUS
+//                           CUSTOM TEST APPARATUS
 //-----------------------------------------------------------------------------
 
 // 'ArrayPrinter(pointer, length)' simplifies printing out array values from
 // LOOP_ASSERT failures.
 
-template <typename T>
+template <class T>
 struct ArrayPrinter {
     const T*   d_ptr;
     size_t     d_size;
@@ -108,13 +109,13 @@ struct ArrayPrinter {
     }
 };
 
-template <typename T>
+template <class T>
 ArrayPrinter<T> makeArrayPrinter(const T* ptr, size_t size)
 {
     return ArrayPrinter<T>(ptr, size);
 }
 
-template <typename T>
+template <class T>
 ostream &operator <<(ostream &os, const ArrayPrinter<T> &t)
 {
     os << "[";
@@ -576,8 +577,8 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
 // input strings in 'inputBuffer' and output strings in 'outputBuffer', and
 // call 'checkForExpectedConversionResultsU2ToU8' to make sure that the results
 // match.  'inputCursor' and 'outputCursor' point to the "current position" in
-// the respective buffers where this level of the recursion will operate.
-// The recursion terminates once 'depth <= 0'.
+// the respective buffers where this level of the recursion will operate.  The
+// recursion terminates once 'depth <= 0'.
 
 void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             depth,
@@ -659,8 +660,8 @@ void testSingleOctetPerturbation(const char             *input,
                                  unsigned short         *characterSizes,
                                  bsl::size_t             characterCount,
                                  const PerturbationDesc &perturb,
-                                 int                    verbose,
-                                 int                    veryVerbose)
+                                 int                     verbose,
+                                 int                     veryVerbose)
 {
     char           inputBuffer[256];
 
@@ -729,8 +730,8 @@ void testSingleOctetPerturbation(const char             *input,
 
     ASSERT ( charsWritten == characterCount );
 
-    // Adjust the position in the output of the character we
-    // changed by adding 'before'.
+    // Adjust the position in the output of the character we changed by adding
+    // 'before'.
 
     pos += before;
 
@@ -1177,8 +1178,8 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
 // input strings in 'inputBuffer' and output strings in 'outputBuffer', and
 // call 'checkForExpectedConversionResultsU8ToU2' to make sure that the results
 // match.  'inputCursor' and 'outputCursor' point to the "current position" in
-// the respective buffers where this level of the recursion will operate.
-// The recursion terminates once 'depth <= 0'.
+// the respective buffers where this level of the recursion will operate.  The
+// recursion terminates once 'depth <= 0'.
 
 void buildUpAndTestStringsU8ToU2(int             idx,
                                  int             depth,
@@ -2508,7 +2509,7 @@ int runPlainTextPerformanceTest(void)
 
 int main(int argc, char**argv)
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
@@ -2638,23 +2639,20 @@ int main(int argc, char**argv)
            "\nTesting 'bdlde::CharConvertUcs2::ucs2ToUtf8'." << endl;
         {
             static const struct {
-                int                   d_lineNum;        // source line
-                                                        // number
+                int                   d_lineNum;        // source line number
 
-                const char           *d_output_p;       // utf-8 input
-                                                        // string
+                const char           *d_output_p;       // utf-8 input string
 
-                const unsigned short  d_spec_p[256];    // expected ucs2
-                                                        // output
+                const unsigned short  d_spec_p[256];    // expected ucs2 output
 
-                bsl::size_t           d_bufsize;        // buffer size to
-                                                        // claim
+                bsl::size_t           d_bufsize;        // buffer size to claim
+                                                        //
 
-                bsl::size_t           d_expectedChar;   // expected output
-                                                        // char count
+                bsl::size_t           d_expectedChar;   // expected output char
+                                                        // count
 
-                bsl::size_t           d_expectedByte;   // expected output
-                                                        // byte count
+                bsl::size_t           d_expectedByte;   // expected output byte
+                                                        // count
 
                 int                   d_expectedResult; // expected result
             } DATA[] = {
@@ -2941,20 +2939,16 @@ int main(int argc, char**argv)
           "\nTesting 'bdlde::CharConvertUcs2::utf8ToUcs2'." << endl;
         {
             static const struct {
-                int                   d_lineNum;        // source line
-                                                        // number
+                int                   d_lineNum;        // source line number
 
-                const char           *d_spec_p;         // utf-8 input
-                                                        // string
+                const char           *d_spec_p;         // utf-8 input string
 
-                const unsigned short  d_output_p[256];  // expected ucs2
-                                                        // output
+                const unsigned short  d_output_p[256];  // expected ucs2 output
 
-                bsl::size_t           d_bufsize;        // buffer size to
-                                                        // claim
+                bsl::size_t           d_bufsize;        // buffer size to claim
 
-                bsl::size_t           d_expectedCount;  // expected output
-                                                        // char count
+                bsl::size_t           d_expectedCount;  // expected output char
+                                                        // count
 
                 int                   d_expectedResult; // expected result
             } DATA[] = {
@@ -3249,11 +3243,11 @@ int main(int argc, char**argv)
                 static const struct {
                     int            d_lineNum;       // source line number
 
-                    unsigned short d_placeholder;   // placeholder
-                                                    // character to test
+                    unsigned short d_placeholder;   // placeholder character to
+                                                    // test
 
-                    unsigned short d_expectedWidth; // space we expect it
-                                                    // to use
+                    unsigned short d_expectedWidth; // space we expect it to
+                                                    // use
                 } DATA[] = {
                     { L_, '?',    1},
                     { L_, '*',    1},
@@ -3385,6 +3379,7 @@ int main(int argc, char**argv)
         testStatus=0;
 
         // Check return value enumeration:
+
         // Return 0 on success
 
         ASSERT( 0 == SUCCESS );
@@ -3453,11 +3448,11 @@ int main(int argc, char**argv)
     return testStatus;
 }
 
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2008
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE -------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

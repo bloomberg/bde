@@ -225,11 +225,11 @@ struct CharConvertUtf32 {
         // encodings in the input string.  Optionally specify 'byteOrder' to
         // indicate the byte order of the UTF-32 output; if 'byteOrder' is not
         // specified, the output is assumed to be in host byte order.  Return 0
-        // on success and 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT'
-        // otherwise.  Invalid encodings are multi-byte encoding parts out of
-        // sequence, non-minimal UTF-8 encodings of characters, UTF-8 encodings
-        // more than four bytes in length, or characters outside the ranges
-        // which UTF-32 can validly encode (i.e., '[ 1 .. 0xd7ff ]' and
+        // on success and 'CharConvertStatus::k_INVALID_CHARS_BIT' otherwise.
+        // Invalid encodings are multi-byte encoding parts out of sequence,
+        // non-minimal UTF-8 encodings of characters, UTF-8 encodings more than
+        // four bytes in length, or characters outside the ranges which UTF-32
+        // can validly encode (i.e., '[ 1 .. 0xd7ff ]' and
         // '[ 0xe000 .. 0x10ffff ]').  If 'errorCharacter' is 0, invalid input
         // characters are ignored (i.e., produce no corresponding output
         // characters).  Any previous contents of the destination are
@@ -275,27 +275,26 @@ struct CharConvertUtf32 {
         // 'byteOrder' is not specified, the output is assumed to be in host
         // byte order.  Return 0 on success and a bit-wise OR of the masks
         // defined by 'CharConvertStatus::Enum' otherwise, where
-        // 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' will be set if
-        // one or more invalid character sequences were encountered in the
-        // input, and 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be
-        // set if the output space was exhausted before conversion was
-        // complete.  If 'dstCapacity > 0' yet 'dstCapacity' specifies a buffer
-        // too small to hold the output, the maximal null-terminated prefix of
-        // the properly converted result string is loaded into 'dstBuffer'.
-        // The behavior is undefined unless 'dstBuffer' refers to an array of
-        // at least 'dstCapacity' elements, 'srcString', if specified as a
+        // 'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if one or more
+        // invalid character sequences were encountered in the input, and
+        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be set if the
+        // output space was exhausted before conversion was complete.  If
+        // 'dstCapacity > 0' yet 'dstCapacity' specifies a buffer too small to
+        // hold the output, the maximal null-terminated prefix of the properly
+        // converted result string is loaded into 'dstBuffer'.  The behavior is
+        // undefined unless 'dstBuffer' refers to an array of at least
+        // 'dstCapacity' elements, 'srcString', if specified as a
         // 'const char *', is null-terminated, and 'errorCharacter' is either 0
         // or a valid single-word encoded UTF-32 character (in the range
         // '[ 1 .. 0xd7ff ]' or '[ 0xe000 .. 0x10ffff ]').  Note that if
         // 'dstCapacity' is 0, '*dstBuffer' is not modified and this function
-        // returns a value with
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
-        // written into '*numCharsWritten' (if that pointer is not 0), since
-        // there is insufficient space for even a null terminator alone.  Also
-        // note that one Unicode *character* always occupies one 32-bit *word*
-        // in UTF-32, but may occupy more than one *byte* of UTF-8, so that
-        // '*numCharsWritten' equals the number of *words* written.  Also note
-        // that 'errorCharacter' is assumed to be in host byte order.
+        // returns a value with 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set
+        // and 0 is written into '*numCharsWritten' (if that pointer is not 0),
+        // since there is insufficient space for even a null terminator alone.
+        // Also note that one Unicode *character* always occupies one 32-bit
+        // *word* in UTF-32, but may occupy more than one *byte* of UTF-8, so
+        // that '*numCharsWritten' equals the number of *words* written.  Also
+        // note that 'errorCharacter' is assumed to be in host byte order.
 
                         // -- UTF-32 to UTF-8 Methods
 
@@ -319,15 +318,14 @@ struct CharConvertUtf32 {
         // indicate the byte order of the UTF-32 input; if 'byteOrder' is not
         // specified, the input is assumed to be in host byte order.  Any
         // previous contents of the destination are discarded.  Return 0 on
-        // success and 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if
-        // one or more invalid character sequences were encountered in the
-        // input.  The behavior is undefined unless 'srcString' is
-        // null-terminated and 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
-        // Note that one Unicode *character* can occupy multiple *bytes* of
-        // UTF-8.  Also note that the string length will be sized to the length
-        // of the output such that
-        // 'strlen(dstString->c_str()) == dstString->length()'.
+        // success and 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more
+        // invalid character sequences were encountered in the input.  The
+        // behavior is undefined unless 'srcString' is null-terminated and
+        // 'errorCharacter' is either 0 or a valid single-byte encoded UTF-8
+        // character ('0 < errorCharacter < 0x80').  Note that one Unicode
+        // *character* can occupy multiple *bytes* of UTF-8.  Also note that
+        // the string length will be sized to the length of the output such
+        // that 'strlen(dstString->c_str()) == dstString->length()'.
 
     static int utf32ToUtf8(bsl::vector<char>     *dstVector,
                            const unsigned int    *srcString,
@@ -349,14 +347,14 @@ struct CharConvertUtf32 {
         // indicate the byte order of the UTF-32 input; if 'byteOrder' is not
         // specified, the input is assumed to be in host byte order.  Any
         // previous contents of the destination are discarded.  Return 0 on
-        // success and 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if
-        // one or more invalid character sequences were encountered in the
-        // input.  The behavior is undefined unless 'srcString' is
-        // null-terminated and 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
-        // Note that one *character* can occupy multiple *bytes* of UTF-8.
-        // Also note that 'dstVector' is sized to exactly fit the output so
-        // that 'strlen(dstVector->begin()) == dstVector->size() - 1'.
+        // success and 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more
+        // invalid character sequences were encountered in the input.  The
+        // behavior is undefined unless 'srcString' is null-terminated and
+        // 'errorCharacter' is either 0 or a valid single-byte encoded UTF-8
+        // character ('0 < errorCharacter < 0x80').  Note that one *character*
+        // can occupy multiple *bytes* of UTF-8.  Also note that 'dstVector' is
+        // sized to exactly fit the output so that
+        // 'strlen(dstVector->begin()) == dstVector->size() - 1'.
 
     static int utf32ToUtf8(char                  *dstBuffer,
                            bsl::size_t            dstCapacity,
@@ -384,18 +382,17 @@ struct CharConvertUtf32 {
         // UTF-32 input; if 'byteOrder' is not specified, the input is assumed
         // to be in host byte order.  Return 0 on success and a bit-wise OR of
         // the masks defined by 'CharConvertStatus::Enum' otherwise,
-        // where 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' will be set
-        // if one or more invalid character sequences were encountered in the
-        // input, and 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be
-        // set if the output space was exhausted before conversion was
-        // complete.  The behavior is undefined unless 'dstBuffer' refers to an
-        // array of at least 'dstCapacity' elements, 'srcString' is
-        // null-terminated, and 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
-        // Note that one Unicode *character* can occupy multiple UTF-8 *bytes*,
-        // but will be a single UTF-32 *word*.  Also note that if 'dstCapacity'
-        // is 0, this function returns
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
+        // where 'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if one or
+        // more invalid character sequences were encountered in the input, and
+        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be set if the
+        // output space was exhausted before conversion was complete.  The
+        // behavior is undefined unless 'dstBuffer' refers to an array of at
+        // least 'dstCapacity' elements, 'srcString' is null-terminated, and
+        // 'errorCharacter' is either 0 or a valid single-byte encoded UTF-8
+        // character ('0 < errorCharacter < 0x80').  Note that one Unicode
+        // *character* can occupy multiple UTF-8 *bytes*, but will be a single
+        // UTF-32 *word*.  Also note that if 'dstCapacity' is 0, this function
+        // returns 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
         // written into '*numCharsWritten' and '*numBytesWritten' (if those
         // pointers are not zero), since there is insufficient space for even a
         // null terminator alone.  Also note that since UTF-8 is a

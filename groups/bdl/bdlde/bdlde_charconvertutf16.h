@@ -335,18 +335,18 @@ struct CharConvertUtf16 {
         // 'byteOrder' to indicate the byte order of the UTF-16 output; if
         // 'byteOrder' is not specified, the output is assumed to be in host
         // byte order.  Return 0 on success and
-        // 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' otherwise.
-        // Invalid encodings are multi-byte encoding parts out of sequence,
-        // non-minimal UTF-8 encodings of characters, or characters outside the
-        // ranges which UTF-16 can validly encode (in the range
-        // '[ 1 .. 0xd7ff ]' or '[ 0xe000 .. 0x10ffff ]').  If 'errorCharacter'
-        // is 0, invalid input characters are ignored (i.e., produce no
-        // corresponding output characters).  The behavior is undefined unless
-        // 'srcString' is null-terminated when specified as a 'const char *'.
-        // Note that one *character* can occupy multiple 16-bit *words*, and
-        // that if 'srcString' is a 'bslstl::StringRef', it may contain
-        // embedded null bytes which will be translated to null characters
-        // embedded in the output.
+        // 'CharConvertStatus::k_INVALID_CHARS_BIT' otherwise.  Invalid
+        // encodings are multi-byte encoding parts out of sequence, non-minimal
+        // UTF-8 encodings of characters, or characters outside the ranges
+        // which UTF-16 can validly encode (in the range '[ 1 .. 0xd7ff ]' or
+        // '[ 0xe000 .. 0x10ffff ]').  If 'errorCharacter' is 0, invalid input
+        // characters are ignored (i.e., produce no corresponding output
+        // characters).  The behavior is undefined unless 'srcString' is
+        // null-terminated when specified as a 'const char *'.  Note that one
+        // *character* can occupy multiple 16-bit *words*, and that if
+        // 'srcString' is a 'bslstl::StringRef', it may contain embedded null
+        // bytes which will be translated to null characters embedded in the
+        // output.
 
     static int utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
                            const bslstl::StringRef&     srcString,
@@ -376,10 +376,10 @@ struct CharConvertUtf16 {
         // order of the UTF-16 output; if 'byteOrder' is not specified, the
         // output is assumed to be in host byte order.  Any previous contents
         // of the destination are discarded.  Return 0 on success and
-        // 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' otherwise.  The
-        // behavior is undefined unless 'errorCharacter' is either 0 or a valid
-        // single-word encoded UTF-16 character (in the range '[ 1 .. 0xd7ff ]'
-        // or '[ 0xe000 .. 0xffff ]') and 'srcString' is null-terminated when
+        // 'CharConvertStatus::k_INVALID_CHARS_BIT' otherwise.  The behavior is
+        // undefined unless 'errorCharacter' is either 0 or a valid single-word
+        // encoded UTF-16 character (in the range '[ 1 .. 0xd7ff ]' or
+        // '[ 0xe000 .. 0xffff ]') and 'srcString' is null-terminated when
         // specified as a 'const char *'.  Note that one *character* can occupy
         // multiple 16-bit *words*.  Also note that the size of the result
         // vector is always fitted to the null-terminated result, including the
@@ -434,10 +434,10 @@ struct CharConvertUtf16 {
         // '[ 0xe000 .. 0xffff ]'), and 'srcString' is null-terminated when
         // supplied as a 'const char *'.  Note that if 'dstCapacity' is 0,
         // '*dstBuffer' is not modified and this function returns a value with
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
-        // written into '*numCharsWritten' and '*numWordsWritten' (if those
-        // pointers are non-null), since there is insufficient space for even a
-        // null terminator alone.  Also note that one *character* can occupy
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0 is written into
+        // '*numCharsWritten' and '*numWordsWritten' (if those pointers are
+        // non-null), since there is insufficient space for even a null
+        // terminator alone.  Also note that one *character* can occupy
         // multiple 16-bit *words*, so that '*numWordsWritten' may be greater
         // than '*numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* may not fit into 'dstBuffer', however, an
@@ -495,10 +495,10 @@ struct CharConvertUtf16 {
         // or '[ 0xe000 .. 0xffff ]'), and 'srcString' is null-terminated if
         // supplied as a 'const char *'.  Note that if 'dstCapacity' is 0,
         // '*dstBuffer' is not modified and this function returns a value with
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' set and 0 is
-        // written into '*numCharsWritten' and '*numWordsWritten' (if those
-        // pointers are non-null), since there is insufficient space for even a
-        // null terminator alone.  Also note that one *character* can occupy
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0 is written into
+        // '*numCharsWritten' and '*numWordsWritten' (if those pointers are
+        // non-null), since there is insufficient space for even a null
+        // terminator alone.  Also note that one *character* can occupy
         // multiple 16-bit *words*, so that '*numWordsWritten' may be greater
         // than '*numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* may not fit into 'dstBuffer'.  However,
@@ -532,13 +532,12 @@ struct CharConvertUtf16 {
         // indicate the byte order of the UTF-16 input; if 'byteOrder' is not
         // specified, the input is assumed to be in host byte order.  Any
         // previous contents of the destination are discarded.  Return 0 on
-        // success and 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if
-        // one or more invalid character sequences were encountered in the
-        // input.  The behavior is undefined unless 'srcString' is
-        // null-terminated and 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
-        // Note that the string length will be sized to the length of the
-        // output, such that
+        // success and 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more
+        // invalid character sequences were encountered in the input.  The
+        // behavior is undefined unless 'srcString' is null-terminated and
+        // 'errorCharacter' is either 0 or a valid single-byte encoded UTF-8
+        // character ('0 < errorCharacter < 0x80').  Note that the string
+        // length will be sized to the length of the output, such that
         // 'strlen(dstString->c_str()) == dstString->length()'.
 
     static int utf16ToUtf8(bsl::string                  *dstString,
@@ -568,14 +567,14 @@ struct CharConvertUtf16 {
         // discarded.  Optionally specify 'byteOrder' to indicate the byte
         // order of the UTF-16 input; if 'byteOrder' is not specified, the
         // input is assumed to be in host byte order.  Return 0 on success and
-        // 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
-        // invalid character sequences were encountered in the input.  The
-        // behavior is undefined unless 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80')
-        // and 'srcString' is null-terminated if supplied as a
-        // 'const wchar_t *'.  Note that if 'srcString' is a
-        // 'bslstl::StringRefWide', it may contain embedded 0 words which will
-        // be translated to null characters embedded in the output.
+        // 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more invalid
+        // character sequences were encountered in the input.  The behavior is
+        // undefined unless 'errorCharacter' is either 0 or a valid single-byte
+        // encoded UTF-8 character ('0 < errorCharacter < 0x80') and
+        // 'srcString' is null-terminated if supplied as a 'const wchar_t *'.
+        // Note that if 'srcString' is a 'bslstl::StringRefWide', it may
+        // contain embedded 0 words which will be translated to null characters
+        // embedded in the output.
 
     static int utf16ToUtf8(bsl::vector<char>    *dstVector,
                            const unsigned short *srcString,
@@ -598,11 +597,11 @@ struct CharConvertUtf16 {
         // indicate the byte order of the UTF-16 input; if 'byteOrder' is not
         // specified, the input is assumed to be in host byte order.  Any
         // previous contents of the destination are discarded.  Return 0 on
-        // success and 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if
-        // one or more invalid character sequences were encountered in the
-        // input.  The behavior is undefined unless 'srcString' is
-        // null-terminated and 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
+        // success and 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more
+        // invalid character sequences were encountered in the input.  The
+        // behavior is undefined unless 'srcString' is null-terminated and
+        // 'errorCharacter' is either 0 or a valid single-byte encoded UTF-8
+        // character ('0 < errorCharacter < 0x80').
 
     static int utf16ToUtf8(bsl::vector<char>            *dstVector,
                            const bslstl::StringRefWide&  srcString,
@@ -631,14 +630,14 @@ struct CharConvertUtf16 {
         // order of the UTF-16 input; if 'byteOrder' is not specified, the
         // input is assumed to be in host byte order.  Any previous contents of
         // the destination are discarded.  Return 0 on success and
-        // 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' if one or more
-        // invalid character sequences were encountered in the input.  The
-        // behavior is undefined unless 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80')
-        // and 'srcString' is null-terminated if supplied as a
-        // 'const wchar_t *'.  Note that if 'srcString' is a
-        // 'bslstl::StringRef', it may contain embedded 0 words which will be
-        // translated to null characters embedded in the output.
+        // 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more invalid
+        // character sequences were encountered in the input.  The behavior is
+        // undefined unless 'errorCharacter' is either 0 or a valid single-byte
+        // encoded UTF-8 character ('0 < errorCharacter < 0x80') and
+        // 'srcString' is null-terminated if supplied as a 'const wchar_t *'.
+        // Note that if 'srcString' is a 'bslstl::StringRef', it may contain
+        // embedded 0 words which will be translated to null characters
+        // embedded in the output.
 
     static int utf16ToUtf8(char                 *dstBuffer,
                            bsl::size_t           dstCapacity,
@@ -667,19 +666,18 @@ struct CharConvertUtf16 {
         // UTF-16 input; if 'byteOrder' is not specified, the input is assumed
         // to be in host byte order.  Return 0 on success and a bitwise-or of
         // the masks defined by 'CharConvertStatus::Enum' otherwise,
-        // where 'CharConvertStatus::BDEDE_INVALID_CHARS_BIT' will be set
-        // if one or more invalid character sequences were encountered in the
-        // input, and 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be
-        // set if the output space was exhausted before conversion was
-        // complete.  The behavior is undefined unless 'dstBuffer' refers to an
-        // array of at least 'dstCapacity' elements, 'srcString' is
-        // null-terminated, and 'errorCharacter' is either 0 or a valid
-        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80').
-        // Note that if 'dstCapacity' is 0, this function returns
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_FLAG' set and 0 is
-        // written into '*numCharsWritten' and '*numBytesWritten' (if those
-        // pointers are non-null), since there is insufficient space for even a
-        // null terminator alone.  Also note that since UTF-8 is a
+        // where 'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if one or
+        // more invalid character sequences were encountered in the input, and
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the output
+        // space was exhausted before conversion was complete.  The behavior is
+        // undefined unless 'dstBuffer' refers to an array of at least
+        // 'dstCapacity' elements, 'srcString' is null-terminated, and
+        // 'errorCharacter' is either 0 or a valid single-byte encoded UTF-8
+        // character ('0 < errorCharacter < 0x80').  Note that if 'dstCapacity'
+        // is 0, this function returns 'CharConvertStatus::k_OUT_OF_SPACE_BIT'
+        // set and 0 is written into '*numCharsWritten' and '*numBytesWritten'
+        // (if those pointers are non-null), since there is insufficient space
+        // for even a null terminator alone.  Also note that since UTF-8 is a
         // variable-length encoding, 'numBytesWritten' may be up to four times
         // 'numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* (including the terminating 0) may not fit
@@ -727,21 +725,20 @@ struct CharConvertUtf16 {
         // specified, the input is assumed to be in host byte order.  Return 0
         // on success and a bitwise-or of the flags defined by
         // 'CharConvertStatus::Enum' otherwise.
-        // 'CharConvertStatus::BDEDE_INVALID_CHARS_FLAG' will be set if
-        // one or more invalid character sequences were encountered in the
-        // input, and 'CharConvertStatus::BDEDE_OUT_OF_SPACE_FLAG' will
-        // be set if the output space was exhausted before conversion was
-        // complete.  The behavior is undefined unless 'dstBuffer' refers to an
-        // array of at least 'dstCapacity' elements, 'errorCharacter' is either
-        // 0 or a valid single-byte encoded UTF-8 character
-        // ('0 < errorCharacter < 0x80'), and 'srcString' is null-terminated if
-        // supplied as a 'const wchar_t *'.  Note that if 'dstCapacity' is 0,
-        // this function returns
-        // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_FLAG' set and 0 is
-        // written into '*numCharsWritten' and '*numBytesWritten' (if those
-        // pointers are non-null), since there is insufficient space for even a
-        // null terminator alone.  Also note that since UTF-8 is a
-        // variable-length encoding, 'numBytesWritten' may be up to four times
+        // 'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if one or more
+        // invalid character sequences were encountered in the input, and
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the output
+        // space was exhausted before conversion was complete.  The behavior is
+        // undefined unless 'dstBuffer' refers to an array of at least
+        // 'dstCapacity' elements, 'errorCharacter' is either 0 or a valid
+        // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80'),
+        // and 'srcString' is null-terminated if supplied as a
+        // 'const wchar_t *'.  Note that if 'dstCapacity' is 0, this function
+        // returns 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0 is written
+        // into '*numCharsWritten' and '*numBytesWritten' (if those pointers
+        // are non-null), since there is insufficient space for even a null
+        // terminator alone.  Also note that since UTF-8 is a variable-length
+        // encoding, 'numBytesWritten' may be up to four times
         // 'numCharsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' *characters* (including the terminating 0, if present)
         // may not fit into 'dstBuffer'.  A one-word (two-byte) UTF-16
