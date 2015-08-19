@@ -259,12 +259,12 @@ struct HashUtil {
         // a bug that we will fix in a later release.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-}  // close namespace BloombergLP::bslalg
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

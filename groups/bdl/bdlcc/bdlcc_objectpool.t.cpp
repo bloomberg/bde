@@ -414,15 +414,16 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
       }
    };
 
-   inline void createCase13(void *address, bslma::Allocator *,
-                            bsls::AtomicInt *created) {
+   inline void createCase13(void             *address,
+                            bslma::Allocator *,
+                            bsls::AtomicInt  *created) {
       new (address) Case13Type;
       ++(*created);
    }
 
-   void case13Thread(bdlcc::ObjectPool<Case13Type> *mX,
+   void case13Thread(bdlcc::ObjectPool<Case13Type>  *mX,
                      bdlcc::FixedQueue<Case13Type*> *queue,
-                     int numIterations) {
+                     int                             numIterations) {
       for (int i = 0; i < numIterations; ++i) {
          Case13Type *obj;
          while (1) {
@@ -443,9 +444,9 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
       }
    }
 
-void case13Processor(bdlcc::ObjectPool<Case13Type> *mX,
+void case13Processor(bdlcc::ObjectPool<Case13Type>  *mX,
                      bdlcc::FixedQueue<Case13Type*> *queue,
-                     bsls::AtomicInt          *done)
+                     bsls::AtomicInt                *done)
 {
    while (1) {
       Case13Type* obj;
@@ -462,7 +463,7 @@ void case13Processor(bdlcc::ObjectPool<Case13Type> *mX,
    }
 }
 
-}
+}  // close unnamed namespace
 
 //                         CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -493,7 +494,7 @@ static void createString(void               *address,
     new(address) bsl::string(initial, allocator);
 }
 
-} // namespace OBJECTPOOL_TEST_CASE_12
+}  // close namespace OBJECTPOOL_TEST_CASE_12
 //                         CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
@@ -573,7 +574,7 @@ public:
 int B::constructorCount = 0;
 int B::destructorCount = 0;
 
-} // namespace OBJECTPOOL_TEST_CASE_11
+}  // close namespace OBJECTPOOL_TEST_CASE_11
 
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
@@ -602,7 +603,7 @@ class A
 int A:: constructorCount = 0;
 int A:: destructorCount = 0;
 
-} // namespace OBJECTPOOL_TEST_CASE_10
+}  // close namespace OBJECTPOOL_TEST_CASE_10
 //=============================================================================
 //                         CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -661,7 +662,7 @@ extern "C"
         return NULL;
     }
 
-} // namespace OBJECTPOOL_TEST_CASE_9
+}  // close namespace OBJECTPOOL_TEST_CASE_9
 //=============================================================================
 //                         CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -712,7 +713,7 @@ extern "C"
         return NULL;
     }
 
-} // namespace OBJECTPOOL_TEST_CASE_8
+}  // close namespace OBJECTPOOL_TEST_CASE_8
 
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
@@ -757,7 +758,7 @@ extern "C"
         return NULL;
     }
 
-} // namespace OBJECTPOOL_TEST_CASE_7
+}  // close namespace OBJECTPOOL_TEST_CASE_7
 //=============================================================================
 //                         CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -862,7 +863,7 @@ void verifyPool(bdlcc::ObjectPool<my_Class> *pool)
     delete []arr;
 }
 
-} // namespace OBJECTPOOL_TEST_CASE_6
+}  // close namespace OBJECTPOOL_TEST_CASE_6
 //=============================================================================
 //                         CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -905,7 +906,7 @@ extern "C"
         return NULL;
     }
 
-} // namespace OBJECTPOOL_TEST_CASE_5
+}  // close namespace OBJECTPOOL_TEST_CASE_5
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -978,7 +979,7 @@ extern "C"
         return NULL;
     }
 
-} // namespace OBJECTPOOL_TEST_CASE_4
+}  // close namespace OBJECTPOOL_TEST_CASE_4
 //=============================================================================
 //                         CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1036,7 +1037,7 @@ extern "C"
       return NULL;
     }
 
-} // namespace OBJECTPOOL_TEST_CASE_3
+}  // close namespace OBJECTPOOL_TEST_CASE_3
 //=============================================================================
 //                         CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1097,7 +1098,7 @@ enum {
     k_OBJECT_FRAME_SIZE    = sizeof(ObjectNode) + k_ROUNDED_OBJECT_SIZE
 };
 
-} // namespace OBJECTPOOL_TEST_CASE_2
+}  // close namespace OBJECTPOOL_TEST_CASE_2
 //=============================================================================
 //                         CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1110,7 +1111,7 @@ class my_Class
 {
 };
 
-} // namespace OBJECTPOOL_TEST_CASE_1
+}  // close namespace OBJECTPOOL_TEST_CASE_1
 //=============================================================================
 //                         USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1195,8 +1196,8 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-    extern "C" void serverThread(bsls::AtomicInt *queries,
-                                 int              max,
+    extern "C" void serverThread(bsls::AtomicInt             *queries,
+                                 int                          max,
                                  void(*queryHandler)(Query*))
     {
         while (++(*queries) <= max) {
@@ -1244,7 +1245,7 @@ extern "C" void queryHandler2(Query *query)
     queryFactory->destroyQuery(query);
 }
 
-} // namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
+}  // close namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
 
 //=============================================================================
 //                              MAIN PROGRAM

@@ -1,4 +1,4 @@
-// bdlxxxx_bytestreamimputil.t.cpp                                       -*-C++-*-
+// bdlxxxx_bytestreamimputil.t.cpp                                    -*-C++-*-
 
 #include <bdlxxxx_bytestreamimputil.h>
 
@@ -19,9 +19,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//==========================================================================
+//=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -32,7 +32,7 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
@@ -49,9 +49,9 @@ static void aSsErT(int c, const char *s, int i)
        #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//==========================================================================
+//=============================================================================
 //                              TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // We are testing a suite of pure procedures, each of which is independent
@@ -70,7 +70,7 @@ static void aSsErT(int c, const char *s, int i)
 // as 32 bits, we either need to assert this as fact or make sure the test
 // case verifies sign- and zero- extensions for get functions appropriately
 // (we have opted to do the latter).
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 5] putInt64(char *buf, Int64 val);
 // [ 6] putInt56(char *buf, Int64 val);
 // [ 7] putInt48(char *buf, Int64 val);
@@ -141,7 +141,7 @@ static void aSsErT(int c, const char *s, int i)
 // [22] getArrayInt8(unsigned char *ary, const char *buf, int cnt);
 // [23] getArrayFloat64(double *ary, const char *buf, int cnt);
 // [24] getArrayFloat32(float *ary, const char *buf, int cnt);
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] VERIFY TESTING APPARATUS -- make sure our test functions work.
 // [ 1] SWAP FUNCTION: static inline void swap(T *x, T *y)
 // [ 1] REVERSE FUNCTION: void reverse(T *array, int numElements)
@@ -153,15 +153,15 @@ static void aSsErT(int c, const char *s, int i)
 // [ 4] EXPLORE FLOAT FORMAT -- make sure format is IEEE COMPLIANT
 // [25] USAGE TEST - Make sure usage example compiles/works as advertized.
 // [26] STRESS TEST - Used to determine performance characteristics.
-//==========================================================================
+//=============================================================================
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 
-//==========================================================================
+//=============================================================================
 //        GENERATOR FUNCTION 'int g(buffer, spec, numBits)' FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // The following function interprets the given 'spec' in order from left to
 // right to configure a byte array to hold a sequence of 'numBits' according
 // to a custom language.  Valid meaningful characters are the binary digits
@@ -210,7 +210,7 @@ static void aSsErT(int c, const char *s, int i)
 // "0.."                 8    error   missing right fill value
 // "1..11..1"            8    error   at most one fill item per spec
 // "010101..10101"       8    error   number of digits exceeds numBits
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static ostream& pByte(char c)
   // Print a single byte as 8 bits.
@@ -360,29 +360,29 @@ static int g(char *buffer, const char *spec, int numBits)
           case '.': {
             if (rangeStartIndex != -1) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Multiple Ranges");
-                return G_MULTIPLE_RANGES;
+                return G_MULTIPLE_RANGES;                             // RETURN
             }
             if (0 == bitCount) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range Start");
-                return G_MISSING_RANGE_START;
+                return G_MISSING_RANGE_START;                         // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip white space
             }
             if ('.' != spec[i]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Second Dot");
-                return G_MISSING_SECOND_DOT;
+                return G_MISSING_SECOND_DOT;                          // RETURN
             }
             while (isspace(spec[++i])) {
                 // skip white space
             }
             if ('0' != spec[i] && '1' != spec[i]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Missing Range End");
-                return G_MISSING_RANGE_END;
+                return G_MISSING_RANGE_END;                           // RETURN
             }
             if (spec[i] != spec[lastBitIndex]) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Nonmatching Range");
-                return G_MISMATCHED_RANGE;
+                return G_MISMATCHED_RANGE;                            // RETURN
             }
 
             // Found valid range; record index of beginning and of end.
@@ -393,7 +393,7 @@ static int g(char *buffer, const char *spec, int numBits)
           default: {
             if (!isspace(spec[i])) {
                 LOOP2_ASSERT(i, spec[i], G_OFF || !"Illegal Character");
-                return G_ILLEGAL_CHARACTER;
+                return G_ILLEGAL_CHARACTER;                           // RETURN
             }
           } break;
         }
@@ -401,7 +401,7 @@ static int g(char *buffer, const char *spec, int numBits)
 
     if (bitCount > numBits) {
         LOOP2_ASSERT(bitCount, numBits, G_OFF || !"Too Many Bits");
-        return G_TOO_MANY_BITS;
+        return G_TOO_MANY_BITS;                                       // RETURN
     }
 
     if (rangeStartIndex != -1) {
@@ -417,9 +417,9 @@ static int g(char *buffer, const char *spec, int numBits)
     return G_SUCCESS;
 }
 
-//==========================================================================
+//=============================================================================
 //                      SUPPLEMENTARY TEST FUNCTIONALITY
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static inline int isLittleEndian()
     // Return 1 if this platform is inconsistent with network byte order
@@ -429,7 +429,7 @@ static inline int isLittleEndian()
     return ((char *)&dummy)[0]; // Least significant byte has lowest address.
 }
 
-template<typename T>
+template<class T>
 inline void swap(T *x, T *y)
     // Swap the locations of the specified objects x and y;
     // Note that T must have value semantic operators COPY CTOR and OP=.
@@ -439,7 +439,7 @@ inline void swap(T *x, T *y)
     *y = t;
 }
 
-template<typename T>
+template<class T>
 inline void reverse(T *array, int numElements)
     // Reverse the locations of the objects in the specified array.
 {
@@ -462,7 +462,7 @@ static bool eq(const char *lhs, const char *rhs, int numBits)
 
     for (int i = 0; i < wholeBytes; ++i) {
         if (lhs[i] ^ rhs[i]) {
-            return false;   // different
+            return false;   // different                              // RETURN
         }
     }
 
@@ -471,23 +471,23 @@ static bool eq(const char *lhs, const char *rhs, int numBits)
         int remaingBits = 8 - extraBits;
         int mask = 0xff >> remaingBits << remaingBits;
         diff &= mask;   // if 0 != diff they're not equal
-        return 0 == diff;
+        return 0 == diff;                                             // RETURN
     }
 
     return true;   // same
 }
 
 
-//==========================================================================
+//=============================================================================
 //                      FUNCTIONS TO MANIPULATE DOUBLES
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //  sign bit    11-bit exponent             52-bit mantissa
 //    /        /                           /
 //  +-+-----------+----------------------------------------------------+
 //  |s|e10......e0|m0...............................................m51|
 //  +-+-----------+----------------------------------------------------+
 //  LSB                                                              MSB
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static ostream& printDoubleBits(ostream& stream, double number)
     // Format the bits in the specified 'number' to the specified 'stream'
@@ -538,16 +538,16 @@ static void printDouble(ostream& stream, double number)
     printDoubleBits(stream, number) << ": " << number << endl;
 }
 
-//==========================================================================
+//=============================================================================
 //                      FUNCTIONS TO MANIPULATE FLOATS
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //  sign bit    8-bit exponent        23-bit mantissa
 //     /       /                     /
 //    +-+--------+-----------------------+
 //    |s|e7....e0|m0..................m22|
 //    +-+--------+-----------------------+
 //    LSB                              MSB
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static ostream& printFloatBits(ostream& stream, float number)
     // Format the bits in the specified 'number' to the specified 'stream'
@@ -598,9 +598,9 @@ static void printFloat(ostream& stream, float number)
     printFloatBits(stream, number) << ": " << number << endl;
 }
 
-//==========================================================================
+//=============================================================================
 //                            USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 class MyPoint {
     int d_x;
@@ -633,7 +633,7 @@ int savePoint(char *buffer, int bufferLength, const MyPoint& point)
 {
     enum { INSUFFICIENT_SPACE = -1, SUCCESS = 0 };
     if (bufferLength < 4 + 4) {
-        return INSUFFICIENT_SPACE;
+        return INSUFFICIENT_SPACE;                                    // RETURN
     }
     bdlxxxx::ByteStreamImpUtil::putInt32(buffer + 0, point.x());
     bdlxxxx::ByteStreamImpUtil::putInt32(buffer + 4, point.y());
@@ -644,7 +644,7 @@ int restorePoint(MyPoint *point, const char *buffer, int bufferLength)
 {
     enum { SUCCESS = 0, INSUFFICIENT_DATA = 1 };
     if (bufferLength < 4 + 4) {
-        return INSUFFICIENT_DATA;
+        return INSUFFICIENT_DATA;                                     // RETURN
     }
 
     int result;
@@ -671,9 +671,9 @@ void assignPointTheHardWay(MyPoint *dstPoint, const MyPoint& srcPoint)
     ASSERT(*dstPoint == srcPoint);
 }
 
-//==========================================================================
-//                      MAIN PROGRAM
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -5051,11 +5051,11 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

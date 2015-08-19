@@ -1,4 +1,4 @@
-// balber_berencoderoptions.t.cpp   -*-C++-*-
+// balber_berencoderoptions.t.cpp                                     -*-C++-*-
 #include <balber_berencoderoptions.h>
 
 #include <bsls_ident.h>
@@ -12,18 +12,18 @@ BSLS_IDENT_RCSID(bdem_berencoderoptions_t_cpp,"$Id$ $CSID$")
 
 using namespace BloombergLP;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -37,9 +37,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -56,40 +56,30 @@ static void aSsErT(int c, const char *s, int i)
                aSsErT(1, #X, __LINE__); } }
 
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_() bsl::cout << '\t' << bsl::flush; // Print tab w/o newline.
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
+static bool             verbose = false;
+static bool         veryVerbose = false;
+static bool     veryVeryVerbose = false;
+static bool veryVeryVeryVerbose = false;
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0;
-
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = (argc > 2);
-    veryVerbose = (argc > 3);
-    veryVeryVerbose = (argc > 4);
-    veryVeryVeryVerbose = (argc > 5);
+    int            test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -118,12 +108,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// GENERATED BY BLP_BAS_CODEGEN_2.1.6 Wed May 23 17:45:54 2007
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

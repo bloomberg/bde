@@ -1,4 +1,4 @@
-// balber_berdecoderoptions.cpp                                         -*-C++-*-
+// balber_berdecoderoptions.cpp                                       -*-C++-*-
 #include <balber_berdecoderoptions.h>
 
 #include <bsls_ident.h>
@@ -17,60 +17,56 @@ BSLS_IDENT_RCSID(balber_berdecoderoptions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                          // -----------------------
+                          // -------------------------------
                           // class balber::BerDecoderOptions
-                          // -----------------------
+                          // -------------------------------
 
 // CONSTANTS
 
-const char balber::BerDecoderOptions::CLASS_NAME[] = "balber::BerDecoderOptions";
-    // the name of this class
-const int balber::BerDecoderOptions::DEFAULT_MAX_DEPTH = 32;
-    // default value of 'MaxDepth' attribute
+const char balber::BerDecoderOptions::CLASS_NAME[]                  =
+                                                   "balber::BerDecoderOptions";
+const int  balber::BerDecoderOptions::DEFAULT_MAX_DEPTH             =      32;
 const bool balber::BerDecoderOptions::DEFAULT_SKIP_UNKNOWN_ELEMENTS = true;
-    // default value of 'SkipUnknownElements' attribute
-const int balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL = 0;
-    // default value of 'TraceLevel' attribute
-const int balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE = 8388608;
-    // default value of 'MaxSequenceSize' attribute
+const int  balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL           =       0;
+const int  balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE     = 8388608;
 
-const bdeat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         e_ATTRIBUTE_ID_MAX_DEPTH,
-        "MaxDepth",             // name
-        sizeof("MaxDepth") - 1, // name length
-        "maximum recursion depth",  // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        "MaxDepth",                        // name
+        sizeof("MaxDepth") - 1,            // name length
+        "maximum recursion depth",         // annotation
+        bdlat_FormattingMode::e_DEC    // formatting mode
     },
     {
         e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
         "SkipUnknownElements",             // name
         sizeof("SkipUnknownElements") - 1, // name length
-        "Option to skip unknown elements",  // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        "Option to skip unknown elements", // annotation
+        bdlat_FormattingMode::e_TEXT   // formatting mode
     },
     {
         e_ATTRIBUTE_ID_TRACE_LEVEL,
-        "TraceLevel",             // name
-        sizeof("TraceLevel") - 1, // name length
-        "trace (verbosity) level",  // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        "TraceLevel",                      // name
+        sizeof("TraceLevel") - 1,          // name length
+        "trace (verbosity) level",         // annotation
+        bdlat_FormattingMode::e_DEC    // formatting mode
     },
     {
         e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE,
-        "MaxSequenceSize",             // name
-        sizeof("MaxSequenceSize") - 1, // name length
-        "maximum sequence size",  // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        "MaxSequenceSize",                 // name
+        sizeof("MaxSequenceSize") - 1,     // name length
+        "maximum sequence size",           // annotation
+        bdlat_FormattingMode::e_DEC    // formatting mode
     }
 };
 
 namespace balber {
-// CLASS METHODS
 
-const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+// CLASS METHODS
+const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 8: {
@@ -118,7 +114,8 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[13])=='Z'
              && bdlb::CharType::toUpper(name[14])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
+                return &ATTRIBUTE_INFO_ARRAY[
+                                          e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
             }
         } break;
         case 19: {
@@ -142,14 +139,15 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[17])=='T'
              && bdlb::CharType::toUpper(name[18])=='S')
             {
-                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
+                return &ATTRIBUTE_INFO_ARRAY[
+                                      e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
             }
         } break;
     }
     return 0;
 }
 
-const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH:
@@ -167,10 +165,9 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& BerDecoderOptions::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& BerDecoderOptions::print(bsl::ostream& stream,
+                                       int           level,
+                                       int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -185,26 +182,34 @@ bsl::ostream& BerDecoderOptions::print(
         // multiline
 
         stream << "[\n";
-
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
+
         stream << "MaxDepth = ";
-        bdlb::PrintMethods::print(stream, d_maxDepth,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_maxDepth,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "SkipUnknownElements = ";
-        bdlb::PrintMethods::print(stream, d_skipUnknownElements,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_skipUnknownElements,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "TraceLevel = ";
-        bdlb::PrintMethods::print(stream, d_traceLevel,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_traceLevel,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "MaxSequenceSize = ";
-        bdlb::PrintMethods::print(stream, d_maxSequenceSize,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_maxSequenceSize,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -216,39 +221,53 @@ bsl::ostream& BerDecoderOptions::print(
 
         stream << ' ';
         stream << "MaxDepth = ";
-        bdlb::PrintMethods::print(stream, d_maxDepth,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_maxDepth,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "SkipUnknownElements = ";
-        bdlb::PrintMethods::print(stream, d_skipUnknownElements,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_skipUnknownElements,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "TraceLevel = ";
-        bdlb::PrintMethods::print(stream, d_traceLevel,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_traceLevel,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "MaxSequenceSize = ";
-        bdlb::PrintMethods::print(stream, d_maxSequenceSize,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_maxSequenceSize,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
 
     return stream << bsl::flush;
 }
+
 }  // close package namespace
+}  // close enterprise namespace
 
-}  // close namespace BloombergLP
-
-// GENERATED BY BLP_BAS_CODEGEN_2.1.11 Tue Mar 11 14:28:56 2008
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

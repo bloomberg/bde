@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a blocking acceptor of TCP-based connections with timeout
+//@PURPOSE: Provide a blocking acceptor of TCP-based connections with timeout.
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -18,10 +18,10 @@ BSLS_IDENT("$Id: $")
 //           btlsos_tcptimedconnector
 //
 //@DESCRIPTION: This component provides a blocking single-port acceptor of TCP
-// connections with timeout capability that adheres to
-// 'btlsc::TimedChannelAllocator' protocol.  Both timed and non-timed
-// (blocking) channels can be allocated in a timed or non-timed fashion
-// correspondingly as indicated by the following table:
+// connections with timeout capability, 'btlsos::TcpTimedAcceptor', that
+// adheres to 'btlsc::TimedChannelAllocator' protocol.  Both timed and
+// non-timed (blocking) channels can be allocated in a timed or non-timed
+// fashion correspondingly as indicated by the following table:
 //..
 //       +=============================================================+
 //       |  Result/Operation |        Timed         |    Non-Timed     |
@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == acceptor.isInvalid());
 //  if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
 //      bsl::cout << "Can't open listening socket" << bsl::endl;
-//      return -1;
+//      return -1;                                                    // RETURN
 //  }
 //  assert(acceptor.address() == serverAddress);
 //..
@@ -230,8 +230,8 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
   public:
     // CREATORS
     TcpTimedAcceptor(
-             btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-             bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed acceptor that uses the specified 'factory' to create
         // stream sockets.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -242,16 +242,16 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // 'open').
 
     TcpTimedAcceptor(
-             btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-             int                                           initialCapacity,
-             bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           int                                             initialCapacity,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed acceptor that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'initialCapacity' channels without reallocation.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if 'factory' is 0 or unless 0 <
-        // initialCapacity.  Note that the acceptor is created NOT in an
+        // used.  The behavior is undefined if 'factory' is 0 or unless
+        // '0 < initialCapacity'.  Note that the acceptor is created NOT in an
         // invalid state (as reported by the 'isInvalid' method), though the
         // subsequent allocations will *fail* until a listening socket is
         // created (using 'open').
@@ -278,9 +278,9 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // allocator.  Note that -2 is loaded into 'status' if a listening
         // socket is not established (see 'open').
 
-    btlsc::Channel *timedAllocate(int                     *status,
-                                 const bsls::TimeInterval& timeout,
-                                 int                      flags = 0);
+    btlsc::Channel *timedAllocate(int                       *status,
+                                  const bsls::TimeInterval&  timeout,
+                                  int                        flags = 0);
         // Allocate a stream-based channel or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
         // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
@@ -296,10 +296,10 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // allocation error does not *necessarily* invalidate this allocator,
         // and so subsequent allocations *may* succeed.  Use the 'isInvalid'
         // method for more information on the state of this allocator.  Note
-        // that if the specified 'timeout' value has already passed, the
-        // allocation will still be attempted, but the attempt will not block.
-        // Also note that -2 is loaded into 'status' if a listening socket is
-        // not established (see 'open').
+        // that if the 'timeout' value has already passed, the allocation will
+        // still be attempted, but the attempt will not block.  Also note that
+        // -2 is loaded into 'status' if a listening socket is not established
+        // (see 'open').
 
     btlsc::TimedChannel *allocateTimed(int *status, int flags = 0);
         // Allocate a stream-based timed channel.  If the optionally specified
@@ -318,9 +318,10 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // information on the state of this allocator.  Note that -2 is loaded
         // into 'status' if a listening socket is not established (see 'open').
 
-    btlsc::TimedChannel *timedAllocateTimed(int                     *status,
-                                           const bsls::TimeInterval& timeout,
-                                           int                      flags = 0);
+    btlsc::TimedChannel *timedAllocateTimed(
+                                         int                       *status,
+                                         const bsls::TimeInterval&  timeout,
+                                         int                        flags = 0);
         // Allocate a stream-based timed channel or interrupt after the
         // specified absolute 'timeout' time is reached.  If the optionally
         // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
@@ -337,8 +338,8 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // *necessarily* invalidate this allocator, and so subsequent
         // allocations *may* succeed.  Use the 'isInvalid' method for more
         // information on the state of this allocator.  Note that if the
-        // specified 'timeout' value has already passed, the allocation will
-        // still be attempted, but the attempt will not block.  Also note that
+        // 'timeout' value has already passed, the allocation will still be
+        // attempted, but the attempt will not block.  Also note that
         // -2 is loaded into 'status' if a listening socket is not established
         // (see 'open').
 
@@ -363,15 +364,16 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // listening socket, which, if established, must be closed explicitly
         // (using 'close' method).
 
-    int open(const btlso::IPv4Address& endpoint, int queueSize,
-             int reuseAddressFlag = 1);
+    int open(const btlso::IPv4Address& endpoint,
+             int                       queueSize,
+             int                       reuseAddressFlag = 1);
         // Establish a listening socket having the specified 'queueSize'
         // maximum number of pending connections on the specified 'endpoint'.
         // Optionally specify a 'reuseAddressFlag' used to set
         // 'SO_REUSEADDRESS' option on a listening socket.  If
         // 'reuseAddressFlag' is not specified, this option is enabled.  Return
         // 0 on success and a non-zero value otherwise.  The behavior is
-        // undefined unless 0 < queueSize and this object is not invalidated.
+        // undefined unless '0 < queueSize' and this object is not invalidated.
 
     int setOption(int level, int option, int value);
         // Set the specified socket 'option' of the specified 'level' on the
@@ -394,8 +396,8 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
 
     int getOption(int *result, int level, int option) const;
         // Load into the specified 'result' the current value of the specified
-        // option of the specified 'level' set on the listening socket.  Return
-        // 0 on success and a non-zero value otherwise.  The list of
+        // 'option' of the specified 'level' set on the listening socket.
+        // Return 0 on success and a non-zero value otherwise.  The list of
         // commonly-supported options (and levels) is enumerated in
         // 'btlso_socketoptutil'.  The behavior is undefined if result is 0 or
         // if the listening socket has not been established.
@@ -410,9 +412,9 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // acceptor.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 const btlso::IPv4Address& TcpTimedAcceptor::address() const

@@ -14,15 +14,17 @@ BSLS_IDENT_RCSID(btlsos_tcpchannel_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_vector.h>
 
+#include <errno.h>
+
 namespace BloombergLP {
 
 // ============================================================================
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     e_ERROR_INTERRUPTED  =  1,
@@ -40,12 +42,13 @@ inline
 int adjustVecBuffer(const VECTYPE        *buffers,
                     int                  *numBuffers,
                     int                   numBytesExisted,
-                    bsl::vector<VECTYPE> *vec)
-    // This function is to adjust "btes::IoVec" or "btls::Ovec" 'buffers' given
-    // the specified 'numBuffers' and 'numBytesExisted' in the 'buffers', such
-    // that return the corresponding new buffers which point to unused space in
-    // 'buffers'.  Return the pointer to new buffers.  The result is undefined
-    // unless the 'buffers' are valid and 'numBuffers' > 0.
+                    bsl::vector<VECTYPE> *vector)
+    // This function is to adjust the specified 'buffer', whether "btes::IoVec"
+    // or "btls::Ovec", given the specified 'numBuffers' and 'numBytesExisted'
+    // in the 'buffers', such that return the corresponding new buffers which
+    // point to unused space in 'buffers'.  Return the pointer to new buffers.
+    // The result is undefined unless the 'buffers' are valid and
+    // 'numBuffers > 0'.
 {
     int idx = 0,  offset = 0;
     btls::IovecUtil::pivot(&idx, &offset, buffers,
@@ -55,14 +58,14 @@ int adjustVecBuffer(const VECTYPE        *buffers,
     BSLS_ASSERT(0 <= offset);
     BSLS_ASSERT(offset < buffers[idx].length());
 
-    vec->clear();
+    vector->clear();
 
-    vec->push_back(VECTYPE(
+    vector->push_back(VECTYPE(
                 (char*) const_cast<void *>(buffers[idx].buffer()) + offset,
                 buffers[idx].length() - offset));
 
     for (int i = idx + 1; i < *numBuffers; ++i) {
-        vec->push_back(
+        vector->push_back(
                 btls::Iovec((char*) const_cast<void *>(buffers[i].buffer()),
                            buffers[i].length()));
     }
@@ -107,9 +110,8 @@ void TcpChannel::initializeReadBuffer(int size)
 
 // CREATORS
 
-TcpChannel::TcpChannel(
-                    btlso::StreamSocket<btlso::IPv4Address> *socket,
-                    bslma::Allocator                      *basicAllocator)
+TcpChannel::TcpChannel(btlso::StreamSocket<btlso::IPv4Address> *socket,
+                       bslma::Allocator                        *basicAllocator)
 : d_socket_p(socket)
 , d_isInvalidFlag(0)
 , d_readBuffer(basicAllocator)
@@ -138,7 +140,7 @@ int TcpChannel::read(char *buffer, int numBytes, int flags)
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int numBytesRead  = 0,
@@ -156,7 +158,7 @@ int TcpChannel::read(char *buffer, int numBytes, int flags)
             else {
                 d_readBufferedStartPointer = d_readBufferOffset = 0;
             }
-            return numBytesRead;
+            return numBytesRead;                                      // RETURN
         }
         else {
             numBytesRead = availableData;
@@ -174,39 +176,39 @@ int TcpChannel::read(char *buffer, int numBytes, int flags)
         if (0 < rc) {
             numBytesRead += rc;
             if (numBytes == numBytesRead) { // Read 'numBytes' successfully.
-                return numBytesRead;
+                return numBytesRead;                                  // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
-                return numBytesRead;        // Return the total bytes read.
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+                // interruptible mode
+
+                // Return the total bytes read.
+
+                return numBytesRead;                                  // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "EOF" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesRead;
 }
 
-int TcpChannel::read(int  *augStatus,
-                            char *buffer,
-                            int   numBytes,
-                            int   flags)
+int TcpChannel::read(int *augStatus, char *buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int numBytesRead  = 0,
@@ -224,7 +226,7 @@ int TcpChannel::read(int  *augStatus,
             else {
                 d_readBufferedStartPointer = d_readBufferOffset = 0;
             }
-            return numBytesRead;
+            return numBytesRead;                                      // RETURN
         }
         else {
             numBytesRead = availableData;
@@ -242,39 +244,37 @@ int TcpChannel::read(int  *augStatus,
         if (0 < rc) {
             numBytesRead += rc;    // Keep a record of the total bytes read.
             if (numBytes == numBytesRead) { // Read 'numBytes' successfully.
-                return numBytes;
+                return numBytes;                                      // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = e_ERROR_INTERRUPTED;
-                return numBytesRead; // Return the total bytes read.
+                return numBytesRead; // Return the total bytes read.  // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "EOF" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesRead;
 }
 
-int TcpChannel::readv(const btls::Iovec *buffers,
-                             int               numBuffers,
-                             int               flags)
+int TcpChannel::readv(const btls::Iovec *buffers, int numBuffers, int flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int numBytesRead = 0,
@@ -302,7 +302,7 @@ int TcpChannel::readv(const btls::Iovec *buffers,
             else {
                 d_readBufferedStartPointer = d_readBufferOffset = 0;
             }
-            return numBytesRead;
+            return numBytesRead;                                      // RETURN
         }
         else {
             numBytesRead = availableData;
@@ -323,7 +323,7 @@ int TcpChannel::readv(const btls::Iovec *buffers,
         if (0 < rc) {           // This read operation got some bytes back.
             numBytesRead += rc;
             if (length == numBytesRead) {  // This read operation succeeded.
-                return numBytesRead;
+                return numBytesRead;                                  // RETURN
             }
             else {
                 // Adjust the buffer for next "read" try.
@@ -338,33 +338,33 @@ int TcpChannel::readv(const btls::Iovec *buffers,
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
-                return numBytesRead;  // Return the total bytes read.
+                return numBytesRead;  // Return the total bytes read. // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "EOF" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesRead;
 }
 
-int TcpChannel::readv(int              *augStatus,
-                             const btls::Iovec *buffers,
-                             int               numBuffers,
-                             int               flags)
+int TcpChannel::readv(int               *augStatus,
+                      const btls::Iovec *buffers,
+                      int                numBuffers,
+                      int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int numBytesRead = 0,
@@ -392,7 +392,7 @@ int TcpChannel::readv(int              *augStatus,
             else {
                 d_readBufferedStartPointer = d_readBufferOffset = 0;
             }
-            return numBytesRead;
+            return numBytesRead;                                      // RETURN
         }
         else {
             numBytesRead = availableData;
@@ -413,7 +413,7 @@ int TcpChannel::readv(int              *augStatus,
         if (0 < rc) {
             numBytesRead += rc;
             if (length == numBytesRead) {  // This read operation succeeded.
-                return numBytesRead;
+                return numBytesRead;                                  // RETURN
             }
             else {
                 // Adjust the buffer for next "read" try.
@@ -429,17 +429,17 @@ int TcpChannel::readv(int              *augStatus,
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = e_ERROR_INTERRUPTED;
-                return numBytesRead;  // Return the total bytes read.
+                return numBytesRead;  // Return the total bytes read. // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "EOF" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesRead;
@@ -452,7 +452,7 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, numBytesRead = 0, retValue = 0,
@@ -478,7 +478,7 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
                         numBytesRead);
             d_readBufferedStartPointer = d_readBufferOffset = 0;
         }
-        return numBytesRead;
+        return numBytesRead;                                          // RETURN
     }
 
     rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
@@ -516,17 +516,14 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
     return retValue;
 }
 
-int TcpChannel::readRaw(int  *,
-                               char *buffer,
-                               int   numBytes,
-                               int)
+int TcpChannel::readRaw(int *, char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, numBytesRead = 0, retValue = 0,
@@ -552,7 +549,7 @@ int TcpChannel::readRaw(int  *,
                         numBytesRead);
             d_readBufferedStartPointer = d_readBufferOffset = 0;
         }
-        return numBytesRead;
+        return numBytesRead;                                          // RETURN
     }
 
     rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
@@ -590,16 +587,14 @@ int TcpChannel::readRaw(int  *,
     return retValue;
 }
 
-int TcpChannel::readvRaw(const btls::Iovec *buffers,
-                                int               numBuffers,
-                                int)
+int TcpChannel::readvRaw(const btls::Iovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, numBytesRead = 0, retValue = 0,
@@ -629,7 +624,7 @@ int TcpChannel::readvRaw(const btls::Iovec *buffers,
                                     numBytesRead);
             d_readBufferedStartPointer = d_readBufferOffset = 0;
         }
-        return numBytesRead;
+        return numBytesRead;                                          // RETURN
     }
 
     rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
@@ -667,17 +662,17 @@ int TcpChannel::readvRaw(const btls::Iovec *buffers,
     return retValue;
 }
 
-int TcpChannel::readvRaw(int              *,
-                                const btls::Iovec *buffers,
-                                int               numBuffers,
-                                int)
+int TcpChannel::readvRaw(int               *,
+                         const btls::Iovec *buffers,
+                         int                numBuffers,
+                         int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, numBytesRead = 0, retValue = 0,
@@ -710,7 +705,7 @@ int TcpChannel::readvRaw(int              *,
                                     numBytesRead);
             d_readBufferedStartPointer = d_readBufferOffset = 0;
         }
-        return numBytesRead;
+        return numBytesRead;                                          // RETURN
     }
 
     while (1) {              // 'length' is expected to be read back.
@@ -746,16 +741,14 @@ int TcpChannel::readvRaw(int              *,
     return retValue;
 }
 
-int TcpChannel::bufferedRead(const char **buffer,
-                                    int          numBytes,
-                                    int          flags)
+int TcpChannel::bufferedRead(const char **buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
     if (0 == d_readBuffer.size()) {
         initializeReadBuffer();
@@ -777,7 +770,7 @@ int TcpChannel::bufferedRead(const char **buffer,
             else {
                 d_readBufferedStartPointer = d_readBufferOffset = 0;
             }
-            return numBytesRead;
+            return numBytesRead;                                      // RETURN
         }
         else {
             numBytesRead = availableData;
@@ -799,7 +792,7 @@ int TcpChannel::bufferedRead(const char **buffer,
             numBytesRead += rc;      // Keep a record of the total bytes read.
             if (numBytes == numBytesRead) { // Read 'numBytes' successfully.
                 *buffer = &d_readBuffer.front();
-                return numBytes;
+                return numBytes;                                      // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
@@ -807,33 +800,33 @@ int TcpChannel::bufferedRead(const char **buffer,
                                                                // mode
                 *buffer = 0;       // not returned
                 d_readBufferOffset = numBytesRead;
-                return numBytesRead; // Return the total bytes read.
+                return numBytesRead; // Return the total bytes read.  // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "EOF" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesRead;
 }
 
 int TcpChannel::bufferedRead(int         *augStatus,
-                                    const char **buffer,
-                                    int          numBytes,
-                                    int          flags)
+                             const char **buffer,
+                             int          numBytes,
+                             int          flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
     if ((int) d_readBuffer.size() < numBytes) {
         d_readBuffer.resize(numBytes);
@@ -852,7 +845,7 @@ int TcpChannel::bufferedRead(int         *augStatus,
             else {
                 d_readBufferedStartPointer = d_readBufferOffset = 0;
             }
-            return numBytesRead;
+            return numBytesRead;                                      // RETURN
         }
         else {
             numBytesRead = availableData;
@@ -874,7 +867,7 @@ int TcpChannel::bufferedRead(int         *augStatus,
             numBytesRead += rc;     // Keep a record of the total bytes read.
             if (numBytes == numBytesRead) { // Read 'numBytes' successfully.
                 *buffer = &d_readBuffer.front();
-                return numBytes;
+                return numBytes;                                      // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
@@ -883,32 +876,30 @@ int TcpChannel::bufferedRead(int         *augStatus,
                 *augStatus = e_ERROR_INTERRUPTED;
                 *buffer = 0;
                 d_readBufferOffset = numBytesRead;
-                return numBytesRead; // Return the total bytes read.
+                return numBytesRead; // Return the total bytes read.  // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "EOF" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesRead;
 }
 
-int TcpChannel::bufferedReadRaw(const char **buffer,
-                                       int          numBytes,
-                                       int)
+int TcpChannel::bufferedReadRaw(const char **buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc            = 0;
@@ -935,7 +926,7 @@ int TcpChannel::bufferedReadRaw(const char **buffer,
             *buffer = &d_readBuffer[d_readBufferedStartPointer];
             d_readBufferedStartPointer = d_readBufferOffset = 0;
         }
-        return numBytesRead;
+        return numBytesRead;                                          // RETURN
     }
 
     BSLS_ASSERT(0 == d_readBufferedStartPointer);
@@ -976,10 +967,7 @@ int TcpChannel::bufferedReadRaw(const char **buffer,
     return retValue;
 }
 
-int TcpChannel::bufferedReadRaw(int         *,
-                                       const char **buffer,
-                                       int          numBytes,
-                                       int)
+int TcpChannel::bufferedReadRaw(int *, const char **buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -987,7 +975,7 @@ int TcpChannel::bufferedReadRaw(int         *,
     BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc            = 0;
@@ -1015,7 +1003,7 @@ int TcpChannel::bufferedReadRaw(int         *,
             *buffer = &d_readBuffer[d_readBufferedStartPointer];
             d_readBufferedStartPointer = d_readBufferOffset = 0;
         }
-        return numBytesRead;
+        return numBytesRead;                                          // RETURN
     }
 
     BSLS_ASSERT(0 == d_readBufferedStartPointer);
@@ -1059,15 +1047,13 @@ int TcpChannel::bufferedReadRaw(int         *,
 ///Write section
 ///-------------
 
-int TcpChannel::write(const char *buffer,
-                             int         numBytes,
-                             int         flags)
+int TcpChannel::write(const char *buffer, int numBytes, int flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, numBytesWritten = 0;
@@ -1079,39 +1065,42 @@ int TcpChannel::write(const char *buffer,
         if (0 < rc) {
             numBytesWritten += rc;
             if (numBytes == numBytesWritten) { // Read 'numBytes' successfully.
-                return numBytesWritten;
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
-                return numBytesWritten; // Return the total bytes written.
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+                // interruptible mode
+
+                // Return the total bytes written.
+
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "CONNDEAD" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesWritten;
 }
 
 int TcpChannel::write(int        *augStatus,
-                             const char *buffer,
-                             int         numBytes,
-                             int         flags)
+                      const char *buffer,
+                      int         numBytes,
+                      int         flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, numBytesWritten = 0;
@@ -1122,39 +1111,41 @@ int TcpChannel::write(int        *augStatus,
         if (0 < rc) {
             numBytesWritten += rc;
             if (numBytes == numBytesWritten) { // Read 'numBytes' successfully.
-                return numBytesWritten;
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+                // interruptible mode
+
                 *augStatus = e_ERROR_INTERRUPTED;
-                return numBytesWritten; // Return the total bytes written.
+
+                // Return the total bytes written.
+
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "CONNDEAD" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesWritten;
 }
 
-int TcpChannel::writeRaw(const char *buffer,
-                                int         numBytes,
-                                int)
+int TcpChannel::writeRaw(const char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, retValue = 0;
@@ -1194,16 +1185,13 @@ int TcpChannel::writeRaw(const char *buffer,
     return retValue;
 }
 
-int TcpChannel::writeRaw(int        *,
-                                const char *buffer,
-                                int         numBytes,
-                                int)
+int TcpChannel::writeRaw(int *, const char *buffer, int numBytes, int)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, retValue = 0;
@@ -1243,15 +1231,13 @@ int TcpChannel::writeRaw(int        *,
     return retValue;
 }
 
-int TcpChannel::writev(const btls::Ovec  *buffers,
-                              int               numBuffers,
-                              int               flags)
+int TcpChannel::writev(const btls::Ovec *buffers, int numBuffers, int flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0,
@@ -1271,7 +1257,7 @@ int TcpChannel::writev(const btls::Ovec  *buffers,
         if (0 < rc) {
             numBytesWritten += rc;
             if (length == numBytesWritten) { // This write operation succeeded.
-                return numBytesWritten;
+                return numBytesWritten;                               // RETURN
             }
             else {
                 // Adjust the buffer for next "read" try.
@@ -1284,34 +1270,35 @@ int TcpChannel::writev(const btls::Ovec  *buffers,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
-                return numBytesWritten;  // Return the total bytes written.
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+                // interruptible mode
+
+                // Return the total bytes written.
+
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesWritten;
 }
 
-int TcpChannel::writev(const btls::Iovec *buffers,
-                              int               numBuffers,
-                              int               flags)
+int TcpChannel::writev(const btls::Iovec *buffers, int numBuffers, int flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0,
@@ -1331,7 +1318,7 @@ int TcpChannel::writev(const btls::Iovec *buffers,
         if (0 < rc) {
             numBytesWritten += rc;
             if (length == numBytesWritten) { // This write operation succeeded.
-                return numBytesWritten;
+                return numBytesWritten;                               // RETURN
             }
             else {
                 // Adjust the buffer for next "read" try.
@@ -1344,35 +1331,38 @@ int TcpChannel::writev(const btls::Iovec *buffers,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
-                return numBytesWritten;  // Return the total bytes written.
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+                // interruptible mode
+
+                // Return the total bytes written.
+
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesWritten;
 }
 
 int TcpChannel::writev(int              *augStatus,
-                              const btls::Ovec  *buffers,
-                              int               numBuffers,
-                              int               flags)
+                       const btls::Ovec *buffers,
+                       int               numBuffers,
+                       int               flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0,
@@ -1392,7 +1382,7 @@ int TcpChannel::writev(int              *augStatus,
         if (0 < rc) {
             numBytesWritten += rc;
             if (length == numBytesWritten) { // This write operation succeeded.
-                return numBytesWritten;
+                return numBytesWritten;                               // RETURN
             }
             else {
                 // Adjust the buffer for next "read" try.
@@ -1405,35 +1395,40 @@ int TcpChannel::writev(int              *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) { // interruptible
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+                // interruptible
+
                 *augStatus = e_ERROR_INTERRUPTED;
-                return numBytesWritten;  // Return the total bytes written.
+
+                // Return the total bytes written.
+
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesWritten;
 }
 
-int TcpChannel::writev(int              *augStatus,
-                              const btls::Iovec *buffers,
-                              int               numBuffers,
-                              int               flags)
+int TcpChannel::writev(int               *augStatus,
+                       const btls::Iovec *buffers,
+                       int                numBuffers,
+                       int                flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0,
@@ -1453,7 +1448,7 @@ int TcpChannel::writev(int              *augStatus,
         if (0 < rc) {
             numBytesWritten += rc;
             if (length == numBytesWritten) { // This write operation succeeded.
-                return numBytesWritten;
+                return numBytesWritten;                               // RETURN
             }
             else {
                 // Adjust the buffer for next "read" try.
@@ -1466,35 +1461,37 @@ int TcpChannel::writev(int              *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                          // mode
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+                // interruptible mode
+
                 *augStatus = e_ERROR_INTERRUPTED;
-                return numBytesWritten;  // Return the total bytes written.
+
+                // Return the total bytes written.
+
+                return numBytesWritten;                               // RETURN
             }
         }
         else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
-            return e_ERROR_EOF;
+            return e_ERROR_EOF;                                       // RETURN
         }
         else {
             // Errors other than "asynchronous event" or "" occur.
             d_isInvalidFlag = 1;
-            return e_ERROR_UNCLASSIFIED;
+            return e_ERROR_UNCLASSIFIED;                              // RETURN
         }
     }
     return numBytesWritten;
 }
 
-int TcpChannel::writevRaw(const btls::Ovec *buffers,
-                                 int              numBuffers,
-                                 int)
+int TcpChannel::writevRaw(const btls::Ovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, retValue = 0;
@@ -1535,15 +1532,13 @@ int TcpChannel::writevRaw(const btls::Ovec *buffers,
     return retValue;
 }
 
-int TcpChannel::writevRaw(const btls::Iovec *buffers,
-                                 int               numBuffers,
-                                 int)
+int TcpChannel::writevRaw(const btls::Iovec *buffers, int numBuffers, int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, retValue = 0;
@@ -1584,16 +1579,16 @@ int TcpChannel::writevRaw(const btls::Iovec *buffers,
     return retValue;
 }
 
-int TcpChannel::writevRaw(int             *,
-                                 const btls::Ovec *buffers,
-                                 int              numBuffers,
-                                 int)
+int TcpChannel::writevRaw(int              *,
+                          const btls::Ovec *buffers,
+                          int               numBuffers,
+                          int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, retValue = 0;
@@ -1634,16 +1629,16 @@ int TcpChannel::writevRaw(int             *,
     return retValue;
 }
 
-int TcpChannel::writevRaw(int              *,
-                                 const btls::Iovec *buffers,
-                                 int               numBuffers,
-                                 int)
+int TcpChannel::writevRaw(int               *,
+                          const btls::Iovec *buffers,
+                          int                numBuffers,
+                          int)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;
+        return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = 0, retValue = 0;

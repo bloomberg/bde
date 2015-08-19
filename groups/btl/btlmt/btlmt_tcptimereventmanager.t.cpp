@@ -133,7 +133,7 @@ void waitForASec()
     bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1, 0));
 }
 
-} // close namespace TEST_CASE_COLLECT_TIME_METRICS
+}  // close namespace TEST_CASE_COLLECT_TIME_METRICS
 
 //=============================================================================
 //       ADDITIONAL 'enable' and 'isEnabled' TEST: DRQS 15212134
@@ -150,7 +150,7 @@ void testIsEnabled(btlmt::TcpTimerEventManager *manager,
     *complete = 1;
 }
 
-} // close namespace TEST_CASE_DRQS15212134
+}  // close namespace TEST_CASE_DRQS15212134
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -657,7 +657,7 @@ void readData(ReadDataType *readDataArgs)
                                        &errorCode);
     if (rc <= 0) {
         cout << "ReadData rc: " << rc << " errorCode: " << errorCode << endl;
-        return;
+        return;                                                       // RETURN
     }
 
     ASSERT(rc > 0);
@@ -677,7 +677,7 @@ void writeData(WriteDataType *writeDataArgs)
 {
     if (writeDataArgs->d_numBytesWritten >=
                                           writeDataArgs->d_totalBytesToWrite) {
-        return;
+        return;                                                       // RETURN
     }
 
     const int SIZE = 1024;
@@ -689,7 +689,7 @@ void writeData(WriteDataType *writeDataArgs)
 
     if (rc <= 0) {
         cout << "WriteData rc: " << rc << endl;
-        return;
+        return;                                                       // RETURN
     }
 
     ASSERT(rc > 0);
@@ -723,7 +723,7 @@ int main(int argc, char *argv[])
     if (MIN_REQUIRED_OPEN_FILES > maxNumOpenFiles) {
         LOOP2_ASSERT(maxNumOpenFiles, MIN_REQUIRED_OPEN_FILES,
                      "Not enough system resources.");
-        return testStatus;
+        return testStatus;                                            // RETURN
     }
     if (veryVerbose) {
         P_(maxNumOpenFiles);
@@ -1192,11 +1192,11 @@ int main(int argc, char *argv[])
               btlso::DefaultEventManager<btlso::Platform::SELECT>
                                           dummyEventManager(0, &testAllocator);
               Obj mA(&testAllocator);
-              Obj mB(Obj::BTEMT_NO_HINT, &testAllocator);
-              Obj mC(Obj::BTEMT_NO_HINT, true, &testAllocator);
-              Obj mD(Obj::BTEMT_NO_HINT, false, &testAllocator);
-              Obj mE(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
-              Obj mF(Obj::BTEMT_NO_HINT, false, false, &testAllocator);
+              Obj mB(Obj::e_NO_HINT, &testAllocator);
+              Obj mC(Obj::e_NO_HINT, true, &testAllocator);
+              Obj mD(Obj::e_NO_HINT, false, &testAllocator);
+              Obj mE(Obj::e_NO_HINT, false, true, &testAllocator);
+              Obj mF(Obj::e_NO_HINT, false, false, &testAllocator);
               Obj mG(&dummyEventManager, &testAllocator);
               Obj mH(true, &testAllocator);
               Obj mI(false, &testAllocator);
@@ -1276,7 +1276,7 @@ int main(int argc, char *argv[])
               ASSERT(0 !=
                   btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
-              Obj mX(Obj::BTEMT_NO_HINT, false, &testAllocator);
+              Obj mX(Obj::e_NO_HINT, false, &testAllocator);
               const Obj& X = mX;
               bdlf::Function<void (*)()> callback(&waitForASec);
               ASSERT(0 == mX.registerSocketEvent(handles[1],
@@ -1735,7 +1735,7 @@ int main(int argc, char *argv[])
                  << "==============================================" << endl;
         {
             for (int k = 0; k < 2; ++k) {
-                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                Obj mX(Obj::e_NO_HINT, false, (bool) k, &testAllocator);
                 const Obj& X = mX;
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
@@ -1801,7 +1801,7 @@ int main(int argc, char *argv[])
                  << "======================" << endl;
         {
             for (int k = 0; k < 2; ++k) {
-                Obj mX(Obj::BTEMT_NO_HINT, false, (bool) k, &testAllocator);
+                Obj mX(Obj::e_NO_HINT, false, (bool) k, &testAllocator);
                 const Obj& X = mX;
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
@@ -1863,7 +1863,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            Obj mX(Obj::e_NO_HINT, false, true, &testAllocator);
             const Obj& X = mX;
 
             ASSERT(0 == mX.isEnabled());
@@ -1904,7 +1904,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 10 };
-            Obj mX(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
+            Obj mX(Obj::e_NO_HINT, false, true, &testAllocator);
             const Obj& X = mX;
             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
             bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
@@ -2185,11 +2185,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

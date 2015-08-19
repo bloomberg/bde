@@ -1,4 +1,4 @@
-// bdlmxxx_rowlayout.t.cpp                                               -*-C++-*-
+// bdlmxxx_rowlayout.t.cpp                                            -*-C++-*-
 
 #include <bdlmxxx_rowlayout.h>
 
@@ -117,7 +117,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] void stretchRemoveAll(Obj *object, int size);
 // [ 9] bdlmxxx::RowLayout& operator=(const bdlmxxx::RowLayout& rhs);
 //=============================================================================
-//            STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
@@ -262,12 +262,12 @@ struct ChoiceArrayRep {
 #endif
 };
 
-template<bdlmxxx::ElemType::Type e, typename t>
+template<bdlmxxx::ElemType::Type e, class t>
 struct ElemAttGenerator {
     static bdlmxxx::Descriptor s;
 };
 
-template<bdlmxxx::ElemType::Type e, typename t>
+template<bdlmxxx::ElemType::Type e, class t>
 bdlmxxx::Descriptor ElemAttGenerator<e,t>::s =
 {
     e,
@@ -348,7 +348,7 @@ enum {
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 const TYPE *vectorData(const bsl::vector<TYPE>& v)
     // Return a pointer to the first element of 'v' or null if 'v' is empty.
 {
@@ -516,7 +516,7 @@ int ggg(Obj *obj, const char *spec, int VF=1)
     enum { SUCCESS = -1 };
     // No modifications in the two cases of empty string.
     if (!spec || *spec == '\0') {
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
     }
     int len = (int)strlen(spec);
 
@@ -544,7 +544,7 @@ int ggg(Obj *obj, const char *spec, int VF=1)
                      << i
                      << '.' << endl;
             }
-            return i;
+            return i;                                                 // RETURN
         }
     }
     return SUCCESS;
@@ -5709,11 +5709,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

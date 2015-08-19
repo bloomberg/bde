@@ -346,6 +346,7 @@ bool parseInt(const bsl::string& s, int *result, bslma::TestAllocator *pa)
     long long wider;
     ss >> wider;
     if (ss.fail() || wider > INT_MAX || wider < INT_MIN) return false;
+                                                                      // RETURN
     *result = static_cast<int>(wider);
     return true;
 }
@@ -362,7 +363,7 @@ bool parseUInt(const bsl::string& s, unsigned int *result,
     bsl::istringstream ss(s, pa);
     unsigned long long wider;
     ss >> wider;
-    if (ss.fail() || wider > UINT_MAX ) return false;
+    if (ss.fail() || wider > UINT_MAX ) return false;                 // RETURN
     *result = static_cast<unsigned int>(wider);
     return true;
 }

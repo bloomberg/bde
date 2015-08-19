@@ -4,6 +4,7 @@
 #include <baltzo_datafileloader.h>
 #include <baltzo_defaultzoneinfocache.h>
 #include <baltzo_errorcode.h>
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_localtimeperiod.h>
 #include <baltzo_testloader.h>
 #include <baltzo_zoneinfoutil.h>
@@ -14,6 +15,7 @@
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
 #include <bsl_memory.h>
@@ -31,6 +33,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
 #undef DS
@@ -120,13 +124,13 @@ typedef baltzo::DstPolicy                         Dst;
 //=============================================================================
 //                              GLOBAL CONSTANTS
 //-----------------------------------------------------------------------------
-const Dst::Enum      DU   = Dst::BALTZO_UNSPECIFIED;
-const Dst::Enum      DD   = Dst::BALTZO_DST;
-const Dst::Enum      DS   = Dst::BALTZO_STANDARD;
-const Validity::Enum VU   = Validity::BALTZO_VALID_UNIQUE;
-const Validity::Enum VA   = Validity::BALTZO_VALID_AMBIGUOUS;
-const Validity::Enum VI   = Validity::BALTZO_INVALID;
-const Err::Enum      EUID = Err::BALTZO_UNSUPPORTED_ID;
+const Dst::Enum      DU   = Dst::e_UNSPECIFIED;
+const Dst::Enum      DD   = Dst::e_DST;
+const Dst::Enum      DS   = Dst::e_STANDARD;
+const Validity::Enum VU   = Validity::e_VALID_UNIQUE;
+const Validity::Enum VA   = Validity::e_VALID_AMBIGUOUS;
+const Validity::Enum VI   = Validity::e_INVALID;
+const Err::Enum      EUID = Err::k_UNSUPPORTED_ID;
 
 // Standard Identifiers
 const char *NY       = "America/New_York";
@@ -799,8 +803,8 @@ struct LogVerbosityGuard {
     int  d_defaultPassthrough;  // default passthrough log level
 
     LogVerbosityGuard(bool verbose = false)
-        // If the specified 'verbose' is 'false' disable logging util this
-        // guard is destroyed.
+        // If the optionally specified 'verbose' is 'false' disable logging
+        // until this guard is destroyed.
     {
         d_verbose = verbose;
         if (!d_verbose) {
@@ -808,35 +812,35 @@ struct LogVerbosityGuard {
                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
 
         }
     }
 
-   ~LogVerbosityGuard()
+    ~LogVerbosityGuard()
         // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
         }
     }
 };
@@ -861,10 +865,10 @@ static bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
 }
 
 static bdlt::Datetime fromIso8601 (const char *iso8601TimeString)
-   // Return the datetime value indicated by the specified
-   // 'iso8601TimeString'.  The behavior is undefined unless
-   // 'iso8601TimeString' is a null-terminated C - string containing a time
-   // description matching the iso8601 specification (see 'bdlt_iso8601util').
+    // Return the datetime value indicated by the specified
+    // 'iso8601TimeString'.  The behavior is undefined unless
+    // 'iso8601TimeString' is a null-terminated C - string containing a time
+    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
     int rc = bdlt::Iso8601Util::parse(&time,
@@ -885,7 +889,7 @@ struct TransitionDescription {
    bool        d_isDst;
 };
 
-static void addTransitions(baltzo::Zoneinfo             *result,
+static void addTransitions(baltzo::Zoneinfo            *result,
                            const TransitionDescription *descriptions,
                            int                          numDescriptions)
     // Insert to the specified 'result' the contiguous sequence of specified
@@ -1162,11 +1166,11 @@ int main(int argc, char *argv[])
         //:
         //: 2 The local-time descriptor held by 'result' has the correct value.
         //:
-        //: 3 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 3 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 4 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
-        //:   error occurs.
+        //: 4 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
+        //:   occurs.
         //
         // Plan:
         // 1 Invoke 'loadLocalTimePeriodForUtc' passing an invalid time zone id
@@ -1517,11 +1521,11 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The parameters are correctly forwarded to 'resolveLocalTime'.
         //:
-        //: 3 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 3 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 4 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
-        //:   error occurs.
+        //: 4 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
+        //:   occurs.
         //
         // Plan:
         //: 1 Invoke 'initLocalTime' passing an invalid time zone id
@@ -1830,11 +1834,11 @@ int main(int argc, char *argv[])
         //: 4 The (output) iterator refers to the specified input
         //:   'baltzo::Zoneinfo'.
         //:
-        //: 5 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 5 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 6 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
-        //:   error occurs.
+        //: 6 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
+        //:   occurs.
         //:
         //:7 The correct transition and descriptor is applied for time zones
         //:  for which the local time always with DST *on*, passing in
@@ -2439,11 +2443,11 @@ int main(int argc, char *argv[])
         //: 1 The parameters are correctly forwarded to
         //:   'baltzo::ZoneinfoUtil::convertUtcToLocalTime'.
         //:
-        //: 2 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 2 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 3 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
-        //:   error occurs.
+        //: 3 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
+        //:   occurs.
         //
         // Plan:
         //: 1 Invoke 'convertUtcToLocalTime' passing an invalid time zone id

@@ -505,7 +505,7 @@ class Channel {
     void setUserData(void *userData);
         // Set the opaque user data associated to this channel.
 
-    template <typename MessageType>
+    template <class MessageType>
     int writeMessage(const MessageType&   msg,
                      int                  enqueueWatermark,
                      const ChannelHandle& self);
@@ -1864,7 +1864,7 @@ int Channel::initiateReadSequence(ChannelHandle self)
     return rCode;
 }
 
-template <typename MessageType>
+template <class MessageType>
 int Channel::writeMessage(const MessageType&   msg,
                           int                  enqueueWatermark,
                           const ChannelHandle& self)
@@ -2243,7 +2243,7 @@ void ChannelPool::init()
     for (int i = 0; i < maxThread; ++i) {
         TcpTimerEventManager *manager =
             new (*d_allocator_p) TcpTimerEventManager(
-                                           TcpTimerEventManager::BTEMT_NO_HINT,
+                                           TcpTimerEventManager::e_NO_HINT,
                                            d_collectTimeMetrics,
                                            d_allocator_p);
         if (d_startFlag) {
@@ -2389,7 +2389,7 @@ void ChannelPool::acceptCb(int                          serverId,
                                      &socket,
                                      newId, serverId,
                                      d_config,
-                                     ChannelType::BTEMT_ACCEPTED_CHANNEL,
+                                     ChannelType::e_ACCEPTED_CHANNEL,
                                      server->d_keepHalfOpenMode,
                                      d_channelStateCb,
                                      d_blobBasedReadCb,
@@ -3048,8 +3048,8 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     // aCC (aC++/ANSI C B3910B A.06.00 [Aug 25 2004]).
 
     ChannelType::Value type = imported
-                                  ? ChannelType::BTEMT_IMPORTED_CHANNEL
-                                  : ChannelType::BTEMT_CONNECTED_CHANNEL;
+                                  ? ChannelType::e_IMPORTED_CHANNEL
+                                  : ChannelType::e_CONNECTED_CHANNEL;
     Channel *channelPtr = new (d_pool) Channel(&socket,
                                                newId,
                                                sourceId,
@@ -3746,7 +3746,7 @@ int ChannelPool::shutdown(int                      channelId,
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
     BSLS_ASSERT(channelHandle);
 
@@ -3760,7 +3760,7 @@ int ChannelPool::shutdown(int                      channelId,
 
     Channel *channel = channelHandle.get();
     if (channel->isChannelDown(channelDownMask)) {
-        return ALREADY_DEAD;
+        return ALREADY_DEAD;                                          // RETURN
     }
 
     channel->notifyChannelDown(channelHandle, type, false);
@@ -3786,7 +3786,7 @@ int ChannelPool::stopAndRemoveAllChannels()
                int rc = d_managers[i]->enable(attr);
                BSLS_ASSERT(0 == rc);
            }
-           return -1;
+           return -1;                                                 // RETURN
         }
     }
     d_startFlag = 0;
@@ -3828,7 +3828,7 @@ int ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     BSLS_ASSERT(channelHandle);
 
@@ -3841,7 +3841,7 @@ int ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     BSLS_ASSERT(channelHandle);
 
@@ -3857,7 +3857,7 @@ int ChannelPool::setWriteCacheWatermarks(int channelId,
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     BSLS_ASSERT(channelHandle);
 
@@ -3895,7 +3895,7 @@ int ChannelPool::start()
                int rc = d_managers[i]->disable();
                BSLS_ASSERT(0 == rc);
            }
-           return ret;
+           return ret;                                                // RETURN
         }
     }
     d_startFlag = 1;
@@ -3915,7 +3915,7 @@ int ChannelPool::stop()
                int rc = d_managers[i]->enable(attr);
                BSLS_ASSERT(0 == rc);
            }
-           return -1;
+           return -1;                                                 // RETURN
         }
     }
     d_startFlag = 0;
@@ -3942,14 +3942,14 @@ int ChannelPool::write(int                 channelId,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                           0 != findChannelHandle(&channelHandle, channelId))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                             !channelHandle->isChannelDown(CLOSED_SEND_MASK))) {
         return channelHandle->writeMessage(blob,
                                            enqueueWatermark,
-                                           channelHandle);
+                                           channelHandle);            // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     return NOT_FOUND;
@@ -3965,7 +3965,7 @@ int ChannelPool::write(int               channelId,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                           0 != findChannelHandle(&channelHandle, channelId))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
@@ -3973,7 +3973,7 @@ int ChannelPool::write(int               channelId,
         return channelHandle->writeMessage(
                     ChannelPool_IovecArray<btls::Iovec>(vecs, numVecs),
                     0x7FFFFFFF,
-                    channelHandle);
+                    channelHandle);                                   // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     return NOT_FOUND;
@@ -3989,7 +3989,7 @@ int ChannelPool::write(int              channelId,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                           0 != findChannelHandle(&channelHandle, channelId))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
@@ -3997,7 +3997,7 @@ int ChannelPool::write(int              channelId,
         return channelHandle->writeMessage(
                     ChannelPool_IovecArray<btls::Ovec>(vecs, numVecs),
                     0x7FFFFFFF,
-                    channelHandle);
+                    channelHandle);                                   // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     return NOT_FOUND;
@@ -4032,7 +4032,7 @@ int ChannelPool::registerClock(const bdlf::Function<void (*)()>& command,
 
     bdlqq::LockGuard<bdlqq::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {
-        return DUPLICATE_ID;
+        return DUPLICATE_ID;                                          // RETURN
     }
 
     bsl::pair<TimerStateMap::iterator,bool> tsp =
@@ -4058,7 +4058,7 @@ int ChannelPool::registerClock(const bdlf::Function<void (*)()>& command,
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return INVALID_CHANNEL_ID;
+        return INVALID_CHANNEL_ID;                                    // RETURN
     }
 
     TcpTimerEventManager *manager = channelHandle->eventManager();
@@ -4076,7 +4076,7 @@ int ChannelPool::registerClock(const bdlf::Function<void (*)()>& command,
 
     bdlqq::LockGuard<bdlqq::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {
-        return DUPLICATE_ID;
+        return DUPLICATE_ID;                                          // RETURN
     }
 
     bsl::pair<TimerStateMap::iterator,bool> tsp =
@@ -4096,7 +4096,7 @@ void ChannelPool::deregisterClock(int clockId)
         bdlqq::LockGuard<bdlqq::Mutex> tGuard1(&d_timersLock);
         TimerStateMap::iterator tsit = d_timers.find(clockId);
         if (d_timers.end() == tsit) {
-            return;
+            return;                                                   // RETURN
         }
         manager = tsit->second.d_eventManager_p;
         timerId = tsit->second.d_eventManagerId;
@@ -4114,7 +4114,7 @@ void ChannelPool::deregisterClock(int clockId)
             // We could be racing against another thread, and the previous
             // value of 'tsit' may no longer be valid.  This is not an error.
 
-            return;
+            return;                                                   // RETURN
         }
         d_timers.erase(tsit);
     }
@@ -4130,7 +4130,7 @@ int ChannelPool::getLingerOption(
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
     return channelHandle->socket()->lingerOption(result);
 }
@@ -4147,7 +4147,7 @@ ChannelPool::getServerSocketOption(int *result,
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return idx->second->d_socket_p->socketOption(result, level, option);
@@ -4164,7 +4164,7 @@ int ChannelPool::getSocketOption(int *result,
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return channelHandle->socket()->socketOption(result, level, option);
@@ -4178,7 +4178,7 @@ int ChannelPool::setLingerOption(
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return channelHandle->socket()->setLingerOption(value);
@@ -4194,7 +4194,7 @@ int ChannelPool::setServerSocketOption(int option,
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
     BSLS_ASSERT(idx->second->d_socket_p);
 
@@ -4210,7 +4210,7 @@ int ChannelPool::setSocketOption(int option,
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 
     return channelHandle->socket()->setOption(level, option, value);
@@ -4302,7 +4302,7 @@ void *ChannelPool::channelContext(int channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
-        return channelHandle->userData();
+        return channelHandle->userData();                             // RETURN
     }
     return 0;
 }
@@ -4332,7 +4332,7 @@ int ChannelPool::getChannelStatistics(
         *numRead = channel->numBytesRead();
         *numRequestedToBeWritten = channel->numBytesRequestedToBeWritten();
         *numWritten = channel->numBytesWritten();
-        return 0;
+        return 0;                                                     // RETURN
     }
     return 1;
 }
@@ -4381,7 +4381,7 @@ void ChannelPool::getHandleStatistics(
             // 'listen()' under the lock.
 
             info.d_handle       = ss.d_socket_p->handle();
-            info.d_channelType  = ChannelType::BTEMT_LISTENING_CHANNEL;
+            info.d_channelType  = ChannelType::e_LISTENING_CHANNEL;
             info.d_channelId    = -1;
             info.d_creationTime = ss.d_creationTime;
             info.d_threadHandle = ss.d_manager_p->dispatcherThreadHandle();
@@ -4406,7 +4406,7 @@ void ChannelPool::getHandleStatistics(
                 HandleInfo& info = handleInfo->back();
 
                 info.d_handle       = cs.d_socket->handle();
-                info.d_channelType  = ChannelType::BTEMT_CONNECTING_CHANNEL;
+                info.d_channelType  = ChannelType::e_CONNECTING_CHANNEL;
                 info.d_channelId    = -1;
                 info.d_creationTime = cs.d_creationTime;
                 info.d_threadHandle = cs.d_manager_p->dispatcherThreadHandle();
@@ -4444,7 +4444,7 @@ ChannelPool::getServerAddress(btlso::IPv4Address *result,
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *result = idx->second->d_endpoint;
@@ -4459,7 +4459,7 @@ ChannelPool::getLocalAddress(btlso::IPv4Address *result,
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return channelHandle->socket()->localAddress(result);
@@ -4474,7 +4474,7 @@ ChannelPool::getPeerAddress(btlso::IPv4Address *result,
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         *result = channelHandle->peerAddress();
-        return 0;
+        return 0;                                                     // RETURN
     }
     return 1;
 }
@@ -4485,7 +4485,7 @@ int ChannelPool::numBytesRead(bsls::Types::Int64 *result,
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         *result = channelHandle->numBytesRead();
-        return 0;
+        return 0;                                                     // RETURN
     }
     return 1;
 }
@@ -4497,7 +4497,7 @@ int ChannelPool::numBytesRequestedToBeWritten(
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         *result = channelHandle->numBytesRequestedToBeWritten();
-        return 0;
+        return 0;                                                     // RETURN
     }
     return 1;
 }
@@ -4508,7 +4508,7 @@ int ChannelPool::numBytesWritten(bsls::Types::Int64 *result,
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         *result = channelHandle->numBytesWritten();
-        return 0;
+        return 0;                                                     // RETURN
     }
     return 1;
 }
@@ -4572,7 +4572,7 @@ const btlso::IPv4Address *ChannelPool::serverAddress(int serverId) const
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     return &idx->second->d_endpoint;
@@ -4655,15 +4655,22 @@ void ChannelPool_MessageUtil::appendToBlob(btlb::Blob        *dest,
     dest->trimLastDataBuffer();
 }
 
-} // close package namespace
+}  // close package namespace
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

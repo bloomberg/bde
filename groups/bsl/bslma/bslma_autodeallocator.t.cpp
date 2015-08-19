@@ -182,7 +182,7 @@ void *TestAllocator::makePointer()
                 printf("Allocating: %d\n", i);
             }
             s_segmentAllocated[i] = true;
-            return s_segmentAllocated + i;
+            return s_segmentAllocated + i;                            // RETURN
         }
     }
 

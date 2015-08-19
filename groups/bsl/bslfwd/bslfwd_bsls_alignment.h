@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class Alignment;
-    }
+    }  // close namespace bsls
 
     typedef bsls::Alignment bsls_Alignment;
-}
+}  // close enterprise namespace
 
 #else
 

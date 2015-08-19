@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(btlsos_tcptimedacceptor_cpp,"$Id$ $CSID$")
 #include <bsls_blockgrowth.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
 
 namespace BloombergLP {
 
@@ -25,9 +26,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     e_BLOCKING_MODE    = bteso_Flag::e_BLOCKING_MODE,
@@ -50,10 +51,10 @@ enum {
 
 template <class RESULT>
 inline
-RESULT *allocate(int                                   *status,
-                 int                                    flags,
+RESULT *allocate(int                                     *status,
+                 int                                      flags,
                  btlso::StreamSocket<btlso::IPv4Address> *socket,
-                 bdlma::Pool                            *pool)
+                 bdlma::Pool                             *pool)
 {
     BSLS_ASSERT(socket);
     BSLS_ASSERT(pool);
@@ -73,14 +74,14 @@ RESULT *allocate(int                                   *status,
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = e_FAILED;
             socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
-            return NULL;
+            return NULL;                                              // RETURN
         }
 
         if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
-            return NULL;
+            return NULL;                                              // RETURN
         }
     }
 
@@ -128,17 +129,17 @@ RESULT *timedAllocate(int                                     *status,
         }
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = -3; // Any negative number satisfies the contract.
-            return NULL;
+            return NULL;                                              // RETURN
         }
         if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
-            return NULL;
+            return NULL;                                              // RETURN
         }
     } while (bdlt::CurrentTime::now() <= timeout);
 
     if (!acceptedConnection) {
         *status = 0; // Timeout occurred.
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     RESULT *channel =
@@ -159,8 +160,8 @@ namespace btlsos {
 
 // CREATORS
 TcpTimedAcceptor::TcpTimedAcceptor(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
@@ -172,9 +173,9 @@ TcpTimedAcceptor::TcpTimedAcceptor(
 }
 
 TcpTimedAcceptor::TcpTimedAcceptor(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 int                                           initialCapacity,
-                 bslma::Allocator                             *basicAllocator)
+               btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+               int                                             initialCapacity,
+               bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE,
          bsls::BlockGrowth::BSLS_CONSTANT,
          initialCapacity,
@@ -250,7 +251,7 @@ btlsc::Channel *TcpTimedAcceptor::allocate(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     TcpChannel *channel = BloombergLP::allocate<TcpChannel> (
@@ -278,7 +279,7 @@ btlsc::TimedChannel *TcpTimedAcceptor::allocateTimed(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::TimedChannel *channel =
@@ -308,7 +309,7 @@ btlsc::Channel *TcpTimedAcceptor::timedAllocate(
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     TcpChannel *channel =
@@ -338,7 +339,7 @@ btlsc::TimedChannel *TcpTimedAcceptor::timedAllocateTimed(
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     TcpTimedChannel *channel =
@@ -383,11 +384,11 @@ int TcpTimedAcceptor::open(const btlso::IPv4Address& endpoint,
     };
 
     if (d_isInvalidFlag) {
-        return e_INVALID_ACCEPTOR;
+        return e_INVALID_ACCEPTOR;                                    // RETURN
     }
     d_serverSocket_p = d_factory_p->allocate();
     if (!d_serverSocket_p) {
-        return e_ALLOCATION_FAILED;
+        return e_ALLOCATION_FAILED;                                   // RETURN
     }
 
     if (reuseAddressFlag) {
@@ -397,34 +398,34 @@ int TcpTimedAcceptor::open(const btlso::IPv4Address& endpoint,
                                       reuseAddressFlag)) {
             d_factory_p->deallocate(d_serverSocket_p);
             d_serverSocket_p = NULL;
-            return e_CANT_SET_OPTIONS;
+            return e_CANT_SET_OPTIONS;                                // RETURN
         }
     }
 
     if (0 != d_serverSocket_p->bind(endpoint)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BIND_FAILED;
+        return e_BIND_FAILED;                                         // RETURN
     }
 
     if (0 != d_serverSocket_p->localAddress(&d_serverAddress)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BIND_FAILED;
+        return e_BIND_FAILED;                                         // RETURN
     }
     BSLS_ASSERT(d_serverAddress.portNumber());
 
     if (0 != d_serverSocket_p->listen(queueSize)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_LISTEN_FAILED;
+        return e_LISTEN_FAILED;                                       // RETURN
     }
 
     if (0 != d_serverSocket_p->setBlockingMode(
                                          bteso_Flag::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BLOCKMODE_FAILED;
+        return e_BLOCKMODE_FAILED;                                    // RETURN
     }
     return e_SUCCESS;
 }
@@ -439,16 +440,15 @@ int TcpTimedAcceptor::setOption(int level, int option, int value)
 
 // ACCESSORS
 
-int
-TcpTimedAcceptor::getOption(int *result, int level, int option) const
+int TcpTimedAcceptor::getOption(int *result, int level, int option) const
 {
     BSLS_ASSERT(!d_isInvalidFlag);
     BSLS_ASSERT(d_serverSocket_p);
 
     return d_serverSocket_p->socketOption(result, level, option);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

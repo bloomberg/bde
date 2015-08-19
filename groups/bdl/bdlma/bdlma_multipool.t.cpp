@@ -226,10 +226,11 @@ void scribble(char *address, int size)
 }
 
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-   // Using only primary manipulators, extend the capacity of the specified
-   // 'object' to (at least) the specified 'numElements', each of the specified
-   // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
-   // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements', each of the
+    // specified 'objSize' bytes, then remove all elements leaving 'object'
+    // empty.  The behavior is undefined unless '0 <= numElements' and
+    // '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -265,9 +266,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     class my_MessageFactory;
 
     class my_Message {
-        // This class represents a general message interface that provides
-        // a 'getMessage' method for clients to retrieve the underlying
-        // message.
+        // This class represents a general message interface that provides a
+        // 'getMessage' method for clients to retrieve the underlying message.
 
       public:
         // ACCESSORS
@@ -402,6 +402,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // DATA
         bdlma::Multipool d_multipool;  // multipool used to supply memory
+
+      private:
+        // Not implemented:
+        my_MessageFactory(const my_MessageFactory&);
 
       public:
         // CREATORS
@@ -702,13 +706,13 @@ int main(int argc, char *argv[])
             int d_numPools;      // number of pools
             int d_maxBlockSize;  // maximum block size
         } DATA[] = {
-            //LINE  NUMPOOLS    MAXBLOCKSIZE
-            //----  --------    ------------
-            { L_,   1,          8            },
-            { L_,   2,          16           },
-            { L_,   3,          32           },
-            { L_,   4,          64           },
-            { L_,   5,          128          },
+            //LINE  # POOLS     MAXIMUM BLOCK SIZE
+            //----  --------    ------------------
+            { L_,   1,          8                  },
+            { L_,   2,          16                 },
+            { L_,   3,          32                 },
+            { L_,   4,          64                 },
+            { L_,   5,          128                },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2378,7 +2382,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING NUMPOOLS CTOR AND DTOR
+        // TESTING 'NUMPOOLS' CTOR AND DTOR
         //
         // Concerns:
         //   We have the following concerns:

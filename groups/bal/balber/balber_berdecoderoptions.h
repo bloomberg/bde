@@ -1,4 +1,4 @@
-// balber_berdecoderoptions.h   -*-C++-*-
+// balber_berdecoderoptions.h                                         -*-C++-*-
 #ifndef INCLUDED_BALBER_BERDECODEROPTIONS
 #define INCLUDED_BALBER_BERDECODEROPTIONS
 
@@ -7,15 +7,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: TODO: Provide purpose
+//@PURPOSE: Provide an attribute class for specifying BER decoding options.
 //
 //@CLASSES:
-// bdem::balber::BerDecoderOptions: TODO: Provide purpose
+//  bdem::balber::BerDecoderOptions: options for decoding objects in BDE format
 //
 //@AUTHOR: Alexander Libman (alibman1@bloomberg.net)
 //
-//@DESCRIPTION:
-// Schema of options records for bdem codecs
+//@DESCRIPTION: Schema of options records for 'bdem' codecs
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -58,24 +57,20 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace balber {
-                     // ============================
+
+                     // =======================
                      // class BerDecoderOptions
-                     // ============================
+                     // =======================
 
 class BerDecoderOptions {
     // BER decoding options
 
   private:
-    int   d_maxDepth;
-        // maximum recursion depth
-    int   d_traceLevel;
-        // trace (verbosity) level
-    int   d_maxSequenceSize;
-        // maximum sequence size
-    bool  d_skipUnknownElements;
-        // Option to skip unknown elements
+    int   d_maxDepth;            // maximum recursion depth
+    int   d_traceLevel;          // trace (verbosity) level
+    int   d_maxSequenceSize;     // maximum sequence size
+    bool  d_skipUnknownElements; // if 'true', skip unknown elements
 
   public:
     // TYPES
@@ -98,26 +93,31 @@ class BerDecoderOptions {
             // index for "MaxSequenceSize" attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_INDEX_MAX_DEPTH             = e_ATTRIBUTE_INDEX_MAX_DEPTH
-      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
-      , ATTRIBUTE_INDEX_TRACE_LEVEL           = e_ATTRIBUTE_INDEX_TRACE_LEVEL
-      , ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE
+      , ATTRIBUTE_INDEX_MAX_DEPTH             =
+                                        e_ATTRIBUTE_INDEX_MAX_DEPTH
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS =
+                                        e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
+      , ATTRIBUTE_INDEX_TRACE_LEVEL           =
+                                        e_ATTRIBUTE_INDEX_TRACE_LEVEL
+      , ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     =
+                                        e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
         e_ATTRIBUTE_ID_MAX_DEPTH             = 0
-            // id for "MaxDepth" attribute
+            // id for 'MaxDepth' attribute
       , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 1
-            // id for "SkipUnknownElements" attribute
+            // id for 'SkipUnknownElements' attribute
       , e_ATTRIBUTE_ID_TRACE_LEVEL           = 2
-            // id for "TraceLevel" attribute
+            // id for 'TraceLevel' attribute
       , e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = 3
-            // id for "MaxSequenceSize" attribute
+            // id for 'MaxSequenceSize' attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_MAX_DEPTH             = e_ATTRIBUTE_ID_MAX_DEPTH
-      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS =
+                                           e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
       , ATTRIBUTE_ID_TRACE_LEVEL           = e_ATTRIBUTE_ID_TRACE_LEVEL
       , ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -129,18 +129,18 @@ class BerDecoderOptions {
         // the name of this class (i.e., "BerDecoderOptions")
 
     static const int DEFAULT_MAX_DEPTH;
-        // default value of "MaxDepth" attribute
+        // default value of 'MaxDepth' attribute
 
     static const bool DEFAULT_SKIP_UNKNOWN_ELEMENTS;
-        // default value of "SkipUnknownElements" attribute
+        // default value of 'SkipUnknownElements' attribute
 
     static const int DEFAULT_TRACE_LEVEL;
-        // default value of "TraceLevel" attribute
+        // default value of 'TraceLevel' attribute
 
     static const int DEFAULT_MAX_SEQUENCE_SIZE;
-        // default value of "MaxSequenceSize" attribute
+        // default value of 'MaxSequenceSize' attribute
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -166,11 +166,11 @@ class BerDecoderOptions {
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -182,19 +182,16 @@ class BerDecoderOptions {
         // Create an object of type 'BerDecoderOptions' having the default
         // value.
 
-    //! BerDecoderOptions(const BerDecoderOptions& original);
-        // Create an object of type 'BerDecoderOptions' having the value
-        // of the specified 'original' object.  Note that this method's
-        // definition is compiler generated.
+    //! BerDecoderOptions(const BerDecoderOptions& original) = default;
+        // Create a 'BderDecoderOptons' object having the same value as the
+        // specified 'original'.
 
-    //! ~BerDecoderOptions();
-        // Destroy this object.  Note that this method's definition is compiler
-        // generated.
+    //! ~BerDecoderOptions() = default;
+        // Destroy this object.
 
     // MANIPULATORS
-    //! BerDecoderOptions& operator=(const BerDecoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.  Note
-        // that this method's definition is compiler generated.
+    //! BerDecoderOptions& operator=(const BerDecoderOptions& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -210,52 +207,52 @@ class BerDecoderOptions {
         // value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
     void setMaxDepth(int value);
-        // Set the "MaxDepth" attribute of this object to the specified
+        // Set the 'MaxDepth' attribute of this object to the specified
         // 'value'.
 
     void setSkipUnknownElements(bool value);
-        // Set the "SkipUnknownElements" attribute of this object to the
+        // Set the 'SkipUnknownElements' attribute of this object to the
         // specified 'value'.
 
     void setTraceLevel(int value);
-        // Set the "TraceLevel" attribute of this object to the specified
+        // Set the 'TraceLevel' attribute of this object to the specified
         // 'value'.
 
     void setMaxSequenceSize(int value);
-        // Set the "MaxSequenceSize" attribute of this object to the specified
+        // Set the 'MaxSequenceSize' attribute of this object to the specified
         // 'value'.
 
     // ACCESSORS
@@ -288,16 +285,16 @@ class BerDecoderOptions {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -306,8 +303,8 @@ class BerDecoderOptions {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -347,15 +344,15 @@ bool operator!=(const BerDecoderOptions& lhs,
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&                 stream,
+bsl::ostream& operator<<(bsl::ostream&            stream,
                          const BerDecoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference providing modifiable access to 'stream'.
+
+}  // close package namespace
+
 
 // TRAITS
-}
-
-
 BDLAT_DECL_SEQUENCE_TRAITS(balber::BerDecoderOptions)
 
 namespace balber {
@@ -364,9 +361,9 @@ namespace balber {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // ----------------------------
+                          // -----------------------
                           // class BerDecoderOptions
-                          // ----------------------------
+                          // -----------------------
 
 // CLASS METHODS
 inline
@@ -404,9 +401,11 @@ STREAM& BerDecoderOptions::bdexStreamIn(STREAM& stream, int version)
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
             bslx::InStreamFunctions::bdexStreamIn(stream, d_maxDepth, 1);
-            bslx::InStreamFunctions::bdexStreamIn(stream, d_skipUnknownElements, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream,
+                                                  d_skipUnknownElements, 1);
             bslx::InStreamFunctions::bdexStreamIn(stream, d_traceLevel, 1);
-            bslx::InStreamFunctions::bdexStreamIn(stream, d_maxSequenceSize, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream,
+                                                  d_maxSequenceSize, 1);
           } break;
           default: {
             stream.invalidate();
@@ -419,9 +418,9 @@ STREAM& BerDecoderOptions::bdexStreamIn(STREAM& stream, int version)
 inline
 void BerDecoderOptions::reset()
 {
-    d_maxDepth = DEFAULT_MAX_DEPTH;
-    d_traceLevel = DEFAULT_TRACE_LEVEL;
-    d_maxSequenceSize = DEFAULT_MAX_SEQUENCE_SIZE;
+    d_maxDepth            = DEFAULT_MAX_DEPTH;
+    d_traceLevel          = DEFAULT_TRACE_LEVEL;
+    d_maxSequenceSize     = DEFAULT_MAX_SEQUENCE_SIZE;
     d_skipUnknownElements = DEFAULT_SKIP_UNKNOWN_ELEMENTS;
 }
 
@@ -437,8 +436,9 @@ int BerDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = manipulator(
+                &d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -449,8 +449,9 @@ int BerDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+    ret = manipulator(
+                    &d_maxSequenceSize,
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -460,10 +461,9 @@ int BerDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 
 template <class MANIPULATOR>
 inline
-int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
-                                                int          id)
+int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
@@ -472,38 +472,40 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return manipulator(&d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+        return manipulator(
+               &d_skipUnknownElements,
+               ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_TRACE_LEVEL: {
-        return manipulator(&d_traceLevel,
-                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
+        return manipulator(
+                          &d_traceLevel,
+                          ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
-        return manipulator(&d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+        return manipulator(
+                    &d_maxSequenceSize,
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
                                                                       // RETURN
       } break;
       default:
-        return k_BDEM_NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
 inline
-int BerDecoderOptions::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int BerDecoderOptions::manipulateAttribute(MANIPULATOR&  manipulator,
+                                           const char   *name,
+                                           int           nameLength)
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
-           lookupAttributeInfo(name, nameLength);
-    if (0 == attributeInfo) {
-        return k_BDEM_NOT_FOUND;                                        // RETURN
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+                                                                   nameLength);
+    if (!attributeInfo) {
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -537,12 +539,13 @@ void BerDecoderOptions::setMaxSequenceSize(int value)
 template <class STREAM>
 inline
 STREAM& BerDecoderOptions::bdexStreamOut(STREAM& stream,
-                                              int     version) const
+                                         int     version) const
 {
     switch (version) {
       case 1: {
         bslx::OutStreamFunctions::bdexStreamOut(stream, d_maxDepth, 1);
-        bslx::OutStreamFunctions::bdexStreamOut(stream, d_skipUnknownElements, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream,
+                                               d_skipUnknownElements, 1);
         bslx::OutStreamFunctions::bdexStreamOut(stream, d_traceLevel, 1);
         bslx::OutStreamFunctions::bdexStreamOut(stream, d_maxSequenceSize, 1);
       } break;
@@ -565,8 +568,9 @@ int BerDecoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = accessor(
+                d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -590,7 +594,7 @@ template <class ACCESSOR>
 inline
 int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
@@ -599,8 +603,9 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return accessor(d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+        return accessor(
+                d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_TRACE_LEVEL: {
@@ -609,28 +614,28 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
-        return accessor(d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+        return accessor(
+                    d_maxSequenceSize,
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
                                                                       // RETURN
       } break;
       default:
-        return k_BDEM_NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
 inline
-int BerDecoderOptions::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int BerDecoderOptions::accessAttribute(ACCESSOR&   accessor,
+                                       const char *name,
+                                       int         nameLength) const
 {
-    enum { k_BDEM_NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
-          lookupAttributeInfo(name, nameLength);
-    if (0 == attributeInfo) {
-       return k_BDEM_NOT_FOUND;                                         // RETURN
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+                                                                   nameLength);
+    if (!attributeInfo) {
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -659,46 +664,52 @@ const int& BerDecoderOptions::maxSequenceSize() const
 {
     return d_maxSequenceSize;
 }
+
 }  // close package namespace
 
 // FREE FUNCTIONS
 inline
 bool balber::operator==(const BerDecoderOptions& lhs,
-                const BerDecoderOptions& rhs)
+                        const BerDecoderOptions& rhs)
 {
-    return  lhs.maxDepth() == rhs.maxDepth()
+    return  lhs.maxDepth()            == rhs.maxDepth()
          && lhs.skipUnknownElements() == rhs.skipUnknownElements()
-         && lhs.traceLevel() == rhs.traceLevel()
-         && lhs.maxSequenceSize() == rhs.maxSequenceSize();
+         && lhs.traceLevel()          == rhs.traceLevel()
+         && lhs.maxSequenceSize()     == rhs.maxSequenceSize();
 }
 
 inline
 bool balber::operator!=(const BerDecoderOptions& lhs,
-                const BerDecoderOptions& rhs)
+                        const BerDecoderOptions& rhs)
 {
-    return  lhs.maxDepth() != rhs.maxDepth()
+    return  lhs.maxDepth()            != rhs.maxDepth()
          || lhs.skipUnknownElements() != rhs.skipUnknownElements()
-         || lhs.traceLevel() != rhs.traceLevel()
-         || lhs.maxSequenceSize() != rhs.maxSequenceSize();
+         || lhs.traceLevel()          != rhs.traceLevel()
+         || lhs.maxSequenceSize()     != rhs.maxSequenceSize();
 }
 
 inline
-bsl::ostream& balber::operator<<(bsl::ostream&                 stream,
-                         const BerDecoderOptions& rhs)
+bsl::ostream& balber::operator<<(bsl::ostream&            stream,
+                                 const BerDecoderOptions& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
-
+}  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2.1.11 Tue Mar 11 14:28:56 2008
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

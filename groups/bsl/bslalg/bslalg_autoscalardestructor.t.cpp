@@ -198,8 +198,8 @@ class TestType {
 namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {

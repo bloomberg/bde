@@ -77,8 +77,8 @@ static inline
 int computeInternalBlockSize(int blockSize)
     // Return the number of bytes that must be allocated to provide an aligned
     // block of memory of the specified 'blockSize' that can also be used to
-    // represent a 'object' LLink (on the 'bdlma::ConcurrentPool' objects free
-    // list).  Note that this value is the maximum of either the size of a
+    // represent a 'object' 'LLink' (on the 'bdlma::ConcurrentPool' objects
+    // free list).  Note that this value is the maximum of either the size of a
     // 'LLink' object or 'blockSize' rounded up to the alignment required for a
     // 'LLink' object (i.e., the maximum platform alignment).
 {
@@ -163,8 +163,8 @@ ConcurrentPool::ConcurrentPool(int blockSize, bslma::Allocator *basicAllocator)
 }
 
 ConcurrentPool::ConcurrentPool(int                          blockSize,
-                       bsls::BlockGrowth::Strategy  growthStrategy,
-                       bslma::Allocator            *basicAllocator)
+                               bsls::BlockGrowth::Strategy  growthStrategy,
+                               bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
               ? k_MAX_CHUNK_SIZE : k_INITIAL_CHUNK_SIZE)
@@ -179,9 +179,9 @@ ConcurrentPool::ConcurrentPool(int                          blockSize,
 }
 
 ConcurrentPool::ConcurrentPool(int                          blockSize,
-                       bsls::BlockGrowth::Strategy  growthStrategy,
-                       int                          maxBlocksPerChunk,
-                       bslma::Allocator            *basicAllocator)
+                               bsls::BlockGrowth::Strategy  growthStrategy,
+                               int                          maxBlocksPerChunk,
+                               bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
               ? maxBlocksPerChunk : k_INITIAL_CHUNK_SIZE)

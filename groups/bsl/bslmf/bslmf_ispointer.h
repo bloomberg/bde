@@ -136,9 +136,9 @@ struct IsPointer : bsl::is_pointer<TYPE>::type {
 }  // close enterprise namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD-COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_IsPointer
 #undef bslmf_IsPointer

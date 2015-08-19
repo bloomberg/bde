@@ -3,13 +3,6 @@
 #include <btlmt_channelpoolconfiguration.h>
 #include <bdlat_sequencefunctions.h>
 #include <bsls_timeinterval.h>
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_instreamfunctions.h>             // for testing only
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_byteoutstream.h>                 // for testing only
-#include <bdlxxxx_byteinstream.h>                  // for testing only
 
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
@@ -29,7 +22,6 @@ using namespace bsl;  // automatically added by script
 // This test plan follows the standard approach for components implementing
 //
 //-----------------------------------------------------------------------------
-// [ 3] static int maxSupportedBdexVersion();
 // [ 1] btlmt::ChannelPoolConfiguration();
 // [ 1] btlmt::ChannelPoolConfiguration(const btlmt::ChannelPoolConfiguration&);
 // [ 1] ~btlmt::ChannelPoolConfiguration();
@@ -43,8 +35,6 @@ using namespace bsl;  // automatically added by script
 // [ 2] int setMetricsInterval(double metricsInterval);
 // [ 2] int setReadTimeout(double readTimeout);
 // [ 2] int setWorkloadThreshold(int threshold);
-// [ 3] bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream);
-// [ 3] bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream, int version);
 // [ 1] int minIncomingMessageSize() const;
 // [ 1] int typicalIncomingMessageSize() const;
 // [ 1] int maxIncomingMessageSize() const;
@@ -56,14 +46,13 @@ using namespace bsl;  // automatically added by script
 // [ 1] int maxWriteCache() const;
 // [ 1] double metricsInterval() const;
 // [ 1] double readTimeout() const;
-// [ 3] bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream) const;
-// [ 3] bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream, int version) const;
 //
 // [ 1] bool operator==(const btlmt::ChannelPoolConfiguration& lhs, ...
 // [ 1] bool operator!=(const btlmt::ChannelPoolConfiguration& lhs, ...
 // [ 1] bsl::ostream& operator<<(bsl::ostream&, const btemt_ChannelPoolConf...
 //-----------------------------------------------------------------------------
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
+// [ 4] TESTING GENERATED TEMPLATE METHODS and DATA
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -111,8 +100,6 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef btlmt::ChannelPoolConfiguration Obj;
 typedef double TI;
-typedef bdlxxxx::TestInStream  In;
-typedef bdlxxxx::TestOutStream Out;
 
 const int NUM_VALUES = 7;
 
@@ -160,7 +147,7 @@ const bool COLLECTMETRICS[NUM_VALUES] =
                         // class GetValue<LVALUE_TYPE>
                         // ===========================
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 class GetValue {
     // This visitor assigns the value of the visited member to
     // 'd_destination_p'.
@@ -173,12 +160,12 @@ class GetValue {
     explicit GetValue(LVALUE_TYPE *lValue);
 
     // ACCESSORS
-    template <typename INFO_TYPE>
+    template <class INFO_TYPE>
     int operator()(const LVALUE_TYPE& object,
                    const INFO_TYPE&   info) const;
         // Assign 'object' to '*d_destination_p'.
 
-    template <typename RVALUE_TYPE, typename INFO_TYPE>
+    template <class RVALUE_TYPE, class INFO_TYPE>
     int operator()(const RVALUE_TYPE& object,
                    const INFO_TYPE&   info) const;
         // Do nothing.
@@ -188,7 +175,7 @@ class GetValue {
                        // class AssignValue<RVALUE_TYPE>
                        // ==============================
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 class AssignValue {
     // This visitor assigns 'd_value' to the visited member.
 
@@ -200,12 +187,12 @@ class AssignValue {
     explicit AssignValue(const RVALUE_TYPE& value);
 
     // ACCESSORS
-    template <typename INFO_TYPE>
+    template <class INFO_TYPE>
     int operator()(RVALUE_TYPE      *object,
                    const INFO_TYPE&  info) const;
         // Assign 'd_value' to '*object'.
 
-    template <typename LVALUE_TYPE, typename INFO_TYPE>
+    template <class LVALUE_TYPE, class INFO_TYPE>
     int operator()(LVALUE_TYPE      *object,
                    const INFO_TYPE&  info) const;
         // Do nothing.
@@ -217,7 +204,7 @@ class AssignValue {
 
 // CREATORS
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 : d_lValue_p(lValue)
 {
@@ -225,8 +212,8 @@ GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 
 // ACCESSORS
 
-template <typename LVALUE_TYPE>
-template <typename INFO_TYPE>
+template <class LVALUE_TYPE>
+template <class INFO_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object,
                                       const INFO_TYPE&   info) const
 {
@@ -234,8 +221,8 @@ int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object,
     return 0;
 }
 
-template <typename LVALUE_TYPE>
-template <typename RVALUE_TYPE, typename INFO_TYPE>
+template <class LVALUE_TYPE>
+template <class RVALUE_TYPE, class INFO_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object,
                                       const INFO_TYPE&   info) const
 {
@@ -248,7 +235,7 @@ int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object,
 
 // CREATORS
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 : d_value(value)
 {
@@ -256,8 +243,8 @@ AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 
 // ACCESSORS
 
-template <typename RVALUE_TYPE>
-template <typename INFO_TYPE>
+template <class RVALUE_TYPE>
+template <class INFO_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object,
                                          const INFO_TYPE&) const
 {
@@ -265,8 +252,8 @@ int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object,
     return 0;
 }
 
-template <typename RVALUE_TYPE>
-template <typename LVALUE_TYPE, typename INFO_TYPE>
+template <class RVALUE_TYPE>
+template <class LVALUE_TYPE, class INFO_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object,
                                          const INFO_TYPE&) const
 {
@@ -287,7 +274,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -364,7 +351,7 @@ int main(int argc, char *argv[])
             ASSERT(os.str().c_str() == s);
         }
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING GENERATED TEMPLATE METHODS and DATA
         //
@@ -394,7 +381,7 @@ int main(int argc, char *argv[])
             NUM_ATTRIBUTES = 14
         };
 
-        ASSERT(NUM_ATTRIBUTES == Obj::NUM_ATTRIBUTES);
+        ASSERT(NUM_ATTRIBUTES == Obj::k_NUM_ATTRIBUTES);
 
         const char* NAMES[] = {
         "MaxConnections", "MaxThreads", "ReadTimeout", "MetricsInterval",
@@ -409,7 +396,7 @@ int main(int argc, char *argv[])
         {
             btlmt::ChannelPoolConfiguration cpc;
             for (int i = 0; i <  NUM_NAMES; ++i) {
-                bdeat_AttributeInfo info
+                bdlat_AttributeInfo info
                      = btlmt::ChannelPoolConfiguration::ATTRIBUTE_INFO_ARRAY[i];
 
                 LOOP_ASSERT(i, NAMES[i] == bsl::string(info.name(),
@@ -425,7 +412,7 @@ int main(int argc, char *argv[])
             btlmt::ChannelPoolConfiguration cpc;
             AssignValue<int> visitor(0);
             ASSERT(-1 ==
-                 bdeat_SequenceFunctions::manipulateAttribute(
+                 bdlat_SequenceFunctions::manipulateAttribute(
                                                     &cpc,
                                                     visitor,
                                                     NUM_ATTRIBUTES + 1));
@@ -445,7 +432,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMaxConnections(MAXCONNECTIONS[i]));
                     AssignValue<int> visitor(MAXCONNECTIONS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -453,7 +440,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMaxThreads(MAXNUMTHREADS[i]));
                     AssignValue<int> visitor(MAXNUMTHREADS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -461,7 +448,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setReadTimeout(READTIMEOUT[i]));
                     AssignValue<double> visitor(READTIMEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -469,7 +456,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setMetricsInterval(METRICSINTERVAL[i]));
                     AssignValue<double> visitor(METRICSINTERVAL[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -480,7 +467,7 @@ int main(int argc, char *argv[])
                                                mA.maxOutgoingMessageSize()));
                     AssignValue<int> visitor(MINMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -491,7 +478,7 @@ int main(int argc, char *argv[])
                                                  mA.maxOutgoingMessageSize()));
                     AssignValue<int> visitor(TYPMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -502,7 +489,7 @@ int main(int argc, char *argv[])
                                                MAXMESSAGESIZEOUT[i]));
                     AssignValue<int> visitor(MAXMESSAGESIZEOUT[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -513,7 +500,7 @@ int main(int argc, char *argv[])
                                                mA.maxIncomingMessageSize()));
                     AssignValue<int> visitor(MINMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -524,7 +511,7 @@ int main(int argc, char *argv[])
                                                  mA.maxIncomingMessageSize()));
                     AssignValue<int> visitor(TYPMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -535,7 +522,7 @@ int main(int argc, char *argv[])
                                                MAXMESSAGESIZEIN[i]));
                     AssignValue<int> visitor(MAXMESSAGESIZEIN[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -545,7 +532,7 @@ int main(int argc, char *argv[])
                                                   mA.writeCacheHiWatermark()));
                     AssignValue<int> visitor(i);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -555,7 +542,7 @@ int main(int argc, char *argv[])
                                                    MAXWRITECACHE[i]));
                     AssignValue<int> visitor(MAXWRITECACHE[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -563,7 +550,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setThreadStackSize(THREADSTACKSIZE[i]));
                     AssignValue<int> visitor(THREADSTACKSIZE[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -571,7 +558,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mA.setCollectTimeMetrics(COLLECTMETRICS[i]));
                     AssignValue<bool> visitor(COLLECTMETRICS[i]);
                     LOOP2_ASSERT(i, j, 0 ==
-                       bdeat_SequenceFunctions::manipulateAttribute(&mB,
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
                                                                     j + 1));
                   } break;
@@ -585,11 +572,11 @@ int main(int argc, char *argv[])
                     double value;
                     GetValue<double> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<double> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
@@ -597,11 +584,11 @@ int main(int argc, char *argv[])
                     bool value;
                     GetValue<bool> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<bool> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
@@ -609,782 +596,17 @@ int main(int argc, char *argv[])
                     int value;
                     GetValue<int> gvisitor(&value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<int> avisitor(value);
                     ASSERT(0 ==
-                     bdeat_SequenceFunctions::manipulateAttribute(&mC,
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
                                                                   j + 1));
                 }
                 LOOP2_ASSERT(i, j, mA == mC);
             }
         }
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY:
-        //   The 'bdex' streaming concerns for this component are absolutely
-        //   standard.  We first probe the member functions 'outStream' and
-        //   'inStream' in the manner of a "breathing test" to verify basic
-        //   functionality, then we thoroughly test that functionality using
-        //   the available bdex stream functions, which forward appropriate
-        //   calls to the member functions.  We next step through the sequence
-        //   of possible stream states (valid, empty, invalid, incomplete, and
-        //   corrupted), appropriately selecting data sets as described below.
-        //   In all cases, exception neutrality is confirmed using the
-        //   specially instrumented 'bdlxxxx::TestInStream' and a pair of standard
-        //   macros, 'BEGIN_BDEX_EXCEPTION_TEST' and
-        //   'END_BDEX_EXCEPTION_TEST', which configure the
-        //   'bdlxxxx::TestInStream' object appropriately in a loop.
-        //
-        // Plan:
-        //   PRELIMINARY MEMBER FUNCTION TEST
-        //     First perform a trivial direct test of the 'outStream' and
-        //     'inStream' methods (the rest of the testing will use the stream
-        //     operators).
-        //
-        //   VALID STREAMS
-        //     For the set S of globally-defined test values, use all
-        //     combinations (u, v) in the cross product S X S, stream the
-        //     value of v into (a temporary copy of) u and assert u == v.
-        //
-        //   EMPTY AND INVALID STREAMS
-        //     For each u in S, create a copy and attempt to stream into it
-        //     from an empty and then invalid stream.  Verify after each try
-        //     that the object is unchanged and that the stream is invalid.
-        //
-        //   INCOMPLETE (BUT OTHERWISE VALID) DATA
-        //     Write 3 distinct objects to an output stream buffer of total
-        //     length N.  For each partial stream length from 0 to N - 1,
-        //     construct an input stream and attempt to read into objects
-        //     initialized with distinct values.  Verify values of objects
-        //     that are either successfully modified or left entirely
-        //     unmodified, and that the stream became invalid immediately after
-        //     the first incomplete read.  Finally ensure that each object
-        //     streamed into is in some valid state by assigning it a distinct
-        //     new value and testing for equality.
-        //
-        //   CORRUPTED DATA
-        //     Use the underlying stream package to simulate an instance of a
-        //     typical valid (control) stream and verify that it can be
-        //     streamed in successfully.  Then for each data field in the
-        //     stream (beginning with the version number), provide one or more
-        //     similar tests with that data field corrupted.  After each test,
-        //     verify that the object is in some valid state after streaming,
-        //     and that the input stream has gone invalid.
-        //
-        //   Finally, tests of the explicit wire format will be performed.
-        //
-        // Testing:
-        //   int maxSupportedBdexVersion() const;
-        //   bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream);
-        //   bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream, int version);
-        //   bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream) const;
-        //   bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream, int) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Streaming Functionality"
-                          << "\n===============================" << endl;
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // object values for various stream tests
-
-        Obj va, vb, vc, vd, ve, vf;
-        ASSERT(0 == va.setIncomingMessageSizes(MINMESSAGESIZEIN[1],
-                                                TYPMESSAGESIZEIN[1],
-                                                MAXMESSAGESIZEIN[1]));
-        ASSERT(0 == va.setOutgoingMessageSizes(MINMESSAGESIZEOUT[1],
-                                                TYPMESSAGESIZEOUT[1],
-                                                MAXMESSAGESIZEOUT[1]));
-        ASSERT(0 == va.setMaxConnections(MAXCONNECTIONS[1]));
-        ASSERT(0 == va.setMaxThreads(MAXNUMTHREADS[1]));
-        ASSERT(0 == va.setMaxWriteCache(MAXWRITECACHE[1]));
-        ASSERT(0 == va.setMetricsInterval(METRICSINTERVAL[1]));
-        ASSERT(0 == va.setReadTimeout(READTIMEOUT[1]));
-        ASSERT(0 == va.setThreadStackSize(THREADSTACKSIZE[1]));
-        ASSERT(0 == va.setCollectTimeMetrics(COLLECTMETRICS[1]));
-
-        ASSERT(0 == vb.setIncomingMessageSizes(MINMESSAGESIZEIN[2],
-                                                TYPMESSAGESIZEIN[2],
-                                                MAXMESSAGESIZEIN[2]));
-        ASSERT(0 == vb.setOutgoingMessageSizes(MINMESSAGESIZEOUT[2],
-                                                TYPMESSAGESIZEOUT[2],
-                                                MAXMESSAGESIZEOUT[2]));
-        ASSERT(0 == vb.setMaxConnections(MAXCONNECTIONS[2]));
-        ASSERT(0 == vb.setMaxThreads(MAXNUMTHREADS[2]));
-        ASSERT(0 == vb.setMaxWriteCache(MAXWRITECACHE[2]));
-        ASSERT(0 == vb.setMetricsInterval(METRICSINTERVAL[2]));
-        ASSERT(0 == vb.setReadTimeout(READTIMEOUT[2]));
-        ASSERT(0 == vb.setThreadStackSize(THREADSTACKSIZE[2]));
-        ASSERT(0 == vb.setCollectTimeMetrics(COLLECTMETRICS[2]));
-
-        ASSERT(0 == vc.setIncomingMessageSizes(MINMESSAGESIZEIN[3],
-                                                TYPMESSAGESIZEIN[3],
-                                                MAXMESSAGESIZEIN[3]));
-        ASSERT(0 == vc.setOutgoingMessageSizes(MINMESSAGESIZEOUT[3],
-                                                TYPMESSAGESIZEOUT[3],
-                                                MAXMESSAGESIZEOUT[3]));
-        ASSERT(0 == vc.setMaxConnections(MAXCONNECTIONS[3]));
-        ASSERT(0 == vc.setMaxThreads(MAXNUMTHREADS[3]));
-        ASSERT(0 == vc.setMaxWriteCache(MAXWRITECACHE[3]));
-        ASSERT(0 == vc.setMetricsInterval(METRICSINTERVAL[3]));
-        ASSERT(0 == vc.setReadTimeout(READTIMEOUT[3]));
-        ASSERT(0 == vc.setThreadStackSize(THREADSTACKSIZE[3]));
-        ASSERT(0 == vc.setCollectTimeMetrics(COLLECTMETRICS[3]));
-
-        ASSERT(0 == vd.setIncomingMessageSizes(MINMESSAGESIZEIN[4],
-                                                TYPMESSAGESIZEIN[4],
-                                                MAXMESSAGESIZEIN[4]));
-        ASSERT(0 == vd.setOutgoingMessageSizes(MINMESSAGESIZEOUT[4],
-                                                TYPMESSAGESIZEOUT[4],
-                                                MAXMESSAGESIZEOUT[4]));
-        ASSERT(0 == vd.setMaxConnections(MAXCONNECTIONS[4]));
-        ASSERT(0 == vd.setMaxThreads(MAXNUMTHREADS[4]));
-        ASSERT(0 == vd.setMaxWriteCache(MAXWRITECACHE[4]));
-        ASSERT(0 == vd.setMetricsInterval(METRICSINTERVAL[4]));
-        ASSERT(0 == vd.setReadTimeout(READTIMEOUT[4]));
-        ASSERT(0 == vd.setThreadStackSize(THREADSTACKSIZE[4]));
-        ASSERT(0 == vd.setCollectTimeMetrics(COLLECTMETRICS[4]));
-
-        ASSERT(0 == ve.setIncomingMessageSizes(MINMESSAGESIZEIN[5],
-                                                TYPMESSAGESIZEIN[5],
-                                                MAXMESSAGESIZEIN[5]));
-        ASSERT(0 == ve.setOutgoingMessageSizes(MINMESSAGESIZEOUT[5],
-                                                TYPMESSAGESIZEOUT[5],
-                                                MAXMESSAGESIZEOUT[5]));
-        ASSERT(0 == ve.setMaxConnections(MAXCONNECTIONS[5]));
-        ASSERT(0 == ve.setMaxThreads(MAXNUMTHREADS[5]));
-        ASSERT(0 == ve.setMaxWriteCache(MAXWRITECACHE[5]));
-        ASSERT(0 == ve.setMetricsInterval(METRICSINTERVAL[5]));
-        ASSERT(0 == ve.setReadTimeout(READTIMEOUT[5]));
-        ASSERT(0 == ve.setThreadStackSize(THREADSTACKSIZE[5]));
-        ASSERT(0 == ve.setCollectTimeMetrics(COLLECTMETRICS[5]));
-
-        ASSERT(0 == vf.setIncomingMessageSizes(MINMESSAGESIZEIN[6],
-                                                TYPMESSAGESIZEIN[6],
-                                                MAXMESSAGESIZEIN[6]));
-        ASSERT(0 == vf.setOutgoingMessageSizes(MINMESSAGESIZEOUT[6],
-                                                TYPMESSAGESIZEOUT[6],
-                                                MAXMESSAGESIZEOUT[6]));
-        ASSERT(0 == vf.setMaxConnections(MAXCONNECTIONS[6]));
-        ASSERT(0 == vf.setMaxThreads(MAXNUMTHREADS[6]));
-        ASSERT(0 == vf.setMaxWriteCache(MAXWRITECACHE[6]));
-        ASSERT(0 == vf.setMetricsInterval(METRICSINTERVAL[6]));
-        ASSERT(0 == vf.setReadTimeout(READTIMEOUT[6]));
-        ASSERT(0 == vf.setThreadStackSize(THREADSTACKSIZE[6]));
-        ASSERT(0 == vf.setCollectTimeMetrics(COLLECTMETRICS[6]));
-
-        const Obj VA(va);
-        const Obj VB(vb);
-        const Obj VC(vc);
-        const Obj VD(vd);
-        const Obj VE(ve);
-        const Obj VF(vf);
-
-        const Obj VALUES[NUM_VALUES] = { VA, VB, VC, VD, VE, VF };
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        const int VERSION = Obj::maxSupportedBdexVersion();
-        if (verbose) cout <<
-            "\nTesting 'streamOut' and (valid) 'streamIn' functionality."
-                          << endl;
-
-        if (verbose) cout << "\nDirect initial trial of 'streamOut' and"
-                             " (valid) 'streamIn' functionality." << endl;
-        {
-            const Obj X(VC);
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);                                 ASSERT(!in.isEmpty());
-
-            Obj t(VA);  const Obj& T = t;               ASSERT(X != T);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(X == T);
-            ASSERT(in);                                 ASSERT(in.isEmpty());
-
-            if (veryVerbose) {
-                P_(X); P(T);
-            }
-        }
-
-        if (verbose) cout <<
-            "\nThorough test of stream operators ('<<' and '>>')." << endl;
-        {
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const Obj X(VALUES[i]);
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
-
-                for (int j = 0; j < NUM_VALUES; ++j) {
-                    In in(OD, LOD);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, !in.isEmpty());
-
-                    Obj t(VALUES[j]);
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    LOOP2_ASSERT(i, j, X == t == (i == j));
-                    bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                  } END_BDEX_EXCEPTION_TEST
-                    LOOP2_ASSERT(i, j, X == t);
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, in.isEmpty());
-                }
-            }
-        }
-
-        if (verbose) cout <<
-            "\nTesting streamIn functionality via operator ('>>')." << endl;
-
-        if (verbose) cout << "\tOn empty and invalid streams." << endl;
-        {
-            Out out;
-            const char *const  OD = out.data();
-            const int         LOD = out.length();
-            ASSERT(0 == LOD);
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);  In &testInStream = in;
-                in.setSuppressVersionCheck(1);
-                LOOP_ASSERT(i, in);           LOOP_ASSERT(i, in.isEmpty());
-
-                // Ensure that reading from an empty or invalid input stream
-                // leaves the stream invalid and the target object unchanged.
-
-                const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
-              BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        if (verbose) cout <<
-            "\tOn incomplete (but otherwise valid) data." << endl;
-        {
-            const Obj W1 = VA, X1 = VB, Y1 = VC;
-            const Obj W2 = VB, X2 = VC, Y2 = VD;
-            const Obj W3 = VC, X3 = VD, Y3 = VE;
-
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
-            const int LOD  = out.length();
-            const char *const OD = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-                In in(OD, i);  In &testInStream = in;
-                in.setSuppressVersionCheck(1);
-              BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
-                Obj t1(W1), t2(W2), t3(W3);
-
-                if (i < LOD1) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                         if (0 == i) LOOP_ASSERT(i, W1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else if (i < LOD2) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD1 == i) LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD2 == i) LOOP_ASSERT(i, W3 == t3);
-                }
-
-                                LOOP_ASSERT(i, Y1 != t1);
-                t1 = Y1;        LOOP_ASSERT(i, Y1 == t1);
-
-                                LOOP_ASSERT(i, Y2 != t2);
-                t2 = Y2;        LOOP_ASSERT(i, Y2 == t2);
-
-                                LOOP_ASSERT(i, Y3 != t3);
-                t3 = Y3;        LOOP_ASSERT(i, Y3 == t3);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        if (verbose) cout << "\tOn corrupted data." << endl;
-
-        const Obj W;               // default value (0)
-        const Obj X(VA);           // control value (VA)
-        const Obj Y(VB);           // new value (VB)
-
-        if (verbose) cout << "\t\tGood stream (for control)." << endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, 1);
-            ASSERT(in);
-                             ASSERT(W != t);  ASSERT(X != t);  ASSERT(Y != t);
-
-            // Thread Stack Size is a new parameter that is unsupported in
-            // version < 4.
-
-            t.setThreadStackSize(THREADSTACKSIZE[2]);
-                             ASSERT(W != t);  ASSERT(X != t);  ASSERT(Y == t);
-        }
-
-        if (verbose) cout << "\t\tBad version." << endl;
-        if (verbose) cout << "\t\t\tVersion too small." <<endl;
-        {
-            const char version = 0; // too small ('version' must be >= 1)
-
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-
-        if (verbose) cout << "\t\t\tVersion too big." << endl;
-        {
-            const char version = 6; // too large (current versions all < 5)
-
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-
-        if (verbose) cout << "\t\tBad value." << endl;
-        if (verbose) cout << "\t\t\tmaxConnections neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(-MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\tmaxThreads neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(-MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\tmaxWriteCache neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(-MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\treadTimeOut neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(-1.1);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\tminOutgoingMessageSize neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(-MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\t"
-                 "typOutgoingMessageSize < minOutgoingMessageSize." << endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2] - 1);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\t"
-                 "maxOutgoingMessageSize < typOutgoingMessageSize." << endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2] - 1);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\tminIncomingMessageSize neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(-MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\t"
-                 "typIncomingMessageSize < minIncomingMessageSize." << endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(MINMESSAGESIZEIN[2] - 1);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\t"
-                 "maxIncomingMessageSize < typIncomingMessageSize." << endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2] - 1);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\tworkloadThreshold neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(-WORKLOADTHRESHOLD[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (verbose) cout << "\t\t\tthreadStackSize neg." <<endl;
-        {
-            Out out;
-
-            out.putInt32(MAXCONNECTIONS[2]);
-            out.putInt32(MAXNUMTHREADS[2]);
-            out.putInt32(MAXWRITECACHE[2]);
-            out.putFloat64(READTIMEOUT[2]);
-            out.putFloat64(METRICSINTERVAL[2]);
-            out.putInt32(MINMESSAGESIZEOUT[2]);
-            out.putInt32(TYPMESSAGESIZEOUT[2]);
-            out.putInt32(MAXMESSAGESIZEOUT[2]);
-            out.putInt32(MINMESSAGESIZEIN[2]);
-            out.putInt32(TYPMESSAGESIZEIN[2]);
-            out.putInt32(MAXMESSAGESIZEIN[2]);
-            out.putInt32(WORKLOADTHRESHOLD[2]);
-            out.putInt32(-THREADSTACKSIZE[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
-        {
-            const Obj X;
-            ASSERT(5 == X.maxSupportedBdexVersion());
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2048,11 +1270,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

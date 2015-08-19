@@ -248,7 +248,7 @@ class my_bcec_ObjectCatalog
     int remove(int h, TYPE* valueBuffer=0)
     {
         if (h<0 || h>d_topIndex || d_arr[h].d_valid==0) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if (valueBuffer != 0) {
@@ -275,7 +275,7 @@ class my_bcec_ObjectCatalog
     int replace(int h, TYPE const &newObject)
     {
         if (h<0 || h>d_topIndex || d_arr[h].d_valid==0) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         ((TYPE *)d_arr[h].d_obj_p)->~TYPE();
@@ -288,7 +288,7 @@ class my_bcec_ObjectCatalog
     int find(int h, TYPE *p=0) const
     {
         if (h<0 || h>d_topIndex || d_arr[h].d_valid==0) {
-            return -1; //non zero
+            return -1; //non zero                                     // RETURN
         }
         if (p != 0) {
             *p = *((TYPE const *)d_arr[h].d_obj_p);
@@ -301,7 +301,7 @@ class my_bcec_ObjectCatalog
     {
         TYPE v;
         for (int i=0; i<=d_topIndex; i++) {
-            if (find(i, &v) == 0 && v == val) return 1;
+            if (find(i, &v) == 0 && v == val) return 1;               // RETURN
         }
         return 0;
     }
@@ -389,10 +389,10 @@ void printSpec(const char *spec)
 }
 
 void verify(Obj         *o1,
-            vector<int> &handles1,
+            vector<int>  &handles1,
             my_Obj      *o2,
-            vector<int> &handles2,
-            int         maxHandles)
+            vector<int>  &handles2,
+            int          maxHandles)
     // Verify that '*o1' is correct by comparing it with '*o2'.
 {
     int v1, v2;
@@ -418,9 +418,9 @@ void verify(Obj         *o1,
 }
 
 void gg(Obj         *o1,
-        vector<int> &handles1,
+        vector<int>  &handles1,
         my_Obj      *o2,
-        vector<int> &handles2,
+        vector<int>  &handles2,
         const char  *spec,
         const int    gens = 0)
     // Bring the object '*o1' into the state specified by the specified 'spec'
@@ -689,7 +689,7 @@ void queryCallBack(const QueryResult& result)
     }
 //..
 
-} // namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
+}  // close namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 
 //=============================================================================
 //                          CASE 13 RELATED ENTITIES
@@ -807,7 +807,7 @@ void *verifyStateThread(void *arg)
 
 } // extern "C"
 
-} // namespace OBJECTCATALOG_TEST_CASE_13
+}  // close namespace OBJECTCATALOG_TEST_CASE_13
 //=============================================================================
 //                          CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -816,7 +816,7 @@ namespace OBJECTCATALOG_TEST_CASE_12
 
 {
 
-} // namespace OBJECTCATALOG_TEST_CASE_12
+}  // close namespace OBJECTCATALOG_TEST_CASE_12
 //=============================================================================
 //                          CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -890,7 +890,7 @@ class AllocPattern {
 
 int AllocPattern::objCount = 0;
 
-}// namespace OBJECTCATALOG_TEST_CASE_11
+}  // close namespace OBJECTCATALOG_TEST_CASE_11
 //=============================================================================
 //                          CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -943,7 +943,7 @@ class Pattern {
 
 int Pattern::objCount = 0;
 
-}// namespace OBJECTCATALOG_TEST_CASE_10
+}  // close namespace OBJECTCATALOG_TEST_CASE_10
 //=============================================================================
 //                          CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -955,10 +955,10 @@ namespace OBJECTCATALOG_TEST_CASE_9
 typedef bdlcc::ObjectCatalogIter<int> Iter;
 
 void verifyAccessors(Obj         *o1,
-                     vector<int> &handles1,
+                     vector<int>  &handles1,
                      my_Obj      *o2,
-                     vector<int> &handles2,
-                     int         maxHandles)
+                     vector<int>  &handles2,
+                     int          maxHandles)
     // Verify the catalog accessors (including iterator) by comparing with
     // alternate implementation.
 {
@@ -1012,7 +1012,7 @@ void verifyAccessors(Obj         *o1,
     }
 }
 
-} // namespace OBJECTCATALOG_TEST_CASE_9
+}  // close namespace OBJECTCATALOG_TEST_CASE_9
 //=============================================================================
 //                          CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1021,7 +1021,7 @@ namespace OBJECTCATALOG_TEST_CASE_8
 
 {
 
-} // namespace OBJECTCATALOG_TEST_CASE_8
+}  // close namespace OBJECTCATALOG_TEST_CASE_8
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1030,7 +1030,7 @@ namespace OBJECTCATALOG_TEST_CASE_7
 
 {
 
-} // namespace OBJECTCATALOG_TEST_CASE_7
+}  // close namespace OBJECTCATALOG_TEST_CASE_7
 //=============================================================================
 //                          CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1039,7 +1039,7 @@ namespace OBJECTCATALOG_TEST_CASE_6
 
 {
 
-} // namespace OBJECTCATALOG_TEST_CASE_6
+}  // close namespace OBJECTCATALOG_TEST_CASE_6
 //=============================================================================
 //                          CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1048,7 +1048,7 @@ namespace OBJECTCATALOG_TEST_CASE_5
 
 {
 
-} // namespace OBJECTCATALOG_TEST_CASE_5
+}  // close namespace OBJECTCATALOG_TEST_CASE_5
 //=============================================================================
 //                          CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1056,7 +1056,7 @@ namespace OBJECTCATALOG_TEST_CASE_5
 namespace OBJECTCATALOG_TEST_CASE_4
 
 {
-}// namespace OBJECTCATALOG_TEST_CASE_4
+}  // close namespace OBJECTCATALOG_TEST_CASE_4
 //=============================================================================
 //                          CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ namespace OBJECTCATALOG_TEST_CASE_4
 namespace OBJECTCATALOG_TEST_CASE_3
 
 {
-} // namespace OBJECTCATALOG_TEST_CASE_3
+}  // close namespace OBJECTCATALOG_TEST_CASE_3
 //=============================================================================
 //                          CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1072,7 +1072,7 @@ namespace OBJECTCATALOG_TEST_CASE_3
 namespace OBJECTCATALOG_TEST_CASE_2
 
 {
-} // namespace OBJECTCATALOG_TEST_CASE_2
+}  // close namespace OBJECTCATALOG_TEST_CASE_2
 //=============================================================================
 //                          CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -1080,7 +1080,7 @@ namespace OBJECTCATALOG_TEST_CASE_2
 namespace OBJECTCATALOG_TEST_CASE_1
 
 {
-} // namespace OBJECTCATALOG_TEST_CASE_1
+}  // close namespace OBJECTCATALOG_TEST_CASE_1
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

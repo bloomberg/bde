@@ -1,4 +1,4 @@
-// bdlb_printmethods.t.cpp    -*-C++-*-
+// bdlb_printmethods.t.cpp                                            -*-C++-*-
 
 #include <bdlb_printmethods.h>
 #include <bslalg_typetraits.h>
@@ -516,7 +516,7 @@ template <> struct HasPrintMethod<TestType_PrintMethod_STLIterators> :
     bsl::true_type { };
 template <> struct HasPrintMethod<TestType_PrintMethod_STLIterators_Pair>:
     bsl::true_type { };
-}
+}  // close package namespace
 
 namespace bslalg {
 template <> struct HasStlIterators<TestType_STLIterators> :
@@ -527,7 +527,7 @@ template <> struct HasStlIterators<TestType_PrintMethod_STLIterators> :
     bsl::true_type { };
 template <> struct HasStlIterators<TestType_PrintMethod_STLIterators_Pair> :
     bsl::true_type { };
-}
+}  // close namespace bslalg
 
 namespace bslmf {
 template <> struct IsPair<TestType_Pair> : bsl::true_type { };
@@ -535,7 +535,7 @@ template <> struct IsPair<TestType_STLIterators_Pair> : bsl::true_type { };
 template <> struct IsPair<TestType_PrintMethod_Pair> : bsl::true_type { };
 template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
     bsl::true_type { };
-}
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 
@@ -548,7 +548,7 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 // Consider the following value-semantic class that holds an object of
 // parameterized 'TYPE':
 //..
-    template <typename TYPE>
+    template <class TYPE>
     class MyWrapper {
       // An example wrapper class for a 'TYPE' object.
 
@@ -594,11 +594,11 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 //  }
 //..
 // This method will work fine when 'TYPE' is a standard BDE value-semantic
-// component (e.g., 'bdlmxxx::List'):
+// component (e.g., 'bdlt::Date'):
 //..
-//  bdlmxxx::List            myList;
-//  MyWrapper<bdlmxxx::List> myWrapperForList(myList);
-//  myWrapperForList.print(bsl::cout);  // No problem: 'bdlmxxx::List' has a
+//  bdlt::Date            myDate;
+//  MyWrapper<bdlt::Date> myWrapperForDate(myDate);
+//  myWrapperForDate.print(bsl::cout);  // No problem: 'bdlt::Date' has a
 //                                      // corresponding 'print' method.
 //..
 // However, when 'TYPE' is not a standard BDE value-semantic component (e.g.,
@@ -614,7 +614,7 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 // The solution is to use the 'bdlb::PrintMethods::print' method, which
 // provides generic printing capabilities, as follows:
 //..
-    template <typename TYPE>
+    template <class TYPE>
     bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
                                          int           level,
                                          int           spacesPerLevel) const
@@ -2704,11 +2704,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -314,7 +314,7 @@ namespace bsl {
                         // struct Pair_Imp
                         // ===============
 
-template <typename T1, typename T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
+template <class T1, class T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
 struct Pair_Imp {
     // Private class to implement Pair constructor.  This general template is
     // for types that don't use allocators.  It is partially specialized for
@@ -336,7 +336,7 @@ struct Pair_Imp {
         // 'first' and 'second'.
 
     Pair_Imp(const T1& a, const T2& b);
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     Pair_Imp(const U1& a, const U2& b);
         // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
 
@@ -344,7 +344,7 @@ struct Pair_Imp {
         // Destroy this object.
 };
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct Pair_Imp<T1, T2, 1, 0> {
     // Private class to implement Pair constructor.  This partial
     // specialization is for 'T1' that uses allocators.
@@ -368,7 +368,7 @@ struct Pair_Imp<T1, T2, 1, 0> {
 
     Pair_Imp(const T1& a, const T2& b,
              BloombergLP::bslma::Allocator *basicAllocator = 0);
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     Pair_Imp(const U1& a, const U2& b,
              BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
@@ -380,7 +380,7 @@ struct Pair_Imp<T1, T2, 1, 0> {
         // Destroy this object.
 };
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct Pair_Imp<T1, T2, 0, 1> {
     // Private class to implement Pair constructor.  This partial
     // specialization is for 'T2' that uses allocators.
@@ -404,7 +404,7 @@ struct Pair_Imp<T1, T2, 0, 1> {
 
     Pair_Imp(const T1& a, const T2& b,
              BloombergLP::bslma::Allocator *basicAllocator = 0);
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     Pair_Imp(const U1& a, const U2& b,
              BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
@@ -416,7 +416,7 @@ struct Pair_Imp<T1, T2, 0, 1> {
         // Destroy this object.
 };
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct Pair_Imp<T1, T2, 1, 1> {
     // Private class to implement Pair constructor.  This partial
     // specialization is for 'T1' and 'T2' that uses allocators.
@@ -439,7 +439,7 @@ struct Pair_Imp<T1, T2, 1, 1> {
 
     Pair_Imp(const T1& a, const T2& b,
              BloombergLP::bslma::Allocator *basicAllocator = 0);
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     Pair_Imp(const U1& a, const U2& b,
              BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
@@ -454,7 +454,7 @@ struct Pair_Imp<T1, T2, 1, 1> {
                         // class pair
                         // ==========
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 class pair : public Pair_Imp<T1, T2,
                              BloombergLP::bslma::UsesBslmaAllocator<T1>::value,
                              BloombergLP::bslma::UsesBslmaAllocator<T2>::value>
@@ -515,9 +515,9 @@ class pair : public Pair_Imp<T1, T2,
         // Attempted use of the allocator version will not compile unless one
         // or both of 'T1' and 'T2' accept an allocator.
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     pair(const pair<U1, U2>& rhs);
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     pair(const pair<U1, U2>&           rhs,
          BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a pair from the specified 'rhs' value.  Convert-construct
@@ -530,9 +530,9 @@ class pair : public Pair_Imp<T1, T2,
         // will not compile unless one or both of 'T1' and 'T2' accept an
         // allocator.
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     pair(const native_std::pair<U1, U2>&  rhs);                     // IMPLICIT
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     pair(const native_std::pair<U1, U2>&  rhs,
          BloombergLP::bslma::Allocator   *basicAllocator);
         // Create a pair that has the same value as the specified 'rhs' pair,
@@ -545,7 +545,7 @@ class pair : public Pair_Imp<T1, T2,
         // constructible from from 'U2'.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     pair(const BloombergLP::bslma::ManagedPtr_PairProxy<U1, U2>&
                                                               rhs); // IMPLICIT
         // Create a pair that has the same value as the specified 'rhs' pair
@@ -564,7 +564,7 @@ class pair : public Pair_Imp<T1, T2,
         // of this assignment operator will not compile unless both 'T1' and
         // 'T2' supply assignment operators.
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     pair& operator=(const native_std::pair<U1, U2>& rhs);
         // Assign to this pair from the specified 'rhs' pair, where the type
         // 'rhs' is the pair type native to the compiler's library, holding the
@@ -587,7 +587,7 @@ class pair : public Pair_Imp<T1, T2,
 namespace bsl {
 
 // FREE OPERATORS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' and 'rhs' pair objects have the same
@@ -595,7 +595,7 @@ bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // 'lhs.first == rhs.first' and 'lhs.second == rhs.second'.  A call to this
     // operator will not compile unless both 'T1' and 'T2' supply 'operator=='.
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' and 'rhs' pair objects do not have
@@ -603,7 +603,7 @@ bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // as 'rhs' if 'lhs == rhs' would return false.  A call to this operator
     // will not compile unless a call to 'lhs == rhs' would compile.
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value less than the specified
@@ -614,7 +614,7 @@ bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // return 'lhs.second < rhs.second'.  A call to this operator will not
     // compile unless both 'T1' and 'T2' supply 'operator<'.
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value greater than the
@@ -622,7 +622,7 @@ bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // 'rhs' if 'rhs' < 'lhs' would return true.  A call to this operator will
     // not compile unless a call to 'lhs < rhs' would compile.
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value less than or equal to the
@@ -630,7 +630,7 @@ bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // equal to 'rhs' if 'rhs' < 'lhs' would return false.  A call to this
     // operator will not compile unless a call to 'lhs < rhs' would compile.
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value greater than or equal to
@@ -639,7 +639,7 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // operator will not compile unless a call to 'lhs < rhs' would compile.
 
 // FREE FUNCTIONS
-template <typename T1, typename T2>
+template <class T1, class T2>
 void swap(pair<T1, T2>& a, pair<T1, T2>& b);
     // Swap the values of the specified 'a' and 'b' pairs by applying 'swap' to
     // each of the 'first' and 'second' pair fields.  Note that this method is
@@ -650,7 +650,7 @@ template <class HASHALG, class T1, class T2>
 void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input);
     // Pass the specified 'input' to the specified 'hashAlg'
 
-}   // close namespace bsl
+}  // close namespace bsl
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -664,7 +664,7 @@ namespace bsl {
                            // ---------------
 
 // CREATORS
-template <typename T1, typename T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
+template <class T1, class T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
 inline
 Pair_Imp<T1, T2, T1_USES_BSLMA, T2_USES_BSLMA>::
 Pair_Imp()
@@ -672,7 +672,7 @@ Pair_Imp()
 {
 }
 
-template <typename T1, typename T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
+template <class T1, class T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
 inline
 Pair_Imp<T1, T2, T1_USES_BSLMA, T2_USES_BSLMA>::
 Pair_Imp(const T1& a, const T2& b)
@@ -680,8 +680,8 @@ Pair_Imp(const T1& a, const T2& b)
 {
 }
 
-template <typename T1, typename T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
-template <typename U1, typename U2>
+template <class T1, class T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
+template <class U1, class U2>
 inline
 Pair_Imp<T1, T2, T1_USES_BSLMA, T2_USES_BSLMA>::
 Pair_Imp(const U1& a, const U2& b)
@@ -689,7 +689,7 @@ Pair_Imp(const U1& a, const U2& b)
 {
 }
 
-template <typename T1, typename T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
+template <class T1, class T2, int T1_USES_BSLMA, int T2_USES_BSLMA>
 inline
 Pair_Imp<T1, T2, T1_USES_BSLMA, T2_USES_BSLMA>::~Pair_Imp()
 {
@@ -700,7 +700,7 @@ Pair_Imp<T1, T2, T1_USES_BSLMA, T2_USES_BSLMA>::~Pair_Imp()
                         // -----------------------------
 
 // CREATORS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 1, 0>::
 Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
@@ -708,7 +708,7 @@ Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 1, 0>::
 Pair_Imp(const T1& a, const T2& b,
@@ -717,8 +717,8 @@ Pair_Imp(const T1& a, const T2& b,
 {
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 inline
 Pair_Imp<T1, T2, 1, 0>::
 Pair_Imp(const U1& a, const U2& b,
@@ -727,7 +727,7 @@ Pair_Imp(const U1& a, const U2& b,
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 1, 0>::~Pair_Imp()
 {
@@ -738,7 +738,7 @@ Pair_Imp<T1, T2, 1, 0>::~Pair_Imp()
                         // -----------------------------
 
 // CREATORS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 0, 1>::
 Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
@@ -746,7 +746,7 @@ Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 0, 1>::
 Pair_Imp(const T1& a, const T2& b,
@@ -755,8 +755,8 @@ Pair_Imp(const T1& a, const T2& b,
 {
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 inline
 Pair_Imp<T1, T2, 0, 1>::
 Pair_Imp(const U1& a, const U2& b,
@@ -765,7 +765,7 @@ Pair_Imp(const U1& a, const U2& b,
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 0, 1>::~Pair_Imp()
 {
@@ -776,7 +776,7 @@ Pair_Imp<T1, T2, 0, 1>::~Pair_Imp()
                         // -----------------------------
 
 // CREATORS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 1, 1>::
 Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
@@ -784,7 +784,7 @@ Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 1, 1>::
 Pair_Imp(const T1& a, const T2& b,
@@ -793,8 +793,8 @@ Pair_Imp(const T1& a, const T2& b,
 {
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 inline
 Pair_Imp<T1, T2, 1, 1>::
 Pair_Imp(const U1& a, const U2& b,
@@ -803,7 +803,7 @@ Pair_Imp(const U1& a, const U2& b,
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 Pair_Imp<T1, T2, 1, 1>::~Pair_Imp()
 {
@@ -814,28 +814,28 @@ Pair_Imp<T1, T2, 1, 1>::~Pair_Imp()
                                  // ----------
 
 // CREATORS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>::pair()
 : Base()
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>::pair(BloombergLP::bslma::Allocator *basicAllocator)
 : Base(basicAllocator)
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>::pair(const T1& a, const T2& b)
 : Base(a, b)
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>::pair(const T1&                      a,
                    const T2&                      b,
@@ -844,14 +844,14 @@ pair<T1, T2>::pair(const T1&                      a,
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>::pair(const pair<T1, T2>& original)
 : Base(original.first, original.second)
 {
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>::pair(const pair<T1, T2>&            original,
                    BloombergLP::bslma::Allocator *basicAllocator)
@@ -859,16 +859,16 @@ pair<T1, T2>::pair(const pair<T1, T2>&            original,
 {
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 inline
 pair<T1, T2>::pair(const pair<U1, U2>& rhs)
 : Base(rhs.first, rhs.second)
 {
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 inline
 pair<T1, T2>::pair(const pair<U1, U2>&            rhs,
                    BloombergLP::bslma::Allocator *basicAllocator)
@@ -876,15 +876,15 @@ pair<T1, T2>::pair(const pair<U1, U2>&            rhs,
 {
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 pair<T1, T2>::pair(const native_std::pair<U1, U2>& rhs)
 : Base(rhs.first, rhs.second)
 {
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 pair<T1, T2>::pair(const native_std::pair<U1, U2>&  rhs,
                    BloombergLP::bslma::Allocator   *basicAllocator)
 : Base(rhs.first, rhs.second, basicAllocator)
@@ -892,22 +892,22 @@ pair<T1, T2>::pair(const native_std::pair<U1, U2>&  rhs,
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 pair<T1, T2>::pair(const BloombergLP::bslma::ManagedPtr_PairProxy<U1, U2>& rhs)
 : Base(rhs.first, rhs.second)
 {
 }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>::~pair()
 {
 }
 
 // MANIPULATORS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 pair<T1, T2>&
 pair<T1, T2>::operator=(const pair<T1, T2>& rhs)
@@ -917,8 +917,8 @@ pair<T1, T2>::operator=(const pair<T1, T2>& rhs)
     return *this;
 }
 
-template <typename T1, typename T2>
-template <typename U1, typename U2>
+template <class T1, class T2>
+template <class U1, class U2>
 inline
 pair<T1, T2>&
 pair<T1, T2>::operator=(const native_std::pair<U1, U2>& rhs)
@@ -928,7 +928,7 @@ pair<T1, T2>::operator=(const native_std::pair<U1, U2>& rhs)
     return *this;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 void pair<T1, T2>::swap(pair& other)
 {
@@ -942,21 +942,21 @@ void pair<T1, T2>::swap(pair& other)
 }
 
 // FREE OPERATORS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return lhs.first == rhs.first && lhs.second == rhs.second;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return ! (lhs == rhs);
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
@@ -965,21 +965,21 @@ bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
             lhs.second < rhs.second);
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return rhs < lhs;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return ! (rhs < lhs);
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
@@ -987,7 +987,7 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 }
 
 // FREE FUNCTIONS
-template <typename T1, typename T2>
+template <class T1, class T2>
 inline
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 {
@@ -1011,13 +1011,13 @@ void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input)
 
 namespace bsl {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct is_trivially_copyable<pair<T1, T2> >
     : bsl::integral_constant<bool, is_trivially_copyable<T1>::value
                                   && is_trivially_copyable<T2>::value>
 {};
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct is_trivially_default_constructible<bsl::pair<T1, T2> >
 : bsl::integral_constant<bool, is_trivially_default_constructible<T1>::value
                             && is_trivially_default_constructible<T2>::value>
@@ -1028,20 +1028,20 @@ struct is_trivially_default_constructible<bsl::pair<T1, T2> >
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct IsPair<bsl::pair<T1, T2> > : bsl::true_type
 {};
 
 // Note that we must explicitly declare bitwise moveable sine 'T1' or 'T2' may
 // be bitwise moveable and not bitwise copyable.
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct IsBitwiseMoveable<bsl::pair<T1, T2> >
     : bsl::integral_constant<bool, bslmf::IsBitwiseMoveable<T1>::value
                                   && bslmf::IsBitwiseMoveable<T2>::value>
 {};
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
 : bsl::integral_constant<bool, bslmf::IsBitwiseEqualityComparable<T1>::value
                             && bslmf::IsBitwiseEqualityComparable<T2>::value
@@ -1053,7 +1053,7 @@ struct IsBitwiseEqualityComparable<bsl::pair<T1, T2> >
 
 namespace bslma {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct UsesBslmaAllocator<bsl::pair<T1, T2> >
     : bsl::integral_constant<bool, UsesBslmaAllocator<T1>::value
                                    || UsesBslmaAllocator<T2>::value>
@@ -1061,7 +1061,7 @@ struct UsesBslmaAllocator<bsl::pair<T1, T2> >
 
 }  // close namespace bslma
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

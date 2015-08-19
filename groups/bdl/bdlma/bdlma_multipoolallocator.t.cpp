@@ -182,10 +182,10 @@ int recPool(char *address)
 }
 
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-   // Using only primary manipulators, extend the capacity of the specified
-   // 'object' to (at least) the specified 'numElements' each of the specified
-   // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
-   // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements' each of the specified
+    // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
+    // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -218,8 +218,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     class my_Node;
 
     class my_Edge {
-        // This class represents an edge within a graph.  Both ends of an
-        // edge must be connected to nodes.
+        // This class represents an edge within a graph.  Both ends of an edge
+        // must be connected to nodes.
 
         // DATA
         my_Node *d_first;   // first node
@@ -254,6 +254,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // ...
 
+      private:
+        // Not implemented:
+        my_Node(const my_Node&);
+
       public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(my_Node, bslma::UsesBslmaAllocator);
@@ -285,6 +289,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // ...
 
+      private:
+        // Not implemented:
+        my_Graph(const my_Graph&);
+
       public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(my_Graph, bslma::UsesBslmaAllocator);
@@ -313,6 +321,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         // DATA
         bsl::map<bsl::string, my_Graph> d_graphMap;  // map from graph name to
                                                      // graph
+
+      private:
+        // Not implemented:
+        my_NamedGraphContainer(const my_NamedGraphContainer&);
 
       public:
         // TRAITS
@@ -400,6 +412,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         bsl::list<Obj1> d_list1;
         bsl::list<Obj2> d_list2;
         bsl::list<Obj3> d_list3;
+
+      private:
+        // Not implemented:
+        my_TestDataStructure(const my_TestDataStructure&);
 //..
 // The test will consist of the following steps:
 //
@@ -601,7 +617,6 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // Finally, in main, we run the test with the different allocators and
 // different allocator configurations based on command line arguments:
 //..
-//  int main(int argc, char **argv)
 //  {
 //      int testLengthFactor = 5;
 //      const int NUM_POOLS  = 10;
@@ -792,13 +807,13 @@ int main(int argc, char *argv[])
             int d_numPools;      // number of pools
             int d_maxBlockSize;  // maximum block size
         } DATA[] = {
-            //LINE  NUMPOOLS    MAXBLOCKSIZE
-            //----  --------    ------------
-            { L_,   1,          8            },
-            { L_,   2,          16           },
-            { L_,   3,          32           },
-            { L_,   4,          64           },
-            { L_,   5,          128          },
+            //LINE  # POOLS     MAXIMUM BLOCK SIZE
+            //----  -------     ------------------
+            { L_,   1,          8                  },
+            { L_,   2,          16                 },
+            { L_,   3,          32                 },
+            { L_,   4,          64                 },
+            { L_,   5,          128                },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1973,7 +1988,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING NUMPOOLS CTOR AND DTOR
+        // TESTING 'NUMPOOLS' CTOR AND DTOR
         //
         // Concerns:
         //   We have the following concerns:
@@ -2252,8 +2267,7 @@ int main(int argc, char *argv[])
 // Finally, in main, we run the test with the different allocators and
 // different allocator configurations based on command line arguments:
 //..
-//  int main(int argc, char **argv)
-//  {
+    {
         int testLengthFactor = 5;
         const int NUM_POOLS  = 10;
 
@@ -2301,9 +2315,7 @@ int main(int argc, char *argv[])
             bdlma::MultipoolAllocator ma(NUM_POOLS, strategy, maxChunkSize);
             my_TestUtil::testManaged(testLengthFactor, &ma);
         }
-
-//      return 0;
-//  }
+    }
 //..
 
       } break;

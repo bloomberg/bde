@@ -12,11 +12,16 @@ BSLS_IDENT_RCSID(btlsos_tcpcbchannel_cpp,"$Id$ $CSID$")
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
+
+#include <bslalg_scalardestructionprimitives.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdio.h>
+#include <bsl_iterator.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -25,9 +30,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 typedef btlsc::CbChannel::ReadCallback         ReadCb;
 typedef btlsc::CbChannel::BufferedReadCallback BReadCb;
@@ -100,21 +105,22 @@ public:
     char              d_callbackType;
 
     // CREATORS
-    TcpCbChannel_RReg(char *buffer, int length,
-                             int numSysCalls,
-                             const ReadCb& callback,
-                             int flags);
+    TcpCbChannel_RReg(char          *buffer,
+                      int            length,
+                      int            numSysCalls,
+                      const ReadCb&  callback,
+                      int            flags);
 
     TcpCbChannel_RReg(const btls::Iovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const ReadCb& callback,
-                             int flags);
+                      int                numBuffers,
+                      int                numSysCalls,
+                      const ReadCb&      callback,
+                      int                flags);
 
-    TcpCbChannel_RReg(int length,
-                             int numSysCalls,
-                             const BReadCb& callback,
-                             int flags);
+    TcpCbChannel_RReg(int            length,
+                      int            numSysCalls,
+                      const BReadCb& callback,
+                      int            flags);
 
     ~TcpCbChannel_RReg();
         // Destroy this request.
@@ -163,12 +169,11 @@ TcpCbChannel_RReg::TcpCbChannel_RReg(
 }
 
 inline
-TcpCbChannel_RReg::TcpCbChannel_RReg(
-        const btls::Iovec *buffers,
-        int                      numBuffers,
-        int                      numSysCalls,
-        const ReadCb&            callback,
-        int                      flags)
+TcpCbChannel_RReg::TcpCbChannel_RReg(const btls::Iovec *buffers,
+                                     int                numBuffers,
+                                     int                numSysCalls,
+                                     const ReadCb&      callback,
+                                     int                flags)
 : d_requestLength(btls::IovecUtil::length(buffers, numBuffers))
 , d_category(e_VECTORED_I)
 , d_numSysCalls(numSysCalls)
@@ -225,50 +230,52 @@ TcpCbChannel_RReg::~TcpCbChannel_RReg() {
 }
 
 // MANIPULATORS
-
 inline
-void TcpCbChannel_RReg::invoke(int status, int asyncStatus) const {
+void TcpCbChannel_RReg::invoke(int status, int augStatus) const
+{
     BSLS_ASSERT(e_VFUNC2 == d_callbackType);
     bdlf::Function<void (*)(int, int)> *cb =
         (bdlf::Function<void (*)(int, int)> *)
         (void *) const_cast<char *>(d_cb.d_arena);
-    (*cb)(status, asyncStatus);
+    (*cb)(status, augStatus);
 }
 
 inline
 void TcpCbChannel_RReg::invoke(const char *buffer,
-                                      int status, int asyncStatus) const {
+                               int         status,
+                               int         augStatus) const
+{
     BSLS_ASSERT(e_VFUNC3 == d_callbackType);
     BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
-    (*cb)(buffer, status, asyncStatus);
+    (*cb)(buffer, status, augStatus);
 }
 
 inline
-void TcpCbChannel_RReg::invokeConditionally(int status,
-                                            int asyncStatus) const {
+void TcpCbChannel_RReg::invokeConditionally(int status, int augStatus) const
+{
     if (e_VFUNC2 == d_callbackType) {
-        invoke(status, asyncStatus);
+        invoke(status, augStatus);
     }
     else {
-        invoke(NULL, status, asyncStatus);
+        invoke(NULL, status, augStatus);
     }
 }
 
-bsl::ostream& operator<<(bsl::ostream&                   out,
-                         const TcpCbChannel_RReg& reg) {
+bsl::ostream& operator<<(bsl::ostream& out, const TcpCbChannel_RReg& reg)
+{
     switch(reg.d_category) {
-       case TcpCbChannel_RReg::e_BUFFERED: {
-           out << "B" << reg.d_requestLength << ", "
-               << reg.d_data.d_s.d_length << ';' << bsl::flush;
-       } break;
-       case TcpCbChannel_RReg::e_NON_BUFFERED: {
-           out << "N" << reg.d_requestLength << ", "
-               << reg.d_data.d_s.d_length << ';' << bsl::flush;
-       } break;
-       case TcpCbChannel_RReg::e_VECTORED_I: {
-           out << "V" << reg.d_requestLength << ", "
-               << reg.d_data.d_vi.d_numBuffers << ';' << bsl::flush;
-       } break;
+      case TcpCbChannel_RReg::e_BUFFERED: {
+        out << "B" << reg.d_requestLength << ", "
+            << reg.d_data.d_s.d_length << ';' << bsl::flush;
+      } break;
+      case TcpCbChannel_RReg::e_NON_BUFFERED: {
+        out << "N" << reg.d_requestLength << ", "
+            << reg.d_data.d_s.d_length << ';' << bsl::flush;
+      } break;
+      case TcpCbChannel_RReg::e_VECTORED_I: {
+         out << "V" << reg.d_requestLength << ", "
+             << reg.d_data.d_vi.d_numBuffers << ';' << bsl::flush;
+      } break;
     }
     return out;
 }
@@ -315,27 +322,28 @@ public:
     int               d_flags;       // flags supplied in request.
 
     // CREATORS
-    TcpCbChannel_WReg(const char *buffer, int length,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+    TcpCbChannel_WReg(const char     *buffer,
+                      int             length,
+                      int             numSysCalls,
+                      const WriteCb&  callback,
+                      int             flags);
 
     TcpCbChannel_WReg(const btls::Iovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+                      int                numBuffers,
+                      int                numSysCalls,
+                      const WriteCb&     callback,
+                      int                flags);
 
     TcpCbChannel_WReg(const btls::Ovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+                      int               numBuffers,
+                      int               numSysCalls,
+                      const WriteCb&    callback,
+                      int               flags);
 
-    TcpCbChannel_WReg(int length,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+    TcpCbChannel_WReg(int            length,
+                      int            numSysCalls,
+                      const WriteCb& callback,
+                      int            flags);
 
     ~TcpCbChannel_WReg();
         // Destroy this request.
@@ -350,11 +358,10 @@ public:
 // CREATORS
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        int            length,
-        int            numSysCalls,
-        const WriteCb& callback,
-        int            flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(int            length,
+                                     int            numSysCalls,
+                                     const WriteCb& callback,
+                                     int            flags)
 : d_callback(callback)
 , d_requestLength(length)
 , d_category(e_BUFFERED)
@@ -369,12 +376,11 @@ TcpCbChannel_WReg::TcpCbChannel_WReg(
 }
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        const btls::Iovec *buffers,
-        int                      numBuffers,
-        int                      numSysCalls,
-        const WriteCb&           callback,
-        int                      flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(const btls::Iovec *buffers,
+                                     int                numBuffers,
+                                     int                numSysCalls,
+                                     const WriteCb&     callback,
+                                     int                flags)
 : d_callback(callback)
 , d_requestLength(btls::IovecUtil::length(buffers, numBuffers))
 , d_category(e_VECTORED_I)
@@ -390,12 +396,11 @@ TcpCbChannel_WReg::TcpCbChannel_WReg(
 }
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        const btls::Ovec  *buffers,
-        int                      numBuffers,
-        int                      numSysCalls,
-        const WriteCb&           callback,
-        int                      flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(const btls::Ovec *buffers,
+                                     int               numBuffers,
+                                     int               numSysCalls,
+                                     const WriteCb&    callback,
+                                     int               flags)
 : d_callback(callback)
 , d_requestLength(btls::IovecUtil::length(buffers, numBuffers))
 , d_category(e_VECTORED_O)
@@ -411,12 +416,11 @@ TcpCbChannel_WReg::TcpCbChannel_WReg(
 }
 
 inline
-TcpCbChannel_WReg::TcpCbChannel_WReg(
-        const char    *buffer,
-        int            length,
-        int            numSysCalls,
-        const WriteCb& callback,
-        int            flags)
+TcpCbChannel_WReg::TcpCbChannel_WReg(const char    *buffer,
+                                     int            length,
+                                     int            numSysCalls,
+                                     const WriteCb& callback,
+                                     int            flags)
 : d_callback(callback)
 , d_requestLength(length)
 , d_category(e_NON_BUFFERED)
@@ -439,27 +443,28 @@ TcpCbChannel_WReg::~TcpCbChannel_WReg() {
 // MANIPULATORS
 
 inline
-void TcpCbChannel_WReg::invoke(int status, int asyncStatus) const
+void TcpCbChannel_WReg::invoke(int status, int augStatus) const
 {
-    d_callback(status, asyncStatus);
+    d_callback(status, augStatus);
 }
 
 inline
-void TcpCbChannel_WReg::invokeConditionally(int status,
-                                                   int asyncStatus) const
+void TcpCbChannel_WReg::invokeConditionally(int status, int augStatus) const
 {
-    d_callback(status, asyncStatus);
+    d_callback(status, augStatus);
 }
+
 }  // close package namespace
 
-                       // ================================
-                       // local function completeOperation
-                       // ================================
+                     // ================================
+                     // local function completeOperation
+                     // ================================
+
 static inline
 int completeOperation(btlsos::TcpCbChannel_RReg *request,
-                      bsl::vector<char>        *bufferPtr,
-                      int                      *offset,
-                      int                      *SP)
+                      bsl::vector<char>         *bufferPtr,
+                      int                       *offset,
+                      int                       *SP)
     // Try to satisfy the specified 'request' given that there is data in the
     // specified 'buffer' of the specified '*offset' length.  Return 0 if the
     // 'request' cannot be satisfied, and a non-zero value otherwise.  If the
@@ -473,7 +478,7 @@ int completeOperation(btlsos::TcpCbChannel_RReg *request,
     BSLS_ASSERT(offset);
 
     if (0 == bufferPtr->size() || 0 == *offset) {
-        return 0; // No data in buffer.
+        return 0; // No data in buffer.                               // RETURN
     }
 
     char *buffer = &bufferPtr->front();
@@ -566,7 +571,7 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     // either 'pool' or 'queue' is 0.
 {
     BSLS_ASSERT(queue);
-    int numElements = queue->size();
+    int numElements = static_cast<int>(queue->size());
 
     for (int i = 0; i < numElements; ++i) {
         REG *reg = (*queue)[numElements - 1 - i];
@@ -583,9 +588,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
                      // ===============================
 
 static inline
-void initializeBuffer(bsl::vector<char>                     *buffer,
+void initializeBuffer(bsl::vector<char>                       *buffer,
                       btlso::StreamSocket<btlso::IPv4Address> *socket_p,
-                      int                                    option)
+                      int                                      option)
 {
     enum { k_DEFAULT_BUFFER_SIZE = 8192 };
     int result;
@@ -656,7 +661,7 @@ void TcpCbChannel::bufferedReadCb()
 
     int requestLength = d_currentReadRequest_p->d_requestLength;
     int numBytesRemaining = requestLength - d_readBufferOffset;
-    int available = d_readBuffer.size() - d_readBufferOffset;
+    int available = static_cast<int>(d_readBuffer.size()) - d_readBufferOffset;
     BSLS_ASSERT(available >= numBytesRemaining);
 
     int s = d_socket_p->read(&d_readBuffer.front() + d_readBufferOffset,
@@ -691,7 +696,7 @@ void TcpCbChannel::bufferedReadCb()
             // Operation is incomplete, and partial result is authorized
             // => do nothing, just return.
             d_currentReadRequest_p = NULL;
-            return;
+            return;                                                   // RETURN
         }
     }
     else if (btlso::SocketHandle::e_ERROR_EOF == s) {
@@ -715,13 +720,16 @@ void TcpCbChannel::bufferedReadCb()
         else {
             // Restart on the interrupt.
             d_currentReadRequest_p = NULL;
-            return;
+            return;                                                   // RETURN
         }
     }
     else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
         d_currentReadRequest_p = NULL;
-        return; // Fake wake up from the event manager The number of system
-                // calls is not counted
+
+        // Fake wake up from the event manager.  The number of system calls is
+        // not counted.
+
+        return;                                                       // RETURN
     }
     else {
         BSLS_ASSERT(s < 0);
@@ -819,7 +827,7 @@ void TcpCbChannel::readCb()
               else {
                   // Operation is incomplete => do nothing.
                   d_currentReadRequest_p = NULL;
-                  return;
+                  return;                                             // RETURN
               }
           }
           else if (btlso::SocketHandle::e_ERROR_EOF == s) {
@@ -836,13 +844,13 @@ void TcpCbChannel::readCb()
               }
               else {
                   d_currentReadRequest_p = NULL;
-                  return;
+                  return;                                             // RETURN
               }
           }
           else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
               // Fake wake up from the event manager.
               d_currentReadRequest_p = NULL;
-              return;
+              return;                                                 // RETURN
           }
           else {
               BSLS_ASSERT(s < 0);
@@ -888,13 +896,13 @@ void TcpCbChannel::readCb()
               }
               else {
                   d_currentReadRequest_p = NULL;
-                  return;
+                  return;                                             // RETURN
               }
           }
           else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
               // Fake wake up from the event manager.
               d_currentReadRequest_p = NULL;
-              return;
+              return;                                                 // RETURN
           }
           else {
               BSLS_ASSERT(s < 0);
@@ -962,7 +970,7 @@ void TcpCbChannel::bufferedWriteCb() {
                                            d_writeRequests.back()->d_category);
 
     int numBytesToWrite = 0;
-    int numPendingRequests = d_writeRequests.size();
+    int numPendingRequests = static_cast<int>(d_writeRequests.size());
     for (int i = numPendingRequests - 1; 0 <= i; --i) {
         if (d_writeRequests[i]->d_category
                                        != TcpCbChannel_WReg::e_BUFFERED) {
@@ -1043,7 +1051,7 @@ void TcpCbChannel::bufferedWriteCb() {
                                                btlso::EventType::e_WRITE);
         }
         d_currentWriteRequest_p = NULL;
-        return;
+        return;                                                       // RETURN
     }
     else if (btlso::SocketHandle::e_ERROR_EOF == s) {
         // Connection was closed
@@ -1069,13 +1077,16 @@ void TcpCbChannel::bufferedWriteCb() {
         else {
             // Restart on the interrupt.
             d_currentWriteRequest_p = NULL;
-            return;
+            return;                                                   // RETURN
         }
     }
     else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
         d_currentWriteRequest_p = NULL;
-        return; // Fake wake up from the event manager The number of system
-                // calls is not counted
+
+        // Fake wake up from the event manager.  The number of system calls is
+        // not counted.
+
+        return;                                                       // RETURN
     }
     else {
         // Hard error on the channel -> invalidate and dequeue.
@@ -1156,7 +1167,7 @@ void TcpCbChannel::writeCb() {
               }
               else {
                   d_currentWriteRequest_p = NULL;
-                  return; // Do nothing - operation is incomplete.
+                  return; // Do nothing - operation is incomplete.    // RETURN
               }
           }
           else if (btlso::SocketHandle::e_ERROR_EOF == s) {
@@ -1173,13 +1184,13 @@ void TcpCbChannel::writeCb() {
               }
               else {
                   d_currentWriteRequest_p = NULL;
-                  return;
+                  return;                                             // RETURN
               }
           }
           else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
               // Fake wake up from the event manager.
               d_currentWriteRequest_p = NULL;
-              return;
+              return;                                                 // RETURN
           }
           else {
               BSLS_ASSERT(s < 0);
@@ -1215,13 +1226,13 @@ void TcpCbChannel::writeCb() {
               }
               else {
                   d_currentWriteRequest_p = NULL;
-                  return;
+                  return;                                             // RETURN
               }
           }
           else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
               // Fake wake up from the event manager.
               d_currentWriteRequest_p = NULL;
-              return;
+              return;                                                 // RETURN
           }
           else {
               BSLS_ASSERT(s < 0);
@@ -1256,13 +1267,13 @@ void TcpCbChannel::writeCb() {
               }
               else {
                   d_currentWriteRequest_p = NULL;
-                  return;
+                  return;                                             // RETURN
               }
           }
           else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
               // Fake wake up from the event manager.
               d_currentWriteRequest_p = NULL;
-              return;
+              return;                                                 // RETURN
           }
           else {
               BSLS_ASSERT(s < 0);
@@ -1325,9 +1336,9 @@ void TcpCbChannel::writeCb() {
 // CREATORS
 
 TcpCbChannel::TcpCbChannel(
-        btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-        btlso::TimerEventManager               *manager,
-        bslma::Allocator                      *basicAllocator)
+                       btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                       btlso::TimerEventManager                *manager,
+                       bslma::Allocator                        *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(manager)
 , d_wManager_p(manager)
@@ -1372,10 +1383,10 @@ TcpCbChannel::TcpCbChannel(
 }
 
 TcpCbChannel::TcpCbChannel(
-        btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-        btlso::TimerEventManager               *rManager,
-        btlso::TimerEventManager               *wManager,
-        bslma::Allocator                      *basicAllocator)
+                       btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                       btlso::TimerEventManager                *rManager,
+                       btlso::TimerEventManager                *wManager,
+                       bslma::Allocator                        *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(rManager)
 , d_wManager_p(wManager)
@@ -1440,7 +1451,7 @@ int TcpCbChannel::read(char                *buffer,
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidReadFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     TcpCbChannel_RReg *request =
@@ -1452,7 +1463,7 @@ int TcpCbChannel::read(char                *buffer,
         if (completeOperation(request, &d_readBuffer,
                               &d_readBufferOffset, &d_readBufferSP)) {
             d_rrequestPool.deleteObjectRaw(request);
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (0 != d_rManager_p->registerSocketEvent(
@@ -1462,7 +1473,7 @@ int TcpCbChannel::read(char                *buffer,
 
             request->invoke(0, e_CANCELLED);
             d_rrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
 
     }
@@ -1480,7 +1491,7 @@ int TcpCbChannel::readRaw(char                *buffer,
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidReadFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     TcpCbChannel_RReg *request =
@@ -1492,7 +1503,7 @@ int TcpCbChannel::readRaw(char                *buffer,
         if (completeOperation(request, &d_readBuffer,
                               &d_readBufferOffset, &d_readBufferSP)) {
             d_rrequestPool.deleteObjectRaw(request);
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (0 != d_rManager_p->registerSocketEvent(
@@ -1502,7 +1513,7 @@ int TcpCbChannel::readRaw(char                *buffer,
 
             request->invoke(0, e_CANCELLED);
             d_rrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 
@@ -1519,16 +1530,16 @@ int TcpCbChannel::readv(const btls::Iovec   *buffers,
 }
 
 int
-TcpCbChannel::readvRaw(const btls::Iovec *buffers,
-                                   int                      numBuffers,
-                                   const ReadCallback&      readCallback,
-                                   int                      flags)
+TcpCbChannel::readvRaw(const btls::Iovec   *buffers,
+                       int                  numBuffers,
+                       const ReadCallback&  readCallback,
+                       int                  flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidReadFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     TcpCbChannel_RReg *request =
@@ -1539,7 +1550,7 @@ TcpCbChannel::readvRaw(const btls::Iovec *buffers,
         if (completeOperation(request, &d_readBuffer,
                               &d_readBufferOffset, &d_readBufferSP)) {
             d_rrequestPool.deleteObjectRaw(request);
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (0 != d_rManager_p->registerSocketEvent(d_socket_p->handle(),
@@ -1548,7 +1559,7 @@ TcpCbChannel::readvRaw(const btls::Iovec *buffers,
 
             request->invoke(0, e_CANCELLED);
             d_rrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
 
     }
@@ -1557,15 +1568,14 @@ TcpCbChannel::readvRaw(const btls::Iovec *buffers,
 }
 
 int
-TcpCbChannel::bufferedRead(
-        int                         numBytes,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+TcpCbChannel::bufferedRead(int                         numBytes,
+                           const BufferedReadCallback& bufferedReadCallback,
+                           int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidReadFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     TcpCbChannel_RReg *request =
@@ -1577,7 +1587,7 @@ TcpCbChannel::bufferedRead(
         if (completeOperation(request, &d_readBuffer,
                               &d_readBufferOffset, &d_readBufferSP)) {
             d_rrequestPool.deleteObjectRaw(request);
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (0 != d_rManager_p->registerSocketEvent(d_socket_p->handle(),
@@ -1586,7 +1596,7 @@ TcpCbChannel::bufferedRead(
 
             request->invoke(0, 0, e_CANCELLED);
             d_rrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
 
     }
@@ -1603,7 +1613,7 @@ int TcpCbChannel::bufferedReadRaw(
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidReadFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     TcpCbChannel_RReg *request =
@@ -1618,7 +1628,7 @@ int TcpCbChannel::bufferedReadRaw(
                               &d_readBufferSP))
         {
             d_rrequestPool.deleteObjectRaw(request);
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (0 != d_rManager_p->registerSocketEvent(
@@ -1628,7 +1638,7 @@ int TcpCbChannel::bufferedReadRaw(
         {
             request->invoke(0, 0, e_CANCELLED);
             d_rrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 
@@ -1648,7 +1658,7 @@ int TcpCbChannel::write(const char           *buffer,
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidWriteFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 == d_writeRequests.size()) {
@@ -1657,7 +1667,7 @@ int TcpCbChannel::write(const char           *buffer,
 
         if (s == numBytes) {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (0 < s) {
             // Partial result.
@@ -1681,7 +1691,7 @@ int TcpCbChannel::write(const char           *buffer,
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
-                return 0;
+                return 0;                                             // RETURN
             }
             else {
                 TcpCbChannel_WReg *request =
@@ -1695,7 +1705,7 @@ int TcpCbChannel::write(const char           *buffer,
         }
         else {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
                                          btlso::EventType::e_WRITE,
@@ -1704,7 +1714,7 @@ int TcpCbChannel::write(const char           *buffer,
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
             d_wrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -1727,7 +1737,7 @@ int TcpCbChannel::writeRaw(const char           *buffer,
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidWriteFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 == d_writeRequests.size()) {
@@ -1735,7 +1745,7 @@ int TcpCbChannel::writeRaw(const char           *buffer,
         int s = d_socket_p->write(buffer, numBytes);
         if (0 < s) {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
                 TcpCbChannel_WReg *request =
@@ -1749,7 +1759,7 @@ int TcpCbChannel::writeRaw(const char           *buffer,
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
-                return 0;
+                return 0;                                             // RETURN
             }
             else {
                 TcpCbChannel_WReg *request =
@@ -1763,7 +1773,7 @@ int TcpCbChannel::writeRaw(const char           *buffer,
         }
         else {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
                                          btlso::EventType::e_WRITE,
@@ -1772,7 +1782,7 @@ int TcpCbChannel::writeRaw(const char           *buffer,
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
             d_wrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -1810,7 +1820,7 @@ int TcpCbChannel::writevRaw(const btls::Ovec     *buffers,
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidWriteFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 == d_writeRequests.size()) {
@@ -1818,7 +1828,7 @@ int TcpCbChannel::writevRaw(const btls::Ovec     *buffers,
         int s = d_socket_p->writev(buffers, numBuffers);
         if (0 < s) {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
                 TcpCbChannel_WReg *request =
@@ -1832,7 +1842,7 @@ int TcpCbChannel::writevRaw(const btls::Ovec     *buffers,
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
-                return 0;
+                return 0;                                             // RETURN
             }
             else {
                 TcpCbChannel_WReg *request =
@@ -1846,7 +1856,7 @@ int TcpCbChannel::writevRaw(const btls::Ovec     *buffers,
         }
         else {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
                                           btlso::EventType::e_WRITE,
@@ -1855,7 +1865,7 @@ int TcpCbChannel::writevRaw(const btls::Ovec     *buffers,
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
             d_wrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -1877,7 +1887,7 @@ int TcpCbChannel::writevRaw(const btls::Iovec    *buffers,
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidWriteFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 == d_writeRequests.size()) {
@@ -1886,7 +1896,7 @@ int TcpCbChannel::writevRaw(const btls::Iovec    *buffers,
 
         if (0 < s) {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
                 TcpCbChannel_WReg *request =
@@ -1900,7 +1910,7 @@ int TcpCbChannel::writevRaw(const btls::Iovec    *buffers,
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
-                return 0;
+                return 0;                                             // RETURN
             }
             else {
                 TcpCbChannel_WReg *request =
@@ -1914,7 +1924,7 @@ int TcpCbChannel::writevRaw(const btls::Iovec    *buffers,
         }
         else {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
                                           btlso::EventType::e_WRITE,
@@ -1923,7 +1933,7 @@ int TcpCbChannel::writevRaw(const btls::Iovec    *buffers,
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
             d_wrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -1945,7 +1955,7 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
     BSLS_ASSERT(0 < numBytes);
 
     if (d_isInvalidWriteFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 == d_writeBuffer.size()) {
@@ -1961,7 +1971,7 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
         int s = d_socket_p->write(buffer, numBytes);
         if (s == numBytes) {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (0 < s || btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
             if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
@@ -1986,7 +1996,7 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
-                return 0;
+                return 0;                                             // RETURN
             }
             else {
                 TcpCbChannel_WReg *request =
@@ -2007,7 +2017,7 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
         }
         else {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
                                           btlso::EventType::e_WRITE,
@@ -2016,7 +2026,7 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
             d_wrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -2037,17 +2047,16 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
     return 0;
 }
 
-int TcpCbChannel::bufferedWritev(
-        const btls::Iovec        *buffers,
-        int                      numBuffers,
-        const WriteCallback&     writeCallback,
-        int                      flags)
+int TcpCbChannel::bufferedWritev(const btls::Iovec    *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidWriteFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 == d_writeRequests.size()) {
@@ -2056,7 +2065,7 @@ int TcpCbChannel::bufferedWritev(
         int length = btls::IovecUtil::length(buffers, numBuffers);
         if (s == length) {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (0 < s) {
                 // Got a partial result -- enqueue the rest
@@ -2080,9 +2089,11 @@ int TcpCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer.front() + d_writeBufferOffset,
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers + idx + 1,
+                                  numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -2100,9 +2111,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2116,7 +2129,7 @@ int TcpCbChannel::bufferedWritev(
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
-                return 0;
+                return 0;                                             // RETURN
             }
             else {
                 if ((int) d_writeBuffer.size() < d_writeBufferOffset +
@@ -2124,9 +2137,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2141,7 +2156,7 @@ int TcpCbChannel::bufferedWritev(
         }
         else {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
                                           btlso::EventType::e_WRITE,
@@ -2150,7 +2165,7 @@ int TcpCbChannel::bufferedWritev(
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
             d_wrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -2159,9 +2174,11 @@ int TcpCbChannel::bufferedWritev(
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
-            &d_writeBuffer.front() + d_writeBufferOffset,
-            d_writeBuffer.size() - d_writeBufferOffset,
-            buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
@@ -2176,17 +2193,16 @@ int TcpCbChannel::bufferedWritev(
     return 0;
 }
 
-int TcpCbChannel::bufferedWritev(
-        const btls::Ovec         *buffers,
-        int                      numBuffers,
-        const WriteCallback&     writeCallback,
-        int                      flags)
+int TcpCbChannel::bufferedWritev(const btls::Ovec     *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
 
     if (d_isInvalidWriteFlag) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 == d_writeRequests.size()) {
@@ -2195,7 +2211,7 @@ int TcpCbChannel::bufferedWritev(
         int length = btls::IovecUtil::length(buffers, numBuffers);
         if (s == length) {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         else if (0 < s) {
 
@@ -2221,9 +2237,11 @@ int TcpCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer.front() + d_writeBufferOffset,
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers + idx + 1,
+                                  numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -2241,9 +2259,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2257,7 +2277,7 @@ int TcpCbChannel::bufferedWritev(
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
             if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
-                return 0;
+                return 0;                                             // RETURN
             }
             else {
                 if ((int) d_writeBuffer.size() < d_writeBufferOffset +
@@ -2265,9 +2285,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2282,7 +2304,7 @@ int TcpCbChannel::bufferedWritev(
         }
         else {
             writeCallback(s, 0);
-            return 0;
+            return 0;                                                 // RETURN
         }
         if (0 != d_wManager_p->registerSocketEvent(d_socket_p->handle(),
                                           btlso::EventType::e_WRITE,
@@ -2291,7 +2313,7 @@ int TcpCbChannel::bufferedWritev(
             request->invoke(0, e_CANCELLED);
             d_writeRequests.pop_back();
             d_wrequestPool.deleteObjectRaw(request);
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -2300,9 +2322,11 @@ int TcpCbChannel::bufferedWritev(
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
-            &d_writeBuffer.front() + d_writeBufferOffset,
-            d_writeBuffer.size() - d_writeBufferOffset,
-            buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
@@ -2333,7 +2357,8 @@ void TcpCbChannel::cancelRead() {
                            d_readRequests.begin(),
                            d_readRequests.begin() + d_readRequests.size() - 1,
                            d_allocator_p);
-        d_readRequests.erase(d_readRequests.begin(),
+        d_readRequests.erase(
+                           d_readRequests.begin(),
                            d_readRequests.begin() + d_readRequests.size() - 1);
         dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_rrequestPool);
         BSLS_ASSERT(d_currentReadRequest_p == d_readRequests.back());
@@ -2342,7 +2367,7 @@ void TcpCbChannel::cancelRead() {
         bsl::deque<TcpCbChannel_RReg *>
                                   toBeCancelled(d_readRequests, d_allocator_p);
         d_readRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
 
         if (numToCancel) {
             d_rManager_p->deregisterSocketEvent(d_socket_p->handle(),
@@ -2368,13 +2393,13 @@ void TcpCbChannel::cancelWrite() {
         BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
     }
     else {
-        bsl::deque<TcpCbChannel_WReg *>
-                                 toBeCancelled(d_writeRequests, d_allocator_p);
+        bsl::deque<TcpCbChannel_WReg *> toBeCancelled(d_writeRequests,
+                                                      d_allocator_p);
         d_writeRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_wManager_p->deregisterSocketEvent(d_socket_p->handle(),
-                                               btlso::EventType::e_WRITE);
+                                                btlso::EventType::e_WRITE);
         }
         dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_wrequestPool);
     }
@@ -2393,15 +2418,13 @@ void TcpCbChannel::invalidateWrite() {
     d_isInvalidWriteFlag = 1;
 }
 
-void TcpCbChannel::setReadEventManager(
-        btlso::TimerEventManager *manager) {
+void TcpCbChannel::setReadEventManager(btlso::TimerEventManager *manager) {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingReadOperations());
     d_rManager_p = manager;
 }
 
-void TcpCbChannel::setWriteEventManager(
-        btlso::TimerEventManager *manager) {
+void TcpCbChannel::setWriteEventManager(btlso::TimerEventManager *manager) {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingWriteOperations());
     d_wManager_p = manager;
@@ -2418,14 +2441,14 @@ int TcpCbChannel::isInvalidWrite() const {
 }
 
 int TcpCbChannel::numPendingReadOperations() const {
-    return d_readRequests.size();
+    return static_cast<int>(d_readRequests.size());
 }
 
 int TcpCbChannel::numPendingWriteOperations() const {
-    return d_writeRequests.size();
+    return static_cast<int>(d_writeRequests.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

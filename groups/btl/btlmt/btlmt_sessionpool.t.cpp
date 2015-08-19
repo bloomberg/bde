@@ -224,7 +224,7 @@ void sessionStateCallback(int             state,
                           void           *)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Client from "
                    << session->channel()->peerAddress()
@@ -232,7 +232,7 @@ void sessionStateCallback(int             state,
                    << MTENDL;
         }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
@@ -249,7 +249,7 @@ void sessionStateCallbackWithBarrier(int              state,
                                      bdlqq::Barrier  *barrier)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Client from "
                    << session->channel()->peerAddress()
@@ -257,7 +257,7 @@ void sessionStateCallbackWithBarrier(int              state,
                    << MTENDL;
         }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
@@ -275,7 +275,7 @@ void sessionStateCallbackWithCounter(int              state,
                                      bsls::AtomicInt *numUpConnections)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Client from "
                    << session->channel()->peerAddress()
@@ -283,7 +283,7 @@ void sessionStateCallbackWithCounter(int              state,
                    << MTENDL;
         }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
@@ -616,7 +616,7 @@ void sessionStateCallbackUsingChannelMapAndCounter(
                                              bsls::AtomicInt *numUpConnections)
 {
     switch(state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
           if (veryVerbose) {
               MTCOUT << "Client from "
                      << session->channel()->peerAddress()
@@ -624,7 +624,7 @@ void sessionStateCallbackUsingChannelMapAndCounter(
                      << MTENDL;
           }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
           if (veryVerbose) {
               MTCOUT << "Client connected from "
                      << session->channel()->peerAddress()
@@ -1384,7 +1384,7 @@ void Tester::sessionStateCb(int             state,
                             void           *)
 {
     switch (state) {
-      case btlmt::SessionPool::SESSION_DOWN: {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
           if (veryVerbose) {
               MTCOUT << "Client from "
                      << session->channel()->peerAddress()
@@ -1392,7 +1392,7 @@ void Tester::sessionStateCb(int             state,
                      << MTENDL;
           }
       } break;
-      case btlmt::SessionPool::SESSION_UP: {
+      case btlmt::SessionPool::e_SESSION_UP: {
           if (veryVerbose) {
               MTCOUT << "Client connected from "
                      << session->channel()->peerAddress()
@@ -1407,7 +1407,7 @@ int Tester::portNumber() const
     return d_portNumber;
 }
 
-}  // end namespace BTEMT_SESSION_POOL_DRQS_44879376
+}  // close namespace BTEMT_SESSION_POOL_DRQS_44879376
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -1711,7 +1711,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
                                        void           *) {
 
         switch(state) {
-          case btlmt::SessionPool::SESSION_DOWN: {
+          case btlmt::SessionPool::e_SESSION_DOWN: {
               if (veryVerbose) {
                   d_coutLock_p->lock();
                   bsl::cout << "Client from "
@@ -1721,7 +1721,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
                   d_coutLock_p->unlock();
               }
           } break;
-          case btlmt::SessionPool::SESSION_UP: {
+          case btlmt::SessionPool::e_SESSION_UP: {
               if (veryVerbose) {
                   d_coutLock_p->lock();
                   bsl::cout << "Client connected from "
@@ -2254,7 +2254,7 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
 
                 poolCbBarrier.wait();
-                ASSERT(btlmt::SessionPool::CONNECT_FAILED == poolState);
+                ASSERT(btlmt::SessionPool::e_CONNECT_FAILED == poolState);
             }
 
             ASSERT(0 == pool.stopAndRemoveAllSessions());
@@ -2369,7 +2369,7 @@ int main(int argc, char *argv[])
                         MTCOUT << "Waiting on pool barrier..." << MTENDL;
                     }
                     poolCbBarrier.wait();
-                    ASSERT(btlmt::SessionPool::CONNECT_FAILED == poolState);
+                    ASSERT(btlmt::SessionPool::e_CONNECT_FAILED == poolState);
                 }
             }
 
@@ -3157,11 +3157,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

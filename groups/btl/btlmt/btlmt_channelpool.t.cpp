@@ -36,11 +36,6 @@
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
 #include <bdlb_strtokenrefiter.h>
-#include <bdlxxxx_instreamfunctions.h>             // for testing only
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_byteoutstream.h>
-#include <bdlxxxx_byteinstream.h>
-#include <bdlxxxx_bytestreamimputil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -49,6 +44,10 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
+
+#include <bslx_byteoutstream.h>
+#include <bslx_byteinstream.h>
+#include <bslx_marshallingutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -180,7 +179,7 @@ void aSsErT(int c, const char *s, int i)
     }
 }
 
-}
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //-----------------------------------------------------------------------------
@@ -262,8 +261,8 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
     ta.print();
     return out;
 }
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -291,32 +290,32 @@ static bdlf::Function<void (*)()> NULL_CB(&assertCb);
 //                       TESTING FUNCTIONS/CLASSES HELPER
 //-----------------------------------------------------------------------------
 
-template <typename A1, typename A2, typename A3>
+template <class A1, class A2, class A3>
 struct NullFn3 {
     void operator()(A1, A2, A3) {}
 };
 
-template <typename A1, typename A2, typename A3, typename A4>
+template <class A1, class A2, class A3, class A4>
 struct NullFn4 {
     void operator()(A1, A2, A3, A4) {}
 };
 
-template <typename A1, typename A2, typename A3>
+template <class A1, class A2, class A3>
 void makeNull(bdlf::Function<void (*)(A1, A2, A3)> * f) {
     *f = NullFn3<A1, A2, A3>();
 }
 
-template <typename A1, typename A2, typename A3>
+template <class A1, class A2, class A3>
 void makeNull(bslma::Allocator *a, bdlf::Function<void (*)(A1, A2, A3)> * f) {
     *f = bdlf::Function<void (*)(A1, A2, A3)>(NullFn3<A1, A2, A3>(), a);
 }
 
-template <typename A1, typename A2, typename A3, typename A4>
+template <class A1, class A2, class A3, class A4>
 void makeNull(bdlf::Function<void (*)(A1, A2, A3, A4)> * f) {
     *f = NullFn4<A1, A2, A3, A4>();
 }
 
-template <typename A1, typename A2, typename A3, typename A4>
+template <class A1, class A2, class A3, class A4>
 void makeNull(bslma::Allocator *a, bdlf::Function<void (*)(A1, A2, A3, A4)> *f)
 {
     *f = bdlf::Function<void (*)(A1, A2, A3, A4)>(NullFn4<A1, A2, A3, A4>(),a);
@@ -674,7 +673,7 @@ void populateMessage(btlb::Blob       *msg,
 }
 
 //-----------------------------------------------------------------------------
-// CASE 44
+//                                  CASE 44
 //-----------------------------------------------------------------------------
 
 namespace CASE44 {
@@ -920,10 +919,10 @@ int ReadServer::portNumber() const
     return d_port;
 }
 
-}
+}  // close namespace CASE44
 
 //-----------------------------------------------------------------------------
-// CASE 39
+//                                  CASE 39
 //-----------------------------------------------------------------------------
 
 namespace CASE39 {
@@ -990,10 +989,10 @@ void blobBasedReadCb(int            *needed,
     msg->removeAll();
 }
 
-}
+}  // close namespace CASE39
 
 //-----------------------------------------------------------------------------
-// CASE 43
+//                                  CASE 43
 //-----------------------------------------------------------------------------
 
 namespace CASE43 {
@@ -1129,11 +1128,11 @@ void *listenFunction(void *args)
     return 0;
 }
 
-}
+}  // close namespace CASE43
 
 
 //-----------------------------------------------------------------------------
-// CASE 42
+//                                  CASE 42
 //-----------------------------------------------------------------------------
 
 namespace CASE42 {
@@ -1218,11 +1217,11 @@ void *readData(void *data)
     return 0;
 }
 
-}
+}  // close namespace CASE42
 
 
 //-----------------------------------------------------------------------------
-// CASE 41
+//                                  CASE 41
 //-----------------------------------------------------------------------------
 
 namespace CASE41 {
@@ -1399,10 +1398,10 @@ void *writeData(void *data)
     return 0;
 }
 
-}  // namespace TEST_CASE_41_NAMESPACE
+}  // close namespace CASE41
 
 //-----------------------------------------------------------------------------
-// CASE 37
+//                                  CASE 37
 //-----------------------------------------------------------------------------
 
 namespace CASE37 {
@@ -1609,10 +1608,10 @@ extern "C" void* threadFunctionCase36(void *data)
     return 0;
 }
 
-}
+}  // close namespace CASE37
 
 //-----------------------------------------------------------------------------
-// CASE 38
+//                                  CASE 38
 //-----------------------------------------------------------------------------
 
 namespace CASE38 {
@@ -1690,10 +1689,10 @@ void populateText(char *text, int length)
     memset(curr, 'A', end - curr);
 }
 
-}  // namespace TEST_CASE_38_NAMESPACE
+}  // close namespace CASE38
 
 //-----------------------------------------------------------------------------
-// CASE 36
+//                                  CASE 36
 //-----------------------------------------------------------------------------
 
 namespace CASE36 {
@@ -1754,10 +1753,10 @@ void blobBasedReadCb(int             *needed,
     barrier->wait();
 }
 
-}  // namespace TEST_CASE_36_NAMESPACE
+}  // close namespace CASE36
 
 //-----------------------------------------------------------------------------
-// CASE 32
+//                                  CASE 32
 //-----------------------------------------------------------------------------
 
 namespace CASE32 {
@@ -1785,7 +1784,7 @@ public:
 
             if (0 != btlso::SocketOptUtil::setSocketOptions(socket->handle(),
                                                            *opt)) {
-                return -1;
+                return -1;                                            // RETURN
             }
             rc = pool->connect(serverAddr, 1, bsls::TimeInterval(1),
                                sourceId, &socket);
@@ -1817,7 +1816,7 @@ public:
 
             if (0 != btlso::SocketOptUtil::setSocketOptions(socket->handle(),
                                                            *opt)) {
-                return -1;
+                return -1;                                            // RETURN
             }
             rc = pool->connect(host, port, 1, bsls::TimeInterval(1),
                                sourceId, &socket);
@@ -2236,10 +2235,10 @@ int verify(const Obj&                 pool,
     return 0;
 }
 
-}
+}  // close namespace CASE32
 
 //-----------------------------------------------------------------------------
-// CASE 31 DRQS 22256519
+//                          CASE 31 DRQS 22256519
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_31_NAMESPACE {
 
@@ -2442,10 +2441,10 @@ const bsl::string& ReadServer::data() const
     return d_data;
 }
 
-}  // namespace TEST_CASE_31_NAMESPACE
+}  // close namespace TEST_CASE_31_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 30 read testing
+//                          CASE 30 read testing
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_30_NAMESPACE {
 
@@ -2801,7 +2800,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
             return;                                                   // RETURN
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, msg->buffer(0).data());
+        bslx::MarshallingUtil::getInt32(&d_msgId, msg->buffer(0).data());
         ASSERT(0 <= d_msgId);
         btlb::BlobUtil::erase(msg, 0, sizeof(int));
 
@@ -2817,7 +2816,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
             return;                                                   // RETURN
         }
 
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength,
+        bslx::MarshallingUtil::getInt32(&d_msgLength,
                                          msg->buffer(0).data());
         ASSERT(0 <= d_msgLength);
         btlb::BlobUtil::erase(msg, 0, sizeof(int));
@@ -2908,10 +2907,10 @@ void TestData::run()
     LOOP2_ASSERT(DATA_SIZE, MAX_DATA_SIZE, DATA_SIZE <= MAX_DATA_SIZE);
 
     int offset = 0;
-    bdlxxxx::ByteStreamImpUtil::putInt32(data, d_threadIntId);
+    bslx::MarshallingUtil::putInt32(data, d_threadIntId);
     offset += sizeof(int);
 
-    bdlxxxx::ByteStreamImpUtil::putInt32(data + offset, DATA_SIZE);
+    bslx::MarshallingUtil::putInt32(data + offset, DATA_SIZE);
     offset += sizeof(int);
 
     const int TOTAL_SIZE = DATA_SIZE + offset;
@@ -2936,7 +2935,7 @@ void TestData::run()
     }
 }
 
-}  // namespace TEST_CASE_30_NAMESPACE
+}  // close namespace TEST_CASE_30_NAMESPACE
 
 //-----------------------------------------------------------------------------
 // CASE 28: 'btlmt::ChannelPool::busyMetrics()'
@@ -2955,7 +2954,7 @@ void dummyDataCallbackWithDelay(int          *numNeeded,
     btlb::BlobUtil::erase(message, 0, message->length());
 }
 
-}  // namespace TEST_CASE_BUSY_METRICS
+}  // close namespace TEST_CASE_BUSY_METRICS
 //-----------------------------------------------------------------------------
 // CASE 26: 'btlmt::ChannelPool_MessageUtil'
 //-----------------------------------------------------------------------------
@@ -2991,7 +2990,7 @@ int createData(bsl::vector<bsl::vector<char> > *data,
     return length;
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 void loadIovecs(bsl::vector<IOVEC>                *iovecs,
                 bsl::vector<bsl::vector<char> >&  data)
     // Load into the specified 'iovecs' the specified 'data' buffers.
@@ -3079,7 +3078,7 @@ bool isEqualByteSequence(
                 P_(blobOffset);   P(blob.length());
                 P_(arrayIndex);   P_(arrayOffset);
                 P_(array.size())  P(expectedSequence.size());
-                return false;
+                return false;                                         // RETURN
             }
             ++blobPosition;
             ++blobOffset;
@@ -3106,7 +3105,7 @@ bool isEqualByteSequence(
     return false;
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 int loadTestVector(bsl::vector<IOVEC>  *vector,
                    bsl::vector<IOVEC>&  srcData,
                    const char          *description)
@@ -3127,7 +3126,7 @@ int loadTestVector(bsl::vector<IOVEC>  *vector,
 
 }
 
-template <typename IOVEC>
+template <class IOVEC>
 void testIovecArray()
     // Perform the standard value-semantic tests on a
     // 'btlmt::ChannelPool_IovecArray<IOVEC>'.
@@ -3263,7 +3262,7 @@ void testIovecArray()
     }
 }
 
-} // close namespace TEST_CASE_MESSAGEHELPER_NAMESPACE
+}  // close namespace TEST_CASE_MESSAGEHELPER_NAMESPACE
 
 //-----------------------------------------------------------------------------
 // CASE 25 'setWriteCache[Hi|Low]Watermark' & 'setWriteCacheWatermarks'
@@ -3471,7 +3470,7 @@ void testCase25ConcurrencyTest(btlmt::ChannelPool *pool,
 }
 #endif
 
-} // closing namespace TEST_CASE_25_NAMESPACE
+}  // close namespace TEST_CASE_25_NAMESPACE
 
 //-----------------------------------------------------------------------------
 // CASE -2 supporting classes and methods
@@ -3517,10 +3516,10 @@ void caseN2ChannelStateCallback(int                  channelId,
       } break;
     }
 }
-}
+}  // close namespace TEST_CASE_N2_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 23 supporting classes and methods
+//                  CASE 23 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_23_NAMESPACE {
 
@@ -3602,10 +3601,10 @@ void *case23ServerThread3(void *arg)
     return 0;
 }
 
-} // closing namespace TEST_CASE_23_NAMESPACE
+}  // close namespace TEST_CASE_23_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 22 supporting classes and methods
+//                  CASE 22 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_22_NAMESPACE {
 
@@ -4225,10 +4224,10 @@ void runTestCase22(char                                           *,
     }
 }
 
-} // closing namespace TEST_CASE_22_NAMESPACE
+}  // close namespace TEST_CASE_22_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 21 supporting classes and methods
+//                  CASE 21 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_21_NAMESPACE {
 
@@ -4993,10 +4992,10 @@ void bteso_SslLikeStreamSocketFactory<ADDRESS>::deallocate(
     d_allocator_p->deallocate(socket);
 }
 
-} // closing namespace TEST_CASE_21_NAMESPACE
+}  // close namespace TEST_CASE_21_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 20 function helpers
+//                          CASE 20 function helpers
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_20_NAMESPACE {
 
@@ -5052,10 +5051,10 @@ void case20ChannelStateCallback(int                  channelId,
     }
 }
 
-} // closing namespace TEST_CASE_20_NAMESPACE
+}  // close namespace TEST_CASE_20_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 19 supporting classes and methods
+//                  CASE 19 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_19_NAMESPACE {
 
@@ -5081,10 +5080,10 @@ void case19PoolStateCallback(
     }
 }
 
-} // closing namespace TEST_CASE_19_NAMESPACE
+}  // close namespace TEST_CASE_19_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 18 supporting classes and methods
+//                  CASE 18 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_18_NAMESPACE {
 
@@ -5180,10 +5179,10 @@ void case18PoolStateCallback(
     }
 }
 
-} // closing namespace TEST_CASE_18_NAMESPACE
+}  // close namespace TEST_CASE_18_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 17 supporting classes and methods
+//                  CASE 17 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_17_NAMESPACE {
 
@@ -5226,10 +5225,10 @@ void case17ChannelStateCallback(int             channelId,
     }
 }
 
-} // closing namespace TEST_CASE_17_NAMESPACE
+}  // close namespace TEST_CASE_17_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 16 supporting classes and methods
+//                  CASE 16 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_16_NAMESPACE {
 
@@ -5275,10 +5274,10 @@ void case16ChannelStateCallback(int                  channelId,
     }
 }
 
-} // closing namespace TEST_CASE_16_NAMESPACE
+}  // close namespace TEST_CASE_16_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 15 supporting classes and methods
+//                  CASE 15 supporting classes and methods
 //-----------------------------------------------------------------------------
 
 bsl::ostream&
@@ -5378,10 +5377,10 @@ void case15ChannelStateCallback(int   channelId,
     }
 }
 
-} // closing namespace TEST_CASE_15_NAMESPACE
+}  // close namespace TEST_CASE_15_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 14 supporting classes and methods
+//                  CASE 14 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_14_NAMESPACE {
 
@@ -5447,10 +5446,10 @@ void case14ChannelStateCallback(int                  channelId,
     }
 }
 
-} // closing namespace TEST_CASE_14_NAMESPACE
+}  // close namespace TEST_CASE_14_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 13 supporting classes and methods
+//                  CASE 13 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_13_NAMESPACE {
 
@@ -5494,10 +5493,10 @@ void case13ChannelStateCallback(int                  channelId,
     }
 }
 
-} // closing namespace TEST_CASE_13_NAMESPACE
+}  // close namespace TEST_CASE_13_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 12 supporting classes and methods
+//                  CASE 12 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_12_NAMESPACE {
 
@@ -5563,10 +5562,10 @@ void case12FlowControlChannelCallback(
     }
 }
 
-} // closing namespace TEST_CASE_12_NAMESPACE
+}  // close namespace TEST_CASE_12_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 11 supporting classes and methods
+//                  CASE 11 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_11_NAMESPACE {
 
@@ -5779,10 +5778,10 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
     mY.stop();
 }
 
-} // closing namespace TEST_CASE_11_NAMESPACE
+}  // close namespace TEST_CASE_11_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 10 supporting classes and methods
+//                  CASE 10 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_10_NAMESPACE {
 
@@ -5879,10 +5878,10 @@ void case10ChannelStateCallback(int                  channelId,
     }
 }
 
-} // closing namespace TEST_CASE_10_NAMESPACE
+}  // close namespace TEST_CASE_10_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 9 supporting classes and methods
+//                  CASE 9 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_9_NAMESPACE {
 
@@ -6720,10 +6719,10 @@ void runTestCase9(char                                           *,
     }
 }
 
-} // closing namespace TEST_CASE_9_NAMESPACE
+}  // close namespace TEST_CASE_9_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 8 supporting classes and methods
+//                  CASE 8 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_8_NAMESPACE {
 
@@ -6789,10 +6788,10 @@ void case8ChannelStateCallback(int                channelId,
     }
 }
 
-} // closing namespace TEST_CASE_8_NAMESPACE
+}  // close namespace TEST_CASE_8_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 7 supporting classes and methods
+//                  CASE 7 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_7_NAMESPACE {
 
@@ -6827,24 +6826,24 @@ void case7ChannelStateCallback(int              channelId,
     }
 }
 
-} // closing namespace TEST_CASE_7_NAMESPACE
+}  // close namespace TEST_CASE_7_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 6 supporting classes and methods
+//                  CASE 6 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_6_NAMESPACE {
 
-} // closing namespace TEST_CASE_6_NAMESPACE
+}  // close namespace TEST_CASE_6_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 5 supporting classes and methods
+//                  CASE 5 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_5_NAMESPACE {
 
-} // closing namespace TEST_CASE_5_NAMESPACE
+}  // close namespace TEST_CASE_5_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 4 supporting classes and methods
+//                  CASE 4 supporting classes and methods
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_4_NAMESPACE {
 
@@ -6883,7 +6882,7 @@ void *case4OpenConnectThread(void *arg) {
                << ": ERROR OPENING SERVER.\n"
                << MTENDL;
         // Leave port number to non 0, to signal opening error in main thread.
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int status;
@@ -7037,10 +7036,10 @@ static void case4ErrorPoolStateCb(int               poolState,
     ++(*isInvokedFlag);
 }
 
-} // closing namespace TEST_CASE_XX_NAMESPACE
+}  // close namespace TEST_CASE_4_NAMESPACE
 
 //=============================================================================
-//                  USAGE EXAMPLES
+//                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
@@ -7116,7 +7115,7 @@ int usageExample1(bslma::Allocator *allocator) {
             cout << "The local host does not appear to be running "
                  << "an echo server." << endl;
         }
-        return 1;
+        return 1;                                                     // RETURN
     }
     ASSERT(0 == pool.start());
     enum { NUM_MONITOR = 5 };
@@ -7294,18 +7293,18 @@ void vlm_EchoServer::blobCB(int          *numNeeded,
     const int INT_SIZE = sizeof(int);
     if (msg->length() < INT_SIZE) {
         *numNeeded = INT_SIZE;
-        return;
+        return;                                                       // RETURN
     }
 
     // Find Message Boundary
 
     int length;
-    bdlxxxx::ByteStreamImpUtil::getInt32(&length, msg->buffer(0).data());
+    bslx::MarshallingUtil::getInt32(&length, msg->buffer(0).data());
     ASSERT(0 < length);
 
     if (length > msg->length() - INT_SIZE) {
         *numNeeded = length - msg->length() + INT_SIZE;
-        return;
+        return;                                                       // RETURN
     }
 
     *numNeeded = INT_SIZE;
@@ -7320,7 +7319,7 @@ void vlm_EchoServer::blobCB(int          *numNeeded,
 }
 
 
-} // closing namespace USAGE_EXAMPLE_3_NAMESPACE
+}  // close namespace USAGE_EXAMPLE_3_NAMESPACE
 
 //-----------------------------------------------------------------------------
 /// USAGE EXAMPLE 2: queue-based message processor
@@ -7503,7 +7502,7 @@ int my_QueueProcessor::processOutgoingQueue() {
 
 int my_QueueProcessor::startProcessor() {
     bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    attributes.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                      &queueProc, (void*)this);
@@ -7582,7 +7581,7 @@ void my_QueueProcessor::blobCB(int          *numNeeded,
     }
 }
 
-} // closing namespace USAGE_EXAMPLE_2_NAMESPACE
+}  // close namespace USAGE_EXAMPLE_2_NAMESPACE
 
 //-----------------------------------------------------------------------------
 /// USAGE EXAMPLE 2: echo server
@@ -7816,7 +7815,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
     }
 //..
 
-} // closing namespace USAGE_EXAMPLE_2_NAMESPACE
+}  // close namespace USAGE_EXAMPLE_2_NAMESPACE
 
 //-----------------------------------------------------------------------------
 /// ADDITIONAL USAGE EXAMPLE: queue-based client (used in case -1)
@@ -7826,11 +7825,13 @@ namespace USAGE_EXAMPLE_M1_NAMESPACE {
 
 typedef bsl::pair<int, btlb::Blob> BlobTypeWithId;
 
+const int versionSelector = 20140601;
+
 static void
 generateMessage(btlb::Blob& msg, bslma::Allocator *basicAllocator = 0)
 {
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    bdlxxxx::ByteOutStream stream(basicAllocator);
+    bslx::ByteOutStream stream(versionSelector, basicAllocator);
     bdex_OutStreamFunctions::streamOut(stream, now, 1);
     int streamedLength = stream.length();
     msg.setLength(sizeof(int) + streamedLength);
@@ -7980,7 +7981,7 @@ int my_QueueClient::processOutgoingQueue() {
 
 int my_QueueClient::startProcessor() {
     bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    attributes.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                      &queueClientProc, (void*)this);
@@ -8109,7 +8110,7 @@ void *usageExampleMinusOne(void *arg)
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         char *msgData = msg.second.buffer(0).data();
         msgData += sizeof(int);
-        bdlxxxx::ByteInStream stream(msgData, msg.second.length()
+        bslx::ByteInStream stream(msgData, msg.second.length()
                                      - sizeof(int));
         bsls::TimeInterval initialTime;
         bdex_InStreamFunctions::streamIn(stream, initialTime, 1);
@@ -8147,7 +8148,7 @@ void *usageExampleMinusOne(void *arg)
     return NULL;
 }
 
-} // closing namespace USAGE_EXAMPLE_M1_NAMESPACE
+}  // close namespace USAGE_EXAMPLE_M1_NAMESPACE
 
 
 // ============================================================================
@@ -9089,13 +9090,13 @@ void TestDriver::testCase37()
                 char                  rawLength[sizeof length];
 
                 length = strlen(TEXT) + 1;
-                bdlxxxx::ByteStreamImpUtil::putInt32(rawLength, length);
+                bslx::MarshallingUtil::putInt32(rawLength, length);
                 channel.write(rawLength, sizeof length);
                 channel.write(TEXT, length);
 
                 // Read Response
                 channel.read(rawLength, sizeof length);
-                bdlxxxx::ByteStreamImpUtil::getInt32(&length, rawLength);
+                bslx::MarshallingUtil::getInt32(&length, rawLength);
                 LOOP_ASSERT(i, 0 < length);
                 char   *text = new char[length];
                 channel.read(text, length);
@@ -12663,7 +12664,7 @@ void TestDriver::testCase19()
                         factory.deallocate(sockets[--i]);
                     }
                     ASSERT(0 == btlso::SocketImpUtil::cleanup());
-                    return;
+                    return;                                           // RETURN
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
@@ -13269,7 +13270,7 @@ void TestDriver::testCase15()
 
                 ASSERT(1 == handles.size());
                 if (1 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_LISTENING_CHANNEL
                                       == handles[0].d_channelType);
                     ASSERT(-1         == handles[0].d_channelId);
                     ASSERT(serverTime <= handles[0].d_creationTime);
@@ -13309,21 +13310,21 @@ void TestDriver::testCase15()
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (3 <= handles.size()) {
                     LOOP_ASSERT(handles[0].d_channelType,
-                                btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                                btlmt::ChannelType::e_LISTENING_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(-1                 == handles[0].d_channelId);
                     ASSERT(serverTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
                     LOOP_ASSERT(handles[1].d_channelType,
-                                btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                                btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[1].d_channelId);
                     ASSERT(acceptTime         <= handles[1].d_creationTime);
                     ASSERT(SERVER_ID          == handles[1].d_userId);
 
                     LOOP_ASSERT(handles[2].d_channelType,
-                                btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                                btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId1         == handles[2].d_channelId);
                     ASSERT(connectTime        <= handles[2].d_creationTime);
@@ -13371,25 +13372,25 @@ void TestDriver::testCase15()
                 ASSERT(4 == handles.size());
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (4 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_LISTENING_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_LISTENING_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(-1                 == handles[0].d_channelId);
                     ASSERT(serverTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[1].d_channelId);
                     ASSERT(acceptTime         == handles[1].d_creationTime);
                     ASSERT(SERVER_ID          == handles[1].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId1         == handles[2].d_channelId);
                     ASSERT(connectTime        == handles[2].d_creationTime);
                     ASSERT(CLIENT_ID1         == handles[2].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                               == handles[3].d_channelType);
                     ASSERT(channelId2         == handles[3].d_channelId);
                     ASSERT(importTime         <= handles[3].d_creationTime);
@@ -13410,19 +13411,19 @@ void TestDriver::testCase15()
                 ASSERT(3 == handles.size());
                 bsl::sort(handles.begin(), handles.end(), LessThanByType());
                 if (3 <= handles.size()) {
-                    ASSERT(btlmt::ChannelType::BTEMT_ACCEPTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_ACCEPTED_CHANNEL
                                               == handles[0].d_channelType);
                     ASSERT(acceptedChannelId1 == handles[0].d_channelId);
                     ASSERT(acceptTime         == handles[0].d_creationTime);
                     ASSERT(SERVER_ID          == handles[0].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_CONNECTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_CONNECTED_CHANNEL
                                               == handles[1].d_channelType);
                     ASSERT(channelId1         == handles[1].d_channelId);
                     ASSERT(connectTime        == handles[1].d_creationTime);
                     ASSERT(CLIENT_ID1         == handles[1].d_userId);
 
-                    ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                    ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                               == handles[2].d_channelType);
                     ASSERT(channelId2         == handles[2].d_channelId);
                     ASSERT(importTime         == handles[2].d_creationTime);
@@ -13447,7 +13448,7 @@ void TestDriver::testCase15()
                 mX.getHandleStatistics(&handles);
 
                 ASSERT(1 == handles.size());
-                ASSERT(btlmt::ChannelType::BTEMT_IMPORTED_CHANNEL
+                ASSERT(btlmt::ChannelType::e_IMPORTED_CHANNEL
                                                   == handles[0].d_channelType);
                 ASSERT(channelId2 == handles[0].d_channelId);
                 ASSERT(importTime == handles[0].d_creationTime);
@@ -16477,11 +16478,18 @@ int main(int argc, char **argv)
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

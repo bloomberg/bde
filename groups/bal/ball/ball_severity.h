@@ -130,28 +130,41 @@ struct Severity {
 
   public:
     enum Level {
-        BAEL_OFF   =   0,  // disable generation of corresponding message
-        BAEL_FATAL =  32,  // a condition that will (likely) cause a *crash*
-        BAEL_ERROR =  64,  // a condition that *will* cause incorrect behavior
-        BAEL_WARN  =  96,  // a *potentially* problematic condition
-        BAEL_INFO  = 128,  // data about the running process
-        BAEL_DEBUG = 160,  // information useful while debugging
-        BAEL_TRACE = 192,  // execution trace data
-        BAEL_NONE  = 224   // !DEPRECATED! Do not use
+        e_OFF   =   0,  // disable generation of corresponding message
+        e_FATAL =  32,  // a condition that will (likely) cause a *crash*
+        e_ERROR =  64,  // a condition that *will* cause incorrect behavior
+        e_WARN  =  96,  // a *potentially* problematic condition
+        e_INFO  = 128,  // data about the running process
+        e_DEBUG = 160,  // information useful while debugging
+        e_TRACE = 192,  // execution trace data
+        e_NONE  = 224   // !DEPRECATED! Do not use
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , OFF   = BAEL_OFF
-      , FATAL = BAEL_FATAL
-      , ERROR = BAEL_ERROR
-      , WARN  = BAEL_WARN
-      , INFO  = BAEL_INFO
-      , DEBUG = BAEL_DEBUG
-      , TRACE = BAEL_TRACE
-      , NONE  = BAEL_NONE
+      , BAEL_OFF = e_OFF
+      , BAEL_FATAL = e_FATAL
+      , BAEL_ERROR = e_ERROR
+      , BAEL_WARN = e_WARN
+      , BAEL_INFO = e_INFO
+      , BAEL_DEBUG = e_DEBUG
+      , BAEL_TRACE = e_TRACE
+      , BAEL_NONE = e_NONE
+      , OFF   = e_OFF
+      , FATAL = e_FATAL
+      , ERROR = e_ERROR
+      , WARN  = e_WARN
+      , INFO  = e_INFO
+      , DEBUG = e_DEBUG
+      , TRACE = e_TRACE
+      , NONE  = e_NONE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum { BAEL_LENGTH = 8 };
+    enum {
+        e_LENGTH = 8
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEL_LENGTH = e_LENGTH
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    };
         // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'
         // enumeration.
 
@@ -188,9 +201,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, Severity::Level rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CLASS METHODS
 inline
@@ -210,7 +223,7 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, Severity::Level rhs)
     return Severity::streamOut(stream, rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #if defined(MSVC_REQUEST_POP_MACRO_DEBUG)
 #pragma pop_macro("DEBUG")
@@ -224,11 +237,18 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, Severity::Level rhs)
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

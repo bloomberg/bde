@@ -2,12 +2,17 @@
 
 #include <baltzo_localdatetime.h>
 
+#include <bdlt_datetime.h>
+
 #include <bslx_testinstream.h>           // for testing only
 #include <bslx_testinstreamexception.h>  // for testing only
 #include <bslx_testoutstream.h>          // for testing only
 
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
+#include <bslmf_assert.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -49,8 +54,8 @@ using namespace bsl;
 // 'bdlt::DatetimeTz' value (i.e., 'bdlt::Datetime' value aggregated with an
 // offset value (in minutes) from Coordinated Universal Time [UTC]), and an a
 // time-zone identifier.  In practice, the time-zone identifier will correspond
-// to an identifer from the Zoneinfo (a.k.a., Olson) database; however, the
-// class does not enfore the practice.  The Primary Manipulators and Basic
+// to an identifier from the Zoneinfo (a.k.a., Olson) database; however, the
+// class does not enforce the practice.  The Primary Manipulators and Basic
 // Accessors are therefore respectively the attribute setters and getters, each
 // of which follows our standard unconstrained attribute-type naming
 // conventions: 'setAttributeName' and 'attributeName'.
@@ -202,6 +207,8 @@ typedef baltzo::LocalDatetime   Obj;
 typedef bslma::TestAllocator TestAllocator;
 typedef bslx::TestInStream   In;
 typedef bslx::TestOutStream  Out;
+
+#define VERSION_SELECTOR 20140601
 
 // ============================================================================
 //                     HELPER FUNCTIONS FOR TESTING
@@ -607,7 +614,7 @@ int main(int argc, char *argv[])
 
             typedef In&  (Obj::*funcInPtr) (In&,  int);
             typedef Out& (Obj::*funcOutPtr)(Out&, int) const;
-            typedef int  (*funcVerPtr)();
+            typedef int  (*funcVerPtr)(int);
 
             funcInPtr  fIn  = &Obj::bdexStreamIn<In>;
             funcOutPtr fOut = &Obj::bdexStreamOut<Out>;
@@ -623,16 +630,16 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
-            ASSERT(1 == X.maxSupportedBdexVersion());
+            ASSERT(1 == X.maxSupportedBdexVersion(VERSION_SELECTOR));
             if (veryVerbose) cout << "\tusing class method syntax:" << endl;
-            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
         }
 
         // ------------------------------------
         // Values used in several stream tests.
         // ------------------------------------
 
-        const int MAX_VERSION = Obj::maxSupportedBdexVersion();
+        const int MAX_VERSION = Obj::maxSupportedBdexVersion(VERSION_SELECTOR);
 
         bdlt::DatetimeTz defaultDtz;
 

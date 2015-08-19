@@ -1,4 +1,4 @@
-// balxml_reader.h                     -*-C++-*-
+// balxml_reader.h                                                    -*-C++-*-
 #ifndef INCLUDED_BALXML_READER
 #define INCLUDED_BALXML_READER
 
@@ -239,43 +239,60 @@ class Reader {
         // syntactic construct within a document.  Note: Not every
         // implementation of 'Reader' will distinguish among all of the
         // node types.
-        BAEXML_NODE_TYPE_NONE                   = 0,
-        BAEXML_NODE_TYPE_ELEMENT                = 1,
-        BAEXML_NODE_TYPE_TEXT                   = 2,
-        BAEXML_NODE_TYPE_CDATA                  = 3,
-        BAEXML_NODE_TYPE_ENTITY_REFERENCE       = 4,
-        BAEXML_NODE_TYPE_ENTITY                 = 5,
-        BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION = 6,
-        BAEXML_NODE_TYPE_COMMENT                = 7,
-        BAEXML_NODE_TYPE_DOCUMENT               = 8,
-        BAEXML_NODE_TYPE_DOCUMENT_TYPE          = 9,
-        BAEXML_NODE_TYPE_DOCUMENT_FRAGMENT      = 10,
-        BAEXML_NODE_TYPE_NOTATION               = 11,
-        BAEXML_NODE_TYPE_WHITESPACE             = 12,
-        BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE = 13,
-        BAEXML_NODE_TYPE_END_ELEMENT            = 14,
-        BAEXML_NODE_TYPE_END_ENTITY             = 15,
-        BAEXML_NODE_TYPE_XML_DECLARATION        = 16
+        e_NODE_TYPE_NONE                   = 0,
+        e_NODE_TYPE_ELEMENT                = 1,
+        e_NODE_TYPE_TEXT                   = 2,
+        e_NODE_TYPE_CDATA                  = 3,
+        e_NODE_TYPE_ENTITY_REFERENCE       = 4,
+        e_NODE_TYPE_ENTITY                 = 5,
+        e_NODE_TYPE_PROCESSING_INSTRUCTION = 6,
+        e_NODE_TYPE_COMMENT                = 7,
+        e_NODE_TYPE_DOCUMENT               = 8,
+        e_NODE_TYPE_DOCUMENT_TYPE          = 9,
+        e_NODE_TYPE_DOCUMENT_FRAGMENT      = 10,
+        e_NODE_TYPE_NOTATION               = 11,
+        e_NODE_TYPE_WHITESPACE             = 12,
+        e_NODE_TYPE_SIGNIFICANT_WHITESPACE = 13,
+        e_NODE_TYPE_END_ELEMENT            = 14,
+        e_NODE_TYPE_END_ENTITY             = 15,
+        e_NODE_TYPE_XML_DECLARATION        = 16
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , NODE_TYPE_NONE                   = BAEXML_NODE_TYPE_NONE
-      , NODE_TYPE_ELEMENT                = BAEXML_NODE_TYPE_ELEMENT
-      , NODE_TYPE_TEXT                   = BAEXML_NODE_TYPE_TEXT
-      , NODE_TYPE_CDATA                  = BAEXML_NODE_TYPE_CDATA
-      , NODE_TYPE_ENTITY_REFERENCE       = BAEXML_NODE_TYPE_ENTITY_REFERENCE
-      , NODE_TYPE_ENTITY                 = BAEXML_NODE_TYPE_ENTITY
+      , BAEXML_NODE_TYPE_NONE = e_NODE_TYPE_NONE
+      , BAEXML_NODE_TYPE_ELEMENT = e_NODE_TYPE_ELEMENT
+      , BAEXML_NODE_TYPE_TEXT = e_NODE_TYPE_TEXT
+      , BAEXML_NODE_TYPE_CDATA = e_NODE_TYPE_CDATA
+      , BAEXML_NODE_TYPE_ENTITY_REFERENCE = e_NODE_TYPE_ENTITY_REFERENCE
+      , BAEXML_NODE_TYPE_ENTITY = e_NODE_TYPE_ENTITY
+      , BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION = e_NODE_TYPE_PROCESSING_INSTRUCTION
+      , BAEXML_NODE_TYPE_COMMENT = e_NODE_TYPE_COMMENT
+      , BAEXML_NODE_TYPE_DOCUMENT = e_NODE_TYPE_DOCUMENT
+      , BAEXML_NODE_TYPE_DOCUMENT_TYPE = e_NODE_TYPE_DOCUMENT_TYPE
+      , BAEXML_NODE_TYPE_DOCUMENT_FRAGMENT = e_NODE_TYPE_DOCUMENT_FRAGMENT
+      , BAEXML_NODE_TYPE_NOTATION = e_NODE_TYPE_NOTATION
+      , BAEXML_NODE_TYPE_WHITESPACE = e_NODE_TYPE_WHITESPACE
+      , BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE = e_NODE_TYPE_SIGNIFICANT_WHITESPACE
+      , BAEXML_NODE_TYPE_END_ELEMENT = e_NODE_TYPE_END_ELEMENT
+      , BAEXML_NODE_TYPE_END_ENTITY = e_NODE_TYPE_END_ENTITY
+      , BAEXML_NODE_TYPE_XML_DECLARATION = e_NODE_TYPE_XML_DECLARATION
+      , NODE_TYPE_NONE                   = e_NODE_TYPE_NONE
+      , NODE_TYPE_ELEMENT                = e_NODE_TYPE_ELEMENT
+      , NODE_TYPE_TEXT                   = e_NODE_TYPE_TEXT
+      , NODE_TYPE_CDATA                  = e_NODE_TYPE_CDATA
+      , NODE_TYPE_ENTITY_REFERENCE       = e_NODE_TYPE_ENTITY_REFERENCE
+      , NODE_TYPE_ENTITY                 = e_NODE_TYPE_ENTITY
       , NODE_TYPE_PROCESSING_INSTRUCTION =
-                                        BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION
-      , NODE_TYPE_COMMENT                = BAEXML_NODE_TYPE_COMMENT
-      , NODE_TYPE_DOCUMENT               = BAEXML_NODE_TYPE_DOCUMENT
-      , NODE_TYPE_DOCUMENT_TYPE          = BAEXML_NODE_TYPE_DOCUMENT_TYPE
-      , NODE_TYPE_DOCUMENT_FRAGMENT      = BAEXML_NODE_TYPE_DOCUMENT_FRAGMENT
-      , NODE_TYPE_NOTATION               = BAEXML_NODE_TYPE_NOTATION
-      , NODE_TYPE_WHITESPACE             = BAEXML_NODE_TYPE_WHITESPACE
+                                        e_NODE_TYPE_PROCESSING_INSTRUCTION
+      , NODE_TYPE_COMMENT                = e_NODE_TYPE_COMMENT
+      , NODE_TYPE_DOCUMENT               = e_NODE_TYPE_DOCUMENT
+      , NODE_TYPE_DOCUMENT_TYPE          = e_NODE_TYPE_DOCUMENT_TYPE
+      , NODE_TYPE_DOCUMENT_FRAGMENT      = e_NODE_TYPE_DOCUMENT_FRAGMENT
+      , NODE_TYPE_NOTATION               = e_NODE_TYPE_NOTATION
+      , NODE_TYPE_WHITESPACE             = e_NODE_TYPE_WHITESPACE
       , NODE_TYPE_SIGNIFICANT_WHITESPACE =
-                                        BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE
-      , NODE_TYPE_END_ELEMENT            = BAEXML_NODE_TYPE_END_ELEMENT
-      , NODE_TYPE_END_ENTITY             = BAEXML_NODE_TYPE_END_ENTITY
-      , NODE_TYPE_XML_DECLARATION        = BAEXML_NODE_TYPE_XML_DECLARATION
+                                        e_NODE_TYPE_SIGNIFICANT_WHITESPACE
+      , NODE_TYPE_END_ELEMENT            = e_NODE_TYPE_END_ELEMENT
+      , NODE_TYPE_END_ENTITY             = e_NODE_TYPE_END_ENTITY
+      , NODE_TYPE_XML_DECLARATION        = e_NODE_TYPE_XML_DECLARATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -606,9 +623,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, Reader::NodeType value)
 // FREE OPERATORS
 
 namespace balxml {
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 inline bool
 Reader::isWarning() const
@@ -629,15 +646,22 @@ Reader::isFatalError() const
 }
 }  // close package namespace
 
-} // namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // INCLUDED_BAEXML_READER
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

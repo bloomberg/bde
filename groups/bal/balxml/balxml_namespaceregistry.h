@@ -164,29 +164,38 @@ class NamespaceRegistry {
     // PUBLIC TYPES
     enum {
         // Preregistered namespace IDs.
-        BAEXML_NO_NAMESPACE = -1,    // (empty URI string)
+        e_NO_NAMESPACE = -1,    // (empty URI string)
 
-        BAEXML_PREDEF_MIN = 0x40000000,
+        e_PREDEF_MIN = 0x40000000,
 
-        BAEXML_XML = BAEXML_PREDEF_MIN, // http://www.w3.org/XML/1998/namespace
-        BAEXML_XMLNS,              // http://www.w3.org/2000/xmlns/
-        BAEXML_XMLSCHEMA,          // http://www.w3.org/2001/XMLSchema
-        BAEXML_XMLSCHEMA_INSTANCE, // http://www.w3.org/2001/XMLSchema-instance
-        BAEXML_WSDL,               // http://schemas.xmlsoap.org/wsdl/
-        BAEXML_WSDL_SOAP,          // http://schemas.xmlsoap.org/wsdl/soap/
-        BAEXML_BDEM,               // http://bloomberg.com/schemas/bdem
+        e_XML = e_PREDEF_MIN, // http://www.w3.org/XML/1998/namespace
+        e_XMLNS,              // http://www.w3.org/2000/xmlns/
+        e_XMLSCHEMA,          // http://www.w3.org/2001/XMLSchema
+        e_XMLSCHEMA_INSTANCE, // http://www.w3.org/2001/XMLSchema-instance
+        e_WSDL,               // http://schemas.xmlsoap.org/wsdl/
+        e_WSDL_SOAP,          // http://schemas.xmlsoap.org/wsdl/soap/
+        e_BDEM,               // http://bloomberg.com/schemas/bdem
 
         BAEXML_PREDEF_MAX
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , NSID_NO_NAMESPACE       = BAEXML_NO_NAMESPACE
-      , NSID_PREDEF_MIN         = BAEXML_PREDEF_MIN
-      , NSID_XML                = BAEXML_XML
-      , NSID_XMLNS              = BAEXML_XMLNS
-      , NSID_XMLSCHEMA          = BAEXML_XMLSCHEMA
-      , NSID_XMLSCHEMA_INSTANCE = BAEXML_XMLSCHEMA_INSTANCE
-      , NSID_WSDL               = BAEXML_WSDL
-      , NSID_WSDL_SOAP          = BAEXML_WSDL_SOAP
-      , NSID_BDEM               = BAEXML_BDEM
+      , BAEXML_NO_NAMESPACE = e_NO_NAMESPACE
+      , BAEXML_PREDEF_MIN = e_PREDEF_MIN
+      , BAEXML_XML = e_XML
+      , BAEXML_XMLNS = e_XMLNS
+      , BAEXML_XMLSCHEMA = e_XMLSCHEMA
+      , BAEXML_XMLSCHEMA_INSTANCE = e_XMLSCHEMA_INSTANCE
+      , BAEXML_WSDL = e_WSDL
+      , BAEXML_WSDL_SOAP = e_WSDL_SOAP
+      , BAEXML_BDEM = e_BDEM
+      , NSID_NO_NAMESPACE       = e_NO_NAMESPACE
+      , NSID_PREDEF_MIN         = e_PREDEF_MIN
+      , NSID_XML                = e_XML
+      , NSID_XMLNS              = e_XMLNS
+      , NSID_XMLSCHEMA          = e_XMLSCHEMA
+      , NSID_XMLSCHEMA_INSTANCE = e_XMLSCHEMA_INSTANCE
+      , NSID_WSDL               = e_WSDL
+      , NSID_WSDL_SOAP          = e_WSDL_SOAP
+      , NSID_BDEM               = e_BDEM
       , NSID_PREDEF_MAX         = BAEXML_PREDEF_MAX
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
@@ -275,9 +284,9 @@ bsl::ostream& operator<<(bsl::ostream& os, const NamespaceRegistry& r);
     // stream in human-readable form and return a modifiable reference to
     // 'os'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 inline
@@ -338,15 +347,22 @@ bsl::ostream& balxml::operator<<(bsl::ostream& os, const NamespaceRegistry& r)
     return os;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BAEXML_NAMESPACEREGISTRY)
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

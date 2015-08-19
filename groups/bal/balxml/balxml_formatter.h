@@ -1,4 +1,4 @@
-// balxml_formatter.h                  -*-C++-*-
+// balxml_formatter.h                                                 -*-C++-*-
 #ifndef INCLUDED_BALXML_FORMATTER
 #define INCLUDED_BALXML_FORMATTER
 
@@ -241,17 +241,17 @@ namespace BloombergLP {
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace balxml {
                         // ======================
@@ -276,24 +276,28 @@ class Formatter {
         // This describes options available when outputting textual data
         // of an element between its pair of opening and closing tags.
 
-        BAEXML_PRESERVE_WHITESPACE,  // data is output as is
+        e_PRESERVE_WHITESPACE,  // data is output as is
 
-        BAEXML_WORDWRAP,             // data may be wrapped if output otherwise
+        e_WORDWRAP,             // data may be wrapped if output otherwise
                                      // exceeds the wrap column
 
-        BAEXML_WORDWRAP_INDENT,      // in addition to allowing wrapping,
+        e_WORDWRAP_INDENT,      // in addition to allowing wrapping,
                                      // indent properly before continuing to
                                      // output on the next line after wrapping
 
-        BAEXML_NEWLINE_INDENT        // in addition to allowing wrapping and
+        e_NEWLINE_INDENT        // in addition to allowing wrapping and
                                      // indentation, the tags do not share
                                      // their respective lines with data
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , PRESERVE_WHITESPACE = BAEXML_PRESERVE_WHITESPACE
-      , WORDWRAP            = BAEXML_WORDWRAP
-      , WORDWRAP_INDENT     = BAEXML_WORDWRAP_INDENT
-      , NEWLINE_INDENT      = BAEXML_NEWLINE_INDENT
+      , BAEXML_PRESERVE_WHITESPACE = e_PRESERVE_WHITESPACE
+      , BAEXML_WORDWRAP = e_WORDWRAP
+      , BAEXML_WORDWRAP_INDENT = e_WORDWRAP_INDENT
+      , BAEXML_NEWLINE_INDENT = e_NEWLINE_INDENT
+      , PRESERVE_WHITESPACE = e_PRESERVE_WHITESPACE
+      , WORDWRAP            = e_WORDWRAP
+      , WORDWRAP_INDENT     = e_WORDWRAP_INDENT
+      , NEWLINE_INDENT      = e_NEWLINE_INDENT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // Current implementation does not provide the capability of analyzing
@@ -307,11 +311,11 @@ class Formatter {
     typedef bsls::Types::Int64 Int64;
 
     enum State {
-        BAEXML_AT_START,
-        BAEXML_AFTER_START_NO_TAG,
-        BAEXML_IN_TAG,
-        BAEXML_BETWEEN_TAGS,
-        BAEXML_AT_END
+        e_AT_START,
+        e_AFTER_START_NO_TAG,
+        e_IN_TAG,
+        e_BETWEEN_TAGS,
+        e_AT_END
     };
 
     class ElemContext;
@@ -324,9 +328,12 @@ class Formatter {
         // Use a fixed-length string to validate close tag against open tag.
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
-        enum { BAEXML_TRUNCATED_TAG_LEN = 15 };
+        enum {
+            k_TRUNCATED_TAG_LEN = 15
+        };
+
         unsigned char d_tagLen;  // actual tag length, up to 255
-        char          d_tag[BAEXML_TRUNCATED_TAG_LEN]; // truncated tag
+        char          d_tag[k_TRUNCATED_TAG_LEN]; // truncated tag
 #endif
       public:
         ElemContext(const bslstl::StringRef& tag, WhitespaceType ws);
@@ -418,7 +425,7 @@ class Formatter {
         // Destroy this object.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     void addAttribute(const bslstl::StringRef& name,
                       const TYPE&            value,
                       int                    formattingMode = 0);
@@ -452,10 +459,10 @@ class Formatter {
         // comments continue on current line.  If an element-opening tag is
         // not completed with a '>', 'addComment' will add '>'.
 
-    template <typename TYPE>
+    template <class TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
 
-    template <typename TYPE>
+    template <class TYPE>
     void addListData(const TYPE& value, int formattingMode = 0);
         // Add the 'value' as the data content, where 'value' can be of the
         // following types: 'char', 'short', 'int', 'bsls::Types::Int64',
@@ -479,7 +486,7 @@ class Formatter {
         // type 'char', it is cast to a signed byte value with a range of
         // '[ -128 .. 127 ]'.
 
-    template <typename TYPE>
+    template <class TYPE>
     void addElementAndData(const bslstl::StringRef& name,
                            const TYPE&            value,
                            int                    formattingMode = 0);
@@ -513,7 +520,7 @@ class Formatter {
         // the output stream.
 
     void openElement(const bslstl::StringRef& name,
-                     WhitespaceType         ws = BAEXML_PRESERVE_WHITESPACE);
+                     WhitespaceType         ws = e_PRESERVE_WHITESPACE);
         // Open an element of the 'name' at current indent level with
         // the whitespace constraint 'ws' for its textual data and increment
         // indent level.  'ws' constrains how textual data is written with
@@ -552,9 +559,9 @@ class Formatter {
 };
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -----------------------------------
                         // class balxml::Formatter::ElemContext
@@ -567,7 +574,7 @@ balxml::Formatter::ElemContext::ElemContext(const bslstl::StringRef& tag,
                                            WhitespaceType         ws)
 : d_ws(ws), d_tagLen(bsl::min(tag.length(), 255))
 {
-    int len = bsl::min(int(BAEXML_TRUNCATED_TAG_LEN), tag.length());
+    int len = bsl::min(int(k_TRUNCATED_TAG_LEN), tag.length());
     bsl::memcpy(d_tag, tag.data(), len);
 }
 #else
@@ -598,10 +605,10 @@ namespace balxml {
 inline
 void Formatter::closeTagIfOpen()
 {
-    if (BAEXML_IN_TAG == d_state) {
+    if (e_IN_TAG == d_state) {
         d_outputStream << '>';
         ++d_column;
-        d_state = BAEXML_BETWEEN_TAGS;
+        d_state = e_BETWEEN_TAGS;
     }
 }
 
@@ -612,7 +619,7 @@ Formatter::~Formatter()
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 void Formatter::addAttribute(const bslstl::StringRef& name,
                                     const TYPE&            value,
                                     int                    formattingMode)
@@ -645,7 +652,7 @@ void Formatter::addAttribute(const bslstl::StringRef& name,
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 void Formatter::addData(const TYPE& value, int formattingMode)
 {
     closeTagIfOpen();
@@ -677,7 +684,7 @@ void Formatter::addData(const TYPE& value, int formattingMode)
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 void Formatter::addListData(const TYPE& value, int formattingMode)
 {
     closeTagIfOpen();
@@ -712,7 +719,7 @@ void Formatter::addListData(const TYPE& value, int formattingMode)
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void Formatter::addElementAndData(const bslstl::StringRef& name,
                                          const TYPE&            value,
@@ -789,15 +796,22 @@ int Formatter::wrapColumn() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

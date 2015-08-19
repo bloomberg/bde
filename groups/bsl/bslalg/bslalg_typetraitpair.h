@@ -87,9 +87,9 @@ struct TypeTraitPair {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
     // This alias is defined for backward compatibility.

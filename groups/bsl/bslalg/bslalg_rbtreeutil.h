@@ -1871,7 +1871,7 @@ void RbTreeUtilTreeProctor<DELETER>::release()
     d_tree_p = 0;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

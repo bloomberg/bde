@@ -78,9 +78,9 @@ struct TypeTraitBitwiseEqualityComparable {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::TypeTraitBitwiseEqualityComparable
                                      bslalg_TypeTraitBitwiseEqualityComparable;

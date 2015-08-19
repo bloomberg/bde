@@ -175,10 +175,10 @@ inline static void scribble(char *address, int size)
 }
 
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-   // Using only primary manipulators, extend the capacity of the specified
-   // 'object' to (at least) the specified 'numElements' each of the specified
-   // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
-   // behavior is undefined unless 0 <= numElements and 0 <= objSize.
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements' each of the specified
+    // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
+    // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -247,10 +247,13 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // ...
 
+      private:
+        // Not implemented:
+        my_Node(const my_Node&);
+
       public:
         // TRAITS
-        BSLMF_NESTED_TRAIT_DECLARATION(my_Node,
-                                       bslma::UsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_Node, bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit my_Node(bslma::Allocator *basicAllocator = 0);
@@ -279,10 +282,13 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // ...
 
+      private:
+        // Not implemented:
+        my_Graph(const my_Graph&);
+
       public:
         // TRAITS
-        BSLMF_NESTED_TRAIT_DECLARATION(my_Graph,
-                                       bslma::UsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_Graph, bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit my_Graph(bslma::Allocator *basicAllocator = 0);
@@ -308,6 +314,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         // DATA
         bsl::map<bsl::string, my_Graph> d_graphMap;  // map from graph names to
                                                      // graph
+
+      private:
+        // Not implemented:
+        my_NamedGraphContainer(const my_NamedGraphContainer&);
 
       public:
         // TRAITS
@@ -376,6 +386,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         bsl::list<Obj1> d_list1;
         bsl::list<Obj2> d_list2;
         bsl::list<Obj3> d_list3;
+
+      private:
+        // Not implemented:
+        my_TestDataStructure(const my_TestDataStructure&);
 //..
 // The test will consist of the following steps:
 //
@@ -530,7 +544,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // 'release' method of the allocator will reclaim all outstanding allocations
 // at once, eliminating the need to run the destructor of the test mechanism:
 //..
-        static void testManaged(int                     testLengthFactor,
+        static void testManaged(int                      testLengthFactor,
                                 bdlma::ManagedAllocator *managedAllocator)
         {
             int n          = 1;
@@ -577,7 +591,6 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // Finally, in main, we run the test with the different allocators and
 // different allocator configuration based on command line arguments:
 //..
-//  int main(int argc, char **argv)
 //  {
 //      int testLengthFactor = 5;
 //      const int NUM_POOLS  = 10;
@@ -691,8 +704,8 @@ class my_DoubleStack {
   public:
     // CREATORS
     my_DoubleStack(bslma::Allocator *basicAllocator = 0);
-    my_DoubleStack(const my_DoubleStack& other,
-                   bslma::Allocator *basicAllocator = 0);
+    my_DoubleStack(const my_DoubleStack&  other,
+                   bslma::Allocator      *basicAllocator = 0);
     ~my_DoubleStack();
 
     // MANIPULATORS
@@ -740,14 +753,16 @@ void my_DoubleStack::push(double value)
 }
 
 static
-void reallocate(double **array, int newSize, int length,
-                bslma::Allocator *basicAllocator)
+void reallocate(double           **array,
+                int                newSize,
+                int                length,
+                bslma::Allocator  *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified 'newSize'
     // using the specified 'basicAllocator'.  The specified 'length' number of
     // leading elements are preserved.  Since the
     //  class invariant requires that the physical capacity of the
     // container may grow but never shrink; the behavior is undefined unless
-    // length <= newSize.
+    // 'length <= newSize'.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);
@@ -772,20 +787,31 @@ void my_DoubleStack::increaseSize()
      d_size = proposedNewSize;                        // we're committed
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Need to Complete Usage Test Case
 
 class my_DoubleStackIter {
     const double *d_stack_p;
-    int d_index;
+    int           d_index;
+
   private:
+    // Not implemented:
     my_DoubleStackIter(const my_DoubleStackIter&);
     my_DoubleStackIter& operator=(const my_DoubleStackIter&);
+
   public:
-    my_DoubleStackIter(const my_DoubleStack& stack)
-    : d_stack_p(stack.d_stack_p), d_index(stack.d_length - 1) { }
+    my_DoubleStackIter(const my_DoubleStack&  stack,
+                       bslma::Allocator      *basicAllocator = 0)
+    : d_stack_p(stack.d_stack_p)
+    , d_index(stack.d_length - 1)
+    {
+        (void)basicAllocator;
+    }
+
     void operator++() { --d_index; }
+
     operator const void *() const { return d_index >= 0 ? this : 0; }
+
     const double& operator()() const { return d_stack_p[d_index]; }
 };
 
@@ -911,8 +937,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "RESERVECAPACITY TEST" << endl
                                   << "====================" << endl;
         /* TBD
-        if (verbose) cout << "Testing 'reserveCapacity'." << endl;
-
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

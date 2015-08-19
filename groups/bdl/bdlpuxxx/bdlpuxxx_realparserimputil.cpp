@@ -1,4 +1,4 @@
-// bdlpuxxx_realparserimputil.cpp                                        -*-C++-*-
+// bdlpuxxx_realparserimputil.cpp                                     -*-C++-*-
 #include <bdlpuxxx_realparserimputil.h>
 
 #include <bsls_ident.h>
@@ -376,7 +376,7 @@ int RealParserImpUtil::
             Uint64 bd      =  b * d;
 
             Uint64 carry = ((bd + ad_low         ) < ad_low) ||
-                           ((bd + ad_low + bc_low) < bc_low); 
+                           ((bd + ad_low + bc_low) < bc_low);
             res_low = bd + ad_low + bc_low;
             res = carry + ac + ad_high + bc_high;
 
@@ -539,7 +539,7 @@ int RealParserImpUtil::convertDecimalToBinary(Uint64 *binFrac,
     Uint64 bd      =  b * d;
 
     Uint64 carry = ((bd + ad_low         ) < ad_low) ||
-                   ((bd + ad_low + bc_low) < bc_low); 
+                   ((bd + ad_low + bc_low) < bc_low);
     res_low = bd + ad_low + bc_low;
     res = carry + ac + ad_high + bc_high;
 
@@ -602,13 +602,13 @@ void RealParserImpUtil::convertDoubleToBinary(int    *binSign,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -186,7 +186,7 @@ void noopLogMessageHandler(const char *file, int line, const char *message)
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 int myParse(TYPE *dst, const char *str)
 {
     const int len = bsl::strlen(str);
@@ -268,7 +268,7 @@ void testTimezone(const char *tzStr,
 }
 
 //=============================================================================
-//                      TEST CASE 3
+//                              TEST CASE 3
 //-----------------------------------------------------------------------------
 
 // Note that the following test case is factored into function to avoid
@@ -780,7 +780,7 @@ void testCase3TestingParse()
 }
 
 //=============================================================================
-//                      TEST CASE 2
+//                              TEST CASE 2
 //-----------------------------------------------------------------------------
 
 // Note that the following test case is factored into function to avoid
@@ -852,7 +852,7 @@ void testCase2TestingGenerate()
                                   HOUR, MINUTE, SECOND, MILLISECOND);
 
         bsl::stringstream output;
-        char outbuf[Util::BDEPU_MAX_DATETIME_STRLEN + 3];
+        char outbuf[Util::k_MAX_DATETIME_STRLEN + 3];
         int  rc;
 
         for (int j = 0; j < NUM_UTC_OFFSETS; ++j) {
@@ -881,7 +881,7 @@ void testCase2TestingGenerate()
                 bsl::strcat(expected, timeStr);
                 bsl::strcat(expected, offsetStr);
 
-                int TEST_LENGTH = Util::BDEPU_DATETIMETZ_STRLEN;
+                int TEST_LENGTH = Util::k_DATETIMETZ_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -939,7 +939,7 @@ void testCase2TestingGenerate()
                 bsl::strcat(expected, "T");
                 bsl::strcat(expected, timeStr);
 
-                int TEST_LENGTH = Util::BDEPU_DATETIME_STRLEN;
+                int TEST_LENGTH = Util::k_DATETIME_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1000,7 +1000,7 @@ void testCase2TestingGenerate()
 
                 bsl::strcpy(expected, dateStr);
                 bsl::strcat(expected, offsetStr);
-                int TEST_LENGTH = Util::BDEPU_DATETZ_STRLEN;
+                int TEST_LENGTH = Util::k_DATETZ_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1059,7 +1059,7 @@ void testCase2TestingGenerate()
 
                 bsl::strcpy(expected, dateStr);
 
-                int TEST_LENGTH = Util::BDEPU_DATE_STRLEN;
+                int TEST_LENGTH = Util::k_DATE_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1116,7 +1116,7 @@ void testCase2TestingGenerate()
 
                 bsl::strcpy(expected, timeStr);
                 bsl::strcat(expected, offsetStr);
-                int TEST_LENGTH = Util::BDEPU_TIMETZ_STRLEN;
+                int TEST_LENGTH = Util::k_TIMETZ_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -1172,7 +1172,7 @@ void testCase2TestingGenerate()
                 output.str("");
 
                 bsl::strcpy(expected, timeStr);
-                int TEST_LENGTH = Util::BDEPU_TIME_STRLEN;
+                int TEST_LENGTH = Util::k_TIME_STRLEN;
                 int k;
                 // test short output buffers
                 for (k=0; k < TEST_LENGTH + 1; ++k) {
@@ -2480,11 +2480,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

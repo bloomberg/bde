@@ -1,4 +1,4 @@
-// balxml_decoder.cpp              -*-C++-*-
+// balxml_decoder.cpp                                                 -*-C++-*-
 #include <balxml_decoder.h>
 
 #include <bsls_ident.h>
@@ -37,7 +37,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 //  Context Name                       Comments
 //  ------------                       --------
 //  balxml::Decoder_ChoiceContext          Used for 'TYPE's that fall under
-//                                     'bdeat_TypeCategory::Choice'.
+//                                     'bdlat_TypeCategory::Choice'.
 //
 //  balxml::Decoder_PushParserContext      Used for 'TYPE's that can be parsed
 //                                     using one of the push parsers (i.e.,
@@ -46,7 +46,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 //                                     'balxml::Decoder_ListParser').
 //
 //  balxml::Decoder_SequenceContext        Used for 'TYPE's that fall under
-//                                     'bdeat_TypeCategory::Sequence'.
+//                                     'bdlat_TypeCategory::Sequence'.
 //
 //  balxml::Decoder_SimpleContext          Used for 'TYPE's that can be parsed
 //                                     using 'balxml::TypesParserUtil'.
@@ -54,7 +54,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 //  balxml::Decoder_UTF8Context            Used for 'bsl::string' and
 //                                     'bsl::vector<char>' types when the
 //                                     formatting mode is
-//                                     'bdeat_FormattingMode::BDEAT_TEXT'.
+//                                     'bdlat_FormattingMode::e_TEXT'.
 //                                     Note that this is just an optimization
 //                                     of 'balxml::Decoder_SimpleContext' where
 //                                     the characters are copied directly into
@@ -264,7 +264,7 @@ Decoder::open(bsl::streambuf *buffer, const char *uri)
         BALXML_DECODER_LOG_ERROR(this)
                      << "Unable to open reader for input stream."
                      << BALXML_DECODER_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
     return readTopElement();
 }
@@ -280,7 +280,7 @@ Decoder::open(const char *buffer, size_t length, const char *uri)
         BALXML_DECODER_LOG_ERROR(this)
                      << "Unable to open reader for input string."
                      << BALXML_DECODER_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
     return readTopElement();
 }
@@ -295,7 +295,7 @@ Decoder::open(const char *filename)
         BALXML_DECODER_LOG_ERROR(this)
                      << "Unable to open reader for input file."
                      << BALXML_DECODER_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
     return readTopElement();
 }
@@ -314,10 +314,10 @@ Decoder::readTopElement()
                      << "Fatal error while looking for root-level element."
                      << BALXML_DECODER_LOG_END;
 
-            return -1;
+            return -1;                                                // RETURN
         }
 
-    } while (d_reader->nodeType() != Reader::BAEXML_NODE_TYPE_ELEMENT);
+    } while (d_reader->nodeType() != Reader::e_NODE_TYPE_ELEMENT);
 
     return 0;
 }
@@ -346,15 +346,15 @@ int
 Decoder::checkForErrors(const ErrorInfo& errInfo)
 {
     switch (errInfo.severity()) {
-      case ErrorInfo::BAEXML_NO_ERROR:
-        return 0;
+      case ErrorInfo::e_NO_ERROR:
+        return 0;                                                     // RETURN
 
-      case ErrorInfo::BAEXML_WARNING:
+      case ErrorInfo::e_WARNING:
         ++d_warningCount;
         break;
 
-      case ErrorInfo::BAEXML_ERROR:
-      case ErrorInfo::BAEXML_FATAL_ERROR:
+      case ErrorInfo::e_ERROR:
+      case ErrorInfo::e_FATAL_ERROR:
         d_fatalError = true;
         ++d_errorCount;
         break;
@@ -383,12 +383,12 @@ Decoder::parse(Decoder_ElementContext *elementContext)
     // That means the current node is ELEMENT .
     //
     BSLS_ASSERT(d_reader->nodeType() ==
-                   Reader::BAEXML_NODE_TYPE_ELEMENT);
+                   Reader::e_NODE_TYPE_ELEMENT);
 
     int numAttr = d_reader->numAttributes();
 
     if (d_reader->isEmptyElement() && 0 == numAttr) {
-        return BAEXML_SUCCESS; // According to Shezan's advice
+        return BAEXML_SUCCESS; // According to Shezan's advice        // RETURN
     }
 
     // Auto Decrement on enter and Increment on exit
@@ -400,7 +400,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
             << "Reached maximum depth allowed."
             << BALXML_DECODER_LOG_END;
 
-        return BAEXML_FAILURE;
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
     if (0 != elementContext->startElement(this)) {
@@ -418,7 +418,7 @@ Decoder::parse(Decoder_ElementContext *elementContext)
 
         unsigned int flags = attr.flags();
 
-        if ((flags & ElementAttribute::BAEXML_ATTR_IS_NSDECL) != 0) {
+        if ((flags & ElementAttribute::k_ATTR_IS_NSDECL) != 0) {
             continue;
         }
 
@@ -459,10 +459,10 @@ Decoder::parse(Decoder_ElementContext *elementContext)
         int nodeType = d_reader->nodeType ();
 
         switch(nodeType) {
-          case Reader::BAEXML_NODE_TYPE_TEXT :
-          case Reader::BAEXML_NODE_TYPE_CDATA :
-          case Reader::BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE:
-          case Reader::BAEXML_NODE_TYPE_WHITESPACE:
+          case Reader::e_NODE_TYPE_TEXT :
+          case Reader::e_NODE_TYPE_CDATA :
+          case Reader::e_NODE_TYPE_SIGNIFICANT_WHITESPACE:
+          case Reader::e_NODE_TYPE_WHITESPACE:
             {
                 const char *val = d_reader->nodeValue();
                 size_t       len = val ? bsl::strlen(val) : 0;
@@ -480,11 +480,11 @@ Decoder::parse(Decoder_ElementContext *elementContext)
             }
             break;
 
-          case Reader::BAEXML_NODE_TYPE_END_ELEMENT:
+          case Reader::e_NODE_TYPE_END_ELEMENT:
             flgExit = true;
             break;
 
-          case Reader::BAEXML_NODE_TYPE_ELEMENT:
+          case Reader::e_NODE_TYPE_ELEMENT:
             {
                 const char *name = d_reader->nodeLocalName();
 
@@ -529,23 +529,23 @@ bsl::ostream& Decoder::logStream()
 ErrorInfo::Severity Decoder::errorSeverity() const
 {
     if (d_fatalError) {
-        return ErrorInfo::BAEXML_FATAL_ERROR;
+        return ErrorInfo::e_FATAL_ERROR;                         // RETURN
     }
     if (d_errorCount != 0) {
-        return ErrorInfo::BAEXML_ERROR;
+        return ErrorInfo::e_ERROR;                               // RETURN
     }
     if (d_warningCount != 0) {
-        return ErrorInfo::BAEXML_WARNING;
+        return ErrorInfo::e_WARNING;                             // RETURN
     }
 
-    return ErrorInfo::BAEXML_NO_ERROR;
+    return ErrorInfo::e_NO_ERROR;
 }
 
 bslstl::StringRef Decoder::loggedMessages() const
 {
     if (d_logStream) {
         return bslstl::StringRef(d_logStream->data(),
-                               d_logStream->length());
+                               d_logStream->length());                // RETURN
     }
     return bslstl::StringRef();
 }
@@ -585,7 +585,7 @@ int Decoder_NillableContext::endElement(
     BSLS_ASSERT(d_elementContext_p);
 
     if (d_isNil) {
-        return BAEXML_SUCCESS;
+        return BAEXML_SUCCESS;                                        // RETURN
     }
 
     return d_elementContext_p->endElement(decoder);
@@ -720,17 +720,17 @@ Decoder_StdStringContext::Decoder_StdStringContext(
                                                    bsl::string *object,
                                                    int          formattingMode)
 {
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_TEXT: {
         new (d_utf8Context.buffer()) UTF8Context(object, formattingMode);
         d_context_p = &d_utf8Context.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_BASE64: {
+      case bdlat_FormattingMode::e_BASE64: {
         new (d_base64Context.buffer()) Base64Context(object, formattingMode);
         d_context_p = &d_base64Context.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_HEX: {
+      case bdlat_FormattingMode::e_HEX: {
         new (d_hexContext.buffer()) HexContext(object, formattingMode);
         d_context_p = &d_hexContext.object();
       } break;
@@ -791,23 +791,23 @@ Decoder_StdVectorCharContext::Decoder_StdVectorCharContext(
                                              bsl::vector<char> *object,
                                              int                formattingMode)
 {
-    if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
+    if (formattingMode & bdlat_FormattingMode::e_LIST) {
         new (d_listContext.buffer()) ListContext(object, formattingMode);
         d_context_p = &d_listContext.object();
-        return;
+        return;                                                       // RETURN
     }
 
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_BASE64: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_BASE64: {
         new (d_base64Context.buffer()) Base64Context(object, formattingMode);
         d_context_p = &d_base64Context.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_HEX: {
+      case bdlat_FormattingMode::e_HEX: {
         new (d_hexContext.buffer()) HexContext(object, formattingMode);
         d_context_p = &d_hexContext.object();
       } break;
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+      case bdlat_FormattingMode::e_TEXT: {
         new (d_utf8Context.buffer()) UTF8Context(object, formattingMode);
         d_context_p = &d_utf8Context.object();
       } break;
@@ -866,38 +866,45 @@ int Decoder_StdVectorCharContext::parseSubElement(
 
 int Decoder_ParseObject::executeImp(bsl::vector<char> *object,
                                         int                formattingMode,
-                                        bdeat_TypeCategory::Array)
+                                        bdlat_TypeCategory::Array)
 {
-    if (formattingMode & bdeat_FormattingMode::BDEAT_LIST) {
+    if (formattingMode & bdlat_FormattingMode::e_LIST) {
         return executeArrayImp(object,
                                formattingMode,
-                               CanBeListOrRepetition());
+                               CanBeListOrRepetition());              // RETURN
     }
 
-    switch (formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK) {
-      case bdeat_FormattingMode::BDEAT_DEFAULT:
-      case bdeat_FormattingMode::BDEAT_BASE64:
-      case bdeat_FormattingMode::BDEAT_HEX:
-      case bdeat_FormattingMode::BDEAT_TEXT: {
+    switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
+      case bdlat_FormattingMode::e_DEFAULT:
+      case bdlat_FormattingMode::e_BASE64:
+      case bdlat_FormattingMode::e_HEX:
+      case bdlat_FormattingMode::e_TEXT: {
         Decoder_StdVectorCharContext stdVectorCharContext(object,
                                                               formattingMode);
 
-        return stdVectorCharContext.beginParse(d_decoder);
+        return stdVectorCharContext.beginParse(d_decoder);            // RETURN
       }
       default: {
-        return executeArrayRepetitionImp(object, formattingMode);
+        return executeArrayRepetitionImp(object, formattingMode);     // RETURN
       }
     }
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

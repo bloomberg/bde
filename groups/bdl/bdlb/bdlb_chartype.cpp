@@ -1,4 +1,4 @@
-// bdlb_chartype.cpp           -*-C++-*-
+// bdlb_chartype.cpp                                                  -*-C++-*-
 #include <bdlb_chartype.h>
 
 #include <bsls_ident.h>
@@ -81,7 +81,7 @@ static const char ALL_STRING[]    = "\000\001\002\003\004\005\006\007\010\011"
 
 static const char NONE_STRING[]   = "";
 
-static const char *CATEGORY_STRING[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const char *CATEGORY_STRING[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_STRING,
     LOWER_STRING,
     ALPHA_STRING,
@@ -100,7 +100,7 @@ static const char *CATEGORY_STRING[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
     NONE_STRING,
 };
 
-static const char *CATEGORY_NAME[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const char *CATEGORY_NAME[bdlb::CharType::k_NUM_CATEGORIES] = {
     "UPPER",
     "LOWER",
     "ALPHA",
@@ -315,7 +315,7 @@ static const bool NONE_TABLE[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 };
 
-static const bool *CATEGORY_TABLE[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const bool *CATEGORY_TABLE[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_TABLE,
     LOWER_TABLE,
     ALPHA_TABLE,
@@ -334,7 +334,7 @@ static const bool *CATEGORY_TABLE[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
     NONE_TABLE,
 };
 
-static const short int CATEGORY_COUNT[bdlb::CharType::BDEU_NUM_CATEGORIES] = {
+static const short int CATEGORY_COUNT[bdlb::CharType::k_NUM_CATEGORIES] = {
     static_cast<short int>(sizeof UPPER_STRING - 1),
     static_cast<short int>(sizeof LOWER_STRING - 1),
     static_cast<short int>(sizeof ALPHA_STRING - 1),
@@ -478,13 +478,20 @@ bsl::ostream& bdlb::operator<<(bsl::ostream& out, CharType::Category category)
      return out << CharType::toAscii(category) << bsl::flush;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

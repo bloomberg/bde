@@ -2,122 +2,118 @@
 
 #include <bdlat_typename.h>
 
+#include <bdls_testutil.h>
+
+#include <bdlat_attributeinfo.h>
+#include <bdlat_enumeratorinfo.h>
+#include <bdlat_formattingmode.h>
+#include <bdlat_selectioninfo.h>
+#include <bdlat_typetraits.h>
+#include <bdlat_valuetypefunctions.h>
+
+#include <bdlb_nullablevalue.h>
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
+
 #include <bdlt_date.h>
-#include <bdlt_datetz.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
+#include <bdlt_datetz.h>
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
-
-#include <bslma_allocator.h>
 
 #include <bsl_cctype.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_string.h>
 
-using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::atoi;
-using bsl::flush;
+#include <bslalg_typetraits.h>
 
-//=============================================================================
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
+#include <bsls_assert.h>
+#include <bsls_objectbuffer.h>
+
+using namespace BloombergLP;
+using namespace bsl;
+
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // CREATORS
 //
 // MANIPULATORS
 //
 // ACCESSORS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-
-//=============================================================================
+// ============================================================================
 //                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-#include <bdlat_typename.h>
-#include <bdlt_date.h>
-#include <bdlt_datetz.h>
-#include <bdlt_datetime.h>
-#include <bdlt_datetimetz.h>
-#include <bdlt_time.h>
-#include <bdlt_timetz.h>
-#include <bsl_string.h>
+// ----------------------------------------------------------------------------
 
 // We begin by creating abbreviations for formatting modes and by declaring
 // objects of a number of types:
 //..
     int usageExample1() {
 
-        static const int DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT;
-        static const int DEC     = bdeat_FormattingMode::BDEAT_DEC;
-//        static const int HEX     = bdeat_FormattingMode::BDEAT_HEX;
-//        static const int BASE64  = bdeat_FormattingMode::BDEAT_BASE64;
-        static const int TEXT    = bdeat_FormattingMode::BDEAT_TEXT;
+        static const int DEFAULT = bdlat_FormattingMode::e_DEFAULT;
+        static const int DEC     = bdlat_FormattingMode::e_DEC;
+//      static const int HEX     = bdlat_FormattingMode::e_HEX;
+//      static const int BASE64  = bdlat_FormattingMode::e_BASE64;
+        static const int TEXT    = bdlat_FormattingMode::e_TEXT;
 
         short                    theShort;
         unsigned                 theUint;
@@ -133,36 +129,36 @@ static void aSsErT(int c, const char *s, int i)
 // None of these types are generated types with metadata, so 'className' will
 // return a null pointer for each of them:
 //..
-        ASSERT(0 == bdeat_TypeName::className(theShort));
-        ASSERT(0 == bdeat_TypeName::className(theUint));
-        ASSERT(0 == bdeat_TypeName::className(theFloat));
-        ASSERT(0 == bdeat_TypeName::className(theCharPtr));
-        ASSERT(0 == bdeat_TypeName::className(theString));
+        ASSERT(0 == bdlat_TypeName::className(theShort));
+        ASSERT(0 == bdlat_TypeName::className(theUint));
+        ASSERT(0 == bdlat_TypeName::className(theFloat));
+        ASSERT(0 == bdlat_TypeName::className(theCharPtr));
+        ASSERT(0 == bdlat_TypeName::className(theString));
 
-        ASSERT(0 == bdeat_TypeName::className(theDate));
-        ASSERT(0 == bdeat_TypeName::className(theDatetime));
-        ASSERT(0 == bdeat_TypeName::className(theCharVector));
-        ASSERT(0 == bdeat_TypeName::className(theStrVector));
+        ASSERT(0 == bdlat_TypeName::className(theDate));
+        ASSERT(0 == bdlat_TypeName::className(theDatetime));
+        ASSERT(0 == bdlat_TypeName::className(theCharVector));
+        ASSERT(0 == bdlat_TypeName::className(theStrVector));
 //..
 // The 'name' function will never return a null pointer.  For each of the
 // fundamental and vocabulary types, it returns the known type name.  For
 // vector types, it returns the appropriate "vector<X>" string:
 //..
-        ASSERT(0 == bsl::strcmp("short", bdeat_TypeName::name(theShort)));
+        ASSERT(0 == bsl::strcmp("short", bdlat_TypeName::name(theShort)));
         ASSERT(0 == bsl::strcmp("unsigned int",
-                                bdeat_TypeName::name(theUint)));
-        ASSERT(0 == bsl::strcmp("float", bdeat_TypeName::name(theFloat)));
+                                bdlat_TypeName::name(theUint)));
+        ASSERT(0 == bsl::strcmp("float", bdlat_TypeName::name(theFloat)));
         ASSERT(0 == bsl::strcmp("const char*",
-                                bdeat_TypeName::name(theCharPtr)));
+                                bdlat_TypeName::name(theCharPtr)));
 
-        ASSERT(0 == bsl::strcmp("string", bdeat_TypeName::name(theString)));
-        ASSERT(0 == bsl::strcmp("bdlt::Date", bdeat_TypeName::name(theDate)));
+        ASSERT(0 == bsl::strcmp("string", bdlat_TypeName::name(theString)));
+        ASSERT(0 == bsl::strcmp("bdlt::Date", bdlat_TypeName::name(theDate)));
         ASSERT(0 == bsl::strcmp("bdlt::DatetimeTz",
-                                bdeat_TypeName::name(theDatetime)));
+                                bdlat_TypeName::name(theDatetime)));
         ASSERT(0 == bsl::strcmp("vector<char>",
-                                bdeat_TypeName::name(theCharVector)));
+                                bdlat_TypeName::name(theCharVector)));
         ASSERT(0 == bsl::strcmp("vector<string>",
-                                bdeat_TypeName::name(theStrVector)));
+                                bdlat_TypeName::name(theStrVector)));
 //..
 // Each of the above types except 'vector<string>' has one or more
 // corresponding XSD types.  The XSD type is affected by a formatting mode so
@@ -171,23 +167,23 @@ static void aSsErT(int c, const char *s, int i)
 // 'HEX' or 'BASE64').
 //..
         ASSERT(0 == bsl::strcmp("short",
-                                bdeat_TypeName::xsdName(theShort, DEFAULT)));
+                                bdlat_TypeName::xsdName(theShort, DEFAULT)));
         ASSERT(0 == bsl::strcmp("unsignedInt",
-                                bdeat_TypeName::xsdName(theUint, DEFAULT)));
+                                bdlat_TypeName::xsdName(theUint, DEFAULT)));
         ASSERT(0 == bsl::strcmp("float",
-                                bdeat_TypeName::xsdName(theFloat, DEFAULT)));
+                                bdlat_TypeName::xsdName(theFloat, DEFAULT)));
         ASSERT(0 == bsl::strcmp("decimal",
-                                bdeat_TypeName::xsdName(theFloat, DEC)));
+                                bdlat_TypeName::xsdName(theFloat, DEC)));
         ASSERT(0 == bsl::strcmp("base64Binary",
-                             bdeat_TypeName::xsdName(theCharVector, DEFAULT)));
+                             bdlat_TypeName::xsdName(theCharVector, DEFAULT)));
         ASSERT(0 == bsl::strcmp("string",
-                                bdeat_TypeName::xsdName(theCharVector, TEXT)));
+                                bdlat_TypeName::xsdName(theCharVector, TEXT)));
 //..
 // For types that have not corresponding XSD type, 'xsdName' returns
 // "anyType", regardless of formatting mode:
 //..
         ASSERT(0 == bsl::strcmp("anyType",
-                              bdeat_TypeName::xsdName(theStrVector, DEFAULT)));
+                              bdlat_TypeName::xsdName(theStrVector, DEFAULT)));
 
         return 0;
     }
@@ -201,40 +197,40 @@ static void aSsErT(int c, const char *s, int i)
         };
 //..
 // Then we can assign it a printable name by overloading the
-// 'bdeat_TypeName_className' function in the class's namespace:
+// 'bdlat_TypeName_className' function in the class's namespace:
 //..
-        const char *bdeat_TypeName_className(const MyClass&) {
+        const char *bdlat_TypeName_className(const MyClass&) {
             return "MyClass";
         }
 
     }  // close namespace MyNamespace
 //..
-// Note that 'bdeat_TypeName_className' must return a string that is
+// Note that 'bdlat_TypeName_className' must return a string that is
 // valid and does not change for remaining duration the program.  The
-// overloaded 'bdeat_TypeName_className' function is automatically used for
+// overloaded 'bdlat_TypeName_className' function is automatically used for
 // 'name' and 'xsdName', as well as for 'className':
 //..
     int usageExample2()
     {
-        static const int DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT;
+        static const int DEFAULT = bdlat_FormattingMode::e_DEFAULT;
 
         MyNamespace::MyClass myClassObj;
 
         ASSERT(0 == bsl::strcmp("MyClass",
-                                bdeat_TypeName::className(myClassObj)));
-        ASSERT(0 == bsl::strcmp("MyClass", bdeat_TypeName::name(myClassObj)));
+                                bdlat_TypeName::className(myClassObj)));
+        ASSERT(0 == bsl::strcmp("MyClass", bdlat_TypeName::name(myClassObj)));
         ASSERT(0 == bsl::strcmp("MyClass",
-                                bdeat_TypeName::xsdName(myClassObj, DEFAULT)));
+                                bdlat_TypeName::xsdName(myClassObj, DEFAULT)));
 
         return 0;
     }
 //..
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-typedef bdeat_TypeName Obj;
+typedef bdlat_TypeName Obj;
 
 bool streq(const char* s1, const char* s2)
     // Return true if the specified strings 's1' and 's2' are equal and false
@@ -279,55 +275,15 @@ bool streq(const char* s1, const char* s2)
 #ifndef INCLUDED_TEST_MYCHOICE
 #define INCLUDED_TEST_MYCHOICE
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: MyChoice
+//@CLASSES:
+//  MyChoice: a choice class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
-#include <bdlat_selectioninfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'MyChoice'
 
 namespace BloombergLP {
 
@@ -374,7 +330,7 @@ class MyChoice {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyChoice")
 
-    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
         // selection information for each selection
 
   public:
@@ -385,29 +341,29 @@ class MyChoice {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
 
-    static const bdeat_SelectionInfo *lookupSelectionInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
+                                                       const char *name,
+                                                       int         nameLength);
         // Return selection information for the selection indicated by the
         // specified 'name' of the specified 'nameLength' if the selection
         // exists, and 0 otherwise.
 
     // CREATORS
     explicit MyChoice(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MyChoice' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'MyChoice' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     MyChoice(const MyChoice& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MyChoice' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MyChoice' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MyChoice();
         // Destroy this object.
@@ -429,8 +385,8 @@ class MyChoice {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int makeSelection(int selectionId);
         // Set the value of this object to be the default for the selection
@@ -445,17 +401,15 @@ class MyChoice {
 
     void makeSelection1();
     void makeSelection1(int value);
-        // Set the value of this object to be a "Selection1" value.
-        // Optionally specify the 'value' of the "Selection1".  If
-        // 'value' is not specified, the default "Selection1" value is
-        // used.
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
 
     void makeSelection2();
     void makeSelection2(const bsl::string& value);
-        // Set the value of this object to be a "Selection2" value.
-        // Optionally specify the 'value' of the "Selection2".  If
-        // 'value' is not specified, the default "Selection2" value is
-        // used.
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
 
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
@@ -466,16 +420,14 @@ class MyChoice {
         // and -1 otherwise.
 
     int& selection1();
-        // Return a reference to the modifiable "Selection1" selection
-        // of this object if "Selection1" is the current selection.
-        // The behavior is undefined unless "Selection1" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
 
     bsl::string& selection2();
-        // Return a reference to the modifiable "Selection2" selection
-        // of this object if "Selection2" is the current selection.
-        // The behavior is undefined unless "Selection2" is the
-        // selection of this object.
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -498,9 +450,9 @@ class MyChoice {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     int selectionId() const;
         // Return the id of the current selection if the selection is defined,
@@ -514,16 +466,14 @@ class MyChoice {
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
     const int& selection1() const;
-        // Return a reference to the non-modifiable "Selection1"
-        // selection of this object if "Selection1" is the current
-        // selection.  The behavior is undefined unless "Selection1"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
 
     const bsl::string& selection2() const;
-        // Return a reference to the non-modifiable "Selection2"
-        // selection of this object if "Selection2" is the current
-        // selection.  The behavior is undefined unless "Selection2"
-        // is the selection of this object.
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
 
 };
 
@@ -532,8 +482,8 @@ inline
 bool operator==(const MyChoice& lhs, const MyChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'MyChoice' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
+    // value if either the selections in both objects have the same ids and the
+    // same values, or both selections are undefined.
 
 inline
 bool operator!=(const MyChoice& lhs, const MyChoice& rhs);
@@ -542,11 +492,11 @@ bool operator!=(const MyChoice& lhs, const MyChoice& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MyChoice& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -579,7 +529,7 @@ inline
 void MyChoice::makeSelection1()
 {
     if (SELECTION_ID_SELECTION1 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection1.object());
     }
     else {
         reset();
@@ -605,7 +555,7 @@ inline
 void MyChoice::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
-        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+        bdlat_ValueTypeFunctions::reset(&d_selection2.object());
     }
     else {
         reset();
@@ -638,9 +588,7 @@ MyChoice::MyChoice(bslma::Allocator *basicAllocator)
 }
 
 inline
-MyChoice::MyChoice(
-    const MyChoice& original,
-    bslma::Allocator *basicAllocator)
+MyChoice::MyChoice(const MyChoice& original, bslma::Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -700,13 +648,11 @@ STREAM& MyChoice::bdexStreamIn(STREAM& stream, int version)
             switch (selectionId) {
               case SELECTION_ID_SELECTION1: {
                 makeSelection1();
-                streamIn(
-                    stream, d_selection1.object(), 1);
+                streamIn(stream, d_selection1.object(), 1);
               } break;
               case SELECTION_ID_SELECTION2: {
                 makeSelection2();
-                streamIn(
-                    stream, d_selection2.object(), 1);
+                streamIn(stream, d_selection2.object(), 1);
               } break;
               case SELECTION_ID_UNDEFINED: {
                 reset();
@@ -749,7 +695,7 @@ int MyChoice::makeSelection(const char *name, int nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_SelectionInfo *selectionInfo =
+    const bdlat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
        return NOT_FOUND;                                              // RETURN
@@ -774,8 +720,7 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
                            SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
                                                                       // RETURN
       default:
-        BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED ==
-                     d_selectionId);
+        BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
     }
 }
@@ -804,12 +749,10 @@ STREAM& MyChoice::bdexStreamOut(STREAM& stream, int version) const
             stream.putInt16(d_selectionId);
             switch (d_selectionId) {
               case SELECTION_ID_SELECTION1: {
-                streamOut(
-                    stream, d_selection1.object(), 1);
+                streamOut(stream, d_selection1.object(), 1);
               } break;
               case SELECTION_ID_SELECTION2: {
-                streamOut(
-                    stream, d_selection2.object(), 1);
+                streamOut(stream, d_selection2.object(), 1);
               } break;
               default:
                 BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -879,7 +822,7 @@ bool test::operator==(const test::MyChoice& lhs, const test::MyChoice& rhs)
                                                                     // RETURN
           default:
             BSLS_ASSERT_SAFE(test::MyChoice::SELECTION_ID_UNDEFINED
-                            == rhs.selectionId());
+                                    == rhs.selectionId());
             return true;                                              // RETURN
         }
     }
@@ -910,14 +853,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 
 // test_mychoice.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -928,20 +863,20 @@ namespace test {
 const char MyChoice::CLASS_NAME[] = "MyChoice";
     // the name of this class
 
-const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
+const bdlat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
     {
         SELECTION_ID_SELECTION1,
         "Selection1",              // name
         sizeof("Selection1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         SELECTION_ID_SELECTION2,
         "Selection2",              // name
         sizeof("Selection2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -949,9 +884,9 @@ const bdeat_SelectionInfo MyChoice::SELECTION_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 10: {
@@ -982,7 +917,7 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
     return 0;
 }
 
-const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
+const bdlat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
 {
     switch (id) {
       case SELECTION_ID_SELECTION1:
@@ -1006,10 +941,9 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& MyChoice::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& MyChoice::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -1080,35 +1014,15 @@ bsl::ostream& MyChoice::print(
 #ifndef INCLUDED_TEST_MYENUMERATION
 #define INCLUDED_TEST_MYENUMERATION
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: MyEnumeration
+//@CLASSES:
+//  MyEnumeration: an enumeration class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMERATORINFO
-#include <bdlat_enumeratorinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
+//  TBD: provide annotation for 'MyEnumeration'
 
 namespace BloombergLP {
 
@@ -1134,7 +1048,7 @@ struct MyEnumeration {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MyEnumeration")
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
         // enumerator information for each enumerator
 
     // CLASS METHODS
@@ -1163,28 +1077,24 @@ struct MyEnumeration {
         // enumerator).
 
     template <class STREAM>
-    static STREAM& bdexStreamIn(STREAM&  stream,
-                                Value&   value,
-                                int      version);
+    static STREAM& bdexStreamIn(STREAM& stream, Value& value, int version);
         // Assign to the specified 'value' the value read from the specified
         // input 'stream' using the specified 'version' format and return a
         // reference to the modifiable 'stream'.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
+        // undefined.  If 'version' is not supported, 'stream' is marked
+        // invalid, but 'value' is unaltered.  Note that no version is read
+        // from 'stream'.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 
     template <class STREAM>
-    static STREAM& bdexStreamOut(STREAM&  stream,
-                                 Value    value,
-                                 int      version);
+    static STREAM& bdexStreamOut(STREAM& stream, Value value, int version);
         // Write the specified 'value' to the specified output 'stream' and
         // return a reference to the modifiable 'stream'.  Optionally specify
         // an explicit 'version' format; by default, the maximum supported
@@ -1198,11 +1108,11 @@ struct MyEnumeration {
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -1229,8 +1139,8 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
 }
 
 inline
-bsl::ostream& MyEnumeration::print(bsl::ostream&      stream,
-                                 MyEnumeration::Value value)
+bsl::ostream& MyEnumeration::print(bsl::ostream&        stream,
+                                   MyEnumeration::Value value)
 {
     return stream << toString(value);
 }
@@ -1257,9 +1167,9 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
 
 template <class STREAM>
 inline
-STREAM& MyEnumeration::bdexStreamIn(STREAM&             stream,
-                                  MyEnumeration::Value& value,
-                                  int                 version)
+STREAM& MyEnumeration::bdexStreamIn(STREAM&               stream,
+                                    MyEnumeration::Value& value,
+                                    int                   version)
 {
     switch(version) {
       case 1: {
@@ -1282,7 +1192,7 @@ template <class STREAM>
 inline
 STREAM& MyEnumeration::bdexStreamOut(STREAM&              stream,
                                      MyEnumeration::Value value,
-                                     int                version)
+                                     int                  version)
 {
     switch (version) {
       case 1: {
@@ -1294,9 +1204,9 @@ STREAM& MyEnumeration::bdexStreamOut(STREAM&              stream,
 
 template <class STREAM>
 inline
-STREAM& streamIn(STREAM&                              stream,
+STREAM& streamIn(STREAM&                     stream,
                  test::MyEnumeration::Value& value,
-                 int                                  version)
+                 int                         version)
 {
     return test::MyEnumeration::bdexStreamIn(stream, value, version);
 }
@@ -1309,9 +1219,9 @@ int maxSupportedVersion(test::MyEnumeration::Value)
 
 template <class STREAM>
 inline
-STREAM& streamOut(STREAM& stream,
+STREAM& streamOut(STREAM&                           stream,
                   const test::MyEnumeration::Value& value,
-                  int     version)
+                  int                               version)
 {
     return test::MyEnumeration::bdexStreamOut(stream, value, version);
 }
@@ -1323,7 +1233,7 @@ BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
 
 // FREE OPERATORS
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
+bsl::ostream& test::operator<<(bsl::ostream&              stream,
                                test::MyEnumeration::Value rhs)
 {
     return test::MyEnumeration::print(stream, rhs);
@@ -1339,13 +1249,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 // test_myenumeration.cpp  -*-C++-*-
 
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-#include <bsls_assert.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -1356,7 +1259,7 @@ namespace test {
 const char MyEnumeration::CLASS_NAME[] = "MyEnumeration";
     // the name of this class
 
-const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
     {
         MyEnumeration::VALUE1,
         "VALUE1",                 // name
@@ -1376,8 +1279,8 @@ const bdeat_EnumeratorInfo MyEnumeration::ENUMERATOR_INFO_ARRAY[] = {
                                // -------------
 
 int MyEnumeration::fromString(MyEnumeration::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+                              const char           *string,
+                              int                   stringLength)
 {
 
     enum { SUCCESS = 0, NOT_FOUND = 1 };
@@ -1430,48 +1333,15 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 #ifndef INCLUDED_TEST_MYSEQUENCE
 #define INCLUDED_TEST_MYSEQUENCE
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: MySequence
+//@CLASSES:
+//  MySequence: a sequence class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
-#include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
+//  TBD: provide annotation for 'MySequence'
 namespace BloombergLP {
 
 namespace test {
@@ -1507,7 +1377,7 @@ class MySequence {
     static const char CLASS_NAME[];
         // the name of this class (i.e., "MySequence")
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
@@ -1518,30 +1388,30 @@ class MySequence {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
 
     // CREATORS
     explicit MySequence(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MySequence' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an object of type 'MySequence' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     MySequence(const MySequence&  original,
                bslma::Allocator  *basicAllocator = 0);
-        // Create an object of type 'MySequence' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MySequence' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     ~MySequence();
         // Destroy this object.
@@ -1563,33 +1433,33 @@ class MySequence {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -1624,23 +1494,23 @@ class MySequence {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -1649,20 +1519,20 @@ class MySequence {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     const int& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
 
     const bsl::string& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2"
-        // attribute of this object.
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
 
 };
 
@@ -1682,11 +1552,11 @@ bool operator!=(const MySequence& lhs, const MySequence& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
@@ -1708,9 +1578,8 @@ MySequence::MySequence(bslma::Allocator *basicAllocator)
 }
 
 inline
-MySequence::MySequence(
-    const MySequence& original,
-    bslma::Allocator *basicAllocator)
+MySequence::MySequence(const MySequence&  original,
+                       bslma::Allocator  *basicAllocator)
 : d_attribute1(original.d_attribute1)
 , d_attribute2(original.d_attribute2,
                bslma::Default::allocator(basicAllocator))
@@ -1741,10 +1610,8 @@ STREAM& MySequence::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            streamIn(
-                  stream, d_attribute1, 1);
-            streamIn(
-                  stream, d_attribute2, 1);
+            streamIn(stream, d_attribute1, 1);
+            streamIn(stream, d_attribute2, 1);
           } break;
           default: {
             stream.invalidate();
@@ -1757,8 +1624,8 @@ STREAM& MySequence::bdexStreamIn(STREAM& stream, int version)
 inline
 void MySequence::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_attribute1);
-    bdeat_ValueTypeFunctions::reset(&d_attribute2);
+    bdlat_ValueTypeFunctions::reset(&d_attribute1);
+    bdlat_ValueTypeFunctions::reset(&d_attribute2);
 }
 
 template <class MANIPULATOR>
@@ -1807,12 +1674,12 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 template <class MANIPULATOR>
 inline
 int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
-                                     const char   *name,
-                                     int           nameLength)
+                                    const char   *name,
+                                    int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1893,12 +1760,12 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
 template <class ACCESSOR>
 inline
 int MySequence::accessAttribute(ACCESSOR&   accessor,
-                                 const char *name,
-                                 int         nameLength) const
+                                const char *name,
+                                int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
         return NOT_FOUND;                                             // RETURN
@@ -1940,7 +1807,7 @@ bool test::operator!=(const test::MySequence& lhs, const test::MySequence& rhs)
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
+bsl::ostream& test::operator<<(bsl::ostream&           stream,
                                const test::MySequence& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -1956,14 +1823,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 // test_mysequence.cpp  -*-C++-*-
 
-#include <bdlat_formattingmode.h>
-#include <bdlb_print.h>
-#include <bdlb_printmethods.h>
-
-#include <bsl_cctype.h>
-#include <bsl_iostream.h>
-#include <bsl_string.h>
-
 namespace BloombergLP {
 namespace test {
 
@@ -1974,20 +1833,20 @@ namespace test {
 const char MySequence::CLASS_NAME[] = "MySequence";
     // the name of this class
 
-const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_ATTRIBUTE1,
         "Attribute1",              // name
         sizeof("Attribute1") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_DEC // formatting mode
+        bdlat_FormattingMode::e_DEC // formatting mode
     },
     {
         ATTRIBUTE_ID_ATTRIBUTE2,
         "Attribute2",              // name
         sizeof("Attribute2") - 1,  // name length
         "TBD: provide annotation", // annotation
-        bdeat_FormattingMode::BDEAT_TEXT // formatting mode
+        bdlat_FormattingMode::e_TEXT // formatting mode
     }
 };
 
@@ -1995,9 +1854,9 @@ const bdeat_AttributeInfo MySequence::ATTRIBUTE_INFO_ARRAY[] = {
                                // CLASS METHODS
                                // -------------
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 10: {
@@ -2028,7 +1887,7 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_ATTRIBUTE1:
@@ -2052,10 +1911,9 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(int id)
                                 // ACCESSORS
                                 // ---------
 
-bsl::ostream& MySequence::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& MySequence::print(bsl::ostream& stream,
+                                int           level,
+                                int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -2073,13 +1931,17 @@ bsl::ostream& MySequence::print(
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                             -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                             -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -2091,13 +1953,17 @@ bsl::ostream& MySequence::print(
 
         stream << ' ';
         stream << "Attribute1 = ";
-        bdlb::PrintMethods::print(stream, d_attribute1,
-                             -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << ' ';
         stream << "Attribute2 = ";
-        bdlb::PrintMethods::print(stream, d_attribute2,
-                             -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_attribute2,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -2116,43 +1982,15 @@ bsl::ostream& MySequence::print(
 #ifndef INCLUDED_TEST_MYCUSTOMIZEDTYPE
 #define INCLUDED_TEST_MYCUSTOMIZEDTYPE
 
-//@PURPOSE:
-//  TBD: provide purpose
+//@PURPOSE: TBD: provide purpose.
 //
-//@CLASSES: MyCustomizedType
+//@CLASSES:
+//  MyCustomizedType: a customized class
 //
 //@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
-//  TBD: provide annotation
-
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
-#include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
-#include <bdlat_valuetypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
+//  TBD: provide annotation for 'MyCustomizedType'
 
 namespace BloombergLP {
 
@@ -2187,10 +2025,10 @@ class MyCustomizedType {
 
     MyCustomizedType(const MyCustomizedType&  original,
                      bslma::Allocator        *basicAllocator = 0);
-        // Create an object of type 'MyCustomizedType' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create an object of type 'MyCustomizedType' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     explicit MyCustomizedType(const bsl::string&  value,
                               bslma::Allocator   *basicAllocator = 0);
@@ -2219,8 +2057,8 @@ class MyCustomizedType {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     int fromString(const bsl::string& value);
         // Convert from the specified 'value' to this type.  Return 0 if
@@ -2232,9 +2070,9 @@ class MyCustomizedType {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     int maxSupportedBdexVersion() const;
         // Return the most current 'bdex' streaming version number supported by
@@ -2277,11 +2115,11 @@ bool operator!=(const MyCustomizedType& lhs, const MyCustomizedType& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MyCustomizedType& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -2341,7 +2179,7 @@ STREAM& MyCustomizedType::bdexStreamIn(STREAM& stream, int version)
 inline
 void MyCustomizedType::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_value);
+    bdlat_ValueTypeFunctions::reset(&d_value);
 }
 
 inline
@@ -2374,8 +2212,8 @@ int MyCustomizedType::maxSupportedBdexVersion() const
 
 inline
 bsl::ostream& MyCustomizedType::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
 }
@@ -2396,21 +2234,21 @@ BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(test::MyCustomizedType)
 
 inline
 bool test::operator==(const test::MyCustomizedType& lhs,
-                                 const test::MyCustomizedType& rhs)
+                      const test::MyCustomizedType& rhs)
 {
     return lhs.d_value == rhs.d_value;
 }
 
 inline
 bool test::operator!=(const test::MyCustomizedType& lhs,
-                                 const test::MyCustomizedType& rhs)
+                      const test::MyCustomizedType& rhs)
 {
     return lhs.d_value != rhs.d_value;
 }
 
 inline
-bsl::ostream& test::operator<<(bsl::ostream& stream,
-                                          const test::MyCustomizedType& rhs)
+bsl::ostream& test::operator<<(bsl::ostream&                 stream,
+                               const test::MyCustomizedType& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -2424,8 +2262,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 // ----------------------------------------------------------------------------
 
 // test_mycustomizedtype.cpp  -*-C++-*-
-
-#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace test {
@@ -2466,18 +2302,18 @@ namespace BloombergLP {
 namespace test {
 
 class MyClassWith92ByteName {
-    // This class overloads 'bdeat_TypeName_className' to produce a name
-    // that's 92 bytes long.  That makes
-    // 'bdeat_TypeName::className(vector<MyClassWith93ByteName>)' return a
+    // This class overloads 'bdlat_TypeName_className' to produce a name that's
+    // 92 bytes long.  That makes
+    // 'bdlat_TypeName::className(vector<MyClassWith93ByteName>)' return a
     // 100-byte name and
-    // 'bdeat_TypeName::className(vector<vector<MyClassWith93ByteName> >)'
+    // 'bdlat_TypeName::className(vector<vector<MyClassWith93ByteName> >)'
     // return a name truncated truncated to 100 characters.
 };
 
 #define STR_92BYTENAME "MyClassWith92ByteName_" \
     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
 
-const char* bdeat_TypeName_className(const MyClassWith92ByteName&)
+const char* bdlat_TypeName_className(const MyClassWith92ByteName&)
 {
     ASSERT(92 == sizeof(STR_92BYTENAME) - 1);
     return STR_92BYTENAME;
@@ -2492,12 +2328,12 @@ class MyIntWrapper {
     int value() const { return d_value; }
 };
 
-const char* bdeat_TypeName_name(const MyIntWrapper& object)
+const char* bdlat_TypeName_name(const MyIntWrapper& object)
 {
     return "MyIntWrapper";
 }
 
-const char* bdeat_TypeName_xsdName(const MyIntWrapper& object, int format)
+const char* bdlat_TypeName_xsdName(const MyIntWrapper& object, int format)
 {
     return "integer";
 }
@@ -2505,9 +2341,9 @@ const char* bdeat_TypeName_xsdName(const MyIntWrapper& object, int format)
 }  // close namespace test
 }  // close enterprise namespace
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -2516,8 +2352,8 @@ int main(int argc, char *argv[])
 
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-//     int veryVerbose = argc > 3;
-//     int veryVeryVerbose = argc > 4;
+//  int veryVerbose = argc > 3;
+//  int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -2543,11 +2379,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'xsdName'"
                           << "\n=================" << endl;
 
-        static const int DEFAULT = bdeat_FormattingMode::BDEAT_DEFAULT;
-        static const int DEC     = bdeat_FormattingMode::BDEAT_DEC;
-        static const int HEX     = bdeat_FormattingMode::BDEAT_HEX;
-        static const int BASE64  = bdeat_FormattingMode::BDEAT_BASE64;
-        static const int TEXT    = bdeat_FormattingMode::BDEAT_TEXT;
+        static const int DEFAULT = bdlat_FormattingMode::e_DEFAULT;
+        static const int DEC     = bdlat_FormattingMode::e_DEC;
+        static const int HEX     = bdlat_FormattingMode::e_HEX;
+        static const int BASE64  = bdlat_FormattingMode::e_BASE64;
+        static const int TEXT    = bdlat_FormattingMode::e_TEXT;
 
         XSDNAME_TST(bool                     , DEFAULT, "boolean"          );
         XSDNAME_TST(bool                     , DEC    , "boolean"          );
@@ -2586,12 +2422,12 @@ int main(int argc, char *argv[])
         XSDNAME_TST(bsl::string              , TEXT   , "string"           );
         XSDNAME_TST(bsl::string              , BASE64 , "base64Binary"     );
         XSDNAME_TST(bsl::string              , HEX    , "hexBinary"        );
-        XSDNAME_TST(bdlt::Date                , DEFAULT, "date"             );
-        XSDNAME_TST(bdlt::DateTz              , DEFAULT, "date"             );
-        XSDNAME_TST(bdlt::Datetime            , DEFAULT, "dateTime"         );
-        XSDNAME_TST(bdlt::DatetimeTz          , DEFAULT, "dateTime"         );
-        XSDNAME_TST(bdlt::Time                , DEFAULT, "time"             );
-        XSDNAME_TST(bdlt::TimeTz              , DEFAULT, "time"             );
+        XSDNAME_TST(bdlt::Date               , DEFAULT, "date"             );
+        XSDNAME_TST(bdlt::DateTz             , DEFAULT, "date"             );
+        XSDNAME_TST(bdlt::Datetime           , DEFAULT, "dateTime"         );
+        XSDNAME_TST(bdlt::DatetimeTz         , DEFAULT, "dateTime"         );
+        XSDNAME_TST(bdlt::Time               , DEFAULT, "time"             );
+        XSDNAME_TST(bdlt::TimeTz             , DEFAULT, "time"             );
         XSDNAME_TST(bsl::vector<char>        , DEFAULT, "base64Binary"     );
         XSDNAME_TST(bsl::vector<char>        , BASE64 , "base64Binary"     );
         XSDNAME_TST(bsl::vector<char>        , TEXT   , "string"           );
@@ -2634,12 +2470,12 @@ int main(int argc, char *argv[])
         NAME_TST(const char*                    , "const char*"              );
         NAME_TST(const signed char*             , "const signed char*"       );
         NAME_TST(const unsigned char*           , "const unsigned char*"     );
-        NAME_TST(bdlt::Date                      , "bdlt::Date"                );
-        NAME_TST(bdlt::DateTz                    , "bdlt::DateTz"              );
-        NAME_TST(bdlt::Datetime                  , "bdlt::Datetime"            );
-        NAME_TST(bdlt::DatetimeTz                , "bdlt::DatetimeTz"          );
-        NAME_TST(bdlt::Time                      , "bdlt::Time"                );
-        NAME_TST(bdlt::TimeTz                    , "bdlt::TimeTz"              );
+        NAME_TST(bdlt::Date                     , "bdlt::Date"               );
+        NAME_TST(bdlt::DateTz                   , "bdlt::DateTz"             );
+        NAME_TST(bdlt::Datetime                 , "bdlt::Datetime"           );
+        NAME_TST(bdlt::DatetimeTz               , "bdlt::DatetimeTz"         );
+        NAME_TST(bdlt::Time                     , "bdlt::Time"               );
+        NAME_TST(bdlt::TimeTz                   , "bdlt::TimeTz"             );
 
         NAME_TST(MySequence                     , "MySequence"               );
         NAME_TST(MyChoice                       , "MyChoice"                 );
@@ -2670,7 +2506,7 @@ int main(int argc, char *argv[])
             // Special test for truncated name
             bsl::vector<bsl::vector<MyClassWith92ByteName> > object;
             static const char *fullName = "vector<vector<" STR_92BYTENAME ">>";
-            const char *name = bdeat_TypeName::name(object);
+            const char *name = bdlat_TypeName::name(object);
             LOOP_ASSERT(name, 100 == bsl::strlen(name));
             LOOP_ASSERT(name, 0 == bsl::strncmp(fullName, name, 100));
         }
@@ -2703,12 +2539,12 @@ int main(int argc, char *argv[])
         CLASSNAME_TST(const char*                       , 0                  );
         CLASSNAME_TST(const signed char*                , 0                  );
         CLASSNAME_TST(const unsigned char*              , 0                  );
-        CLASSNAME_TST(bdlt::Date                         , 0                  );
-        CLASSNAME_TST(bdlt::DateTz                       , 0                  );
-        CLASSNAME_TST(bdlt::Datetime                     , 0                  );
-        CLASSNAME_TST(bdlt::DatetimeTz                   , 0                  );
-        CLASSNAME_TST(bdlt::Time                         , 0                  );
-        CLASSNAME_TST(bdlt::TimeTz                       , 0                  );
+        CLASSNAME_TST(bdlt::Date                        , 0                  );
+        CLASSNAME_TST(bdlt::DateTz                      , 0                  );
+        CLASSNAME_TST(bdlt::Datetime                    , 0                  );
+        CLASSNAME_TST(bdlt::DatetimeTz                  , 0                  );
+        CLASSNAME_TST(bdlt::Time                        , 0                  );
+        CLASSNAME_TST(bdlt::TimeTz                      , 0                  );
 
         CLASSNAME_TST(MySequence                        , "MySequence"       );
         CLASSNAME_TST(MyChoice                          , "MyChoice"         );
@@ -2747,10 +2583,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

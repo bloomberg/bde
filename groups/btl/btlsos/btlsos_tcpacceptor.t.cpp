@@ -14,17 +14,23 @@
 #include <btlsc_channel.h>
 #include <btlsc_timedchannel.h>
 
+#include <bdlt_currenttime.h>
+
 #include <bdls_testutil.h>
 
-#include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 
 #include <bdlqq_barrier.h>                  // barrier
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
-#include <bslma_testallocator.h>            // thread-safe allocator
+
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstdio.h>
 #include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -33,6 +39,9 @@
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
+
+#include <signal.h>
+#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -68,7 +77,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] virtual int isInvalid()
 // [ 3] int numChannels() const;
 //-----------------------------------------------------------------------------
-// [10] USAGE example
+// [ 8] USAGE example
 // [ 1] BREATHING TEST
 //=============================================================================
 
@@ -116,7 +125,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
@@ -206,21 +216,24 @@ volatile sig_atomic_t syncWithSigHandler = 0;
 static void signalHandler(int sig)
     // The signal handler does nothing.
 {
-     // this is NOT SIGNAL SAFE, but it should not matter if the asser is true
-     ASSERT(syncWithSigHandler == 0);
+    (void)sig;
 
-     if (globalVeryVerbose) {
-         //P_T(bdlqq::ThreadUtil::self());
-         // We can only use write in the signal handler ...
-         write(1, " caught signal\n", sizeof(" caught signal\n"));
-         //PT(sig);
-     }
-     ++syncWithSigHandler;
-     return;
+    // this is NOT SIGNAL SAFE, but it should not matter if the assert is true
+    ASSERT(syncWithSigHandler == 0);
+
+    if (globalVeryVerbose) {
+        //P_T(bdlqq::ThreadUtil::self());
+        // We can only use write in the signal handler ...
+        write(1, " caught signal\n", sizeof(" caught signal\n"));
+        //PT(sig);
+    }
+    ++syncWithSigHandler;
+    return;
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
-    // Register the signal handler for the signal 'signo' to be generated.
+    // Register the specified signal 'handler' for the specified signal 'signo'
+    // to be generated.
 {
     struct sigaction act, oact;
 
@@ -299,8 +312,8 @@ void* threadAsClient(void *arg)
         }
 
         // XXX at this point if the helper thread has left accept BUT has not
-        // set helperAfterAccept to 1, we will get false results... You may
-        // need to adjust the sleeping time above
+        // set helperAfterAccept to 1, we will get false results.  You may need
+        // to adjust the sleeping time above.
         if (info.d_commands[i].d_commandCode == 'A'
             && 0 == helperAfterAccept) {
 
@@ -336,7 +349,7 @@ void* threadAsClient(void *arg)
     }
 
     // cleanup
-    int length = clients.size();
+    int length = static_cast<int>(clients.size());
     for (int i = 0; i < length; ++i) {
         factory.deallocate(clients[i]);
     }
@@ -385,19 +398,19 @@ static int numChannelToBeEstablished(const TestCommand *commands,
     return total;
 }
 
-static int testExecutionHelper(btlsos::TcpAcceptor          *acceptor,
-                               int                         *status,
-                               const TestCommand           *command,
-                               bsl::vector<btlsc::Channel*> *channels,
-                               btlsc::Channel              **newChannel,
-                               bdlqq::Barrier               *syncBarrier)
+static int testExecutionHelper(btlsos::TcpAcceptor           *acceptor,
+                               int                           *status,
+                               const TestCommand             *command,
+                               bsl::vector<btlsc::Channel*>  *channels,
+                               btlsc::Channel               **newChannel,
+                               bdlqq::Barrier                *syncBarrier)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
     // specified 'newChannel' will be store the value returned.  If the
-    // 'command' is to deallocate a channel, the first channel in the array of
-    // 'channels' will be deallocated.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // 'command' is to deallocate a channel, the first channel in the specified
+    // array of 'channels' will be deallocated.  Return 0 on success, and a
+    // non-zero value otherwise.
 {
     int rCode = 0;
 
@@ -482,8 +495,7 @@ int processTest(btlsos::TcpAcceptor               *acceptor,
     // client to submit the expected number of connection requests and/or
     // generate signals if d_signal is set.  Results after each test will be
     // compared against those expected which are also specified in the
-    // specified 'commands'.  Return 0 on success, and a non-zero value
-    // otherwise.
+    // 'commands'.  Return 0 on success, and a non-zero value otherwise.
 {
     btlso::IPv4Address serverAddr(acceptor->address());
 
@@ -552,9 +564,9 @@ int processTest(btlsos::TcpAcceptor               *acceptor,
     return ret;
 }
 
-//=============================================================================
-//                      MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                              MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -574,7 +586,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     switch (test) { case 0:
-      case 24: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   This test is really just to make sure the syntax is correct.
@@ -741,10 +753,8 @@ int main(int argc, char *argv[]) {
                   TestCommand DATA[] =
 // ===================>
 {
-//line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
-//---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // A channel is established before "time" is reached.
   {L_, 'A',  e_CHANNEL, interruptible,   INFINITED,   0,       1,          1,
    0    },
@@ -965,10 +975,8 @@ int main(int argc, char *argv[]) {
                   TestCommand DATA[] =
 // ===============>
 {
-//line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
-//---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          1,
    0    },
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          2,
@@ -992,7 +1000,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                  existing = channels.size();
+                  existing = static_cast<int>(channels.size());
                   if (veryVerbose) {
                       PT(channels.size());
                   }
@@ -1008,10 +1016,8 @@ int main(int argc, char *argv[]) {
                       TestCommand DATA[] =
 // ===================>
 {
-//line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
-//---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,     1,   existing + 2,
@@ -1039,7 +1045,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -1051,10 +1057,8 @@ int main(int argc, char *argv[]) {
                       TestCommand DATA[] =
 // ===================>
 {
-//line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
-//---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   -2,      0,     existing,
    0    },
   {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   -2,      0,     existing,
@@ -1082,7 +1086,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -1226,10 +1230,8 @@ int main(int argc, char *argv[]) {
 // ===================>
 #ifdef BSLS_PLATFORM_OS_UNIX
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // Generate a 'SIGSYS' and no channel is established: concern (1).
   {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   1,        0,          0,
    1    },
@@ -1279,10 +1281,8 @@ int main(int argc, char *argv[]) {
 };
 #else     // windows test data
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // a channel is established.
   {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
    0    },
@@ -1335,7 +1335,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1362,10 +1362,8 @@ int main(int argc, char *argv[]) {
                       TestCommand DATA[] =
 // ===================>
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // New channels can still be established: concern (9).
   {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,     1,   existing + 1,
    0    },
@@ -1393,7 +1391,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
 
                   if (verbose) {
@@ -1413,10 +1411,8 @@ int main(int argc, char *argv[]) {
                       // close its server socket.
                       TestCommand DATA =
 // ===================>
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
    0    };
 // ===================>
@@ -1464,10 +1460,8 @@ int main(int argc, char *argv[]) {
                       TestCommand DATA[] =
 // ===================>
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // New channels can still be established: concern (9).
   {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,   0,    1,   existing + 1,
    0    },
@@ -1501,7 +1495,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }
@@ -1643,10 +1637,8 @@ int main(int argc, char *argv[]) {
 // ===================>
 #ifdef BSLS_PLATFORM_OS_UNIX
 {
-//line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
-//---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // Generate a 'SIGSYS' and no channel is established: concern (1).
   {L_, 'A',  e_CHANNEL, interruptible,  INFINITED,   1,       0,           0,
    1    },
@@ -1696,10 +1688,8 @@ int main(int argc, char *argv[]) {
 };
 #else  // windows test data
 {
-//line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
-//---- --- -----------  -------------  -------  ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // one channel is established.
   {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,   0,       1,           1,
    0    },
@@ -1753,7 +1743,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1780,10 +1770,8 @@ int main(int argc, char *argv[]) {
                       TestCommand DATA[] =
 // ===================>
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // New channels can still be established: concern (9).
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
@@ -1811,7 +1799,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 for testing 'allocate' method:");
@@ -1829,10 +1817,8 @@ int main(int argc, char *argv[]) {
                       // close its server socket.
                       TestCommand DATA =
 // ===================>
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   {L_, 'A',  e_CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
    0    };
 // ===================>
@@ -1879,10 +1865,8 @@ int main(int argc, char *argv[]) {
                       TestCommand DATA[] =
 // ===================>
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // New channels can still be established: concern (9).
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
@@ -1916,7 +1900,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }
@@ -1985,10 +1969,8 @@ int main(int argc, char *argv[]) {
                   TestCommand DATA[] =
 // ===============>
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // Each of the following command is to establish a channel.
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          1,
    0    },
@@ -2093,10 +2075,8 @@ int main(int argc, char *argv[]) {
                   TestCommand DATA[] =
 // ===============>
 {
-//line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
-//---- --- -----------  -------------  ------- ------- ------------ ----------
-//signal
-//-----
+//LN cmd chnlType  interruptFlag  timeout  expStat validChannel expNumConn sig
+//-- --- --------  -------------  -------  ------- ------------ ---------- ---
   // Each of the following command is to establish a channel.
   {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           1,
    0    },

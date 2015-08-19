@@ -91,9 +91,9 @@ class TestRun
    void threadProc(int id);
 public:
 
-   TestRun(int numThreads,
-           int numCharArraysPerIteration,
-           int secondsToRun,
+   TestRun(int               numThreads,
+           int               numCharArraysPerIteration,
+           int               secondsToRun,
            bslma::Allocator *basicAllocator = 0)
       : d_allocator_p(bslma::Default::allocator(basicAllocator)),
         d_pool(bslma::Default::allocator(basicAllocator)),
@@ -111,10 +111,10 @@ public:
    double getRatePerThread()
    {
       if (d_run) {
-         return d_ratePerThread;
+         return d_ratePerThread;                                      // RETURN
       }
       else {
-         return -1;
+         return -1;                                                   // RETURN
       }
    }
 };
@@ -315,8 +315,10 @@ class LinkTestRun
    void threadProc(int id);
 public:
 
-   LinkTestRun(int numThreads, int numLinksPerIteration,
-           int secondsToRun, bslma::Allocator *basicAllocator = 0)
+   LinkTestRun(int               numThreads,
+               int               numLinksPerIteration,
+               int               secondsToRun,
+               bslma::Allocator *basicAllocator = 0)
       : d_allocator_p(bslma::Default::allocator(basicAllocator)),
         d_pool(bslma::Default::allocator(basicAllocator)),
         d_partialRates(bslma::Default::allocator(basicAllocator)),
@@ -333,10 +335,10 @@ public:
    double getRatePerThread()
    {
       if (d_run) {
-         return d_ratePerThread;
+         return d_ratePerThread;                                      // RETURN
       }
       else {
-         return -1;
+         return -1;                                                   // RETURN
       }
    }
 };

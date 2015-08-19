@@ -142,8 +142,7 @@ class DefaultDeleter : public Deleter<TYPE> {
 // CREATORS
 template <class TYPE>
 inline
-DefaultDeleter<TYPE>::DefaultDeleter(
-                                              bslma::Allocator *basicAllocator)
+DefaultDeleter<TYPE>::DefaultDeleter(bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }

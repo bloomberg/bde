@@ -1,4 +1,4 @@
-// bdlcfxxx_vfunc0.h                -*-C++-*-
+// bdlcfxxx_vfunc0.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLCFXXX_VFUNC0
 #define INCLUDED_BDLCFXXX_VFUNC0
 
@@ -212,15 +212,15 @@ inline bdlcfxxx::Vfunc0::operator const void *() const
     return d_rep_p;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

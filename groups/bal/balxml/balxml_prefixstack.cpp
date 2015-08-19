@@ -1,4 +1,4 @@
-// balxml_prefixstack.cpp                  -*-C++-*-
+// balxml_prefixstack.cpp                                             -*-C++-*-
 #include <balxml_prefixstack.h>
 
 #include <bsls_ident.h>
@@ -24,9 +24,9 @@ struct PredefinedPrefix {
 
 const PredefinedPrefix predefinedPrefixes[] =
 {
-    { "xml",   balxml::NamespaceRegistry::BAEXML_XML },
-    { "xmlns", balxml::NamespaceRegistry::BAEXML_XMLNS },
-    { "xsi",   balxml::NamespaceRegistry::BAEXML_XMLSCHEMA_INSTANCE }
+    { "xml",   balxml::NamespaceRegistry::e_XML },
+    { "xmlns", balxml::NamespaceRegistry::e_XMLNS },
+    { "xsi",   balxml::NamespaceRegistry::e_XMLSCHEMA_INSTANCE }
 };
 
 const PredefinedPrefix nullPrefix = { "", -1 };
@@ -38,7 +38,7 @@ const PredefinedPrefix& lookupPredefinedPrefix(const bslstl::StringRef& prefix)
 {
     for (int i = 0; i < ARRAY_LEN(predefinedPrefixes); ++i) {
         if (prefix == predefinedPrefixes[i].d_prefix) {
-            return predefinedPrefixes[i];
+            return predefinedPrefixes[i];                             // RETURN
         }
     }
 
@@ -100,7 +100,7 @@ PrefixStack::lookupNamespaceId(const bslstl::StringRef& prefix) const
     while (i != d_prefixes.begin()) {
         --i;
         if (i->first == prefix) {
-            return i->second;
+            return i->second;                                         // RETURN
         }
     }
 
@@ -114,7 +114,7 @@ PrefixStack::lookupNamespacePrefix(const bslstl::StringRef& prefix) const
     while (i != d_prefixes.begin()) {
         --i;
         if (i->first == prefix) {
-            return i->first.c_str();
+            return i->first.c_str();                                  // RETURN
         }
     }
 
@@ -160,13 +160,20 @@ PrefixStack::print(bsl::ostream& stream, bool fullName) const
 }
 }  // close package namespace
 
-} // Close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

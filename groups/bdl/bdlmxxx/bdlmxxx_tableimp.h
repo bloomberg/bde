@@ -1,4 +1,4 @@
-// bdlmxxx_tableimp.h                                                    -*-C++-*-
+// bdlmxxx_tableimp.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_TABLEIMP
 #define INCLUDED_BDLMXXX_TABLEIMP
 
@@ -673,9 +673,9 @@ void TableImp_disableGeometricMemoryGrowth();
     // geometric memory growth being the default, and eventually the only
     // option.  Also note that this method is *not* *thread-safe*,
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------
                         // class TableImp
@@ -1059,15 +1059,15 @@ bool bdlmxxx::operator!=(const TableImp& lhs, const TableImp& rhs)
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

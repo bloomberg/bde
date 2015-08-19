@@ -1,4 +1,4 @@
-// ball_ruleset.cpp                 -*-C++-*-
+// ball_ruleset.cpp                                                   -*-C++-*-
 #include <ball_ruleset.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,9 @@ BSLS_IDENT_RCSID(ball_ruleset_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitstringutil.h>
 
+#include <bslim_printer.h>
 #include <bsls_assert.h>
+
 #include <bsl_functional.h>
 
 namespace BloombergLP {
@@ -182,7 +184,7 @@ int RuleSet::ruleId(const Rule& value) const
 
     for (unsigned int i = 0; i < d_ruleAddresses.size(); ++i) {
         if (d_ruleAddresses[i] == rule) {
-            return i;
+            return i;                                                 // RETURN
         }
     }
 
@@ -190,29 +192,19 @@ int RuleSet::ruleId(const Rule& value) const
 }
 
 bsl::ostream& RuleSet::print(bsl::ostream& stream,
-                                  int           level,
-                                  int           spacesPerLevel) const
+                             int           level,
+                             int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
+    bslim::Printer printer(&stream, level, spacesPerLevel);
 
-    if (level < 0) {
-        level = -level;
-    }
-    else {
-        bdlb::Print::indent(stream, level, spacesPerLevel);
-    }
-
-    stream << '{' << NL;
-
+    printer.start();
     for (int i = 0; i < maxNumRules(); ++i) {
         const Rule *rule = getRuleById(i);
         if (rule) {
-            rule->print(stream, level + 1, spacesPerLevel);
+            printer.printValue(*rule);
         }
     }
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
+    printer.end();
 
     return stream;
 }
@@ -239,13 +231,20 @@ bool ball::operator!=(const RuleSet& lhs, const RuleSet& rhs)
     return !(lhs == rhs);
 }
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

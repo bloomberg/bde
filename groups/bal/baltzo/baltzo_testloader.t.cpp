@@ -2,6 +2,7 @@
 #include <baltzo_testloader.h>
 
 #include <baltzo_errorcode.h>
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfobinaryreader.h>
 
@@ -9,16 +10,24 @@
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
 #include <bdlsb_fixedmeminstreambuf.h>
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
 #include <bdlt_dateutil.h>
 #include <bdlt_epochutil.h>
+#include <bdlt_time.h>
 
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_assert.h>
+#include <bsls_types.h>
+
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -740,8 +749,8 @@ struct LogVerbosityGuard {
     int  d_defaultPassthrough;  // default passthrough log level
 
     LogVerbosityGuard(bool verbose = false)
-        // If the specified 'verbose' is 'false' disable logging util this
-        // guard is destroyed.
+        // If the optionally specified 'verbose' is 'false' disable logging
+        // until this guard is destroyed.
     {
         d_verbose = verbose;
         if (!d_verbose) {
@@ -749,35 +758,35 @@ struct LogVerbosityGuard {
                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
 
         }
     }
 
-   ~LogVerbosityGuard()
+    ~LogVerbosityGuard()
         // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
         }
     }
 };
@@ -787,9 +796,9 @@ struct LogVerbosityGuard {
 // ----------------------------------------------------------------------------
 
 bsl::string fmtZoneinfoIdent1(const baltzo::Zoneinfo&  zoneinfo,
-                              int                     level,
-                              int                     spacesPerLevel,
-                              bslma::Allocator       *basicAllocator = 0)
+                              int                      level,
+                              int                      spacesPerLevel,
+                              bslma::Allocator        *basicAllocator = 0)
     // Return the result of invoking the 'print' method of the specified
     // 'zoneinfo' object at the specified 'level' plus 1 at the specified
     // 'spacesPerLevel' and indentation of the first line suppressed.
@@ -1335,13 +1344,13 @@ int main(int argc, char *argv[])
             Obj             mX;
 
             rc = mX.loadTimeZone(&timeZone, nyId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, londonId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, tokyoId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(newYork);
 
@@ -1349,11 +1358,11 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(newYork                                 == timeZone);
             rc = mX.loadTimeZone(&timeZone, londonId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, tokyoId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(london);
 
@@ -1364,9 +1373,9 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(london                                  == timeZone);
             rc = mX.loadTimeZone(&timeZone, tokyoId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(tokyo);
 
@@ -1380,7 +1389,7 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(tokyo                                   == timeZone);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             // ---------------------------------------------------------------
             // Create, 'newYorkPrime', a 'baltzo::Zoneinfo' object, an object
@@ -1412,7 +1421,7 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(tokyo                                   == timeZone);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
         }
 
         if (verbose) cout << "\nWith 'setTimezone' raw interface" << endl;
@@ -1456,13 +1465,13 @@ int main(int argc, char *argv[])
             Obj              mX;
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, EUROPE_ROME_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, ASIA_SAIGON_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(
                         AMERICA_NEW_YORK_ID,
@@ -1473,11 +1482,11 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(newYork                                 == timeZone);
             rc = mX.loadTimeZone(&timeZone, EUROPE_ROME_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, ASIA_SAIGON_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(EUROPE_ROME_ID,
                            reinterpret_cast<const char  *>(EUROPE_ROME_DATA),
@@ -1490,9 +1499,9 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(rome                                    == timeZone);
             rc = mX.loadTimeZone(&timeZone, ASIA_SAIGON_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(ASIA_SAIGON_ID,
                            reinterpret_cast<const char  *>(ASIA_SAIGON_DATA),
@@ -1508,7 +1517,7 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(saigon                                  == timeZone);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1712,8 +1721,7 @@ int main(int argc, char *argv[])
             baltzo::Zoneinfo timeZone(Z);
             int             rc;
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID
-                           == rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, nyId);
             ASSERT(0       == rc);
             ASSERT(newYork == timeZone);
@@ -1827,16 +1835,16 @@ int main(int argc, char *argv[])
         baltzo::Loader& loader = x;
 
         baltzo::Zoneinfo value(Z);
-        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
-        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, nyId));
-        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, londonId));
-        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, tokyoId));
+        ASSERT(Err::k_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
+        ASSERT(Err::k_UNSUPPORTED_ID == x.loadTimeZone(&value, nyId));
+        ASSERT(Err::k_UNSUPPORTED_ID == x.loadTimeZone(&value, londonId));
+        ASSERT(Err::k_UNSUPPORTED_ID == x.loadTimeZone(&value, tokyoId));
 
         x.setTimeZone(newYork);
         x.setTimeZone(london);
         x.setTimeZone(tokyo);
 
-        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
+        ASSERT(Err::k_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
         ASSERT(0     == x.loadTimeZone(&value, nyId));
         ASSERT(value == newYork);
         ASSERT(0     == x.loadTimeZone(&value, londonId));

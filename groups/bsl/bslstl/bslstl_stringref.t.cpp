@@ -114,7 +114,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] basic_string basic_string::operator+=(const StringRefData& strRf);
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
 // [ 8] bslh::Hash<>
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE
 
@@ -200,7 +200,7 @@ static bool veryVeryVeryVerbose;
 //-----------------------------------------------------------------------------
 typedef bslstl::StringRef Obj;
 
-template <typename CHAR>
+template <class CHAR>
 struct TestData
 {
     static CHAR const * emptyString;
@@ -503,7 +503,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
 // algorithm.  This delegation is made possible by the STL-compatible iterators
 // provided by the 'begin' and 'end' accessors.
 
-template <typename CHAR>
+template <class CHAR>
 void testBasicAccessors(bool verbose)
 {
     if (verbose) std::cout << "\nTESTING BASIC ACCESSORS"

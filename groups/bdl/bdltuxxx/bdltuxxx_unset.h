@@ -1,4 +1,4 @@
-// bdltuxxx_unset.h                                                      -*-C++-*-
+// bdltuxxx_unset.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLTUXXX_UNSET
 #define INCLUDED_BDLTUXXX_UNSET
 
@@ -541,7 +541,7 @@ struct Unset {
                         // struct UnsetValueIsDefined<TYPE>
                         // ======================================
 
-template <typename TYPE>
+template <class TYPE>
 struct UnsetValueIsDefined {
     // This meta-function provides (at compile time) a nested enumerated
     // 'VALUE' that is 'true' if 'TYPE' has an unset value defined in this
@@ -565,9 +565,9 @@ struct UnsetValueIsDefined {
     };
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ------------------------
                         // struct Unset<TYPE>
@@ -792,15 +792,15 @@ void Unset<TYPE>::setUnset(TYPE *value)
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

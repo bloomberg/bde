@@ -1,8 +1,10 @@
 // baltzo_localtimeoffsetutil.t.cpp                                   -*-C++-*-
 #include <baltzo_localtimeoffsetutil.h>
 
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_defaultzoneinfocache.h>  // for testing only
 #include <baltzo_testloader.h>            // for testing only
+#include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfocache.h>         // for testing only
 #include <baltzo_zoneinfoutil.h>          // for testing only
 
@@ -15,12 +17,19 @@
 #include <bdlqq_barrier.h>       // case -1
 #include <bdlqq_configuration.h> // case -1
 #include <bdlqq_threadutil.h>    // case -1
+#include <bdlt_epochutil.h>
 #include <bdlt_iso8601util.h>                // case 5
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>  // case 5
 #include <bslma_testallocator.h>          // case 5
 
+#include <bslmf_assert.h>
+
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>         // 'strcmp'
 #include <bsl_iostream.h>
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_stopwatch.h>      // case -2, -3
 #include <bsls_types.h>
@@ -40,7 +49,7 @@ using namespace bsl;
 //                              --------
 // The component under test is a utility; however, as the functions provided
 // all serve to set or report on local time offset information (consisting of
-// value semnatic types), the test strategy of this component more closely
+// value semantic types), the test strategy of this component more closely
 // resembles that of a VST than of a typical utility.  In particular, we will
 // informally categorize certain methods as "Primary Manipulators" and "Basic
 // Accessors" validate them, and then use them in tests for other methods.
@@ -1029,8 +1038,8 @@ struct LogVerbosityGuard {
     int  d_defaultPassthrough;  // default passthrough log level
 
     explicit LogVerbosityGuard(bool verbose = false)
-        // If the specified 'verbose' is 'false' disable logging util this
-        // guard is destroyed.
+        // If the optionally specified 'verbose' is 'false' disable logging
+        // until this guard is destroyed.
     {
         d_verbose = verbose;
         if (!d_verbose) {
@@ -1038,16 +1047,16 @@ struct LogVerbosityGuard {
                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
 
         }
     }
@@ -1057,16 +1066,16 @@ struct LogVerbosityGuard {
     {
         if (!d_verbose) {
             ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
             ball::Administration::setThresholdLevels(
                                               "*",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               d_defaultPassthrough,
-                                              ball::Severity::BAEL_OFF,
-                                              ball::Severity::BAEL_OFF);
+                                              ball::Severity::e_OFF,
+                                              ball::Severity::e_OFF);
         }
     }
 };
@@ -1129,7 +1138,7 @@ struct TransitionDescription {
     bool        d_isDst;
 };
 
-void addTransitions(baltzo::Zoneinfo             *result,
+void addTransitions(baltzo::Zoneinfo            *result,
                     const TransitionDescription *descriptions,
                     int                          numDescriptions)
     // Insert to the specified 'result' the contiguous sequence of specified
@@ -1840,7 +1849,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The primary manipulator can set the cached local time offset
-        //:   information for any entry in the Zoneinfo database for arbitary
+        //:   information for any entry in the Zoneinfo database for arbitrary
         //:   UTC datetime.
         //:
         //: 2 The basic accessors report the currently cached local time offset

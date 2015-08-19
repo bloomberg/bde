@@ -241,15 +241,15 @@ class TcpTimedChannel : public btlsc::TimedChannel {
 
     // PRIVATE MANIPULATORS
     void initializeReadBuffer(int size = -1);
-        // Initialize internal read buffer with the optionally-specified
+        // Initialize internal read buffer with the optionally specified
         // 'size'.  If 'size' is not specified, the default that is obtained by
         // querying the underlying socket is used.
 
   public:
     // CREATORS
     TcpTimedChannel(
-                   btlso::StreamSocket<btlso::IPv4Address> *socket,
-                   bslma::Allocator                      *basicAllocator = 0);
+                  btlso::StreamSocket<btlso::IPv4Address> *socket,
+                  bslma::Allocator                        *basicAllocator = 0);
         // Create a timed channel attached to the specified stream-oriented
         // 'socket'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -261,7 +261,7 @@ class TcpTimedChannel : public btlsc::TimedChannel {
 
     // MANIPULATORS
     int read(char *buffer, int numBytes, int flags = 0);
-    int read(int  *augStatus, char *buffer, int numBytes, int flags = 0);
+    int read(int *augStatus, char *buffer, int numBytes, int flags = 0);
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
         // 'btlsc::TimedChannel::ASYNC_INTERRUPT', "asynchronous events" are
@@ -280,17 +280,17 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and 0 < numBytes.
+        // and '0 < numBytes'.
 
-    int timedRead(char                     *buffer,
-                  int                       numBytes,
+    int timedRead(char                      *buffer,
+                  int                        numBytes,
                   const bsls::TimeInterval&  timeout,
-                  int                       flags = 0);
-    int timedRead(int                      *augStatus,
-                  char                     *buffer,
-                  int                       numBytes,
+                  int                        flags = 0);
+    int timedRead(int                       *augStatus,
+                  char                      *buffer,
+                  int                        numBytes,
                   const bsls::TimeInterval&  timeout,
-                  int                       flags = 0);
+                  int                        flags = 0);
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
@@ -310,17 +310,15 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // the contents of 'buffer' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffer' has sufficient capacity to
-        // hold the requested data and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // hold the requested data and '0 < numBytes'.  Note that if the
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
-    int readv(const btls::Iovec *buffers,
-               int              numBuffers,
-               int              flags = 0);
+    int readv(const btls::Iovec *buffers, int numBuffers, int flags = 0);
     int readv(int               *augStatus,
               const btls::Iovec *buffers,
-              int               numBuffers,
-              int               flags = 0);
+              int                numBuffers,
+              int                flags = 0);
         // Read from this channel into the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Iovec' buffer.  If
@@ -343,15 +341,15 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // unless 'buffers' have sufficient capacity to hold the requested data
         // and 0 < numBytes.
 
-     int timedReadv(const btls::Iovec         *buffers,
-                    int                       numBuffers,
-                    const bsls::TimeInterval&  timeout,
-                    int                       flags = 0);
-     int timedReadv(int                      *augStatus,
-                    const btls::Iovec         *buffers,
-                    int                       numBuffers,
-                    const bsls::TimeInterval&  timeout,
-                    int                       flags = 0);
+    int timedReadv(const btls::Iovec         *buffers,
+                   int                        numBuffers,
+                   const bsls::TimeInterval&  timeout,
+                   int                        flags = 0);
+    int timedReadv(int                       *augStatus,
+                   const btls::Iovec         *buffers,
+                   int                        numBuffers,
+                   const bsls::TimeInterval&  timeout,
+                   int                        flags = 0);
         // Read from this channel into the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Iovec' buffer, or
@@ -374,18 +372,13 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffers' have sufficient capacity to
         // hold the requested data and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    int readRaw(char *buffer,
-                int   numBytes,
-                int   flags = 0);
-    int readRaw(int  *augStatus,
-                char *buffer,
-                int   numBytes,
-                int   flags = 0);
+    int readRaw(char *buffer, int numBytes, int flags = 0);
+    int readRaw(int *augStatus, char *buffer, int numBytes, int flags = 0);
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
         // 'flags' incorporates 'btlsc::TimedChannel::ASYNC_INTERRUPT',
@@ -406,19 +399,19 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and 0 < numBytes.  Note that if the specified 'timeout' value has
+        // and '0 < numBytes'.  Note that if the specified 'timeout' value has
         // already passed, the "read" operation will still be attempted, but
         // the attempt will not block.
 
-    int timedReadRaw(char                     *buffer,
-                      int                      numBytes,
-                      const bsls::TimeInterval& timeout,
-                      int                      flags = 0);
-    int timedReadRaw(int                      *augStatus,
-                      char                    *buffer,
-                      int                      numBytes,
-                      const bsls::TimeInterval& timeout,
-                      int                      flags = 0);
+    int timedReadRaw(char                      *buffer,
+                     int                        numBytes,
+                     const bsls::TimeInterval&  timeout,
+                     int                        flags = 0);
+    int timedReadRaw(int                       *augStatus,
+                     char                      *buffer,
+                     int                        numBytes,
+                     const bsls::TimeInterval&  timeout,
+                     int                        flags = 0);
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes' or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
@@ -440,17 +433,15 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // the contents of 'buffer' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffer' has sufficient capacity to
-        // hold the requested data and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // hold the requested data and '0 < numBytes'.  Note that if the
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
-     int readvRaw(const btls::Iovec *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
-     int readvRaw(int              *augStatus,
-                  const btls::Iovec *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
+    int readvRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int readvRaw(int               *augStatus,
+                 const btls::Iovec *buffers,
+                 int                numBuffers,
+                 int                flags = 0);
         // *Atomically* read from this channel into the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers' *at* *most* the
         // respective numbers of bytes as specified in each corresponding
@@ -477,15 +468,15 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // "read" operation will still be attempted, but the attempt will not
         // block.
 
-     int timedReadvRaw(int                     *augStatus,
-                       const btls::Iovec        *buffers,
-                       int                      numBuffers,
-                       const bsls::TimeInterval& timeout,
-                       int                      flags = 0);
-     int timedReadvRaw(const btls::Iovec        *buffers,
-                       int                      numBuffers,
-                       const bsls::TimeInterval& timeout,
-                       int                      flags = 0);
+    int timedReadvRaw(int                       *augStatus,
+                      const btls::Iovec         *buffers,
+                      int                        numBuffers,
+                      const bsls::TimeInterval&  timeout,
+                      int                        flags = 0);
+    int timedReadvRaw(const btls::Iovec         *buffers,
+                      int                        numBuffers,
+                      const bsls::TimeInterval&  timeout,
+                      int                        flags = 0);
         // *Atomically* read from this channel into the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers' *at* *most* the
         // respective numbers of bytes as specified in each corresponding
@@ -510,14 +501,12 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // was closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffers' have sufficient capacity to
         // hold the requested data and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt will not block.
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt will not block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    int bufferedRead(const char **buffer,
-                     int          numBytes,
-                     int          flags = 0);
+    int bufferedRead(const char **buffer, int numBytes, int flags = 0);
     int bufferedRead(int         *augStatus,
                      const char **buffer,
                      int          numBytes,
@@ -542,17 +531,17 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // negative "status", however, indicates a permanent error (leaving
         // 'buffer' undefined); -1 implies that the connection was closed by
         // the peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless 0 < numBytes.
+        // undefined unless '0 < numBytes'.
 
-    int timedBufferedRead(const char               **buffer,
-                          int                        numBytes,
+    int timedBufferedRead(const char                **buffer,
+                          int                         numBytes,
                           const bsls::TimeInterval&   timeout,
-                          int                        flags = 0);
-    int timedBufferedRead(int                       *augStatus,
-                          const char               **buffer,
-                          int                        numBytes,
+                          int                         flags = 0);
+    int timedBufferedRead(int                        *augStatus,
+                          const char                **buffer,
+                          int                         numBytes,
                           const bsls::TimeInterval&   timeout,
-                          int                        flags = 0);
+                          int                         flags = 0);
         // Read from this channel into a channel-supplied buffer, identified
         // via the specified 'buffer', the specified 'numBytes', or interrupt
         // after the specified absolute 'timeout' time is reached.  If the
@@ -574,14 +563,12 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // until consumed by subsequent read operations.  A negative "status",
         // however, indicates a permanent error (leaving 'buffer' undefined);
         // -1 implies that the connection was closed by the peer (but the
-        // converse is not guaranteed).  The behavior is undefined unless 0 <
-        // numBytes.  Note that if the specified 'timeout' value has already
+        // converse is not guaranteed).  The behavior is undefined unless
+        // '0 < numBytes'.  Note that if the 'timeout' value has already
         // passed, the "read" operation will still be attempted, but the
         // attempt will not block.
 
-    int bufferedReadRaw(const char **buffer,
-                        int          numBytes,
-                        int          flags = 0);
+    int bufferedReadRaw(const char **buffer, int numBytes, int flags = 0);
     int bufferedReadRaw(int         *augStatus,
                         const char **buffer,
                         int          numBytes,
@@ -607,17 +594,17 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // by subsequent read operations.  A negative "status", however,
         // indicates a permanent error (leaving 'buffer' unset); -1 implies
         // that the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 0 < numBytes.
+        // guaranteed).  The behavior is undefined unless '0 < numBytes'.
 
-    int timedBufferedReadRaw(const char               **buffer,
-                             int                        numBytes,
+    int timedBufferedReadRaw(const char                **buffer,
+                             int                         numBytes,
                              const bsls::TimeInterval&   timeout,
-                             int                        flags = 0);
-    int timedBufferedReadRaw(int                       *augStatus,
-                             const char               **buffer,
-                             int                        numBytes,
+                             int                         flags = 0);
+    int timedBufferedReadRaw(int                        *augStatus,
+                             const char                **buffer,
+                             int                         numBytes,
                              const bsls::TimeInterval&   timeout,
-                             int                        flags = 0);
+                             int                         flags = 0);
         // *Atomically* read from this channel into a channel-supplied buffer,
         // identified via the specified 'buffer', *at* *most* the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
@@ -639,19 +626,14 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // by subsequent read operations.  A negative "status", however,
         // indicates a permanent error (leaving 'buffer' unset); -1 implies
         // that the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 0 < numBytes.  Note
-        // that if the specified 'timeout' value has already passed, the "read"
-        // operation will still be attempted, but the attempt will not block.
+        // guaranteed).  The behavior is undefined unless '0 < numBytes'.  Note
+        // that if the 'timeout' value has already passed, the "read" operation
+        // will still be attempted, but the attempt will not block.
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-    int write(const char *buffer,
-              int         numBytes,
-              int         flags = 0);
-    int write(int        *augStatus,
-              const char *buffer,
-              int         numBytes,
-              int         flags = 0);
+    int write(const char *buffer, int numBytes, int flags = 0);
+    int write(int *augStatus, const char *buffer, int numBytes, int flags = 0);
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
         // 'btlsc::TimedChannel::ASYNC_INTERRUPT', "asynchronous events" are
@@ -668,17 +650,17 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // with some reasonable hope of success.  A negative "status", however,
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.
+        // behavior is undefined unless '0 < numBytes'.
 
-    int timedWrite(int                      *augStatus,
-                   const char               *buffer,
-                   int                       numBytes,
+    int timedWrite(int                       *augStatus,
+                   const char                *buffer,
+                   int                        numBytes,
                    const bsls::TimeInterval&  timeout,
-                   int                       flags = 0);
-    int timedWrite(const char               *buffer,
-                   int                       numBytes,
+                   int                        flags = 0);
+    int timedWrite(const char                *buffer,
+                   int                        numBytes,
                    const bsls::TimeInterval&  timeout,
-                   int                       flags = 0);
+                   int                        flags = 0);
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
@@ -695,13 +677,11 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // reasonable hope of success.  A negative "status", however, indicates
         // a permanent error; -1 implies that the connection was closed by the
         // peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless 0 < numBytes.  Note that if the specified 'timeout'
-        // value has already passed, the "write" operation will still be
-        // attempted, but the attempt will not block.
+        // undefined unless '0 < numBytes'.  Note that if the 'timeout' value
+        // has already passed, the "write" operation will still be attempted,
+        // but the attempt will not block.
 
-    int writeRaw(const char *buffer,
-                 int         numBytes,
-                 int         flags = 0);
+    int writeRaw(const char *buffer, int numBytes, int flags = 0);
     int writeRaw(int        *augStatus,
                  const char *buffer,
                  int         numBytes,
@@ -724,19 +704,19 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // some reasonable hope of success.  A negative "status", however,
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.  Note that if the
+        // behavior is undefined unless '0 < numBytes'.  Note that if the
         // specified 'timeout' value has already passed, the "write" operation
         // will still be attempted, but the attempt will not block.
 
-    int timedWriteRaw(int                      *augStatus,
-                      const char               *buffer,
-                      int                       numBytes,
+    int timedWriteRaw(int                       *augStatus,
+                      const char                *buffer,
+                      int                        numBytes,
                       const bsls::TimeInterval&  timeout,
-                      int                       flags = 0);
-    int timedWriteRaw(const char               *buffer,
-                      int                       numBytes,
+                      int                        flags = 0);
+    int timedWriteRaw(const char                *buffer,
+                      int                        numBytes,
                       const bsls::TimeInterval&  timeout,
-                      int                       flags = 0);
+                      int                        flags = 0);
         // *Atomically* write to this channel from the specified 'buffer' *at*
         // *most* the specified 'numBytes', or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
@@ -756,27 +736,23 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // retried (with arguments suitably adjusted) with some reasonable hope
         // of success.  A negative "status", however, indicates a permanent
         // error; -1 implies that the connection was closed by the peer (but
-        // the converse is not guaranteed).  The behavior is undefined unless 0
-        // < numBytes.  Note that if the specified 'timeout' value has already
+        // the converse is not guaranteed).  The behavior is undefined unless
+        // '0 < numBytes'.  Note that if the 'timeout' value has already
         // passed, the "write" operation will still be attempted, but the
         // attempt will not block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    int writev(const btls::Ovec *buffers,
-               int              numBuffers,
-               int              flags = 0);
-    int writev(const btls::Iovec *buffers,
-               int               numBuffers,
-               int               flags = 0);
+    int writev(const btls::Ovec *buffers, int numBuffers, int flags = 0);
+    int writev(const btls::Iovec *buffers, int numBuffers, int flags = 0);
     int writev(int              *augStatus,
                const btls::Ovec *buffers,
-               int              numBuffers,
-               int              flags = 0);
-    int writev(int             *augStatus,
-               const btls::Iovec *buffers,
                int               numBuffers,
                int               flags = 0);
+    int writev(int               *augStatus,
+               const btls::Iovec *buffers,
+               int                numBuffers,
+               int                flags = 0);
         // Write to this channel from the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Ovec' (or
@@ -797,24 +773,24 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 0 < numBytes.
 
-    int timedWritev(const btls::Ovec         *buffers,
-                    int                      numBuffers,
-                    const bsls::TimeInterval& timeout,
-                    int                      flags = 0);
-    int timedWritev(const btls::Iovec        *buffers,
-                    int                      numBuffers,
-                    const bsls::TimeInterval& timeout,
-                    int                      flags = 0);
-    int timedWritev(int                     *augStatus,
-                    const btls::Ovec         *buffers,
-                    int                      numBuffers,
-                    const bsls::TimeInterval& timeout,
-                    int                      flags = 0);
-    int timedWritev(int                     *augStatus,
-                    const btls::Iovec        *buffers,
-                    int                      numBuffers,
-                    const bsls::TimeInterval& timeout,
-                    int                      flags = 0);
+    int timedWritev(const btls::Ovec          *buffers,
+                    int                        numBuffers,
+                    const bsls::TimeInterval&  timeout,
+                    int                        flags = 0);
+    int timedWritev(const btls::Iovec         *buffers,
+                    int                        numBuffers,
+                    const bsls::TimeInterval&  timeout,
+                    int                        flags = 0);
+    int timedWritev(int                       *augStatus,
+                    const btls::Ovec          *buffers,
+                    int                        numBuffers,
+                    const bsls::TimeInterval&  timeout,
+                    int                        flags = 0);
+    int timedWritev(int                       *augStatus,
+                    const btls::Iovec         *buffers,
+                    int                        numBuffers,
+                    const bsls::TimeInterval&  timeout,
+                    int                        flags = 0);
         // Write to this channel from the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Ovec' (or
@@ -835,24 +811,20 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // reasonable hope of success.  A negative "status", however, indicates
         // a permanent error; -1 implies that the connection was closed by the
         // peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless 0 < numBytes.  Note that if the specified 'timeout'
-        // value has already passed, the "write" operation will still be
-        // attempted, but the attempt will not block.
+        // undefined unless '0 < numBytes'.  Note that if the 'timeout' value
+        // has already passed, the "write" operation will still be attempted,
+        // but the attempt will not block.
 
-    int writevRaw(const btls::Ovec *buffers,
-                  int              numBuffers,
-                  int              flags = 0);
-    int writevRaw(const btls::Iovec *buffers,
+    int writevRaw(const btls::Ovec *buffers, int numBuffers, int flags = 0);
+    int writevRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int writevRaw(int              *augStatus,
+                  const btls::Ovec *buffers,
                   int               numBuffers,
                   int               flags = 0);
-    int writevRaw(int              *augStatus,
-                  const btls::Ovec  *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
-    int writevRaw(int              *augStatus,
+    int writevRaw(int               *augStatus,
                   const btls::Iovec *buffers,
-                  int               numBuffers,
-                  int               flags = 0);
+                  int                numBuffers,
+                  int                flags = 0);
         // *Atomically* write to this channel, from the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
         // respective numbers of bytes as specified in each corresponding
@@ -875,24 +847,24 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 0 < numBytes.
 
-    int timedWritevRaw(const btls::Ovec         *buffers,
-                       int                      numBuffers,
-                       const bsls::TimeInterval& timeout,
-                       int                      flags = 0);
-    int timedWritevRaw(const btls::Iovec        *buffers,
-                       int                      numBuffers,
-                       const bsls::TimeInterval& timeout,
-                       int                      flags = 0);
-    int timedWritevRaw(int                     *augStatus,
-                       const btls::Ovec         *buffers,
-                       int                      numBuffers,
-                       const bsls::TimeInterval& timeout,
-                       int                      flags = 0);
-    int timedWritevRaw(int                     *augStatus,
-                       const btls::Iovec        *buffers,
-                       int                      numBuffers,
-                       const bsls::TimeInterval& timeout,
-                       int                      flags = 0);
+    int timedWritevRaw(const btls::Ovec          *buffers,
+                       int                        numBuffers,
+                       const bsls::TimeInterval&  timeout,
+                       int                        flags = 0);
+    int timedWritevRaw(const btls::Iovec         *buffers,
+                       int                        numBuffers,
+                       const bsls::TimeInterval&  timeout,
+                       int                        flags = 0);
+    int timedWritevRaw(int                       *augStatus,
+                       const btls::Ovec          *buffers,
+                       int                        numBuffers,
+                       const bsls::TimeInterval&  timeout,
+                       int                        flags = 0);
+    int timedWritevRaw(int                       *augStatus,
+                       const btls::Iovec         *buffers,
+                       int                        numBuffers,
+                       const bsls::TimeInterval&  timeout,
+                       int                        flags = 0);
         // *Atomically* write to this channel, from the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
         // respective numbers of bytes as specified in each corresponding
@@ -915,9 +887,8 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // A negative "status", however, indicates a permanent error; -1
         // implies that the connection was closed by the peer (but the converse
         // is not guaranteed).  The behavior is undefined unless 0 < numBytes.
-        // Note that if the specified 'timeout' value has already passed, the
-        // "write" operation will still be attempted, but the attempt will not
-        // block.
+        // Note that if the 'timeout' value has already passed, the "write"
+        // operation will still be attempted, but the attempt will not block.
 
     void invalidate();
         // Make this channel invalid; no subsequent operations can be completed
@@ -930,7 +901,7 @@ class TcpTimedChannel : public btlsc::TimedChannel {
 
     int getOption(int *result, int level, int option);
         // Load into the specified 'result' the current value of the specified
-        // option of the specified 'level' set on the underlying socket.
+        // 'option' of the specified 'level' set on the underlying socket.
         // Return 0 on success and a non-zero value otherwise.  The list of
         // commonly-supported options (and levels) is enumerated in
         // 'btlso_socketoptutil'.
@@ -959,9 +930,10 @@ class TcpTimedChannel : public btlsc::TimedChannel {
 
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
+
 inline
 void TcpTimedChannel::invalidate()
 {

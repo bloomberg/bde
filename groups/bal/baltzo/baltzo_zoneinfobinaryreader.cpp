@@ -4,16 +4,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfobinaryheader.h>
 
 #include <ball_log.h>
 
-#include <bsl_memory.h>
-
 #include <bdlb_bigendian.h>
-
 #include <bdlb_chartype.h>
+#include <bdlb_print.h>
 #include <bdlb_string.h>
 
 #include <bdlt_delegatingdateimputil.h>
@@ -22,13 +21,18 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsl_fstream.h>
+#include <bsl_iostream.h>
 #include <bsl_istream.h>
+#include <bsl_memory.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 #include <bsl_cstring.h>
 
+#include <bsls_assert.h>
 #include <bsls_byteorder.h>
+#include <bsls_types.h>
 
 ///Implementation Notes
 ///--------------------
@@ -146,10 +150,10 @@ static inline
 int readRawArray(bsl::vector<TYPE> *result,
                  bsl::istream&      stream,
                  int                numValues)
-    // Read the specific 'numValues' of the parameterized 'TYPE' from
-    // the specified 'stream' into the specified 'result'.  Return 0 on success
-    // and -1 if the read failed.  Note that 'sizeof(TYPE)' must equal the size
-    // of the packed stream data.
+    // Read the specified 'numValues' of the parameterized 'TYPE' from the
+    // specified 'stream' into the specified 'result'.  Return 0 on success and
+    // -1 if the read failed.  Note that 'sizeof(TYPE)' must equal the size of
+    // the packed stream data.
 {
     BSLS_ASSERT(result);
 
@@ -186,8 +190,7 @@ int decode32(const char *address)
 }
 
 static inline
-int readHeader(baltzo::ZoneinfoBinaryHeader *result,
-               bsl::istream&                stream)
+int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
     // Extract header information from the specified 'stream' and, if the data
     // meets the requirements of the Zoneinfo binary file format, populate the
     // specified 'result' with the extracted information.  Return 0 if 'result'
@@ -294,7 +297,7 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result,
     return 0;
 }
 
-static inline
+static
 int loadLocalTimeDescriptors(
                 bsl::vector<baltzo::LocalTimeDescriptor> *descriptors,
                 const bsl::vector<RawLocalTimeType>&      localTimeDescriptors,
@@ -347,7 +350,7 @@ int loadLocalTimeDescriptors(
         if (maxLength < bdlb::String::strnlen(description, maxLength + 1)) {
             BALL_LOG_ERROR << "Abbreviation string is not null-terminated."
                            << BALL_LOG_END;
-            return -22;
+            return -22;                                               // RETURN
         }
 
         descriptors->push_back(baltzo::LocalTimeDescriptor(utcOffset,
@@ -358,7 +361,7 @@ int loadLocalTimeDescriptors(
     return 0;
 }
 
-static inline
+static
 int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
                            baltzo::ZoneinfoBinaryHeader *headerResult,
                            bsl::istream&                 stream)
@@ -588,8 +591,8 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     }
 
     // Convert raw type objects into their associated types exposed by
-    // 'Zoneinfo'.  Verify any data offsets read from the file to ensure
-    // they are within valid boundaries.
+    // 'Zoneinfo'.  Verify any data offsets read from the file to ensure they
+    // are within valid boundaries.
 
     // Convert the 'Raw' local-time types into
     // 'zoneinfoResult->localTimeDescriptors()'.

@@ -1,4 +1,4 @@
-// balber_berutil.t.cpp                  -*-C++-*-
+// balber_berutil.t.cpp                                               -*-C++-*-
 #include <balber_berutil.h>
 
 #include <balber_berconstants.h>
@@ -39,16 +39,16 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//==========================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -60,7 +60,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -91,38 +91,34 @@ static void aSsErT(int c, const char *s, int i) {
                          << L << "\t" << #M << ": " << M << "\t" << #N     \
                          << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
 #define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
 #define L_ __LINE__                                // current Line number
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 enum { SUCCESS = 0, FAILURE = -1 };
 
-typedef bsls::Types::Int64  Int64;
-typedef bsls::Types::Uint64 Uint64;
+typedef bsls::Types::Int64      Int64;
+typedef bsls::Types::Uint64     Uint64;
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-
-typedef balber::BerUtil Util;
-typedef bslstl::StringRef StringRef;
+typedef balber::BerUtil         Util;
+typedef bslstl::StringRef       StringRef;
 
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
 typedef bdlt::PosixDateImpUtil  DateUtil;
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int numOctets(const char *s)
     // Return the number of octets contained in the specified 's'.  Note that
@@ -142,11 +138,11 @@ int numOctets(const char *s)
 int getIntValue(char c)
 {
     if (c >= '0' && c <= '9') {
-        return c - '0';
+        return c - '0';                                               // RETURN
     }
     c = toupper(c);
     if (c >= 'A' && c <= 'F') {
-        return c - 'A' + 10;
+        return c - 'A' + 10;                                          // RETURN
     }
     ASSERT(0);
     return -1;
@@ -165,7 +161,7 @@ int compareBuffers(const char *stream, const char *buffer)
         ++buffer;
         temp |= (char) getIntValue(*buffer);
         if (*stream != temp) {
-           return -1;
+           return -1;                                                 // RETURN
         }
         ++stream;
         ++buffer;
@@ -217,10 +213,52 @@ void ignoreAssertHandler(const char *, const char *, int)
 {
 }
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
+
+// ============================================================================
+//                              MAIN PROGRAM
+// ----------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
+
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTesting Usage Example"
+                               << "\n=====================" << bsl::endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1:  Reading and Writing Identifier Octets
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.  Due
 // to the low-level nature of this component, an extended usage example is not
 // necessary.
@@ -236,26 +274,18 @@ void ignoreAssertHandler(const char *, const char *, int)
 // containing the values 0x9F and 0x1F.  The following function demonstrates
 // this:
 //..
-//  #include <balber_berconstants.h>
-//  #include <balber_berutil.h>
-//  #include <bdlsb_fixedmeminstreambuf.h>
-//  #include <bdlsb_memoutstreambuf.h>
-//
-//  using namespace BloombergLP;
-//
-void usageExample()
-{
     bdlsb::MemOutStreamBuf osb;
 
-    balber::BerConstants::TagClass tagClass =
-                                    balber::BerConstants::e_CONTEXT_SPECIFIC;
-    balber::BerConstants::TagType  tagType  = balber::BerConstants::e_BDEM_PRIMITIVE;
-    int                         tagNumber= 31;
+    balber::BerConstants::TagClass tagClass  =
+                                      balber::BerConstants::e_CONTEXT_SPECIFIC;
+    balber::BerConstants::TagType  tagType   =
+                                             balber::BerConstants::e_PRIMITIVE;
+    int                            tagNumber = 31;
 
     int retCode = balber::BerUtil::putIdentifierOctets(&osb,
-                                                    tagClass,
-                                                    tagType,
-                                                    tagNumber);
+                                                       tagClass,
+                                                       tagType,
+                                                       tagNumber);
     ASSERT(0    == retCode);
     ASSERT(2    == osb.length());
     ASSERT(0x9F == (unsigned char)osb.data()[0]);
@@ -268,51 +298,20 @@ void usageExample()
 
     balber::BerConstants::TagClass tagClassIn;
     balber::BerConstants::TagType  tagTypeIn;
-    int                         tagNumberIn;
-    int                         numBytesConsumed = 0;
+    int                            tagNumberIn;
+    int                            numBytesConsumed = 0;
 
     retCode = balber::BerUtil::getIdentifierOctets(&isb,
-                                                &tagClassIn,
-                                                &tagTypeIn,
-                                                &tagNumberIn,
-                                                &numBytesConsumed);
+                                                   &tagClassIn,
+                                                   &tagTypeIn,
+                                                   &tagNumberIn,
+                                                   &numBytesConsumed);
     ASSERT(0         == retCode);
     ASSERT(2         == numBytesConsumed);
     ASSERT(tagClass  == tagClassIn);
     ASSERT(tagType   == tagTypeIn);
     ASSERT(tagNumber == tagNumberIn);
-}
 //..
-
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
-
-int main(int argc, char *argv[])
-{
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
-
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
-
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "\nTesting Usage Example"
-                               << "\n=====================" << bsl::endl;
-
-        usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
@@ -525,6 +524,8 @@ int main(int argc, char *argv[])
                 const int M    = DATA[i].d_month;
                 const int D    = DATA[i].d_day;
 
+                if (veryVerbose) { T_ P_(LINE) P_(Y) P_(M) P(D) }
+
                 const Type VALUE(Y, M, D);
                 Variant    value1, value2;
 
@@ -586,6 +587,8 @@ int main(int argc, char *argv[])
                 const int M    = DATA[i].d_month;
                 const int D    = DATA[i].d_day;
                 const int OFF  = DATA[i].d_tzoffset;
+
+                if (veryVerbose) { T_ P_(LINE) P_(Y) P_(M) P_(D) P(OFF) }
 
                 const Type VALUE(bdlt::Date(Y, M, D), OFF);
                 Variant    value1, value2;
@@ -650,6 +653,8 @@ int main(int argc, char *argv[])
                 const int S    = DATA[i].d_seconds;
                 const int MS   = DATA[i].d_milliSecs;
 
+                if (veryVerbose) { T_ P_(LINE) P_(H) P_(MM) P_(S) P(MS) }
+
                 const Type VALUE(H, MM, S, MS);
                 Variant    value1, value2;
 
@@ -712,6 +717,9 @@ int main(int argc, char *argv[])
                 const int S    = DATA[i].d_seconds;
                 const int MS   = DATA[i].d_milliSecs;
                 const int OFF  = DATA[i].d_tzoffset;
+
+                if (veryVerbose) {
+                                 T_ P_(LINE) P_(H) P_(MM) P_(S) P_(MS) P(OFF) }
 
                 const Type VALUE(bdlt::Time(H, MM, S, MS), OFF);
                 Variant    value1, value2;
@@ -778,6 +786,9 @@ int main(int argc, char *argv[])
                 const int MM   = DATA[i].d_minutes;
                 const int S    = DATA[i].d_seconds;
                 const int MS   = DATA[i].d_milliSecs;
+
+                if (veryVerbose) {
+                       T_ P_(LINE) P_(Y) P_(M) P_(D) P_(H) P_(MM) P_(S) P(MS) }
 
                 const Type VALUE(Y, M, D, H, MM, S, MS);
                 Variant    value1, value2;
@@ -852,6 +863,10 @@ int main(int argc, char *argv[])
                 const int S    = DATA[i].d_seconds;
                 const int MS   = DATA[i].d_milliSecs;
                 const int OFF  = DATA[i].d_tzoffset;
+
+                if (veryVerbose) {
+                          T_ P_(Y) P_(M) P_(D) P_(H) P_(MM) P_(S) P_(MS) P(OFF)
+                }
 
                 const Type VALUE(bdlt::Datetime(Y, M, D, H, MM, S, MS), OFF);
                 Variant    value1, value2;
@@ -1057,10 +1072,15 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                if (veryVerbose) {
+                           T_ P_(YEAR) P_(MONTH) P_(DAY) P_(BIN) P_(EXP) P(LEN)
+                }
+
+                LOOP_ASSERT(LINE,
+                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
+                                                                   MONTH,
+                                                                   DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
 
@@ -1071,7 +1091,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1089,7 +1109,7 @@ int main(int argc, char *argv[])
                                                  &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
-                LOOP2_ASSERT(VALUE, value, VALUE == value);
+                LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
             }
         }
 
@@ -1301,7 +1321,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1319,7 +1339,7 @@ int main(int argc, char *argv[])
                                                  &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
-                LOOP2_ASSERT(VALUE, value, VALUE == value);
+                LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
             }
         }
 
@@ -1395,7 +1415,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1414,10 +1434,10 @@ int main(int argc, char *argv[])
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 if (24 == HOUR) {
-                    LOOP_ASSERT(value, bdlt::Time(0) == value);
+                    LOOP2_ASSERT(LINE, value, bdlt::Time(0) == value);
                 }
                 else {
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
             }
         }
@@ -1568,11 +1588,11 @@ int main(int argc, char *argv[])
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
 
                 const bdlt::TimeTz VALUE(bdlt::Time(HOUR, MIN, SECS, MSEC),
-                                        OFF);
+                                         OFF);
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -1591,11 +1611,11 @@ int main(int argc, char *argv[])
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 if (24 == HOUR) {
-                    LOOP_ASSERT(value,
+                    LOOP2_ASSERT(LINE, value,
                                 bdlt::TimeTz(bdlt::Time(0), OFF) == value);
                 }
                 else {
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
             }
         }
@@ -1957,10 +1977,11 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                LOOP_ASSERT(LINE,
+                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
+                                                                   MONTH,
+                                                                   DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -1973,7 +1994,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -2420,10 +2441,11 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                LOOP_ASSERT(LINE,
+                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
+                                                                   MONTH,
+                                                                   DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -2438,7 +2460,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
 
@@ -3383,7 +3405,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
 
                 {
@@ -3403,7 +3425,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
             }
 
@@ -3461,7 +3483,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
 
                 {
@@ -3481,7 +3503,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
             }
 
@@ -3548,7 +3570,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
 
                 {
@@ -3568,7 +3590,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
             }
         }
@@ -3604,7 +3626,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
 
                 {
@@ -3624,7 +3646,7 @@ int main(int argc, char *argv[])
                                                      &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
-                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
             }
         }
@@ -3840,8 +3862,8 @@ int main(int argc, char *argv[])
                 APPLICATION      = balber::BerConstants::e_APPLICATION,
                 CONTEXT_SPECIFIC = balber::BerConstants::e_CONTEXT_SPECIFIC,
                 PRIVATE          = balber::BerConstants::e_PRIVATE,
-                PRIMITIVE        = balber::BerConstants::e_BDEM_PRIMITIVE,
-                CONSTRUCTED      = balber::BerConstants::e_BDEM_CONSTRUCTED
+                PRIMITIVE        = balber::BerConstants::e_PRIMITIVE,
+                CONSTRUCTED      = balber::BerConstants::e_CONSTRUCTED
             };
 
             static const struct {
@@ -3947,9 +3969,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE    = DATA[i].d_line;
                 const balber::BerConstants::TagClass
-                          CLASS = (balber::BerConstants::TagClass)DATA[i].d_class;
+                            CLASS   =
+                               (balber::BerConstants::TagClass)DATA[i].d_class;
                 const balber::BerConstants::TagType
-                            TYPE  = (balber::BerConstants::TagType)DATA[i].d_type;
+                            TYPE    =
+                                 (balber::BerConstants::TagType)DATA[i].d_type;
                 const int   NUMBER  = DATA[i].d_number;
                 const char* EXP     = DATA[i].d_exp;
                 const int   EXP_LEN = numOctets(EXP);
@@ -3964,7 +3988,7 @@ int main(int argc, char *argv[])
                                                                       CLASS,
                                                                       TYPE,
                                                                       NUMBER));
-                LOOP_ASSERT(LINE, EXP_LEN == osb.length());
+                LOOP_ASSERT(LINE, EXP_LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0       == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4143,7 +4167,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4184,7 +4208,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4225,7 +4249,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4267,7 +4291,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4307,7 +4331,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4348,7 +4372,7 @@ int main(int argc, char *argv[])
 
             bdlsb::MemOutStreamBuf osb;
             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
+            ASSERT(LENGTH == (int)osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
@@ -4432,7 +4456,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
-                LOOP_ASSERT(LINE, LEN == osb.length());
+                LOOP_ASSERT(LINE, LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4507,7 +4531,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
-                LOOP_ASSERT(LINE, LEN == osb.length());
+                LOOP_ASSERT(LINE, LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4585,7 +4609,7 @@ int main(int argc, char *argv[])
 
                 bdlsb::MemOutStreamBuf osb;
                 LOOP_ASSERT(LINE, SUCCESS  == Util::putLength(&osb, LEN));
-                LOOP_ASSERT(LINE, EXP_LEN  == osb.length());
+                LOOP_ASSERT(LINE, EXP_LEN  == (int)osb.length());
                 LOOP_ASSERT(LINE, 0        == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
@@ -4708,7 +4732,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS  ==
                                                Imp::putDoubleValue(&osb, VAL));
-                    LOOP_ASSERT(LINE, LEN      == osb.length());
+                    LOOP_ASSERT(LINE, LEN      == (int)osb.length());
                     LOOP_ASSERT(LINE, 0        ==
                                               compareBuffers(osb.data(), EXP));
 
@@ -4754,7 +4778,7 @@ int main(int argc, char *argv[])
                                                            &isb, &f,
                                                            &numBytesConsumed));
                     LOOP3_ASSERT(LINE, F, f, F == f);
-                    LOOP_ASSERT(LINE, osb.length() == numBytesConsumed);
+                    LOOP_ASSERT(LINE, (int)osb.length() == numBytesConsumed);
                 }
             }
 
@@ -4814,7 +4838,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, RESULT == Imp::putDoubleValue(&osb,
                                                                     outVal));
                     if (SUCCESS == RESULT) {
-                        LOOP_ASSERT(LINE, LEN == osb.length());
+                        LOOP_ASSERT(LINE, LEN == (int)osb.length());
                         LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(),
                                                                 EXP));
                     }
@@ -4938,7 +4962,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, LL));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -4975,7 +4999,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VI));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5011,7 +5035,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, L));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5049,7 +5073,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, S));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5087,7 +5111,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, C));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5196,7 +5220,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, LL));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5233,7 +5257,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, VI));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5268,7 +5292,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, L));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5305,7 +5329,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, S));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5342,7 +5366,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, C));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5424,7 +5448,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, LL, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5459,7 +5483,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, VI, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5493,7 +5517,7 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                      Imp::putIntegerGivenLength(&osb, L, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5530,8 +5554,8 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                      Imp::putIntegerGivenLength(&osb, S, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
-                    LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
+                    LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
                         P(EXP)
@@ -5566,8 +5590,8 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, C, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
-                    LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
+                    LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
                       printBuffer(osb.data(), osb.length());
@@ -5664,8 +5688,8 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, LL, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
-                    LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
+                    LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
                       printBuffer(osb.data(), osb.length());
@@ -5698,8 +5722,8 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, VI, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
-                    LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
+                    LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
                       printBuffer(osb.data(), osb.length());
@@ -5732,8 +5756,8 @@ int main(int argc, char *argv[])
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                      Imp::putIntegerGivenLength(&osb, L, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
-                    LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
+                    LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
                         P(EXP)
@@ -5757,18 +5781,19 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    const int      LINE = DATA[i].d_line;
-                    const short    S    = (short) DATA[i].d_value;
-                    const int      LEN  = DATA[i].d_length;
-                    const char    *EXP  = DATA[i].d_exp;
-                          short    s;
+                    const int    LINE = DATA[i].d_line;
+                    const short  S    = (short) DATA[i].d_value;
+                    const int    LEN  = DATA[i].d_length;
+                    const char  *EXP  = DATA[i].d_exp;
 
                     if (veryVerbose) { P_(i) P_(S) P_(LEN) P(EXP) }
+
+                    short s;
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                      Imp::putIntegerGivenLength(&osb, S, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -5793,19 +5818,20 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    const int      LINE = DATA[i].d_line;
-                    const char     C    = (char) DATA[i].d_value;
-                    const int      LEN  = DATA[i].d_length;
-                    const char    *EXP  = DATA[i].d_exp;
-                          char     c;
+                    const int   LINE = DATA[i].d_line;
+                    const char  C    = (char) DATA[i].d_value;
+                    const int   LEN  = DATA[i].d_length;
+                    const char *EXP  = DATA[i].d_exp;
 
                     if (veryVerbose) { P_(i) P_(C) P_(LEN) P(EXP) }
+
+                    char     c;
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
                                     Imp::putIntegerGivenLength(&osb, C, LEN));
-                    LOOP_ASSERT(LINE, LEN == osb.length());
-                    LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
+                    LOOP_ASSERT(LINE, LEN == (int)osb.length());
+                    LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
                       printBuffer(osb.data(), osb.length());
@@ -6016,12 +6042,14 @@ int main(int argc, char *argv[])
                 const unsigned char  UC   = DATA[i].d_value;
                 const char          *EXP  = DATA[i].d_exp;
                 const int            LEN  = numOctets(EXP);
-                      unsigned char  uc;
+
+                unsigned char  uc;
+
                 {
                     bdlsb::MemOutStreamBuf osb;
 
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, UC));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0 == compareBuffers(osb.data(), EXP));
 
                     if (veryVerbose) {
@@ -6032,7 +6060,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &uc,
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &uc,
                                                            &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, uc  == UC);
@@ -6077,19 +6107,20 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int            LINE = DATA[i].d_line;
-                const char           C    = DATA[i].d_value;
-                const signed char    SC   = (signed char) DATA[i].d_value;
-                const char          *EXP  = DATA[i].d_exp;
-                const int            LEN  = numOctets(EXP);
-                      char           c;
-                      signed char    sc;
+                const int          LINE = DATA[i].d_line;
+                const char         C    = DATA[i].d_value;
+                const signed char  SC   = (signed char) DATA[i].d_value;
+                const char        *EXP  = DATA[i].d_exp;
+                const int          LEN  = numOctets(EXP);
+
+                char          c;
+                signed char  sc;
 
                 if (veryVerbose) { cout << "\nTesting char values" << endl; }
                 {
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, C));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0       ==
                                               compareBuffers(osb.data(), EXP));
 
@@ -6113,7 +6144,7 @@ int main(int argc, char *argv[])
                 {
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS == Util::putValue(&osb, SC));
-                    LOOP_ASSERT(LINE, LEN     == osb.length());
+                    LOOP_ASSERT(LINE, LEN     == (int)osb.length());
                     LOOP_ASSERT(LINE, 0       ==
                                               compareBuffers(osb.data(), EXP));
 
@@ -6125,11 +6156,13 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &sc,
+                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &sc,
                                                            &numBytesConsumed));
-                    LOOP_ASSERT(LINE, 0  == isb.length());
-                    LOOP_ASSERT(LINE, sc == SC);
-                    LOOP_ASSERT(LINE, LEN  == numBytesConsumed);
+                    LOOP_ASSERT(LINE, 0   == isb.length());
+                    LOOP_ASSERT(LINE, sc  == SC);
+                    LOOP_ASSERT(LINE, LEN == numBytesConsumed);
                 }
             }
         }
@@ -6341,11 +6374,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

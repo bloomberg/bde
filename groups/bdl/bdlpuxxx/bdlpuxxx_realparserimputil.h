@@ -1,4 +1,4 @@
-// bdlpuxxx_realparserimputil.h       -*-C++-*-
+// bdlpuxxx_realparserimputil.h                                       -*-C++-*-
 #ifndef INCLUDED_BDLPUXXX_REALPARSERIMPUTIL
 #define INCLUDED_BDLPUXXX_REALPARSERIMPUTIL
 
@@ -175,17 +175,17 @@ struct RealParserImpUtil {
 
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

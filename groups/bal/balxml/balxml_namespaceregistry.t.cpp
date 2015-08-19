@@ -1,4 +1,4 @@
-// balxml_namespaceregistry.t.cpp      -*-C++-*-
+// balxml_namespaceregistry.t.cpp                                     -*-C++-*-
 #include <balxml_namespaceregistry.h>
 
 #include <bslma_testallocator.h>
@@ -163,14 +163,14 @@ int main(int argc, char *argv[])
 //..
     bsl::strcpy(input, "http://www.w3.org/2001/XMLSchema");
     int id3 = namespaceRegistry.lookupOrRegister(input);
-    ASSERT(id3 == balxml::NamespaceRegistry::BAEXML_XMLSCHEMA);
+    ASSERT(id3 == balxml::NamespaceRegistry::e_XMLSCHEMA);
 //..
 // Using the 'lookup' method, a namespace ID can be looked up without
 // registering it.  In this case, an unregistered namespace will result in an
 // ID of -1:
 //..
     ASSERT(googleId  == namespaceRegistry.lookup(googleUri));
-    ASSERT(balxml::NamespaceRegistry::BAEXML_BDEM ==
+    ASSERT(balxml::NamespaceRegistry::e_BDEM ==
            namespaceRegistry.lookup("http://bloomberg.com/schemas/bdem"));
     ASSERT(-1 == namespaceRegistry.lookup("urn:1234"));
 //..
@@ -360,12 +360,12 @@ int main(int argc, char *argv[])
 
             // Look up preregistered namespaces
             i = X.lookup("http://www.w3.org/XML/1998/namespace");
-            ASSERT(Obj::BAEXML_XML == i);
+            ASSERT(Obj::e_XML == i);
             const char *s = X.lookup(i);
             ASSERT(0 == bsl::strcmp("http://www.w3.org/XML/1998/namespace",s));
 
             i = X.lookup("http://bloomberg.com/schemas/bdem");
-            ASSERT(Obj::BAEXML_BDEM == i);
+            ASSERT(Obj::e_BDEM == i);
             s = X.lookup(i);
             ASSERT(0 == bsl::strcmp("http://bloomberg.com/schemas/bdem", s));
 
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
             i = X.lookup(N1); ASSERT(-1 == i);
             i = X.lookup(N2); ASSERT(-1 == i);
             i = X.lookup("http://www.w3.org/XML/1998/namespace");
-            ASSERT(Obj::BAEXML_XML == i);
+            ASSERT(Obj::e_XML == i);
         }
         ASSERT(0 == da.numBlocksInUse());
         ASSERT(0 == ta.numBlocksInUse());
@@ -420,11 +420,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

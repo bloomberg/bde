@@ -1,4 +1,4 @@
-// ball_categorymanager.t.cpp         -*-C++-*-
+// ball_categorymanager.t.cpp                                         -*-C++-*-
 
 #include <ball_categorymanager.h>
 
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
 
       BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
         Obj mX(&ta); const Obj& X = mX;
-        const int UC = Holder::BAEL_UNINITIALIZED_CATEGORY;
+        const int UC = Holder::e_UNINITIALIZED_CATEGORY;
         {
             Holder mH; const Holder& H = mH;
             mH.reset();
@@ -1198,17 +1198,17 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard guard(&testAllocator);
             const int NUM_BYTES = testAllocator.numBytesInUse();
 
-            Holder mX = { Holder::BAEL_DYNAMIC_CATEGORY, CATEGORY, NEXT };
+            Holder mX = { Holder::e_DYNAMIC_CATEGORY, CATEGORY, NEXT };
             const Holder& X = mX;
-            LOOP3_ASSERT(LINE, Holder::BAEL_DYNAMIC_CATEGORY, X.threshold(),
-                         Holder::BAEL_DYNAMIC_CATEGORY == X.threshold());
+            LOOP3_ASSERT(LINE, Holder::e_DYNAMIC_CATEGORY, X.threshold(),
+                         Holder::e_DYNAMIC_CATEGORY == X.threshold());
             LOOP3_ASSERT(LINE, CATEGORY, X.category(),
                          CATEGORY == X.category());
             LOOP3_ASSERT(LINE, NEXT, X.next(), NEXT == X.next());
 
             mX.reset();
             LOOP2_ASSERT(LINE, X.threshold(),
-                         Holder::BAEL_UNINITIALIZED_CATEGORY == X.threshold());
+                         Holder::e_UNINITIALIZED_CATEGORY == X.threshold());
             LOOP2_ASSERT(LINE, X.category(), 0 == X.category());
             LOOP2_ASSERT(LINE, X.next(),     0 == X.next());
 
@@ -1283,7 +1283,7 @@ int main(int argc, char *argv[])
 
             // Add the subset of rules indicated by the bitmask 'mask'.
             ASSERT(rules.numRules()            == mX.addRules(rules));
-            ASSERT(bdlb::BitUtil::numBitsSet(mask) ==  
+            ASSERT(bdlb::BitUtil::numBitsSet(mask) ==
                    MX.ruleSet().numRules());
             if (mask != 0) {
                 ASSERT(seqNumber < MX.ruleSequenceNumber());
@@ -2672,11 +2672,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

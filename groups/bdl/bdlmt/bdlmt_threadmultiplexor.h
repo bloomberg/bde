@@ -1,4 +1,4 @@
-// bdlmt_threadmultiplexor.h                                           -*-C++-*-
+// bdlmt_threadmultiplexor.h                                          -*-C++-*-
 #ifndef INCLUDED_BDLMT_THREADMULTIPLEXOR
 #define INCLUDED_BDLMT_THREADMULTIPLEXOR
 
@@ -299,7 +299,7 @@ class ThreadMultiplexor {
         // Destroy this thread multiplexor object.
 
     // MANIPULATORS
-    template <typename JOBTYPE>
+    template <class JOBTYPE>
     int processJob(const JOBTYPE& job);
         // Process the specified 'job' functor in the calling thread if the
         // current number of processors is less than the maximum number of
@@ -321,7 +321,7 @@ class ThreadMultiplexor {
 // ============================================================================
 
 // MANIPULATORS
-template <typename JOBTYPE>
+template <class JOBTYPE>
 inline
 int ThreadMultiplexor::processJob(const JOBTYPE& job)
 {
@@ -365,14 +365,21 @@ int ThreadMultiplexor::numProcessors() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

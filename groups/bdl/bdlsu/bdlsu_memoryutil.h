@@ -1,4 +1,4 @@
-// bdlsu_memoryutil.h -*-C++-*-
+// bdlsu_memoryutil.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLSU_MEMORYUTIL
 #define INCLUDED_BDLSU_MEMORYUTIL
 
@@ -11,9 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //      bdlsu::MemoryUtil: struct which scopes memory system utilities.
-//
-//@SEE_ALSO: bdlma_xxxprotectableblocklist,
-//           bdlmca_xxxprotectablesequentialallocator
 //
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov)
 //
@@ -73,26 +70,34 @@ struct MemoryUtil {
 
     // TYPES
     enum Access {
-        BDESU_ACCESS_NONE          = 0,
-        BDESU_ACCESS_READ          = 0x1,
-        BDESU_ACCESS_WRITE         = 0x2,
-        BDESU_ACCESS_EXECUTE       = 0x4,
-        BDESU_ACCESS_READ_WRITE    = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE,
-        BDESU_ACCESS_READ_EXECUTE  = BDESU_ACCESS_READ | BDESU_ACCESS_EXECUTE,
-        BDESU_ACCESS_WRITE_EXECUTE = BDESU_ACCESS_WRITE | BDESU_ACCESS_EXECUTE,
-        BDESU_ACCESS_READ_WRITE_EXECUTE
-                                   = BDESU_ACCESS_READ | BDESU_ACCESS_WRITE
-                                   | BDESU_ACCESS_EXECUTE
+        k_ACCESS_NONE          = 0,
+        k_ACCESS_READ          = 0x1,
+        k_ACCESS_WRITE         = 0x2,
+        k_ACCESS_EXECUTE       = 0x4,
+        k_ACCESS_READ_WRITE    = k_ACCESS_READ | k_ACCESS_WRITE,
+        k_ACCESS_READ_EXECUTE  = k_ACCESS_READ | k_ACCESS_EXECUTE,
+        k_ACCESS_WRITE_EXECUTE = k_ACCESS_WRITE | k_ACCESS_EXECUTE,
+        k_ACCESS_READ_WRITE_EXECUTE
+                                   = k_ACCESS_READ | k_ACCESS_WRITE
+                                   | k_ACCESS_EXECUTE
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ACCESS_READ               = BDESU_ACCESS_READ
-      , ACCESS_WRITE              = BDESU_ACCESS_WRITE
-      , ACCESS_EXECUTE            = BDESU_ACCESS_EXECUTE
-      , ACCESS_NONE               = BDESU_ACCESS_NONE
-      , ACCESS_READ_WRITE         = BDESU_ACCESS_READ_WRITE
-      , ACCESS_READ_EXECUTE       = BDESU_ACCESS_READ_EXECUTE
-      , ACCESS_WRITE_EXECUTE      = BDESU_ACCESS_WRITE_EXECUTE
-      , ACCESS_READ_WRITE_EXECUTE = BDESU_ACCESS_READ_WRITE_EXECUTE
+      , BDESU_ACCESS_NONE = k_ACCESS_NONE
+      , BDESU_ACCESS_READ = k_ACCESS_READ
+      , BDESU_ACCESS_WRITE = k_ACCESS_WRITE
+      , BDESU_ACCESS_EXECUTE = k_ACCESS_EXECUTE
+      , BDESU_ACCESS_READ_WRITE = k_ACCESS_READ_WRITE
+      , BDESU_ACCESS_READ_EXECUTE = k_ACCESS_READ_EXECUTE
+      , BDESU_ACCESS_WRITE_EXECUTE = k_ACCESS_WRITE_EXECUTE
+      , BDESU_ACCESS_READ_WRITE_EXECUTE = k_ACCESS_READ_WRITE_EXECUTE
+      , ACCESS_READ               = k_ACCESS_READ
+      , ACCESS_WRITE              = k_ACCESS_WRITE
+      , ACCESS_EXECUTE            = k_ACCESS_EXECUTE
+      , ACCESS_NONE               = k_ACCESS_NONE
+      , ACCESS_READ_WRITE         = k_ACCESS_READ_WRITE
+      , ACCESS_READ_EXECUTE       = k_ACCESS_READ_EXECUTE
+      , ACCESS_WRITE_EXECUTE      = k_ACCESS_WRITE_EXECUTE
+      , ACCESS_READ_WRITE_EXECUTE = k_ACCESS_READ_WRITE_EXECUTE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -133,15 +138,22 @@ struct MemoryUtil {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

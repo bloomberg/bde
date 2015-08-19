@@ -311,7 +311,7 @@ namespace bslalg {
                         // class ConstructorProxy
                         // ======================
 
-template <typename OBJECT_TYPE>
+template <class OBJECT_TYPE>
 class ConstructorProxy {
     // This class acts as a proxy for constructing and destroying an object of
     // parameterized 'OBJECT_TYPE', where 'OBJECT_TYPE' may or may not use a
@@ -348,7 +348,7 @@ class ConstructorProxy {
         // 'bslma::UsesBslmaAllocator' trait, and ignore 'basicAllocator'
         // otherwise.
 
-    template <typename SOURCE_TYPE>
+    template <class SOURCE_TYPE>
     ConstructorProxy(const ConstructorProxy<SOURCE_TYPE>&  original,
                      bslma::Allocator                     *basicAllocator);
         // Construct a proxy, and a proxied object of the parameterized
@@ -360,82 +360,82 @@ class ConstructorProxy {
         // will result unless an instance of 'OBJECT_TYPE' can be constructed
         // from an instance of 'SOURCE_TYPE'.
 
-    template <typename ARG1>
+    template <class ARG1>
     ConstructorProxy(const ARG1& a1, bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2>
+    template <class ARG1, class ARG2>
     ConstructorProxy(const ARG1& a1, const ARG2& a2,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3>
+    template <class ARG1, class ARG2, class ARG3>
     ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4>
+    template <class ARG1, class ARG2, class ARG3, class ARG4>
     ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                      const ARG4& a4, bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5>
     ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                      const ARG4& a4, const ARG5& a5,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6>
     ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                      const ARG4& a4, const ARG5& a5, const ARG6& a6,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7>
     ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                      const ARG4& a4, const ARG5& a5, const ARG6& a6,
                      const ARG7& a7, bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8>
     ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                      const ARG4& a4, const ARG5& a5, const ARG6& a6,
                      const ARG7& a7, const ARG8& a8,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-              typename ARG9>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8,
+              class ARG9>
     ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                      const ARG4& a4, const ARG5& a5, const ARG6& a6,
                      const ARG7& a7, const ARG8& a8, const ARG9& a9,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8,
+              class ARG9, class ARG10>
     ConstructorProxy(const ARG1&  a1, const ARG2& a2, const ARG3& a3,
                      const ARG4&  a4, const ARG5& a5, const ARG6& a6,
                      const ARG7&  a7, const ARG8& a8, const ARG9& a9,
                      const ARG10& a10, bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8,
+              class ARG9, class ARG10, class ARG11>
     ConstructorProxy(const ARG1&  a1, const ARG2& a2,  const ARG3& a3,
                      const ARG4&  a4, const ARG5& a5,  const ARG6& a6,
                      const ARG7&  a7, const ARG8& a8,  const ARG9& a9,
                      const ARG10& a10, const ARG11& a11,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12>
+    template <class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12>
     ConstructorProxy(const ARG1&  a1,  const ARG2&  a2,  const ARG3& a3,
                      const ARG4&  a4,  const ARG5&  a5,  const ARG6& a6,
                      const ARG7&  a7,  const ARG8&  a8,  const ARG9& a9,
                      const ARG10& a10, const ARG11& a11,
                      const ARG12& a12, bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13>
+    template <class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12,
+              class ARG13>
     ConstructorProxy(const ARG1&  a1,  const ARG2&  a2, const ARG3&  a3,
                      const ARG4&  a4,  const ARG5&  a5, const ARG6&  a6,
                      const ARG7&  a7,  const ARG8&  a8, const ARG9&  a9,
                      const ARG10& a10, const ARG11& a11,
                      const ARG12& a12, const ARG13& a13,
                      bslma::Allocator *basicAllocator);
-    template <typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13, typename ARG14>
+    template <class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12,
+              class ARG13, class ARG14>
     ConstructorProxy(const ARG1&  a1,  const ARG2&  a2, const ARG3&  a3,
                      const ARG4&  a4,  const ARG5&  a5, const ARG6&  a6,
                      const ARG7&  a7,  const ARG8&  a8, const ARG9&  a9,
@@ -475,7 +475,7 @@ class ConstructorProxy {
                         // ----------------------
 
 // CREATORS
-template <typename OBJECT_TYPE>
+template <class OBJECT_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                               bslma::Allocator *basicAllocator)
@@ -485,7 +485,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                   basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
+template <class OBJECT_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                           const ConstructorProxy<OBJECT_TYPE>&  original,
@@ -497,8 +497,8 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                   basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename SOURCE_TYPE>
+template <class OBJECT_TYPE>
+template <class SOURCE_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                           const ConstructorProxy<SOURCE_TYPE>&  original,
@@ -509,8 +509,8 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1>
+template <class OBJECT_TYPE>
+template <class ARG1>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                               const ARG1& a1, bslma::Allocator *basicAllocator)
@@ -520,8 +520,8 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
               const ARG1& a1, const ARG2& a2, bslma::Allocator *basicAllocator)
@@ -531,8 +531,8 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 const ARG1& a1, const ARG2& a2, const ARG3& a3,
@@ -543,8 +543,8 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -555,9 +555,9 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-          typename ARG5>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4,
+          class ARG5>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -568,9 +568,9 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4,
+          class ARG5, class ARG6>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
               const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -581,9 +581,9 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6, typename ARG7>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4,
+          class ARG5, class ARG6, class ARG7>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -595,9 +595,9 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6, typename ARG7, typename ARG8>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4,
+          class ARG5, class ARG6, class ARG7, class ARG8>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -609,10 +609,10 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-          typename ARG9>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4,
+          class ARG5, class ARG6, class ARG7, class ARG8,
+          class ARG9>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -624,10 +624,10 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-          typename ARG9, typename ARG10>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4,
+          class ARG5, class ARG6, class ARG7, class ARG8,
+          class ARG9, class ARG10>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
             const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -639,10 +639,10 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-          typename ARG9, typename ARG10, typename ARG11>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2,  class ARG3, class ARG4,
+          class ARG5, class ARG6,  class ARG7, class ARG8,
+          class ARG9, class ARG10, class ARG11>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -655,10 +655,10 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-          typename ARG9, typename ARG10, typename ARG11, typename ARG12>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2,  class ARG3, class ARG4,
+          class ARG5, class ARG6,  class ARG7, class ARG8,
+          class ARG9, class ARG10, class ARG11, class ARG12>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
           const ARG1& a1, const ARG2&  a2,  const ARG3&  a3,  const ARG4&  a4,
@@ -671,11 +671,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 a12, basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename  ARG2,  typename ARG3, typename  ARG4,
-          typename ARG5, typename  ARG6,  typename ARG7, typename  ARG8,
-          typename ARG9, typename  ARG10, typename ARG11, typename ARG12,
-          typename ARG13>
+template <class OBJECT_TYPE>
+template <class ARG1, class  ARG2,  class ARG3, class  ARG4,
+          class ARG5, class  ARG6,  class ARG7, class  ARG8,
+          class ARG9, class  ARG10, class ARG11, class ARG12,
+          class ARG13>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
           const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -688,11 +688,11 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 a12, a13, basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
-template <typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-          typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-          typename ARG9, typename ARG10, typename ARG11, typename ARG12,
-          typename ARG13, typename ARG14>
+template <class OBJECT_TYPE>
+template <class ARG1, class ARG2, class ARG3, class ARG4,
+          class ARG5, class ARG6, class ARG7, class ARG8,
+          class ARG9, class ARG10, class ARG11, class ARG12,
+          class ARG13, class ARG14>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
           const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
@@ -705,7 +705,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 a12, a13, a14, basicAllocator);
 }
 
-template <typename OBJECT_TYPE>
+template <class OBJECT_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::~ConstructorProxy()
 {
@@ -714,7 +714,7 @@ ConstructorProxy<OBJECT_TYPE>::~ConstructorProxy()
 }
 
 // MANIPULATORS
-template <typename OBJECT_TYPE>
+template <class OBJECT_TYPE>
 inline
 OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object()
 {
@@ -722,7 +722,7 @@ OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object()
 }
 
 // ACCESSORS
-template <typename OBJECT_TYPE>
+template <class OBJECT_TYPE>
 inline
 const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 {
@@ -737,12 +737,12 @@ const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 
 namespace bslma {
 
-template <typename OBJECT_TYPE>
+template <class OBJECT_TYPE>
 struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================

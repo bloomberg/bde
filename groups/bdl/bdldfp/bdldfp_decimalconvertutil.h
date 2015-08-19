@@ -725,7 +725,7 @@ int DecimalConvertUtil::decimal64ToUnpackedSpecial(
                               BDLDFP_DU_INTELDFP_SPECIAL_ENCODING_MASK64)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         // punt on special encodings
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *isNegative = (bidValue & 0x8000000000000000ull) ? 1 : 0;

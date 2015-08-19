@@ -1,4 +1,4 @@
-// bdlmt_timereventscheduler.h                                         -*-C++-*-
+// bdlmt_timereventscheduler.h                                        -*-C++-*-
 #ifndef INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 #define INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 
@@ -352,9 +352,10 @@ class TimerEventScheduler {
 
     // CONSTANTS
     enum {
-        BCEP_INVALID_HANDLE = -1  // value of an invalid event or clock handle
+        e_INVALID_HANDLE = -1  // value of an invalid event or clock handle
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , INVALID_HANDLE = BCEP_INVALID_HANDLE
+      , BCEP_INVALID_HANDLE = e_INVALID_HANDLE
+      , INVALID_HANDLE = e_INVALID_HANDLE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -656,9 +657,9 @@ class TimerEventScheduler {
         // dispatched in this scheduler.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                           // ------------------------
                           // TimerEventScheduler
@@ -696,15 +697,22 @@ int TimerEventScheduler::numEvents() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -2,6 +2,11 @@
 #ifndef INCLUDED_BDLMA_COUNTINGALLOCATOR
 #define INCLUDED_BDLMA_COUNTINGALLOCATOR
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 //@PURPOSE: Provide a memory allocator that counts allocated bytes.
 //
 //@CLASSES:
@@ -258,7 +263,7 @@
 // which displays the following on a 32-bit platform:
 //..
 //  ----------------------------------------
-//          Counting Allocator State
+//                          Counting Allocator State
 //  ----------------------------------------
 //  Allocator name: 'DoubleStack' Allocator
 //  Bytes in use:   16
@@ -328,8 +333,7 @@ class CountingAllocator : public bslma::Allocator {
     explicit
     CountingAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
-    CountingAllocator(const char       *name,
-                      bslma::Allocator *basicAllocator = 0);
+    CountingAllocator(const char *name, bslma::Allocator *basicAllocator = 0);
         // Create a counting allocator.  Optionally specify a 'name'
         // (associated with this object) to be included in messages output by
         // the 'print' method, thereby distinguishing this counting allocator

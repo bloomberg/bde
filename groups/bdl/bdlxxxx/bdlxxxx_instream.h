@@ -1,4 +1,4 @@
-// bdlxxxx_instream.h              -*-C++-*-
+// bdlxxxx_instream.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLXXXX_INSTREAM
 #define INCLUDED_BDLXXXX_INSTREAM
 
@@ -631,7 +631,7 @@ class InStream {
 // FREE OPERATORS
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 InStream& operator>>(InStream& stream, OBJECT& object);
 }  // close package namespace
@@ -652,15 +652,15 @@ InStream& operator>>(InStream& stream, OBJECT& object);
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // FREE OPERATORS
 
 // TBD #ifndef BDE_OMIT_DEPRECATED
 
-template <typename OBJECT>
+template <class OBJECT>
 inline
 bdlxxxx::InStream& bdlxxxx::operator>>(InStream& stream, OBJECT& object)
 {
@@ -669,15 +669,15 @@ bdlxxxx::InStream& bdlxxxx::operator>>(InStream& stream, OBJECT& object)
 
 // TBD #endif  // BDE_OMIT_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

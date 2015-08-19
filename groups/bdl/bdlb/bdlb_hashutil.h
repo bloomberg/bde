@@ -754,9 +754,9 @@ struct HashUtil {
         // the same input data).
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                             // --------------------
                             // struct HashUtil
@@ -769,10 +769,11 @@ unsigned int HashUtil::hash0(int key, int modulus)
     BSLS_ASSERT_SAFE(0 < modulus);
 
     if (4 == sizeof(int)) {
-        return (unsigned int)key % (unsigned int)modulus;
+        return (unsigned int)key % (unsigned int)modulus;             // RETURN
     }
     else {
         return ((unsigned int)key & 0xFFFFFFFF) % (unsigned int)modulus;
+                                                                      // RETURN
     }
 }
 
@@ -840,11 +841,11 @@ unsigned int HashUtil::hash0(long key, int modulus)
     BSLS_ASSERT_SAFE(0 < modulus);
 
     if (4 == sizeof(long)) {
-        return HashUtil::hash0((int)(unsigned long)key, modulus);
+        return HashUtil::hash0((int)(unsigned long)key, modulus);     // RETURN
     }
     else {
         return HashUtil::hash0((bsls::Types::Int64)(unsigned long)key,
-                                    modulus);
+                                    modulus);                         // RETURN
     }
 }
 
@@ -854,10 +855,10 @@ unsigned int HashUtil::hash0(unsigned long key, int modulus)
     BSLS_ASSERT_SAFE(0 < modulus);
 
     if (4 == sizeof(unsigned long)) {
-        return HashUtil::hash0((int)key, modulus);
+        return HashUtil::hash0((int)key, modulus);                    // RETURN
     }
     else {
-        return HashUtil::hash0((bsls::Types::Int64)key, modulus);
+        return HashUtil::hash0((bsls::Types::Int64)key, modulus);     // RETURN
     }
 }
 
@@ -893,25 +894,32 @@ unsigned int HashUtil::hash0(const void *key, int modulus)
 
     if (4 == sizeof(void *)) {
         const int *v = (const int *)&key;
-        return HashUtil::hash0(*v, modulus);
+        return HashUtil::hash0(*v, modulus);                          // RETURN
     }
     else {
         const bsls::Types::Int64 *v =
                                 (const bsls::Types::Int64 *)(const void *)&key;
-        return HashUtil::hash0(*v, modulus);
+        return HashUtil::hash0(*v, modulus);                          // RETURN
     }
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

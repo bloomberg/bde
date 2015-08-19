@@ -93,9 +93,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we declare a function, 'getLocalTimeDescriptor', that returns the
 // local-time descriptor for a given time in a particular time zone.  This
-// method takes an optional 'baltzo::ZoneinfoCache' address argument,
-// via the default 'zoneinfoCache' parameter.  If 'zoneinfoCache' is
-// unspecified or 0, the default Zoneinfo cache is used for the operation:
+// method takes an optional 'baltzo::ZoneinfoCache' address argument, via the
+// default 'zoneinfoCache' parameter.  If 'zoneinfoCache' is unspecified or 0,
+// the default Zoneinfo cache is used for the operation:
 //..
 //  int getLocalTimeDescriptor(baltzo::LocalTimeDescriptor *result,
 //                             const bdlt::Datetime&        utcTime,
@@ -236,13 +236,13 @@ struct DefaultZoneinfoCache {
   public:
     // CLASS METHODS
     static ZoneinfoCache *defaultCache(ZoneinfoCache *cache = 0);
-        // Return the default 'ZoneinfoCache' object for this process if
-        // the specified 'cache' is 0, and 'cache' otherwise.  If 'cache' is 0,
-        // and the default Zoneinfo cache object has not been set -- either
-        // explicitly with a call to 'setDefaultCache', or implicitly through a
-        // prior call to this method -- then initialize a new
-        // 'ZoneinfoCache' object, set the default cache object to the
-        // newly created object, and return its address.
+        // Return the default 'ZoneinfoCache' object for this process if the
+        // optionally specified 'cache' is 0, and 'cache' otherwise.  If
+        // 'cache' is 0, and the default Zoneinfo cache object has not been set
+        // -- either explicitly with a call to 'setDefaultCache', or implicitly
+        // through a prior call to this method -- then initialize a new
+        // 'ZoneinfoCache' object, set the default cache object to the newly
+        // created object, and return its address.
 
     static const char *defaultZoneinfoDataLocation();
         // Return a null terminated (C-style) string describing the default
@@ -269,8 +269,8 @@ struct DefaultZoneinfoCache {
         // that was set by a previous call to this method, or 0 if no call to
         // this method was previously executed.  The behavior is undefined
         // unless (1) 'cache' remains valid until the last operation is
-        // performed on this process's default cache, or a subsequent call
-        // to 'setDefaultCache', and (2) this method is *not* called from one
+        // performed on this process's default cache, or a subsequent call to
+        // 'setDefaultCache', and (2) this method is *not* called from one
         // thread while another thread is attempting to access the default time
         // zone cache instance (i.e., this method is *not* thread-safe).  Note
         // that this method is intended for use *only* by the *owner* of 'main'
@@ -287,8 +287,8 @@ class DefaultZoneinfoCacheScopedGuard {
     // Upon construction, an object of this class saves the current default
     // Zoneinfo cache and installs the user-specified Zoneinfo cache as the
     // default.  On destruction, the previous default Zoneinfo cache is
-    // restored.  This class is not even *minimally* *thread* *safe*.
-    // For terminology see 'bsldoc_glossary'.
+    // restored.  This class is not even *minimally* *thread* *safe*.  For
+    // terminology see 'bsldoc_glossary'.
 
     // DATA
     ZoneinfoCache *d_previousCache_p;  // original default Zoneinfo cache (to
@@ -315,7 +315,7 @@ class DefaultZoneinfoCacheScopedGuard {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                             // -------------------

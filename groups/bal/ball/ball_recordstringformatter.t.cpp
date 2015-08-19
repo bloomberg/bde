@@ -4,7 +4,7 @@
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
-#include <ball_userfieldvalues.h>
+#include <ball_userfields.h>
 #include <bdlqq_threadutil.h>
 
 #include <bdlt_currenttime.h>
@@ -77,7 +77,7 @@ using bsl::string;
 // [ 6] bool operator==(const bael::RSF& lhs, const bael::RSF& rhs);
 // [ 6] bool operator!=(const bael::RSF& lhs, const bael::RSF& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::RSF&);
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] breathing test
 // [12] USAGE example
 
@@ -168,7 +168,7 @@ const char *FC = "yet another format";
 const bdlt::DatetimeInterval TC(1, 0);
 
 const char *MSG_1BYTE   = "0";
-const char *MSG_20BYTE  = "01234567890123456789"; 
+const char *MSG_20BYTE  = "01234567890123456789";
 const char *MSG_200BYTE =
 "01234567890123456789012345678901234567890123456789"
 "01234567890123456789012345678901234567890123456789"
@@ -203,9 +203,9 @@ bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
         if (lhs[i] != rhs[i]) {
             cout << "Strings differ at index (" << i << ") "
                  << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
-                 << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
+                 << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
                  << endl;
-            return false;
+            return false;                                             // RETURN
         }
     }
 
@@ -213,9 +213,9 @@ bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
         unsigned int i = lhs.length();
         cout << "Strings differ at index (" << i << ") "
                  << "lhs[i] = END-OF-STRING "
-                 << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
+                 << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
                  << endl;
-        return false;
+        return false;                                                 // RETURN
 
     }
     if (lhs.length() > rhs.length()) {
@@ -224,7 +224,7 @@ bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
                  << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
                  << "rhs[i] = END-OF-STRING"
                  << endl;
-        return false;
+        return false;                                                 // RETURN
     }
     return true;
 
@@ -286,13 +286,13 @@ int main(int argc, char *argv[])
         //: 1 Create objects using the different
         //:   constructors and verify that the 'publishInLocalTime' attribute
         //:   has the expected value.  (C-1..2)
-        //: 
+        //:
         //: 2 Default create an object and use the manipulator to
-        //:   change the attribute, and then reset the attribute to the 
+        //:   change the attribute, and then reset the attribute to the
         //:   original state.  Each use of a manipulator is done twice
         //:   to confirm idempotence. (C-3..4)
         //:
-        //: 3 Create an object with a distinguished local time offset and  
+        //: 3 Create an object with a distinguished local time offset and
         //:   verify that the '%i' format specification is resolved to
         //:   the specifed offset or the actual local time offset according
         //:   to the state of the 'publishInLocalTime' attribute.  (C-5..6)
@@ -312,14 +312,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest Constructors" << endl;
         {
-            Obj mX0(true);        
+            Obj mX0(true);
             if (veryVerbose) {
                 P(mX0.timestampOffset().totalMilliseconds());
             }
             ASSERT( mX0.isPublishInLocalTimeEnabled());
 
-            Obj mX1(false);   
-            if (veryVerbose) {   
+            Obj mX1(false);
+            if (veryVerbose) {
                 P(mX1.timestampOffset().totalMilliseconds());
             }
                                   ASSERT(!mX1.isPublishInLocalTimeEnabled());
@@ -360,9 +360,9 @@ int main(int argc, char *argv[])
                                               "",
                                               0,
                                               "",
-                                              ball::Severity::BAEL_OFF,
+                                              ball::Severity::e_OFF,
                                               "");
-            ball::Record           mRecord(fixedFields, ball::UserFieldValues());
+            ball::Record           mRecord(fixedFields, ball::UserFields());
             const ball::Record&    record = mRecord;
 
             bdlt::Datetime dtWithOffset(dtUtc); dtWithOffset.addDays(10);
@@ -516,12 +516,12 @@ int main(int argc, char *argv[])
                                           filename,
                                           lineNum,
                                           "FOO.BAR.BAZ",
-                                          ball::Severity::BAEL_WARN,
+                                          ball::Severity::e_WARN,
                                           MSG);
 
         fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-        ball::UserFieldValues userFields;
+        ball::UserFields userFields;
         userFields.appendString("string");
         userFields.appendDouble(3.14159265);
         userFields.appendInt64(1000000);
@@ -867,7 +867,7 @@ int main(int argc, char *argv[])
             X(oss1, record);
             oss2 << "string " << 3.14159265l << " " << 1000000;
             if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERTV(oss1.str(), oss2.str(), 
+            ASSERTV(oss1.str(), oss2.str(),
                     compareText(oss1.str(),oss2.str()));
         }
 
@@ -936,12 +936,12 @@ int main(int argc, char *argv[])
                                                   filename,
                                                   lineNum,
                                                   "FOO.BAR.BAZ",
-                                                  ball::Severity::BAEL_WARN,
+                                                  ball::Severity::e_WARN,
                                                   MSG,
                                                   &oa);
                 fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-                ball::UserFieldValues   userFields(&oa);
+                ball::UserFields   userFields(&oa);
                 ball::Record record(fixedFields, userFields);
 
                 bsl::ostringstream stream;
@@ -1692,10 +1692,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

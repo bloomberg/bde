@@ -58,6 +58,9 @@
 //      bdlma::ConcurrentFixedPool  d_pool;
 //      bslma::Allocator           *d_allocator_p;
 //
+//      // Not implemented:
+//      my_JobQueue(const my_JobQueue&);
+//
 //    public:
 //      // CREATORS
 //      my_JobQueue(int maxJobs, bslma::Allocator *basicAllocator = 0);
@@ -99,7 +102,7 @@
 //      d_lock.lock();
 //      if (d_queue.empty()) {
 //          d_lock.unlock();
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //      Job *jobPtr = d_queue.front();
 //      d_queue.pop_front();

@@ -205,10 +205,10 @@ static void scribble(char *address, int size)
 }
 
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-   // Using only primary manipulators, extend the capacity of the specified
-   // 'object' to (at least) the specified 'numElements' each of the specified
-   // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
-   // behavior is undefined unless 0 <= numElements and 0 <= objSize.
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements' each of the specified
+    // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
+    // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -233,13 +233,13 @@ struct WorkerArgs {
 
 bdlqq::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
-    // Perform a series of allocate, protect, unprotect, and deallocate
+    // Perform a series of allocate, protect, un-protect, and deallocate
     // operations on the 'bcema::TestProtectableMemoryBlockDispenser' and
     // verify their results.  This is operation is intended to be a thread
     // entry point.  Cast the specified 'args' to a 'WorkerArgs', and perform a
     // series of '(WorkerArgs *)args->d_numSizes' allocations using the
     // corresponding allocations sizes specified by
-    // '(WorkerARgs *)args->d_sizes'.  Protect, unprotect, and finally delete
+    // '(WorkerARgs *)args->d_sizes'.  Protect, un-protect, and finally delete
     // the allocated memory.  Use the barrier 'g_barrier' to ensure tests are
     // performed while the allocator is in the correct state.
 
@@ -310,9 +310,8 @@ extern "C" void *workerThread(void *arg) {
     class my_MessageFactory;
 
     class my_Message {
-        // This class represents a general message interface that provides
-        // a 'getMessage' method for clients to retrieve the underlying
-        // message.
+        // This class represents a general message interface that provides a
+        // 'getMessage' method for clients to retrieve the underlying message.
 
       public:
         // ACCESSORS
@@ -444,6 +443,10 @@ extern "C" void *workerThread(void *arg) {
         // DATA
         bdlma::ConcurrentMultipool d_multipool;  // multipool used to supply
                                                  // memory
+
+      private:
+        // Not implemented:
+        my_MessageFactory(const my_MessageFactory&);
 
       public:
         // CREATORS

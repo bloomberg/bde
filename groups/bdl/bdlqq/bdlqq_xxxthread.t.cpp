@@ -34,7 +34,7 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 //                              Usage Examples
-// --------------
+//                              ----------------------------------------------------------------------------
 // [ 9] Windows specific example
 // [ 5] Basic thread utilities example
 // [ 6] Small stack example
@@ -112,7 +112,7 @@ void createSmallStackSizeThread()
 {
     enum { STACK_SIZE = 16384 };
     bcemt_Attribute attributes;
-    attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_DETACHED);
+    attributes.setDetachedState(bcemt_Attribute::e_CREATE_DETACHED);
     attributes.setStackSize(STACK_SIZE);
 
     char initValue = 1;
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
         mainHandle = bdlqq::ThreadUtil::self();
 
         bcemt_Attribute attributes;
-        attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
+        attributes.setDetachedState(bcemt_Attribute::e_CREATE_JOINABLE);
 
         bdlqq::ThreadUtil::Handle producerHandle;
         int status = bdlqq::ThreadUtil::create(&producerHandle,
@@ -736,11 +736,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            P((int)bcemt_Attribute::BCEMT_CREATE_JOINABLE);
-            P((int)bcemt_Attribute::BCEMT_CREATE_DETACHED);
-            P((int)bcemt_Attribute::BCEMT_SCHED_OTHER);
-            P((int)bcemt_Attribute::BCEMT_SCHED_FIFO);
-            P((int)bcemt_Attribute::BCEMT_SCHED_RR);
+            P((int)bcemt_Attribute::e_CREATE_JOINABLE);
+            P((int)bcemt_Attribute::e_CREATE_DETACHED);
+            P((int)bcemt_Attribute::e_SCHED_OTHER);
+            P((int)bcemt_Attribute::e_SCHED_FIFO);
+            P((int)bcemt_Attribute::e_SCHED_RR);
         }
       } break;
       case 1: {
@@ -754,7 +754,7 @@ int main(int argc, char *argv[])
        enum { THREAD_COUNT = 10 }; // Actually twice this many
 
        bcemt_Attribute detached;
-       detached.setDetachedState(bcemt_Attribute::BCEMT_CREATE_DETACHED);
+       detached.setDetachedState(bcemt_Attribute::e_CREATE_DETACHED);
 
        ThreadChecker joinableChecker;
        ThreadChecker detachedChecker;

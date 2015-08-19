@@ -81,7 +81,7 @@ using namespace bsl;
 //     ImpUtil      bslstl::VectorImpUtil
 //-----------------------------------------------------------------------------
 // class Vector_Imp<T,A> (vector)
-// =================================
+// ============================================================================
 // [11] TRAITS
 //
 // CREATORS:
@@ -1331,9 +1331,9 @@ struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
 
-}
+}  // close namespace bslmf
 
-}  // namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                            Test Case 22

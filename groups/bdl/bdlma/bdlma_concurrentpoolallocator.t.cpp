@@ -315,6 +315,11 @@ extern "C" void *my3_down(void *arg)
         bdlqq::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
+      private:
+        // Not implemented:
+        my1_WorkQueue(const my1_WorkQueue&);
+
+      public:
         // CREATORS
         explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
         : d_alloc_p(bslma::Default::allocator(basicAllocator))
@@ -537,6 +542,11 @@ extern "C" void *my3_down(void *arg)
         bdlqq::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
+      private:
+        // Not implemented:
+        my2_WorkQueue(const my2_WorkQueue&);
+
+      public:
         // CREATORS
         explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
         : d_queue(basicAllocator)
@@ -1276,14 +1286,14 @@ int main(int argc, char *argv[])
             int status = bdlqq::ThreadUtil::create(&upHandle,
                                                   attributes,
                                                   &my3_up,
-                                                  a);
+                                                  static_cast<void *>(a));
             ASSERT(0 == status);
 
             bdlqq::ThreadUtil::Handle downHandle;
             status = bdlqq::ThreadUtil::create(&downHandle,
                                               attributes,
                                               &my3_down,
-                                              a);
+                                              static_cast<void *>(a));
             ASSERT(0 == status);
             status = bdlqq::ThreadUtil::join(upHandle);
             ASSERT(0 == status);

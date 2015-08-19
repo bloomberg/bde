@@ -1,4 +1,4 @@
-// bdlaggxxx_aggregate.cpp                                                 -*-C++-*-
+// bdlaggxxx_aggregate.cpp                                            -*-C++-*-
 #include <bdlaggxxx_aggregate.h>
 
 #include <bsls_ident.h>
@@ -36,7 +36,7 @@ namespace {
 typedef bsls::Types::Int64            Int64;
 
 // HELPER FUNCTIONS
-template <typename DATATYPE>
+template <class DATATYPE>
 inline
 bsl::shared_ptr<DATATYPE> makeValuePtrInplace(bslma::Allocator *basicAllocator)
     // Return a shared pointer to an object of type 'DATATYPE' using the
@@ -49,7 +49,7 @@ bsl::shared_ptr<DATATYPE> makeValuePtrInplace(bslma::Allocator *basicAllocator)
     return result;
 }
 
-template <typename DATATYPE>
+template <class DATATYPE>
 inline
 bsl::shared_ptr<DATATYPE>
 makeValuePtrInplaceWithAlloc(bslma::Allocator *basicAllocator)
@@ -122,111 +122,129 @@ Aggregate::makeValuePtr(bdlmxxx::ElemType::Type  type,
 
     switch (type) {
       case bdlmxxx::ElemType::BDEM_CHAR: {
-        return makeValuePtrInplace<char>(allocator);
+        return makeValuePtrInplace<char>(allocator);                  // RETURN
       }
       case bdlmxxx::ElemType::BDEM_SHORT: {
-        return makeValuePtrInplace<short>(allocator);
+        return makeValuePtrInplace<short>(allocator);                 // RETURN
       }
       case bdlmxxx::ElemType::BDEM_INT: {
-        return makeValuePtrInplace<int>(allocator);
+        return makeValuePtrInplace<int>(allocator);                   // RETURN
       }
       case bdlmxxx::ElemType::BDEM_INT64: {
-        return makeValuePtrInplace<Int64>(allocator);
+        return makeValuePtrInplace<Int64>(allocator);                 // RETURN
       }
       case bdlmxxx::ElemType::BDEM_FLOAT: {
-        return makeValuePtrInplace<float>(allocator);
+        return makeValuePtrInplace<float>(allocator);                 // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DOUBLE: {
-        return makeValuePtrInplace<double>(allocator);
+        return makeValuePtrInplace<double>(allocator);                // RETURN
       }
       case bdlmxxx::ElemType::BDEM_STRING: {
-        return makeValuePtrInplaceWithAlloc<bsl::string>(allocator);
+        return makeValuePtrInplaceWithAlloc<bsl::string>(allocator);  // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATETIME: {
-        return makeValuePtrInplace<bdlt::Datetime>(allocator);
+        return makeValuePtrInplace<bdlt::Datetime>(allocator);        // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATE: {
-        return makeValuePtrInplace<bdlt::Date>(allocator);
+        return makeValuePtrInplace<bdlt::Date>(allocator);            // RETURN
       }
       case bdlmxxx::ElemType::BDEM_TIME: {
-        return makeValuePtrInplace<bdlt::Time>(allocator);
+        return makeValuePtrInplace<bdlt::Time>(allocator);            // RETURN
       }
       case bdlmxxx::ElemType::BDEM_BOOL: {
-        return makeValuePtrInplace<bool>(allocator);
+        return makeValuePtrInplace<bool>(allocator);                  // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATETIMETZ: {
-        return makeValuePtrInplace<bdlt::DatetimeTz>(allocator);
+        return makeValuePtrInplace<bdlt::DatetimeTz>(allocator);      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATETZ: {
-        return makeValuePtrInplace<bdlt::DateTz>(allocator);
+        return makeValuePtrInplace<bdlt::DateTz>(allocator);          // RETURN
       }
       case bdlmxxx::ElemType::BDEM_TIMETZ: {
-        return makeValuePtrInplace<bdlt::TimeTz>(allocator);
+        return makeValuePtrInplace<bdlt::TimeTz>(allocator);          // RETURN
       }
       case bdlmxxx::ElemType::BDEM_CHAR_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<char> >(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_SHORT_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<short> >(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_INT_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<int> >(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_INT64_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<Int64> >(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_FLOAT_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<float> >(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DOUBLE_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<double> >(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_STRING_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bsl::string> >(
                                                                     allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATETIME_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bdlt::Datetime> >(
                                                                     allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATE_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bdlt::Date> >(
                                                                     allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_TIME_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bdlt::Time> >(
                                                                     allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_BOOL_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bool> >(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATETIMETZ_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bdlt::DatetimeTz> >(
                                                                     allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_DATETZ_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bdlt::DateTz> >(
                                                                     allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_TIMETZ_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bsl::vector<bdlt::TimeTz> >(
                                                                     allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_LIST: {
         return makeValuePtrInplaceWithAlloc<bdlmxxx::List>(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_TABLE: {
         return makeValuePtrInplaceWithAlloc<bdlmxxx::Table>(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_CHOICE: {
         return makeValuePtrInplaceWithAlloc<bdlmxxx::Choice>(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_CHOICE_ARRAY: {
         return makeValuePtrInplaceWithAlloc<bdlmxxx::ChoiceArray>(allocator);
+                                                                      // RETURN
       }
       case bdlmxxx::ElemType::BDEM_VOID:
       default: {
-        return bsl::shared_ptr<void>();
+        return bsl::shared_ptr<void>();                               // RETURN
       }
     }
 }
@@ -235,7 +253,7 @@ Aggregate::makeValuePtr(bdlmxxx::ElemType::Type  type,
 bsl::shared_ptr<const bdlmxxx::Schema> Aggregate::schemaPtr() const
 {
     if (0 == d_schemaRep_p) {
-        return bsl::shared_ptr<const bdlmxxx::Schema>();                  // RETURN
+        return bsl::shared_ptr<const bdlmxxx::Schema>();              // RETURN
     }
     d_schemaRep_p->acquireRef();
     return bsl::shared_ptr<const bdlmxxx::Schema>(d_aggregateRaw.schema(),
@@ -245,7 +263,7 @@ bsl::shared_ptr<const bdlmxxx::Schema> Aggregate::schemaPtr() const
 bsl::shared_ptr<const bdlmxxx::RecordDef> Aggregate::recordDefPtr() const
 {
     if (0 == d_schemaRep_p) {
-        return bsl::shared_ptr<const bdlmxxx::RecordDef>();               // RETURN
+        return bsl::shared_ptr<const bdlmxxx::RecordDef>();           // RETURN
     }
     d_schemaRep_p->acquireRef();
     bsl::shared_ptr<const bdlmxxx::Schema> schema_sp(d_aggregateRaw.schema(),
@@ -653,7 +671,7 @@ const Aggregate Aggregate::selection() const
                               d_isTopLevelAggregateNullRep_p);        // RETURN
     }
     else {
-        return makeError(errorDescription);
+        return makeError(errorDescription);                           // RETURN
     }
 }
 
@@ -1029,7 +1047,7 @@ Aggregate::clone(bslma::Allocator *basicAllocator) const
                     returnVal.d_aggregateRaw.setFieldDef(
                           &(returnVal.d_aggregateRaw.schema()->
                                record(recIndex).field(fieldIndex)));
-                    return returnVal;
+                    return returnVal;                                 // RETURN
                 } // end if (match)
             } // end for (each field in record)
         } // end for (each record in original schema)
@@ -1097,7 +1115,7 @@ Aggregate::cloneData(bslma::Allocator *basicAllocator) const
 
             // Return an empty aggregate
 
-            return Aggregate();                                  // RETURN
+            return Aggregate();                                       // RETURN
         }
       } break;
       default: {
@@ -1144,13 +1162,13 @@ Aggregate::cloneData(bslma::Allocator *basicAllocator) const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006, 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

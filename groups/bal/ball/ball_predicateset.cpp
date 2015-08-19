@@ -7,6 +7,8 @@ BSLS_IDENT_RCSID(ball_predicateset_cpp,"$Id$ $CSID$")
 #include <ball_attributecontainerlist.h>      // for testing only
 #include <ball_defaultattributecontainer.h>   // for testing only
 
+#include <bslim_printer.h>
+
 #include <bsl_iostream.h>
 
 namespace BloombergLP {
@@ -63,30 +65,22 @@ bool PredicateSet::evaluate(
 }
 
 bsl::ostream& PredicateSet::print(bsl::ostream& stream,
-                                       int           level,
-                                       int           spacesPerLevel) const
+                                  int           level,
+                                  int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-
-    stream << '{' <<  NL;
-
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
     for (const_iterator iter = begin(); iter != end(); ++iter) {
-        bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-        stream << *iter << NL;
+        printer.printValue(*iter);
     }
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
-
+    printer.end();
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bool ball::operator==(const PredicateSet& lhs,
-                const PredicateSet& rhs)
+bool ball::operator==(const PredicateSet& lhs, const PredicateSet& rhs)
 {
     if (lhs.numPredicates() != rhs.numPredicates()) {
         return false;                                                 // RETURN
@@ -102,19 +96,25 @@ bool ball::operator==(const PredicateSet& lhs,
     return true;
 }
 
-bool ball::operator!=(const PredicateSet& lhs,
-                const PredicateSet& rhs)
+bool ball::operator!=(const PredicateSet& lhs, const PredicateSet& rhs)
 {
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

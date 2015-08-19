@@ -114,9 +114,9 @@ bool operator!=(const NonAssignableTestType& lhs,
     // objects do not have the same value if their 'data' attributes are not
     // the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------------------
                         // class NonAssignableTestType

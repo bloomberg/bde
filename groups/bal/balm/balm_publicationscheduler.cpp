@@ -75,7 +75,7 @@ bsl::ostream& printCategorySet(
     return stream;
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 namespace balm {
                // ==========================================
@@ -180,7 +180,7 @@ class PublicationScheduler_ClockData {
 // CREATORS
 PublicationScheduler_ClockData::PublicationScheduler_ClockData(
                                               bslma::Allocator *basicAllocator)
-: d_handle(bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE)
+: d_handle(bdlmt::TimerEventScheduler::e_INVALID_HANDLE)
 , d_categories(basicAllocator)
 , d_default(false)
 , d_nonDefaultCategories(basicAllocator)
@@ -294,7 +294,7 @@ PublicationScheduler_Proctor::~PublicationScheduler_Proctor()
             // have an invalid handle) if an exception occurred between the
             // 'ClockData' objects creation (and insertion into 'd_clocks')
             // and the call to 'bdlmt::TimerEventScheduler::startClock'.
-            if (bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE !=
+            if (bdlmt::TimerEventScheduler::e_INVALID_HANDLE !=
                 it->second->handle()) {
                 d_scheduler_p->d_scheduler_p->cancelClock(
                                                   it->second->handle(), true);
@@ -389,7 +389,7 @@ int PublicationScheduler::cancelDefaultSchedule()
     // 'PublicationScheduler_ClockData' object to reflect that change.
 
     if (d_defaultInterval == INVALID_INTERVAL()) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bsls::TimeInterval interval = d_defaultInterval;
@@ -405,7 +405,7 @@ int PublicationScheduler::cancelDefaultSchedule()
     // the 'ClockData' as not being the default schedule's clock.
     if (clock->categories().empty()) {
         BSLS_ASSERT(clock->handle() !=
-                       bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE);
+                       bdlmt::TimerEventScheduler::e_INVALID_HANDLE);
         d_scheduler_p->cancelClock(clock->handle());
         d_clocks.erase(clockIt);
     }
@@ -524,7 +524,7 @@ void PublicationScheduler::setDefaultSchedule(
     // If 'interval' equals the existing default schedule interval, return
     // immediately.
     if (interval == d_defaultInterval) {
-        return;
+        return;                                                       // RETURN
     }
 
     cancelDefaultSchedule();
@@ -562,7 +562,7 @@ void PublicationScheduler::setDefaultSchedule(
 
     // If this is a new 'ClockData' (i.e., its handle is invalid), schedule it
     // with the underlying 'bdlmt::TimerEventScheduler' object.
-    if (clock->handle() == bdlmt::TimerEventScheduler::BCEP_INVALID_HANDLE) {
+    if (clock->handle() == bdlmt::TimerEventScheduler::e_INVALID_HANDLE) {
         clock->handle() = d_scheduler_p->startClock(
             interval,
             bdlf::BindUtil::bindA(d_allocator_p,
@@ -582,7 +582,7 @@ int PublicationScheduler::cancelCategorySchedule(
     Categories::iterator cIt = d_categories.find(category);
     if (cIt == d_categories.end()) {
         // This category has no specific schedule.
-        return -1;                                                // RETURN
+        return -1;                                                    // RETURN
     }
     cancelCategory(cIt);
 
@@ -616,7 +616,7 @@ PublicationScheduler::findCategorySchedule(
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     Categories::const_iterator catIt = d_categories.find(category);
     if (catIt == d_categories.end()) {
-        return false;
+        return false;                                                 // RETURN
     }
     *result = catIt->second;
     return true;
@@ -627,7 +627,7 @@ PublicationScheduler::getDefaultSchedule(bsls::TimeInterval *result) const
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (d_defaultInterval == INVALID_INTERVAL()) {
-        return false;
+        return false;                                                 // RETURN
     }
     *result = d_defaultInterval;
     return true;
@@ -730,13 +730,20 @@ PublicationScheduler::print(bsl::ostream&   stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

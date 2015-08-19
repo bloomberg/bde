@@ -59,9 +59,9 @@ using namespace BloombergLP;
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -72,7 +72,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::printf("%s: %x\n", #I, I);                               \
                 aSsErT(1, #X, __LINE__); } }
@@ -272,17 +272,17 @@ int main(int argc, char *argv[])
     ASSERT(true == bdlb::Float::isZero(zero));
     ASSERT(true == bdlb::Float::isInfinite(a));
     ASSERT(true == bdlb::Float::isInfinite(b));
-    ASSERT(bdlb::Float::BDES_ZERO     == bdlb::Float::classify(zero));
-    ASSERT(bdlb::Float::BDES_INFINITE == bdlb::Float::classify(a));
-    ASSERT(bdlb::Float::BDES_INFINITE == bdlb::Float::classify(b));
-    ASSERT(bdlb::Float::BDES_POSITIVE_INFINITY == bdlb::Float::classifyFine(a));
-    ASSERT(bdlb::Float::BDES_NEGATIVE_INFINITY == bdlb::Float::classifyFine(b));
+    ASSERT(bdlb::Float::k_ZERO     == bdlb::Float::classify(zero));
+    ASSERT(bdlb::Float::k_INFINITE == bdlb::Float::classify(a));
+    ASSERT(bdlb::Float::k_INFINITE == bdlb::Float::classify(b));
+    ASSERT(bdlb::Float::k_POSITIVE_INFINITY == bdlb::Float::classifyFine(a));
+    ASSERT(bdlb::Float::k_NEGATIVE_INFINITY == bdlb::Float::classifyFine(b));
 //..
 // Note that the sign rules apply as usual:
 //..
     double nzero = -0.0;
     double bn = -0.55 / nzero;
-    ASSERT(bdlb::Float::BDES_POSITIVE_INFINITY == bdlb::Float::classifyFine(bn));
+    ASSERT(bdlb::Float::k_POSITIVE_INFINITY == bdlb::Float::classifyFine(bn));
 //..
 // The result of multiplying infinity by infinity is also infinity, but the
 // result of multiplying infinity by zero is an indeterminate value (quiet
@@ -312,8 +312,8 @@ int main(int argc, char *argv[])
     ASSERT(false == bdlb::Float::isSubnormal(e));
     ASSERT(false == bdlb::Float::isNormal(f));
     ASSERT(true  == bdlb::Float::isSubnormal(f));
-    ASSERT(bdlb::Float::BDES_NORMAL    == bdlb::Float::classify(e));
-    ASSERT(bdlb::Float::BDES_SUBNORMAL == bdlb::Float::classify(f));
+    ASSERT(bdlb::Float::k_NORMAL    == bdlb::Float::classify(e));
+    ASSERT(bdlb::Float::k_SUBNORMAL == bdlb::Float::classify(f));
 //..
 // The 'Classification' enumeration type is designed so that each
 // classification occupies a separate bit.  This makes it easy to test for
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
 // very that zero or denormalized (i.e., very small), we can detect both
 // conditions with a single mask:
 //..
-    const int SMALL_MASK = bdlb::Float::BDES_ZERO | bdlb::Float::BDES_SUBNORMAL;
+    const int SMALL_MASK = bdlb::Float::k_ZERO | bdlb::Float::k_SUBNORMAL;
     ASSERT(0 != (SMALL_MASK & bdlb::Float::classify(0.0)));
     ASSERT(0 != (SMALL_MASK & bdlb::Float::classify(f)));
     ASSERT(0 == (SMALL_MASK & bdlb::Float::classify(e)));
@@ -382,19 +382,19 @@ int main(int argc, char *argv[])
 
         static const int X = -1; // Unknown result
 
-        static const int NEGATIVE      = Obj::BDES_NEGATIVE;
-        static const int SIGNALING     = Obj::BDES_SIGNALING;
+        static const int NEGATIVE      = Obj::k_NEGATIVE;
+        static const int SIGNALING     = Obj::k_SIGNALING;
 
-        static const int POS_INFINITY  = Obj::BDES_POSITIVE_INFINITY;
-        static const int NEG_INFINITY  = Obj::BDES_NEGATIVE_INFINITY;
-        static const int QNAN          = Obj::BDES_QNAN;
-        static const int SNAN          = Obj::BDES_SNAN;
-        static const int POS_NORMAL    = Obj::BDES_POSITIVE_NORMAL;
-        static const int NEG_NORMAL    = Obj::BDES_NEGATIVE_NORMAL;
-        static const int POS_SUBNORMAL = Obj::BDES_POSITIVE_SUBNORMAL;
-        static const int NEG_SUBNORMAL = Obj::BDES_NEGATIVE_SUBNORMAL;
-        static const int POS_ZERO      = Obj::BDES_POSITIVE_ZERO;
-        static const int NEG_ZERO      = Obj::BDES_NEGATIVE_ZERO;
+        static const int POS_INFINITY  = Obj::k_POSITIVE_INFINITY;
+        static const int NEG_INFINITY  = Obj::k_NEGATIVE_INFINITY;
+        static const int QNAN          = Obj::k_QNAN;
+        static const int SNAN          = Obj::k_SNAN;
+        static const int POS_NORMAL    = Obj::k_POSITIVE_NORMAL;
+        static const int NEG_NORMAL    = Obj::k_NEGATIVE_NORMAL;
+        static const int POS_SUBNORMAL = Obj::k_POSITIVE_SUBNORMAL;
+        static const int NEG_SUBNORMAL = Obj::k_NEGATIVE_SUBNORMAL;
+        static const int POS_ZERO      = Obj::k_POSITIVE_ZERO;
+        static const int NEG_ZERO      = Obj::k_NEGATIVE_ZERO;
 
 // This macro tests a function 'bdlb::Float::f(input)', where 'f' is the name
 // of one of the class functions in 'bdlb::Float'.  We assume that there is a
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
                 // equivalent QNaN results.
                 isQuietNan |= isSignalingNan;
                 isSignalingNan = 0;
-                classifyFine &= ~Obj::BDES_SIGNALING;
+                classifyFine &= ~Obj::k_SIGNALING;
             }
 
             int classify = classifyFine & ~(NEGATIVE | SIGNALING);
@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
                 // equivalent QNaN results.
                 isQuietNan |= isSignalingNan;
                 isSignalingNan = 0;
-                classifyFine &= ~Obj::BDES_SIGNALING;
+                classifyFine &= ~Obj::k_SIGNALING;
             }
 
             int classify = classifyFine & ~(NEGATIVE | SIGNALING);
@@ -820,11 +820,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

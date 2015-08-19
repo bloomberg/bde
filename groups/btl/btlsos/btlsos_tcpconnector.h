@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a synchronous connector to TCP-based servers
+//@PURPOSE: Provide a synchronous connector to TCP-based servers.
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -17,9 +17,10 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlsos_tcpacceptor btlsos_tcptimedchannel
 //
 //@DESCRIPTION: This component provides a synchronous connector to TCP-based
-// servers that adheres to 'btlsc::ChannelAllocator' protocol.  Both timed and
-// non-timed (synchronous) channels can be allocated in a non-timed fashion
-// using the 'allocateTimed' and 'allocate' methods respectively.
+// servers, 'btlsos::TcpConnector', that adheres to 'btlsc::ChannelAllocator'
+// protocol.  Both timed and non-timed (synchronous) channels can be allocated
+// in a non-timed fashion using the 'allocateTimed' and 'allocate' methods
+// respectively.
 //
 // The connector has the flexibility of changing the address of the peer server
 // at run-time (and producing channels connected to this end-point) without any
@@ -107,11 +108,11 @@ BSLS_IDENT("$Id: $")
 //  int                  status;
 //  btlsc::TimedChannel *channel = connector.allocateTimed(&status);
 //  if (!channel) {
-//      assert(0 >= status);  // Async interrupts are *not* enabled.
+//      assert(0 >= status);  // Asynchronous interrupts are *not* enabled.
 //      bsl::cout << "Failed to connect to the peer." << bsl::endl;
 //      // In any case, invalidate the allocator, and exit.
 //      connector.invalidate();
-//      return -1;
+//      return -1;                                                    // RETURN
 //  }
 //..
 // Send 'NUM_PACKETS' packets to the server, wait for the response for each,
@@ -225,19 +226,19 @@ class TcpConnector : public btlsc::ChannelAllocator {
         // *fail* until the peer address is specified (using 'setPeer').
 
     TcpConnector(
-             btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-             int                                           numElements,
-             bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           int                                             numElements,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a connector that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'numElements' channels without reallocation.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if 'factory' is 0 or 0 >=
-        // numElements.  Note that connector is created NOT in an invalid state
-        // (as reported by the 'isInvalid' method), though subsequent
-        // allocations will *fail* until the peer is specified (using
-        // 'setPeer').
+        // used.  The behavior is undefined if 'factory' is 0 or
+        // '0 >= numElements'.  Note that connector is created NOT in an
+        // invalid state (as reported by the 'isInvalid' method), though
+        // subsequent allocations will *fail* until the peer is specified
+        // (using 'setPeer').
 
     ~TcpConnector();
         // Destroy this connector.  The behavior is undefined if there are any
@@ -309,9 +310,9 @@ class TcpConnector : public btlsc::ChannelAllocator {
         // connector.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 // MANIPULATORS
 inline

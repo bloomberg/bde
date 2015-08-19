@@ -236,17 +236,18 @@ class ChannelPoolConfiguration {
     //
     // More generally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment, equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  (A precise
-    // operational definition of when two instances have the same value can be
-    // found in the description of 'operator==' for the class.)  This class is
-    // *exception* *neutral* with no guarantee of rollback: if an exception is
-    // thrown during the invocation of a method on a pre-existing instance, the
-    // object is left in a valid state, but its value is undefined.  In no
-    // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
-    // an object as both source and destination) is supported in all cases.
+    // comparison, 'ostream' printing, but not 'bdex' serialization.  (A
+    // precise operational definition of when two instances have the same value
+    // can be found in the description of 'operator==' for the class.)  This
+    // class is *exception* *neutral* with no guarantee of rollback: if an
+    // exception is thrown during the invocation of a method on a pre-existing
+    // instance, the object is left in a valid state, but its value is
+    // undefined.  In no event is memory leaked.  Finally, *aliasing* (e.g.,
+    // using all or part of an object as both source and destination) is
+    // supported in all cases.
 
   private:
-    enum { BTEMT_DEFAULT_THREAD_STACK_SIZE  = 1024 * 1024 };
+    enum { k_DEFAULT_THREAD_STACK_SIZE  = 1024 * 1024 };
 
     // Resource limits
     int                   d_maxConnections;    // maximum number of connections
@@ -288,69 +289,104 @@ class ChannelPoolConfiguration {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 14 // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 14 // the number of attributes in this class
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_MAX_CONNECTIONS      = 0,
+        e_ATTRIBUTE_INDEX_MAX_CONNECTIONS      = 0,
             // index for 'MaxConnections' attribute
-        ATTRIBUTE_INDEX_MAX_THREADS          = 1,
+        e_ATTRIBUTE_INDEX_MAX_THREADS          = 1,
             // index for 'MaxThreads' attribute
-        ATTRIBUTE_INDEX_READ_TIMEOUT         = 2,
+        e_ATTRIBUTE_INDEX_READ_TIMEOUT         = 2,
             // index for 'ReadTimeout' attribute
-        ATTRIBUTE_INDEX_METRICS_INTERVAL     = 3,
+        e_ATTRIBUTE_INDEX_METRICS_INTERVAL     = 3,
             // index for 'MetricsInterval' attribute
-        ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = 4,
+        e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = 4,
             // index for 'MinMessageSizeOut' attribute
-        ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = 5,
+        e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = 5,
             // index for 'TypMessageSizeOut' attribute
-        ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = 6,
+        e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = 6,
             // index for 'MaxMessageSizeOut' attribute
-        ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN  = 7,
+        e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN  = 7,
             // index for 'MinMessageSizeIn' attribute
-        ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN  = 8,
+        e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN  = 8,
             // index for 'TypMessageSizeIn' attribute
-        ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  = 9,
+        e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  = 9,
             // index for 'MaxMessageSizeIn' attribute
-        ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  = 10,
+        e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  = 10,
             // index for 'WriteCacheLowWat' attribute
-        ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   = 11,
+        e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   = 11,
             // index for 'WriteCacheHiWat' attribute
-        ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
+        e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
             // index for 'ThreadStackSize' attribute
-        ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
+        e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
             // index for 'CollectTimeMetrics' attribute
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_MAX_CONNECTIONS = e_ATTRIBUTE_INDEX_MAX_CONNECTIONS
+      , ATTRIBUTE_INDEX_MAX_THREADS = e_ATTRIBUTE_INDEX_MAX_THREADS
+      , ATTRIBUTE_INDEX_READ_TIMEOUT = e_ATTRIBUTE_INDEX_READ_TIMEOUT
+      , ATTRIBUTE_INDEX_METRICS_INTERVAL = e_ATTRIBUTE_INDEX_METRICS_INTERVAL
+      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT = e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT
+      , ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT = e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT
+      , ATTRIBUTE_INDEX_THREAD_STACK_SIZE = e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE
+      , ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_ID_MAX_CONNECTIONS         = 1,
+        e_ATTRIBUTE_ID_MAX_CONNECTIONS         = 1,
             // id for 'MaxConnections' attribute
-        ATTRIBUTE_ID_MAX_THREADS             = 2,
+        e_ATTRIBUTE_ID_MAX_THREADS             = 2,
             // id for 'MaxThreads' attribute
-        ATTRIBUTE_ID_READ_TIMEOUT            = 3,
+        e_ATTRIBUTE_ID_READ_TIMEOUT            = 3,
             // id for 'ReadTimeout' attribute
-        ATTRIBUTE_ID_METRICS_INTERVAL        = 4,
+        e_ATTRIBUTE_ID_METRICS_INTERVAL        = 4,
             // id for 'MetricsInterval' attribute
-        ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT    = 5,
+        e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT    = 5,
             // id for 'MinMessageSizeOut' attribute
-        ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT    = 6,
+        e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT    = 6,
             // id for 'TypMessageSizeOut' attribute
-        ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT    = 7,
+        e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT    = 7,
             // id for 'MaxMessageSizeOut' attribute
-        ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN     = 8,
+        e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN     = 8,
             // id for 'MinMessageSizeIn' attribute
-        ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN     = 9,
+        e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN     = 9,
             // id for 'TypMessageSizeIn' attribute
-        ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN     = 10,
+        e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN     = 10,
             // id for 'MaxMessageSizeIn' attribute
-        ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT     = 11,
+        e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT     = 11,
             // id for 'WriteCacheLowWat' attribute
-        ATTRIBUTE_ID_WRITE_CACHE_HI_WAT      = 12,
+        e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT      = 12,
             // id for 'WriteCacheHiWat' attribute
-        ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
+        e_ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
             // id for 'ThreadStackSize' attribute
-        ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
+        e_ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
             // id for 'CollectTimeMetrics' attribute
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_MAX_CONNECTIONS = e_ATTRIBUTE_ID_MAX_CONNECTIONS
+      , ATTRIBUTE_ID_MAX_THREADS = e_ATTRIBUTE_ID_MAX_THREADS
+      , ATTRIBUTE_ID_READ_TIMEOUT = e_ATTRIBUTE_ID_READ_TIMEOUT
+      , ATTRIBUTE_ID_METRICS_INTERVAL = e_ATTRIBUTE_ID_METRICS_INTERVAL
+      , ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT = e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT
+      , ATTRIBUTE_ID_WRITE_CACHE_HI_WAT = e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT
+      , ATTRIBUTE_ID_THREAD_STACK_SIZE = e_ATTRIBUTE_ID_THREAD_STACK_SIZE
+      , ATTRIBUTE_ID_COLLECT_TIME_METRICS = e_ATTRIBUTE_ID_COLLECT_TIME_METRICS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:
@@ -358,33 +394,21 @@ class ChannelPoolConfiguration {
     static const char CLASS_NAME[];
         // the name of this class
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(ChannelPoolConfiguration,
-                                  bdeat_TypeTraitBasicSequence,
+                                  bdlat_TypeTraitBasicSequence,
                                   bdlb::TypeTraitHasPrintMethod);
 
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-
-    static int maxSupportedVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-        //
-        // *DEPRECATED* Replaced by 'maxSupportedBdexVersion()'
-
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -484,18 +508,6 @@ class ChannelPoolConfiguration {
         // estimate of work-load when it attempts to distribute work amongst
         // its managed threads.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
-
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
@@ -588,15 +600,6 @@ class ChannelPoolConfiguration {
         // Write the specified 'configuration' value to the specified 'output'
         // stream in a reasonable multi-line format.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.  See the 'bdex'
-        // package-level documentation for more information on 'bdex' streaming
-        // of value-semantic types and containers.
-
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
@@ -663,7 +666,7 @@ int ChannelPoolConfiguration::setIncomingMessageSizes(int min,
         d_minMessageSizeIn = min;
         d_typMessageSizeIn = typical;
         d_maxMessageSizeIn = max;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -677,7 +680,7 @@ int ChannelPoolConfiguration::setOutgoingMessageSizes(int min,
         d_minMessageSizeOut = min;
         d_typMessageSizeOut = typical;
         d_maxMessageSizeOut = max;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -687,7 +690,7 @@ int ChannelPoolConfiguration::setMaxConnections(int maxConnections)
 {
     if (0 <= maxConnections) {
         d_maxConnections = maxConnections;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -697,7 +700,7 @@ int ChannelPoolConfiguration::setMaxThreads(int maxThreads)
 {
     if (0 <= maxThreads) {
         d_maxThreads = maxThreads;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -707,7 +710,7 @@ int ChannelPoolConfiguration::setMaxWriteCache(int numBytes)
 {
     if (0 <= numBytes) {
         d_writeCacheHiWat = numBytes;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -718,7 +721,7 @@ int ChannelPoolConfiguration::setThreadStackSize(
 {
     if (0 <= stackSize) {
         d_threadStackSize = stackSize;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -730,7 +733,7 @@ int ChannelPoolConfiguration::setWriteCacheWatermarks(
     if (0 <= lowWatermark && lowWatermark <= hiWatermark) {
         d_writeCacheLowWat = lowWatermark;
         d_writeCacheHiWat = hiWatermark;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -741,7 +744,7 @@ int ChannelPoolConfiguration::setMetricsInterval(
 {
     if (0 <= metricsInterval) {
         d_metricsInterval = metricsInterval;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -752,7 +755,7 @@ ChannelPoolConfiguration::setReadTimeout(double readTimeout)
 {
     if (0 <= readTimeout) {
         d_readTimeout = readTimeout;
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -771,565 +774,6 @@ int ChannelPoolConfiguration::setCollectTimeMetrics(
     return 0;
 }
 
-template <class STREAM>
-STREAM& ChannelPoolConfiguration::bdexStreamIn(STREAM& stream,
-                                                     int     version)
-{
-    if (stream) {
-        switch (version) { // switch on the version
-            case 5: {
-                int maxConnections;
-                stream.getInt32(maxConnections);
-                if (!stream || 0 > maxConnections) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxThreads;
-                stream.getInt32(maxThreads);
-                if (!stream || 0 > maxThreads) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheLowWat;
-                stream.getInt32(writeCacheLowWat);
-                if (!stream || 0 > writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheHiWat;
-                stream.getInt32(writeCacheHiWat);
-                if (!stream ||  writeCacheHiWat < writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double readTimeout;
-                stream.getFloat64(readTimeout);
-
-                if (!stream || 0 > readTimeout) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double metricsInterval;
-                stream.getFloat64(metricsInterval);
-
-                if (!stream || 0 > metricsInterval) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeOut;
-                stream.getInt32(minMessageSizeOut);
-                if (!stream || 0 > minMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeOut;
-                stream.getInt32(typMessageSizeOut);
-                if (!stream || minMessageSizeOut > typMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeOut;
-                stream.getInt32(maxMessageSizeOut);
-                if (!stream || typMessageSizeOut > maxMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeIn;
-                stream.getInt32(minMessageSizeIn);
-                if (!stream || 0 > minMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeIn;
-                stream.getInt32(typMessageSizeIn);
-                if (!stream || minMessageSizeIn > typMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeIn;
-                stream.getInt32(maxMessageSizeIn);
-                if (!stream || typMessageSizeIn > maxMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int threadStackSize;
-                stream.getInt32(threadStackSize);
-                if (!stream || 0 > threadStackSize) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                unsigned char collectTimeMetrics;
-                stream.getUint8(collectTimeMetrics);
-                if (!stream) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                d_maxConnections     = maxConnections;
-                d_maxThreads         = maxThreads;
-                d_writeCacheLowWat   = writeCacheLowWat;
-                d_writeCacheHiWat    = writeCacheHiWat;
-                d_readTimeout        = readTimeout;
-                d_metricsInterval    = metricsInterval;
-                d_minMessageSizeOut  = minMessageSizeOut;
-                d_typMessageSizeOut  = typMessageSizeOut;
-                d_maxMessageSizeOut  = maxMessageSizeOut;
-                d_minMessageSizeIn   = minMessageSizeIn;
-                d_typMessageSizeIn   = typMessageSizeIn;
-                d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = threadStackSize;
-                d_collectTimeMetrics = collectTimeMetrics;
-            } break;
-            case 4: {
-                int maxConnections;
-                stream.getInt32(maxConnections);
-                if (!stream || 0 > maxConnections) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxThreads;
-                stream.getInt32(maxThreads);
-                if (!stream || 0 > maxThreads) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheLowWat;
-                stream.getInt32(writeCacheLowWat);
-                if (!stream || 0 > writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheHiWat;
-                stream.getInt32(writeCacheHiWat);
-                if (!stream ||  writeCacheHiWat < writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double readTimeout;
-                stream.getFloat64(readTimeout);
-
-                if (!stream || 0 > readTimeout) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double metricsInterval;
-                stream.getFloat64(metricsInterval);
-
-                if (!stream || 0 > metricsInterval) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeOut;
-                stream.getInt32(minMessageSizeOut);
-                if (!stream || 0 > minMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeOut;
-                stream.getInt32(typMessageSizeOut);
-                if (!stream || minMessageSizeOut > typMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeOut;
-                stream.getInt32(maxMessageSizeOut);
-                if (!stream || typMessageSizeOut > maxMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeIn;
-                stream.getInt32(minMessageSizeIn);
-                if (!stream || 0 > minMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeIn;
-                stream.getInt32(typMessageSizeIn);
-                if (!stream || minMessageSizeIn > typMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeIn;
-                stream.getInt32(maxMessageSizeIn);
-                if (!stream || typMessageSizeIn > maxMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int threadStackSize;
-                stream.getInt32(threadStackSize);
-                if (!stream || 0 > threadStackSize) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                d_maxConnections     = maxConnections;
-                d_maxThreads         = maxThreads;
-                d_writeCacheLowWat   = writeCacheLowWat;
-                d_writeCacheHiWat    = writeCacheHiWat;
-                d_readTimeout        = readTimeout;
-                d_metricsInterval    = metricsInterval;
-                d_minMessageSizeOut  = minMessageSizeOut;
-                d_typMessageSizeOut  = typMessageSizeOut;
-                d_maxMessageSizeOut  = maxMessageSizeOut;
-                d_minMessageSizeIn   = minMessageSizeIn;
-                d_typMessageSizeIn   = typMessageSizeIn;
-                d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = threadStackSize;
-                d_collectTimeMetrics = true;
-
-            } break;
-            case 3: {
-                int maxConnections;
-                stream.getInt32(maxConnections);
-                if (!stream || 0 > maxConnections) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxThreads;
-                stream.getInt32(maxThreads);
-                if (!stream || 0 > maxThreads) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheLowWat;
-                stream.getInt32(writeCacheLowWat);
-                if (!stream || 0 > writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheHiWat;
-                stream.getInt32(writeCacheHiWat);
-                if (!stream ||  writeCacheHiWat < writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double readTimeout;
-                stream.getFloat64(readTimeout);
-
-                if (!stream || 0 > readTimeout) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double metricsInterval;
-                stream.getFloat64(metricsInterval);
-
-                if (!stream || 0 > metricsInterval) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeOut;
-                stream.getInt32(minMessageSizeOut);
-                if (!stream || 0 > minMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeOut;
-                stream.getInt32(typMessageSizeOut);
-                if (!stream || minMessageSizeOut > typMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeOut;
-                stream.getInt32(maxMessageSizeOut);
-                if (!stream || typMessageSizeOut > maxMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeIn;
-                stream.getInt32(minMessageSizeIn);
-                if (!stream || 0 > minMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeIn;
-                stream.getInt32(typMessageSizeIn);
-                if (!stream || minMessageSizeIn > typMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeIn;
-                stream.getInt32(maxMessageSizeIn);
-                if (!stream || typMessageSizeIn > maxMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                d_maxConnections     = maxConnections;
-                d_maxThreads         = maxThreads;
-                d_writeCacheLowWat   = writeCacheLowWat;
-                d_writeCacheHiWat    = writeCacheHiWat;
-                d_readTimeout        = readTimeout;
-                d_metricsInterval    = metricsInterval;
-                d_minMessageSizeOut  = minMessageSizeOut;
-                d_typMessageSizeOut  = typMessageSizeOut;
-                d_maxMessageSizeOut  = maxMessageSizeOut;
-                d_minMessageSizeIn   = minMessageSizeIn;
-                d_typMessageSizeIn   = typMessageSizeIn;
-                d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = BTEMT_DEFAULT_THREAD_STACK_SIZE;
-                d_collectTimeMetrics = true;
-
-            } break;
-            case 2: {
-                int maxConnections;
-                stream.getInt32(maxConnections);
-                if (!stream || 0 > maxConnections) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxThreads;
-                stream.getInt32(maxThreads);
-                if (!stream || 0 > maxThreads) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheLowWat;
-                stream.getInt32(writeCacheLowWat);
-                if (!stream || 0 > writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheHiWat;
-                stream.getInt32(writeCacheHiWat);
-                if (!stream ||  writeCacheHiWat < writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double readTimeout;
-                stream.getFloat64(readTimeout);
-
-                if (!stream || 0 > readTimeout) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double metricsInterval;
-                stream.getFloat64(metricsInterval);
-
-                if (!stream || 0 > metricsInterval) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeOut;
-                stream.getInt32(minMessageSizeOut);
-                if (!stream || 0 > minMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeOut;
-                stream.getInt32(typMessageSizeOut);
-                if (!stream || minMessageSizeOut > typMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeOut;
-                stream.getInt32(maxMessageSizeOut);
-                if (!stream || typMessageSizeOut > maxMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeIn;
-                stream.getInt32(minMessageSizeIn);
-                if (!stream || 0 > minMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeIn;
-                stream.getInt32(typMessageSizeIn);
-                if (!stream || minMessageSizeIn > typMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeIn;
-                stream.getInt32(maxMessageSizeIn);
-                if (!stream || typMessageSizeIn > maxMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int threshold;
-                stream.getInt32(threshold);
-                if (!stream || 0 > threshold) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                d_maxConnections     = maxConnections;
-                d_maxThreads         = maxThreads;
-                d_writeCacheLowWat   = writeCacheLowWat;
-                d_writeCacheHiWat    = writeCacheHiWat;
-                d_readTimeout        = readTimeout;
-                d_metricsInterval    = metricsInterval;
-                d_minMessageSizeOut  = minMessageSizeOut;
-                d_typMessageSizeOut  = typMessageSizeOut;
-                d_maxMessageSizeOut  = maxMessageSizeOut;
-                d_minMessageSizeIn   = minMessageSizeIn;
-                d_typMessageSizeIn   = typMessageSizeIn;
-                d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = BTEMT_DEFAULT_THREAD_STACK_SIZE;
-                d_collectTimeMetrics = true;
-                (void) threshold; // *DEPRECATED*  Ignored
-
-            } break;
-            case 1: {
-                int maxConnections;
-                stream.getInt32(maxConnections);
-                if (!stream || 0 > maxConnections) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxThreads;
-                stream.getInt32(maxThreads);
-                if (!stream || 0 > maxThreads) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int writeCacheLowWat = 0;
-                int writeCacheHiWat;
-                stream.getInt32(writeCacheHiWat);
-                if (!stream ||  writeCacheHiWat < writeCacheLowWat) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double readTimeout;
-                stream.getFloat64(readTimeout);
-
-                if (!stream || 0 > readTimeout) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                double metricsInterval;
-                stream.getFloat64(metricsInterval);
-
-                if (!stream || 0 > metricsInterval) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeOut;
-                stream.getInt32(minMessageSizeOut);
-                if (!stream || 0 > minMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeOut;
-                stream.getInt32(typMessageSizeOut);
-                if (!stream || minMessageSizeOut > typMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeOut;
-                stream.getInt32(maxMessageSizeOut);
-                if (!stream || typMessageSizeOut > maxMessageSizeOut) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int minMessageSizeIn;
-                stream.getInt32(minMessageSizeIn);
-                if (!stream || 0 > minMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int typMessageSizeIn;
-                stream.getInt32(typMessageSizeIn);
-                if (!stream || minMessageSizeIn > typMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int maxMessageSizeIn;
-                stream.getInt32(maxMessageSizeIn);
-                if (!stream || typMessageSizeIn > maxMessageSizeIn) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                int threshold;
-                stream.getInt32(threshold);
-                if (!stream || 0 > threshold) {
-                    stream.invalidate();
-                    return stream;
-                }
-
-                d_maxConnections     = maxConnections;
-                d_maxThreads         = maxThreads;
-                d_writeCacheLowWat   = writeCacheLowWat;
-                d_writeCacheHiWat    = writeCacheHiWat;
-                d_readTimeout        = readTimeout;
-                d_metricsInterval    = metricsInterval;
-                d_minMessageSizeOut  = minMessageSizeOut;
-                d_typMessageSizeOut  = typMessageSizeOut;
-                d_maxMessageSizeOut  = maxMessageSizeOut;
-                d_minMessageSizeIn   = minMessageSizeIn;
-                d_typMessageSizeIn   = typMessageSizeIn;
-                d_maxMessageSizeIn   = maxMessageSizeIn;
-                d_threadStackSize    = BTEMT_DEFAULT_THREAD_STACK_SIZE;
-                d_collectTimeMetrics = true;
-                (void) threshold; // *DEPRECATED*  Ignored
-
-            } break;
-            default: {
-                stream.invalidate();
-            }
-        }
-    }
-    return stream;
-}
-
 template <class MANIPULATOR>
 int ChannelPoolConfiguration::manipulateAttributes(
                                                       MANIPULATOR& manipulator)
@@ -1337,87 +781,87 @@ int ChannelPoolConfiguration::manipulateAttributes(
     int ret;
 
     ret = manipulator(&d_maxConnections,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxThreads,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_readTimeout,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_metricsInterval,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_collectTimeMetrics,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1428,82 +872,82 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                       MANIPULATOR& manipulator,
                                                       int          id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_CONNECTIONS: {
+      case e_ATTRIBUTE_ID_MAX_CONNECTIONS: {
         return manipulator(&d_maxConnections,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
-                                                                    // RETURN
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_THREADS: {
+      case e_ATTRIBUTE_ID_MAX_THREADS: {
         return manipulator(&d_maxThreads,
-                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
-                                                                    // RETURN
+                            ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_READ_TIMEOUT: {
+      case e_ATTRIBUTE_ID_READ_TIMEOUT: {
         return manipulator(&d_readTimeout,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
-                                                                    // RETURN
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_METRICS_INTERVAL: {
+      case e_ATTRIBUTE_ID_METRICS_INTERVAL: {
         return manipulator(&d_metricsInterval,
-                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
-                                                                    // RETURN
+                       ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
         return manipulator(&d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
         return manipulator(&d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
         return manipulator(&d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
         return manipulator(&d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
         return manipulator(&d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
         return manipulator(&d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
         return manipulator(&d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
         return manipulator(&d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
-                                                                    // RETURN
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_THREAD_STACK_SIZE: {
+      case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
         return manipulator(&d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
-                                                                    // RETURN
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
+      case e_ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
         return manipulator(&d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                                                                      // RETURN
       } break;
 
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -1514,12 +958,12 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                      const char   *name,
                                                      int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1599,94 +1043,6 @@ bsl::ostream& ChannelPoolConfiguration::
     return stream << *this;
 }
 
-template <class STREAM>
-STREAM& ChannelPoolConfiguration::bdexStreamOut(STREAM& stream,
-                                                      int     version) const
-{
-    switch (version) {
-      case 5: {
-        stream.putInt32(d_maxConnections);
-        stream.putInt32(d_maxThreads);
-        stream.putInt32(d_writeCacheLowWat);
-        stream.putInt32(d_writeCacheHiWat);
-        stream.putFloat64(d_readTimeout);
-        stream.putFloat64(d_metricsInterval);
-
-        stream.putInt32(d_minMessageSizeOut);
-        stream.putInt32(d_typMessageSizeOut);
-        stream.putInt32(d_maxMessageSizeOut);
-        stream.putInt32(d_minMessageSizeIn);
-        stream.putInt32(d_typMessageSizeIn);
-        stream.putInt32(d_maxMessageSizeIn);
-        stream.putInt32(d_threadStackSize);
-        stream.putUint8(d_collectTimeMetrics);
-      } break;
-      case 4: {
-        stream.putInt32(d_maxConnections);
-        stream.putInt32(d_maxThreads);
-        stream.putInt32(d_writeCacheLowWat);
-        stream.putInt32(d_writeCacheHiWat);
-        stream.putFloat64(d_readTimeout);
-        stream.putFloat64(d_metricsInterval);
-
-        stream.putInt32(d_minMessageSizeOut);
-        stream.putInt32(d_typMessageSizeOut);
-        stream.putInt32(d_maxMessageSizeOut);
-        stream.putInt32(d_minMessageSizeIn);
-        stream.putInt32(d_typMessageSizeIn);
-        stream.putInt32(d_maxMessageSizeIn);
-        stream.putInt32(d_threadStackSize);
-      } break;
-      case 3: {
-        stream.putInt32(d_maxConnections);
-        stream.putInt32(d_maxThreads);
-        stream.putInt32(d_writeCacheLowWat);
-        stream.putInt32(d_writeCacheHiWat);
-        stream.putFloat64(d_readTimeout);
-        stream.putFloat64(d_metricsInterval);
-
-        stream.putInt32(d_minMessageSizeOut);
-        stream.putInt32(d_typMessageSizeOut);
-        stream.putInt32(d_maxMessageSizeOut);
-        stream.putInt32(d_minMessageSizeIn);
-        stream.putInt32(d_typMessageSizeIn);
-        stream.putInt32(d_maxMessageSizeIn);
-      } break;
-      case 2: {
-        stream.putInt32(d_maxConnections);
-        stream.putInt32(d_maxThreads);
-        stream.putInt32(d_writeCacheLowWat);
-        stream.putInt32(d_writeCacheHiWat);
-        stream.putFloat64(d_readTimeout);
-        stream.putFloat64(d_metricsInterval);
-
-        stream.putInt32(d_minMessageSizeOut);
-        stream.putInt32(d_typMessageSizeOut);
-        stream.putInt32(d_maxMessageSizeOut);
-        stream.putInt32(d_minMessageSizeIn);
-        stream.putInt32(d_typMessageSizeIn);
-        stream.putInt32(d_maxMessageSizeIn);
-        stream.putInt32(100);
-      } break;
-      case 1: {
-        stream.putInt32(d_maxConnections);
-        stream.putInt32(d_maxThreads);
-        stream.putInt32(d_writeCacheHiWat);
-        stream.putFloat64(d_readTimeout);
-        stream.putFloat64(d_metricsInterval);
-
-        stream.putInt32(d_minMessageSizeOut);
-        stream.putInt32(d_typMessageSizeOut);
-        stream.putInt32(d_maxMessageSizeOut);
-        stream.putInt32(d_minMessageSizeIn);
-        stream.putInt32(d_typMessageSizeIn);
-        stream.putInt32(d_maxMessageSizeIn);
-        stream.putInt32(100);
-      } break;
-    }
-    return stream;
-}
-
 inline
 int ChannelPoolConfiguration::workloadThreshold() const
 {
@@ -1719,87 +1075,87 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
     int ret;
 
     ret = accessor(d_maxConnections,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxThreads,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_readTimeout,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_metricsInterval,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_minMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_typMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_writeCacheLowWat,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_writeCacheHiWat,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_threadStackSize,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1810,82 +1166,82 @@ int
 ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
                                                                           const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_CONNECTIONS: {
+      case e_ATTRIBUTE_ID_MAX_CONNECTIONS: {
         return accessor(d_maxConnections,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
-                                                                    // RETURN
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_THREADS: {
+      case e_ATTRIBUTE_ID_MAX_THREADS: {
         return accessor(d_maxThreads,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_THREADS]);
-                                                                    // RETURN
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_READ_TIMEOUT: {
+      case e_ATTRIBUTE_ID_READ_TIMEOUT: {
         return accessor(d_readTimeout,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_READ_TIMEOUT]);
-                                                                    // RETURN
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_METRICS_INTERVAL: {
+      case e_ATTRIBUTE_ID_METRICS_INTERVAL: {
         return accessor(d_metricsInterval,
-                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_METRICS_INTERVAL]);
-                                                                    // RETURN
+                       ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
         return accessor(d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
         return accessor(d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
         return accessor(d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
         return accessor(d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
         return accessor(d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
+      case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
         return accessor(d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
         return accessor(d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
-                                                                    // RETURN
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
         return accessor(d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
-                                                                    // RETURN
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_THREAD_STACK_SIZE: {
+      case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
         return accessor(d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
-                                                                    // RETURN
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+                                                                      // RETURN
       } break;
-      case ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
+      case e_ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
         return accessor(d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
-                                                                    // RETURN
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                                                                      // RETURN
       } break;
 
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -1896,12 +1252,12 @@ int ChannelPoolConfiguration::accessAttribute(ACCESSOR&   accessor,
                                                     int         nameLength)
                                                                           const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
-     const bdeat_AttributeInfo *attributeInfo =
+     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return k_NOT_FOUND;                                           // RETURN
      }
 
      return accessAttribute(accessor, attributeInfo->d_id);
@@ -1916,15 +1272,22 @@ bool btlmt::operator!=(const ChannelPoolConfiguration& lhs,
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

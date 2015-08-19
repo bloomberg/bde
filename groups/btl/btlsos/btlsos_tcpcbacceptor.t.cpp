@@ -4,26 +4,34 @@
 
 #include <btlsos_tcptimedcbchannel.h>
 #include <btlsos_tcpcbchannel.h>
+
 #include <btlso_ipv4address.h>
 #include <btlso_tcptimereventmanager.h>
 #include <btlso_inetstreamsocketfactory.h>
 
+#include <btlsc_timedcbchannel.h>
+
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
+#include <bdlf_placeholder.h>
 
 #include <bdls_testutil.h>
 
+#include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
 
 #include <bdlt_currenttime.h>
-#include <bsls_timeinterval.h>
+
 #include <bslma_testallocator.h>
 
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
+
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
-
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
@@ -105,7 +113,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define NL()  cout << endl;                   // Print newline
@@ -115,9 +124,11 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
 const char* hostName = "127.0.0.1";
 
 static int verbose;
@@ -159,8 +170,8 @@ enum {
 // constants within this class.
 //..
     class my_EchoServer {
-        // This class implements a simple multi-user echo server as
-        // specified by the RFC 862.
+        // This class implements a simple multi-user echo server as specified
+        // by the RFC 862.
 
         enum {
             k_READ_SIZE           =  200,  // The number of bytes to be read
@@ -195,21 +206,19 @@ enum {
                             int                    status,
                             int                    asyncStatus,
                             btlsc::TimedCbChannel *channel);
-            // Invoked from the socket event manager when data is read from a
-            // channel.  [...]
+            // Invoked from the socket event manager when data is read.  [...]
 
         void readCb(int                    status,
                     int                    asyncStatus,
                     btlsc::TimedCbChannel *channel);
-            // Invoked from the socket event manager when data is read from a
-            // channel.  [...]
+            // Invoked from the socket event manager when data is read.  [...]
 
         void writeCb(int                    status,
                      int                    asyncStatus,
                      btlsc::TimedCbChannel *channel,
                      int                    numBytes);
-            // Invoked from the socket event manager when data is written
-            // into a channel.  [...]
+            // Invoked from the socket event manager when data is written.
+            // [...]
 
       private:
         // Not implemented:
@@ -233,10 +242,10 @@ enum {
 
         // MANIPULATORS
         int open(int portNumber = k_DEFAULT_PORT_NUMBER);
-            // Establish a listening socket on the specified 'portNumber';
-            // return 0 on success, and a non-zero value otherwise.  The
-            // behavior is undefined unless 0 <= portNumber and the listening
-            // port is not currently open.
+            // Establish a listening socket on the optionally specified
+            // 'portNumber'; return 0 on success, and a non-zero value
+            // otherwise.  The behavior is undefined unless '0 <= portNumber'
+            // and the listening port is not currently open.
 
         int close();
             // Close the listening socket; return 0 on success and a non-zero
@@ -280,7 +289,7 @@ enum {
         int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
         if (s) {
             cout << "Failed to open listening port." << endl;
-            return s;
+            return s;                                                 // RETURN
         }
         cout << "server's socket: " << d_allocator.address() << endl;
         ASSERT(0 == d_allocator.isInvalid());
@@ -289,7 +298,7 @@ enum {
             cout << "Can't enqueue an allocation request." << endl;
             ASSERT(d_allocator.isInvalid());
             d_allocator.close();
-            return s;
+            return s;                                                 // RETURN
         }
         return 0;
     }
@@ -328,7 +337,7 @@ enum {
             if (d_allocator.allocateTimed(d_allocateFunctor)) {
                 d_allocator.close();
             }
-            return;
+            return;                                                   // RETURN
         }
         ASSERT(0 >= status);    // Interrupts are not enabled.
         if (0 == status) {
@@ -348,8 +357,9 @@ enum {
         }
     }
 
-    void my_EchoServer::bufferedReadCb(const char *buffer, int status,
-                                       int asyncStatus,
+    void my_EchoServer::bufferedReadCb(const char            *buffer,
+                                       int                    status,
+                                       int                    asyncStatus,
                                        btlsc::TimedCbChannel *channel)
     {
         cout << "my_EchoServer::bufferedReadCb: "
@@ -370,7 +380,7 @@ enum {
                                                  + d_writeTimeout, callback)) {
                 cout << "Failed to enqueue write request" << endl;
                 d_allocator.deallocate(channel);
-                return;
+                return;                                               // RETURN
             }
             // Re-register read request
             bdlf::Function<void (*)(const char *, int, int)> readCallback(
@@ -429,7 +439,7 @@ enum {
                 {
                     cout << "Failed to enqueue write request" << endl;
                     d_allocator.deallocate(channel);
-                    return;
+                    return;                                           // RETURN
                 }
             // Re-register read request
             bdlf::Function<void (*)(int, int)> readCallback(
@@ -538,13 +548,13 @@ class my_TickReporter {
 
   private:
     void acceptCb(btlsc::TimedCbChannel     *clientChannel,
-                  int                       status,
+                  int                        status,
                   const bsls::TimeInterval&  timeout);
         // Called when a new client channel has been accepted.  ...
 
-    void readCb(const char           *buffer,
-                int                   status,
-                int                   asyncStatus,
+    void readCb(const char            *buffer,
+                int                    status,
+                int                    asyncStatus,
                 btlsc::TimedCbChannel *clientChannel);
         // Called when a 'my_Tick' value has been read from the channel.  ...
 
@@ -553,13 +563,13 @@ class my_TickReporter {
     my_TickReporter& operator=(const my_TickReporter&);  // not impl.
 
   public:
-    my_TickReporter(bsl::ostream&                  console,
+    my_TickReporter(bsl::ostream&              console,
                     btlsc::CbChannelAllocator *acceptor);
         // Create a non-blocking tick-reporter using the specified 'acceptor'
         // to establish incoming client connections, each transmitting a single
         // 'my_Tick' value; write these values to the specified 'console'
-        // stream.  If the acceptor is idle for more than five minutes, print a
-        // message to the 'console' stream supplied at construction and
+        // stream.  If the 'acceptor' is idle for more than five minutes, print
+        // a message to the 'console' stream supplied at construction and
         // continue.  To guard against malicious clients, a connection that
         // does not produce a tick value within one minute will be summarily
         // dropped.
@@ -588,7 +598,7 @@ static int myTickMessageSize()
 }
 
 void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
-                               int                       status,
+                               int                        status,
                                const bsls::TimeInterval&  timeout)
 {
     bsls::TimeInterval nextTimeout(timeout);
@@ -605,7 +615,8 @@ void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
                   , _1, _2, _3
                   , clientChannel));
 
-        // Install read callback (timeout, but no raw or async interrupt).
+        // Install read callback (timeout, but no raw or asynchronous
+        // interrupt).
 
         if (clientChannel->timedBufferedRead(numBytes, now + READ_TIME_LIMIT,
                                              readFunctor)) {
@@ -640,9 +651,9 @@ void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
     }
 }
 
-void my_TickReporter::readCb(const char           *buffer,
-                             int                   status,
-                             int                   asyncStatus,
+void my_TickReporter::readCb(const char            *buffer,
+                             int                    status,
+                             int                    asyncStatus,
                              btlsc::TimedCbChannel *clientChannel)
 {
     ASSERT(clientChannel);
@@ -677,7 +688,7 @@ void my_TickReporter::readCb(const char           *buffer,
     d_acceptor_p->deallocate(clientChannel);
 }
 
-my_TickReporter::my_TickReporter(bsl::ostream&             console,
+my_TickReporter::my_TickReporter(bsl::ostream&              console,
                                  btlsc::CbChannelAllocator *acceptor)
 : d_acceptor_p(acceptor)
 , d_console(console)
@@ -709,21 +720,21 @@ my_TickReporter::~my_TickReporter()
     ASSERT(d_acceptor_p);
 }
 
-static void acceptCb(btlsc::CbChannel           *channel,
-                     int                        status,
+static void acceptCb(btlsc::CbChannel      *channel,
+                     int                    status,
                      btlsos::TcpCbAcceptor *acceptor,
-                     int                       *numConnections,
-                     int                        validChannel,
-                     int                        expStatus,
-                     int                        cancelFlag,
-                     int                        closeFlag)
+                     int                   *numConnections,
+                     int                    validChannel,
+                     int                    expStatus,
+                     int                    cancelFlag,
+                     int                    closeFlag)
     // Verify the result of an "ACCEPT" request by comparing against the
     // expected values: If the specified 'channelFlag' is nonzero, a new
-    // channel should be established; the return 'status' should be the same as
-    // the specified 'expStatus'.  If the specified 'cancelFlag' is nonzero,
-    // invoke the 'cancelAll()' on the specified 'acceptor' to help the test.
-    // Similarly, if the specified 'closeFlag' is nonzero, invoke the 'close()'
-    // on the specified 'acceptor'.
+    // 'btlsc::CbChannel' should be established; the specified return 'status'
+    // should be the same as the specified 'expStatus'.  If the specified
+    // 'cancelFlag' is nonzero, invoke the 'cancelAll()' on the specified
+    // 'acceptor' to help the test.  Similarly, if the specified 'closeFlag' is
+    // nonzero, invoke the 'close()' on the 'acceptor'.
 {
     if (validChannel) {
         ASSERT (channel);
@@ -1995,8 +2006,8 @@ int main(int argc, char *argv[])
             address.setPortNumber(0);
             address.setIpAddress(hostName);
 
-            ASSERT(0 == mX.open(address, 5)); // Need to make sure that socket,
-                                              // etc. is called.
+            ASSERT(0 == mX.open(address, 5)); // Need to make sure that, e.g.,
+                                              // socket is called.
             ASSERT(0 == mX.close());
 
         } break;

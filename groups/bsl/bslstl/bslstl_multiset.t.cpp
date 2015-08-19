@@ -3278,7 +3278,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                   } break;
                   default: {
                       ASSERTV(LINE, CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
                 ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -5026,7 +5026,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
 
@@ -5392,7 +5392,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
-                  return;
+                  return;                                             // RETURN
               } break;
             }
 
@@ -6376,7 +6376,7 @@ bool operator!=(const ShoppingCart& lhs, const ShoppingCart& rhs)
 }
 //..
 
-}  // close namespace 'UsageExample'
+}  // close namespace UsageExample
 
 
 // ============================================================================

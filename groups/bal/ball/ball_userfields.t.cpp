@@ -1,7 +1,7 @@
-// ball_userfielddescriptors.t.cpp                                    -*-C++-*-
-#include <ball_userfielddescriptors.h>
+// ball_userfields.t.cpp                                              -*-C++-*-
+#include <ball_userfields.h>
 
-#include <ball_userfieldtype.h>
+#include <ball_userfieldsschema.h>                          // for testing only
 
 #include <bdls_testutil.h>
 
@@ -62,7 +62,7 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] UserFieldDescriptors();
+// [  ] UserFields();
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -127,8 +127,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::UserFieldDescriptors Obj;
-typedef ball::UserFieldType        Type;
+typedef ball::UserFields    Obj;
+typedef ball::UserFieldType Type;
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -140,7 +140,69 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+//=============================================================================
+//                               USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFields'
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the following example we demonstrate populating a 'ball::UserFields'
+// object with a sequence of field values.
+//
+// First, we define the signature for a callback, 'populateUserFields'.  Most
+// often 'ball::UserFields' objects are populated by a callback, such as the
+// one described by the 'ball::LoggerManagerConfiguration'
+// 'UserFieldsPopulatorCallback'.
+//..
+    void populateLoggingFields(ball::UserFields              *fields,
+                               const ball::UserFieldsSchema&  fieldsSchema)
+        // Populate the specifield 'fields' with the user name and current
+        // task identifier so that in matches the specified 'fieldsSchema'.
+        // The behavior is undefiend unless 'fields' is empty, and
+        // 'fieldsSchema' describes a user fields object whose fist element is
+        // a string called "username" and whose second element is a integer
+        // called "taskId".
+    {
+//..
+// Notice that we have decided for this application the schema for the custom
+// logging fields are fixed at compile time.
+//
+// Next, we assert that the schema matches the preconditions for this function:
+//..
+      typedef ball::UserFieldType Type;
+      BSLS_ASSERT(2 == fieldsSchema.length());
+      BSLS_ASSERT("username"     == fieldsSchema.name(0));
+      BSLS_ASSERT(Type::e_STRING == fieldsSchema.type(0));
+      BSLS_ASSERT("taskId"       == fieldsSchema.name(1));
+      BSLS_ASSERT(Type::e_INT64  == fieldsSchema.type(1));
+//..
+// Then we assert the additional precondition that 'fields' is empty:
+//..
+      BSLS_ASSERT(0 == fields->length());
+//..
+// Now we populate the 'fields' object with the user name and current task
+// identifier (for the purpose of illustration, these are simply constants):
+//..
+      static const char    *TEST_USER = "testUser";
+      static const int64_t  TEST_TASK = 4315;
+//
+      fields->appendString(TEST_USER);
+      fields->appendInt64(TEST_TASK);
+//..
+// Finally, for the purposes of illustration, we verify that 'fields' has been
+// set correctly:
+//..
+      ASSERT(2 == fields->length());
+      ASSERT(Type::e_STRING == fields->value(0).type());
+      ASSERT(TEST_USER      == fields->value(0).theString());
+      ASSERT(Type::e_INT64  == fields->value(1).type());
+      ASSERT(TEST_TASK      == fields->value(1).theInt64());
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -169,7 +231,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 20: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -191,10 +253,24 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+        // This test intentionally uses the default allocator.
+
+        bslma::TestAllocator testAllocator("usage", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&testAllocator);
+
+        ball::UserFields result;
+        ball::UserFieldsSchema schema;
+        schema.appendFieldDescription("username", Type::e_STRING);
+        schema.appendFieldDescription("taskId", Type::e_INT64);
+
+        populateLoggingFields(&result, schema);
+
+        ASSERT(2 == result.length());
+        ASSERT("testUser" == result[0].theString());
+        ASSERT(4315       == result[1].theInt64());
 
       } break;
       case 1: {
-
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
@@ -218,7 +294,6 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
@@ -229,11 +304,10 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
 
-        const char       *A_NAME1  = "A";
-        const Type::Enum  A_TYPE1  = Type::e_INT64;
-        const char       *A_NAME2  = "B";
-        const Type::Enum  A_TYPE2  = Type::e_DATETIMETZ;
-
+        const char             *A_STRING = "A";
+        double                  A_DOUBLE = 2.0;
+        const int64_t           A_INT    = 5;
+        const bdlt::DatetimeTz  A_DATE(bdlt::Datetime(1999,1,1), 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -276,17 +350,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
                              "\t\t{ w:0 x:A         }" << endl;
 
-        mX.appendDescriptor(A_NAME1, A_TYPE1);
-        mX.appendDescriptor(A_NAME2, A_TYPE2);
+        mX.appendInt64(A_INT);
+        mX.appendString(A_STRING);
+        mX.appendDatetimeTz(A_DATE);
+        mX.appendDouble(A_DOUBLE);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(2        == X.length());
-        ASSERT(A_NAME1  == X.name(0));
-        ASSERT(A_TYPE1  == X.type(0));
-        ASSERT(A_NAME2  == X.name(1));
-        ASSERT(A_TYPE2  == X.type(1));
+        ASSERT(4         == X.length());
+        ASSERT(A_INT     == X.value(0).theInt64());
+        ASSERT(A_STRING  == X.value(1).theString());
+        ASSERT(A_DATE    == X.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == X.value(3).theDouble());
 
         if (veryVerbose) cout <<
                      "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -300,18 +376,20 @@ int main(int argc, char *argv[])
                              "\t\t{ w:0 x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
-        mY.appendDescriptor(A_NAME1, A_TYPE1);
-        mY.appendDescriptor(A_NAME2, A_TYPE2);
+
+        mY.appendInt64(A_INT);
+        mY.appendString(A_STRING);
+        mY.appendDatetimeTz(A_DATE);
+        mY.appendDouble(A_DOUBLE);
 
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ P(Y) }
 
-        ASSERT(2        == Y.length());
-        ASSERT(A_NAME1  == Y.name(0));
-        ASSERT(A_TYPE1  == Y.type(0));
-        ASSERT(A_NAME2  == Y.name(1));
-        ASSERT(A_TYPE2  == Y.type(1));
+        ASSERT(4        == Y.length());
+        ASSERT(A_INT    == Y.value(0).theInt64());
+        ASSERT(A_STRING == Y.value(1).theString());
+        ASSERT(A_DATE   == Y.value(2).theDatetimeTz());
 
 
         if (veryVerbose) cout <<
@@ -331,12 +409,11 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
-        ASSERT(2        == Z.length());
-        ASSERT(A_NAME1  == Z.name(0));
-        ASSERT(A_TYPE1  == Z.type(0));
-        ASSERT(A_NAME2  == Z.name(1));
-        ASSERT(A_TYPE2  == Z.type(1));
-
+        ASSERT(4         == Z.length());
+        ASSERT(A_INT     == Z.value(0).theInt64());
+        ASSERT(A_STRING  == Z.value(1).theString());
+        ASSERT(A_DATE    == Z.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == Z.value(3).theDouble());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -376,12 +453,11 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(2        == W.length());
-        ASSERT(A_NAME1  == W.name(0));
-        ASSERT(A_TYPE1  == W.type(0));
-        ASSERT(A_NAME2  == W.name(1));
-        ASSERT(A_TYPE2  == W.type(1));
-
+        ASSERT(4         == W.length());
+        ASSERT(A_INT     == W.value(0).theInt64());
+        ASSERT(A_STRING  == W.value(1).theString());
+        ASSERT(A_DATE    == W.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == W.value(3).theDouble());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -421,11 +497,11 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(2        == X.length());
-        ASSERT(A_NAME1  == X.name(0));
-        ASSERT(A_TYPE1  == X.type(0));
-        ASSERT(A_NAME2  == X.name(1));
-        ASSERT(A_TYPE2  == X.type(1));
+        ASSERT(4         == X.length());
+        ASSERT(A_INT     == X.value(0).theInt64());
+        ASSERT(A_STRING  == X.value(1).theString());
+        ASSERT(A_DATE    == X.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == X.value(3).theDouble());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -459,7 +535,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

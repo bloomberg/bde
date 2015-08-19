@@ -183,7 +183,7 @@ ConcurrentMultipool(bslma::Allocator *basicAllocator)
 
 ConcurrentMultipool::
 ConcurrentMultipool(int               numPools,
-                bslma::Allocator *basicAllocator)
+                    bslma::Allocator *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -284,7 +284,7 @@ ConcurrentMultipool::~ConcurrentMultipool()
 // MANIPULATORS
 void *ConcurrentMultipool::allocate(int size)
 {
-    // TBD: Change this block to 'BSLS_ASSERT(1 <= size)' after robo is clean.
+    // TBD: change this block to 'BSLS_ASSERT(1 <= size)' after 'robo' is clean
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         static unsigned int count = 0;
@@ -342,7 +342,7 @@ void ConcurrentMultipool::reserveCapacity(int size, int numBlocks)
     BSLS_ASSERT(0 <= numBlocks);
 
     // TBD: Change this block to 'BSLS_ASSERT(1 <= size)' and
-    // 'BSLS_ASSERT(size <= d_maxBlockSize)' after robo is clean.
+    // 'BSLS_ASSERT(size <= d_maxBlockSize)' after 'robo' is clean.
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(size > d_maxBlockSize) ||
         BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;

@@ -1,4 +1,4 @@
-// bdlmxxx_choiceheader.h                                                -*-C++-*-
+// bdlmxxx_choiceheader.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_CHOICEHEADER
 #define INCLUDED_BDLMXXX_CHOICEHEADER
 
@@ -536,9 +536,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ChoiceHeader& rhs);
     // 'stream' in some reasonable (human-readable) format, and return a
     // reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // -----------------------
                         // class ChoiceHeader
@@ -613,7 +613,7 @@ ChoiceHeader::bdexStreamIn(
 
         if (static_cast<unsigned>(selector) >= d_catalog_p->size()) {
             stream.invalidate();
-            return stream;
+            return stream;                                            // RETURN
         }
 
         stream.getInt32(flags);
@@ -624,7 +624,7 @@ ChoiceHeader::bdexStreamIn(
         makeSelection(selector);
 
         if (flags & (1 << ChoiceHeader::BDEM_NULLNESS_FLAG)) {
-            return stream;
+            return stream;                                            // RETURN
         }
 
         streamInSelection(stream, version, strmAttrLookup, attrLookup);
@@ -653,7 +653,7 @@ ChoiceHeader::bdexStreamIn(
 
         if (static_cast<unsigned>(selector) >= d_catalog_p->size()) {
             stream.invalidate();
-            return stream;
+            return stream;                                            // RETURN
         }
 
         makeSelection(selector);
@@ -794,15 +794,15 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream, const ChoiceHeader& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

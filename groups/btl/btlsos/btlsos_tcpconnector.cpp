@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(btlsos_tcpconnector_cpp,"$Id$ $CSID$")
 #include <bsls_blockgrowth.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -25,9 +26,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     k_ARENA_SIZE = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
@@ -49,11 +50,12 @@ enum {
 
 template <class RESULT>
 inline
-    RESULT *allocate(int                                          *status,
-                     int                                           flags,
-                     const btlso::IPv4Address&                     peerAddress,
-                     btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                     bdlma::Pool                                   *pool)
+    RESULT *allocate(
+                   int                                            *status,
+                   int                                             flags,
+                   const btlso::IPv4Address&                       peerAddress,
+                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                   bdlma::Pool                                    *pool)
 {
     BSLS_ASSERT(factory);
     BSLS_ASSERT(pool);
@@ -62,7 +64,7 @@ inline
     btlso::StreamSocket<btlso::IPv4Address> *socket_p = 0;
     socket_p = factory->allocate();
     if (!socket_p) {
-        return NULL;
+        return NULL;                                                  // RETURN
     }
     int rc = socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
 
@@ -74,12 +76,12 @@ inline
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = e_FAILED; // Any negative number satisfies the contract.
             factory->deallocate(socket_p);
-            return NULL;
+            return NULL;                                              // RETURN
         }
         if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
-            return NULL;
+            return NULL;                                              // RETURN
         }
     }
     RESULT *channel = new (*pool) RESULT(socket_p);
@@ -98,8 +100,8 @@ namespace btlsos {
 
 // CREATORS
 TcpConnector::TcpConnector(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
@@ -109,9 +111,9 @@ TcpConnector::TcpConnector(
 }
 
 TcpConnector::TcpConnector(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 int                                           numElements,
-                 bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                int                                             numElements,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE,
          bsls::BlockGrowth::BSLS_CONSTANT,
          numElements,
@@ -151,7 +153,7 @@ btlsc::Channel *TcpConnector::allocate(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::Channel *channel = BloombergLP::allocate<TcpChannel>(
@@ -181,7 +183,7 @@ btlsc::TimedChannel *TcpConnector::allocateTimed(int *status, int flags)
         else {
             *status = e_INVALID;
         }
-        return NULL;
+        return NULL;                                                  // RETURN
     }
 
     btlsc::TimedChannel *channel =

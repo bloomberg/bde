@@ -206,7 +206,7 @@ Function_Rep::Function_Rep(const Function_Rep&  original,
     if (d_manager_p) {
         (void)(*d_manager_p)(this,
                              (const void *)&original,
-                             BDEF_COPY_CONSTRUCT);
+                             e_COPY_CONSTRUCT);
     }
     else {
         d_arena.d_func_p = original.d_arena.d_func_p;
@@ -216,7 +216,7 @@ Function_Rep::Function_Rep(const Function_Rep&  original,
 Function_Rep::~Function_Rep()
 {
     if (d_manager_p) {
-        (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
+        (void)(*d_manager_p)(this, (const void *)0, e_DESTROY);
         d_manager_p = 0;
     }
 }
@@ -232,7 +232,7 @@ Function_Rep::operator=(const Function_Rep& rhs)
 void Function_Rep::clear()
 {
     if (d_manager_p) {
-        (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
+        (void)(*d_manager_p)(this, (const void *)0, e_DESTROY);
     }
     else {
         d_arena.d_func_p = 0;
@@ -269,7 +269,7 @@ void Function_Rep::swap(Function_Rep& other)
 
             (void)(*other.d_manager_p)(this,
                                        (const void *)&other,
-                                       BDEF_MOVE_CONSTRUCT);
+                                       e_MOVE_CONSTRUCT);
             d_manager_p            = other.d_manager_p;
             other.d_arena.d_func_p = func;
             other.d_manager_p      = 0;
@@ -280,10 +280,10 @@ void Function_Rep::swap(Function_Rep& other)
 
         (void)(*other.d_manager_p)(this,
                                    (const void *)&other,
-                                   BDEF_COPY_CONSTRUCT);
+                                   e_COPY_CONSTRUCT);
         d_manager_p            = other.d_manager_p;
 
-        (void)(*other.d_manager_p)(&other, (const void *)0, BDEF_DESTROY);
+        (void)(*other.d_manager_p)(&other, (const void *)0, e_DESTROY);
         other.d_arena.d_func_p = func;
         other.d_manager_p      = 0;
         return;                                                       // RETURN
@@ -300,7 +300,7 @@ void Function_Rep::swap(Function_Rep& other)
 
             (void)(*d_manager_p)(&other,
                                  (const void *)this,
-                                 BDEF_MOVE_CONSTRUCT);
+                                 e_MOVE_CONSTRUCT);
             other.d_manager_p = d_manager_p;
             d_arena.d_func_p   = func;
             d_manager_p        = 0;
@@ -309,10 +309,10 @@ void Function_Rep::swap(Function_Rep& other)
 
         // Need to know 'FUNC' type for the transfer, invoke manager.
 
-        (void)(*d_manager_p)(&other, (const void *)this, BDEF_COPY_CONSTRUCT);
+        (void)(*d_manager_p)(&other, (const void *)this, e_COPY_CONSTRUCT);
         other.d_manager_p = d_manager_p;
 
-        (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
+        (void)(*d_manager_p)(this, (const void *)0, e_DESTROY);
         d_arena.d_func_p   = func;
         d_manager_p        = 0;
         return;                                                       // RETURN
@@ -321,8 +321,8 @@ void Function_Rep::swap(Function_Rep& other)
     // Else neither 'this' nor 'other' are empty (nor function pointers).
 
     if (d_allocator_p == other.d_allocator_p) {
-        bool repInplace = (*d_manager_p)(0, 0, BDEF_IN_PLACE_DETECTION);
-        bool srcInplace = (*other.d_manager_p)(0, 0, BDEF_IN_PLACE_DETECTION);
+        bool repInplace = (*d_manager_p)(0, 0, e_IN_PLACE_DETECTION);
+        bool srcInplace = (*other.d_manager_p)(0, 0, e_IN_PLACE_DETECTION);
 
         if (!repInplace && !srcInplace) {
             // Quickswap: exchange object pointers and managers.
@@ -355,9 +355,9 @@ void Function_Rep::swap(Function_Rep& other)
 
     Function_Rep temp(other.d_allocator_p);
 
-    (*d_manager_p)(&temp, (const void *)this, BDEF_MOVE_CONSTRUCT);
-    (*other.d_manager_p)(this, (const void *)&other, BDEF_MOVE_CONSTRUCT);
-    (*d_manager_p)(&other, (const void *)&temp, BDEF_MOVE_CONSTRUCT);
+    (*d_manager_p)(&temp, (const void *)this, e_MOVE_CONSTRUCT);
+    (*other.d_manager_p)(this, (const void *)&other, e_MOVE_CONSTRUCT);
+    (*d_manager_p)(&other, (const void *)&temp, e_MOVE_CONSTRUCT);
 
     temp.d_manager_p = 0;  // clear the temp object
 
@@ -374,7 +374,7 @@ void Function_Rep::transferTo(Function_Rep *target)
     // In any case, need to clean up 'target' prior to transfer.
 
     if (target->d_manager_p) {
-        (void)(*target->d_manager_p)(target, (const void *)0, BDEF_DESTROY);
+        (void)(*target->d_manager_p)(target, (const void *)0, e_DESTROY);
     }
 
     // For function pointers, only need to clean up 'target' and assign.
@@ -390,11 +390,11 @@ void Function_Rep::transferTo(Function_Rep *target)
     // copy-construct and destroy the source if not possible.
 
     if (d_allocator_p == target->d_allocator_p) {
-        (void)(*d_manager_p)(target, (const void *)this, BDEF_MOVE_CONSTRUCT);
+        (void)(*d_manager_p)(target, (const void *)this, e_MOVE_CONSTRUCT);
     }
     else {
-        (void)(*d_manager_p)(target, (const void *)this, BDEF_COPY_CONSTRUCT);
-        (void)(*d_manager_p)(this, (const void *)0, BDEF_DESTROY);
+        (void)(*d_manager_p)(target, (const void *)this, e_COPY_CONSTRUCT);
+        (void)(*d_manager_p)(this, (const void *)0, e_DESTROY);
     }
 
     target->d_manager_p = d_manager_p;
@@ -403,13 +403,20 @@ void Function_Rep::transferTo(Function_Rep *target)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

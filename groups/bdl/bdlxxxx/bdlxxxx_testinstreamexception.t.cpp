@@ -1,4 +1,4 @@
-// bdlxxxx_testinstreamexception.t.cpp -*-C++-*-
+// bdlxxxx_testinstreamexception.t.cpp                                -*-C++-*-
 
 #include <bdlxxxx_testinstreamexception.h>
 #include <bdlxxxx_bytestreamimputil.h>     // for testing only
@@ -78,7 +78,7 @@ class my_ShortArray {
     my_ShortArray();
     ~my_ShortArray();
 
-    template <typename STREAM>
+    template <class STREAM>
     STREAM& streamIn(STREAM& stream);
 
     const short& operator[](int index) const { return d_array_p[index]; }
@@ -138,14 +138,14 @@ void my_ShortArray::increaseSize()
     reallocate(&d_array_p, &d_size, d_size * GROW_FACTOR, d_length);
 }
 
-template <typename STREAM>
+template <class STREAM>
 STREAM& my_ShortArray::streamIn(STREAM& stream)
 {
     if (stream) {
         char version;
         stream >> version;
         if (!stream) {
-            return stream;                                      // RETURN
+            return stream;                                            // RETURN
         }
 
         switch (version) {  // Switch on the schema version (starting with 1).
@@ -153,11 +153,11 @@ STREAM& my_ShortArray::streamIn(STREAM& stream)
             int newLength;
             stream >> newLength;
             if (!stream) {
-                return stream;                                  // RETURN
+                return stream;                                        // RETURN
             }
             if (newLength < 0) {
                 stream.invalidate();
-                return stream;                                  // RETURN
+                return stream;                                        // RETURN
             }
             if (newLength > d_size) {
                 int newSize = newLength;
@@ -500,11 +500,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

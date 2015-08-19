@@ -1,4 +1,4 @@
-// bdlb_xxxstringref.cpp                                                -*-C++-*-
+// bdlb_xxxstringref.cpp                                              -*-C++-*-
 #include <bdlb_xxxstringref.h>
 
 #include <bsls_ident.h>
@@ -48,7 +48,7 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&          stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
                         // ----------------------------
                         // struct hash<bdlb::StringRef>
@@ -90,7 +90,7 @@ bsl::size_t hash<BloombergLP::bdlb::StringRef>::operator()(
     return r;
 }
 
-}  // close bsl namespace
+}  // close namespace bsl
 
 // ----------------------------------------------------------------------------
 // NOTICE:

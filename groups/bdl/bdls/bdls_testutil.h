@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
 //  //-------------------------------------------------------------------------
-//  
+//
 //  #define ASSERT       BDLS_TESTUTIL_ASSERT
 //  #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
 //  #define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //  #define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
 //  #define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 //  #define ASSERTV      BDLS_TESTUTIL_ASSERTV
-//  
+//
 //  #define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
 //  #define P   BDLS_TESTUTIL_P   // Print identifier and value.
 //  #define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
@@ -369,7 +369,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
     return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
 }
 
-}  // close package namespace
+}  // close namespace bsltf
 }  // close enterprise namespace
 
 #endif

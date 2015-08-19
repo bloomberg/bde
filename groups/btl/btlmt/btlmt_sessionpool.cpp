@@ -120,11 +120,11 @@ typedef bsl::shared_ptr<btlmt::SessionPool_Handle> HandlePtr;
 static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
                                btlmt::SessionPool::ConnectResolutionMode mode)
 {
-    if (mode == btlmt::SessionPool::RESOLVE_AT_EACH_ATTEMPT) {
-        return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;     // RETURN
+    if (mode == btlmt::SessionPool::e_RESOLVE_AT_EACH_ATTEMPT) {
+        return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;         // RETURN
     }
 
-    BSLS_ASSERT(mode == btlmt::SessionPool::RESOLVE_ONCE);
+    BSLS_ASSERT(mode == btlmt::SessionPool::e_RESOLVE_ONCE);
     return btlmt::ChannelPool::e_RESOLVE_ONCE;
 }
 
@@ -166,7 +166,7 @@ void SessionPool::channelStateCb(int   channelId,
                   lock.release()->unlock();
 
                   handle->d_session_p->stop();
-                  handle->d_sessionStateCB(SESSION_DOWN, handleId,
+                  handle->d_sessionStateCB(e_SESSION_DOWN, handleId,
                                            handle->d_session_p,
                                            handle->d_userData_p);
               }
@@ -182,7 +182,7 @@ void SessionPool::channelStateCb(int   channelId,
 
               d_channelPool_p->shutdown(channelId,
                                         ChannelPool::e_IMMEDIATE);
-              return;
+              return;                                                 // RETURN
           }
           if (SessionPool_Handle::LISTENER == handle->d_type) {
               // This connection originate from a listener socket,
@@ -250,7 +250,7 @@ void SessionPool::channelStateCb(int   channelId,
           }
           SessionPool_Handle *handle = (SessionPool_Handle*) userData;
           if (handle->d_session_p) {
-              handle->d_sessionStateCB(WRITE_CACHE_LOWWAT, handle->d_handleId,
+              handle->d_sessionStateCB(e_WRITE_CACHE_LOWWAT, handle->d_handleId,
                                        handle->d_session_p,
                                        handle->d_userData_p);
           }
@@ -262,7 +262,7 @@ void SessionPool::channelStateCb(int   channelId,
           SessionPool_Handle *handle =
               (SessionPool_Handle*)userData;
           if (handle->d_session_p) {
-              handle->d_sessionStateCB(WRITE_CACHE_HIWAT,
+              handle->d_sessionStateCB(e_WRITE_CACHE_HIWAT,
                                        handle->d_handleId,
                                        handle->d_session_p,
                                        handle->d_userData_p);
@@ -302,7 +302,7 @@ void SessionPool::blobBasedReadCb(int          *numNeeded,
         d_channelPool_p->shutdown(channelId,
                                   ChannelPool::e_IMMEDIATE);
         *numNeeded   = 1;
-        return;
+        return;                                                       // RETURN
     }
 
     handle->d_channel_p->blobBasedDataCb(numNeeded, data);
@@ -312,7 +312,7 @@ void SessionPool::terminateSession(SessionPool_Handle *handle)
 {
     if (handle->d_session_p) {
         handle->d_session_p->stop();
-        handle->d_sessionStateCB(SESSION_DOWN,
+        handle->d_sessionStateCB(e_SESSION_DOWN,
                                  handle->d_handleId,
                                  handle->d_session_p,
                                  handle->d_userData_p);
@@ -333,9 +333,9 @@ void SessionPool::handleDeleter(SessionPool_Handle *handle)
         else if (SessionPool_Handle::CONNECT_SESSION == handle->d_type
               || SessionPool_Handle::ABORTED_CONNECT_SESSION ==
                                                               handle->d_type) {
-            handle->d_sessionStateCB(CONNECT_ABORTED, handle->d_handleId, 0,
+            handle->d_sessionStateCB(e_CONNECT_ABORTED, handle->d_handleId, 0,
                                      handle->d_userData_p);
-            d_poolStateCB(CONNECT_ABORTED, 0, handle->d_userData_p);
+            d_poolStateCB(e_CONNECT_ABORTED, 0, handle->d_userData_p);
         }
     }
 
@@ -365,17 +365,17 @@ void SessionPool::poolStateCb(int state, int source, int)
       case ChannelPool::e_ERROR_ACCEPTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
-            return;
+            return;                                                   // RETURN
         }
 
         // ACCEPT_FAILED is forwarded to both callbacks.  So we can move away
         // from the poolStateCb.
 
-        handle->d_sessionStateCB(ACCEPT_FAILED,
+        handle->d_sessionStateCB(e_ACCEPT_FAILED,
                                  handle->d_handleId,
                                  0,
                                  handle->d_userData_p);
-        d_poolStateCB(ACCEPT_FAILED, source, handle->d_userData_p);
+        d_poolStateCB(e_ACCEPT_FAILED, source, handle->d_userData_p);
       } break;
 
       case ChannelPool::e_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
@@ -383,7 +383,7 @@ void SessionPool::poolStateCb(int state, int source, int)
       case ChannelPool::e_ERROR_CONNECTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
-            return;
+            return;                                                   // RETURN
         }
         bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
         if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
@@ -393,12 +393,12 @@ void SessionPool::poolStateCb(int state, int source, int)
         if (!--handle->d_numAttemptsRemaining) {
             handle->d_type = SessionPool_Handle::INVALID_SESSION;
             lock.release()->unlock();
-            handle->d_sessionStateCB(CONNECT_FAILED,
+            handle->d_sessionStateCB(e_CONNECT_FAILED,
                                      handle->d_handleId,
                                      0,
                                      handle->d_userData_p);
 
-            d_poolStateCB(CONNECT_FAILED, source, handle->d_userData_p);
+            d_poolStateCB(e_CONNECT_FAILED, source, handle->d_userData_p);
             d_handles.remove(source);
         }
         else {
@@ -408,17 +408,17 @@ void SessionPool::poolStateCb(int state, int source, int)
             // any of this callback will be invoked after the abort message if
             // closeHandle was called for this pending connect.
 
-            handle->d_sessionStateCB(CONNECT_ATTEMPT_FAILED,
+            handle->d_sessionStateCB(e_CONNECT_ATTEMPT_FAILED,
                                      handle->d_handleId, 0,
                                      handle->d_userData_p);
-            d_poolStateCB(CONNECT_ATTEMPT_FAILED,
+            d_poolStateCB(e_CONNECT_ATTEMPT_FAILED,
                           source,
                           handle->d_userData_p);
         }
       } break;
 
       case ChannelPool::e_CHANNEL_LIMIT: {
-        d_poolStateCB(SESSION_LIMIT_REACHED, 0, 0);
+        d_poolStateCB(e_SESSION_LIMIT_REACHED, 0, 0);
       } break;
     }
 }
@@ -480,7 +480,7 @@ void SessionPool::sessionAllocationCb(int       result,
     }
 
     if (result) {
-        handle->d_sessionStateCB(SESSION_ALLOC_FAILED,
+        handle->d_sessionStateCB(e_SESSION_ALLOC_FAILED,
                                  handle->d_handleId,
                                  0,
                                  handle->d_userData_p);
@@ -494,7 +494,7 @@ void SessionPool::sessionAllocationCb(int       result,
     // Start the session
 
     if (session->start()) {
-        handle->d_sessionStateCB(SESSION_STARTUP_FAILED,
+        handle->d_sessionStateCB(e_SESSION_STARTUP_FAILED,
                                  handle->d_handleId,
                                  session,
                                  handle->d_userData_p);
@@ -510,7 +510,7 @@ void SessionPool::sessionAllocationCb(int       result,
 
     ++d_numSessions;
     handle->d_session_p = session;
-    handle->d_sessionStateCB(SESSION_UP,
+    handle->d_sessionStateCB(e_SESSION_UP,
                              handle->d_handleId,
                              session,
                              handle->d_userData_p);
@@ -670,7 +670,7 @@ int SessionPool::closeHandle(int handleId)
 {
     HandlePtr handle;
     if (d_handles.find(handleId, &handle)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if(SessionPool_Handle::LISTENER == handle->d_type) {
@@ -1079,13 +1079,20 @@ int SessionPool::portNumber(int handle) const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// btlso_socketimputil.h         -*-C++-*-
+// btlso_socketimputil.h                                              -*-C++-*-
 #ifndef INCLUDED_BTLSO_SOCKETIMPUTIL
 #define INCLUDED_BTLSO_SOCKETIMPUTIL
 
@@ -1050,9 +1050,9 @@ int SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
 
 
 namespace btlso {
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 template <class ADDRESS>
 inline int SocketImpUtil::accept(
@@ -1310,9 +1310,9 @@ inline int SocketImpUtil::writevTo(
                                                       errorCode);
 }
 
-// ===========================================================================
+// ============================================================================
 //                 NON-INLINE TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 template <class ADDRESS>
 int SocketImpUtil_Imp<ADDRESS>::accept(
@@ -1349,13 +1349,13 @@ int SocketImpUtil_Imp<ADDRESS>::accept(
                           (sockaddr *) &address.d_address, &siLen);
     if (SocketImpUtil_Util::isValid(*newSocket)) {
         address.fromSocketAddress(peerAddress);
-        return 0;
+        return 0;                                                     // RETURN
     }
     else {
         int errorNumber = SocketImpUtil_Util::getErrorCode();
         if (errorNumber && errorCode)
             *errorCode = errorNumber;
-        return SocketImpUtil_Util::mapErrorCode(errorNumber);
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
     }
 }
 
@@ -1410,13 +1410,13 @@ int SocketImpUtil_Imp<ADDRESS>::getLocalAddress(
 
     if (rc >= 0) {
         address.fromSocketAddress(localAddress);
-        return 0;
+        return 0;                                                     // RETURN
     }
     else {
         int errorNumber = SocketImpUtil_Util::getErrorCode();
         if (errorNumber && errorCode)
             *errorCode = errorNumber;
-        return SocketImpUtil_Util::mapErrorCode(errorNumber);
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
     }
 }
 
@@ -1434,13 +1434,13 @@ int SocketImpUtil_Imp<ADDRESS>::getPeerAddress(
 
     if (rc >= 0) {
         sockAddress.fromSocketAddress(address);
-        return 0;
+        return 0;                                                     // RETURN
     }
     else {
         int errorNumber = SocketImpUtil_Util::getErrorCode();
         if (errorNumber && errorCode)
             *errorCode = errorNumber;
-        return SocketImpUtil_Util::mapErrorCode(errorNumber);
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
     }
 }
 
@@ -1492,14 +1492,14 @@ int SocketImpUtil_Imp<ADDRESS>::readFrom(
 
     address.fromSocketAddress(fromAddress);
     if (rc >= 0) {
-        return rc;
+        return rc;                                                    // RETURN
     }
     else {
         int errorNumber = SocketImpUtil_Util::getErrorCode();
         if (errorNumber && errorCode) {
             *errorCode = errorNumber;
         }
-        return SocketImpUtil_Util::mapErrorCode(errorNumber);
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
     }
 }
 
@@ -1514,7 +1514,7 @@ int SocketImpUtil_Imp<ADDRESS>::writeTo(
     int rc;
     SocketImpUtil_Address<ADDRESS> sockAddress(toAddress);
 
-    if (!numBytes) return 0;
+    if (!numBytes) return 0;                                          // RETURN
     rc = static_cast<int>(::sendto(socket, (const char *) buffer, numBytes, 0,
                                    (sockaddr *)&sockAddress.d_address,
                                    sizeof sockAddress.d_address));
@@ -1607,15 +1607,22 @@ int SocketImpUtil_Imp<ADDRESS>::socketPair(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

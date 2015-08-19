@@ -1,4 +1,4 @@
-// bdlpuxxx_ntypesparser.cpp                                             -*-C++-*-
+// bdlpuxxx_ntypesparser.cpp                                          -*-C++-*-
 #include <bdlpuxxx_ntypesparser.h>
 
 #include <bsls_ident.h>
@@ -32,7 +32,7 @@ int NTypesParser::parseChar(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<char>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseChar(endPos, result, inputString);
@@ -49,7 +49,7 @@ int NTypesParser::parseDate(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bdlt::Date>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseDate(endPos, result, inputString);
@@ -66,7 +66,7 @@ int NTypesParser::parseDatetime(const char    **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bdlt::Datetime>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseDatetime(endPos,
@@ -85,7 +85,7 @@ int NTypesParser::parseDatetimeTz(const char      **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bdlt::DatetimeTz>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseDatetimeTz(endPos,
@@ -104,7 +104,7 @@ int NTypesParser::parseDateTz(const char  **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bdlt::DateTz>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseDateTz(endPos, result, inputString);
@@ -121,7 +121,7 @@ int NTypesParser::parseDouble(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<double>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseDouble(endPos, result, inputString);
@@ -138,7 +138,7 @@ int NTypesParser::parseFloat(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<float>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseFloat(endPos, result, inputString);
@@ -158,7 +158,7 @@ int NTypesParser::parseInt(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<int>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseInt(endPos,
@@ -181,7 +181,7 @@ int NTypesParser::parseInt64(const char         **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bsls::Types::Int64>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseInt64(endPos,
@@ -204,7 +204,7 @@ int NTypesParser::parseShort(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<short>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseShort(endPos,
@@ -224,7 +224,7 @@ int NTypesParser::parseString(const char  **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bsl::string>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseString(endPos, result, inputString);
@@ -241,7 +241,7 @@ int NTypesParser::parseQuotedString(const char  **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bsl::string>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseQuotedString(endPos,
@@ -260,7 +260,7 @@ int NTypesParser::parseUnquotedString(const char  **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bsl::string>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseUnquotedString(endPos,
@@ -279,7 +279,7 @@ int NTypesParser::parseSpaceDelimitedString(const char  **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bsl::string>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseSpaceDelimitedString(endPos,
@@ -298,7 +298,7 @@ int NTypesParser::parseTime(const char **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bdlt::Time>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseTime(endPos, result, inputString);
@@ -315,7 +315,7 @@ int NTypesParser::parseTimeTz(const char  **endPos,
     ParserImpUtil::skipWhiteSpace(&inputString, inputString);
     if (0 == ParserImpUtil::parseNull(endPos, inputString)) {
         *result = bdltuxxx::Unset<bdlt::TimeTz>::unsetValue();
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return TypesParserImpUtil::parseTimeTz(endPos, result, inputString);
@@ -369,19 +369,19 @@ int bdlpuxxx::NTypesParser::PARSE_FUNC_ARRAY(FUNC_BASE)(                        
 }
 
 namespace bdlpuxxx {
-PARSE_ARRAY(Char, char)
-PARSE_ARRAY(Date, bdlt::Date)
-PARSE_ARRAY(DateTz, bdlt::DateTz)
-PARSE_ARRAY(Datetime, bdlt::Datetime)
-PARSE_ARRAY(DatetimeTz, bdlt::DatetimeTz)
-PARSE_ARRAY(Double, double)
-PARSE_ARRAY(Float, float)
-PARSE_ARRAY(Int, int)
-PARSE_ARRAY(Int64, bsls::Types::Int64)
-PARSE_ARRAY(Short, short)
-PARSE_ARRAY(String, bsl::string)
-PARSE_ARRAY(Time, bdlt::Time)
-PARSE_ARRAY(TimeTz, bdlt::TimeTz)
+PARSE_ARRAY(Char, char)                                               // RETURN
+PARSE_ARRAY(Date, bdlt::Date)                                         // RETURN
+PARSE_ARRAY(DateTz, bdlt::DateTz)                                     // RETURN
+PARSE_ARRAY(Datetime, bdlt::Datetime)                                 // RETURN
+PARSE_ARRAY(DatetimeTz, bdlt::DatetimeTz)                             // RETURN
+PARSE_ARRAY(Double, double)                                           // RETURN
+PARSE_ARRAY(Float, float)                                             // RETURN
+PARSE_ARRAY(Int, int)                                                 // RETURN
+PARSE_ARRAY(Int64, bsls::Types::Int64)                                // RETURN
+PARSE_ARRAY(Short, short)                                             // RETURN
+PARSE_ARRAY(String, bsl::string)                                      // RETURN
+PARSE_ARRAY(Time, bdlt::Time)                                         // RETURN
+PARSE_ARRAY(TimeTz, bdlt::TimeTz)                                     // RETURN
 
                        // *** GENERATE FUNCTIONS ***
 
@@ -1049,13 +1049,13 @@ void NTypesParser::generateDatetimeTzArray(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2003
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

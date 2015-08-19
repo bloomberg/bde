@@ -1,4 +1,4 @@
-// btlso_defaulteventmanager_poll.t.cpp      -*-C++-*-
+// btlso_defaulteventmanager_poll.t.cpp                               -*-C++-*-
 
 #include <btlso_defaulteventmanager_poll.h>
 
@@ -54,9 +54,9 @@ using namespace BloombergLP;
 
 using namespace bsl;  // automatically added by script
 
-//==========================================================================
+//=============================================================================
 //                              TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              OVERVIEW
 // Test the corresponding event manager component by using
 // 'btlso::EventManagerTester' to exercise the "standard" test which applies to
@@ -88,9 +88,9 @@ using namespace bsl;  // automatically added by script
 // [ 9] Test for DRQS 10117512: Connect to non-listening port may result in
 //      100 % CPU utilization and a connect callback is NOT invoked
 // [10] Test for DRQS 10105162:
-//==========================================================================
+//=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 void aSsErT(int c, const char *s, int i)
 {
@@ -124,9 +124,9 @@ void aSsErT(int c, const char *s, int i)
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//==========================================================================
+//=============================================================================
 // Control byte used to verify reads and writes.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 const char control_byte(0x53);
 
 //=============================================================================
@@ -161,9 +161,9 @@ enum { POLL_IS_DEFAULT = bslmf::IsSame<
                            btlso::Platform::DEFAULT_POLLING_MECHANISM>::VALUE };
 
 
-//==========================================================================
-//                      HELPER CLASS
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              HELPER CLASS
+//-----------------------------------------------------------------------------
 class SocketPair {
     // This helper class manages a client-server pair of connected sockets.
   private:
@@ -296,9 +296,9 @@ struct ShouldntBeCalled {
 #endif
 
 
-//==========================================================================
-//                      MAIN PROGRAM
-//--------------------------------------------------------------------------
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
@@ -1484,11 +1484,18 @@ int main()
 }
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

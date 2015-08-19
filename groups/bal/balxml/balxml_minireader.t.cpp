@@ -1,4 +1,4 @@
-// balxml_minireader.t.cpp  -*-C++-*-
+// balxml_minireader.t.cpp                                            -*-C++-*-
 #include <balxml_minireader.h>
 
 #include <bslma_testallocator.h>
@@ -165,58 +165,58 @@ void parseAndCompare(const char *name,
     reader.close ();
 }
 
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 XmlEl table91[] =
 {
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION ,
+    {0, 0, balxml::Reader::e_NODE_TYPE_XML_DECLARATION ,
           "<?xml version='1.0' encoding='UTF-8'?>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE, "\n" , 0},
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_ELEMENT, "<RootElement>", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE, "\n" , 0},
+    {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT, "<RootElement>", 0 },
 
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_ELEMENT, "<Elem1>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_TEXT, "&lt;&amp;&apos;&quot;&gt;",
+    {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT, "<Elem1>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_TEXT, "&lt;&amp;&apos;&quot;&gt;",
                                           "<&'\">" },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT, "</Elem1>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_END_ELEMENT, "</Elem1>" , 0 },
 
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_ELEMENT, "<Elem2>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_TEXT,
+    {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT, "<Elem2>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_TEXT,
            "&#127;&#x7e;&#128;&#x81;&#2047;&#2048;&#x801;"
            "&#65535;&#x10000;&#x10001;&#x10FFFF;",
            "\x7F\x7e\xC2\x80\xC2\x81\xDF\xBF\xE0\xA0\x80\xE0\xA0\x81"
            "\xEF\xBF\xBF\xF0\x90\x80\x80\xF0\x90\x80\x81\xF4\x8F\xBF\xBF" },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT, "</Elem2>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_END_ELEMENT, "</Elem2>" , 0 },
 
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT, "</RootElement>", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,   "\n", 0 }
+    {0, 0, balxml::Reader::e_NODE_TYPE_END_ELEMENT, "</RootElement>", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE,   "\n", 0 }
 };
 
 XmlEl table81[] =
 {
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION ,
+    {0, 0, balxml::Reader::e_NODE_TYPE_XML_DECLARATION ,
           "<?xml version='1.0' encoding='UTF-8'?>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE, "\n" , 0},
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_ELEMENT,
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE, "\n" , 0},
+    {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT,
        "<directory-entry xmlns:dir='http://bloomberg.com/schemas/directory'>",
                                                                            0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,   "\n     ", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_ELEMENT, "<name>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_TEXT, "John Smith", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT, "</name>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,   "\n     ", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_ELEMENT,
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE,   "\n     ", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT, "<name>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_TEXT, "John Smith", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_END_ELEMENT, "</name>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE,   "\n     ", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT,
                                                 "<phone dir:phonetype='cell'>",
                                                                            0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_TEXT, "212-318-2000", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT, "</phone>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,   "\n     ", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_ELEMENT, "<address/>" , 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,   "\n", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT,
+    {0, 0, balxml::Reader::e_NODE_TYPE_TEXT, "212-318-2000", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_END_ELEMENT, "</phone>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE,   "\n     ", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_ELEMENT, "<address/>" , 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE,   "\n", 0 },
+    {0, 0, balxml::Reader::e_NODE_TYPE_END_ELEMENT,
            "</directory-entry>", 0 },
-    {0, 0, balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE,   "\n", 0 }
+    {0, 0, balxml::Reader::e_NODE_TYPE_WHITESPACE,   "\n", 0 }
 };
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Start of usage example, extract to the 'balxml::Reader' header file.
 //
 // Utility function to skip past white space.
@@ -232,11 +232,11 @@ int advancePastWhiteSpace(balxml::Reader& reader) {
         value = reader.nodeValue();
         type  = reader.nodeType();
     } while(0 == rc &&
-            type == balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE ||
-            (type == balxml::Reader::BAEXML_NODE_TYPE_TEXT &&
+            type == balxml::Reader::e_NODE_TYPE_WHITESPACE ||
+            (type == balxml::Reader::e_NODE_TYPE_TEXT &&
              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 
-    ASSERT( reader.nodeType() != balxml::Reader::BAEXML_NODE_TYPE_WHITESPACE);
+    ASSERT( reader.nodeType() != balxml::Reader::e_NODE_TYPE_WHITESPACE);
 
     return rc;
 }
@@ -285,7 +285,7 @@ int usageExample()
 //..
     ASSERT( reader.isOpen());
     ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
     ASSERT(!reader.nodeName());
     ASSERT(!reader.nodeHasValue());
     ASSERT(!reader.nodeValue());
@@ -301,7 +301,7 @@ int usageExample()
     int rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
     ASSERT( reader.nodeType() ==
-                              balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                              balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
     ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
     ASSERT( reader.nodeHasValue());
     ASSERT(!bsl::strcmp(reader.nodeValue(), "version='1.0' encoding='UTF-8'"));
@@ -317,7 +317,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 1);
@@ -334,7 +334,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -343,7 +343,7 @@ int usageExample()
 
     rc = reader.advanceToNextNode();
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT( reader.nodeHasValue());
     ASSERT(!bsl::strcmp(reader.nodeValue(), "John Smith"));
     ASSERT( reader.nodeDepth() == 3);
@@ -352,7 +352,7 @@ int usageExample()
 
     rc = reader.advanceToNextNode();
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -364,7 +364,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -393,7 +393,7 @@ int usageExample()
 
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT( reader.nodeHasValue());
     ASSERT(!bsl::strcmp(reader.nodeValue(), "212-318-2000"));
     ASSERT( reader.nodeDepth() == 3);
@@ -402,7 +402,7 @@ int usageExample()
 
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -414,7 +414,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "address"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 2);
@@ -425,7 +425,7 @@ int usageExample()
 //..
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
     ASSERT(!reader.nodeHasValue());
     ASSERT( reader.nodeDepth() == 1);
@@ -446,7 +446,7 @@ int usageExample()
 //  Let make numElements and numElements static
 //  to be accessible out of scope parse () function for future analysis.
 //  Since test is single threaded, no MT-issues are here
-//===========================================================================
+//=============================================================================
 static int test = 0;
 
 static void  processNode(balxml::Reader *reader)
@@ -541,7 +541,7 @@ void addCloseTag(bsl::string& xmlStr, int indent, const char* tag, int n) {
 // Recursively add nested nodes from 'currentDepth' to 'depth' to 'xmlStr'.
 void addDepth(bsl::string& xmlStr, int currentDepth, int depth) {
     if (currentDepth == depth) {
-        return;
+        return;                                                       // RETURN
     }
     int indent = (4 * currentDepth) + 4;
     addOpenTag(xmlStr, indent, "Depth", currentDepth % 10);
@@ -558,7 +558,7 @@ void addNodes(bsl::string& xmlStr,
               int          currentDepth,
               int          depth) {
     if (currentNode == numNodes) {
-        return;
+        return;                                                       // RETURN
     }
     int indent = 4 * currentDepth;
     addOpenTag(xmlStr, indent, "Node", currentNode % 10);
@@ -583,7 +583,7 @@ void checkNodeName(Obj& reader, const char* tag, int n) {
 // Recursively read nested nodes from 'currentDepth' to 'depth' to 'xmlStr'.
 void readDepth(Obj& reader, int currentDepth, int depth) {
     if (currentDepth == depth) {
-        return;
+        return;                                                       // RETURN
     }
 
     // Note that 'currentDepth' does not equal 'reader.nodeDepth()', this is
@@ -591,47 +591,47 @@ void readDepth(Obj& reader, int currentDepth, int depth) {
     // information.
 
     int rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     checkNodeName(reader, "Depth", currentDepth % 10);
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "element3"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_CDATA);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
 
     readDepth(reader, currentDepth + 1, depth);
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     checkNodeName(reader, "Depth", currentDepth % 10);
 }
 
@@ -644,51 +644,51 @@ void readNodes(Obj& reader,
                int currentDepth,
                int depth) {
     if (currentNode == numNodes) {
-        return;
+        return;                                                       // RETURN
     }
 
     int rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     checkNodeName(reader, "Node", currentNode % 10);
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "element3"));
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_CDATA);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
     ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
 
     readDepth(reader, currentDepth, depth);
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
     checkNodeName(reader, "Node", currentNode % 10);
 
     readNodes(reader, currentNode + 1, numNodes, currentDepth, depth);
@@ -700,18 +700,18 @@ void readHeader(Obj& reader)
     //TBD: Mini Reader needs to be fix to pass back the correct encoding.
     //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
     ASSERT( reader.nodeType() ==
-                              balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                              balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
     ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
     ASSERT( reader.nodeHasValue());
     ASSERT(!bsl::strcmp(reader.nodeValue(), "version='1.0' encoding='UTF-8'"));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
     ASSERT(!bsl::strcmp(reader.nodeValue(),
                         " RCSId_bascfg_xsd = \"$Id: $\" "));
 
     rc = advancePastWhiteSpace(reader);
-    ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 }
 //=============================================================================
@@ -811,43 +811,43 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
 
           rc = advancePastWhiteSpace(reader);
-          ASSERT(reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "Node1"));
           ASSERT(1 == reader.numAttributes());
 
           balxml::ElementAttribute attr;
           ASSERT(0 == reader.lookupAttribute(&attr, 0));
-          ASSERT(ElementAttribute::BAEXML_ATTR_IS_XSIDECL == attr.flags());
+          ASSERT(ElementAttribute::k_ATTR_IS_XSIDECL == attr.flags());
           ASSERT(0 == strcmp("xsi:nil", attr.qualifiedName()));
           ASSERT(0 == strcmp("xsi", attr.prefix()));
           ASSERT(0 == strcmp("nil", attr.localName()));
           ASSERT(0 == strcmp("true", attr.value()));
           ASSERT(0 == strcmp("http://www.w3.org/2001/XMLSchema-instance",
                              attr.namespaceUri()));
-          ASSERT(Registry::BAEXML_XMLSCHEMA_INSTANCE == attr.namespaceId());
+          ASSERT(Registry::e_XMLSCHEMA_INSTANCE == attr.namespaceId());
 
           rc = advancePastWhiteSpace(reader);
-          ASSERT(reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "Node2"));
           ASSERT(1 == reader.numAttributes());
           attr.reset();
           ASSERT(0 == reader.lookupAttribute(&attr, 0));
-          ASSERT(ElementAttribute::BAEXML_ATTR_IS_XSIDECL == attr.flags());
+          ASSERT(ElementAttribute::k_ATTR_IS_XSIDECL == attr.flags());
           ASSERT(0 == strcmp("xsi:nil", attr.qualifiedName()));
           ASSERT(0 == strcmp("xsi", attr.prefix()));
           ASSERT(0 == strcmp("nil", attr.localName()));
           ASSERT(0 == strcmp("false", attr.value()));
           ASSERT(0 == strcmp("http://www.w3.org/2001/XMLSchema-instance",
                              attr.namespaceUri()));
-          ASSERT(Registry::BAEXML_XMLSCHEMA_INSTANCE == attr.namespaceId());
+          ASSERT(Registry::e_XMLSCHEMA_INSTANCE == attr.namespaceId());
 
           rc = advancePastWhiteSpace(reader);
-          ASSERT(reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "Node3"));
           ASSERT(0 == reader.numAttributes());
           ASSERT(reader.isEmptyElement());
@@ -895,31 +895,31 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
 
           rc = advancePastWhiteSpace(reader);
-          ASSERT(reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "Node"));
 
           rc = advancePastWhiteSpace(reader);
-          ASSERT(reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+          ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "Element"));
 
           rc = advancePastWhiteSpace(reader);
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
           LOOP_ASSERT(reader.nodeValue(),
                       !bsl::strcmp(reader.nodeValue(), CDATA_STR));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT(reader.nodeType()
-                               == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                               == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "Element"));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT(reader.nodeType()
-                               == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                               == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "Node"));
 
           reader.close();
@@ -1098,7 +1098,7 @@ int main(int argc, char *argv[])
 
           LOOP_ASSERT(LINE, reader.isOpen());
           LOOP_ASSERT(LINE,
-                    reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+                    reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
           rc = advancePastWhiteSpace(reader);
@@ -1127,7 +1127,7 @@ int main(int argc, char *argv[])
           rc = advancePastWhiteSpace(reader);
           LOOP_ASSERT(LINE,
                       reader.nodeType() ==
-                                  balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                                  balxml::Reader::e_NODE_TYPE_END_ELEMENT);
           LOOP_ASSERT(LINE, !bsl::strcmp(reader.nodeName(), "xs:schema"));
 
           reader.close();
@@ -1248,7 +1248,7 @@ int main(int argc, char *argv[])
 
           LOOP_ASSERT(LINE,  reader.isOpen());
           LOOP_ASSERT(LINE,  reader.nodeType()
-                             == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+                             == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
           rc = advancePastWhiteSpace(reader);
@@ -1256,7 +1256,7 @@ int main(int argc, char *argv[])
 
           rc = advancePastWhiteSpace(reader);
           LOOP_ASSERT(LINE,  reader.nodeType()
-                             == balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                             == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
           LOOP_ASSERT(LINE, !bsl::strcmp(reader.nodeName(), "xs:schema"));
 
           reader.close();
@@ -1419,14 +1419,14 @@ int main(int argc, char *argv[])
 
           LOOP_ASSERT(LINE,  reader.isOpen());
           LOOP_ASSERT(LINE,
-                    reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+                    reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
           readNodes(reader, 0, NODES, 0, DEPTH);
 
           rc = advancePastWhiteSpace(reader);
           LOOP_ASSERT(LINE,
-               reader.nodeType()==balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+               reader.nodeType()==balxml::Reader::e_NODE_TYPE_END_ELEMENT);
           LOOP_ASSERT(LINE, !bsl::strcmp(reader.nodeName(), "xs:schema"));
 
           reader.close();
@@ -1483,7 +1483,7 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
           readNodes(reader, 0, 1, 0, 0);
@@ -1528,7 +1528,7 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           readHeader(reader);
           readNodes(reader, 0, 1, 0, 0);
@@ -1578,12 +1578,12 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           rc = advancePastWhiteSpace(reader);
           LOOP_ASSERT(reader.nodeType(),
                       reader.nodeType() ==
-                      balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                      balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
           LOOP_ASSERT(reader.nodeName(),
                       !bsl::strcmp(reader.nodeName(), "xml"));
           ASSERT( reader.nodeHasValue());
@@ -1592,13 +1592,13 @@ int main(int argc, char *argv[])
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+                                      balxml::Reader::e_NODE_TYPE_COMMENT);
           ASSERT(!bsl::strcmp(reader.nodeValue(),
                       " RCSId_bascfg_xsd = \"$Id: $\" "));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+                                      balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
           ASSERT(0 > rc);
           const balxml::ErrorInfo& errorInfo = reader.errorInfo();
@@ -1643,11 +1643,11 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+                                      balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
           LOOP_ASSERT(rc, 0 > rc);
           const balxml::ErrorInfo& errorInfo = reader.errorInfo();
@@ -1698,11 +1698,11 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType()
-                  == balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                  == balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
           ASSERT( reader.nodeHasValue());
           ASSERT(!bsl::strcmp(reader.nodeValue(),
@@ -1710,13 +1710,13 @@ int main(int argc, char *argv[])
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+                                      balxml::Reader::e_NODE_TYPE_COMMENT);
           ASSERT(!bsl::strcmp(reader.nodeValue(),
                               " RCSId_bascfg_xsd = \"$Id: $\" "));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+                                      balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
           ASSERT(0 > rc);
           const balxml::ErrorInfo& errorInfo = reader.errorInfo();
@@ -1762,11 +1762,11 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType()
-                  == balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                  == balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
           ASSERT( reader.nodeHasValue());
           ASSERT(!bsl::strcmp(reader.nodeValue(),
@@ -1774,13 +1774,13 @@ int main(int argc, char *argv[])
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+                                      balxml::Reader::e_NODE_TYPE_COMMENT);
           ASSERT(!bsl::strcmp(reader.nodeValue(),
                       " RCSId_bascfg_xsd = \"$Id: $\" "));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+                                      balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
           ASSERT(0 > rc);
           const balxml::ErrorInfo& errorInfo = reader.errorInfo();
@@ -1827,11 +1827,11 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType()
-                  == balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                  == balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
           ASSERT( reader.nodeHasValue());
           ASSERT(!bsl::strcmp(reader.nodeValue(),
@@ -1839,13 +1839,13 @@ int main(int argc, char *argv[])
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+                                      balxml::Reader::e_NODE_TYPE_COMMENT);
           ASSERT(!bsl::strcmp(reader.nodeValue(),
                       " RCSId_bascfg_xsd = \"$Id: $\" "));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+                                      balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
           ASSERT(0 > rc);
           const balxml::ErrorInfo& errorInfo = reader.errorInfo();
@@ -1891,11 +1891,11 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType()
-                  == balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                  == balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
           ASSERT( reader.nodeHasValue());
           ASSERT(!bsl::strcmp(reader.nodeValue(),
@@ -1903,13 +1903,13 @@ int main(int argc, char *argv[])
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+                                      balxml::Reader::e_NODE_TYPE_COMMENT);
           ASSERT(!bsl::strcmp(reader.nodeValue(),
                       " RCSId_bascfg_xsd = \"$Id: $\" "));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+                                      balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
           ASSERT(0 > rc);
           const balxml::ErrorInfo& errorInfo = reader.errorInfo();
@@ -1956,11 +1956,11 @@ int main(int argc, char *argv[])
           ASSERT(-1 < rc);
 
           ASSERT( reader.isOpen());
-          ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+          ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType()
-                  == balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                  == balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
           ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
           ASSERT( reader.nodeHasValue());
           ASSERT(!bsl::strcmp(reader.nodeValue(),
@@ -1968,13 +1968,13 @@ int main(int argc, char *argv[])
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+                                      balxml::Reader::e_NODE_TYPE_COMMENT);
           ASSERT(!bsl::strcmp(reader.nodeValue(),
                       " RCSId_bascfg_xsd = \"$Id: $\" "));
 
           rc = advancePastWhiteSpace(reader);
           ASSERT( reader.nodeType() ==
-                                      balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+                                      balxml::Reader::e_NODE_TYPE_ELEMENT);
           ASSERT(0 > rc);
           const balxml::ErrorInfo& errorInfo = reader.errorInfo();
           ASSERT(3 == errorInfo.lineNumber());
@@ -2065,7 +2065,7 @@ int main(int argc, char *argv[])
         ASSERT(-1 < rc);
 
         ASSERT( reader.isOpen());
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
         // Test read header and readNodes functions.
         readHeader(reader);
@@ -2073,7 +2073,7 @@ int main(int argc, char *argv[])
 
         rc = advancePastWhiteSpace(reader);
         ASSERT( reader.nodeType() ==
-                                  balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                                  balxml::Reader::e_NODE_TYPE_END_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
         reader.close();
@@ -2235,76 +2235,76 @@ int main(int argc, char *argv[])
         ASSERT(-1 < rc);
 
         ASSERT( reader.isOpen());
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_NONE);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
         rc = advancePastWhiteSpace(reader);
         //TBD: Mini Reader needs to be fix to pass back the correct encoding.
         //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
         ASSERT( reader.nodeType() ==
-                balxml::Reader::BAEXML_NODE_TYPE_XML_DECLARATION);
+                balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
         ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
         ASSERT( reader.nodeHasValue());
         ASSERT(!bsl::strcmp(reader.nodeValue(),
                     "version='1.0' encoding='UTF-8'"));
 
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_COMMENT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
         ASSERT(!bsl::strcmp(reader.nodeValue(),
                     " RCSId_bascfg_xsd = \"$Id: $\" "));
 
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
 
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
         ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
         rc = advancePastWhiteSpace(reader);
         ASSERT( reader.nodeType() ==
-                                  balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                                  balxml::Reader::e_NODE_TYPE_END_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
 
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
         ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
         rc = advancePastWhiteSpace(reader);
         ASSERT( reader.nodeType() ==
-                                  balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                                  balxml::Reader::e_NODE_TYPE_END_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
 
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_ELEMENT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_TEXT);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
         ASSERT(!bsl::strcmp(reader.nodeValue(), "element3"));
         rc = advancePastWhiteSpace(reader);
         ASSERT( reader.nodeType() ==
-                                  balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                                  balxml::Reader::e_NODE_TYPE_END_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
 
         rc = advancePastWhiteSpace(reader);
-        ASSERT( reader.nodeType() == balxml::Reader::BAEXML_NODE_TYPE_CDATA);
+        ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
         ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
 
         rc = advancePastWhiteSpace(reader);
         ASSERT( reader.nodeType() ==
-                                  balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                                  balxml::Reader::e_NODE_TYPE_END_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
 
         rc = advancePastWhiteSpace(reader);
         ASSERT( reader.nodeType() ==
-                                  balxml::Reader::BAEXML_NODE_TYPE_END_ELEMENT);
+                                  balxml::Reader::e_NODE_TYPE_END_ELEMENT);
         ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
         reader.close();
@@ -2351,10 +2351,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

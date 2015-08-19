@@ -88,7 +88,7 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 //=============================================================================
-//                  SOME HELPFUL EXTRAS
+//                          SOME HELPFUL EXTRAS
 //-----------------------------------------------------------------------------
 #define ASSERT_L(X, L) { \
    if (!(X)) { aSsErT(1, #X, L); }}
@@ -756,7 +756,7 @@ void pushBackWrapper(bsl::vector<int> *vector, int item)
 {
     vector->push_back(item);
 }
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                              MAIN PROGRAM

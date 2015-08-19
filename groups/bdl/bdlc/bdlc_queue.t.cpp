@@ -5500,7 +5500,8 @@ DEFINE_TEST_CASE(10) {
                           << "Testing Streaming Functionality" << endl
                           << "===============================" << endl;
 
-        const int VERSION = Obj::maxSupportedBdexVersion();
+        const int VERSION_SELECTOR = 20130612;
+        const int VERSION = Obj::maxSupportedBdexVersion(VERSION_SELECTOR);
         if (verbose) cout << "\nDirect initial trial of 'streamOut' and"
                              " (valid) 'streamIn' functionality." << endl;
         {

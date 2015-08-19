@@ -1,4 +1,4 @@
-// bdlaggxxx_aggregateraw.cpp                                              -*-C++-*-
+// bdlaggxxx_aggregateraw.cpp                                         -*-C++-*-
 #include <bdlaggxxx_aggregateraw.h>
 
 #include <bsls_ident.h>
@@ -49,7 +49,7 @@ class ArrayCapacitor {
     }
 
     // MANIPULATORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array)
     {
         *d_capacity_p = array->capacity();
@@ -89,7 +89,7 @@ class ArrayInserter {
                                            // null
 
     // PRIVATE TYPES
-    template <typename TYPE>
+    template <class TYPE>
     struct SignChecker {
         // TBD REMOVE
 
@@ -116,7 +116,7 @@ class ArrayInserter {
         // 'index < 0', elements are appended to the end of the array.
 
     // MANIPULATORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array);
         // Insert elements into the specified 'array' of parameterized
         // 'ARRAYTYPE' as indicated by the arguments supplied at construction.
@@ -165,7 +165,7 @@ class ArrayItemEraser {
     }
 
     // MANIPULATORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array)
     {
         if (d_pos + d_numItems > (int)array->size()) {
@@ -206,7 +206,7 @@ class ArrayReserver {
     }
 
     // ACCESSORS
-    template <typename ARRAYTYPE>
+    template <class ARRAYTYPE>
     int operator()(ARRAYTYPE *array) const
     {
         array->reserve(d_numItems);
@@ -322,7 +322,7 @@ ArrayInserter::ArrayInserter(int                  index,
 }
 
 // MANIPULATORS
-template <typename ARRAYTYPE>
+template <class ARRAYTYPE>
 int ArrayInserter::operator()(ARRAYTYPE *array)
 {
     BSLS_ASSERT_SAFE(array);
@@ -377,7 +377,7 @@ int ArrayInserter::length() const
     return d_length;
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 namespace bdlaggxxx {
                         // -----------------------
@@ -429,7 +429,7 @@ int AggregateRaw::descendIntoArrayItem(
             return 0;                                                 // RETURN
         }
         else if (d_fieldDef_p
-              && bdeat_FormattingMode::BDEAT_NILLABLE ==
+              && bdlat_FormattingMode::e_NILLABLE ==
                                               d_fieldDef_p->formattingMode()) {
             itemType = bdlmxxx::ElemType::BDEM_ROW;
             itemPtr  = makeNonNullFlag
@@ -449,7 +449,7 @@ int AggregateRaw::descendIntoArrayItem(
 
         itemType = bdlmxxx::ElemType::BDEM_CHOICE_ARRAY_ITEM;
         if (d_fieldDef_p
-         && bdeat_FormattingMode::BDEAT_NILLABLE ==
+         && bdlat_FormattingMode::e_NILLABLE ==
                                               d_fieldDef_p->formattingMode()) {
             itemPtr = makeNonNullFlag
              ? &choiceArray.theModifiableItem(index)
@@ -835,7 +835,7 @@ int AggregateRaw::makeSelectionByIndexRaw(
         description += bdlmxxx::ElemType::toAscii(d_dataType);
         errorDescription->setDescription(description);
         errorDescription->setCode(ErrorCode::BCEM_NOT_A_CHOICE);
-        return -1;                                                  // RETURN
+        return -1;                                                    // RETURN
       }
     }
 
@@ -1269,7 +1269,8 @@ const bdlmxxx::ElemRef AggregateRaw::asElemRef() const
                           ? &s_voidNullnessWord
                           : d_isTopLevelAggregateNull_p;
 
-        return bdlmxxx::ElemRef(d_value_p, descriptor, nullnessWord, 0);  // RETURN
+        return bdlmxxx::ElemRef(d_value_p, descriptor, nullnessWord, 0);
+                                                                      // RETURN
     }
 
     void *valuePtr = d_parentData_p;
@@ -1308,7 +1309,7 @@ const bdlmxxx::ElemRef AggregateRaw::asElemRef() const
 
         const bdlmxxx::Descriptor *descriptor =
                                 bdlmxxx::ElemAttrLookup::lookupTable()[d_dataType];
-        return bdlmxxx::ElemRef(d_value_p, descriptor);                   // RETURN
+        return bdlmxxx::ElemRef(d_value_p, descriptor);               // RETURN
       }
     }
 }
@@ -1362,7 +1363,7 @@ bsl::string AggregateRaw::convertScalar<bsl::string>() const
 
     if (0 != status) {
         // Conversion failed.
-        return "";
+        return "";                                                    // RETURN
     }
 
     return result;
@@ -1732,7 +1733,7 @@ int AggregateRaw::selectorId() const
     AggregateRaw    choiceObj;
     ErrorAttributes dummy;
     if (0 != findUnambiguousChoice(&choiceObj, &dummy, "selectorId")) {
-        return bdlmxxx::RecordDef::BDEM_NULL_FIELD_ID;                    // RETURN
+        return bdlmxxx::RecordDef::BDEM_NULL_FIELD_ID;                // RETURN
     }
 
     int index = choiceObj.selectorIndex();
@@ -1853,7 +1854,7 @@ int AggregateRaw::insertItems(ErrorAttributes *errorDescription,
         theTable.insertNullRows(index, numItems);
         if (d_recordDef_p
          && (!d_fieldDef_p
-          || bdeat_FormattingMode::BDEAT_NILLABLE !=
+          || bdlat_FormattingMode::e_NILLABLE !=
                                              d_fieldDef_p->formattingMode())) {
             for (int i = index; i < index + numItems; ++i) {
                 bdlmxxx::SchemaAggregateUtil::initRowDeep(
@@ -2546,12 +2547,12 @@ bool AggregateRaw_Util::isConformant(const bdlmxxx::ConstElemRef *object,
         bdlmxxx::ElemType::Type type = object->type();
 
         if (bdlmxxx::RecordDef::BDEM_CHOICE_RECORD == recordDef->recordType()) {
-            return bdlmxxx::ElemType::isChoiceType(type);                 // RETURN
+            return bdlmxxx::ElemType::isChoiceType(type);             // RETURN
         }
 
         return bdlmxxx::ElemType::BDEM_ROW   == type
             || bdlmxxx::ElemType::BDEM_LIST  == type
-            || bdlmxxx::ElemType::BDEM_TABLE == type;                     // RETURN
+            || bdlmxxx::ElemType::BDEM_TABLE == type;                 // RETURN
     }
 
     return result;
@@ -2674,7 +2675,7 @@ bool AggregateRaw_Util::isConformant(const void           *object,
 //                         'bdlat_typename' overloads
 // ============================================================================
 
-const char *bdeat_TypeName_className(const AggregateRaw& object)
+const char *bdlat_TypeName_className(const AggregateRaw& object)
 {
     const char           *name = 0;
     const bdlmxxx::RecordDef *recordDef = object.recordConstraint();
@@ -2691,10 +2692,10 @@ const char *bdeat_TypeName_className(const AggregateRaw& object)
 }
 
 // ============================================================================
-//                       'bdeat_valuetype' overloads
+//                       'bdlat_valuetype' overloads
 // ============================================================================
 
-void bdeat_valueTypeReset(AggregateRaw *object)
+void bdlat_valueTypeReset(AggregateRaw *object)
 {
     BSLS_ASSERT_SAFE(object);
 
@@ -2712,7 +2713,7 @@ void bdeat_valueTypeReset(AggregateRaw *object)
 // ============================================================================
 
 
-bool bdeat_choiceHasSelection(const AggregateRaw&  object,
+bool bdlat_choiceHasSelection(const AggregateRaw&  object,
                               const char               *selectionName,
                               int                       selectionNameLength)
 {
@@ -2721,12 +2722,12 @@ bool bdeat_choiceHasSelection(const AggregateRaw&  object,
     return object.hasField(name);
 }
 
-int bdeat_choiceMakeSelection(AggregateRaw *object,
+int bdlat_choiceMakeSelection(AggregateRaw *object,
                               int                selectionId)
 {
     AggregateRaw    dummyField;
     ErrorAttributes dummyError;
-    if (bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID == selectionId) {
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID == selectionId) {
         object->makeSelectionById(&dummyField,
                                   &dummyError,
                                   bdlmxxx::RecordDef::BDEM_NULL_FIELD_ID);
@@ -2740,7 +2741,7 @@ int bdeat_choiceMakeSelection(AggregateRaw *object,
     return object->makeSelectionById(&dummyField, &dummyError, selectionId);
 }
 
-int bdeat_choiceMakeSelection(AggregateRaw *object,
+int bdlat_choiceMakeSelection(AggregateRaw *object,
                               const char        *selectionName,
                               int                selectionNameLength)
 {
@@ -2759,7 +2760,7 @@ int bdeat_choiceMakeSelection(AggregateRaw *object,
 // ============================================================================
 //                     'bdlat_enumfunctions' overloads
 // ============================================================================
-int bdeat_enumFromInt(AggregateRaw *result, int enumId)
+int bdlat_enumFromInt(AggregateRaw *result, int enumId)
 {
     const bdlmxxx::EnumerationDef *enumDef = result->enumerationConstraint();
     if (! enumDef) {
@@ -2783,7 +2784,7 @@ int bdeat_enumFromInt(AggregateRaw *result, int enumId)
     return 0;
 }
 
-int bdeat_enumFromString(AggregateRaw *result,
+int bdlat_enumFromString(AggregateRaw *result,
                          const char        *string,
                          int                stringLength)
 {
@@ -2814,41 +2815,41 @@ int bdeat_enumFromString(AggregateRaw *result,
 //                     'bdlat_typecategory' overloads
 // ============================================================================
 
-bdeat_TypeCategory::Value
-bdeat_typeCategorySelect(const AggregateRaw& object)
+bdlat_TypeCategory::Value
+bdlat_typeCategorySelect(const AggregateRaw& object)
 {
     bdlmxxx::ElemType::Type dataType = object.dataType();
 
-    bdeat_TypeCategory::Value result;
+    bdlat_TypeCategory::Value result;
 
     if (bdlmxxx::ElemType::isArrayType(dataType)) {
-        result = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
+        result = bdlat_TypeCategory::e_ARRAY_CATEGORY;
     }
     else if (object.enumerationConstraint()) {
-        result = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
+        result = bdlat_TypeCategory::e_ENUMERATION_CATEGORY;
     }
     else if (bdlmxxx::ElemType::isScalarType(dataType)) {
-        result = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+        result = bdlat_TypeCategory::e_SIMPLE_CATEGORY;
     }
     else {
         switch (dataType) {
           case bdlmxxx::ElemType::BDEM_LIST:                        // FALL THROUGH
           case bdlmxxx::ElemType::BDEM_ROW: {
-            result = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
+            result = bdlat_TypeCategory::e_SEQUENCE_CATEGORY;
           } break;
           case bdlmxxx::ElemType::BDEM_CHOICE:
           case bdlmxxx::ElemType::BDEM_CHOICE_ARRAY_ITEM: {
-            result = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
+            result = bdlat_TypeCategory::e_CHOICE_CATEGORY;
           } break;
           case bdlmxxx::ElemType::BDEM_VOID: {
             // Treat void as a simple type (an error will occur later, where
             // it can be more easily detected).
 
-            result = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+            result = bdlat_TypeCategory::e_SIMPLE_CATEGORY;
           } break;
           default: {
             BSLS_ASSERT_OPT("Category error" && 0);
-            result = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+            result = bdlat_TypeCategory::e_SIMPLE_CATEGORY;
           } break;
         }
     }
@@ -2857,13 +2858,13 @@ bdeat_typeCategorySelect(const AggregateRaw& object)
 }
 }  // close package namespace
 
-} // namespace BloombegLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

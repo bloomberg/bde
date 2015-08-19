@@ -296,10 +296,10 @@ BSLS_IDENT("$Id: $")
 // transition, so it uniquely describes a valid time (in New York) which falls
 // during Eastern Standard Time, and whose local time offset from UTC is -5:00.
 // Because "Jan 1, 2011 12:00" is both a valid and unique local time, the
-// returned validity will be 'baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE'
-// and the two returned transition iterators will be equal:
+// returned validity will be 'baltzo::LocalTimeValidity::e_VALID_UNIQUE' and
+// the two returned transition iterators will be equal:
 //..
-//  assert(baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE == validity);
+//  assert(baltzo::LocalTimeValidity::e_VALID_UNIQUE == validity);
 //  assert(firstTransition == secondTransition);
 //
 //  assert(false    == firstTransition->descriptor().dstInEffectFlag());
@@ -326,15 +326,15 @@ BSLS_IDENT("$Id: $")
 // Finally we observe that the local time was ambiguous and that the returned
 // transitions are distinct:
 //..
-//  assert(baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS == validity);
+//  assert(baltzo::LocalTimeValidity::e_VALID_AMBIGUOUS == validity);
 //  assert(firstTransition != secondTransition);
 //..
 // Because 'ambiguousLocalTime' may refer to either the standard or the
 // daylight-saving time value "Nov 7, 2010 01:30", the returned validity will
-// be 'BALTZO_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will
-// differ.  'first' will refer to a description of the local time before the
-// transition (daylight-saving time) and 'second' will refer to a description
-// of local time after the transition (standard-time):
+// be 'e_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will differ.
+// 'first' will refer to a description of the local time before the transition
+// (daylight-saving time) and 'second' will refer to a description of local
+// time after the transition (standard-time):
 //..
 //  assert(true      == firstTransition->descriptor().dstInEffectFlag());
 //  assert(-4*60*60  == firstTransition->descriptor().utcOffsetInSeconds());
@@ -413,7 +413,7 @@ struct ZoneinfoUtil {
         // that could also apply to 'localTime'; finally load, into the
         // specified 'resultValidity', the validity of 'localTime' as being
         // unique, ambiguous but valid, or invalid.  If 'resultValidity' is
-        // 'BALTZO_VALID_UNIQUE', then 'firstResultTransition' and
+        // 'e_VALID_UNIQUE', then 'firstResultTransition' and
         // 'secondResultTransition' will be loaded with the same transition,
         // otherwise the returned transitions will be distinct with
         // 'secondResultTransition' referring to the transition immediately

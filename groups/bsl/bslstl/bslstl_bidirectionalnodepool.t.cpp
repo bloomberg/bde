@@ -383,8 +383,8 @@ struct UsesBslmaAllocator<AllocatingIntType> : bsl::true_type {};
 template <>
 struct UsesBslmaAllocator<AllocatingTestType> : bsl::true_type {};
 
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 namespace {
 
@@ -1568,7 +1568,7 @@ void TestDriver<VALUE>::testCase4()
           } break;
           default: {
               ASSERTV(CONFIG, !"Bad allocator config.");
-              return;
+              return;                                                 // RETURN
           } break;
         }
 
@@ -1695,7 +1695,7 @@ void TestDriver<VALUE>::testCase2()
           } break;
           default: {
             ASSERTV(CONFIG, !"Bad allocator config.");
-            return;
+            return;                                                   // RETURN
           } break;
         }
 

@@ -1,4 +1,4 @@
-// bslstl_hash.h                                                      -*-C++-*-
+// bslstp_hash.h                                                      -*-C++-*-
 #ifndef INCLUDED_BSLSTP_HASH
 #define INCLUDED_BSLSTP_HASH
 

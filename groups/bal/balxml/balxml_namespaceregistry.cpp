@@ -1,4 +1,4 @@
-// balxml_namespaceregistry.cpp                  -*-C++-*-
+// balxml_namespaceregistry.cpp                                       -*-C++-*-
 #include <balxml_namespaceregistry.h>
 
 #include <bsls_ident.h>
@@ -34,26 +34,26 @@ int lookupPredefinedId(const bslstl::StringRef& namespaceUri)
 {
     for (int i = 0; i < ARRAY_LEN(predefinedNamespaces); ++i) {
         if (namespaceUri == predefinedNamespaces[i]) {
-            return i + balxml::NamespaceRegistry::BAEXML_PREDEF_MIN;
+            return i + balxml::NamespaceRegistry::e_PREDEF_MIN;  // RETURN
         }
     }
 
     return -1;
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 namespace balxml {
 int
 NamespaceRegistry::lookupOrRegister(const bslstl::StringRef& namespaceUri)
 {
     if (namespaceUri.length() == 0) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     int id = lookup(namespaceUri);
     if (id >= 0) {
-        return id;
+        return id;                                                    // RETURN
     }
 
     d_namespaces.push_back(namespaceUri);
@@ -68,7 +68,7 @@ NamespaceRegistry::lookup(const bslstl::StringRef& namespaceUri) const
     // would not be correct to sort or otherwise re-order the vector.
 
     if (namespaceUri.length() == 0) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bsl::vector<bsl::string>::const_iterator iter;
@@ -76,7 +76,7 @@ NamespaceRegistry::lookup(const bslstl::StringRef& namespaceUri) const
         if (namespaceUri == *iter) {
             // ID of namespace is equal to its index
             // within the 'd_namespaces' vector.
-            return (iter - d_namespaces.begin());
+            return (iter - d_namespaces.begin());                     // RETURN
         }
     }
 
@@ -88,10 +88,10 @@ NamespaceRegistry::lookup(int id) const
 {
     // If id is non-negative, return registered namespace.
     if (0 <= id && size_t(id) < d_namespaces.size()) {
-        return  d_namespaces[id].c_str();
+        return  d_namespaces[id].c_str();                             // RETURN
     }
-    else if (BAEXML_PREDEF_MIN <= id && id < BAEXML_PREDEF_MAX) {
-        return predefinedNamespaces[id - BAEXML_PREDEF_MIN];
+    else if (e_PREDEF_MIN <= id && id < BAEXML_PREDEF_MAX) {
+        return predefinedNamespaces[id - e_PREDEF_MIN];          // RETURN
     }
 
     return "";
@@ -109,13 +109,20 @@ NamespaceRegistry::print(bsl::ostream& stream) const
 }
 }  // close package namespace
 
-} // Close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

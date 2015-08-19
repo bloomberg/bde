@@ -107,9 +107,9 @@ struct ArrayToPointer_Imp<TYPE [], UNUSED> {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_ArrayToConstPointer
 #undef bslmf_ArrayToConstPointer

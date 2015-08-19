@@ -1,4 +1,4 @@
-// bdlxxxx_byteoutstreamformatter.t.cpp             -*-C++-*-
+// bdlxxxx_byteoutstreamformatter.t.cpp                               -*-C++-*-
 
 #include <bdlxxxx_byteoutstreamformatter.h>
 
@@ -150,7 +150,7 @@ static int eq(const char *lhs, const char *rhs, int numBits)
 
     for (int i = 0; i < wholeBytes; ++i) {
         if (lhs[i] ^ rhs[i]) {
-            return 0;   // different
+            return 0;   // different                                  // RETURN
         }
     }
 
@@ -159,7 +159,7 @@ static int eq(const char *lhs, const char *rhs, int numBits)
         int remaingBits = 8 - extraBits;
         int mask = 0xff >> remaingBits << remaingBits;
         diff &= mask;   // if 0 != diff they're not equal
-        return 0 == diff;
+        return 0 == diff;                                             // RETURN
     }
 
     return 1;   // same
@@ -2905,7 +2905,7 @@ int main(int argc, char *argv[])
                  << "\tand numOutIters  = number of ctor+putInt8+dtor in"
                                                             " outer loop\n"
                  << "\t(default values to 1000 and 1000000, resp.)\n";
-            return -1;
+            return -1;                                                // RETURN
         }
 
         char *workSpace = new char[(NUM_ITERS+1) * sizeof(int)];
@@ -2967,11 +2967,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

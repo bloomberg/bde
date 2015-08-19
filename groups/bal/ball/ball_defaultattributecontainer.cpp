@@ -1,8 +1,10 @@
-// ball_defaultattributecontainer.cpp                 -*-C++-*-
+// ball_defaultattributecontainer.cpp                                 -*-C++-*-
 #include <ball_defaultattributecontainer.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_defaultattributecontainer_cpp,"$Id$ $CSID$")
+
+#include <bslim_printer.h>
 
 namespace BloombergLP {
 
@@ -28,8 +30,7 @@ DefaultAttributeContainer::operator=(
 }
 
 // ACCESSORS
-bool DefaultAttributeContainer::hasValue(
-                                             const Attribute& value) const
+bool DefaultAttributeContainer::hasValue(const Attribute& value) const
 {
     return d_attributeSet.find(value) != d_attributeSet.end();
 }
@@ -40,21 +41,15 @@ bsl::ostream& DefaultAttributeContainer::print(
                                             int           level,
                                             int           spacesPerLevel) const
 {
-    const char NL = spacesPerLevel >= 0 ? '\n' : ' ';
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-
-    stream << '{' <<  NL;
-
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
     for (const_iterator iter = begin(); iter != end(); ++iter) {
-        iter->print(stream, level + 1, spacesPerLevel);
-        stream << NL;
+        printer.printValue(*iter);
     }
-
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << '}' << NL;
-
+    printer.end();
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -81,13 +76,20 @@ bool ball::operator!=(const DefaultAttributeContainer& lhs,
     return !(lhs == rhs);
 }
 
-} // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

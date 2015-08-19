@@ -53,12 +53,12 @@ LoggerManagerConfiguration::areValidDefaultThresholdLevels(
 LoggerManagerConfiguration::LoggerManagerConfiguration(
                                               bslma::Allocator *basicAllocator)
 : d_defaults()
-, d_userFieldDescriptors(basicAllocator)
+, d_userFieldsSchema(basicAllocator)
 , d_userPopulator(basicAllocator)
 , d_categoryNameFilter()
 , d_defaultThresholdsCb()
-, d_logOrder(BAEL_LIFO)
-, d_triggerMarkers(BAEL_BEGIN_END_MARKERS)
+, d_logOrder(e_LIFO)
+, d_triggerMarkers(e_BEGIN_END_MARKERS)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -67,7 +67,7 @@ LoggerManagerConfiguration::LoggerManagerConfiguration(
                         const LoggerManagerConfiguration&  original,
                         bslma::Allocator                       *basicAllocator)
 : d_defaults(original.d_defaults)
-, d_userFieldDescriptors(original.d_userFieldDescriptors, basicAllocator)
+, d_userFieldsSchema(original.d_userFieldsSchema, basicAllocator)
 , d_userPopulator(original.d_userPopulator, basicAllocator)
 , d_categoryNameFilter(original.d_categoryNameFilter)
 , d_defaultThresholdsCb(original.d_defaultThresholdsCb)
@@ -87,7 +87,7 @@ LoggerManagerConfiguration::operator=(
                                     const LoggerManagerConfiguration& rhs)
 {
     d_defaults              = rhs.d_defaults;
-    d_userFieldDescriptors  = rhs.d_userFieldDescriptors;
+    d_userFieldsSchema  = rhs.d_userFieldsSchema;
     d_userPopulator         = rhs.d_userPopulator;
     d_categoryNameFilter    = rhs.d_categoryNameFilter;
     d_defaultThresholdsCb   = rhs.d_defaultThresholdsCb;
@@ -133,12 +133,12 @@ int LoggerManagerConfiguration::setDefaultThresholdLevelsIfValid(
                                                        triggerAllLevel);
 }
 
-void LoggerManagerConfiguration::setUserFieldDescriptors(
-                          const ball::UserFieldDescriptors   fieldDescriptions,
+void LoggerManagerConfiguration::setUserFieldsSchema(
+                          const ball::UserFieldsSchema   fieldDescriptions,
                           const UserFieldsPopulatorCallback& populatorCallback)
 
 {
-    d_userFieldDescriptors = fieldDescriptions;
+    d_userFieldsSchema = fieldDescriptions;
     d_userPopulator        = populatorCallback;
 }
 
@@ -200,11 +200,11 @@ int LoggerManagerConfiguration::defaultTriggerAllLevel() const
 {
     return d_defaults.defaultTriggerAllLevel();
 }
-    
-const ball::UserFieldDescriptors& 
-LoggerManagerConfiguration::userFieldDescriptors() const
+
+const ball::UserFieldsSchema&
+LoggerManagerConfiguration::userFieldsSchema() const
 {
-    return d_userFieldDescriptors;
+    return d_userFieldsSchema;
 }
 
 const LoggerManagerConfiguration::UserFieldsPopulatorCallback&
@@ -264,7 +264,7 @@ LoggerManagerConfiguration::print(bsl::ostream& stream,
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
     stream << "User Fields Schema:" << NL;
-    d_userFieldDescriptors.print(stream, level + 1, spacesPerLevel);
+    d_userFieldsSchema.print(stream, level + 1, spacesPerLevel);
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
     const char *nullPop = d_userPopulator ? "not null" : "null";
@@ -279,11 +279,11 @@ LoggerManagerConfiguration::print(bsl::ostream& stream,
     stream << "Default Threshold Callback functor is " << nullDtcb << NL;
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    const char *logOrder = d_logOrder == BAEL_FIFO ? "FIFO" : "LIFO";
+    const char *logOrder = d_logOrder == e_FIFO ? "FIFO" : "LIFO";
     stream << "Logging order is " << logOrder << NL;
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    const char *triggerMarker = d_triggerMarkers == BAEL_NO_MARKERS
+    const char *triggerMarker = d_triggerMarkers == e_NO_MARKERS
                                                  ? "NO_MARKERS"
                                                  : "BEGIN_END_MARKERS";
     stream << "Trigger markers are " << triggerMarker << NL;
@@ -305,7 +305,7 @@ bool operator==(const ball::LoggerManagerConfiguration& lhs,
     // this is truly the desired behavior, and if so remove this note, or
     // correct it otherwise.
     return lhs.d_defaults                  == rhs.d_defaults
-        && lhs.d_userFieldDescriptors      == rhs.d_userFieldDescriptors
+        && lhs.d_userFieldsSchema          == rhs.d_userFieldsSchema
         && (bool)lhs.d_userPopulator       == (bool)rhs.d_userPopulator
         && (bool)lhs.d_categoryNameFilter  == (bool)rhs.d_categoryNameFilter
         && (bool)lhs.d_defaultThresholdsCb == (bool)rhs.d_defaultThresholdsCb
@@ -326,14 +326,21 @@ bsl::ostream& operator<<(bsl::ostream&                          stream,
 }
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

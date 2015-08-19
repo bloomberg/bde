@@ -1,4 +1,4 @@
-// bdlmxxx_row.t.cpp                                                     -*-C++-*-
+// bdlmxxx_row.t.cpp                                                  -*-C++-*-
 
 #include <bdlmxxx_row.h>
 
@@ -167,9 +167,9 @@ using namespace bsl;  // automatically added by script
 // [ 3] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -181,7 +181,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
@@ -257,7 +257,7 @@ bool operator==(const bdlmxxx::Table& lhs, const bdlmxxx::Table& rhs) {
         == *reinterpret_cast<const bdlmxxx::TableImp *>(&rhs);
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool isAnySet(const TYPE& object)
     // Return 'true' if any element in the specified 'object' is "set", that is
     // it does not have the "unset" value, and 'false' otherwise.
@@ -266,7 +266,7 @@ bool isAnySet(const TYPE& object)
     for (int i = 0; i < len; ++i) {
         const bdlmxxx::ConstElemRef& elemRef = object[i];
         if (!elemRef.descriptor()->isUnset(elemRef.data())) {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;
@@ -1482,11 +1482,11 @@ if (verbose)
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

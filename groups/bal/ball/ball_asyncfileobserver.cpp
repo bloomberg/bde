@@ -4,36 +4,38 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 
-#ifdef FOR_TESTING_ONLY
 #include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
-#endif
 
 #include <bdlqq_lockguard.h>
+#include <bdlqq_threadattributes.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlsu_processutil.h>
-#include <bdlt_currenttime.h>
 
+#include <bdlt_currenttime.h>
 #include <bslma_default.h>
+#include <bsls_assert.h>
+
 #include <bsl_iostream.h>
 
 // IMPLEMENTATION NOTE: 'shutdownThread' clears the queue in order to simplify
 // the implementation.  To guarantee that a thread sees the
-// 'd_shuttingDownFlag' a ('ball::Transmission::BAEL_END') record is
-// appended to the queue, otherwise the publication thread may be blocked
-// indefinitely on 'popFront'.  Unfortunately that potentially leaves a bogus
-// record in the queue after the publication thread is shutdown -- to avoid
-// dealing with that record (when the thread is restarted) the queue is
-// cleared.  Alternative designs are possible, but are not perceived to be
-// worth the added complexity.
+// 'd_shuttingDownFlag' a ('ball::Transmission::BAEL_END') record is appended
+// to the queue, otherwise the publication thread may be blocked indefinitely
+// on 'popFront'.  Unfortunately that potentially leaves a bogus record in the
+// queue after the publication thread is shutdown -- to avoid dealing with that
+// record (when the thread is restarted) the queue is cleared.  Alternative
+// designs are possible, but are not perceived to be worth the added
+// complexity.
 
 namespace BloombergLP {
+namespace ball {
 
                        // ----------------------------
                        // class ball::AsyncFileObserver
@@ -42,15 +44,15 @@ namespace BloombergLP {
 namespace {
 
 enum {
-    DEFAULT_FIXED_QUEUE_SIZE     =  8192,
-    FORCE_WARN_THRESHOLD         =  5000
+    DEFAULT_FIXED_QUEUE_SIZE = 8192,
+    FORCE_WARN_THRESHOLD     = 5000
 };
 
-const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
+static const char LOG_CATEGORY[] = "BAEL.ASYNCFILEOBSERVER";
 
-static void populateWarnRecord(ball::Record         *record,
-                               int                  lineNumber,
-                               int                  numDropped)
+static void populateWarnRecord(ball::Record *record,
+                               int           lineNumber,
+                               int           numDropped)
     // Load the specified 'record' with a warning message indicating the
     // specified 'numDropped' records have been dropped as recorded at the
     // specified 'lineNumber'.
@@ -64,7 +66,7 @@ static void populateWarnRecord(ball::Record         *record,
 
 }  // close unnamed namespace
 
-namespace ball {
+
 // PRIVATE METHODS
 void AsyncFileObserver::logDroppedMessageWarning(int numDropped)
 {
@@ -73,7 +75,7 @@ void AsyncFileObserver::logDroppedMessageWarning(int numDropped)
     // an observer->loggermanager dependency.
 
     populateWarnRecord(&d_droppedRecordWarning, __LINE__, numDropped);
-    Context context(Transmission::BAEL_PASSTHROUGH, 0, 0);
+    Context context(Transmission::e_PASSTHROUGH, 0, 0);
     d_fileObserver.publish(d_droppedRecordWarning, context);
 }
 
@@ -89,7 +91,7 @@ void AsyncFileObserver::publishThreadEntryPoint()
         // Publish the next log record on the queue only if the observer is
         // not shutting down.
 
-        if (Transmission::BAEL_END
+        if (Transmission::e_END
                 == asyncRecord.d_context.transmissionCause()
             || d_shuttingDownFlag) {
             done = true;
@@ -139,7 +141,7 @@ int AsyncFileObserver::stopThread()
         bsl::shared_ptr<const Record> record(
                                new (*d_allocator_p) Record(d_allocator_p),
                                d_allocator_p);
-        Context context(Transmission::BAEL_END, 0, 1);
+        Context context(Transmission::e_END, 0, 1);
         asyncRecord.d_record  = record;
         asyncRecord.d_context = context;
         d_recordQueue.pushBack(asyncRecord);
@@ -162,7 +164,7 @@ int AsyncFileObserver::shutdownThread()
     int ret =  stopThread();
 
     // We clear the queue to remove the bogus log record appended by
-    // 'stopThread'. 
+    // 'stopThread'.
 
     d_recordQueue.removeAll();
     d_shuttingDownFlag = 0;
@@ -184,33 +186,31 @@ void AsyncFileObserver::construct()
     d_droppedRecordWarning.fixedFields().setFileName(__FILE__);
     d_droppedRecordWarning.fixedFields().setCategory(LOG_CATEGORY);
     d_droppedRecordWarning.fixedFields().setSeverity(
-                                          Severity::BAEL_WARN);
+                                          Severity::e_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
                                           bdlsu::ProcessUtil::getProcessId());
 }
 
 // CREATORS
-AsyncFileObserver::AsyncFileObserver(
-                                         Severity::Level  stdoutThreshold,
-                                         bslma::Allocator     *basicAllocator)
+AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
+                                     bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
-, d_dropRecordsOnFullQueueThreshold(Severity::BAEL_OFF)
+, d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     construct();
 }
 
-AsyncFileObserver::AsyncFileObserver(
-                                      Severity::Level  stdoutThreshold,
-                                      bool                  publishInLocalTime,
-                                      bslma::Allocator     *basicAllocator)
+AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
+                                     bool              publishInLocalTime,
+                                     bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
-, d_dropRecordsOnFullQueueThreshold(Severity::BAEL_OFF)
+, d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -218,15 +218,14 @@ AsyncFileObserver::AsyncFileObserver(
 }
 
 
-AsyncFileObserver::AsyncFileObserver(
-                                      Severity::Level  stdoutThreshold,
-                                      bool                  publishInLocalTime,
-                                      int                   maxRecordQueueSize,
-                                      bslma::Allocator     *basicAllocator)
+AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
+                                     bool              publishInLocalTime,
+                                     int               maxRecordQueueSize,
+                                     bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_shuttingDownFlag(0)
-, d_dropRecordsOnFullQueueThreshold(Severity::BAEL_OFF)
+, d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -234,11 +233,11 @@ AsyncFileObserver::AsyncFileObserver(
 }
 
 AsyncFileObserver::AsyncFileObserver(
-                         Severity::Level  stdoutThreshold,
-                         bool                  publishInLocalTime,
-                         int                   maxRecordQueueSize,
-                         Severity::Level  dropRecordsOnFullQueueThreshold,
-                         bslma::Allocator     *basicAllocator)
+                             Severity::Level   stdoutThreshold,
+                             bool              publishInLocalTime,
+                             int               maxRecordQueueSize,
+                             Severity::Level   dropRecordsOnFullQueueThreshold,
+                             bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_shuttingDownFlag(0)
@@ -267,9 +266,8 @@ void AsyncFileObserver::releaseRecords()
     }
 }
 
-void AsyncFileObserver::publish(
-                const bsl::shared_ptr<const Record>& record,
-                const Context&                       context)
+void AsyncFileObserver::publish(const bsl::shared_ptr<const Record>& record,
+                                const Context&                       context)
 {
     AsyncRecord asyncRecord;
     asyncRecord.d_record  = record;
@@ -303,13 +301,20 @@ int AsyncFileObserver::shutdownPublicationThread()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

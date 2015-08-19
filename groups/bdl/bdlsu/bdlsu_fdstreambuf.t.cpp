@@ -1723,7 +1723,7 @@ int main(int argc, char *argv[])
         // Windows FileDescriptor's are pointers, so a different type of cast
         // is needed.
 
-        FileUtil::FileDescriptor BOGUS_HANDLE = 
+        FileUtil::FileDescriptor BOGUS_HANDLE =
 #ifdef BSLS_PLATFORM_OS_WINDOWS
                               reinterpret_cast<FileUtil::FileDescriptor>(100);
 #else
@@ -1877,7 +1877,7 @@ int main(int argc, char *argv[])
             ASSERT(X.willCloseOnReset());
 
             ASSERT(0 == mX.clear());
-            
+
             ASSERT(!X.isOpened());
         }
 
@@ -1887,7 +1887,7 @@ int main(int argc, char *argv[])
 
         {
             char filename[100];
-            bsl::sprintf(filename,  
+            bsl::sprintf(filename,
                          fileNameTemplate, "reset-bad-handle", getProcessId());
 
 
@@ -1897,16 +1897,16 @@ int main(int argc, char *argv[])
             ASSERT(X.isOpened());
             ASSERT(X.willCloseOnReset());
 
-            FdType fd = FileUtil::open(filename, 
-                                       FileUtil::e_CREATE, 
+            FdType fd = FileUtil::open(filename,
+                                       FileUtil::e_CREATE,
                                        FileUtil::e_READ_WRITE);
 
             ASSERT(0 == mX.reset(fd, 1));
-            
+
             ASSERT(X.isOpened());
             ASSERT(fd == X.fileDescriptor());
         }
-        
+
         // getting '0' from close verifies fd's are still open
 
         ASSERT(0 == FileUtil::close(fd));
@@ -2313,7 +2313,7 @@ int main(int argc, char *argv[])
                                         FileUtil::e_OPEN,
                                         FileUtil::e_READ_ONLY));
             ASSERT(-1 != (int) fd);
-            
+
             Obj sb(fd, true, true, true, &ta);
 
             char buf[1000];
@@ -3425,11 +3425,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

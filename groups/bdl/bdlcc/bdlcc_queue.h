@@ -753,8 +753,8 @@ Queue<TYPE>::Queue(int highWaterMark, bslma::Allocator *basicAllocator)
 template <class TYPE>
 inline
 Queue<TYPE>::Queue(const InitialCapacity&  numItems,
-                             int                     highWaterMark,
-                             bslma::Allocator       *basicAllocator)
+                   int                     highWaterMark,
+                   bslma::Allocator       *basicAllocator)
 : d_queue(QueueCapacity(numItems.d_i), basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {
@@ -763,7 +763,7 @@ Queue<TYPE>::Queue(const InitialCapacity&  numItems,
 template <class TYPE>
 inline
 Queue<TYPE>::Queue(const bdlc::Queue<TYPE>&  srcQueue,
-                             bslma::Allocator        *basicAllocator)
+                   bslma::Allocator         *basicAllocator)
 : d_queue(srcQueue, basicAllocator)
 , d_highWaterMark(-1)
 {
@@ -772,8 +772,8 @@ Queue<TYPE>::Queue(const bdlc::Queue<TYPE>&  srcQueue,
 template <class TYPE>
 inline
 Queue<TYPE>::Queue(const bdlc::Queue<TYPE>&  srcQueue,
-                             int                      highWaterMark,
-                             bslma::Allocator        *basicAllocator)
+                   int                       highWaterMark,
+                   bslma::Allocator         *basicAllocator)
 : d_queue(srcQueue, basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {
@@ -829,8 +829,7 @@ TYPE Queue<TYPE>::popBack()
 }
 
 template <class TYPE>
-int Queue<TYPE>::timedPopBack(TYPE                     *buffer,
-                                   const bsls::TimeInterval&  timeout)
+int Queue<TYPE>::timedPopBack(TYPE *buffer, const bsls::TimeInterval& timeout)
 {
     unsigned int length;
 
@@ -894,8 +893,7 @@ TYPE Queue<TYPE>::popFront()
 }
 
 template <class TYPE>
-int Queue<TYPE>::timedPopFront(TYPE                     *buffer,
-                                    const bsls::TimeInterval&  timeout)
+int Queue<TYPE>::timedPopFront(TYPE *buffer, const bsls::TimeInterval& timeout)
 {
     unsigned int length;
 

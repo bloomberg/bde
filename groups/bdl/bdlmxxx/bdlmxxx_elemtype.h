@@ -1,4 +1,4 @@
-// bdlmxxx_elemtype.h                                                    -*-C++-*-
+// bdlmxxx_elemtype.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLMXXX_ELEMTYPE
 #define INCLUDED_BDLMXXX_ELEMTYPE
 
@@ -316,9 +316,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, ElemType::Type value);
     //  DATETIME
     //..
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------
                         // struct ElemType
@@ -396,7 +396,7 @@ bsl::ostream& bdlmxxx::operator<<(bsl::ostream& stream, ElemType::Type value)
 
 namespace bdex_InStreamFunctions {
 
-template <typename STREAM>
+template <class STREAM>
 inline
 STREAM& streamIn(STREAM&              stream,
                  bdlmxxx::ElemType::Type& value,
@@ -405,7 +405,7 @@ STREAM& streamIn(STREAM&              stream,
     return bdlmxxx::ElemType::bdexStreamIn(stream, value, version);
 }
 
-}  // close namespace bdex_InStreamFunctions;
+}  // close namespace bdex_InStreamFunctions
 
 // ============================================================================
 //                     namespace bdex_VersionFunctions
@@ -419,7 +419,7 @@ int maxSupportedVersion(bdlmxxx::ElemType::Type)
     return bdlmxxx::ElemType::maxSupportedBdexVersion();
 }
 
-}  // close namespace bdex_VersionFunctions;
+}  // close namespace bdex_VersionFunctions
 
 // ============================================================================
 //                     namespace bdex_OutStreamFunctions
@@ -427,7 +427,7 @@ int maxSupportedVersion(bdlmxxx::ElemType::Type)
 
 namespace bdex_OutStreamFunctions {
 
-template <typename STREAM>
+template <class STREAM>
 inline
 STREAM& streamOut(STREAM&                    stream,
                   const bdlmxxx::ElemType::Type& value,
@@ -438,15 +438,15 @@ STREAM& streamOut(STREAM&                    stream,
 
 }  // close namespace bdex_OutStreamFunctions
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

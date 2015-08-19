@@ -19,10 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Andrei Basov (abasov)
 //
 //@DESCRIPTION: This component provides a non-blocking single-port acceptor of
-// TCP connections with the capability that adheres to the
-// 'btlsc::CbChannelAllocator' protocol.  Both timed and non-timed (callback)
-// channels can be allocated in a non-timed fashion as indicated by the
-// following table:
+// TCP connections, 'btlsos::TcpCbAcceptor', with the capability that adheres
+// to the 'btlsc::CbChannelAllocator' protocol.  Both timed and non-timed
+// (callback) channels can be allocated in a non-timed fashion as indicated by
+// the following table:
 //
 // Allocations follow the asynchronous (callback-based) nature of the 'btesc'
 // protocol; the callbacks are invoked when an allocation succeeds or an error
@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 // constants within this class.
 //..
 //  class my_EchoServer {
-//      // This class implements a simple multi-user echo server as
-//      // specified by the RFC 862.
+//      // This class implements a simple multi-user echo server as specified
+//      // by the RFC 862.
 //
 //      enum {
 //          k_READ_SIZE           =  200,  // The number of bytes to be read
@@ -100,21 +100,19 @@ BSLS_IDENT("$Id: $")
 //                          int                    status,
 //                          int                    asyncStatus,
 //                          btlsc::TimedCbChannel *channel);
-//          // Invoked from the socket event manager when data is read from a
-//          // channel.  [...]
+//          // Invoked from the socket event manager when data is read.  [...]
 //
 //      void readCb(int                    status,
 //                  int                    asyncStatus,
 //                  btlsc::TimedCbChannel *channel);
-//          // Invoked from the socket event manager when data is read from a
-//          // channel.  [...]
+//          // Invoked from the socket event manager when data is read.  [...]
 //
 //      void writeCb(int                    status,
 //                   int                    asyncStatus,
 //                   btlsc::TimedCbChannel *channel,
 //                   int                    numBytes);
-//          // Invoked from the socket event manager when data is written
-//          // into a channel.  [...]
+//          // Invoked from the socket event manager when data is written.
+//          // [...]
 //
 //    private:
 //      // Not implemented:
@@ -138,10 +136,10 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      int open(int portNumber = k_DEFAULT_PORT_NUMBER);
-//          // Establish a listening socket on the specified 'portNumber';
-//          // return 0 on success, and a non-zero value otherwise.  The
-//          // behavior is undefined unless 0 <= portNumber and the listening
-//          // port is not currently open.
+//          // Establish a listening socket on the optionally specified
+//          // 'portNumber'; return 0 on success, and a non-zero value
+//          // otherwise.  The behavior is undefined unless '0 <= portNumber'
+//          // and the listening port is not currently open.
 //
 //      int close();
 //          // Close the listening socket; return 0 on success and a non-zero
@@ -185,7 +183,7 @@ BSLS_IDENT("$Id: $")
 //      int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
 //      if (s) {
 //          cout << "Failed to open listening port." << endl;
-//          return s;
+//          return s;                                                 // RETURN
 //      }
 //      cout << "server's socket: " << d_allocator.address() << endl;
 //      assert(0 == d_allocator.isInvalid());
@@ -194,7 +192,7 @@ BSLS_IDENT("$Id: $")
 //          cout << "Can't enqueue an allocation request." << endl;
 //          assert(d_allocator.isInvalid());
 //          d_allocator.close();
-//          return s;
+//          return s;                                                 // RETURN
 //      }
 //      return 0;
 //  }
@@ -233,7 +231,7 @@ BSLS_IDENT("$Id: $")
 //          if (d_allocator.allocateTimed(d_allocateFunctor)) {
 //              d_allocator.close();
 //          }
-//          return;
+//          return;                                                   // RETURN
 //      }
 //      assert(0 >= status);    // Interrupts are not enabled.
 //      if (0 == status) {
@@ -253,8 +251,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  void my_EchoServer::bufferedReadCb(const char *buffer, int status,
-//                                     int asyncStatus,
+//  void my_EchoServer::bufferedReadCb(const char            *buffer,
+//                                     int                    status,
+//                                     int                    asyncStatus,
 //                                     btlsc::TimedCbChannel *channel)
 //  {
 //      cout << "my_EchoServer::bufferedReadCb: "
@@ -275,7 +274,7 @@ BSLS_IDENT("$Id: $")
 //                                               + d_writeTimeout, callback)) {
 //              cout << "Failed to enqueue write request" << endl;
 //              d_allocator.deallocate(channel);
-//              return;
+//              return;                                               // RETURN
 //          }
 //          // Re-register read request
 //          bdlf::Function<void (*)(const char *, int, int)> readCallback(
@@ -334,7 +333,7 @@ BSLS_IDENT("$Id: $")
 //              {
 //                  cout << "Failed to enqueue write request" << endl;
 //                  d_allocator.deallocate(channel);
-//                  return;
+//                  return;                                           // RETURN
 //              }
 //          // Re-register read request
 //          bdlf::Function<void (*)(int, int)> readCallback(
@@ -511,16 +510,16 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // timer event manager.
 
   private:
-    TcpCbAcceptor(const TcpCbAcceptor&); // not impl.
-    TcpCbAcceptor&
-        operator=(const TcpCbAcceptor&);        // not impl.
+    // Not implemented:
+    TcpCbAcceptor(const TcpCbAcceptor&);
+    TcpCbAcceptor& operator=(const TcpCbAcceptor&);
 
   public:
     // CREATORS
     TcpCbAcceptor(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            btlso::TimerEventManager                      *manager,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a callback acceptor that uses the specified 'factory' (to
         // create stream sockets) and the specified 'manager' (to monitor for
         // incoming connections).  Optionally specify a 'basicAllocator' used
@@ -533,10 +532,10 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // is created (using 'open').
 
     TcpCbAcceptor(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            btlso::TimerEventManager                      *manager,
-            int                                           numElements,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           int                                             numElements,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a callback acceptor, with enough internal capacity to
         // accommodate up to the specified 'numElements' channels without
         // reallocation, that uses the specified 'factory' to create stream
@@ -544,11 +543,11 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // connections.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  'delete' are used.  The behavior is undefined if
-        // either 'factory' or 'manager' is 0 and unless 0 < numElements.  Note
-        // that the acceptor is created in a valid state (as reported by the
-        // 'isInvalid' method) and that subsequent allocation requests will be
-        // enqueued successfully, but the allocations will fail with a status
-        // of -1 until the listening socket is created (using 'open').
+        // either 'factory' or 'manager' is 0 and unless '0 < numElements'.
+        // Note that the acceptor is created in a valid state (as reported by
+        // the 'isInvalid' method) and that subsequent allocation requests will
+        // be enqueued successfully, but the allocations will fail with a
+        // status of -1 until the listening socket is created (using 'open').
 
     ~TcpCbAcceptor();
         // Invalidate this allocator, close the listening socket, invoke all
@@ -560,11 +559,10 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt the allocation; by default, such
-        // events are ignored.  Return 0 on successful initiation, and a
-        // non-zero value otherwise (in which case 'callback' will not be
-        // invoked).
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // are permitted to interrupt the allocation; by default, such events
+        // are ignored.  Return 0 on successful initiation, and a non-zero
+        // value otherwise (in which case 'callback' will not be invoked).
         //
         // When invoked, 'callback' is passed the (possibly null) address of a
         // callback channel and an integer "status".  If that address is not 0,
@@ -583,11 +581,11 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
-        // "asynchronous events" are permitted to interrupt the allocation; by
-        // default, such events are ignored.  Return 0 on successful
-        // initiation, and a non-zero value otherwise (in which case
-        // 'timedCallback' will not be invoked).
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // events" are permitted to interrupt the allocation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case 'timedCallback' will not be
+        // invoked).
         //
         // When invoked, 'timedCallback' is passed the (possibly null) address
         // of a timed callback channel and an integer "status".  If that
@@ -645,7 +643,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // 'REUSEADDRESS' option.  If 'reuseAddress' is not specified, 1 (i.e.,
         // if the REUSEADDRESS option is enabled) is used.  Return 0 on
         // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless 0 < queueSize and the listening socket is closed.
+        // unless '0 < queueSize' and the listening socket is closed.
 
     int setOption(int level, int option, int value);
         // Set the specified socket 'option' having the specified 'level' on
@@ -664,9 +662,9 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
 
     int getOption(int *result, int level, int option) const;
         // Load into the specified 'result' the current value of the specified
-        // option of the specified 'level' set on the listening socket.  Return
-        // 0 on success and a non-zero value otherwise.  The list of commonly
-        // supported options (and levels) is enumerated in
+        // 'option' of the specified 'level' set on the listening socket.
+        // Return 0 on success and a non-zero value otherwise.  The list of
+        // commonly supported options (and levels) is enumerated in
         // 'btlso_socketoptutil'.  The behavior is undefined if 'result' is 0
         // and unless the listening socket has been established.
 
@@ -679,9 +677,9 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // acceptor.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 const btlso::IPv4Address& TcpCbAcceptor::address() const

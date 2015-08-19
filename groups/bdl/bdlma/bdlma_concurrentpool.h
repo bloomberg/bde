@@ -153,6 +153,10 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<T *>      d_array_p;  // array of pooled elements
 //      bdlma::ConcurrentPool d_pool;     // memory manager for array elements
 //
+//    private:
+//      // Not implemented:
+//      my_PooledArray(const my_PooledArray&);
+//
 //    public:
 //      // CREATORS
 //      explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);

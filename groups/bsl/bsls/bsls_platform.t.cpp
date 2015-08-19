@@ -47,10 +47,10 @@ bool isBigEndian()
     u.d_int = 0x1;
 
     if (u.d_char[0] == 0x1) {
-        return false;
+        return false;                                                 // RETURN
     }
     else if (u.d_char[sizeof(int) - 1] == 0x1) {
-        return true;
+        return true;                                                  // RETURN
     }
     else {
         ASSERT(0);      // Neither big endian nor little endian!
@@ -74,10 +74,10 @@ bool isLittleEndian()
     u.d_int = 0x1;
 
     if (u.d_char[0] == 0x1) {
-        return true;
+        return true;                                                  // RETURN
     }
     else if (u.d_char[sizeof(int) - 1] == 0x1) {
-        return false;
+        return false;                                                 // RETURN
     }
     else {
         ASSERT(0);      // Neither big endian nor little endian!

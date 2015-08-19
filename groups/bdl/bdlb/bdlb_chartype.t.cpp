@@ -1,4 +1,4 @@
-// bdlb_chartype.t.cpp      -*-C++-*-
+// bdlb_chartype.t.cpp                                                -*-C++-*-
 
 #include <bdlb_chartype.h>
 
@@ -94,17 +94,16 @@ using namespace bsl;  // automatically added by script
 //
 // FREE OPERATORS
 // [ 4] operator<<(bsl::ostream& out, bdlb::CharType::Category category);
-// [*7] TBD ..  bdex streaming of ENUM ...TBD
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
-// [ 8] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 // [ 2] Test helper functions match equivalent functions in <cctype>.
 // [ 2] The detailed tabular documentation in the header is accurate.
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -116,7 +115,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
@@ -258,7 +257,7 @@ static char toUpper(char c) {
 // The following table mirrors the one in the header used to document which
 // characters belong to the respective categories.
 
-static const char DOC_TABLE[128][bdlb::CharType::BDEU_NONE + 1] =
+static const char DOC_TABLE[128][bdlb::CharType::e_NONE + 1] =
 {
   //             X
   // U  L  A  D  D  A  S  P  G  P  C  A  I  A
@@ -416,12 +415,12 @@ static const char DOC_TABLE[128][bdlb::CharType::BDEU_NONE + 1] =
         ASSERT(token);
 
         if (!bdlb::CharType::isAlund(*token)) {
-            return false; // bad required first character
+            return false; // bad required first character             // RETURN
         }
 
         for (const char *p = token + 1; *p; ++p) {
             if (!bdlb::CharType::isIdent(*p)) {
-                return false; // bad optional subsequent character
+                return false; // bad optional subsequent character    // RETURN
             }
         }
 
@@ -443,7 +442,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Ensure that the function (implemented above) works as advertized.
@@ -535,320 +534,6 @@ int main(int argc, char *argv[])
         } // end block
 
       } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // VERIFY BDEX STREAMING OF CATEGORY ENUM
-        //   The 'bdex' streaming concerns for this 'enum' component are
-        //   standard.  We thoroughly test "normal" functionality using the
-        //   overloaded '<<' and '>>' free operators.  We next step through
-        //   the sequence of possible "abnormal" stream states (empty, invalid,
-        //   incomplete, and corrupted), appropriately selecting data sets as
-        //   described below.  In all cases, exception neutrality is confirmed
-        //   using the specially instrumented 'bdlxxxx::TestInStream' and a pair of
-        //   standard macros, 'BEGIN_BDEX_EXCEPTION_TEST' and
-        //   'END_BDEX_EXCEPTION_TEST', which configure the
-        //   'bdlxxxx::TestInStream' object appropriately in a loop.
-        //
-        // Plan:
-        //   Let L represents the number of valid enumerator values.
-        //   Let S represent the set of consecutive integers { 1 .. L }
-        //   Let T represent the set of consecutive integers { 0 .. L + 1 }
-        //
-        //   VALID STREAMS
-        //     Verify that each valid enumerator value in S can be written to
-        //     and successfully read from a valid 'bdex' data stream into an
-        //     instance of the enumeration with any initial value in T leaving
-        //     the stream in a valid state.
-        //
-        //   EMPTY AND INVALID STREAMS
-        //     For each valid and invalid initial enumerator value in T,
-        //     create an instance of the enumeration and attempt to stream
-        //     into it from an empty and then invalid stream.  Verify that the
-        //     instance has its initial value, and that the stream is invalid.
-        //
-        //   INCOMPLETE (BUT OTHERWISE VALID) DATA
-        //     Write 3 identical valid enumerator values to an output stream
-        //     buffer, which will then be of total length N.  For each partial
-        //     stream length from 0 to N - 1, construct an input stream and
-        //     attempt to read into enumerator instances initialized with 3
-        //     other identical values.  Verify values of instances that are
-        //     successfully modified, partially modified (and therefore reset
-        //     to the default value), or left entirely unmodified.  Also verify
-        //     that the stream becomes invalid immediately after the first
-        //     incomplete read.
-        //
-        //   CORRUPTED DATA
-        //     Use the underlying stream package to simulate an instance of a
-        //     typical valid (control) stream and verify that it can be
-        //     streamed in successfully.  Then for each of the two data fields
-        //     in the stream (beginning with the version number), provide two
-        //     similar tests with the data field corrupted ("too small" and
-        //     "too large").  After each test, verify the instance has the
-        //     default value, and that the input stream has gone invalid.
-        //
-        // Testing:
-        //   operator>>(bdlxxxx::InStream&, bdlmxxx::ElemType::Type& rhs);
-        //   operator<<(bdlxxxx::OutStream&, bdlmxxx::ElemType::Type rhs);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "Testing Streaming Operators" << endl
-                                  << "===========================" << endl;
-
-        const int NUM_ENUMS = bdlb::CharType::BDEU_NUM_CATEGORIES;
-        typedef bdlb::CharType::Category Enum;
-
-        // --------------------------------------------------------------------
-
-        if (verbose) cout <<
-            "\nTesting ('<<') and ('>>') on valid streams and data." << endl;
-        if (verbose) cout << "\tFor normal (correct) conditions." << endl;
-        {
-            for (int i = 0; i < NUM_ENUMS; ++i) {
-                const Enum X = Enum(i);  if (veryVerbose) { P_(i);  P(X); }
-                bdlxxxx::TestOutStream out;
-                const int VERSION = 1;
-                out.putVersion(VERSION);
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
-
-                for (int j = 1; j <= NUM_ENUMS; ++j) {
-                    bdlxxxx::TestInStream in(OD, LOD);
-                    bdlxxxx::TestInStream &testInStream = in;
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, !in.isEmpty());
-
-                    Enum t = Enum(j);
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    LOOP2_ASSERT(i, j, X == t == (i == j));
-                    int version;
-                    in.getVersion(version);
-                    ASSERT(VERSION == version);
-                    bdex_InStreamFunctions::streamIn(in, t, version);
-                  } END_BDEX_EXCEPTION_TEST
-                    LOOP2_ASSERT(i, j, X == t);
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, in.isEmpty());
-                }
-            }
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tOn empty and invalid streams." << endl;
-        {
-            bdlxxxx::TestOutStream out;
-            const char *const  OD = out.data();
-            const int         LOD = out.length();
-            ASSERT(0 == LOD);
-
-            for (int i = 0; i <= NUM_ENUMS + 1; ++i) {
-                bdlxxxx::TestInStream in(OD, LOD);
-                bdlxxxx::TestInStream &testInStream = in;
-                LOOP_ASSERT(i, in);  LOOP_ASSERT(i, in.isEmpty());
-
-                // Ensure that reading from an empty or invalid input stream
-                // leaves the stream invalid and the target object unchanged.
-
-                const int VERSION = 1;
-                const Enum X = Enum(i);  Enum t(X);  LOOP_ASSERT(i, X == t);
-              BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout <<
-             "\tOn incomplete (but otherwise valid) data." << endl;
-        {
-            const Enum W1 = Enum(0), X1 = Enum(1), Y1 = Enum(2);
-            const Enum W2 = Enum(3), X2 = Enum(4), Y2 = Enum(5);
-            const Enum W3 = Enum(6), X3 = Enum(7), Y3 = Enum(8);
-
-            const int VERSION = 1;
-            bdlxxxx::TestOutStream out;
-            bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
-            const int LOD  = out.length();
-            const char *const OD = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-                bdlxxxx::TestInStream in(OD, i);
-                bdlxxxx::TestInStream &testInStream = in;
-                in.setSuppressVersionCheck(1);
-              BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
-                Enum t1(W1), t2(W2), t3(W3);
-
-                if (i < LOD1) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i, !in);
-                    if (0 == i) LOOP_ASSERT(i, W1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else if (i < LOD2) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);
-                    if (LOD1 == i) LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i,  in);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                    if (LOD2 == i) LOOP_ASSERT(i, W3 == t3);
-                }
-
-                                LOOP_ASSERT(i, Y1 != t1);
-                t1 = Y1;        LOOP_ASSERT(i, Y1 == t1);
-
-                                LOOP_ASSERT(i, Y2 != t2);
-                t2 = Y2;        LOOP_ASSERT(i, Y2 == t2);
-
-                                LOOP_ASSERT(i, Y3 != t3);
-                t3 = Y3;        LOOP_ASSERT(i, Y3 == t3);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tOn corrupted data." << endl;
-
-        const Enum W = Enum(0), X = Enum(1), Y = Enum(2);
-        ASSERT(NUM_ENUMS > Y);
-        // If only two enumerators, use Y = X = 1 and remove "ASSERT(Y != t)"s.
-
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
-
-        if (verbose) cout << "\t\tGood stream (for control)." << endl;
-
-        {
-            const int  VERSION    = 1;
-            const char enumerator = char(Y);
-
-            bdlxxxx::TestOutStream out;
-            out.putVersion(VERSION);
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD);      ASSERT(in);
-
-            int version;
-            in.getVersion(version);
-            ASSERT(version == VERSION);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(in);
-            ASSERT(W != t); ASSERT(X != t); ASSERT(Y == t);
-         }
-
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
-
-        if (verbose) cout << "\t\tBad version number." << endl;
-
-        {
-            const int  VERSION    = -1;          // BAD: too small
-            const char enumerator = char(Y);
-
-            bdlxxxx::TestOutStream out;
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD);     ASSERT(in);
-            in.setQuiet(!veryVerbose);
-
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-            ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-        }
-        {
-            const int  VERSION    = 5;           // BAD: too large
-            const char enumerator = char(Y);
-
-            bdlxxxx::TestOutStream out;
-            out.putVersion(VERSION);
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD);     ASSERT(in);
-            in.setQuiet(!veryVerbose);
-
-            int version;
-            in.getVersion(version);
-            ASSERT(version == VERSION);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-            ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-        }
-
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
-
-        if (verbose) cout << "\t\tBad enumerator value." << endl;
-
-        {
-            const int  VERSION    = 1;
-            const char enumerator = char(-1);     // BAD: too small
-
-            bdlxxxx::TestOutStream out;
-            out.putVersion(VERSION);
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD =  out.data();
-            const int         LOD = out.length();
-
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD);      ASSERT(in);
-
-            int version;
-            in.getVersion(version);
-            ASSERT(version == VERSION);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-            ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-        }
-        {
-            const int  VERSION    = 1;
-            const char enumerator = char(NUM_ENUMS);  // BAD: too large
-
-            bdlxxxx::TestOutStream out;
-            out.putVersion(VERSION);
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD);      ASSERT(in);
-            int version;
-            in.getVersion(version);
-            ASSERT(version == VERSION);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-            ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-        }
-      } break;
       case 6: {
         // --------------------------------------------------------------------
         // VERIFY COUNT AND STRING FUNCTIONS
@@ -933,7 +618,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nFor each character set, check count." << endl;
         {
-            for (int ci = 0; ci < Util::BDEU_NUM_CATEGORIES; ++ci) {
+            for (int ci = 0; ci < Util::k_NUM_CATEGORIES; ++ci) {
                 Util::Category category = Util::Category(ci);
 
                 // Count up the number of true values in the table and compare
@@ -954,30 +639,30 @@ int main(int argc, char *argv[])
             if (verbose) cout <<
                 "\tRepeat test with individual functions." << endl;
 
-            ASSERT(Util::numCategory(Util::BDEU_UPPER) == Util::numUpper());
-            ASSERT(Util::numCategory(Util::BDEU_LOWER) == Util::numLower());
-            ASSERT(Util::numCategory(Util::BDEU_ALPHA) == Util::numAlpha());
-            ASSERT(Util::numCategory(Util::BDEU_DIGIT) == Util::numDigit());
+            ASSERT(Util::numCategory(Util::e_UPPER) == Util::numUpper());
+            ASSERT(Util::numCategory(Util::e_LOWER) == Util::numLower());
+            ASSERT(Util::numCategory(Util::e_ALPHA) == Util::numAlpha());
+            ASSERT(Util::numCategory(Util::e_DIGIT) == Util::numDigit());
 
-            ASSERT(Util::numCategory(Util::BDEU_XDIGIT) == Util::numXdigit());
-            ASSERT(Util::numCategory(Util::BDEU_ALNUM) == Util::numAlnum());
-            ASSERT(Util::numCategory(Util::BDEU_SPACE) == Util::numSpace());
-            ASSERT(Util::numCategory(Util::BDEU_PRINT) == Util::numPrint());
+            ASSERT(Util::numCategory(Util::e_XDIGIT) == Util::numXdigit());
+            ASSERT(Util::numCategory(Util::e_ALNUM) == Util::numAlnum());
+            ASSERT(Util::numCategory(Util::e_SPACE) == Util::numSpace());
+            ASSERT(Util::numCategory(Util::e_PRINT) == Util::numPrint());
 
-            ASSERT(Util::numCategory(Util::BDEU_GRAPH) == Util::numGraph());
-            ASSERT(Util::numCategory(Util::BDEU_PUNCT) == Util::numPunct());
-            ASSERT(Util::numCategory(Util::BDEU_CNTRL) == Util::numCntrl());
-            ASSERT(Util::numCategory(Util::BDEU_ASCII) == Util::numAscii());
+            ASSERT(Util::numCategory(Util::e_GRAPH) == Util::numGraph());
+            ASSERT(Util::numCategory(Util::e_PUNCT) == Util::numPunct());
+            ASSERT(Util::numCategory(Util::e_CNTRL) == Util::numCntrl());
+            ASSERT(Util::numCategory(Util::e_ASCII) == Util::numAscii());
 
-            ASSERT(Util::numCategory(Util::BDEU_IDENT) == Util::numIdent());
-            ASSERT(Util::numCategory(Util::BDEU_ALUND) == Util::numAlund());
-            ASSERT(Util::numCategory(Util::BDEU_ALL)   == Util::numAll());
-            ASSERT(Util::numCategory(Util::BDEU_NONE)  == Util::numNone());
+            ASSERT(Util::numCategory(Util::e_IDENT) == Util::numIdent());
+            ASSERT(Util::numCategory(Util::e_ALUND) == Util::numAlund());
+            ASSERT(Util::numCategory(Util::e_ALL)   == Util::numAll());
+            ASSERT(Util::numCategory(Util::e_NONE)  == Util::numNone());
         }
 
         if (verbose) cout << "\nFor each character set, check string." << endl;
         {
-            for (int ci = 0; ci < Util::BDEU_NUM_CATEGORIES; ++ci) {
+            for (int ci = 0; ci < Util::k_NUM_CATEGORIES; ++ci) {
                 Util::Category category = Util::Category(ci);
                 int count = Util::numCategory(category);
                 if (veryVerbose) { T_ P_(ci) P_(category) P(count) }
@@ -1007,82 +692,82 @@ int main(int argc, char *argv[])
 
                               n = Util::numUpper();
                            r = Util::stringUpper();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_UPPER);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_UPPER);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numLower();
                            r = Util::stringLower();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_LOWER);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_LOWER);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAlpha();
                            r = Util::stringAlpha();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALPHA);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALPHA);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numDigit();
                            r = Util::stringDigit();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_DIGIT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_DIGIT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numXdigit();
                            r = Util::stringXdigit();    ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_XDIGIT);     ASSERT(e == r);
+            e = Util::stringCategory(Util::e_XDIGIT);     ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAlnum();
                            r = Util::stringAlnum();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALNUM);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALNUM);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numSpace();
                            r = Util::stringSpace();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_SPACE);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_SPACE);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numPrint();
                            r = Util::stringPrint();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_PRINT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_PRINT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numGraph();
                            r = Util::stringGraph();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_GRAPH);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_GRAPH);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numPunct();
                            r = Util::stringPunct();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_PUNCT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_PUNCT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numCntrl();
                            r = Util::stringCntrl();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_CNTRL);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_CNTRL);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAscii();
                            r = Util::stringAscii();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ASCII);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ASCII);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numIdent();
                            r = Util::stringIdent();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_IDENT);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_IDENT);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAlund();
                            r = Util::stringAlund();     ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALUND);      ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALUND);      ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numAll();
                            r = Util::stringAll();       ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_ALL);        ASSERT(e == r);
+            e = Util::stringCategory(Util::e_ALL);        ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numNone();
                            r = Util::stringNone();      ASSERT(0 == r[n]);
-            e = Util::stringCategory(Util::BDEU_NONE);       ASSERT(e == r);
+            e = Util::stringCategory(Util::e_NONE);       ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
         }
 
@@ -1090,7 +775,7 @@ int main(int argc, char *argv[])
     "\nFor each character set, ensure character codes are strictly increasing."
                                                                        << endl;
         {
-            for (int ci = 0; ci < Util::BDEU_NUM_CATEGORIES; ++ci) {
+            for (int ci = 0; ci < Util::k_NUM_CATEGORIES; ++ci) {
                 Util::Category category = Util::Category(ci);
                 int count = Util::numCategory(category);
                 if (veryVerbose) { T_ P_(ci) P_(category) P(count) }
@@ -1183,40 +868,40 @@ int main(int argc, char *argv[])
                 typedef bdlb::CharType U;        // *** Very Short Alias
 
                 LOOP_ASSERT(i, isUpper(i)  == Util::isCategory(i,
-                                                               U::BDEU_UPPER));
+                                                               U::e_UPPER));
                 LOOP_ASSERT(i, isLower(i)  == Util::isCategory(i,
-                                                               U::BDEU_LOWER));
+                                                               U::e_LOWER));
                 LOOP_ASSERT(i, isDigit(i)  == Util::isCategory(i,
-                                                               U::BDEU_DIGIT));
+                                                               U::e_DIGIT));
                 LOOP_ASSERT(i, isXdigit(i) == Util::isCategory(i,
-                                                              U::BDEU_XDIGIT));
+                                                              U::e_XDIGIT));
 
                 LOOP_ASSERT(i, isAlpha(i)  == Util::isCategory(i,
-                                                               U::BDEU_ALPHA));
+                                                               U::e_ALPHA));
                 LOOP_ASSERT(i, isAlnum(i)  == Util::isCategory(i,
-                                                               U::BDEU_ALNUM));
+                                                               U::e_ALNUM));
                 LOOP_ASSERT(i, isSpace(i)  == Util::isCategory(i,
-                                                               U::BDEU_SPACE));
+                                                               U::e_SPACE));
                 LOOP_ASSERT(i, isPrint(i)  == Util::isCategory(i,
-                                                               U::BDEU_PRINT));
+                                                               U::e_PRINT));
 
                 LOOP_ASSERT(i, isGraph(i)  == Util::isCategory(i,
-                                                               U::BDEU_GRAPH));
+                                                               U::e_GRAPH));
                 LOOP_ASSERT(i, isPunct(i)  == Util::isCategory(i,
-                                                               U::BDEU_PUNCT));
+                                                               U::e_PUNCT));
                 LOOP_ASSERT(i, isCntrl(i)  == Util::isCategory(i,
-                                                               U::BDEU_CNTRL));
+                                                               U::e_CNTRL));
                 LOOP_ASSERT(i, isAscii(i)  == Util::isCategory(i,
-                                                               U::BDEU_ASCII));
+                                                               U::e_ASCII));
 
                 LOOP_ASSERT(i, isIdent(i)  == Util::isCategory(i,
-                                                               U::BDEU_IDENT));
+                                                               U::e_IDENT));
                 LOOP_ASSERT(i, isAlund(i)  == Util::isCategory(i,
-                                                               U::BDEU_ALUND));
+                                                               U::e_ALUND));
                 LOOP_ASSERT(i, isAll(i)    == Util::isCategory(i,
-                                                               U::BDEU_ALL));
+                                                               U::e_ALL));
                 LOOP_ASSERT(i, isNone(i)   == Util::isCategory(i,
-                                                               U::BDEU_NONE));
+                                                               U::e_NONE));
 
                 LOOP_ASSERT(i, toLower(i)  == Util::toLower(i));
                 LOOP_ASSERT(i, toUpper(i)  == Util::toUpper(i));
@@ -1254,22 +939,22 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nVerify bdlb::CharType::toAscii." << endl;
         {
-            ASSERT(0 == strcmp("UPPER", Util::toAscii(Util::BDEU_UPPER)));
-            ASSERT(0 == strcmp("LOWER", Util::toAscii(Util::BDEU_LOWER)));
-            ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::BDEU_ALPHA)));
-            ASSERT(0 == strcmp("DIGIT", Util::toAscii(Util::BDEU_DIGIT)));
-            ASSERT(0 == strcmp("XDIGIT", Util::toAscii(Util::BDEU_XDIGIT)));
-            ASSERT(0 == strcmp("ALNUM", Util::toAscii(Util::BDEU_ALNUM)));
-            ASSERT(0 == strcmp("SPACE", Util::toAscii(Util::BDEU_SPACE)));
-            ASSERT(0 == strcmp("PRINT", Util::toAscii(Util::BDEU_PRINT)));
-            ASSERT(0 == strcmp("GRAPH", Util::toAscii(Util::BDEU_GRAPH)));
-            ASSERT(0 == strcmp("PUNCT", Util::toAscii(Util::BDEU_PUNCT)));
-            ASSERT(0 == strcmp("CNTRL", Util::toAscii(Util::BDEU_CNTRL)));
-            ASSERT(0 == strcmp("ASCII", Util::toAscii(Util::BDEU_ASCII)));
-            ASSERT(0 == strcmp("IDENT", Util::toAscii(Util::BDEU_IDENT)));
-            ASSERT(0 == strcmp("ALUND", Util::toAscii(Util::BDEU_ALUND)));
-            ASSERT(0 == strcmp("ALL", Util::toAscii(Util::BDEU_ALL)));
-            ASSERT(0 == strcmp("NONE", Util::toAscii(Util::BDEU_NONE)));
+            ASSERT(0 == strcmp("UPPER", Util::toAscii(Util::e_UPPER)));
+            ASSERT(0 == strcmp("LOWER", Util::toAscii(Util::e_LOWER)));
+            ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::e_ALPHA)));
+            ASSERT(0 == strcmp("DIGIT", Util::toAscii(Util::e_DIGIT)));
+            ASSERT(0 == strcmp("XDIGIT", Util::toAscii(Util::e_XDIGIT)));
+            ASSERT(0 == strcmp("ALNUM", Util::toAscii(Util::e_ALNUM)));
+            ASSERT(0 == strcmp("SPACE", Util::toAscii(Util::e_SPACE)));
+            ASSERT(0 == strcmp("PRINT", Util::toAscii(Util::e_PRINT)));
+            ASSERT(0 == strcmp("GRAPH", Util::toAscii(Util::e_GRAPH)));
+            ASSERT(0 == strcmp("PUNCT", Util::toAscii(Util::e_PUNCT)));
+            ASSERT(0 == strcmp("CNTRL", Util::toAscii(Util::e_CNTRL)));
+            ASSERT(0 == strcmp("ASCII", Util::toAscii(Util::e_ASCII)));
+            ASSERT(0 == strcmp("IDENT", Util::toAscii(Util::e_IDENT)));
+            ASSERT(0 == strcmp("ALUND", Util::toAscii(Util::e_ALUND)));
+            ASSERT(0 == strcmp("ALL", Util::toAscii(Util::e_ALL)));
+            ASSERT(0 == strcmp("NONE", Util::toAscii(Util::e_NONE)));
         }
 
         if (verbose) cout <<
@@ -1284,25 +969,25 @@ int main(int argc, char *argv[])
                 //        Input              Output
                 //L#    Enumerator           Format
                 //--    ----------           ------
-                { L_,   Util::BDEU_UPPER,    "UPPER"         },
-                { L_,   Util::BDEU_LOWER,    "LOWER"         },
-                { L_,   Util::BDEU_ALPHA,    "ALPHA"         },
-                { L_,   Util::BDEU_DIGIT,    "DIGIT"         },
+                { L_,   Util::e_UPPER,    "UPPER"         },
+                { L_,   Util::e_LOWER,    "LOWER"         },
+                { L_,   Util::e_ALPHA,    "ALPHA"         },
+                { L_,   Util::e_DIGIT,    "DIGIT"         },
 
-                { L_,   Util::BDEU_XDIGIT,   "XDIGIT"        },
-                { L_,   Util::BDEU_ALNUM,    "ALNUM"         },
-                { L_,   Util::BDEU_SPACE,    "SPACE"         },
-                { L_,   Util::BDEU_PRINT,    "PRINT"         },
+                { L_,   Util::e_XDIGIT,   "XDIGIT"        },
+                { L_,   Util::e_ALNUM,    "ALNUM"         },
+                { L_,   Util::e_SPACE,    "SPACE"         },
+                { L_,   Util::e_PRINT,    "PRINT"         },
 
-                { L_,   Util::BDEU_GRAPH,    "GRAPH"         },
-                { L_,   Util::BDEU_PUNCT,    "PUNCT"         },
-                { L_,   Util::BDEU_CNTRL,    "CNTRL"         },
-                { L_,   Util::BDEU_ASCII,    "ASCII"         },
+                { L_,   Util::e_GRAPH,    "GRAPH"         },
+                { L_,   Util::e_PUNCT,    "PUNCT"         },
+                { L_,   Util::e_CNTRL,    "CNTRL"         },
+                { L_,   Util::e_ASCII,    "ASCII"         },
 
-                { L_,   Util::BDEU_IDENT,    "IDENT"         },
-                { L_,   Util::BDEU_ALUND,    "ALUND"         },
-                { L_,   Util::BDEU_ALL,      "ALL"           },
-                { L_,   Util::BDEU_NONE,     "NONE"          },
+                { L_,   Util::e_IDENT,    "IDENT"         },
+                { L_,   Util::e_ALUND,    "ALUND"         },
+                { L_,   Util::e_ALL,      "ALL"           },
+                { L_,   Util::e_NONE,     "NONE"          },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1384,28 +1069,28 @@ int main(int argc, char *argv[])
         {
             enum bdlb::CharType::Category c;
 
-            c = bdlb::CharType::BDEU_UPPER;   ASSERT(0 == c);
-            c = bdlb::CharType::BDEU_LOWER;   ASSERT(1 == c);
-            c = bdlb::CharType::BDEU_ALPHA;   ASSERT(2 == c);
-            c = bdlb::CharType::BDEU_DIGIT;   ASSERT(3 == c);
-            c = bdlb::CharType::BDEU_XDIGIT;  ASSERT(4 == c);
-            c = bdlb::CharType::BDEU_ALNUM;   ASSERT(5 == c);
-            c = bdlb::CharType::BDEU_SPACE;   ASSERT(6 == c);
-            c = bdlb::CharType::BDEU_PRINT;   ASSERT(7 == c);
-            c = bdlb::CharType::BDEU_GRAPH;   ASSERT(8 == c);
-            c = bdlb::CharType::BDEU_PUNCT;   ASSERT(9 == c);
-            c = bdlb::CharType::BDEU_CNTRL;   ASSERT(10 == c);
-            c = bdlb::CharType::BDEU_ASCII;   ASSERT(11 == c);
-            c = bdlb::CharType::BDEU_IDENT;   ASSERT(12 == c);
-            c = bdlb::CharType::BDEU_ALUND;   ASSERT(13 == c);
-            c = bdlb::CharType::BDEU_ALL;     ASSERT(14 == c);
-            c = bdlb::CharType::BDEU_NONE;    ASSERT(15 == c);
+            c = bdlb::CharType::e_UPPER;   ASSERT(0 == c);
+            c = bdlb::CharType::e_LOWER;   ASSERT(1 == c);
+            c = bdlb::CharType::e_ALPHA;   ASSERT(2 == c);
+            c = bdlb::CharType::e_DIGIT;   ASSERT(3 == c);
+            c = bdlb::CharType::e_XDIGIT;  ASSERT(4 == c);
+            c = bdlb::CharType::e_ALNUM;   ASSERT(5 == c);
+            c = bdlb::CharType::e_SPACE;   ASSERT(6 == c);
+            c = bdlb::CharType::e_PRINT;   ASSERT(7 == c);
+            c = bdlb::CharType::e_GRAPH;   ASSERT(8 == c);
+            c = bdlb::CharType::e_PUNCT;   ASSERT(9 == c);
+            c = bdlb::CharType::e_CNTRL;   ASSERT(10 == c);
+            c = bdlb::CharType::e_ASCII;   ASSERT(11 == c);
+            c = bdlb::CharType::e_IDENT;   ASSERT(12 == c);
+            c = bdlb::CharType::e_ALUND;   ASSERT(13 == c);
+            c = bdlb::CharType::e_ALL;     ASSERT(14 == c);
+            c = bdlb::CharType::e_NONE;    ASSERT(15 == c);
         }
 
-        if (verbose) cout << "\nVerify bdlb::CharType::BDEU_NUM_CATEGORIES."
+        if (verbose) cout << "\nVerify bdlb::CharType::k_NUM_CATEGORIES."
                           << endl;
         {
-            ASSERT(16 == bdlb::CharType::BDEU_NUM_CATEGORIES);
+            ASSERT(16 == bdlb::CharType::k_NUM_CATEGORIES);
         }
 
       } break;
@@ -1470,25 +1155,25 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < 128; ++i) {
                 if (veryVerbose) P(i);
-                LOOP_ASSERT(i, isUpper(i)  == DOC_TABLE[i][Util::BDEU_UPPER]);
-                LOOP_ASSERT(i, isLower(i)  == DOC_TABLE[i][Util::BDEU_LOWER]);
-                LOOP_ASSERT(i, isDigit(i)  == DOC_TABLE[i][Util::BDEU_DIGIT]);
-                LOOP_ASSERT(i, isXdigit(i) == DOC_TABLE[i][Util::BDEU_XDIGIT]);
+                LOOP_ASSERT(i, isUpper(i)  == DOC_TABLE[i][Util::e_UPPER]);
+                LOOP_ASSERT(i, isLower(i)  == DOC_TABLE[i][Util::e_LOWER]);
+                LOOP_ASSERT(i, isDigit(i)  == DOC_TABLE[i][Util::e_DIGIT]);
+                LOOP_ASSERT(i, isXdigit(i) == DOC_TABLE[i][Util::e_XDIGIT]);
 
-                LOOP_ASSERT(i, isAlpha(i)  == DOC_TABLE[i][Util::BDEU_ALPHA]);
-                LOOP_ASSERT(i, isAlnum(i)  == DOC_TABLE[i][Util::BDEU_ALNUM]);
-                LOOP_ASSERT(i, isSpace(i)  == DOC_TABLE[i][Util::BDEU_SPACE]);
-                LOOP_ASSERT(i, isPrint(i)  == DOC_TABLE[i][Util::BDEU_PRINT]);
+                LOOP_ASSERT(i, isAlpha(i)  == DOC_TABLE[i][Util::e_ALPHA]);
+                LOOP_ASSERT(i, isAlnum(i)  == DOC_TABLE[i][Util::e_ALNUM]);
+                LOOP_ASSERT(i, isSpace(i)  == DOC_TABLE[i][Util::e_SPACE]);
+                LOOP_ASSERT(i, isPrint(i)  == DOC_TABLE[i][Util::e_PRINT]);
 
-                LOOP_ASSERT(i, isGraph(i)  == DOC_TABLE[i][Util::BDEU_GRAPH]);
-                LOOP_ASSERT(i, isPunct(i)  == DOC_TABLE[i][Util::BDEU_PUNCT]);
-                LOOP_ASSERT(i, isCntrl(i)  == DOC_TABLE[i][Util::BDEU_CNTRL]);
-                LOOP_ASSERT(i, isAscii(i)  == DOC_TABLE[i][Util::BDEU_ASCII]);
+                LOOP_ASSERT(i, isGraph(i)  == DOC_TABLE[i][Util::e_GRAPH]);
+                LOOP_ASSERT(i, isPunct(i)  == DOC_TABLE[i][Util::e_PUNCT]);
+                LOOP_ASSERT(i, isCntrl(i)  == DOC_TABLE[i][Util::e_CNTRL]);
+                LOOP_ASSERT(i, isAscii(i)  == DOC_TABLE[i][Util::e_ASCII]);
 
-                LOOP_ASSERT(i, isIdent(i)  == DOC_TABLE[i][Util::BDEU_IDENT]);
-                LOOP_ASSERT(i, isAlund(i)  == DOC_TABLE[i][Util::BDEU_ALUND]);
-                LOOP_ASSERT(i, isAll(i)    == DOC_TABLE[i][Util::BDEU_ALL]);
-                LOOP_ASSERT(i, isNone(i)   == DOC_TABLE[i][Util::BDEU_NONE]);
+                LOOP_ASSERT(i, isIdent(i)  == DOC_TABLE[i][Util::e_IDENT]);
+                LOOP_ASSERT(i, isAlund(i)  == DOC_TABLE[i][Util::e_ALUND]);
+                LOOP_ASSERT(i, isAll(i)    == DOC_TABLE[i][Util::e_ALL]);
+                LOOP_ASSERT(i, isNone(i)   == DOC_TABLE[i][Util::e_NONE]);
             }
         }
 
@@ -1560,22 +1245,22 @@ int main(int argc, char *argv[])
         typedef bdlb::CharType Util;     // *** Short Alias
 
         if (verbose) cout << "\ttoAscii" << endl;
-        ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::BDEU_ALPHA)));
+        ASSERT(0 == strcmp("ALPHA", Util::toAscii(Util::e_ALPHA)));
 
         if (verbose) cout << "\tisCategory" << endl;
-        ASSERT(1 == Util::isCategory('A', Util::BDEU_UPPER));
-        ASSERT(0 == Util::isCategory('A', Util::BDEU_DIGIT));
-        ASSERT(1 == Util::isCategory('A', Util::BDEU_ALUND));
-        ASSERT(0 == Util::isCategory('A', Util::BDEU_CNTRL));
+        ASSERT(1 == Util::isCategory('A', Util::e_UPPER));
+        ASSERT(0 == Util::isCategory('A', Util::e_DIGIT));
+        ASSERT(1 == Util::isCategory('A', Util::e_ALUND));
+        ASSERT(0 == Util::isCategory('A', Util::e_CNTRL));
 
         if (verbose) cout << "\tnumCategory" << endl;
-        ASSERT(22 == Util::numCategory(Util::BDEU_XDIGIT));
+        ASSERT(22 == Util::numCategory(Util::e_XDIGIT));
 
         if (verbose) cout << "\tstringCategory" << endl;
-        ASSERT('0' == Util::stringCategory(Util::BDEU_XDIGIT)[0]);
-        ASSERT('9' == Util::stringCategory(Util::BDEU_XDIGIT)[9]);
-        ASSERT('F' == Util::stringCategory(Util::BDEU_XDIGIT)[15]);
-        ASSERT('f' == Util::stringCategory(Util::BDEU_XDIGIT)[21]);
+        ASSERT('0' == Util::stringCategory(Util::e_XDIGIT)[0]);
+        ASSERT('9' == Util::stringCategory(Util::e_XDIGIT)[9]);
+        ASSERT('F' == Util::stringCategory(Util::e_XDIGIT)[15]);
+        ASSERT('f' == Util::stringCategory(Util::e_XDIGIT)[21]);
 
       } break;
       default: {
@@ -1591,11 +1276,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

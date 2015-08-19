@@ -123,7 +123,7 @@ int FdStreamBuf_FileHandler::reset(
 
     if (isOpened() && willCloseOnReset()) {
         int rc = FileUtil::close(d_fileId);
-        if (0 != rc && FileUtil::k_BAD_FILE_DESCRIPTOR != rc) {            
+        if (0 != rc && FileUtil::k_BAD_FILE_DESCRIPTOR != rc) {
             return -1;                                                // RETURN
         }
     }
@@ -422,7 +422,7 @@ void *FdStreamBuf_FileHandler::mmap(bsl::streamoff offset,
                            &ret,
                            offset,
                            static_cast<int>(len),
-                           MemoryUtil::BDESU_ACCESS_READ)) {
+                           MemoryUtil::k_ACCESS_READ)) {
         // error -- device is not mappable
 
         this->seek(cur, FileUtil::e_SEEK_FROM_BEGINNING);
@@ -492,7 +492,7 @@ FdStreamBuf::FdStreamBuf(
                     bslma::Allocator                     *basicAllocator)
 : bsl::streambuf()
 , d_fileHandler()
-, d_mode(BDESU_NULL_MODE)
+, d_mode(e_NULL_MODE)
 , d_dynamicBufferFlag(false)
 , d_buf_p(0)
 , d_bufEOS_p(0)
@@ -517,19 +517,19 @@ FdStreamBuf::~FdStreamBuf()
 int FdStreamBuf::switchToInputMode()
 {
     switch (d_mode) {
-      case BDESU_INPUT_MODE: {
+      case e_INPUT_MODE: {
         return 0;                                                     // RETURN
       } break;
-      case BDESU_INPUT_PUTBACK_MODE: {
+      case e_INPUT_PUTBACK_MODE: {
         exitPutbackMode();
         return 0;                                                     // RETURN
       } break;
-      case BDESU_ERROR_MODE: {
+      case e_ERROR_MODE: {
         // error mode is sticky
 
         return -1;                                                    // RETURN
       } break;
-      case BDESU_OUTPUT_MODE: {
+      case e_OUTPUT_MODE: {
         // flush the output buffer
 
         if (traits_type::eq_int_type(overflow(traits_type::eof()),
@@ -537,12 +537,12 @@ int FdStreamBuf::switchToInputMode()
             return -1;                                                // RETURN
         }
       } break;
-      case BDESU_NULL_MODE: {
+      case e_NULL_MODE: {
         // do nothing
       } break;
     }
 
-    // mode is now 'BDESU_NULL_MODE' or 'BDESU_OUTPUT_MODE'
+    // mode is now 'e_NULL_MODE' or 'e_OUTPUT_MODE'
 
     if (!isOpened()
        || 0 == ((int) d_fileHandler.openMode() & (int) bsl::ios_base::in)) {
@@ -557,18 +557,18 @@ int FdStreamBuf::switchToInputMode()
     setg(0, 0, 0);
     setp(0, 0);
 
-    d_mode = BDESU_INPUT_MODE;
+    d_mode = e_INPUT_MODE;
 
     return 0;
 }
 
 int FdStreamBuf::exitInputMode(bool correctSeek)
 {
-    if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
+    if (e_INPUT_PUTBACK_MODE == d_mode) {
         exitPutbackMode();
     }
 
-    BSLS_ASSERT(BDESU_INPUT_MODE == d_mode);
+    BSLS_ASSERT(e_INPUT_MODE == d_mode);
 
     bsl::streamoff adjust = 0;
 
@@ -601,7 +601,7 @@ int FdStreamBuf::exitInputMode(bool correctSeek)
     setg(0, 0, 0);
     setp(0, 0);
 
-    d_mode = BDESU_NULL_MODE;
+    d_mode = e_NULL_MODE;
 
     return 0;
 }
@@ -609,26 +609,26 @@ int FdStreamBuf::exitInputMode(bool correctSeek)
 int FdStreamBuf::switchToOutputMode()
 {
     switch (d_mode) {
-      case BDESU_OUTPUT_MODE: {
+      case e_OUTPUT_MODE: {
         return 0;                                                     // RETURN
       } break;
-      case BDESU_INPUT_MODE:
-      case BDESU_INPUT_PUTBACK_MODE: {
+      case e_INPUT_MODE:
+      case e_INPUT_PUTBACK_MODE: {
         if (0 != exitInputMode(true)) {
             return -1;                                                // RETURN
         }
       } break;
-      case BDESU_ERROR_MODE: {
+      case e_ERROR_MODE: {
         // error mode is sticky
 
         return -1;                                                    // RETURN
       } break;
-      case BDESU_NULL_MODE: {
+      case e_NULL_MODE: {
         // do nothing
       } break;
     }
 
-    BSLS_ASSERT(BDESU_NULL_MODE == d_mode);
+    BSLS_ASSERT(e_NULL_MODE == d_mode);
 
     if (!isOpened()
      || !((int) d_fileHandler.openMode() & (int) bsl::ios_base::out)) {
@@ -642,7 +642,7 @@ int FdStreamBuf::switchToOutputMode()
     setg(0, 0, 0);
     setp(d_buf_p, d_bufEOS_p - 1);
 
-    d_mode = BDESU_OUTPUT_MODE;
+    d_mode = e_OUTPUT_MODE;
 
     return 0;
 }
@@ -677,7 +677,7 @@ int FdStreamBuf::underflowRead()
 
 int FdStreamBuf::inputError()
 {
-    d_mode = BDESU_ERROR_MODE;
+    d_mode = e_ERROR_MODE;
     setg(0, 0, 0);
 
     return traits_type::eof();
@@ -685,7 +685,7 @@ int FdStreamBuf::inputError()
 
 int FdStreamBuf::outputError()
 {
-    d_mode = BDESU_ERROR_MODE;
+    d_mode = e_ERROR_MODE;
     setp(0, 0);
 
     return traits_type::eof();
@@ -745,12 +745,12 @@ int FdStreamBuf::seekInit()
 {
     // Flush the output buffer if we're in output mode.
 
-    if (BDESU_OUTPUT_MODE == d_mode) {
+    if (e_OUTPUT_MODE == d_mode) {
         bool ok = !traits_type::eq_int_type(overflow(traits_type::eof()),
                                             traits_type::eof());
 
         if (!ok) {
-            d_mode = BDESU_ERROR_MODE;
+            d_mode = e_ERROR_MODE;
             setp(0, 0);
             return -1;                                                // RETURN
         }
@@ -758,12 +758,12 @@ int FdStreamBuf::seekInit()
 
     // Discard putback characters, if any.
 
-    if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
+    if (e_INPUT_PUTBACK_MODE == d_mode) {
         exitPutbackMode();
     }
 
-    if (BDESU_INPUT_MODE != d_mode) {
-        d_mode = BDESU_NULL_MODE;
+    if (e_INPUT_MODE != d_mode) {
+        d_mode = e_NULL_MODE;
     }
 
     return 0;
@@ -777,11 +777,11 @@ int FdStreamBuf::flush()
 
     bool ok = true;
 
-    if (BDESU_OUTPUT_MODE == d_mode) {
+    if (e_OUTPUT_MODE == d_mode) {
         ok &= !traits_type::eq_int_type(overflow(traits_type::eof()),
                                         traits_type::eof());
     }
-    else if (BDESU_INPUT_MODE == d_mode) {
+    else if (e_INPUT_MODE == d_mode) {
         if (0 != exitInputMode(true)) {
             return -1;                                                // RETURN
         }
@@ -795,7 +795,7 @@ int FdStreamBuf::flush()
 
     d_savedEback_p = d_savedGptr_p = d_savedEgptr_p = 0;
 
-    d_mode = BDESU_NULL_MODE;
+    d_mode = e_NULL_MODE;
 
     return ok ? 0 : -1;
 }
@@ -808,14 +808,14 @@ FdStreamBuf::underflow()
 
     const unsigned int MMAP_CHUNK = 0x100000;    // Map 1MB at a time.
 
-    if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
+    if (e_INPUT_PUTBACK_MODE == d_mode) {
         exitPutbackMode();
         if (gptr() < egptr()) {
             int c = traits_type::to_int_type(*gptr());
             return c;                                                 // RETURN
         }
     }
-    else if (BDESU_INPUT_MODE != d_mode && 0 != switchToInputMode()) {
+    else if (e_INPUT_MODE != d_mode && 0 != switchToInputMode()) {
         return traits_type::eof();                                    // RETURN
     }
 
@@ -894,7 +894,7 @@ FdStreamBuf::pbackfail(int_type c)
 
     // If we are not already in input mode, pushback is impossible.
 
-    if (BDESU_INPUT_MODE != d_mode && BDESU_INPUT_PUTBACK_MODE != d_mode) {
+    if (e_INPUT_MODE != d_mode && e_INPUT_PUTBACK_MODE != d_mode) {
         return eof;                                                   // RETURN
     }
 
@@ -919,8 +919,8 @@ FdStreamBuf::pbackfail(int_type c)
 
         // Are we in the putback buffer already?
 
-        char *pBackEnd = d_pBackBuf + BDESU_PBACK_BUF_SIZE;
-        if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
+        char *pBackEnd = d_pBackBuf + k_PBACK_BUF_SIZE;
+        if (e_INPUT_PUTBACK_MODE == d_mode) {
             // We're already in putback mode.  Do we have more room in the
             // putback buffer?
 
@@ -940,7 +940,7 @@ FdStreamBuf::pbackfail(int_type c)
             d_savedGptr_p  = gptr();
             d_savedEgptr_p = egptr();
             setg(pBackEnd - 1, pBackEnd - 1, pBackEnd);
-            d_mode = BDESU_INPUT_PUTBACK_MODE;
+            d_mode = e_INPUT_PUTBACK_MODE;
         }
     }
     else {
@@ -964,7 +964,7 @@ FdStreamBuf::overflow(int_type c)
 
     // Switch to output mode, if necessary.
 
-    if (BDESU_OUTPUT_MODE != d_mode && 0 != switchToOutputMode()) {
+    if (e_OUTPUT_MODE != d_mode && 0 != switchToOutputMode()) {
         return traits_type::eof();                                    // RETURN
     }
 
@@ -994,7 +994,7 @@ FdStreamBuf *FdStreamBuf::setbuf(char            *buffer,
     // called before any I/O has been performed on the stream, otherwise it has
     // no effect.
 {
-    if (BDESU_NULL_MODE == d_mode && 0 == d_buf_p) {
+    if (e_NULL_MODE == d_mode && 0 == d_buf_p) {
         allocateBuffer(buffer, numBytes);
     }
 
@@ -1031,7 +1031,7 @@ FdStreamBuf::seekoff(off_type               offset,
     // Avoid doing unnecessary flushes if we're in output mode doing a null
     // seek to find out our position.
 
-    if (CUR == dir && 0 == offset && BDESU_OUTPUT_MODE == d_mode) {
+    if (CUR == dir && 0 == offset && e_OUTPUT_MODE == d_mode) {
         const bsl::streamoff outDiskAdjust = d_fileHandler.getOffset(pbase(),
                                                                      pptr());
         return pos_type(d_fileHandler.seek(0, CUR) + outDiskAdjust);  // RETURN
@@ -1045,9 +1045,9 @@ FdStreamBuf::seekoff(off_type               offset,
         return pos_type(-1);                                          // RETURN
     }
 
-    BSLS_ASSERT((BDESU_INPUT_MODE == d_mode) | (BDESU_NULL_MODE == d_mode));
+    BSLS_ASSERT((e_INPUT_MODE == d_mode) | (e_NULL_MODE == d_mode));
 
-    // Note that 'seekReturn' will put us into 'BDESU_NULL_MODE' and release
+    // Note that 'seekReturn' will put us into 'e_NULL_MODE' and release
     // our pointers into the buffer.  We need to call it if we're  changing our
     // file position.
 
@@ -1060,7 +1060,7 @@ FdStreamBuf::seekoff(off_type               offset,
 
     // Seek relative to current position.  Simple if we're not in input mode.
 
-    if (BDESU_INPUT_MODE != d_mode) {
+    if (e_INPUT_MODE != d_mode) {
         return seekReturn(d_fileHandler.seek(offset, CUR));           // RETURN
     }
 
@@ -1112,6 +1112,7 @@ FdStreamBuf::seekpos(pos_type pos, bsl::ios_base::openmode)
     if (offset >= 0 && isOpened() && 0 == seekInit()) {
         return seekReturn(d_fileHandler.seek(offset,                  // RETURN
                                          FileUtil::e_SEEK_FROM_BEGINNING));
+                                                                      // RETURN
     }
 
     return pos_type(-1);
@@ -1119,9 +1120,9 @@ FdStreamBuf::seekpos(pos_type pos, bsl::ios_base::openmode)
 
 int FdStreamBuf::sync()
 {
-    if (BDESU_OUTPUT_MODE == d_mode) {
+    if (e_OUTPUT_MODE == d_mode) {
         return traits_type::eq_int_type(overflow(traits_type::eof()), // RETURN
-                                        traits_type::eof()) ? -1 : 0;
+                                        traits_type::eof()) ? -1 : 0; // RETURN
     }
 
     return 0;
@@ -1153,10 +1154,10 @@ bsl::streamsize FdStreamBuf::showmanyc()
     // Is there any possibility that reads can succeed?
 
     if (!isOpened()
-     || BDESU_OUTPUT_MODE == d_mode || BDESU_ERROR_MODE == d_mode) {
+     || e_OUTPUT_MODE == d_mode || e_ERROR_MODE == d_mode) {
         return -1;                                                    // RETURN
     }
-    else if (BDESU_INPUT_PUTBACK_MODE == d_mode) {
+    else if (e_INPUT_PUTBACK_MODE == d_mode) {
         // return the number of characters in the putback buffer
 
         return egptr() - gptr();                                      // RETURN
@@ -1223,7 +1224,7 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
     const char *end   = buffer + numBytes;
     const int   eof   = traits_type::eof();
 
-    if (BDESU_OUTPUT_MODE != d_mode && 0 != switchToOutputMode()) {
+    if (e_OUTPUT_MODE != d_mode && 0 != switchToOutputMode()) {
         return 0;                                                     // RETURN
     }
 
@@ -1246,7 +1247,7 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 //-----------------------------------------------------------------------------
 // Adapted to bde from STLport, 2009
@@ -1270,10 +1271,17 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
 //-----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

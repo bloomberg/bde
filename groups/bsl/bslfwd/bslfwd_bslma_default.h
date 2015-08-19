@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslma {
         class Default;
-    }
+    }  // close namespace bslma
 
     typedef bslma::Default bslma_Default;
-}
+}  // close enterprise namespace
 
 #else
 

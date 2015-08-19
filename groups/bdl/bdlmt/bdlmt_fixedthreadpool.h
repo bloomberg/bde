@@ -1,4 +1,4 @@
-// bdlmt_fixedthreadpool.h                                             -*-C++-*-
+// bdlmt_fixedthreadpool.h                                            -*-C++-*-
 #ifndef INCLUDED_BDLMT_FIXEDTHREADPOOL
 #define INCLUDED_BDLMT_FIXEDTHREADPOOL
 
@@ -365,15 +365,19 @@ class FixedThreadPool {
     typedef bdlcc::FixedQueue<Job>     Queue;
 
     enum {
-        BCEP_STOP
-      , BCEP_RUN
-      , BCEP_SUSPEND
-      , BCEP_DRAIN
+        e_STOP
+      , e_RUN
+      , e_SUSPEND
+      , e_DRAIN
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , TP_STOP    = BCEP_STOP
-      , TP_RUN     = BCEP_RUN
-      , TP_SUSPEND = BCEP_SUSPEND
-      , TP_DRAIN   = BCEP_DRAIN
+      , BCEP_STOP    = e_STOP
+      , BCEP_RUN     = e_RUN
+      , BCEP_SUSPEND = e_SUSPEND
+      , BCEP_DRAIN   = e_DRAIN
+      , TP_STOP    = e_STOP
+      , TP_RUN     = e_RUN
+      , TP_SUSPEND = e_SUSPEND
+      , TP_DRAIN   = e_DRAIN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -574,9 +578,9 @@ class FixedThreadPool {
         // thread pool.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // --------------------------
                          // class FixedThreadPool
@@ -656,15 +660,22 @@ int FixedThreadPool::queueCapacity() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

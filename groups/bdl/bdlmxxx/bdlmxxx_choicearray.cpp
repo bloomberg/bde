@@ -1,4 +1,4 @@
-// bdlmxxx_choicearray.cpp                  -*-C++-*-
+// bdlmxxx_choicearray.cpp                                            -*-C++-*-
 #include <bdlmxxx_choicearray.h>
 
 #include <bsls_ident.h>
@@ -51,7 +51,7 @@ bool ChoiceArray::isAnyNull() const
     const int len = length();
     for (int i = 0; i < len; ++i) {
         if (d_arrayImp.theItem(i).isSelectionNull()) {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;
@@ -62,20 +62,20 @@ bool ChoiceArray::isAnyNonNull() const
     const int len = length();
     for (int i = 0; i < len; ++i) {
         if (!d_arrayImp.theItem(i).isSelectionNull()) {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

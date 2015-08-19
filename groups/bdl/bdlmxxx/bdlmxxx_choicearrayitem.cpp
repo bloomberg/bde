@@ -1,4 +1,4 @@
-// bdlmxxx_choicearrayitem.cpp                  -*-C++-*-
+// bdlmxxx_choicearrayitem.cpp                                        -*-C++-*-
 #include <bdlmxxx_choicearrayitem.h>
 
 #include <bsls_ident.h>
@@ -35,13 +35,13 @@ bsl::ostream& ChoiceArrayItem::print(bsl::ostream& stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
