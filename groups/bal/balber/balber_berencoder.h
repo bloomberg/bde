@@ -35,89 +35,139 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Decoding an Employee Record
+///Example 1: Encoding an Employee Record
 /// - - - - - - - - - - - - - - - - - - -
-// Suppose we have an XML schema inside a file called 'employee.xsd':
+// Suppose that an "employee record" consists of a sequence of attributes --
+// 'name', 'age', and 'salary' -- that of are types 'bsl::string', 'int', and
+// 'float', respectively.  Furthermore, we have a need to BER encode employee
+// records as a sequence of values (for out-of-process consumption).
+//
+// First:
+//: o We define a class, 'usage::Employee', to represent employee record
+//:   values.  (Elided)
+//:
+//: o We define 'usage::Employee' specializations for the
+//:   'bdlat_SequenceFunctions' functions.  (Elided)
+//:
+//: o We specialize the 'IsSequence' meta-function in the
+//:   'bdlat_SequenceFunctions' namespace for 'EmployeeRecord' to inform the
+//:   infrastructure that our type should be represented a sequence.  (Elided)
+//
+// Then, we create an employee record object having typical values:
 //..
-//  <?xml version='1.0' encoding='UTF-8'?>
-//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-//             xmlns:test='http://bloomberg.com/schemas/test'
-//             targetNamespace='http://bloomberg.com/schemas/test'
-//             elementFormDefault='unqualified'>
-//
-//      <xs:complexType name='Address'>
-//          <xs:sequence>
-//              <xs:element name='street' type='xs:string'/>
-//              <xs:element name='city'   type='xs:string'/>
-//              <xs:element name='state'  type='xs:string'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//
-//      <xs:complexType name='Employee'>
-//          <xs:sequence>
-//              <xs:element name='name'        type='xs:string'/>
-//              <xs:element name='homeAddress' type='test:Address'/>
-//              <xs:element name='age'         type='xs:int'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//
-//  </xs:schema>
+//  usage::EmployeeRecord bob("Bob", 56, 1234.00);
+//  assert("Bob"   == bob.name());
+//  assert(  56    == bob.age());
+//  assert(1234.00 == bob.salary());
 //..
-// Using the 'bas_codegen.pl' tool, we can generate C++ classes for this
-// schema:
+// Now, we create a 'balber::Encoder' object and use it to encode our 'bob'
+// object.  Here, to facilitate the examination of our results, the BER
+// encoding delivered to a 'bslsb::MemOutStreamBuf' object:
 //..
-//  $ bas_codegen.pl -g h -g cpp -p test employee.xsd
+//  bdlsb::MemOutStreamBuf osb;
+//  balber::BerEncoder     encoder;
+//  int                    rc = encoder.encode(&osb, bob);
+//  assert( 0 == rc);
+//  assert(18 == osb.length());
 //..
-// This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
-//
-// Now suppose we want to encode information about a particular employee using
-// the BER encoding.  Note that we will use 'bdlsb' stream buffers for in-core
-// buffer management:
+// Finally, we confirm that the generated BER encoding has the expected layout
+// and values.  We create an 'bdlsb::FixedMemInStreamBuf' to manage our access
+// to the data portion of the 'bdlsb::MemOutStreamBuf' where our BER encoding
+// resides:
 //..
-//  #include <bdlsb_memoutstreambuf.h>
-//  #include <bdlsb_fixedmeminstreambuf.h>
-//
-//  #include <test_employee.h>
-//
-//  #include <balber_berencoder.h>
-//  #include <balber_berdecoder.h>
-//
-//  using namespace BloombergLP;
-//
-//  void usageExample()
-//  {
-//      bdlsb::MemOutStreamBuf osb;
-//      test::Employee         bob;
-//
-//      bob.name()                 = "Bob";
-//      bob.homeAddress().street() = "Some Street";
-//      bob.homeAddress().city()   = "Some City";
-//      bob.homeAddress().state()  = "Some State";
-//      bob.age()                  = 21;
-//
-//      balber::BerEncoder encoder;
-//      int                retCode = encoder.encode(&osb, bob);
-//
-//      assert(0 == retCode);
+//  bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
 //..
-// At this point, 'osb' contains a representation of 'bob' in BER format.  Now
-// we will verify the contents of 'osb' using the 'balber_berdecoder'
-// component:
+// The 'balber_berutil' component provides functions that allow us to decode
+// the descriptive fields and values of the BER encoded sequence:
 //..
-//      bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());    // NO COPY
-//      test::Employee             obj;
+//  balber::BerConstants::TagClass tagClass;
+//  balber::BerConstants::TagType  tagType;
+//  int                            tagNumber;
+//  int                            accumNumBytesConsumed = 0;
+//  int                            length;
 //
-//      balber::BerDecoder decoder;
-//      retCode = decoder.decode(&isb, &obj);
+//  rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                            &tagClass,
+//                                            &tagType,
+//                                            &tagNumber,
+//                                            &accumNumBytesConsumed);
+//  assert(0                                             == rc);
+//  assert(balber::BerConstants::e_UNIVERSAL             == tagClass);
+//  assert(balber::BerConstants::e_CONSTRUCTED           == tagType);
+//  assert(balber::BerUniversalTagNumber::e_BER_SEQUENCE == tagNumber);
 //
-//      assert(0                          == retCode);
-//      assert(bob.name()                 == obj.name());
-//      assert(bob.homeAddress().street() == obj.homeAddress().street());
-//      assert(bob.homeAddress().city()   == obj.homeAddress().city());
-//      assert(bob.homeAddress().state()  == obj.homeAddress().state());
-//      assert(bob.age()                  == obj.age());
-//  }
+//  rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
+//  assert(0                                    == rc);
+//  assert(balber::BerUtil::e_INDEFINITE_LENGTH == length);
+//..
+// The 'UNIVERSAL' value in 'tagClass' indicates that the 'tagNumber' value
+// represents a type in the BER standard, a 'BER_SEQUENCE', as we requested of
+// the infrastructure (see the 'IsSequence' specialization above).  The
+// 'tagType' value of 'CONSTRUCTED' indicates that this is a non-primitive
+// type.  The 'INDEFINITE' value for length is typical for sequence encodings.
+// In these cases, the end-of-data is indicated by a sequence to two null
+// bytes.
+//
+// We now examine the tags and values corresponding to each of the data members
+// of 'usage::EmployeeRecord' class.  For each of these the 'tagClass' is
+// 'CONTEXT_SPECIFIC' (i.e., member of a larger construct) and the 'tagType' is
+// 'PRIMITIVE' ('bsl::string', 'int', and 'float' each correspond to a
+// primitive BER type.  The 'tagNumber' for each field was defined (in the
+// elided definiton) to correspond the position of the field in the
+// 'usage::EmployeeRecord' class.
+//..
+//  rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                            &tagClass,
+//                                            &tagType,
+//                                            &tagNumber,
+//                                            &accumNumBytesConsumed);
+//  assert(0                                        == rc);
+//  assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+//  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+//  assert(1                                        == tagNumber);
+//
+//  bsl::string name;
+//  rc = balber::BerUtil::getValue(&isb, &name, &accumNumBytesConsumed);
+//  assert(0     == rc);
+//  assert("Bob" == name);
+//
+//  rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                            &tagClass,
+//                                            &tagType,
+//                                            &tagNumber,
+//                                            &accumNumBytesConsumed);
+//  assert(0                                        == rc);
+//  assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+//  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+//  assert(2                                        == tagNumber);
+//
+//  int age;
+//  rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
+//  assert(0  == rc);
+//  assert(56 == age);
+//
+//  rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                            &tagClass,
+//                                            &tagType,
+//                                            &tagNumber,
+//                                            &accumNumBytesConsumed);
+//  assert(0 == rc);
+//  assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+//  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+//  assert(3                                        == tagNumber);
+//
+//  float salary;
+//  rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
+//  assert(0       == rc);
+//  assert(1234.00 == salary);
+//..
+// Lastly, we confirm that end-of-data sequence (two null bytes) are found we
+// expect them and that we have entirely consumed the data that we generated by
+// our encoding.
+//..
+//  rc = balber::BerUtil::getEndOfContentOctets(&isb, &accumNumBytesConsumed);
+//  assert(0            == rc);
+//  assert(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

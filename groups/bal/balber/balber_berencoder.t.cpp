@@ -2,21 +2,18 @@
 
 #include <balber_berencoder.h>
 
-#include <balber_berconstants.h>   // for usage only
-#include <balber_berutil.h>        // for usage only
-
-#include <balber_berdecoder.h>        // experiment
-#include <balber_berdecoderoptions.h> // experiment
+#include <balber_berconstants.h>
+#include <balber_berutil.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_valuetypefunctions.h>
-#include <bdlat_sequencefunctions.h>  // Usage
+#include <bdlat_sequencefunctions.h>
 
 #include <bdlt_serialdateimputil.h>
 
 #include <bdlsb_memoutstreambuf.h>
-#include <bdlsb_fixedmeminstreambuf.h>        // for testing only               
+#include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -34,8 +31,6 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bsl_cassert.h>
-#include <bsl_cstring.h>  // 'bsl::strlen'
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 
@@ -9141,9 +9136,9 @@ static void usageExample()
 // Then, we create an employee record object having typical values:
 //..
     usage::EmployeeRecord bob("Bob", 56, 1234.00);
-    assert("Bob"   == bob.name());
-    assert(  56    == bob.age());
-    assert(1234.00 == bob.salary());
+    ASSERT("Bob"   == bob.name());
+    ASSERT(  56    == bob.age());
+    ASSERT(1234.00 == bob.salary());
 //..
 // Now, we create a 'balber::Encoder' object and use it to encode our 'bob'
 // object.  Here, to facilitate the examination of our results, the BER
@@ -9176,14 +9171,14 @@ static void usageExample()
                                               &tagType,
                                               &tagNumber,
                                               &accumNumBytesConsumed);
-    assert(0                                             == rc);
-    assert(balber::BerConstants::e_UNIVERSAL             == tagClass);
-    assert(balber::BerConstants::e_CONSTRUCTED           == tagType);
-    assert(balber::BerUniversalTagNumber::e_BER_SEQUENCE == tagNumber);
+    ASSERT(0                                             == rc);
+    ASSERT(balber::BerConstants::e_UNIVERSAL             == tagClass);
+    ASSERT(balber::BerConstants::e_CONSTRUCTED           == tagType);
+    ASSERT(balber::BerUniversalTagNumber::e_BER_SEQUENCE == tagNumber);
 
     rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
-    assert(0                                    == rc);
-    assert(balber::BerUtil::e_INDEFINITE_LENGTH == length);
+    ASSERT(0                                    == rc);
+    ASSERT(balber::BerUtil::e_INDEFINITE_LENGTH == length);
 //..
 // The 'UNIVERSAL' value in 'tagClass' indicates that the 'tagNumber' value
 // represents a type in the BER standard, a 'BER_SEQUENCE', as we requested of
@@ -9206,53 +9201,53 @@ static void usageExample()
                                               &tagType,
                                               &tagNumber,
                                               &accumNumBytesConsumed);
-    assert(0                                        == rc);
-    assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
-    assert(balber::BerConstants::e_PRIMITIVE        == tagType);
-    assert(1                                        == tagNumber);
+    ASSERT(0                                        == rc);
+    ASSERT(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
+    ASSERT(1                                        == tagNumber);
 
     bsl::string name;
     rc = balber::BerUtil::getValue(&isb, &name, &accumNumBytesConsumed);
-    assert(0     == rc);
-    assert("Bob" == name);
+    ASSERT(0     == rc);
+    ASSERT("Bob" == name);
 
     rc = balber::BerUtil::getIdentifierOctets(&isb,
                                               &tagClass,
                                               &tagType,
                                               &tagNumber,
                                               &accumNumBytesConsumed);
-    assert(0                                        == rc);
-    assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
-    assert(balber::BerConstants::e_PRIMITIVE        == tagType);
-    assert(2                                        == tagNumber);
+    ASSERT(0                                        == rc);
+    ASSERT(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
+    ASSERT(2                                        == tagNumber);
 
     int age;
     rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
-    assert(0  == rc);
-    assert(56 == age);
+    ASSERT(0  == rc);
+    ASSERT(56 == age);
 
     rc = balber::BerUtil::getIdentifierOctets(&isb,
                                               &tagClass,
                                               &tagType,
                                               &tagNumber,
                                               &accumNumBytesConsumed);
-    assert(0 == rc);
-    assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
-    assert(balber::BerConstants::e_PRIMITIVE        == tagType);
-    assert(3                                        == tagNumber);
+    ASSERT(0 == rc);
+    ASSERT(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+    ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
+    ASSERT(3                                        == tagNumber);
 
     float salary;
     rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
-    assert(0       == rc);
-    assert(1234.00 == salary);
+    ASSERT(0       == rc);
+    ASSERT(1234.00 == salary);
 //..
 // Lastly, we confirm that end-of-data sequence (two null bytes) are found we
 // expect them and that we have entirely consumed the data that we generated by
 // our encoding.
 //..
     rc = balber::BerUtil::getEndOfContentOctets(&isb, &accumNumBytesConsumed);
-    assert(0            == rc);
-    assert(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
+    ASSERT(0            == rc);
+    ASSERT(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
 //..
 }
 

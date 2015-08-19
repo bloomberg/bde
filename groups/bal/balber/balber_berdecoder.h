@@ -34,91 +34,61 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Decoding an Employee Record
+///Example 1: Encoding an Employee Record
 /// - - - - - - - - - - - - - - - - - - -
-// Suppose we have an XML schema inside a file called 'employee.xsd':
+// Suppose that an "employee record" consists of a sequence of attributes --
+// 'name', 'age', and 'salary' -- that of are types 'bsl::string', 'int', and
+// 'float', respectively.  Furthermore, we have a need to BER encode employee
+// records as a sequence of values (for out-of-process consumption) and
+// decode that sequence to reconsitute the original value.
+//
+// First:
+//: o We define a class, 'usage::Employee', to represent employee record
+//:   values.  (Elided)
+//:
+//: o We define 'usage::Employee' specializations for the
+//:   'bdlat_SequenceFunctions' functions.  (Elided)
+//:
+//: o We specialize the 'IsSequence' meta-function in the
+//:   'bdlat_SequenceFunctions' namespace for 'EmployeeRecord' to inform the
+//:   infrastructure that our type should be represented a sequence.  (Elided)
+//
+// Then, we create an employee record object having typical values:
 //..
-//  <?xml version='1.0' encoding='UTF-8'?>
-//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-//             xmlns:test='http://bloomberg.com/schemas/test'
-//             targetNamespace='http://bloomberg.com/schemas/test'
-//             elementFormDefault='unqualified'>
-//
-//      <xs:complexType name='Address'>
-//          <xs:sequence>
-//              <xs:element name='street' type='xs:string'/>
-//              <xs:element name='city'   type='xs:string'/>
-//              <xs:element name='state'  type='xs:string'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//
-//      <xs:complexType name='Employee'>
-//          <xs:sequence>
-//              <xs:element name='name'        type='xs:string'/>
-//              <xs:element name='homeAddress' type='test:Address'/>
-//              <xs:element name='age'         type='xs:int'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//
-//  </xs:schema>
+//  usage::EmployeeRecord bob("Bob", 56, 1234.00);
+//  assert("Bob"   == bob.name());
+//  assert(  56    == bob.age());
+//  assert(1234.00 == bob.salary());
 //..
-// Using the 'bas_codegen.pl' tool, we can generate C++ classes for this
-// schema:
+// Next, we create a 'balber::Encoder' object and use it to encode our 'bob'
+// object.  Here, to facilitate the examination of our results, the BER
+// encoding delivered to a 'bslsb::MemOutStreamBuf' object:
 //..
-//  $ bas_codegen.pl -g h -g cpp -p test employee.xsd
+//  bdlsb::MemOutStreamBuf osb;
+//  balber::BerEncoder     encoder;
+//  int                    rc = encoder.encode(&osb, bob);
+//  assert( 0 == rc);
+//  assert(18 == osb.length());
 //..
-// This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
-//
-// Now suppose we want to encode information about a particular employee using
-// the BER encoding.  Note that we will use 'bdlsb' stream buffers for in-core
-// buffer management:
+// Now, we create a 'bdlsb::FixedMemInStreamBuf' object to manage our access
+// to the data portion of the 'bdlsb::MemOutStreamBuf' (where our BER encoding
+// resides), decode the values found there, and use them to set the value
+// of an 'usage::EmployeeRecord' object.
 //..
-//  #include <bdlsb_memoutstreambuf.h>
-//  #include <bdlsb_fixedmeminstreambuf.h>
+//  balber::BerDecoderOptions  options;
+//  balber::BerDecoder         decoder(&options);
+//  bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+//  usage::EmployeeRecord      obj;
 //
-//  #include <test_employee.h>
-//
-//  #include <balber_berencoder.h>
-//  #include <balber_berdecoder.h>
-//
-//  using namespace BloombergLP;
-//
-//  void usageExample()
-//  {
-//      bdlsb::MemOutStreamBuf osb;
-//
-//      test::Employee bob;
-//
-//      bob.name()                 = "Bob";
-//      bob.homeAddress().street() = "Some Street";
-//      bob.homeAddress().city()   = "Some City";
-//      bob.homeAddress().state()  = "Some State";
-//      bob.age()                  = 21;
-//
-//      balber::BerEncoder encoder;
-//      int retCode = encoder.encode(&osb, bob);
-//
-//      assert(0 == retCode);
+//  rc = decoder.decode(&isb, &obj);
+//  assert(0 == rc);
 //..
-// At this point, 'osb' contains a representation of 'bob' in BER format.  Now
-// we will verify the contents of 'osb' using the 'balber_berdecoder'
-// component:
+// Finally, we confirm that the object defined by the BER encoding has the
+// same value as the original object.
 //..
-//      bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());  // NO COPY
-//      test::Employee             obj;
-//
-//      balber::BerDecoderOptions options;
-//      balber::BerDecoder        decoder(&options);
-//      retCode = decoder.decode(&isb, &obj);
-//
-//      assert(0                          == retCode);
-//      assert(bob.name()                 == obj.name());
-//      assert(bob.homeAddress().street() == obj.homeAddress().street());
-//      assert(bob.homeAddress().city()   == obj.homeAddress().city());
-//      assert(bob.homeAddress().state()  == obj.homeAddress().state());
-//      assert(bob.age()                  == obj.age());
-//  }
+//  assert(bob.name()   == obj.name());
+//  assert(bob.age()    == obj.age());
+//  assert(bob.salary() == obj.salary());
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
