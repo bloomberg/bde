@@ -288,7 +288,7 @@ class BerUniversalTagNumber_Imp {
     {
     }
 
-                        //  ** By Type ** 
+                        //  ** By Type **
 
     TagVal select(const bool&              object, bdlat_TypeCategory::Simple);
     TagVal select(const char&              object, bdlat_TypeCategory::Simple);
@@ -319,7 +319,7 @@ class BerUniversalTagNumber_Imp {
 
     TagVal select(const bsl::vector<char>& object, bdlat_TypeCategory::Array);
 
-                        //  ** By Catetory ** 
+                        //  ** By Catetory **
 
     template <typename TYPE>
     TagVal select(const TYPE& object, bdlat_TypeCategory::CustomizedType);
@@ -496,7 +496,7 @@ BerUniversalTagNumber_Imp::selectForDateAndTimeTypes()
     }
 }
 
-                        //  ** By Type ** 
+                        //  ** By Type **
 
 inline
 BerUniversalTagNumber::Value
@@ -770,7 +770,7 @@ BerUniversalTagNumber_Imp::select(const bsl::vector<char>&  ,
     return BerUniversalTagNumber::e_BER_OCTET_STRING;
 }
 
-                        //  ** By Catetory ** 
+                        //  ** By Catetory **
 
 template <typename TYPE>
 inline

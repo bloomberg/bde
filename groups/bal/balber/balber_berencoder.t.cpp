@@ -8769,7 +8769,7 @@ bsl::ostream& TimingRequest::print(
     {
     }
 
-    EmployeeRecord::EmployeeRecord(const bsl::string &name,
+    EmployeeRecord::EmployeeRecord(const bsl::string& name,
                                    int               age,
                                    float             salary)
     : d_name(name)
@@ -8779,12 +8779,12 @@ bsl::ostream& TimingRequest::print(
     }
 
     // ACCESSORS
-    const bsl::string& EmployeeRecord::name()   const
+    const bsl::string& EmployeeRecord::name() const
     {
         return d_name;
     }
 
-    int EmployeeRecord::age()    const
+    int EmployeeRecord::age() const
     {
         return d_age;
     }
@@ -8834,10 +8834,10 @@ bsl::ostream& TimingRequest::print(
 
     template <typename MANIPULATOR>
     int usage::bdlat_sequenceManipulateAttribute(
-                                             EmployeeRecord   *object,
-                                             MANIPULATOR&  manipulator,
-                                             const char   *attributeName,
-                                             int           attributeNameLength)
+                                           EmployeeRecord *object,
+                                           MANIPULATOR&    manipulator,
+                                           const char     *attributeName,
+                                           int             attributeNameLength)
     {
         enum { k_NOT_FOUND = -1 };
 
@@ -9118,22 +9118,18 @@ static void usageExample()
 ///Example 1: Encoding an Employee Record
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose that an "employee record" consists of a sequence of attributes --
-// 'name', 'age', and 'salary' -- that of are types 'bsl::string', 'int', and
+// 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
 // 'float', respectively.  Furthermore, we have a need to BER encode employee
 // records as a sequence of values (for out-of-process consumption).
+// 
+// Assume that we have defined a 'usage::EmployeeRecord' class to represent
+// employee record values, and assume that we have provided the 'bdlat'
+// specializations that allow the 'balber' codec components to represent class
+// values as a sequence of BER primitive values.  See
+// {'bdlat_sequencefunctions'|Usage} for details of creating specializations
+// for a sequence type.
 //
-// First:
-//: o We define a class, 'usage::Employee', to represent employee record
-//:   values.  (Elided)
-//:
-//: o We define 'usage::Employee' specializations for the
-//:   'bdlat_SequenceFunctions' functions.  (Elided)
-//:
-//: o We specialize the 'IsSequence' meta-function in the
-//:   'bdlat_SequenceFunctions' namespace for 'EmployeeRecord' to inform the
-//:   infrastructure that our type should be represented a sequence.  (Elided)
-//
-// Then, we create an employee record object having typical values:
+// First, we create an employee record object having typical values:
 //..
     usage::EmployeeRecord bob("Bob", 56, 1234.00);
     ASSERT("Bob"   == bob.name());
@@ -9142,7 +9138,7 @@ static void usageExample()
 //..
 // Now, we create a 'balber::Encoder' object and use it to encode our 'bob'
 // object.  Here, to facilitate the examination of our results, the BER
-// encoding delivered to a 'bslsb::MemOutStreamBuf' object:
+// encoding data is delivered to a 'bslsb::MemOutStreamBuf' object:
 //..
     bdlsb::MemOutStreamBuf osb;
     balber::BerEncoder     encoder;
