@@ -6,19 +6,32 @@
 #include <ball_categorymanager.h>
 #include <ball_attributecontainer.h>
 #include <ball_defaultobserver.h>
+#include <ball_predicate.h>
+#include <ball_rule.h>
+#include <ball_thresholdaggregate.h>
 #include <ball_testobserver.h>            // for testing only
 
 #include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
 #include <bdlqq_mutex.h>
 
+#include <bdls_testutil.h>
+
+#include <bslim_printer.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_newdeleteallocator.h>
+#include <bslma_testallocator.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_set.h>
 #include <bsl_string.h>
@@ -36,12 +49,11 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // The component under test manages a thread-specific attribute map and
 // provides an interface ('hasRelevantActiveRules' and
-// 'determineThresholdLevels') to determine
-// whether a given category is active and what the aggregated threshold levels
-// should be.  We must ensure that 1) basic attribute manipulation works as
-// expected, (2) different attribute contexts don't interfere with each other,
-// and (3) 'hasRelevantActiveRules' and 'determineThresholdLevels' must return
-// the expected value.
+// 'determineThresholdLevels') to determine whether a given category is active
+// and what the aggregated threshold levels should be.  We must ensure that 1)
+// basic attribute manipulation works as expected, (2) different attribute
+// contexts don't interfere with each other, and (3) 'hasRelevantActiveRules'
+// and 'determineThresholdLevels' must return the expected value.
 //-----------------------------------------------------------------------------
 // [1] static ball::AttributeContext *getContext(Allocator *ba = 0);
 // [1] static ball::AttributeContext *lookupContext();
@@ -72,34 +84,47 @@ void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // The following macros facilitate thread-safe streaming to standard output.
 
 #define MTCOUT   { coutMutex.lock(); cout \
-                                           << bdlqq::ThreadUtil::selfIdAsInt() \
-                                           << ": "
+                                         << bdlqq::ThreadUtil::selfIdAsInt() \
+                                        << ": "
 #define MTENDL   endl << bsl::flush ;  coutMutex.unlock(); }
+
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
 
 #define PT(X) { MTCOUT << #X " = " << (X) << MTENDL; }
@@ -129,7 +154,8 @@ bslma::TestAllocator testAllocator;
 
 
 struct AttributeComparator {
-    bool operator()(const ball::Attribute& lhs, const ball::Attribute& rhs) const
+    bool operator()(const ball::Attribute& lhs,
+                    const ball::Attribute& rhs) const
         // Return 'true' if the specified 'lhs' is ordered before the
         // specified 'rhs'.  In the interests of readable results, this
         // comparator orders attributes by name, then value type, then value.
@@ -179,13 +205,12 @@ class AttributeSet : public ball::AttributeContainer {
 
     // MANIPULATORS
     void insert(const ball::Attribute& value);
-        // Add the specified value to this attribute set.
+        // Add the specified 'value' to this attribute set.
 
     bool remove(const ball::Attribute& value);
-        // Remove the specified value from this attribute set, return
-        // 'true' if the attribute was found, and 'false' if 'value' was not
-        // a member of this set.
-
+        // Remove the specified 'value' from this attribute set, return 'true'
+        // if the attribute was found, and 'false' if 'value' was not a member
+        // of this set.
 
     // ACCESSORS
     virtual bool hasValue(const ball::Attribute& value) const;
@@ -246,16 +271,14 @@ bsl::ostream& AttributeSet::print(bsl::ostream& stream,
                                   int           level,
                                   int           spacesPerLevel) const
 {
-    char EL = (spacesPerLevel < 0) ? ' ' : '\n';
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << "[" << EL;
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
 
     bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
     for (; it != d_set.end(); ++it) {
-        it->print(stream, level+1, spacesPerLevel);
+        printer.printValue(*it);
     }
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-    stream << "]" << EL;
+    printer.end();
     return stream;
 }
 
@@ -573,8 +596,9 @@ extern "C" void *case4RuleThread(void *args)
 
         if (randomValue(&seed) % 3) {
             manager->addRule(*ruleSet.getRuleById(r));
-            while(0 == manager->addRule(*ruleSet.getRuleById(r))
-             && manager->ruleSet().numRules() != ball::RuleSet::maxNumRules()) {
+            while(0 == manager->addRule(*ruleSet.getRuleById(r)) &&
+                     manager->ruleSet().numRules() !=
+                     ball::RuleSet::maxNumRules()) {
                 r = randomValue(&seed) % ruleSet.numRules();
             }
         }
@@ -583,8 +607,8 @@ extern "C" void *case4RuleThread(void *args)
         }
     }
 
-    // The rule set owned by the logger manager should be full when all
-    // 'rule' threads arrive here.
+    // The rule set owned by the logger manager should be full when all 'rule'
+    // threads arrive here.
 
     barrier.wait();
     if (verbose) {
@@ -858,15 +882,17 @@ namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3
 const int NUM_THREADS =  6;           // number of threads
 const int NUM_TESTS   = 10;           // number of tests
 
-ball::Attribute A0("", "12345678");
-ball::Attribute A1("", 12345678);
-ball::Attribute A2("", (bsls::Types::Int64)12345678);
-ball::Attribute A3("uuid", "12345678");
-ball::Attribute A4("uuid", 12345678);
-ball::Attribute A5("uuid", (bsls::Types::Int64)12345678);
-ball::Attribute A6("UUID", "12345678");
-ball::Attribute A7("UUID", 12345678);
-ball::Attribute A8("UUID", (bsls::Types::Int64)12345678);
+bslma::Allocator *allocator = &bslma::NewDeleteAllocator::singleton();
+
+ball::Attribute A0("", "12345678", allocator);
+ball::Attribute A1("", 12345678, allocator);
+ball::Attribute A2("", (bsls::Types::Int64)12345678, allocator);
+ball::Attribute A3("uuid", "12345678", allocator);
+ball::Attribute A4("uuid", 12345678, allocator);
+ball::Attribute A5("uuid", (bsls::Types::Int64)12345678, allocator);
+ball::Attribute A6("UUID", "12345678", allocator);
+ball::Attribute A7("UUID", 12345678, allocator);
+ball::Attribute A8("UUID", (bsls::Types::Int64)12345678, allocator);
 
 const ball::Attribute ATTRS[] = { A0, A1, A2, A3, A4, A5, A6, A7, A8 };
 
@@ -1023,9 +1049,10 @@ int main(int argc, char *argv[])
 // 'ball::AttributeContext' with the when the singleton is created.
 //..
     ball::CategoryManager categoryManager;
-    ball::AttributeContext::initialize(&categoryManager);  // this is normally
-                                                          // performed by the
-                                                          // ball::LoggerManager
+    ball::AttributeContext::initialize(&categoryManager);
+                                                         // this is normally
+                                                         // performed by the
+                                                         // ball::LoggerManager
 //..
 // Next we add a category to the category manager.  Each created category
 // has a name and the logging threshold levels for that category.  The logging

@@ -9,14 +9,15 @@ BSLS_IDENT_RCSID(ball_attributecontainer_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                    // -----------------------------
+                    // ------------------------
                     // class AttributeContainer
-                    // -----------------------------
+                    // ------------------------
 
 // CREATORS
 AttributeContainer::~AttributeContainer()
 {
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace
