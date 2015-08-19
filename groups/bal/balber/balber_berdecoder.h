@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Encoding an Employee Record
+///Example 1: Decoding an Employee Record
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose that an "employee record" consists of a sequence of attributes --
 // 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
