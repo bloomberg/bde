@@ -1,4 +1,4 @@
-// bslmf_allocatorargt.h                  -*-C++-*-
+// bslmf_allocatorargt.h                                              -*-C++-*-
 #ifndef INCLUDED_BSLMF_ALLOCATORARGT
 #define INCLUDED_BSLMF_ALLOCATORARGT
 
@@ -7,26 +7,25 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a tag type to precede allocator arguments
+//@PURPOSE: Provide a tag type to precede allocator arguments.
 //
-//@CLASSES: bsl::allocator_arg_t
+//@CLASSES:
+//  bsl::allocator_arg_t: tag indicating the next parameter is an allocator
 //
 //@SEE_ALSO: bslalg_scalarprimitives
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:
-
-// The C++11 standard defines the empty class 'std::allocator_arg_t' as a tag
-// that precedes an argument of allocator type in circumstances where context
-// alone cannot be used to determine which argument is an allocator.
-// Typically, this disambiguation is needed when a class has templated
-// constructors taking variable numbers of arguments, each of which is of
-// parameterized type. If that class also uses an allocator (of either STL
-// style or 'bslma'/'memory_resource' style), then the allocator argument must
-// be flagged as special.  An argument of type 'std::allocator_arg_t' is used
-// to distinguish constructors that take an allocator from constructors thta
-// don't.
+//@DESCRIPTION: The C++11 standard defines the empty class
+// 'bsl::allocator_arg_t' as a tag that precedes an argument of allocator type
+// in circumstances where context alone cannot be used to determine which
+// argument is an allocator.  Typically, this disambiguation is needed when a
+// class has templated constructors taking variable numbers of arguments, each
+// of which is of parameterized type.  If that class also uses an allocator (of
+// either STL style or 'bslma'/'memory_resource' style), then the allocator
+// argument must be flagged as special.  An argument of type
+// 'std::allocator_arg_t' is used to distinguish constructors that take an
+// allocator from constructors that don't.
 //
 // In addition to the 'allocator_arg_t' class type, this component (and the
 // standard) define a constant, 'allocator_arg', of type 'allocator_arg_t'.
@@ -39,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Disambiguate a constructor invocation
 /// - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a nullable type which can be in the full state
+// Suppose we want to define a nullable type that can be in the full state
 // (holding an object) or the null state (not holding an object).  When in the
 // full state, memory is allocated for the held object using a memory
 // allocator.  For simplicity, this memory allocator is not automatically
@@ -49,6 +48,8 @@ BSLS_IDENT("$Id: $")
 // 'xyzma::Allocator' base class and two derived classes:
 // 'xyzma::NewDeleteAllocator' and 'xyzma::TestAllocator':
 //..
+//  #include <cstddef>
+//
 //  namespace xyzma {
 //
 //  class Allocator {
@@ -75,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //      static NewDeleteAllocator s;
 //      return &s;
 //  }
-//      
+//
 //  void *NewDeleteAllocator::allocate(std::size_t nbytes) {
 //      return ::operator new(nbytes);
 //  }
@@ -83,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //  void NewDeleteAllocator::deallocate(void *ptr) {
 //      ::operator delete(ptr);
 //  }
-//  
+//
 //  class TestAllocator : public Allocator {
 //      // Concrete allocator that keeps track of number of blocks allocated
 //      // and deallocated.
@@ -114,16 +115,16 @@ BSLS_IDENT("$Id: $")
 //      ++d_deallocatedBlocks;
 //      ::operator delete(ptr);
 //  }
-//      
-//  } // close namespace xyzma
+//
+//  }  // close namespace xyzma
 //..
-// Next, we define our nullable class template, declaring two constructors:
-// one that constructs the null object, and one that constructs a non-null
-// object using the specified constructor argument.  For flexibility, the
-// second constructor is a template that takes any type and can therefore
-// construct the object without necessarily invoking the copy constructor.
-// (Ideally, this second constructor would be variadic, but that is not
-// necessary for this example.):
+// Next, we define our nullable class template, declaring two constructors: one
+// that constructs the null object, and one that constructs a non-null object
+// using the specified constructor argument.  For flexibility, the second
+// constructor is a template that takes any type and can therefore construct
+// the object without necessarily invoking the copy constructor.  (Ideally,
+// this second constructor would be variadic, but that is not necessary for
+// this example.):
 //..
 //  #include <new>
 //
@@ -175,8 +176,12 @@ BSLS_IDENT("$Id: $")
 // constructor, as well:
 //..
 //      template <class ARG>
-//      Nullable(bsl::allocator_arg_t, xyzma::Allocator *alloc, 
-//               const ARG& arg);
+//      Nullable(bsl::allocator_arg_t,
+//               xyzma::Allocator *alloc,
+//               const ARG&        arg);
+//          // Construct a non-null object using the specified 'arg' as the
+//          // constructor argument for the 'TYPE' object, and the specified
+//          // 'alloc' allocator.  Note: this is ctor F.
 //..
 // Next, we finish the class interface and implementation:
 //..
@@ -185,10 +190,10 @@ BSLS_IDENT("$Id: $")
 //      // MANIPULATORS
 //      Nullable& operator=(const Nullable& rhs);
 //          // Copy assign this object from the specified 'rhs'.
-//      
+//
 //      Nullable& operator=(const TYPE& rhs);
-//          // Construct a non-null object holding a copy of the specified 'rhs'
-//          // object.
+//          // Construct a non-null object holding a copy of the specified
+//          // 'rhs' object.
 //
 //      // ACCESSORS
 //      const TYPE& value() const { return *d_object_p; }
@@ -226,8 +231,9 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE>
 //  template <class ARG>
-//  Nullable<TYPE>::Nullable(bsl::allocator_arg_t, xyzma::Allocator *alloc,
-//                           const ARG& arg)
+//  Nullable<TYPE>::Nullable(bsl::allocator_arg_t,
+//                           xyzma::Allocator *alloc,
+//                           const ARG&        arg)
 //      : d_alloc_p(alloc)
 //      , d_object_p(static_cast<TYPE*>(d_alloc_p->allocate(sizeof(TYPE))))
 //  {
@@ -244,7 +250,7 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE>
 //  Nullable<TYPE>& Nullable<TYPE>::operator=(const Nullable& rhs) {
-//      if (&rhs == this) return *this;
+//      if (&rhs == this) return *this;                               // RETURN
 //      if (!isNull() && !rhs.isNull()) {
 //          *d_object_p = *rhs.d_object_p;
 //      }
@@ -263,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //
 //      return *this;
 //  }
-//  
+//
 //  template <class TYPE>
 //  Nullable<TYPE>& Nullable<TYPE>::operator=(const TYPE& rhs) {
 //      if (isNull()) {
@@ -291,7 +297,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //      }
 //
-//      Obj(int count, xyzma::Allocator *alloc = 0)
+//      Obj(int count, xyzma::Allocator *alloc = 0)                 // IMPLICIT
 //          : d_alloc_p(alloc), d_count(count)
 //      {
 //      }
@@ -310,7 +316,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we test that our nullable type can be constructed with and without
 // an allocator pointer and that the allocator pointer can unambiguously be
-// used for the 
+// used for the object's allocator.
 //..
 //  int main() {
 //
@@ -379,10 +385,12 @@ struct allocator_arg_t {
 
 static const allocator_arg_t allocator_arg = { };
     // Value of type 'allocator_arg_t' used as actual argument to function
-    // that takes an allocator argument.  TBD: 'constexpr' would be better
-    // than 'const' here.
+    // that takes an allocator argument.  Note that 'constexpr' would be better
+    // than 'const' here, but any compiler that supports 'constexpr' would also
+    // provide this class and named value, that should be imported into
+    // namespace 'bsl' with using declarations instead.
 
-}  // close package namespace
+}  // close namespace bsl
 
 #endif // ! defined(INCLUDED_BSLMF_ALLOCATORARGT)
 

@@ -1,8 +1,7 @@
-// bslmf_allocatorargt.t.cpp                  -*-C++-*-
+// bslmf_allocatorargt.t.cpp                                          -*-C++-*-
 
 #include "bslmf_allocatorargt.h"
 
-#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>   // 'printf'
@@ -15,7 +14,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // This component consists of an empty tag type and a constant object of that
 // type.  There is no functionality to test.  Instead, we test that this tag
-// can be used for its intended purpose, which is to disambigute constructor
+// can be used for its intended purpose, which is to disambiguate constructor
 // and function calls.  Thus, the entire test consists of a usage example.
 //-----------------------------------------------------------------------------
 // [1] struct bsl::allocator_arg_t
@@ -23,57 +22,48 @@ using namespace BloombergLP;
 //
 // [1] USAGE EXAMPLE
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
-//-----------------------------------------------------------------------------
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-
-//=============================================================================
-//                                VERBOSITY
-//-----------------------------------------------------------------------------
-
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0; // For test allocators
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -84,13 +74,19 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: push    // Usage examples relax rules for doc clarity
+// BDE_VERIFY pragma: -AQJ02  // Headers are included where examples need them
+// BDE_VERIFY pragma: -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: -FD01   // Function contracts replaced by expository text
+// BDE_VERIFY pragma: -FD03   // Function contracts replaced by expository text
+
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
 ///Example 1: Disambiguate a constructor invocation
 /// - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a nullable type which can be in the full state
+// Suppose we want to define a nullable type that can be in the full state
 // (holding an object) or the null state (not holding an object).  When in the
 // full state, memory is allocated for the held object using a memory
 // allocator.  For simplicity, this memory allocator is not automatically
@@ -100,11 +96,13 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 // 'xyzma::Allocator' base class and two derived classes:
 // 'xyzma::NewDeleteAllocator' and 'xyzma::TestAllocator':
 //..
+    #include <cstddef>
+
     namespace xyzma {
 
     class Allocator {
         // Abstract allocator base class
-    public:
+      public:
         virtual ~Allocator() { }
 
         virtual void *allocate(std::size_t nbytes) = 0;
@@ -114,7 +112,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
     class NewDeleteAllocator : public Allocator {
         // Concrete allocator that uses operators 'new' and 'delete'
 
-    public:
+      public:
         static NewDeleteAllocator* singleton();
             // Returns a singleton instance of this class
 
@@ -126,7 +124,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
         static NewDeleteAllocator s;
         return &s;
     }
-        
+
     void *NewDeleteAllocator::allocate(std::size_t nbytes) {
         return ::operator new(nbytes);
     }
@@ -134,7 +132,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
     void NewDeleteAllocator::deallocate(void *ptr) {
         ::operator delete(ptr);
     }
-    
+
     class TestAllocator : public Allocator {
         // Concrete allocator that keeps track of number of blocks allocated
         // and deallocated.
@@ -142,7 +140,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
         std::size_t d_allocatedBlocks;
         std::size_t d_deallocatedBlocks;
 
-    public:
+      public:
         TestAllocator() : d_allocatedBlocks(0), d_deallocatedBlocks(0) { }
 
         virtual void *allocate(std::size_t nbytes);
@@ -165,16 +163,16 @@ static int veryVeryVeryVerbose = 0; // For test allocators
         ++d_deallocatedBlocks;
         ::operator delete(ptr);
     }
-        
-    } // close namespace xyzma
+
+    }  // close namespace xyzma
 //..
-// Next, we define our nullable class template, declaring two constructors:
-// one that constructs the null object, and one that constructs a non-null
-// object using the specified constructor argument.  For flexibility, the
-// second constructor is a template that takes any type and can therefore
-// construct the object without necessarily invoking the copy constructor.
-// (Ideally, this second constructor would be variadic, but that is not
-// necessary for this example.):
+// Next, we define our nullable class template, declaring two constructors: one
+// that constructs the null object, and one that constructs a non-null object
+// using the specified constructor argument.  For flexibility, the second
+// constructor is a template that takes any type and can therefore construct
+// the object without necessarily invoking the copy constructor.  (Ideally,
+// this second constructor would be variadic, but that is not necessary for
+// this example.):
 //..
     #include <new>
 
@@ -185,7 +183,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
         xyzma::Allocator *d_alloc_p;
         TYPE             *d_object_p;
 
-    public:
+      public:
         // CREATORS
         Nullable();
             // Construct a null object.  Note: this is ctor A.
@@ -226,8 +224,12 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 // constructor, as well:
 //..
         template <class ARG>
-        Nullable(bsl::allocator_arg_t, xyzma::Allocator *alloc, 
-                 const ARG& arg);
+        Nullable(bsl::allocator_arg_t,
+                 xyzma::Allocator *alloc,
+                 const ARG&        arg);
+            // Construct a non-null object using the specified 'arg' as the
+            // constructor argument for the 'TYPE' object, and the specified
+            // 'alloc' allocator.  Note: this is ctor F.
 //..
 // Next, we finish the class interface and implementation:
 //..
@@ -236,10 +238,10 @@ static int veryVeryVeryVerbose = 0; // For test allocators
         // MANIPULATORS
         Nullable& operator=(const Nullable& rhs);
             // Copy assign this object from the specified 'rhs'.
-        
+
         Nullable& operator=(const TYPE& rhs);
-            // Construct a non-null object holding a copy of the specified 'rhs'
-            // object.
+            // Construct a non-null object holding a copy of the specified
+            // 'rhs' object.
 
         // ACCESSORS
         const TYPE& value() const { return *d_object_p; }
@@ -277,8 +279,9 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 
     template <class TYPE>
     template <class ARG>
-    Nullable<TYPE>::Nullable(bsl::allocator_arg_t, xyzma::Allocator *alloc,
-                             const ARG& arg)
+    Nullable<TYPE>::Nullable(bsl::allocator_arg_t,
+                             xyzma::Allocator *alloc,
+                             const ARG&        arg)
         : d_alloc_p(alloc)
         , d_object_p(static_cast<TYPE*>(d_alloc_p->allocate(sizeof(TYPE))))
     {
@@ -295,7 +298,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 
     template <class TYPE>
     Nullable<TYPE>& Nullable<TYPE>::operator=(const Nullable& rhs) {
-        if (&rhs == this) return *this;
+        if (&rhs == this) return *this;                               // RETURN
         if (!isNull() && !rhs.isNull()) {
             *d_object_p = *rhs.d_object_p;
         }
@@ -314,7 +317,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 
         return *this;
     }
-    
+
     template <class TYPE>
     Nullable<TYPE>& Nullable<TYPE>::operator=(const TYPE& rhs) {
         if (isNull()) {
@@ -336,13 +339,13 @@ static int veryVeryVeryVerbose = 0; // For test allocators
     class Obj {
         xyzma::Allocator *d_alloc_p;
         int               d_count;
-    public:
+      public:
         explicit Obj(xyzma::Allocator *alloc = 0)
             : d_alloc_p(alloc), d_count(0)
         {
         }
 
-        Obj(int count, xyzma::Allocator *alloc = 0)
+        Obj(int count, xyzma::Allocator *alloc = 0)                 // IMPLICIT
             : d_alloc_p(alloc), d_count(count)
         {
         }
@@ -361,7 +364,7 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 //..
 // Finally, we test that our nullable type can be constructed with and without
 // an allocator pointer and that the allocator pointer can unambiguously be
-// used for the 
+// used for the object's allocator.
 //..
     int usageExample() {
 
@@ -409,6 +412,9 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 
         return 0;
     }
+//..
+
+// BDE_VERIFY pragma: pop  // end of usage example-example relaxed rules
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -416,11 +422,11 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -436,18 +442,18 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 For concern 1, copy the usage example from the header file.
         //: 2 The usage example is designed to address concern 2.
-	//
+        //
         // Testing:
-        //     struct allocator_arg_t;
-        //     static const allocator_arg_t allocator_arg;
-        //     USAGE EXAMPLE
+        //   struct bsl::allocator_arg_t
+        //   static const bsl::allocator_arg_t bsl::allocator_arg
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
         usageExample();
-        
+
       } break;
 
       default: {
