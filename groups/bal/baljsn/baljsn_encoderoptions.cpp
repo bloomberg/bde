@@ -10,19 +10,19 @@ BSLS_IDENT_RCSID(baljsn_encoderoptions_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace baljsn {
-                      // ---------------------------
-                      // class EncoderOptions
-                      // ---------------------------
+
+                           // --------------------
+                           // class EncoderOptions
+                           // --------------------
 
 // ACCESSORS
 
                                   // Aspects
 
 bsl::ostream& EncoderOptions::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();

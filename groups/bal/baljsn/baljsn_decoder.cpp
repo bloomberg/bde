@@ -7,11 +7,11 @@ BSLS_IDENT_RCSID(baljsn_decoder_cpp,"$Id$ $CSID$")
 #include <bsl_iterator.h>
 
 namespace BloombergLP {
-
 namespace baljsn {
-                   // --------------------
-                   // class Decoder
-                   // --------------------
+
+                              // -------------
+                              // class Decoder
+                              // -------------
 
 // PRIVATE MANIPULATORS
 int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
@@ -36,8 +36,8 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
     }
     else if (Tokenizer::e_START_OBJECT ==
                                                      d_tokenizer.tokenType()) {
-        // 'elementName' is a sequence or choice.  Descend into the element
-        // and skip all its sub-elements.
+        // 'elementName' is a sequence or choice.  Descend into the element and
+        // skip all its sub-elements.
 
         if (++d_currentDepth > d_maxDepth) {
             d_logStream << "Maximum allowed decoding depth reached: "
