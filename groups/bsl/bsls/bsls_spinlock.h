@@ -436,7 +436,7 @@ void SpinLockGuard::release() {
 }  // close package namespace
 }  // close enterprise namespace
 
-
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
