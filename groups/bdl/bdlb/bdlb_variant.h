@@ -115,6 +115,17 @@ BSLS_IDENT("$Id: $")
 // The 'bdlb::Variant' class can be streamed using the 'bdexStreamIn' and
 // 'bdexStreamOut' methods.  That is, if the version number with which the
 // variant type is streamed is known by both parties, there will be no problem.
+
+            // ARB: I.e. each bdlb::Variant BDEX version describes a layout for
+            // a particular contained type of the contained object, so the
+            // "maxSupportedBdexVersion" concept does not hold.  You must
+            // choose a version (i.e. type/layout combination) when you stream
+            // out and know to use the same version when you stream in.
+            //
+            // Or: does this mean that the version number is the (possibly
+            // non-unique) schema version of the type with which the Variant is
+            // imbued at the time it is streamed?
+
 //
 // Note that this version number must be known by the reader independently of
 // the actual value of the object streamed.  An "adaptive" version number such
@@ -130,6 +141,20 @@ BSLS_IDENT("$Id: $")
 //..
 //  'bdex_InStreamFunctions::streamInVersionAndObject'
 //..
+
+            // ARB: The problem is that operator>> is implemented in the
+            // stream, so we cannot give it a variant-specific implementation
+            // here in variant?
+            //
+            // If we could provide a variant-specific implementation, we could
+            // discover whether or not a type takes a version, because
+            // VersionFunctions::maxSupportedBdexVersion will return
+            // BDEX_NO_VERSION_NUMBER.
+            //
+            // So, if we specialize operator>> for Variant ... we will run
+            // right into the same ADL issues that we had with the streaming
+            // operators for bsls::TimeInterval.
+
 // But 'streamInVersionAndObject' is in a quandary, since it must determine
 // whether a version number is streamed or not, and this depends on the actual
 // streamed value (which is at that time not yet known).
@@ -6838,6 +6863,9 @@ template <class STREAM>
 STREAM& VariantImp<TYPES>::bdexStreamOut(STREAM& stream,
                                                int     version) const
 {
+
+            // ARB: 'version' ignored when streaming fundamental types.
+
     bdex_OutStreamFunctions::streamOut(stream, this->d_type, 0);
 
     if (this->d_type) {
