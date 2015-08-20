@@ -288,7 +288,7 @@ class BerUniversalTagNumber_Imp {
     {
     }
 
-    // --- By Type ------------------------------------------------------------
+                        //  ** By Type **
 
     TagVal select(const bool&              object, bdlat_TypeCategory::Simple);
     TagVal select(const char&              object, bdlat_TypeCategory::Simple);
@@ -319,7 +319,7 @@ class BerUniversalTagNumber_Imp {
 
     TagVal select(const bsl::vector<char>& object, bdlat_TypeCategory::Array);
 
-    // --- By Category --------------------------------------------------------
+                        //  ** By Catetory **
 
     template <typename TYPE>
     TagVal select(const TYPE& object, bdlat_TypeCategory::CustomizedType);
@@ -362,6 +362,7 @@ class BerUniversalTagNumber_Imp {
         return d_alternateTag;
     }
 };
+
 }  // close package namespace
 
 // ===========================================================================
@@ -495,7 +496,7 @@ BerUniversalTagNumber_Imp::selectForDateAndTimeTypes()
     }
 }
 
-// --- By Type ----------------------------------------------------------------
+                        //  ** By Type **
 
 inline
 BerUniversalTagNumber::Value
@@ -742,11 +743,11 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(const bdlb::Variant2<TYPE, TYPETZ>& ,
                                   bdlat_TypeCategory::Simple          )
 {
-    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::DateTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Time, TYPE>::VALUE
-               && bslmf::IsSame<bdlt::TimeTz, TYPETZ>::VALUE)
-              || (bslmf::IsSame<bdlt::Datetime, TYPE>::VALUE
+    BSLMF_ASSERT((bslmf::IsSame<bdlt::Date,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::DateTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Time,       TYPE  >::VALUE
+               && bslmf::IsSame<bdlt::TimeTz,     TYPETZ>::VALUE)
+              || (bslmf::IsSame<bdlt::Datetime,   TYPE  >::VALUE
                && bslmf::IsSame<bdlt::DatetimeTz, TYPETZ>::VALUE));
 
     return selectForDateAndTimeTypes();
@@ -769,7 +770,7 @@ BerUniversalTagNumber_Imp::select(const bsl::vector<char>&  ,
     return BerUniversalTagNumber::e_BER_OCTET_STRING;
 }
 
-// --- By Category ------------------------------------------------------------
+                        //  ** By Catetory **
 
 template <typename TYPE>
 inline
@@ -876,7 +877,7 @@ BerUniversalTagNumber_Imp::select(const TYPE&, ANY_CATEGORY)
 }  // close enterprise namespace
 #endif
 
-// ------------------------------ END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
