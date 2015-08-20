@@ -66,6 +66,10 @@ BSLS_IDENT("$Id: $")
 //
 //      bsl::vector<int>              d_values;        // maintains values
 //
+//    private:
+//      // Not implemented:
+//      IntegerQueue(const IntegerQueue&);
+//
 //    public:
 //..
 // Then, we declare the methods of an integer queue:

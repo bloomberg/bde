@@ -12,14 +12,24 @@
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlb_bitutil.h>
+
 #include <bslma_defaultallocatorguard.h>
+
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_climits.h>
+#include <bsl_cstdint.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -279,6 +289,10 @@ void gg(Obj          *result,
 
         bsl::vector<int>              d_values;        // maintains values
 
+      private:
+        // Not implemented:
+        IntegerQueue(const IntegerQueue&);
+
       public:
 //..
 // Then, we declare the methods of an integer queue:
@@ -375,7 +389,7 @@ void gg(Obj          *result,
 //                  *IMPLEMENTATION SPECIFIC* TOOLS
 //-----------------------------------------------------------------------------
 
-// The following tools flagarently make use of implementation details and
+// The following tools flagrantly make use of implementation details and
 // platform specific behavior (i.e., 'reinterpret_cast').  Extraordinary
 // measures are taken in this test-driver to allow testing that would otherwise
 // not be possible.  Specifically, this enables: (1) testing generation counts
@@ -531,12 +545,12 @@ unsigned int FixedQueueState::capacity() const
 }
 
 void dirtyAdjustGeneration(Obj *result, unsigned int generation)
-    // Load into 'result' the state of an empty queue at the beginning of the
-    // specified 'generation' (i.e., the push and pop index both refer to the
-    // first cell.  Note that this operation is equivalent to 'gg' but
-    // flagerantly abuses impleementation information and compiler dependent
-    // behavior in order to allow the assignment of combined indices with vary
-    // large values.
+    // Load into the specified 'result' the state of an empty queue at the
+    // beginning of the specified 'generation' (i.e., the push and pop index
+    // both refer to the first cell.  Note that this operation is equivalent to
+    // 'gg' but flagrantly abuses implementation information and compiler
+    // dependent behavior in order to allow the assignment of combined indices
+    // with vary large values.
 {
    FixedQueueIndexManagerDataMembers *data =
                  reinterpret_cast<FixedQueueIndexManagerDataMembers *>(result);
@@ -585,8 +599,8 @@ class TestThreadStateBarrier {
          e_EXIT     = 2
      };
 
-     // CREATORS
-     explicit TestThreadStateBarrier(int numTestThreads);
+    // CREATORS
+    explicit TestThreadStateBarrier(int numTestThreads);
         // Create a state barrier for the specified 'numTestThreads'.  Note
         // that the test threads are meant to be controlled by an additional
         // thread.
@@ -600,7 +614,7 @@ class TestThreadStateBarrier {
     State state();
         // Return the state of the current test.  If the resulting state is
         // 'e_WAIT' the calling thread must call 'blockUntilStateChange' before
-        // continuining, and if the state is 'e_EXIT' the calling thread must
+        // continuing, and if the state is 'e_EXIT' the calling thread must
         // terminate.
 
     void blockUntilStateChange();
@@ -673,9 +687,9 @@ void TestThreadStateBarrier::exitTest()
 
 inline
 void performDelay(int period)
-   // If the number of times this function has been called is an even multiple
-   // of 'period', then put the current thread to sleep before returning,
-   // otherwise this function has no effect.
+    // If the number of times this function has been called is an even multiple
+    // of the specified 'period', then put the current thread to sleep before
+    // returning, otherwise this function has no effect.
 {
     static bsls::AtomicInt delayPeriod;
 
@@ -825,7 +839,7 @@ void assertValidState(Obj *x)
            combinedPushIndex <= combinedPopIndex + CAPACITY);
 
     bool EMPTY = (combinedPopIndex == combinedPushIndex);
-    // The queue be diagramed as:
+    // The queue can be diagrammed as:
     //..
     //  ,--------------------------------.
     //  |  Zone 1  |  Zone 2  |  Zone 3  |
@@ -1020,7 +1034,7 @@ int main(int argc, char *argv[])
         //    clear the correct element and increment the push and pop ind
         //
         //  5 Manipulating the index manager near the maximum combined
-        //    index on multiple threads simulatenously does not corrupted the
+        //    index on multiple threads simultaneously does not corrupted the
         //    index manager state.
         //
         // Plan:
@@ -1049,7 +1063,7 @@ int main(int argc, char *argv[])
         //      delay value.
         //
         //    2 Repeatedly initialize a index manager to near the maximum
-        //      commbined index, allow the threads to run into they reset the
+        //      combined index, allow the threads to run into they reset the
         //      combined index back to 0, validate the state of the index
         //      buffer.
         //
@@ -1438,7 +1452,7 @@ int main(int argc, char *argv[])
         //    1 Create the described set of threads and supply the periodic
         //      delay value.
         //
-        //    2 Execute those threads for a period of time, interuppting them
+        //    2 Execute those threads for a period of time, interupting them
         //      periodically to validate their state with 'assertValidState'.
         //
         // Testing:
@@ -1667,13 +1681,13 @@ int main(int argc, char *argv[])
         //    supplied size.
         //
         //  2 Verify the sign of the returned value correctly indicates
-        //    whether one must increment or decmrement that distance from the
+        //    whether one must increment or decrement that distance from the
         //    'substrahend' to arrive at the minuend.
         //
         // Plan:
         //  1 For set of interesting capacity values, call
-        //    'numRepresentableGenerations' and verify the expected mathematic
-        //    properties of the returned value.
+        //    'numRepresentableGenerations' and verify the expected
+        //    mathematical properties of the returned value.
         //
         // Testing:
         //   unsigned int numRepresentableGenerations(unsigned int );
@@ -1772,8 +1786,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //  1 For set of interesting capacity values, call
-        //    'numRepresentableGenerations' and verify the expected mathematic
-        //    properties of the returned value.
+        //    'numRepresentableGenerations' and verify the expected
+        //    mathematical properties of the returned value.
         //
         // Testing:
         //   unsigned int numRepresentableGenerations(unsigned int );
@@ -1804,7 +1818,7 @@ int main(int argc, char *argv[])
                 // The maximum element state generation is the maximum value
                 // that can be represented in a 32bit integer with 2 bits used
                 // for state.  The maximum combined index is the maximum value
-                // that can be represented in a 32bit integer with 1 bit ued
+                // that can be represented in a 32bit integer with 1 bit used
                 // for a disabled flag.
 
                 const unsigned int MAX_ELEM_STATE_GEN = (UINT_MAX >> 2);
@@ -2046,7 +2060,7 @@ int main(int argc, char *argv[])
         //  3 For a table driven set of possible initial queue states: call
         //    'reservePopIndexForClear' repeatedly unto it returns failure, and
         //    verify that it succeeds the expected number of times, returns the
-        //    correct cleared indices, and leaves those indicies empty.
+        //    correct cleared indices, and leaves those indices empty.
         //    (C-1,2,3)
         //
         //  4 For an arbitrary full queue, iterate through the possible
@@ -2640,7 +2654,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS AND ACCESORS
+        // PRIMARY MANIPULATORS AND ACCESSORS
         //
         // Concerns:
         //  1  'length' on a newly constructed queue returns 0.
@@ -2675,7 +2689,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         //  1 For each capcity value in a series of capacity values, call
-        //    'reservePushIndex' to that maxmimum capacity.  At each point,
+        //    'reservePushIndex' to that maximum capacity.  At each point,
         //    verify the expected index, generation count, and return
         //    status. (C-1,2,3)
         //
