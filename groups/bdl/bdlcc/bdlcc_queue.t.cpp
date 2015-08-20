@@ -19,6 +19,7 @@
 #include <bdlt_currenttime.h>
 #include <bdlb_random.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_stopwatch.h>
 
@@ -147,23 +148,23 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                                    GLOBALS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                              GLOBAL VARIABLES
+// ----------------------------------------------------------------------------
 
 int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 int veryVeryVeryVerbose;
 
-//=============================================================================
+// ============================================================================
 //                GLOBAL TYPEDEFS/CONSTANTS/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 typedef double Element;
 typedef bdlcc::Queue<Element> Obj;
 
 static const double DECI_SEC      = 0.1;
-                                    // 1 deci second (i.e., 1/10th of a second)
+                                     // 1 decisecond (i.e., 1/10th of a second)
 
 static const int MICRO_SEC_IN_SEC = 100000;
                                          // number of micro seconds in a second
@@ -1730,7 +1731,7 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }  // close namespace seqtst3
 
 //=============================================================================
-//                              ZERO PTR TEST
+//                              ZERO POINTER TEST
 //-----------------------------------------------------------------------------
 
 namespace zerotst {
@@ -1933,7 +1934,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // ---------------------------------------------------------
-        // TESTING queue of zero ptr
+        // TESTING queue of zero pointer
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2282,7 +2283,7 @@ int main(int argc, char *argv[])
       }  break;
       case 10: {
         // --------------------------------------------------------------------
-        // TEST TRYPOPFRONT, TRYPOPBACK -- SINGLE THREAD TEST
+        // TEST 'tryPopFront', 'tryPopBack' -- SINGLE THREAD TEST
         //
         // Concern:
         //   That tryPopFront and tryPopBack work as designed in a single -
@@ -2602,7 +2603,7 @@ int main(int argc, char *argv[])
             barrier.wait();
 
             // Unfortunately, there is no way to test if the test thread is
-            // waiting on the condition variable... so we just give it a chance
+            // waiting on the condition variable.  So we just give it a chance
             // to unblock - it should continue to block.  This is not
             // bullet-proof because it does not ENSURE that testObj is blocking
             // on the popFront, so we maximize our chances by waiting some
