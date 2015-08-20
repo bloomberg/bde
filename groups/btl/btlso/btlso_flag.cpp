@@ -7,8 +7,9 @@ BSLS_IDENT_RCSID(btlso_flag_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace btlso {
 
-const char *bteso_Flag::toAscii(bteso_Flag::Flag value)
+const char *Flag::toAscii(Flag::FlagType value)
 {
     switch (value) {
         case k_ASYNC_INTERRUPT: return "ASYNC_INTERRUPT";
@@ -16,59 +17,68 @@ const char *bteso_Flag::toAscii(bteso_Flag::Flag value)
     }
 }
 
-const char *bteso_Flag::toAscii(bteso_Flag::BlockingMode value)
+const char *Flag::toAscii(Flag::BlockingMode value)
 {
+#define CASE(X) case(e_ ## X): return #X;
+
     switch (value) {
-        case e_BLOCKING_MODE: return "BLOCKING_MODE";
-        case e_NONBLOCKING_MODE: return "NONBLOCKING_MODE";
-        default: return "(* UNKNOWN *)";
+      CASE(BLOCKING_MODE)
+      CASE(NONBLOCKING_MODE)
+      default: return "(* UNKNOWN *)";
     }
+
+#undef CASE
 }
 
-const char *bteso_Flag::toAscii(bteso_Flag::ShutdownType value)
+const char *Flag::toAscii(Flag::ShutdownType value)
 {
+#define CASE(X) case(e_ ## X): return #X;
+
     switch (value) {
-        case e_SHUTDOWN_RECEIVE: return "SHUTDOWN_RECEIVE";
-        case e_SHUTDOWN_SEND: return "SHUTDOWN_SEND";
-        case e_SHUTDOWN_BOTH: return "SHUTDOWN_BOTH";
-        default: return "(* UNKNOWN *)";
+      CASE(SHUTDOWN_RECEIVE)
+      CASE(SHUTDOWN_SEND)
+      CASE(SHUTDOWN_BOTH)
+      default: return "(* UNKNOWN *)";
     }
+
+#undef CASE
 }
 
-const char *bteso_Flag::toAscii(bteso_Flag::IOWaitType value)
+const char *Flag::toAscii(Flag::IOWaitType value)
 {
+#define CASE(X) case(e_ ## X): return #X;
+
     switch (value) {
-        case e_IO_READ: return "IO_READ";
-        case e_IO_WRITE: return "IO_WRITE";
-        case e_IO_RW: return "IO_RW";
-        default: return "(* UNKNOWN *)";
+      CASE(IO_READ)
+      CASE(IO_WRITE)
+      CASE(IO_RW)
+      default: return "(* UNKNOWN *)";
     }
+
+#undef CASE
 }
 
-bsl::ostream& bteso_Flag::streamOut(bsl::ostream&    stream,
-                                    bteso_Flag::Flag rhs)
+bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::FlagType rhs)
 {
-    return stream << bteso_Flag::toAscii(rhs);
+    return stream << Flag::toAscii(rhs);
 }
 
-bsl::ostream&  bteso_Flag::streamOut(bsl::ostream& stream,
-                                     bteso_Flag::BlockingMode rhs)
+bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::BlockingMode rhs)
 {
-    return stream << bteso_Flag::toAscii(rhs);
+    return stream << Flag::toAscii(rhs);
 }
 
-bsl::ostream&  bteso_Flag::streamOut(bsl::ostream& stream,
-                                     bteso_Flag::ShutdownType rhs)
+bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::ShutdownType rhs)
 {
-    return stream << bteso_Flag::toAscii(rhs);
+    return stream << Flag::toAscii(rhs);
 }
 
-bsl::ostream&  bteso_Flag::streamOut(bsl::ostream& stream,
-                                     bteso_Flag::IOWaitType rhs)
+bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::IOWaitType rhs)
 {
-    return stream << bteso_Flag::toAscii(rhs);
+    return stream << Flag::toAscii(rhs);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

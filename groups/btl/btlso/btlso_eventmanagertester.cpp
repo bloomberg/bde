@@ -575,7 +575,7 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = 0;
               } break;
               case 'i': {
-                flags = bteso_Flag::k_ASYNC_INTERRUPT;
+                flags = btlso::Flag::k_ASYNC_INTERRUPT;
               } break;
               default:
                 return FAIL;                                          // RETURN
@@ -597,7 +597,7 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = 0;
               } break;
               case 'i': {
-                flags = bteso_Flag::k_ASYNC_INTERRUPT;
+                flags = btlso::Flag::k_ASYNC_INTERRUPT;
               } break;
               default:
                 return FAIL;                                          // RETURN
@@ -1241,8 +1241,8 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
         //  ----   --------      ------                      ------
         {
            { L_,    INFINITE,      0,                           1  },
-           { L_,    INFINITE,   bteso_Flag::k_ASYNC_INTERRUPT,   -1  },
-           { L_,     TIMEOUT,   bteso_Flag::k_ASYNC_INTERRUPT,   -1  },
+           { L_,    INFINITE,   btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
+           { L_,     TIMEOUT,   btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
            { L_,     TIMEOUT,      0,                           0  },
         };
         const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];

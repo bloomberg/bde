@@ -92,23 +92,23 @@ class TestStreamSocket : public btlso::StreamSocket<TestIPAddress>
     int write(const char *buffer, int length);
     int writev(const btls::Ovec *ovec, int size);
     int writev(const btls::Iovec *iovec, int size);
-    int shutdown(bteso_Flag::ShutdownType);
+    int shutdown(btlso::Flag::ShutdownType);
     int connect(const TestIPAddress& address);
     int bind(const TestIPAddress& address);
     int listen(int backlog);
     int accept(btlso::StreamSocket<TestIPAddress>** socket, TestIPAddress *);
     int accept(btlso::StreamSocket<TestIPAddress>** socket);
     btlso::StreamSocket<TestIPAddress> * accept(TestIPAddress *);
-    int setBlockingMode(bteso_Flag::BlockingMode flag);
+    int setBlockingMode(btlso::Flag::BlockingMode flag);
     int setLingerOption(const btlso::SocketOptUtil::LingerData& options);
     int setOption(int level, int option, int value);
     int waitForConnect(const bsls::TimeInterval&);
     int waitForAccept(const bsls::TimeInterval&);
-    int waitForIO(bteso_Flag::IOWaitType type, const bsls::TimeInterval& t);
-    int waitForIO(bteso_Flag::IOWaitType type);
+    int waitForIO(btlso::Flag::IOWaitType type, const bsls::TimeInterval& t);
+    int waitForIO(btlso::Flag::IOWaitType type);
 
     // ACCESSORS
-    int blockingMode(bteso_Flag::BlockingMode *flag) const;
+    int blockingMode(btlso::Flag::BlockingMode *flag) const;
     int connectionStatus() const;
     btlso::SocketHandle::Handle handle() const;
     int lingerOption(btlso::SocketOptUtil::LingerData *result) const;
@@ -149,7 +149,7 @@ int TestStreamSocket::writev(const btls::Ovec *ovec, int size)
     { *d_fcode_p = 4; return -1; }
 int TestStreamSocket::writev(const btls::Iovec *iovec, int size)
     { *d_fcode_p = 5; return -1; }
-int TestStreamSocket::shutdown(bteso_Flag::ShutdownType)
+int TestStreamSocket::shutdown(btlso::Flag::ShutdownType)
     { *d_fcode_p = 6; return -1; }
 int TestStreamSocket::connect(const TestIPAddress& address)
     { *d_fcode_p = 7; return -1; }
@@ -164,7 +164,7 @@ int TestStreamSocket::accept(btlso::StreamSocket<TestIPAddress>** socket)
     { *d_fcode_p = 11; return -1; }
 btlso::StreamSocket<TestIPAddress> * TestStreamSocket::accept(TestIPAddress *)
     { *d_fcode_p = 12; return 0; }
-int TestStreamSocket::setBlockingMode(bteso_Flag::BlockingMode flag)
+int TestStreamSocket::setBlockingMode(btlso::Flag::BlockingMode flag)
     { *d_fcode_p = 13; return 0;  }
 int TestStreamSocket::setLingerOption(
                                 const btlso::SocketOptUtil::LingerData& options)
@@ -175,14 +175,14 @@ int TestStreamSocket::waitForConnect(const bsls::TimeInterval&)
     { *d_fcode_p = 16; return -1; }
 int TestStreamSocket::waitForAccept(const bsls::TimeInterval&)
     { *d_fcode_p = 17; return -1; }
-int TestStreamSocket::waitForIO(bteso_Flag::IOWaitType   type,
+int TestStreamSocket::waitForIO(btlso::Flag::IOWaitType   type,
                                 const bsls::TimeInterval& t)
     { *d_fcode_p = 18; return -1; }
-int TestStreamSocket::waitForIO(bteso_Flag::IOWaitType type)
+int TestStreamSocket::waitForIO(btlso::Flag::IOWaitType type)
     { *d_fcode_p = 19; return -1; }
 
 // ACCESSORS
-int TestStreamSocket::blockingMode(bteso_Flag::BlockingMode *flag) const
+int TestStreamSocket::blockingMode(btlso::Flag::BlockingMode *flag) const
     { *d_fcode_p = 20; return -1; }
 int TestStreamSocket::connectionStatus() const
     { *d_fcode_p = 21; return 0;  }
@@ -280,7 +280,7 @@ void f(btlso::StreamSocketFactory<TestIPAddress> *factory)
     }
     else {
 
-        if (socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE) != 0) {
+        if (socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE) != 0) {
             //cout << "Blocking Mode could not be set" << endl;
             ASSERT(1);
         }
@@ -388,7 +388,7 @@ int main(int argc, char *argv[]) {
         // Invoke a function on the socket returned and verify that
         // the function on the test concrete class was called.
         char buf[100];
-        ASSERT(socketP->shutdown(bteso_Flag::e_SHUTDOWN_BOTH) == -1);
+        ASSERT(socketP->shutdown(btlso::Flag::e_SHUTDOWN_BOTH) == -1);
         ASSERT(factory.getOpCode() == 6);
 
         factoryP->deallocate(socketP);

@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Daniel Glaser (dglaser)
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
+//@DESCRIPTION: This component provides a namespace for the 'enum' type,
 // 'btlso::EventType::Type', which enumerates the set of event types that can
 // be associated with a socket.
 //
@@ -41,10 +41,10 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code provide a simple illustration of using
 // 'btlso::EventType'.
 //
-// First, we create a variable 'event' of type 'btlso::EventType::Type' and
+// First, we create a variable 'value' of type 'btlso::EventType::Type' and
 // initialize it with the enumerator value 'btlso::EventType::e_CONNECT':
 //..
-//  btlso::EventType::Type event = btlso::EventType::e_CONNECT;
+//  btlso::EventType::Type value = btlso::EventType::e_CONNECT;
 //..
 // Now, we store the address of its ASCII representation in a pointer variable,
 // 'asciiValue', of type 'const char *':
@@ -70,7 +70,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso {
 
                     // ===============
@@ -89,10 +88,10 @@ struct EventType {
   public:
     // TYPES
     enum Type {
-        e_ACCEPT  = 0
-      , e_CONNECT = 1
-      , e_READ    = 2
-      , e_WRITE   = 3
+        e_ACCEPT  = 0,
+        e_CONNECT = 1,
+        e_READ    = 2,
+        e_WRITE   = 3
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_ACCEPT  = e_ACCEPT

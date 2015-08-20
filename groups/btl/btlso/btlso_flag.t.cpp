@@ -5,7 +5,7 @@
 #include <bsl_cstdlib.h>                       // atoi()
 #include <bsl_cstring.h>                       // strcmp(), memcmp() memcpy()
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -16,20 +16,24 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 // Standard enumeration test plan.  The VALUE and STREAMING tests for
-// bteso_Flag enumerated types are each implemented by a templated functor to
+// btlso::Flag enumerated types are each implemented by a templated functor to
 // guarantee uniformity and ease maintenance.
 //-----------------------------------------------------------------------------
 // [ 1] VALUE TEST: enum Flag
 // [ 2] VALUE TEST: enum BlockingMode
 // [ 3] VALUE TEST: enum ShutdownType
 // [ 4] VALUE TEST: enum IOWaitType
+// ----------------------------------------------------------------------------
+// [ 5] USAGE EXAMPLE
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 namespace {
+
 void aSsErT(int c, const char *s, int i) {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -37,6 +41,7 @@ void aSsErT(int c, const char *s, int i) {
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
 }  // close unnamed namespace
 
 #define ASSERT(X) { ::aSsErT(!(X), #X, __LINE__); }
@@ -66,7 +71,9 @@ typedef int (*Generator)(int);
 //=============================================================================
 //                  HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
 struct Util {
+
     static inline int identity(int n)
         // Return the value n
     {
@@ -85,49 +92,47 @@ struct Util {
     }
 };
 
-
 //-----------------------------------------------------------------------------
+
 template <class ENUM>
 class ValueTest
-    // This template describes a functor which automates the standard
-    // VALUE TEST for enumerated types within a class scope,
-    // including the output stream operator, 'operator<<'.
+    // This template describes a functor which automates the standard VALUE
+    // TEST for enumerated types within a class scope, including the output
+    // stream operator, 'operator<<'.
 {
-    int          d_verbose;
-    int          d_veryVerbose;
-    int          d_veryVeryVerbose;
-    int          d_numEnums;
-    Generator    d_generator;
+    int       d_verbose;
+    int       d_veryVerbose;
+    int       d_veryVeryVerbose;
+    int       d_numEnums;
+    Generator d_generator;
 
-public:
+    ValueTest(const ValueTest&);               // not implemented
+    ValueTest& operator=(const ValueTest&);    // not implemented
+
+  public:
     struct Data {
-        ENUM          d_enum;       // enumerated value
-        const char   *d_ascii_p;    // string representation
+        ENUM        d_enum;       // enumerated value
+        const char *d_ascii_p;    // string representation
     };
 
     // CONSTRUCTORS
-    ValueTest(int          verbose,
-              int          veryVerbose,
-              int          veryVeryVerbose,
-              int          numEnums,
-              Generator    generator);
+    ValueTest(int       verbose,
+              int       veryVerbose,
+              int       veryVeryVerbose,
+              int       numEnums,
+              Generator generator);
     virtual ~ValueTest();
 
     // MANIPULATORS
     void operator()(const Data *DATA) const;
-
-private:
-    ValueTest(const ValueTest&);               // not implemented
-    ValueTest& operator=(const ValueTest&);    // not implemented
 };
 
 template <class ENUM>
-ValueTest<ENUM>::ValueTest(
-    int          verbose,
-    int          veryVerbose,
-    int          veryVeryVerbose,
-    int          numEnums,
-    Generator    generator)
+ValueTest<ENUM>::ValueTest(int       verbose,
+                           int       veryVerbose,
+                           int       veryVeryVerbose,
+                           int       numEnums,
+                           Generator generator)
 : d_verbose(verbose)
 , d_veryVerbose(veryVerbose)
 , d_veryVeryVerbose(veryVeryVerbose)
@@ -137,9 +142,8 @@ ValueTest<ENUM>::ValueTest(
     ASSERT(d_numEnums);
     ASSERT(d_generator);
 
-    if (d_verbose)
-        cout << endl << "VALUE TEST" << endl
-                     << "==========" << endl;
+    if (d_verbose) cout << endl << "VALUE TEST" << endl
+                                << "==========" << endl;
 }
 
 template <class ENUM>
@@ -152,19 +156,18 @@ void ValueTest<ENUM>::operator()(const Data *DATA) const
 {
     // --------------------------------------------------------------------
     // VALUE TEST:
-    //   The enumerators in this component are consecutive integers in the
-    //   sequence generated by the function 'd_generator'.
-    //   Verify that
-    //   the 'toAscii' function produces strings that are identical to
-    //   their respective enumerator symbols.  Verify that the output
-    //   operator produces the same respective string values that would
-    //   be produced by 'toAscii'.  Also verify the ascii representation
-    //   and 'ostream' output for invalid enumerator values.
+    // The enumerators in this component are consecutive integers in the
+    // sequence generated by the function 'd_generator'.  Verify that the
+    // 'toAscii' function produces strings that are identical to their
+    // respective enumerator symbols.  Verify that the output operator produces
+    // the same respective string values that would be produced by 'toAscii'.
+    // Also verify the ascii representation and 'ostream' output for invalid
+    // enumerator values.
     //
     // Testing:
     //   enum Enum { ... };
-    //   static const char *toAscii(bteso_Flag::ENUM value);
-    //   operator<<(ostream&, bteso_Flag::ENUM rhs)
+    //   static const char *toAscii(btlso::Flag::ENUM value);
+    //   operator<<(ostream&, btlso::Flag::ENUM rhs)
     // --------------------------------------------------------------------
 
     ASSERT(DATA);
@@ -172,61 +175,47 @@ void ValueTest<ENUM>::operator()(const Data *DATA) const
 
     const char *const UNKNOWN_FMT = "(* UNKNOWN *)";
 
-    if (d_verbose)
-        cout << "\nVerify enumerator values are sequential." << endl;
+    if (d_verbose) cout << "\nVerify enum values are sequential." << endl;
 
     for (int i = 0; i < d_numEnums; ++i) {
         LOOP_ASSERT(i, DATA[i].d_enum == d_generator(i));
     }
 
-    if (d_verbose)
-        cout << "\nVerify the toAscii function." << endl;
+    if (d_verbose) cout << "\nVerify the toAscii function." << endl;
 
-    for (int i = -1; i < d_numEnums + 1; ++i)    // also check UNKNOWN_FMT
-    {
+    for (int i = -1; i < d_numEnums + 1; ++i) {    // also check UNKNOWN_FMT
         const char *const FMT = 0 <= i && i < d_numEnums
                               ? DATA[i].d_ascii_p : UNKNOWN_FMT;
-        if (d_veryVerbose)
-            cout << "EXPECTED FORMAT: " << FMT << endl;
-        const char *const ACT =
-            bteso_Flag::toAscii(static_cast<ENUM>(d_generator(i)));
-        if (d_veryVerbose)
-            cout << "  ACTUAL FORMAT: " << ACT << endl;
+
+        if (d_veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
+
+        const char *const ACT = btlso::Flag::toAscii(
+                                            static_cast<ENUM>(d_generator(i)));
+
+        if (d_veryVerbose) cout << "  ACTUAL FORMAT: " << ACT << endl;
 
         LOOP_ASSERT(i, 0 == strcmp(FMT, ACT));
+
         for (int j = 0; j < i; ++j) {  // make sure ALL strings are unique
             LOOP2_ASSERT(i, j, 0 != strcmp(DATA[j].d_ascii_p, FMT));
         }
     }
 
-    if (d_verbose)
-        cout << "\nVerify the output (<<) operator." << endl;
+    if (d_verbose) cout << "\nVerify the output (<<) operator." << endl;
 
-    const int SIZE = 64;              // big enough to hold output string
-    const char XX = (char) 0xff;      // used to represent an unset char
-    char mCtrlBuf[SIZE];
-    const char *CTRL_BUF = mCtrlBuf;  // used to check for extra characters
-
-    memset(mCtrlBuf, XX, SIZE);
-    for (int i = -1; i < d_numEnums + 1; ++i)    // also check UNKNOWN_FMT
-    {
-        char buf[SIZE];
-        memcpy(buf, CTRL_BUF, SIZE);  // preset buf to 'unset' char values
-
+    for (int i = -1; i < d_numEnums + 1; ++i) {    // also check UNKNOWN_FMT
         const char *const FMT = 0 <= i && i < d_numEnums
                                 ? DATA[i].d_ascii_p : UNKNOWN_FMT;
-        if (d_veryVerbose)
-            cout << "EXPECTED FORMAT: " << FMT << endl;
-        ostrstream out(buf, sizeof buf);
-        out << static_cast<ENUM>(d_generator(i)) << ends;
-        if (d_veryVerbose)
-            cout << "  ACTUAL FORMAT: " << buf << endl;
 
-        const int SZ = strlen(FMT) + 1;
-        LOOP_ASSERT(i, SZ < SIZE);            // check buffer is large enough
-        LOOP_ASSERT(i, XX == buf[SIZE - 1]);  // check for overrun
-        LOOP_ASSERT(i, 0 == memcmp(buf, FMT, SZ));
-        LOOP_ASSERT(i, 0 == memcmp(buf + SZ, CTRL_BUF + SZ, SIZE - SZ));
+        if (d_veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
+
+        ostringstream out;
+
+        ASSERT(&out == &(out << static_cast<ENUM>(d_generator(i))));
+
+        if (d_veryVerbose) cout << "  ACTUAL FORMAT: " << out.str() << endl;
+
+        ASSERT(FMT == out.str());
     }
 }
 
@@ -246,81 +235,136 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
-        // VALUE TEST:
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, replace 'assert' with
+        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+        //:   operations.  (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        ValueTest<bteso_Flag::IOWaitType>::Data DATA[] = {
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of using
+// one of the enumerations defined in this component, 'btlso::BlockingMode'.
+//
+// First, we create a variable 'value' of type 'btlso::Flag::BlockingMode' and
+// initialize it with the enumerator value 'btlso::Flag::e_NONBLOCKING_MODE':
+//..
+    btlso::Flag::BlockingMode value = btlso::Flag::e_NONBLOCKING_MODE;
+//..
+// Now, we store the address of its ASCII representation in a pointer variable,
+// 'asciiValue', of type 'const char *':
+//..
+    const char *asciiValue = btlso::Flag::toAscii(value);
+    ASSERT(0 == bsl::strcmp(asciiValue, "NONBLOCKING_MODE"));
+//..
+// Finally, we print 'value' to 'bsl::cout'.
+//..
+if (veryVerbose)
+    bsl::cout << value << bsl::endl;
+//..
+// This statement produces the following output on 'stdout':
+//..
+//  NONBLOCKING_MODE
+//..
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // VALUE TEST: 'btlso::Flag::IOWaitType' enumerators
+        // --------------------------------------------------------------------
+
+        ValueTest<btlso::Flag::IOWaitType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::e_IO_READ,              "IO_READ" },
-            { bteso_Flag::e_IO_WRITE,             "IO_WRITE" },
-            { bteso_Flag::e_IO_RW,                "IO_RW" },
+            { btlso::Flag::e_IO_READ,              "IO_READ" },
+            { btlso::Flag::e_IO_WRITE,             "IO_WRITE" },
+            { btlso::Flag::e_IO_RW,                "IO_RW" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<bteso_Flag::IOWaitType> valueTest(VERBOSITY,
-                                                    DATA_LENGTH,
-                                                    Util::identity);
+        ValueTest<btlso::Flag::IOWaitType> valueTest(VERBOSITY,
+                                                     DATA_LENGTH,
+                                                     Util::identity);
         valueTest(DATA);
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE TEST:
+        // VALUE TEST: 'btlso::Flag::ShutdownType' enumerators
         // --------------------------------------------------------------------
 
-        ValueTest<bteso_Flag::ShutdownType>::Data DATA[] = {
+        ValueTest<btlso::Flag::ShutdownType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::e_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
-            { bteso_Flag::e_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
-            { bteso_Flag::e_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
+            { btlso::Flag::e_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
+            { btlso::Flag::e_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
+            { btlso::Flag::e_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<bteso_Flag::ShutdownType> valueTest(VERBOSITY,
-                                                      DATA_LENGTH,
-                                                      Util::identity);
+        ValueTest<btlso::Flag::ShutdownType> valueTest(VERBOSITY,
+                                                       DATA_LENGTH,
+                                                       Util::identity);
+
         valueTest(DATA);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // VALUE TEST:
+        // VALUE TEST: 'btlso::Flag::BlockingMode' enumerators
         // --------------------------------------------------------------------
 
-        ValueTest<bteso_Flag::BlockingMode>::Data DATA[] = {
+        ValueTest<btlso::Flag::BlockingMode>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::e_BLOCKING_MODE,        "BLOCKING_MODE" },
-            { bteso_Flag::e_NONBLOCKING_MODE,     "NONBLOCKING_MODE" },
+            { btlso::Flag::e_BLOCKING_MODE,        "BLOCKING_MODE" },
+            { btlso::Flag::e_NONBLOCKING_MODE,     "NONBLOCKING_MODE" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<bteso_Flag::BlockingMode> valueTest(VERBOSITY,
-                                                      DATA_LENGTH,
-                                                      Util::identity);
+        ValueTest<btlso::Flag::BlockingMode> valueTest(VERBOSITY,
+                                                       DATA_LENGTH,
+                                                       Util::identity);
+
         valueTest(DATA);
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // VALUE TEST:
+        // VALUE TEST: 'btlso::Flag::Flag' enumerators
         // --------------------------------------------------------------------
 
-        ValueTest<bteso_Flag::Flag>::Data DATA[] = {
+        ValueTest<btlso::Flag::FlagType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::k_ASYNC_INTERRUPT,      "ASYNC_INTERRUPT" },
+            { btlso::Flag::k_ASYNC_INTERRUPT,   "ASYNC_INTERRUPT" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<bteso_Flag::Flag> valueTest(VERBOSITY,
-                                              DATA_LENGTH,
-                                              Util::twoToTheN);
-        if (verbose)
-            cout << "\nVerify table length is correct." << endl;
-        ASSERT(DATA_LENGTH == bteso_Flag::k_NFLAGS);
+        ValueTest<btlso::Flag::FlagType> valueTest(VERBOSITY,
+                                                   DATA_LENGTH,
+                                                   Util::twoToTheN);
+
+        if (verbose) cout << "\nVerify table length is correct." << endl;
+
+        ASSERT(DATA_LENGTH == btlso::Flag::k_NFLAGS);
         valueTest(DATA);
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

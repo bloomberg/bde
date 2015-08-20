@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.  (P-1)
+        //:   compile, link, and run as shown.
         //
         // Plan:
         //: 1 Incorporate usage example from header into test driver, replace
@@ -152,8 +152,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Usage Examples" << endl
-                                  << "======================" << endl;
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
 
 ///Usage
 ///-----
@@ -185,7 +185,6 @@ if (veryVerbose)
 //..
 //  CONNECT
 //..
-
       } break;
       case 4: {
         // --------------------------------------------------------------------

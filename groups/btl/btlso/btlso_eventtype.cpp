@@ -9,7 +9,6 @@ BSLS_IDENT_RCSID(btlso_eventtype_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace btlso {
 
                             // ----------------
@@ -47,7 +46,6 @@ const char *EventType::toAscii(EventType::Type value)
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

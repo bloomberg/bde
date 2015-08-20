@@ -284,7 +284,7 @@ int DefaultEventManager<Platform::SELECT>::dispatch(int flags)
         }
     } while (ret < 0
           && EINTR == savedErrno
-          && !(flags & bteso_Flag::k_ASYNC_INTERRUPT));
+          && !(flags & btlso::Flag::k_ASYNC_INTERRUPT));
 
     if (ret < 0) {
         return EINTR == savedErrno ? -1 : ret;                        // RETURN
@@ -363,7 +363,7 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
             savedErrno = errno;
         }
     } while ((ret < 0 && EINTR == savedErrno
-          && !(flags & bteso_Flag::k_ASYNC_INTERRUPT))
+          && !(flags & btlso::Flag::k_ASYNC_INTERRUPT))
              #ifdef BSLS_PLATFORM_OS_LINUX
              // Linux select() returns at one tick *preceding* the expiration
              // of the timeout.  Since code usually expects that select() will

@@ -60,7 +60,7 @@ int sleep(int                     *resultErrno,
         *resultErrno = savedErrno;
         if (0 > rc) {
             BSLS_ASSERT(savedErrno == EINTR);
-            if (flags & bteso_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlso::Flag::k_ASYNC_INTERRUPT) {
                 // We're allowing async interrupts.
 
                 return -1;                                            // RETURN
@@ -178,7 +178,7 @@ int EventManagerName::dispatchImp(int                      flags,
     }
     int numCallbacks = 0;                    // number of callbacks dispatched
     const bool allowAsyncInterrupts =
-                            (0 != (bteso_Flag::k_ASYNC_INTERRUPT & flags));
+                            (0 != (btlso::Flag::k_ASYNC_INTERRUPT & flags));
     do {
         int numReady;                    // number of returned sockets
         int savedErrno = 0;          // saved errno value set by poll

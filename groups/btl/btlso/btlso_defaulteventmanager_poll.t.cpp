@@ -907,7 +907,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval finish = bdlt::CurrentTime::now();
                 const double dormant = dub(finish - start);
@@ -969,7 +969,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval finish = bdlt::CurrentTime::now();
                 const double dormant = dub(finish - start);

@@ -225,7 +225,7 @@ int DefaultEventManager<Platform::POLL>::dispatch(
             now = bdlt::CurrentTime::now();
         } while (
             (0 > rfds && EINTR == savedErrno)
-            && !(bteso_Flag::k_ASYNC_INTERRUPT & flags)
+            && !(btlso::Flag::k_ASYNC_INTERRUPT & flags)
             && now < timeout);
 
         if (0 >= rfds) {
@@ -286,7 +286,7 @@ int DefaultEventManager<Platform::POLL>::dispatch(int flags)
             errno = 0;
         } while (
             (0 > rfds && EINTR == savedErrno)
-                 && !(bteso_Flag::k_ASYNC_INTERRUPT & flags));
+                 && !(btlso::Flag::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             if (0 == rfds) {
