@@ -131,8 +131,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  class my_Session {
 //      // Pure protocol class to process a data buffer of arbitrary size.
-//      // Concrete implementations in the "real world" would typically
-//      // manage an external connection like a socket.
+//      // Concrete implementations in the "real world" would typically manage
+//      // an external connection like a socket.
 //
 //    public:
 //      my_Session();
@@ -163,7 +163,6 @@ BSLS_IDENT("$Id: $")
 //  class my_Server {
 //      // Simple server supporting multiple Connections.
 //
-//    private:
 //      bsl::vector<my_Connection*>      d_connections;
 //      bdlcc::TimeQueue<my_Connection*> d_timeQueue;
 //      int                              d_ioTimeout;
@@ -183,9 +182,9 @@ BSLS_IDENT("$Id: $")
 //          // Upon seeing this signal, the TimerMonitor thread will wake up
 //          // and look for expired timers.
 //          //
-//          // Behavior is undefined if 'connection' has already been added
-//          // to any 'my_Server' and has not been removed via member
-//          // function 'closeConnection'.
+//          // Behavior is undefined if 'connection' has already been added to
+//          // any 'my_Server' and has not been removed via member function
+//          // 'closeConnection'.
 //
 //      void removeConnection(my_Connection *connection);
 //          // Remove the specified 'connection' from the current 'my_Server',
@@ -193,21 +192,22 @@ BSLS_IDENT("$Id: $")
 //
 //      virtual void closeConnection(my_Connection *connection)=0;
 //          // Provide a mechanism for a concrete implementation to close a
-//          // connection.
+//          // specified 'connection'.
 //
 //      void dataAvailable(my_Connection *connection,
 //                         void          *buffer_p,
 //                         int            length);
-//          // Receive in 'buffer_p' a pointer to a data buffer of 'length'
-//          // bytes, and pass this to 'connection' to be processed.  Behavior
-//          // is undefined if 'connection' is not currently added to this
-//          // 'my_Server' object, or if 'length' <= 0.
+//          // Receive in the specified 'buffer_p' a pointer to a data buffer
+//          // of the specified 'length' bytes, and pass this to the specified
+//          // 'connection' to be processed.  Behavior is undefined if
+//          // 'connection' is not currently added to this 'my_Server' object,
+//          // or if 'length' <= 0.
 //
 //    protected:
 //      virtual void monitorConnections()=0;
 //          // Monitor all connections in the current 'my_Server'.  When data
-//          // becomes available for a given connection, pass the data to
-//          // that connection for processing.
+//          // becomes available for a given connection, pass the data to that
+//          // connection for processing.
 //
 //      void monitorTimers();
 //          // Monitor all timers in the current 'my_Server', and handle each
@@ -216,13 +216,18 @@ BSLS_IDENT("$Id: $")
 //      friend void *my_connectionMonitorThreadEntry(void *server);
 //      friend void *my_timerMonitorThreadEntry(void *server);
 //
+//    private:
+//      // Not implemented:
+//      my_Server(const my_Server&);
+//
 //    public:
 //      // CREATORS
 //      explicit
 //      my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
-//          // Construct a 'my_Server' object with a timeout value of
-//          // 'ioTimeout' seconds.  Use the specified 'basicAllocator' for all
-//          // memory allocation for data members of 'my_Server'.
+//          // Construct a 'my_Server' object with a timeout value of the
+//          // specified 'ioTimeout' seconds.  Use the optionally specified
+//          // 'basicAllocator' for all memory allocation for data members of
+//          // 'my_Server'.
 //
 //      virtual ~my_Server();
 //
@@ -314,14 +319,14 @@ BSLS_IDENT("$Id: $")
 // connection to the queue with a new time value.
 //..
 //  void my_Server::dataAvailable(my_Connection *connection,
-//                                void          *data,
+//                                void          *buffer_p,
 //                                int            length)
 //  {
 //      if (connection->d_timerId) {
 //          if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
 //          connection->d_timerId = 0;
 //      }
-//      connection->d_session_p->processData(data, length);
+//      connection->d_session_p->processData(buffer_p, length);
 //
 //      int isNewTop = 0;
 //
@@ -474,13 +479,17 @@ BSLS_IDENT("$Id: $")
 //
 //    protected:
 //      virtual void closeConnection(my_Connection *connection);
-//          // Close external connection and call 'removeConnection' when
-//          // done.
+//          // Close the specified external 'connection' and call
+//          // 'removeConnection' when done.
 //
 //      virtual void monitorConnections();
 //          // Monitor all connections in the current 'my_Server'.  When data
-//          // becomes available for a given connection, pass the data to
-//          // that connection for processing.
+//          // becomes available for a given connection, pass the data to that
+//          // connection for processing.
+//
+//    private:
+//      // Not implemented:
+//      my_TestServer(const my_TestServer&);
 //
 //    public:
 //      // CREATORS

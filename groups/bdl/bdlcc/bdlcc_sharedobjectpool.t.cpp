@@ -2,20 +2,30 @@
 
 #include <bdlcc_sharedobjectpool.h>
 
+#include <bdlcc_objectpool.h>
+
+#include <bdlf_memfn.h>
+
 #include <bdls_testutil.h>
 
-#include <bdlcc_objectpool.h>
 #include <bdlma_concurrentpoolallocator.h>
-#include <bslma_testallocator.h>
+
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
-#include <bdlqq_xxxatomictypes.h>  // for SpinLock
+
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
+
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bsls_spinlock.h>
 #include <bsls_stopwatch.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_numeric.h>
 #include <bsl_string.h>
@@ -72,7 +82,7 @@ namespace {
 
    //Unnamed namespace scopes private classes and methods for testing
 
-bdlqq::SpinLock coutLock;
+bsls::SpinLock coutLock;
 
 template <class POOL>
 class TestRun
@@ -89,8 +99,12 @@ class TestRun
    double   d_ratePerThread;          //char arrays acq/rel per sec per thread
 
    void threadProc(int id);
-public:
 
+  private:
+    // Not implemented:
+    TestRun(const TestRun&);
+
+  public:
    TestRun(int               numThreads,
            int               numCharArraysPerIteration,
            int               secondsToRun,
@@ -175,8 +189,11 @@ class SlowerCharArrayPool {
         new (address) CharArray(allocator);
     }
 
-  public:
+  private:
+    // Not implemented:
+    SlowerCharArrayPool(const SlowerCharArrayPool&);
 
+  public:
     SlowerCharArrayPool(bslma::Allocator *basicAllocator = 0)
       : d_charArrayPool(bdlf::BindUtil::bind(
                                     &SlowerCharArrayPool::createCharArray,
@@ -207,7 +224,7 @@ class SlowerCharArrayPool {
     typedef vector<char> CharArray;
 
     class SlowCharArrayPool {
-        bdlma::ConcurrentPoolAllocator d_spAllocator;    // alloc. shared ptr.
+        bdlma::ConcurrentPoolAllocator d_spAllocator;  // alloc. shared pointer
         bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
 
         static void createCharArray(void *address, bslma::Allocator *allocator)
@@ -223,8 +240,11 @@ class SlowerCharArrayPool {
             pool->releaseObject(charArray);
         }
 
-      public:
+      private:
+        // Not implemented:
+        SlowCharArrayPool(const SlowCharArrayPool&);
 
+      public:
         SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
         : d_spAllocator(basicAllocator)
         , d_charArrayPool(bdlf::BindUtil::bind(
@@ -269,8 +289,11 @@ class SlowerCharArrayPool {
             new (address) CharArray(allocator);
         }
 
-      public:
+      private:
+        // Not implemented:
+        FastCharArrayPool(const FastCharArrayPool&);
 
+      public:
         FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
         : d_charArrayPool(bdlf::BindUtil::bind(
                                            &FastCharArrayPool::createCharArray,
@@ -313,8 +336,12 @@ class LinkTestRun
    double   d_ratePerThread;  //links acq/rel per sec per thread
 
    void threadProc(int id);
-public:
 
+  private:
+    // Not implemented:
+    LinkTestRun(const LinkTestRun&);
+
+  public:
    LinkTestRun(int               numThreads,
                int               numLinksPerIteration,
                int               secondsToRun,
@@ -453,7 +480,12 @@ struct ConstructorTestHelp3
    int d_resetCount;
    int d_startCount;
 
-   // CREATORS
+  private:
+    // Not implemented:
+    ConstructorTestHelp3(const ConstructorTestHelp3&);
+
+  public:
+    // CREATORS
    ConstructorTestHelp3(int startCount, bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
@@ -494,7 +526,12 @@ struct ConstructorTestHelp1a
    bslma::Allocator     *d_allocator_p; //held
    int                   d_resetCount;
 
-   // CREATORS
+  private:
+    // Not implemented:
+    ConstructorTestHelp1a(const ConstructorTestHelp1a&);
+
+  public:
+    // CREATORS
    ConstructorTestHelp1a(bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
       , d_resetCount(0)
@@ -559,24 +596,27 @@ void ConstructorTestHelp1a::reset()
 void ConstructorTestHelp1b::reset()
 {++d_resetCount;}
 
-void ConstructorTestHelp1a::resetWithCount(ConstructorTestHelp1a *self, int c)
+void ConstructorTestHelp1a::resetWithCount(ConstructorTestHelp1a *self,
+                                           int                    count)
 {
-   self->d_resetCount = c;
+   self->d_resetCount = count;
 }
 
-void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
+void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
+                                           int                    count)
 {
-   self->d_resetCount = c;
+   self->d_resetCount = count;
 }
 
 //=============================================================================
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 bdlqq::ThreadAttributes attributes;
-void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
-   // to i'th thread.  Finally join all the threads.
+void executeInParallel(int                               numThreads,
+                       bdlqq::ThreadUtil::ThreadFunction function)
+    // Create the specified 'numThreads', each executing the specified
+    // 'function'.  Number each thread (sequentially from 0 to 'numThreads-1')
+    // by passing i to i'th thread.  Finally join all the threads.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                new bdlqq::ThreadUtil::Handle[numThreads];
@@ -585,7 +625,7 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::create(&threads[i],
                                   attributes,
-                                  func,
+                                  function,
                                   static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
@@ -630,8 +670,11 @@ class SlowLinkPool {
       new (address) SpLink;
    }
 
-public:
+  private:
+    // Not implemented:
+    SlowLinkPool(const SlowLinkPool&);
 
+public:
    SlowLinkPool(bslma::Allocator *basicAllocator = 0)
       : d_spAllocator(bslma::Default::allocator(basicAllocator))
       , d_linkPool(bdlf::BindUtil::bind(&createLink,
@@ -656,8 +699,11 @@ class FastLinkPool {
 
     LinkPool                      d_linkPool;
 
-  public:
+  private:
+    // Not implemented:
+    FastLinkPool(const FastLinkPool&);
 
+  public:
     FastLinkPool(bslma::Allocator *basicAllocator = 0)
       : d_linkPool(-1, basicAllocator)
    {}

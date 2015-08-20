@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //  typedef vector<char> CharArray;
 //
 //  class SlowCharArrayPool {
-//      bdlma::ConcurrentPoolAllocator d_spAllocator;    // alloc. shared ptr.
+//      bdlma::ConcurrentPoolAllocator d_spAllocator;  // alloc. shared pointer
 //      bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
 //
 //      static void createCharArray(void *address, bslma::Allocator *allocator)
@@ -118,8 +118,11 @@ BSLS_IDENT("$Id: $")
 //          pool->releaseObject(charArray);
 //      }
 //
-//    public:
+//    private:
+//      // Not implemented:
+//      SlowCharArrayPool(const SlowCharArrayPool&);
 //
+//    public:
 //      SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
 //      : d_spAllocator(basicAllocator)
 //      , d_charArrayPool(bdlf::BindUtil::bind(
@@ -164,8 +167,11 @@ BSLS_IDENT("$Id: $")
 //          new (address) CharArray(allocator);
 //      }
 //
-//    public:
+//    private:
+//      // Not implemented:
+//      FastCharArrayPool(const FastCharArrayPool&);
 //
+//    public:
 //      FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
 //      : d_charArrayPool(bdlf::BindUtil::bind(
 //                                         &FastCharArrayPool::createCharArray,
