@@ -235,40 +235,42 @@ namespace BloombergLP {
 
 namespace bslma { class Allocator; }
 
-                        // ===================
+                        // ====================
                         // class ball::Category
-                        // ===================
+                        // ====================
 
 
-namespace ball {class CategoryHolder;
+namespace ball {
+
+class CategoryHolder;
 class CategoryManager;
 class Category_Proctor;
 
 class Category {
-    // This class provides a container to hold the name and threshold levels
-    // of a category.  Instances of 'Category' are created and manipulated
-    // by 'CategoryManager'.  All threshold levels are integral values in
-    // the range '[0 .. 255]'.
+    // This class provides a container to hold the name and threshold levels of
+    // a category.  Instances of 'Category' are created and manipulated by
+    // 'CategoryManager'.  All threshold levels are integral values in the
+    // range '[0 .. 255]'.
 
     ThresholdAggregate  d_thresholdLevels;  // record, pass, trigger, and
-                                                 // trigger-all levels
+                                            // trigger-all levels
 
-    int                      d_threshold;        // numerical maximum of the
-                                                 // four levels
+    int                 d_threshold;        // numerical maximum of the
+                                            // four levels
 
-    bsl::string              d_categoryName;     // category name
+    bsl::string         d_categoryName;     // category name
 
     CategoryHolder     *d_categoryHolder;   // linked list of holders of
-                                                 // this category
+                                            // this category
     mutable RuleSet::MaskType
-                             d_relevantRuleMask; // the mask indicating which
-                                                 // rules are relevant (i.e.,
-                                                 // have been attached to this
-                                                 // category)
+                        d_relevantRuleMask; // the mask indicating which
+                                            // rules are relevant (i.e.,
+                                            // have been attached to this
+                                            // category)
 
-    mutable int              d_ruleThreshold;    // numerical maximum of all
-                                                 // four levels for all
-                                                 // relevant rules
+    mutable int         d_ruleThreshold;    // numerical maximum of all
+                                            // four levels for all
+                                            // relevant rules
 
     // FRIENDS
     friend class CategoryManager;

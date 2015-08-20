@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a concrete allocator keep a count of allocated bytes.
 //
 //@CLASSES:
-//   ball::CountingAllocator: maximally-aligning, instrumented allocator adaptor
+//  ball::CountingAllocator: maximally-aligning, instrumented allocator adaptor
 //
 //@SEE_ALSO: ball_fixedsizerecordbuffer
 //

@@ -10,17 +10,18 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a default container for storing attribute name/value pairs.
 //
 //@CLASSES:
-//     ball::DefaultAttributeContainer: a collection of unique attributes
+//  ball::DefaultAttributeContainer: a collection of unique attributes
 //
 //@SEE_ALSO: ball_attributecontainer
 //
 //@AUTHOR: Gang Chen (gchen20), Mike Verschell (hverschell)
 //
 //@DESCRIPTION: This component provides a default implementation of the
-// 'ball::AttributeContainer' protocol, providing an 'unordered_set'-based
-// container of 'ball::Attribute' values.  Each attribute within the default
-// attribute container holds a (case-sensitive) name and a value, which may be
-// an 'int', a 64-bit integer, or a 'bsl::string'.
+// 'ball::AttributeContainer' protocol, 'ball::DefaultAttributeContainer'
+// providing an 'unordered_set'-based container of 'ball::Attribute' values.
+// Each attribute within the default attribute container holds a
+// (case-sensitive) name and a value, which may be an 'int', a 64-bit integer,
+// or a 'bsl::string'.
 //
 ///Thread Safety
 ///-------------
@@ -101,6 +102,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
@@ -112,13 +121,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                    // ====================================
+                    // ===============================
                     // class DefaultAttributeContainer
-                    // ====================================
+                    // ===============================
 
 class DefaultAttributeContainer : public AttributeContainer {
-    // A 'DefaultAttributeContainer' object contains a collection of
-    // (unique) attributes values.
+    // A 'DefaultAttributeContainer' object contains a collection of (unique)
+    // attributes values.
 
     // PRIVATE TYPES
     struct AttributeHash
@@ -146,6 +155,10 @@ class DefaultAttributeContainer : public AttributeContainer {
                                                   // managed by this object
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DefaultAttributeContainer,
+                                   bslma::UsesBslmaAllocator);
+
     // TYPES
     typedef bsl::unordered_set<Attribute, AttributeHash>::const_iterator
                                  const_iterator;  // type of iterator for
@@ -154,8 +167,7 @@ class DefaultAttributeContainer : public AttributeContainer {
                                                   // managed by this object
 
     // CREATORS
-    explicit DefaultAttributeContainer(
-                                         bslma::Allocator *basicAllocator = 0);
+    explicit DefaultAttributeContainer(bslma::Allocator *basicAllocator = 0);
         // Create an empty 'DefaultAttributeContainer' object.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator
@@ -163,9 +175,9 @@ class DefaultAttributeContainer : public AttributeContainer {
 
     DefaultAttributeContainer(
                     const DefaultAttributeContainer&  original,
-                    bslma::Allocator                      *basicAllocator = 0);
-        // Create a 'DefaultAttributeContainer' object having the same
-        // value as the specified 'original' object.  Optionally specify a
+                    bslma::Allocator                 *basicAllocator = 0);
+        // Create a 'DefaultAttributeContainer' object having the same value as
+        // the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator will be used.
 
@@ -180,12 +192,12 @@ class DefaultAttributeContainer : public AttributeContainer {
     bool addAttribute(const Attribute& value);
         // Add an attribute having the specified 'value' to this object.
         // Return 'true' on success and 'false' if an attribute having the
-        // same value already exists in this object.
+        // same 'value' already exists in this object.
 
     bool removeAttribute(const Attribute& value);
         // Remove the attribute having the specified 'value' from this object.
-        // Return the 'true' on success and 'false' if the attribute having
-        // the specified 'value' does not exist in this object.
+        // Return the 'true' on success and 'false' if the attribute having the
+        // 'value' does not exist in this object.
 
     void removeAllAttributes();
         // Remove every attribute in this attribute set.
@@ -225,33 +237,32 @@ class DefaultAttributeContainer : public AttributeContainer {
 bool operator==(const DefaultAttributeContainer& lhs,
                 const DefaultAttributeContainer& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'DefaultAttributeContainer'
-    // objects have the same value if they contain the same number of (unique)
-    // attributes, and every attribute that appears in one object also
-    // appears in the other.
+    // value, and 'false' otherwise.  Two 'DefaultAttributeContainer' objects
+    // have the same value if they contain the same number of (unique)
+    // attributes, and every attribute that appears in one object also appears
+    // in the other.
 
 bool operator!=(const DefaultAttributeContainer& lhs,
                 const DefaultAttributeContainer& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two
-    // 'DefaultAttributeContainer' objects do not have the same value if
-    // they contain differing numbers of attributes or if there is at least
-    // one attribute that appears in one object, but not in the other.
+    // same value, and 'false' otherwise.  Two 'DefaultAttributeContainer'
+    // objects do not have the same value if they contain differing numbers of
+    // attributes or if there is at least one attribute that appears in one
+    // object, but not in the other.
 
-bsl::ostream& operator<<(
-                 bsl::ostream&                         output,
-                 const DefaultAttributeContainer& attributeContainer);
+bsl::ostream& operator<<(bsl::ostream&                    output,
+                         const DefaultAttributeContainer& attributeContainer);
     // Write the value of the specified 'attributeContainer' to the specified
     // 'output' stream in some single-line, human readable format.  Return the
-    // specified 'output' stream.
+    // 'output' stream.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                    // ------------------------------------
+                    // -------------------------------
                     // class DefaultAttributeContainer
-                    // ------------------------------------
+                    // -------------------------------
 
 // CREATORS
 inline
@@ -259,15 +270,15 @@ DefaultAttributeContainer::DefaultAttributeContainer(
                                               bslma::Allocator *basicAllocator)
 : d_attributeSet(s_initialSize,                    // initial size
                  AttributeHash(),                  // hash functor
-                 bsl::equal_to<Attribute>(),  // equal functor
+                 bsl::equal_to<Attribute>(),       // equal functor
                  basicAllocator)
 {
 }
 
 inline
 DefaultAttributeContainer::DefaultAttributeContainer(
-                         const DefaultAttributeContainer&  original,
-                         bslma::Allocator                      *basicAllocator)
+                            const DefaultAttributeContainer&  original,
+                            bslma::Allocator                 *basicAllocator)
 : d_attributeSet(original.d_attributeSet, basicAllocator)
 {
 }
@@ -285,8 +296,7 @@ bool DefaultAttributeContainer::addAttribute(const Attribute& value)
 }
 
 inline
-bool DefaultAttributeContainer::removeAttribute(
-                                                 const Attribute& value)
+bool DefaultAttributeContainer::removeAttribute(const Attribute& value)
 {
     return d_attributeSet.erase(value) != 0;
 }
@@ -322,8 +332,8 @@ DefaultAttributeContainer::end() const
 // FREE OPERATORS
 inline
 bsl::ostream& ball::operator<<(
-                      bsl::ostream&                         output,
-                      const DefaultAttributeContainer& attributeContainer)
+                           bsl::ostream&                    output,
+                           const DefaultAttributeContainer& attributeContainer)
 {
     return attributeContainer.print(output, 0, -1);
 }

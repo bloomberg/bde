@@ -117,7 +117,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //      static bsl::string *theSingletonPtr = 0;
 //      BDLQQ_ONCE_DO {
-//          static bsl::string theSingleton(s);
+//          static bsl::string theSingleton(s, 
+//                                          bslma::Default::globalAllocator());
 //          theSingletonPtr = &theSingleton;
 //      }
 //      return *theSingletonPtr;
