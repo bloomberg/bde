@@ -7,17 +7,23 @@
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
+#include <ball_recordattributes.h>
 #include <ball_recordstringformatter.h>
-#include <ball_severity.h>                    // for testing only
+#include <ball_severity.h>
+#include <ball_userfieldvalue.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bdlqq_threadutil.h>
+
 #include <bdlsu_filesystemutil.h>
 #include <bdlsu_processutil.h>
-#include <bdlt_datetimeutil.h>
 #include <bdlt_currenttime.h>
+#include <bdlt_datetimeutil.h>
+#include <bdlt_epochutil.h>
 #include <bdlt_intervalconversionutil.h>
+#include <bdlt_localtimeoffset.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -26,12 +32,19 @@
 #include <bdlt_currenttime.h>
 #include <bslim_testutil.h>
 
-#include <bsls_platform.h>                    // for testing only
+#include <bsls_assert.h>
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bdlb_strtokenrefiter.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstdio.h>
 #include <bsl_cstring.h>
+#include <bsl_ctime.h>
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -294,8 +307,9 @@ void removeFilesByPrefix(const char *prefix)
 #endif
 }
 
-int readFileIntoString(int lineNum, const bsl::string& filename,
-                       bsl::string& fileContent)
+int readFileIntoString(int                lineNum,
+                       const bsl::string& filename,
+                       bsl::string&       fileContent)
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     glob_t globbuf;
@@ -525,8 +539,9 @@ struct TestCurrentTimeCallback {
 
     static void setUtcDatetime(const bdlt::Datetime& utcTime);
         // Set the specified 'utcTime' as the value obtained (after conversion
-        // to 'bdlt::IntervalConversionUtil') from calls to the 'load' method.  The
-        // behavior is undefined unless 'bdlt::EpochUtil::epoch() <= utcTime'.
+        // to 'bdlt::IntervalConversionUtil') from calls to the 'load' method.
+        // The behavior is undefined unless
+        // 'bdlt::EpochUtil::epoch() <= utcTime'.
 };
 
 bsls::TimeInterval TestCurrentTimeCallback::s_utcTime;
@@ -697,19 +712,19 @@ int main(int argc, char *argv[])
         //:     from the current, actual local-time offset.
         //:
         //:   2 Install the 'TestLocalTimeOffsetCallback::loadLocalTimeOffset'
-        //:     method as the local-time offset callback of 'bdlt::CurrentTime',
-        //:     and run through the same same user-specified local time offsets
-        //:     as used in P-2.1.  Confirm that values returned from
-        //:     'bdlt::CurrentTime' match the user-specified values.  Repeat the
-        //:     request for (widely) different UTC datetime values to confirm
-        //:     that the local time offset value remains that defined by the
-        //:     callback.
+        //:     method as the local-time offset callback of
+        //:     'bdlt::CurrentTime', and run through the same same
+        //:     user-specified local time offsets as used in P-2.1.  Confirm
+        //:     that values returned from 'bdlt::CurrentTime' match the
+        //:     user-specified values.  Repeat the request for (widely)
+        //:     different UTC datetime values to confirm that the local time
+        //:     offset value remains that defined by the callback.
         //:
         //:   3 Confirm that the value returned by the 'loadCount' method
         //:     increases by exactly 1 each time a local-time offset is
         //:     obtained via 'bdlt::CurrentTime'.  (C-6)
         //:
-        //: 3 Using an ad hoc approach, confirm that the datetime field of a
+        //: 3 Using an ad-hoc approach, confirm that the datetime field of a
         //:   published log record is the expected (arbitrary) UTC datetime
         //:   value when publishing in local-time is disabled.  Enable
         //:   publishing in local-time and confirm that the published datetime
@@ -1897,8 +1912,7 @@ int main(int argc, char *argv[])
 
                 BALL_LOG_INFO<< "log" << BALL_LOG_END;
 
-                // now construct the name of the log file from
-                // startDatetime
+                // now construct the name of the log file from startDatetime
 
                 bsl::ostringstream oss;
                 oss << BASENAME;
@@ -2131,8 +2145,9 @@ int main(int argc, char *argv[])
             rlim.rlim_cur = 2048;
             ASSERT(0 == setrlimit(RLIMIT_FSIZE, &rlim));
 
-            // I think this sets it so we won't trap when we get the file
-            // size limit exception.
+            // I think this sets it so we won't trap when we get the file size
+            // limit exception.
+
             struct sigaction act,oact;
             act.sa_handler = SIG_IGN;
             sigemptyset(&act.sa_mask);
@@ -2147,11 +2162,12 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
 
-            // we want to capture the error message that will be written
-            // to stderr (not cerr).  Redirect stderr to a file.  We can't
-            // redirect it back; we'll have to use 'ASSERT2' (which outputs
-            // to cout, not cerr) from now on and report a summary to
-            // to cout at the end of this case.
+            // we want to capture the error message that will be written to
+            // stderr (not cerr).  Redirect stderr to a file.  We can't
+            // redirect it back; we'll have to use 'ASSERT2' (which outputs to
+            // cout, not cerr) from now on and report a summary to to cout at
+            // the end of this case.
+
             bsl::string stderrFN = tempFileName(veryVerbose);
             ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
 
@@ -2214,8 +2230,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                                   ball::Severity::e_OFF,
@@ -2456,9 +2472,13 @@ int main(int argc, char *argv[])
                               << endl;
 
             {
-                ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) ==
+                       X.rotationLifetime());
+
                 mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
-                ASSERT(bdlt::DatetimeInterval(0,0,0,3) == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
+                       X.rotationLifetime());
+
                 bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -2624,9 +2644,13 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
-                ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) ==
+                       X.rotationLifetime());
+
                 mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
-                ASSERT(bdlt::DatetimeInterval(0,0,0,3) == X.rotationLifetime());
+
+                ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
+                       X.rotationLifetime());
                 bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -3166,13 +3190,11 @@ int main(int argc, char *argv[])
                 ASSERT(file1 != file3);
                 ASSERT(file2 != file3);
 
-                // at this point we have three different logs produced by
-                // these three fileobservers configured with different
-                // formats;
-                // now we are going to reuse one of these fileobserver and
-                // change its functors to see if the resulting log should
-                // be identical to one of those known logs in file1, file2,
-                // and file3
+                // at this point we have three different logs produced by these
+                // three fileobservers configured with different formats; now
+                // we are going to reuse one of these fileobserver and change
+                // its functors to see if the resulting log should be identical
+                // to one of those known logs in file1, file2, and file3
 
                 bsl::string filename1a = tempFileName(veryVerbose);
                 bsl::string fileContent;
@@ -3244,7 +3266,7 @@ int main(int argc, char *argv[])
         //:   the file created is as expected.
         //
         // Testing:
-        //   CONCERN: 'ball::FileObserver2' is able to write to a file over 2 GB
+        //   CONCERN: 'ball::FileObserver2' is able to write to a file over 2GB
         // --------------------------------------------------------------------
         ball::LoggerManagerConfiguration configuration;
 

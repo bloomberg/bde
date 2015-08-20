@@ -7,24 +7,35 @@
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
-#include <ball_severity.h>                    // for testing only
+#include <ball_recordattributes.h>
+#include <ball_severity.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bdlb_strtokenrefiter.h>
+#include <bdlt_currenttime.h>
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
+#include <bdlt_datetimeutil.h>
+#include <bdlt_epochutil.h>
+#include <bdlt_localtimeoffset.h>
+#include <bdlf_function.h>
 #include <bdlsu_filesystemutil.h>
 #include <bdlsu_processutil.h>
-#include <bdlt_datetimeutil.h>
-#include <bdlt_currenttime.h>
-#include <bdlb_strtokenrefiter.h>
 
-#include <bsls_platform.h>                    // for testing only
+#include <bdlqq_threadutil.h>
 
+#include <bsls_assert.h>
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
+
+#include <bsl_climits.h>
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_ctime.h>
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -281,11 +292,12 @@ bsl::string tempFileName(bool verboseFlag)
 }
 
 bsl::string readPartialFile(bsl::string& fileName, int startOffset)
-    // read everything after offset 'startOffset' from a file and return it
-    // as a string.
+    // Read everything after the specified 'startOffset' from the file
+    // indicated by the specified 'fileName' and return it as a string.
 {
     bsl::string result;
-    result.reserve(bdlsu::FilesystemUtil::getFileSize(fileName) + 1 - startOffset);
+    result.reserve(bdlsu::FilesystemUtil::getFileSize(fileName) + 1
+                   - startOffset);
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
@@ -425,8 +437,9 @@ struct TestCurrentTimeCallback {
 
     static void setUtcDatetime(const bdlt::Datetime& utcTime);
         // Set the specified 'utcTime' as the value obtained (after conversion
-        // to 'bdlt::IntervalConversionUtil') from calls to the 'load' method.  The
-        // behavior is undefined unless 'bdlt::EpochUtil::epoch() <= utcTime'.
+        // to 'bdlt::IntervalConversionUtil') from calls to the 'load' method.
+        // The behavior is undefined unless
+        // 'bdlt::EpochUtil::epoch() <= utcTime'.
 };
 
 bsls::TimeInterval TestCurrentTimeCallback::s_utcTime;
@@ -502,8 +515,9 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     }
 }
 
-int readFileIntoString(int lineNum, const bsl::string& filename,
-                       bsl::string& fileContent)
+int readFileIntoString(int                lineNum,
+                       const bsl::string& filename,
+                       bsl::string&       fileContent)
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     glob_t globbuf;
@@ -640,19 +654,19 @@ int main(int argc, char *argv[])
         //:     from the current, actual local-time offset.
         //:
         //:   2 Install the 'TestLocalTimeOffsetCallback::loadLocalTimeOffset'
-        //:     method as the local-time offset callback of 'bdlt::CurrentTime',
-        //:     and run through the same same user-specified local time offsets
-        //:     as used in P-2.1.  Confirm that values returned from
-        //:     'bdlt::CurrentTime' match the user-specified values.  Repeat the
-        //:     request for (widely) different UTC datetime values to confirm
-        //:     that the local time offset value remains that defined by the
-        //:     callback.
+        //:     method as the local-time offset callback of
+        //:     'bdlt::CurrentTime', and run through the same user-specified
+        //:     local time offsets as used in P-2.1.  Confirm that values
+        //:     returned from 'bdlt::CurrentTime' match the user-specified
+        //:     values.  Repeat the request for (widely) different UTC
+        //:     datetime values to confirm that the local time offset value
+        //:     remains that defined by the callback.
         //:
         //:   3 Confirm that the value returned by the 'loadCount' method
         //:     increases by exactly 1 each time a local-time offset is
         //:     obtained via 'bdlt::CurrentTime'.  (C-6)
         //:
-        //: 3 Using an ad hoc approach, confirm that the datetime field of a
+        //: 3 Using an ad-hoc approach, confirm that the datetime field of a
         //:   published log record is the expected (arbitrary) UTC datetime
         //:   value when publishing in local-time is disabled.  Enable
         //:   publishing in local-time and confirm that the published datetime
@@ -1034,8 +1048,8 @@ int main(int argc, char *argv[])
 
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 ==
-                   bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == bdlsu::FilesystemUtil::exists(
+                                                cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout << "Testing 'disableLifetimeRotation'" << endl;
@@ -1086,8 +1100,8 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
-        // Don't run this if we're in the debugger because the debugger
-        // stops and refuses to continue when we hit the file size limit.
+        // Don't run this if we're in the debugger because the debugger stops
+        // and refuses to continue when we hit the file size limit.
 
         if (verbose) cerr << "Testing output when the stream fails"
                           << " (UNIX only)."
@@ -1098,8 +1112,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                                   ball::Severity::e_OFF,
@@ -1131,11 +1145,11 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
 
-            // we want to capture the error message that will be
-            // written to stderr (not cerr).  Redirect stderr to a
-            // file.  We can't redirect it back; we'll have to use
-            // 'ASSERT2' (which outputs to cout, not cerr) from now on
-            // and report a summary to to cout at the end of this case.
+            // We want to capture the error message that will be written to
+            // stderr (not cerr).  Redirect stderr to a file.  We can't
+            // redirect it back; we'll have to use 'ASSERT2' (which outputs to
+            // cout, not cerr) from now on and report a summary to to cout at
+            // the end of this case.
             bsl::string stderrFN = tempFileName(veryVerbose);
             ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
 
@@ -1193,8 +1207,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                                   ball::Severity::e_OFF,
@@ -1384,8 +1398,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                                   ball::Severity::e_OFF,
@@ -1612,9 +1626,13 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
-                ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) == X.rotationLifetime());
+
                 mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
-                ASSERT(bdlt::DatetimeInterval(0,0,0,3) == X.rotationLifetime());
+
+                ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
+                       X.rotationLifetime());
+
                 bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -1671,25 +1689,29 @@ int main(int argc, char *argv[])
         // Publishing Test
         //
         // Concerns:
-        //   1. publish() logs in the expected format:
-        //      a.using enable/disableUserFieldsLogging
-        //      b.using enable/disableStdoutLogging
-        //   2. publish() properly ignores the severities below the one
-        //      specified at construction on 'stdout'
-        //   3. publish() publishes all messages to a file if file logging
-        //      is enabled
-        //   4. the name of the log file should be in accordance with what is
-        //      defined by the given pattern if file logging is enabled by a
-        //      pattern
-        //   5. setLogFormat can change to the desired output format for both
-        //      'stdout' and the log file
+        //  1. publish() logs in the expected format:
+        //     a.using enable/disableUserFieldsLogging
+        //     b.using enable/disableStdoutLogging
+        //
+        //  2. publish() properly ignores the severity below the one
+        //     specified at construction on 'stdout'
+        //
+        //  3. publish() publishes all messages to a file if file logging
+        //     is enabled
+        //
+        //  4. the name of the log file should be in accordance with what is
+        //     defined by the given pattern if file logging is enabled by a
+        //     pattern
+        //
+        //  5. setLogFormat can change to the desired output format for both
+        //     'stdout' and the log file
         //
         // Plan:
         //   We will set up the observer and check if logged messages are in
         //   the expected format and contain the expected data by comparing the
         //   output of this observer with 'ball::DefaultObserver', that we
         //   slightly modify.  Then, we will configure the observer to ignore
-        //   different severities and test if only the expected messages are
+        //   different severity and test if only the expected messages are
         //   published.  We will use different manipulators to affect output
         //   format and verify that it has changed where expected.
         //
@@ -1751,8 +1773,8 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
+        // This configuration also guarantees that the observer will only see
+        // each message only once.
 
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                                               ball::Severity::e_OFF,
@@ -1782,9 +1804,9 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
             int fileOffset = FileUtil::getFileSize(fileName);
 
-            // these two lines are a desperate kludge to make windows
-            // work -- this test driver works everywhere else without
-            // them.
+            // these two lines are a desperate kludge to make windows work --
+            // this test driver works everywhere else without them.
+
             (void) readPartialFile(fileName, 0);
             fileOffset = FileUtil::getFileSize(fileName);
 
@@ -2125,14 +2147,11 @@ int main(int argc, char *argv[])
                 if (defaultObsHour - difference >= 0 &&
                     defaultObsHour - difference < 24) {
                     // UTC and local time are on the same day
+
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
-                    // skong: This is a bug, you can not figure out if they
-                    // are on the same day with only two hour numbers.
-                    //ASSERT(dos.str() == coutS);
                 }
                 else if (coutS.length() >= 11) {
-                    // UTC and local time are on different days.  Ignore
-                    // date.
+                    // UTC and local time are on different days.  Ignore date.
 
                     ASSERT(dos.str().substr(10) == os.str().substr(10));
                 } else {
@@ -2470,8 +2489,9 @@ int main(int argc, char *argv[])
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
                 bsl::cout.rdbuf(os.rdbuf());
 
-                // for log file, use bdlt::Datetime format
-                // for stdout, use ISO format
+                // for log file, use bdlt::Datetime format for stdout, use ISO
+                // format
+
                 mX.setLogFormat("%d %p %t %s %l %c %m %u",
                                 "%i %p %t %s %l %c %m %u");
 
@@ -2517,8 +2537,8 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(log1, log2, log1 == log2);
 
-                // now we try to convert datetime2 from ISO to
-                // bdlt::Datetime
+                // Now we try to convert datetime2 from ISO to bdlt::Datetime
+
                 bsl::istringstream iss(datetime2);
                 int year, month, day, hour, minute, second;
                 char c;
@@ -2530,8 +2550,10 @@ int main(int argc, char *argv[])
 
                 bsl::ostringstream oss;
                 oss << datetime3;
-                // ignore the millisecond field so don't compare the entire
-                // strings
+
+                // Ignore the millisecond field so don't compare the entire
+                // strings.
+
                 ASSERT(0 == oss.str().compare(0, 18, datetime1, 0, 18));
 
                 mX.disableFileLogging();
@@ -2696,8 +2718,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
 
-            // Now see what happens with customized format.  Notice that
-            // we intentionally use the default short format.
+            // Now see what happens with customized format.  Notice that we
+            // intentionally use the default short format.
+
             const char *newLogFileFormat = "\n%s %f:%l %c %m %u\n";
             const char *newStdoutFormat  = "\n%s %f:%l %c %m %u\n";
             mX.setLogFormat(newLogFileFormat, newStdoutFormat);
@@ -2727,8 +2750,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
 
             // stdoutFormat should change, since even if we are now using
-            // customized formats, the format happens to be the same as
-            // the default short format.
+            // customized formats, the format happens to be the same as the
+            // default short format.
+
             mX.disableUserFieldsLogging();
             ASSERT(!X.isUserFieldsLoggingEnabled());
             X.getLogFormat(&logFileFormat, &stdoutFormat);

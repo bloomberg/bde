@@ -9,6 +9,8 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 #include <ball_userfields.h>
+#include <ball_userfieldvalue.h>
+#include <bdlt_datetime.h>
 
 #include <bdlqq_lockguard.h>
 
@@ -21,9 +23,9 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace ball {
-                           // --------------------------
+                           // ---------------------
                            // class DefaultObserver
-                           // --------------------------
+                           // ---------------------
 
 // CREATORS
 DefaultObserver::~DefaultObserver()
@@ -31,8 +33,7 @@ DefaultObserver::~DefaultObserver()
 }
 
 // MANIPULATORS
-void DefaultObserver::publish(const Record&  record,
-                                   const Context&)
+void DefaultObserver::publish(const Record&  record, const Context&)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
@@ -65,6 +66,7 @@ void DefaultObserver::publish(const Record&  record,
 
     *d_stream << '\n' << bsl::flush;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

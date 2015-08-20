@@ -5,15 +5,20 @@
 #include <ball_severity.h>
 
 #include <bdlqq_barrier.h>
+#include <bdlqq_mutex.h>
 #include <bdlqq_threadutil.h>
 
+#include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 
 #include <bslma_default.h>
 #include <bsls_types.h>
 
-#include <bsl_c_stdio.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
+#include <bsl_ctime.h>
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -124,11 +129,14 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
+
 static bdlqq::Mutex printMutex;  // mutex to protect output macros
+
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
 
-static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert macros
+static bdlqq::Mutex &assertMutex = printMutex;  // mutex to protect assert
+                                                // macros
 
 #define ASSERTT(X) {assertMutex.lock(); aSsErT(!(X), #X, __LINE__); \
                                           assertMutex.unlock();}
@@ -169,9 +177,9 @@ typedef bsl::shared_ptr<ball::Record> Handle;
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing 'i'
-   // to i'th thread.  Finally join all the threads.
+    // Create the specified 'numThreads', each executing the specified 'func'.
+    // Number each thread (sequentially from 0 to 'numThreads-1') by passing
+    // 'i' to i'th thread.  Finally join all the threads.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                new bdlqq::ThreadUtil::Handle[numThreads];
@@ -187,12 +195,12 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     delete [] threads;
 }
 
-void executeInParallel(int numThreads,
-                       bdlqq::ThreadUtil::ThreadFunction func,
-                       Handle *handles)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Pass 'handle[i]' to i'th created thread where 'i' ranges from 0 to
-   // 'numThreads'.  Finally join all the threads.
+void executeInParallel(int                                numThreads,
+                       bdlqq::ThreadUtil::ThreadFunction  func,
+                       Handle                            *handles)
+    // Create the specified 'numThreads', each executing the specified 'func'.
+    // Pass 'handle[i]' to i'th created thread where 'i' ranges from 0 to
+    // 'numThreads'.  Finally join all the threads.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                new bdlqq::ThreadUtil::Handle[numThreads];
@@ -208,15 +216,15 @@ void executeInParallel(int numThreads,
     delete [] threads;
 }
 
-ball::Record *buildRecord(bdlt::Datetime time,
-                         int pid,
-                         int tid,
-                         const char *file,
-                         int line,
-                         const char *category,
-                         int severity,
-                         const char *msg,
-                         bslma::Allocator *alloc)
+ball::Record *buildRecord(bdlt::Datetime    time,
+                          int               pid,
+                          int               tid,
+                          const char       *file,
+                          int               line,
+                          const char       *category,
+                          int               severity,
+                          const char       *msg,
+                          bslma::Allocator *alloc)
 {
     ball::Record *r = new (*alloc) ball::Record(alloc);
 
