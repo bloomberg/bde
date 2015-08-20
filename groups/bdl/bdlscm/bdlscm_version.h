@@ -2,7 +2,7 @@
 #ifndef INCLUDED_BDLSCM_VERSION
 #define INCLUDED_BDLSCM_VERSION
 
-#ifndef INCLUDED_BDLS_IDENT
+#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
@@ -83,6 +83,10 @@ struct Version {
 
     static const char *version();
 };
+
+// ============================================================================
+//                        INLINE DEFINITIONS
+// ============================================================================
 
 inline
 const char *Version::version()
