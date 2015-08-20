@@ -104,8 +104,8 @@ BSLS_IDENT("$Id: $")
 //  int getWorkData(MyWorkData *result)
 //  {
 //      static int count = 0;
-//      result->d_i = rand();   // Only one thread runs this routine, so
-//                              // it does not matter that 'rand()' is not
+//      result->d_i = rand();   // Only one thread runs this routine, so it
+//                              // does not matter that 'rand()' is not
 //                              // thread-safe, or that 'count' is 'static'.
 //
 //      return ++count >= 100;
@@ -192,8 +192,8 @@ BSLS_IDENT("$Id: $")
 //                                   &queue);
 //      }
 //
-//      // Load work data into work requests and push them onto the queue
-//      // with varying priority until all work data has been exhausted.
+//      // Load work data into work requests and push them onto the queue with
+//      // varying priority until all work data has been exhausted.
 //
 //      int count = 0;                          // used to generate priorities
 //

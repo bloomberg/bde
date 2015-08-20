@@ -4,6 +4,8 @@
 
 #include <bdls_testutil.h>
 
+#include <bdlf_function.h>
+
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_semaphore.h>
@@ -249,8 +251,8 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
     int getWorkData(MyWorkData *result)
     {
         static int count = 0;
-        result->d_i = rand();   // Only one thread runs this routine, so
-                                // it does not matter that 'rand()' is not
+        result->d_i = rand();   // Only one thread runs this routine, so it
+                                // does not matter that 'rand()' is not
                                 // thread-safe, or that 'count' is 'static'.
 
         return ++count >= 100;
@@ -337,8 +339,8 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
                                      &queue);
         }
 
-        // Load work data into work requests and push them onto the queue
-        // with varying priority until all work data has been exhausted.
+        // Load work data into work requests and push them onto the queue with
+        // varying priority until all work data has been exhausted.
 
         int count = 0;                          // used to generate priorities
 
@@ -1764,12 +1766,12 @@ int main(int argc, char *argv[])
         //   possible argument combinations returns failure without blocking
         //   when called on an empty queue.  Then it will reach a barrier
         //   and, once past the barrier, will attempt to pop data off the
-        //   queue, once with each possible arg combination for 'popFront'.
-        //   The spawning thread sleeps for about 200 milliSeconds, then
-        //   pushes data into the queue, and the spawned thread, once it
-        //   pops data, verifies the value is what was expected, showing
-        //   that the pops blocked as they should have until the queue
-        //   contained data for them.
+        //   queue, once with each possible argument combination for
+        //   'popFront'.  The spawning thread sleeps for about 200
+        //   milliSeconds, then pushes data into the queue, and the spawned
+        //   thread, once it pops data, verifies the value is what was
+        //   expected, showing that the pops blocked as they should have until
+        //   the queue contained data for them.
         //
         // Testing:
         //   blocking behavior
@@ -1976,7 +1978,7 @@ int main(int argc, char *argv[])
         // TESTING ALL CONSTRUCTORS AND numPriorities() ACCESSOR
         //
         // Concerns:
-        //   That all possible combinations of arg types to constructors
+        //   That all possible combinations of argument types to constructors
         //   work and produce multipriority queues that function on a basic
         //   level.
         //
@@ -2277,8 +2279,8 @@ int main(int argc, char *argv[])
         //     at the same priority.
         //   * That 'pushBack' enqueues multiple items of the same value
         //     at the same priority.
-        //   * That repeated calls to 'popFront' deque the items in turn.
-        //   * That 'tryPopFront' deques items in turn, returning success
+        //   * That repeated calls to 'popFront' dequeue the items in turn.
+        //   * That 'tryPopFront' dequeues items in turn, returning success
         //     then returns a non-zero value when the queue is empty.
         //
         // Plan:
