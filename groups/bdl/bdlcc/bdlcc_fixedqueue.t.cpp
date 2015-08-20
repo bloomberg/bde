@@ -33,6 +33,11 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_climits.h>
+#include <bsl_ctime.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
@@ -179,7 +184,7 @@ void rolloverPusher(bdlcc::FixedQueue<int> *queue,
                     int                     threadId)
 {
     enum {
-        k_NUM_ITEMS = 50000 // num to push in this thread
+        k_NUM_ITEMS = 50000 // number to push in this thread
     };
 
     const int base = 1000000 * threadId;
@@ -283,7 +288,7 @@ public:
 bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 
 void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
-                       bdlqq::TimedSemaphore              *sema,
+                       bdlqq::TimedSemaphore              *semaphore,
                        bsls::AtomicInt                    *numCaught) {
     enum { k_NUM_ITERATIONS = 3 };
 
@@ -293,7 +298,7 @@ void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
         } catch (...) {
             ++(*numCaught);
         }
-        sema->post();
+        semaphore->post();
     }
 }
 
@@ -384,7 +389,7 @@ void* pushBackTestThread(void *ptr)
     if (veryVerbose) {
         LockGuard guard(&coutMutex);
         cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
-             << "done, pushing sentinal value..." << endl;
+             << "done, pushing sentinel value..." << endl;
     }
 
     args->d_queue.pushBack((Element*)(0xFFFFFFFF));
@@ -599,17 +604,17 @@ void abaThread(char                     *firstValue,
                char                     *lastValue,
                bdlcc::FixedQueue<char*> *queue,
                bdlqq::Barrier           *barrier,
-               bool                      sendSentinal)
+               bool                      sendSentinel)
 {
     barrier->wait();
     for (char* value = firstValue; value <= lastValue; ++value) {
         queue->pushBack(value);
     }
-    if (sendSentinal) {
+    if (sendSentinel) {
         if (veryVerbose) {
             LockGuard guard(&coutMutex);
             cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
-                 << " done, pushing sentinal value" << endl;
+                 << " done, pushing sentinel value" << endl;
         }
         queue->pushBack((char*)0xffffffff);
     }
