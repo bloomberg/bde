@@ -196,6 +196,10 @@ class SkipList_PoolManager {
     void *allocate(Pool *pool);
     void deallocate(Pool *pool, void *node);
 
+  private:
+    // Not implemented:
+    SkipList_PoolManager(const SkipList_PoolManager&);
+
   public:
     explicit SkipList_PoolManager(int              *objectSizes,
                                   int               numPools,
@@ -389,18 +393,18 @@ void *SkipList_PoolUtil::allocate(PoolManager *poolManager, int level)
     return poolManager->allocate(level);
 }
 
-void SkipList_PoolUtil::deallocate(PoolManager *poolManager, void *node)
+void SkipList_PoolUtil::deallocate(PoolManager *poolManager, void *address)
 {
-    poolManager->deallocate(node);
+    poolManager->deallocate(address);
 }
 
 SkipList_PoolManager *SkipList_PoolUtil::createPoolManager(
                                               int              *objectSizes,
-                                              int               numPools,
+                                              int               numLevels,
                                               bslma::Allocator *basicAllocator)
 {
     return new (*basicAllocator) PoolManager(objectSizes,
-                                             numPools,
+                                             numLevels,
                                              basicAllocator);
 }
 
