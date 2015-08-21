@@ -207,8 +207,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_print.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSTREAM
+#include <bsl_iostream.h>
 #endif
 
 #ifndef INCLUDED_BSL_SSTREAM
@@ -257,6 +265,9 @@ class Encoder {
     bsl::ostream& logStream();
         // Return the stream for logging.
 
+    // Not implemented:
+    Encoder(const Encoder&);
+
   public:
     // CREATORS
     explicit Encoder(bslma::Allocator *basicAllocator = 0);
@@ -302,7 +313,7 @@ class Encoder {
     template <class TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
         // Encode the specified 'value' of (template parameter) 'TYPE' into the
-        // specified 'streamBuf'.  Return 0 on success, and a non-zero value
+        // specified 'stream'.  Return 0 on success, and a non-zero value
         // otherwise.  Note that 'stream' will be invalidated if the encoding
         // failed.
         //
@@ -520,6 +531,7 @@ struct Encoder_ElementVisitor {
     int                        d_mode;      // formatting mode
 
     // CREATORS
+
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
@@ -601,6 +613,7 @@ struct Encoder_DynamicTypeDispatcher {
     int                        d_mode;      // formatting mode
 
     // CREATORS
+
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
@@ -911,9 +924,8 @@ int Encoder_EncodeImpl::encode(const TYPE& value, int mode)
 
 // CREATORS
 inline
-Encoder_EncodeImpl::Encoder_EncodeImpl(
-                                       Encoder               *encoder,
-                                       bsl::streambuf               *streambuf,
+Encoder_EncodeImpl::Encoder_EncodeImpl(Encoder               *encoder,
+                                       bsl::streambuf        *streambuf,
                                        const EncoderOptions&  options)
 : d_encoder_p(encoder)
 , d_outputStream(streambuf)
@@ -1015,7 +1027,7 @@ Encoder_SequenceVisitor::Encoder_SequenceVisitor(
 template <class TYPE, class INFO>
 int Encoder_SequenceVisitor::operator()(const TYPE& value, const INFO& info)
 {
-    // Determine if 'value' is null or an empty array where we dont want to
+    // Determine if 'value' is null or an empty array where we don't want to
     // encode empty arrays.  In either of those cases, do not encode 'value'.
 
     if (skipNullableAttribute(value)

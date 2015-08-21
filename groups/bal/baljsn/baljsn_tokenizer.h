@@ -208,13 +208,13 @@ class Tokenizer {
     // DATA
     bsls::AlignedBuffer<k_BUFSIZE>  d_buffer;               // buffer
 
-    bdlma::BufferedSequentialAllocator    d_allocator;            // allocater
+    bdlma::BufferedSequentialAllocator    d_allocator;           // allocator
                                                                  // (owned)
 
     bsl::string                          d_stringBuffer;         // string
                                                                  // buffer
 
-    bsl::streambuf                      *d_streamBuf_p;          // streambuf
+    bsl::streambuf                      *d_streambuf_p;          // streambuf
                                                                  // (held, not
                                                                  // owned)
 
@@ -254,7 +254,7 @@ class Tokenizer {
         // Move the current sequence of characters being tokenized to the front
         // of the internal string buffer, 'd_stringBuffer', and then append
         // additional characters, from the internally-held 'streambuf'
-        // ('d_streamBuf_p') to the end of that sequence up to a maximum
+        // ('d_streambuf_p') to the end of that sequence up to a maximum
         // sequence length of 'd_buffer.size()' characters.  Return the number
         // of bytes read from the 'streambuf'.
 
@@ -280,19 +280,22 @@ class Tokenizer {
         // encountered and position the cursor onto the first such character.
         // Return 0 on success and a non-zero value otherwise.
 
+    // Not implemented:
+    Tokenizer(const Tokenizer&);
+
   public:
     // CREATORS
     explicit Tokenizer(bslma::Allocator *basicAllocator = 0);
-       // Create a 'Reader' object.  Optionally specify a 'basicAllocator' used
-       // to supply memory.  If 'basicAllocator' is 0, the currently installed
-       // default allocator is used.
+        // Create a 'Reader' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~Tokenizer();
         // Destroy this object.
 
     // MANIPULATORS
-    void reset(bsl::streambuf *streamBuf);
-        // Reset this tokenizer to read data from the specified 'streamBuf'.
+    void reset(bsl::streambuf *streambuf);
+        // Reset this tokenizer to read data from the specified 'streambuf'.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
         // change the value of the 'allowStandAloneValues' option.
@@ -344,7 +347,7 @@ inline
 Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 : d_allocator(d_buffer.buffer(), k_BUFSIZE, basicAllocator)
 , d_stringBuffer(&d_allocator)
-, d_streamBuf_p(0)
+, d_streambuf_p(0)
 , d_cursor(0)
 , d_valueBegin(0)
 , d_valueEnd(0)
@@ -363,9 +366,9 @@ Tokenizer::~Tokenizer()
 
 // MANIPULATORS
 inline
-void Tokenizer::reset(bsl::streambuf *streamBuf)
+void Tokenizer::reset(bsl::streambuf *streambuf)
 {
-    d_streamBuf_p = streamBuf;
+    d_streambuf_p = streambuf;
     d_stringBuffer.clear();
     d_cursor      = 0;
     d_valueBegin  = 0;

@@ -107,8 +107,8 @@ class DecoderOptions {
 
     // DATA
     int  d_maxDepth;             // maximum recursion depth
-    bool d_skipUnknownElements;  // flag specifying if unknown elements
-                                 // should be skipped
+    bool d_skipUnknownElements;  // flag specifying if unknown elements should
+                                 // be skipped
 
   public:
     // CREATORS
@@ -181,7 +181,7 @@ bool operator!=(const DecoderOptions& lhs, const DecoderOptions& rhs);
     // have the same value if any of the corresponding values of their
     // 'maxDepth' and 'skipUnknownElements' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&                stream,
+bsl::ostream& operator<<(bsl::ostream&         stream,
                          const DecoderOptions& rhs);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing

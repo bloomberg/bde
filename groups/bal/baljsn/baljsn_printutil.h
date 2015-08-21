@@ -16,11 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides utility functions for encoding a
-// 'bdeat' Simple type in the JSON format.  The primary method is 'printValue',
-// which encodes a specified object and is overloaded for all 'bdeat' Simple
-// types.  The following table describes the format in which various Simple
-// types are encoded.
+//@DESCRIPTION: This component provides a 'struct' of utility functions,
+// 'baljsn::PrintUtil', for encoding a 'bdeat' Simple type in the JSON format.
+// The primary method is 'printValue', which encodes a specified object and is
+// overloaded for all 'bdeat' Simple types.  The following table describes the
+// format in which various Simple types are encoded.
 //..
 //  Simple Type          JSON Type  Notes
 //  -----------          ---------  -----

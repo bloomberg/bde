@@ -247,7 +247,7 @@ bool operator!=(const EncoderOptions& lhs, const EncoderOptions& rhs);
     // 'encodeEmptyArrays', and 'encodeNullElements' attributes are not the
     // same.
 
-bsl::ostream& operator<<(bsl::ostream&                stream,
+bsl::ostream& operator<<(bsl::ostream&         stream,
                          const EncoderOptions& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing

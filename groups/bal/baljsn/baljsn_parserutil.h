@@ -16,11 +16,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides utility functions for decoding data in
-// the JSON format into a 'bdeat' Simple type.  The primary method is
-// 'getValue', which decodes into a specified object and is overloaded for all
-// 'bdeat' Simple types.  The following table describes the format in which
-// various Simple types are decoded.
+//@DESCRIPTION: This component provides a 'struct' of utility functions,
+// 'baljsn::ParserUtil', for decoding data in the JSON format into a 'bdeat'
+// Simple type.  The primary method is 'getValue', which decodes into a
+// specified object and is overloaded for all 'bdeat' Simple types.  The
+// following table describes the format in which various Simple types are
+// decoded.
 //..
 //  Simple Type          JSON Type  Notes
 //  -----------          ---------  -----
@@ -48,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Decoding into a Simple 'struct' from JSON data
 ///---------------------------------------------------------
-// Suppose we want to deserialize some JSON data into an object.
+// Suppose we want to de-serialize some JSON data into an object.
 //
 // First, we define a struct, 'Employee', to contain the data:
 //..

@@ -192,6 +192,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSTREAM
+#include <bsl_iostream.h>
+#endif
+
 #ifndef INCLUDED_BSL_SSTREAM
 #include <bsl_sstream.h>
 #endif
@@ -269,6 +273,10 @@ class Decoder {
         // Skip the unknown element specified by 'elementName' by discarding
         // all the data associated with it and advancing the parser to the next
         // element.  Return 0 on success and a non-zero value otherwise.
+
+  private:
+    // Not implemented:
+    Decoder(const Decoder&);
 
   public:
     // CREATORS
@@ -348,6 +356,7 @@ struct Decoder_ElementVisitor {
     int             d_mode;       // formatting mode
 
     // CREATORS
+
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
@@ -379,6 +388,7 @@ struct Decoder_DecodeImpProxy {
     int             d_mode;       // formatting mode
 
     // CREATORS
+
     // Creators have been omitted to allow simple static initialization of this
     // struct.
 
@@ -541,9 +551,9 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
 }
 
 template <class TYPE>
-int Decoder::decodeImp(TYPE *value,
-                              int   mode,
-                              bdlat_TypeCategory::Choice)
+int Decoder::decodeImp(TYPE                       *value,
+                       int                         mode,
+                       bdlat_TypeCategory::Choice)
 {
     if (bdlat_FormattingMode::e_UNTAGGED & mode) {
         // This is an anonymous element.  Do not read anything and instead
@@ -797,9 +807,9 @@ int Decoder::decodeImp(bsl::vector<char> *value,
 }
 
 template <class TYPE>
-int Decoder::decodeImp(TYPE *value,
-                              int   mode,
-                              bdlat_TypeCategory::Array)
+int Decoder::decodeImp(TYPE                      *value,
+                       int                        mode,
+                       bdlat_TypeCategory::Array)
 {
     if (Tokenizer::e_START_ARRAY != d_tokenizer.tokenType()) {
         d_logStream << "Could not decode vector, missing start token: '['\n";
@@ -850,9 +860,9 @@ int Decoder::decodeImp(TYPE *value,
 }
 
 template <class TYPE>
-int Decoder::decodeImp(TYPE *value,
-                              int   mode,
-                              bdlat_TypeCategory::NullableValue)
+int Decoder::decodeImp(TYPE                              *value,
+                       int                                mode,
+                       bdlat_TypeCategory::NullableValue)
 {
     enum { k_NULL_VALUE_LENGTH = 4 };
 
@@ -901,9 +911,9 @@ Decoder::Decoder(bslma::Allocator *basicAllocator)
 
 // MANIPULATORS
 template <class TYPE>
-int Decoder::decode(bsl::streambuf               *streamBuf,
-                           TYPE                         *value,
-                           const DecoderOptions&  options)
+int Decoder::decode(bsl::streambuf        *streamBuf,
+                    TYPE                  *value,
+                    const DecoderOptions&  options)
 {
     BSLS_ASSERT(streamBuf);
     BSLS_ASSERT(value);
@@ -947,9 +957,9 @@ int Decoder::decode(bsl::streambuf               *streamBuf,
 }
 
 template <class TYPE>
-int Decoder::decode(bsl::istream&                 stream,
-                           TYPE                         *value,
-                           const DecoderOptions&  options)
+int Decoder::decode(bsl::istream&          stream,
+                    TYPE                  *value,
+                    const DecoderOptions&  options)
 {
     if (!stream.good()) {
         return -1;                                                    // RETURN
@@ -1023,12 +1033,12 @@ int Decoder_DecodeImpProxy::operator()(TYPE *, bslmf::Nil)
 template <class TYPE, class ANY_CATEGORY>
 inline
 int Decoder_DecodeImpProxy::operator()(TYPE         *object,
-                                              ANY_CATEGORY  category)
+                                       ANY_CATEGORY  category)
 {
     return d_decoder_p->decodeImp(object, d_mode, category);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
