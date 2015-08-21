@@ -131,7 +131,6 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERTV(...)                                         \
     LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-
 #define WS "   \t       \n      \v       \f       \r       "
 
 // ============================================================================
@@ -694,8 +693,8 @@ int main(int argc, char *argv[])
             int             d_numAdvances;
             int             d_numAvail;
         } DATA[] = {
-        // line   value            nAdv      nAvail
-        // ----   -----            ----      ------
+        //line    value            nAdv      nAvail
+        //----    -----            ----      ------
 
         { L_,   "",                  0,           0   },
         { L_,   "{}",                2,           0   },
@@ -964,8 +963,8 @@ int main(int argc, char *argv[])
             int             d_line;
             const char     *d_value_p;
         } DATA[] = {
-        // line   value
-        // ----   -----
+        //line    value
+        //----    -----
 
           { L_,   "\"\""                    },
 
@@ -1370,8 +1369,8 @@ int main(int argc, char *argv[])
             bool              d_allocatesMemory;
         } DATA[] = {
 
-        // Line  Suffix Text                             Allocates memory flag
-        // ----  -----------                             ---------------------
+        //Line   Suffix Text                             Allocates memory flag
+        //----   -----------                             ---------------------
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
 
@@ -4251,8 +4250,10 @@ int main(int argc, char *argv[])
                 "\"" WS "New" WS "Deal" WS "\""
             },
 
+            //..
             // value (integer) -> value (string)
             // value (string)  -> value (integer)
+            //..
             {
                 L_,
                 "{"

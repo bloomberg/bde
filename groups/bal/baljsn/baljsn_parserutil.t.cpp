@@ -1876,8 +1876,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input              exp                     isValid
-                // ----   -----              ---                     -------
+                //line    input              exp                     isValid
+                //----    -----              ---                     -------
                 {  L_,    "\"\"",            "",                      true   },
                 {  L_,    "\"ABC\"",         "ABC",                   true   },
 
@@ -2022,8 +2022,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input                         exp    isValid
-                // ----   -----                         ---    -------
+                //line    input                       exp    isValid
+                //----    -----                       ---    -------
                 {  L_,      "0",                      0.0,     true    },
                 {  L_,      "1",                      1.0,     true    },
                 {  L_,     "-1",                     -1.0,     true    },
@@ -2195,8 +2195,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input                         exp    isValid
-                // ----   -----                         ---    -------
+                //line    input                        exp    isValid
+                //----    -----                        ---    -------
                 {  L_,      "0",                      0.0f,     true    },
                 {  L_,      "1",                      1.0f,     true    },
                 {  L_,     "-1",                     -1.0f,     true    },
@@ -2364,8 +2364,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -2637,8 +2637,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -2961,8 +2961,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -3207,8 +3207,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -3503,8 +3503,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -3742,8 +3742,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                     0,      true    },
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
@@ -4020,8 +4020,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "1",                     1,      true    },
     {  L_,          "95",                    95,      true    },
     {  L_,         "127",                   127,      true    },
@@ -4230,8 +4230,8 @@ int main(int argc, char *argv[])
                 signed char  d_exp;     // exp char value
                 bool         d_isValid; // isValid flag
             } DATA[] = {
-   // line          input                    exp     isValid
-   // ----          -----                    ---     -------
+   //line          input                    exp     isValid
+   //----          -----                    ---     -------
     {  L_,           "0",                  '\0',      true    },
     {  L_,          "32",                   ' ',      true    },
     {  L_,          "49",                   '1',      true    },
@@ -4447,8 +4447,8 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp char value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line    input       exp      isValid
-                // ----    -----       ---      -------
+                //line    input        exp      isValid
+                //----    -----        ---      -------
 
                 {   L_,    "",          EV,      false    },
 
