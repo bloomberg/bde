@@ -12,6 +12,7 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bdlb_chartype.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
@@ -37,12 +38,13 @@ bool isValidNextChar(int nextChar)
         || '}' == static_cast<char>(nextChar);
 }
 
-const bsls::Types::Uint64 UINT64_MAX_VALUE =
+static const bsls::Types::Uint64 UINT64_MAX_VALUE =
                                bsl::numeric_limits<bsls::Types::Uint64>::max();
-const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 = UINT64_MAX_VALUE / 10;
-const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
+static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 =
+                                                         UINT64_MAX_VALUE / 10;
+static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
                                              UINT64_MAX_VALUE / 10000000000ULL;
-const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
+static const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
 
 }  // close unnamed namespace
 
@@ -197,7 +199,7 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
 }
 
 int ParserUtil::getUint64(bsls::Types::Uint64 *value,
-                                 bslstl::StringRef    data)
+                          bslstl::StringRef    data)
 {
     const char *iter  = data.begin();
     const char *end   = data.end();
@@ -259,7 +261,8 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
     // Based on the value of 'exponent' update the range value digits range,
     // [valueBegin..valueEnd).
 
-    int numFractionalDigits = static_cast<int>(fractionalEnd - fractionalBegin);
+    int numFractionalDigits = static_cast<int>(fractionalEnd
+                                                            - fractionalBegin);
     int numAdditionalDigits = 0;
     if (isExpNegative) {
         // Shrink the value digits range by 'exponent'.  The fractional digits
@@ -412,7 +415,7 @@ int ParserUtil::getValue(bool *value, bslstl::StringRef data)
 }
 
 int ParserUtil::getValue(bsl::vector<char> *value,
-                                bslstl::StringRef  data)
+                         bslstl::StringRef  data)
 {
     const int MAX_LENGTH = 1024;
     bsls::AlignedBuffer<MAX_LENGTH> buffer;

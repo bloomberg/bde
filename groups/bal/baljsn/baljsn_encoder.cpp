@@ -14,9 +14,8 @@ namespace baljsn {
                          // -----------------------
 
 // CREATORS
-Encoder_Formatter::Encoder_Formatter(
-                                          bsl::ostream&                stream,
-                                          const EncoderOptions& options)
+Encoder_Formatter::Encoder_Formatter(bsl::ostream&         stream,
+                                     const EncoderOptions& options)
 : d_outputStream(stream)
 , d_isArrayElement(false)
 {

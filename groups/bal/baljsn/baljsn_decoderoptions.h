@@ -182,7 +182,7 @@ bool operator!=(const DecoderOptions& lhs, const DecoderOptions& rhs);
     // 'maxDepth' and 'skipUnknownElements' attributes are not the same.
 
 bsl::ostream& operator<<(bsl::ostream&         stream,
-                         const DecoderOptions& rhs);
+                         const DecoderOptions& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this

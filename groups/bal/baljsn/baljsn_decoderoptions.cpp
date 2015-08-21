@@ -35,8 +35,8 @@ bsl::ostream& DecoderOptions::print(bsl::ostream& stream,
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& baljsn::operator<<(bsl::ostream&                stream,
-                         const DecoderOptions& object)
+bsl::ostream& baljsn::operator<<(bsl::ostream&         stream,
+                                 const DecoderOptions& object)
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();

@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(baljsn_tokenizer_cpp,"$Id$ $CSID$")
 
 #include <bdlb_chartype.h>
 
+#include <bsl_cstring.h>
 #include <bsl_ios.h>
 #include <bsl_streambuf.h>
 
@@ -71,8 +72,8 @@ int Tokenizer::reloadStringBuffer()
 {
     d_stringBuffer.resize(k_MAX_STRING_SIZE);
     const int numRead =
-                      static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[0],
-                                                            k_MAX_STRING_SIZE));
+                     static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[0],
+                                                           k_MAX_STRING_SIZE));
     d_cursor = 0;
     d_stringBuffer.resize(numRead);
     return numRead;

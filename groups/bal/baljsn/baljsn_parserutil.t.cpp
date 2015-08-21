@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Decoding into a Simple 'struct' from JSON data
 ///---------------------------------------------------------
-// Suppose we want to deserialize some JSON data into an object.
+// Suppose we want to de-serialize some JSON data into an object.
 //
 // First, we define a struct, 'Employee', to contain the data:
 //..
