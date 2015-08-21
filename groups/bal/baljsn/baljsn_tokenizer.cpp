@@ -13,8 +13,8 @@ BSLS_IDENT_RCSID(baljsn_tokenizer_cpp,"$Id$ $CSID$")
 
 // IMPLEMENTATION NOTES
 // --------------------
-// The following table provides the various transitions that need to be
-// handled with the tokenizer.
+// The following table provides the various transitions that need to be handled
+// with the tokenizer.
 //
 //   Current Token             Curr Char    Next Char         Following Token
 //   -------------             ---------    ---------         ---------------
@@ -53,7 +53,6 @@ BSLS_IDENT_RCSID(baljsn_tokenizer_cpp,"$Id$ $CSID$")
 //..
 
 namespace BloombergLP {
-
 namespace {
 
     const char *WHITESPACE = " \n\t\v\f\r";
@@ -62,9 +61,10 @@ namespace {
 }  // close unnamed namespace
 
 namespace baljsn {
-                            // -----------------------
-                            // struct Tokenizer
-                            // -----------------------
+
+                             // ----------------
+                             // struct Tokenizer
+                             // ----------------
 
 // PRIVATE MANIPULATORS
 int Tokenizer::reloadStringBuffer()

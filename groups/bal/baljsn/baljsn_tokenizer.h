@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class, 'baljsn::Tokenizer', that
 // traverses data stored in a 'bsl::streambuf' one node at a time and provides
-// clients access to the data associated with that node, including its type
-// and data value.  Client code can use the 'reset' function to associate a
+// clients access to the data associated with that node, including its type and
+// data value.  Client code can use the 'reset' function to associate a
 // 'bsl::streambuf' containing JSON data with a tokenizer object and then call
 // the 'advanceToNextToken' function to extract individual data values.
 //
@@ -152,11 +152,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baljsn {
-                            // ======================
-                            // class Tokenizer
-                            // ======================
+
+                             // ===============
+                             // class Tokenizer
+                             // ===============
 
 class Tokenizer {
     // This 'class' provides a mechanism for traversing JSON data stored in a
@@ -215,8 +215,8 @@ class Tokenizer {
                                                                  // buffer
 
     bsl::streambuf                      *d_streamBuf_p;          // streambuf
-                                                                 // (held,
-                                                                 // not owned)
+                                                                 // (held, not
+                                                                 // owned)
 
     bsl::size_t                          d_cursor;               // current
                                                                  // cursor
@@ -283,9 +283,9 @@ class Tokenizer {
   public:
     // CREATORS
     explicit Tokenizer(bslma::Allocator *basicAllocator = 0);
-       // Create a 'Reader' object.  Optionally specify a
-       // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-       // the currently installed default allocator is used.
+       // Create a 'Reader' object.  Optionally specify a 'basicAllocator' used
+       // to supply memory.  If 'basicAllocator' is 0, the currently installed
+       // default allocator is used.
 
     ~Tokenizer();
         // Destroy this object.
@@ -336,7 +336,7 @@ class Tokenizer {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS

@@ -23,7 +23,6 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsl_limits.h>
 
 namespace BloombergLP {
-
 namespace {
 
 inline
@@ -48,9 +47,10 @@ const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
 }  // close unnamed namespace
 
 namespace baljsn {
-                            // ------------------------
+
+                            // -----------------
                             // struct ParserUtil
-                            // ------------------------
+                            // -----------------
 
 // CLASS METHODS
 int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
@@ -126,8 +126,8 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 BSLS_ASSERT(0 == (utf32input[0] & 0xFF000000)
                          && 0 == (utf32input[0] & 0x00FF0000));
 
-                // Due to the short string optimization there won't be a
-                // memory allocation here.
+                // Due to the short string optimization there won't be a memory
+                // allocation here.
 
                 bsl::string utf8String;
                 const int rc = bdlde::CharConvertUtf32::utf32ToUtf8(&utf8String,
@@ -226,8 +226,8 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
         fractionalEnd = iter;
     }
 
-    // Extract exponent digits if available and store the unsigned integer
-    // part in 'exponent' and the sign in 'isExpNegative'.
+    // Extract exponent digits if available and store the unsigned integer part
+    // in 'exponent' and the sign in 'isExpNegative'.
 
     int  exponent = 0;
     bool isExpNegative = false;
@@ -278,8 +278,8 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
         }
     }
     else {
-        // Expand the value digits range.  If there are fractional
-        // digits, coalesce them into the value range by updating
+        // Expand the value digits range.  If there are fractional digits,
+        // coalesce them into the value range by updating
         // 'numAdditionalDigits'.  Update 'exponent' after the operation.
 
         if (numFractionalDigits > exponent) {
