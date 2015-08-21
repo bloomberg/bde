@@ -4,14 +4,18 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 
+#include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
+
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 
 #include <bdlb_bitstringutil.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_limits.h>   // for 'CHAR_BIT'
+#include <bsl_climits.h>   // for 'CHAR_BIT'
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -53,12 +57,12 @@ struct TimerEventSchedulerDispatcher {
 extern "C" void *TimerEventSchedulerDispatcherThread(void *scheduler)
 {
     TimerEventSchedulerDispatcher::dispatchEvents(
-                                        (TimerEventScheduler*)scheduler);
+                                              (TimerEventScheduler*)scheduler);
     return scheduler;
 }
 
 void TimerEventSchedulerDispatcher::dispatchEvents(
-                                           TimerEventScheduler *scheduler)
+                                                TimerEventScheduler* scheduler)
 {
     BSLS_ASSERT(0 != scheduler);
     typedef TimerEventScheduler::ClockDataPtr ClockDataPtr;
@@ -69,8 +73,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
     while (1) {
         int clockLen;
 
-        // This scope limits the life of several variables, including
-        // mutex lock.
+        // This scope limits the life of several variables, including mutex
+        // lock.
 
         {
             bdlqq::LockGuard<bdlqq::Mutex> lock(&scheduler->d_mutex);
@@ -147,14 +151,14 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
             eventData = &scheduler->d_pendingEventItems.front();
         }
 
-        // Note it is possible for an event in the dispatcher thread
-        // (and only for such an event) to delete a future event that is in
+        // Note it is possible for an event in the dispatcher thread (and only
+        // for such an event) to delete a future event that is in
         // pendingEventItems.
 
         while (clockIdx < clockLen
             && *eventIdxPtr < (int) scheduler->d_pendingEventItems.size()) {
-            // Both queues had pending events.  Do the events in time
-            // order until at least one of the queues is empty.
+            // Both queues had pending events.  Do the events in time order
+            // until at least one of the queues is empty.
 
             const bsls::TimeInterval& clockTime = clockData[clockIdx].time();
             if (clockTime < eventData[*eventIdxPtr].time()) {
@@ -175,8 +179,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                 ++ *eventIdxPtr;
             }
         }
-        // At most one of the pending queues still has events - can deal
-        // with the two queues in arbitrary order now.
+        // At most one of the pending queues still has events - can deal with
+        // the two queues in arbitrary order now.
 
         for (; clockIdx < clockLen; ++clockIdx) {
             const bsls::TimeInterval& clockTime = clockData[clockIdx].time();
@@ -185,7 +189,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                 scheduler->d_dispatcherFunctor(cd->d_callback);
                 if (!cd->d_isCancelled) {
                     cd->d_handle = scheduler->d_clockTimeQueue.add(
-                                    clockTime + cd->d_periodicInterval, cd);
+                                            clockTime + cd->d_periodicInterval,
+                                            cd);
                 }
             }
         }
@@ -208,9 +213,9 @@ void defaultDispatcherFunction(const bdlf::Function<void(*)()>& callback) {
 }
 
 namespace bdlmt {
-                           // ------------------------------
+                           // -------------------------
                            // class TimerEventScheduler
-                           // ------------------------------
+                           // -------------------------
 
 // PRIVATE MANIPULATORS
 void TimerEventScheduler::yieldToDispatcher()
@@ -226,12 +231,10 @@ void TimerEventScheduler::yieldToDispatcher()
 }
 
 // CREATORS
-TimerEventScheduler::TimerEventScheduler(
-                                              bslma::Allocator *basicAllocator)
+TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockType(bsls::SystemClockType::e_REALTIME)
-, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
-                       basicAllocator)
+, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
@@ -267,12 +270,11 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                bslma::Allocator                            *basicAllocator)
+                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                     bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockType(bsls::SystemClockType::e_REALTIME)
-, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
-                       basicAllocator)
+, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
@@ -287,13 +289,12 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                bsls::SystemClockType::Enum                  clockType,
-                bslma::Allocator                            *basicAllocator)
+                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                     bsls::SystemClockType::Enum             clockType,
+                     bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockType(clockType)
-, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
-                       basicAllocator)
+, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
@@ -308,14 +309,12 @@ TimerEventScheduler::TimerEventScheduler(
 {
 }
 
-TimerEventScheduler::TimerEventScheduler(
-                                              int               numEvents,
-                                              int               numClocks,
-                                              bslma::Allocator *basicAllocator)
+TimerEventScheduler::TimerEventScheduler(int               numEvents,
+                                         int               numClocks,
+                                         bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockType(bsls::SystemClockType::e_REALTIME)
-, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
-                       basicAllocator)
+, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
                    basicAllocator)
 , d_clockTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numClocks)),
@@ -361,10 +360,10 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                int                                          numEvents,
-                int                                          numClocks,
-                const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                bslma::Allocator                            *basicAllocator)
+                     int                                     numEvents,
+                     int                                     numClocks,
+                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                     bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
@@ -387,15 +386,14 @@ TimerEventScheduler::TimerEventScheduler(
 }
 
 TimerEventScheduler::TimerEventScheduler(
-                int                                          numEvents,
-                int                                          numClocks,
-                const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
-                bsls::SystemClockType::Enum                  clockType,
-                bslma::Allocator                            *basicAllocator)
+                     int                                     numEvents,
+                     int                                     numClocks,
+                     const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
+                     bsls::SystemClockType::Enum             clockType,
+                     bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_clockType(clockType)
-, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
-                       basicAllocator)
+, d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
                    basicAllocator)
 , d_clockTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numClocks)),
@@ -427,8 +425,7 @@ int TimerEventScheduler::start()
     return start(attr);
 }
 
-int TimerEventScheduler::start(
-                                const bdlqq::ThreadAttributes& threadAttributes)
+int TimerEventScheduler::start(const bdlqq::ThreadAttributes& threadAttributes)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_running) {
@@ -438,9 +435,10 @@ int TimerEventScheduler::start(
     bdlqq::ThreadAttributes modAttr(threadAttributes);
     modAttr.setDetachedState(bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 
-    if (bdlqq::ThreadUtil::create(&d_dispatcherThread, modAttr,
-                                 &TimerEventSchedulerDispatcherThread,
-                                 this))
+    if (bdlqq::ThreadUtil::create(&d_dispatcherThread,
+                                  modAttr,
+                                  &TimerEventSchedulerDispatcherThread,
+                                  this))
     {
         return -1;                                                    // RETURN
     }
@@ -452,7 +450,7 @@ int TimerEventScheduler::start(
 void TimerEventScheduler::stop()
 {
     BSLS_ASSERT(! bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
-                                            d_dispatcherThread));
+                                             d_dispatcherThread));
 
     {
         bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
@@ -468,19 +466,18 @@ void TimerEventScheduler::stop()
 }
 
 TimerEventScheduler::Handle
-TimerEventScheduler::scheduleEvent(
-                                      const bsls::TimeInterval&        timer,
-                                      const bdlf::Function<void(*)()>& callback,
-                                      const EventKey&                 key)
+TimerEventScheduler::scheduleEvent(const bsls::TimeInterval&        time,
+                                   const bdlf::Function<void(*)()>& callback,
+                                   const EventKey&                  key)
 {
     Handle handle;
     {
         bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
         int isNewTop = 0;
-        handle = d_eventTimeQueue.add(timer, callback, key, &isNewTop);
+        handle = d_eventTimeQueue.add(time, callback, key, &isNewTop);
 
         if (-1 == handle) {
-            return e_INVALID_HANDLE;                               // RETURN
+            return e_INVALID_HANDLE;                                  // RETURN
         }
 
         ++d_numEvents;
@@ -493,11 +490,10 @@ TimerEventScheduler::scheduleEvent(
     return handle;
 }
 
-int TimerEventScheduler::rescheduleEvent(
-                                     TimerEventScheduler::Handle handle,
-                                     const EventKey&                  key,
-                                     const bsls::TimeInterval&         newTime,
-                                     bool                             wait)
+int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
+                                         const EventKey&             key,
+                                         const bsls::TimeInterval&   newTime,
+                                         bool                        wait)
 {
     int status;
     {
@@ -517,10 +513,9 @@ int TimerEventScheduler::rescheduleEvent(
     return status;
 }
 
-int TimerEventScheduler::cancelEvent(
-                                       TimerEventScheduler::Handle handle,
-                                       const EventKey&                  key,
-                                       bool                             wait)
+int TimerEventScheduler::cancelEvent(TimerEventScheduler::Handle handle,
+                                     const EventKey&             key,
+                                     bool                        wait)
 {
     // First search in the event queue if we can find the event there.
 
@@ -541,8 +536,8 @@ int TimerEventScheduler::cancelEvent(
     if (bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
                                   d_dispatcherThread))
     {
-        // If there are pending items, search among them, starting with
-        // the event after the current one.
+        // If there are pending items, search among them, starting with the
+        // event after the current one.
 
         if (d_currentEventIndex < (int) d_pendingEventItems.size()) {
             bsl::vector<TimerEventScheduler::EventItem>::iterator
@@ -589,8 +584,8 @@ void TimerEventScheduler::cancelAllEvents(bool wait)
 
 TimerEventScheduler::Handle
 TimerEventScheduler::startClock(const bsls::TimeInterval&        interval,
-                                     const bdlf::Function<void(*)()>& callback,
-                                     const bsls::TimeInterval&        startTime)
+                                const bdlf::Function<void(*)()>& callback,
+                                const bsls::TimeInterval&        startTime)
 {
     BSLS_ASSERT(0 != interval);
 
@@ -611,7 +606,7 @@ TimerEventScheduler::startClock(const bsls::TimeInterval&        interval,
         p->d_handle = d_clockTimeQueue.add(stime, p, &isNewTop);
 
         if (-1 == p->d_handle) {
-            return e_INVALID_HANDLE;                               // RETURN
+            return e_INVALID_HANDLE;                                  // RETURN
         }
 
         ++d_numClocks;

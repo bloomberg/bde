@@ -23,9 +23,9 @@ BSLS_IDENT("$Id: $")
 // processing threads and can hold up to a fixed maximum number of pending
 // jobs.
 //
-// 'bdlmt::FixedThreadPool' implements a queuing mechanism that distributes work
-// among the threads.  Jobs are queued for execution as they arrive, and each
-// queued job is processed by the next available thread.  If each of the
+// 'bdlmt::FixedThreadPool' implements a queuing mechanism that distributes
+// work among the threads.  Jobs are queued for execution as they arrive, and
+// each queued job is processed by the next available thread.  If each of the
 // concurrent threads is busy processing a job, new jobs will remain enqueued
 // until a thread becomes available.  If the queue capacity is reached,
 // enqueuing jobs will block until threads consume more jobs from the queue,
@@ -46,15 +46,16 @@ BSLS_IDENT("$Id: $")
 // Unlike a 'bdlmt::ThreadPool', an application can not tune a
 // 'bdlmt::FixedThreadPool' once it is created with a specified number of
 // threads and queue capacity, hence the name "fixed" thread pool.  An
-// application can, however, specify the attributes of the threads in the
-// pool (e.g., thread priority or stack size), by providing a
-// 'bdlqq::ThreadAttributes' object with the desired values set.  See 'bdlqq_threadutil'
-// package documentation for a description of 'bdlqq::ThreadAttributes'.
+// application can, however, specify the attributes of the threads in the pool
+// (e.g., thread priority or stack size), by providing a
+// 'bdlqq::ThreadAttributes' object with the desired values set.  See
+// 'bdlqq_threadutil' package documentation for a description of
+// 'bdlqq::ThreadAttributes'.
 //
-// Thread pools are ideal for developing multi-threaded server applications.
-// A server need only package client requests to execute as jobs, and
-// 'bdlmt::FixedThreadPool' will handle the queue management, thread management,
-// and request dispatching.  Thread pools are also well suited for
+// Thread pools are ideal for developing multi-threaded server applications.  A
+// server need only package client requests to execute as jobs, and
+// 'bdlmt::FixedThreadPool' will handle the queue management, thread
+// management, and request dispatching.  Thread pools are also well suited for
 // parallelizing certain types of application logic.  Without any complex or
 // redundant thread management code, an application can easily create a thread
 // pool, enqueue a series of jobs to be executed, and wait until all the jobs
@@ -86,11 +87,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This example demonstrates the use of a 'bdlmt::FixedThreadPool' to parallelize
-// a segment of program logic.  The example implements a multi-threaded file
-// search utility.  The utility searches multiple files for a string, similar
-// to the Unix command 'fgrep'; the use of a 'bdlmt::FixedThreadPool' allows the
-// utility to search multiple files concurrently.
+// This example demonstrates the use of a 'bdlmt::FixedThreadPool' to
+// parallelize a segment of program logic.  The example implements a
+// multi-threaded file search utility.  The utility searches multiple files for
+// a string, similar to the Unix command 'fgrep'; the use of a
+// 'bdlmt::FixedThreadPool' allows the utility to search multiple files
+// concurrently.
 //
 // The example program will take as input a string and a list of files to
 // search.  The program creates a 'bdlmt::FixedThreadPool', and then enqueues a
@@ -116,7 +118,7 @@ BSLS_IDENT("$Id: $")
 //   struct my_FastSearchJobInfo {
 //       const bsl::string        *d_word;    // word to search for
 //       const bsl::string        *d_path;    // path of the file to search
-//       bdlqq::Mutex              *d_mutex;   // mutex to control access to the
+//       bdlqq::Mutex             *d_mutex;   // mutex to control access to the
 //                                            // result file list
 //       bsl::vector<bsl::string> *d_outList; // list of matching files
 //   };
@@ -177,10 +179,10 @@ BSLS_IDENT("$Id: $")
 //       }
 //   }
 //..
-// Routine 'myFastSearch' is the main driving routine, taking three
-// arguments: a single string to search for ('word'), a list of files to
-// search, and an output list of files.  When the function completes, the file
-// list will contain the names of files where a match was found.
+// Routine 'myFastSearch' is the main driving routine, taking three arguments:
+// a single string to search for ('word'), a list of files to search, and an
+// output list of files.  When the function completes, the file list will
+// contain the names of files where a match was found.
 //..
 //   void  myFastSearch(const bsl::string&              word,
 //                      const bsl::vector<bsl::string>& fileList,
@@ -265,7 +267,7 @@ BSLS_IDENT("$Id: $")
 //           job.d_outList = &outFileList;
 //
 //           bdlf::Function<void (*)()> jobHandle =
-//                          bdlf::BindUtil::bind(&myFastFunctorSearchJob, &job);
+//                         bdlf::BindUtil::bind(&myFastFunctorSearchJob, &job);
 //           pool.enqueueJob(jobHandle);
 //       }
 //..
@@ -336,24 +338,29 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#if defined(BSLS_PLATFORM_OS_UNIX)
-#ifndef INCLUDED_BSL_C_SIGNAL
-#include <bsl_c_signal.h>              // sigset_t
-#endif
+#ifndef INCLUDED_BSL_CSTDLIB
+#include <bsl_cstdlib.h>
 #endif
 
 namespace BloombergLP {
 
-extern "C" {
-    typedef void (*bcep_FixedThreadPoolJobFunc)(void *);
-        // This type declares the prototype for functions that are suitable
-        // to be specified 'bdlmt::FixedThreadPool::enqueueJob'.
-}
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+extern "C" typedef void (*bcep_FixedThreadPoolJobFunc)(void *);
+        // This type declares the prototype for functions that are suitable to
+        // be specified 'bdlmt::FixedThreadPool::enqueueJob'.
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bdlmt {
-                         // ==========================
+
+extern "C" typedef void (*FixedThreadPoolJobFunc)(void *);
+    // This type declares the prototype for functions that are suitable to be
+    // specified 'bdlmt::FixedThreadPool::enqueueJob'.
+
+                         // =====================
                          // class FixedThreadPool
-                         // ==========================
+                         // =====================
 
 class FixedThreadPool {
     // This class implements a thread pool used for concurrently executing
@@ -362,7 +369,7 @@ class FixedThreadPool {
   public:
     // TYPES
     typedef bdlf::Function<void(*)()> Job;
-    typedef bdlcc::FixedQueue<Job>     Queue;
+    typedef bdlcc::FixedQueue<Job>    Queue;
 
     enum {
         e_STOP
@@ -383,61 +390,67 @@ class FixedThreadPool {
 
   private:
     // DATA
-    Queue             d_queue;             // underlying queue
+    Queue                   d_queue;              // underlying queue
 
-    bdlqq::Semaphore   d_queueSemaphore;    // used to implemented blocking
-                                           // popping on the queue
+    bdlqq::Semaphore        d_queueSemaphore;     // used to implemented
+                                                  // blocking popping on the
+                                                  // queue
 
-    bsls::AtomicInt    d_numThreadsWaiting; // number of idle thread in the pool
+    bsls::AtomicInt         d_numThreadsWaiting;  // number of idle thread in
+                                                  // the pool
 
-    bdlqq::Mutex       d_metaMutex;         // mutex to ensure that there is
-                                           // only one controlling thread at
-                                           // any time
+    bdlqq::Mutex            d_metaMutex;          // mutex to ensure that there
+                                                  // is only one controlling
+                                                  // thread at any time
 
-    bsls::AtomicInt    d_control;           // controls which action is to be
-                                           // performed by the worker threads
-                                           // (i.e., BCEP_RUN, BCEP_DRAIN,
-                                           // BCEP_STOP)
+    bsls::AtomicInt         d_control;            // controls which action is
+                                                  // to be performed by the
+                                                  // worker threads (i.e.,
+                                                  // e_RUN, e_DRAIN, or e_STOP)
 
-    int               d_gateCount;         // count incremented every time
-                                           // worker threads are allowed to
-                                           // proceed through the gate
+    int                     d_gateCount;          // count incremented every
+                                                  // time worker threads are
+                                                  // allowed to proceed through
+                                                  // the gate
 
-    int               d_numThreadsReady;   // number of worker threads
-                                           // ready to go through the gate
+    int                     d_numThreadsReady;    // number of worker threads
+                                                  // ready to go through the
+                                                  // gate
 
-    bdlqq::Mutex       d_gateMutex;         // mutex used to protect the gate
-                                           // count
+    bdlqq::Mutex            d_gateMutex;          // mutex used to protect the
+                                                  // gate count
 
-    bdlqq::Condition   d_threadsReadyCond;  // condition signaled when a worker
-                                           // thread is ready at the gate
+    bdlqq::Condition        d_threadsReadyCond;   // condition signaled when a
+                                                  // worker thread is ready at
+                                                  // the gate
 
-    bdlqq::Condition   d_gateCond;
-                                           // condition signaled when the
-                                           // gate count is incremented
+    bdlqq::Condition        d_gateCond;           // condition signaled when
+                                                  // the gate count is
+                                                  // incremented
 
-    bdlqq::ThreadGroup d_threadGroup;       // threads used by this pool
+    bdlqq::ThreadGroup      d_threadGroup;        // threads used by this pool
 
-    bdlqq::ThreadAttributes   d_threadAttributes;  // thread attributes to be used when
-                                           // constructing processing threads
+    bdlqq::ThreadAttributes d_threadAttributes;   // thread attributes to be
+                                                  // used when constructing
+                                                  // processing threads
 
-    const int         d_numThreads;        // number of configured processing
-                                           // threads.
+    const int               d_numThreads;         // number of configured
+                                                  // processing threads.
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    sigset_t          d_blockSet;          // set of signals to be blocked
-                                           // in managed threads
+    sigset_t                d_blockSet;           // set of signals to be
+                                                  // blocked in managed threads
 #endif
 
     // PRIVATE MANIPULATORS
     void processJobs();
-        // Repeatedly retrieves the next job off of the queue and processes
-        // it or blocks until one is available.  This function terminates
-        // when it detects a change in the control state.
+        // Repeatedly retrieves the next job off of the queue and processes it
+        // or blocks until one is available.  This function terminates when it
+        // detects a change in the control state.
 
     void drainQueue();
-        // Repeatedly retrieves the next job off of the queue and processes
-        // it until the queue is empty.
+        // Repeatedly retrieves the next job off of the queue and processes it
+        // until the queue is empty.
 
     void workerThread();
         // The main function executed by each worker thread.
@@ -462,10 +475,10 @@ class FixedThreadPool {
 
   public:
     // CREATORS
-    FixedThreadPool(int                    numThreads,
-                         int                    maxNumPendingJobs,
-                         bslma::Allocator      *basicAllocator = 0);
-        // Construct a thread pool with the specified 'numThread' number of
+    FixedThreadPool(int               numThreads,
+                    int               maxNumPendingJobs,
+                    bslma::Allocator *basicAllocator = 0);
+        // Construct a thread pool with the specified 'numThreads' number of
         // threads and a job queue of capacity sufficient to enqueue the
         // specified 'maxNumPendingJobs' without blocking.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -473,12 +486,12 @@ class FixedThreadPool {
         // undefined unless '1 <= numThreads' and
         // '1 <= maxPendingJobs <= 0x01FFFFFF'.
 
-    FixedThreadPool(const bdlqq::ThreadAttributes& threadAttributes,
-                         int                    numThreads,
-                         int                    maxNumPendingJobs,
-                         bslma::Allocator      *basicAllocator = 0);
+    FixedThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
+                    int                             numThreads,
+                    int                             maxNumPendingJobs,
+                    bslma::Allocator               *basicAllocator = 0);
         // Construct a thread pool with the specified 'threadAttributes',
-        // 'numThread' number of threads, and a job queue with capacity
+        // 'numThreads' number of threads, and a job queue with capacity
         // sufficient to enqueue the specified 'maxNumPendingJobs' without
         // blocking.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -486,15 +499,15 @@ class FixedThreadPool {
         // '1 <= numThreads' and '1 <= maxPendingJobs <= 0x01FFFFFF'.
 
     ~FixedThreadPool();
-        // Remove all pending jobs from the queue without executing them,
-        // block until all currently running jobs complete, and then
-        // destroy this thread pool.
+        // Remove all pending jobs from the queue without executing them, block
+        // until all currently running jobs complete, and then destroy this
+        // thread pool.
 
     // MANIPULATORS
     void disable();
-        // Disable queuing into this pool.  Subsequent calls to enqueueJob()
-        // or tryEnqueueJob() will immediately fail.  Note that this method
-        // has no effect on jobs currently in the pool.
+        // Disable queuing into this pool.  Subsequent calls to enqueueJob() or
+        // tryEnqueueJob() will immediately fail.  Note that this method has no
+        // effect on jobs currently in the pool.
 
     void enable();
         // Enable queuing into this pool.
@@ -502,26 +515,25 @@ class FixedThreadPool {
     int enqueueJob(const Job& functor);
         // Enqueue the specified 'functor' to be executed by the next available
         // thread.  Return 0 if enqueued successfully, and a non-zero value if
-        // queuing is currently disabled.  Note that this function can block
-        // if the underlying fixed queue has reached full capacity; use
+        // queuing is currently disabled.  Note that this function can block if
+        // the underlying fixed queue has reached full capacity; use
         // 'tryEnqueueJob' instead for non-blocking.  The behavior is undefined
         // unless 'functor' is not "unset".  See 'bdlf_function' for more
         // information on functors.
 
-    int enqueueJob(bcep_FixedThreadPoolJobFunc function, void *userData);
+    int enqueueJob(FixedThreadPoolJobFunc function, void *userData);
         // Enqueue the specified 'function' to be executed by the next
         // available thread.  The specified 'userData' pointer will be passed
         // to the function by the processing thread.  Return 0 if enqueued
-        // successfully, and a non-zero value if queuing is currently
-        // disabled.
+        // successfully, and a non-zero value if queuing is currently disabled.
 
     int tryEnqueueJob(const Job& functor);
         // Attempt to enqueue the specified 'functor' to be executed by the
         // next available thread.  Return 0 if enqueued successfully, and a
-        // nonzero value if queuing is currently disabled or the queue is
-        // full.  The behavior is undefined unless 'functor' is not "unset".
+        // nonzero value if queuing is currently disabled or the queue is full.
+        // The behavior is undefined unless 'functor' is not "unset".
 
-    int tryEnqueueJob(bcep_FixedThreadPoolJobFunc function, void *userData);
+    int tryEnqueueJob(FixedThreadPoolJobFunc function, void *userData);
         // Attempt to enqueue the specified 'function' to be executed by the
         // next available thread.  The specified 'userData' pointer will be
         // passed to the function by the processing thread.  Return 0 if
@@ -539,7 +551,7 @@ class FixedThreadPool {
 
     int start();
         // Spawn 'numThreads()' processing threads.  On success, enable
-        // enqueuing and return  0.  Return a nonzero value otherwise.  If
+        // enqueuing and return 0.  Return a nonzero value otherwise.  If
         // 'numThreads()' threads were not successfully started, all threads
         // are stopped.
 
@@ -549,13 +561,13 @@ class FixedThreadPool {
 
     // ACCESSORS
     bool isEnabled() const;
-        // Return 'true' if queuing is enabled on this thread pool, and
-        // 'false' otherwise.
+        // Return 'true' if queuing is enabled on this thread pool, and 'false'
+        // otherwise.
 
     bool isStarted() const;
-        // Return 'true' if 'numThreads()' are started on this threadpool()
-        // and 'false' otherwise (indicating that 0 threads are started on
-        // this thread pool.)
+        // Return 'true' if 'numThreads()' are started on this threadpool() and
+        // 'false' otherwise (indicating that 0 threads are started on this
+        // thread pool.)
 
     int numActiveThreads() const;
         // Return a snapshot of the the number of threads that are currently
@@ -574,17 +586,17 @@ class FixedThreadPool {
         // thread pool.
 
     int queueCapacity() const;
-        // Return the capacity of the queue used to enqueue jobs by this
-        // thread pool.
+        // Return the capacity of the queue used to enqueue jobs by this thread
+        // pool.
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                         // --------------------------
-                         // class FixedThreadPool
-                         // --------------------------
+                        // ---------------------
+                        // class FixedThreadPool
+                        // ---------------------
 
 // MANIPULATORS
 inline
@@ -600,15 +612,15 @@ void FixedThreadPool::enable()
 }
 
 inline
-int FixedThreadPool::enqueueJob(bcep_FixedThreadPoolJobFunc  function,
-                                     void                        *userData)
+int FixedThreadPool::enqueueJob(FixedThreadPoolJobFunc  function,
+                                void                   *userData)
 {
     return enqueueJob(bdlf::BindUtil::bindR<void>(function, userData));
 }
 
 inline
-int FixedThreadPool::tryEnqueueJob(bcep_FixedThreadPoolJobFunc  function,
-                                        void                        *userData)
+int FixedThreadPool::tryEnqueueJob(FixedThreadPoolJobFunc  function,
+                                   void                   *userData)
 {
     return tryEnqueueJob(bdlf::BindUtil::bindR<void>(function, userData));
 }
@@ -658,8 +670,8 @@ int FixedThreadPool::queueCapacity() const
 {
     return d_queue.size();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

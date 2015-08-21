@@ -51,8 +51,9 @@ BSLS_IDENT("$Id: $")
 // expected average load.  A higher value for the maximum number of threads can
 // be used to handle periodic bursts.  An application can also specify the
 // attributes of the threads in the pool (e.g., thread priority or stack size),
-// by providing a 'bdlqq::ThreadAttributes' object with the desired values set.  See
-// 'bdlqq_threadutil' package documentation for a description of 'bdlqq::ThreadAttributes'.
+// by providing a 'bdlqq::ThreadAttributes' object with the desired values set.
+// See 'bdlqq_threadutil' package documentation for a description of
+// 'bdlqq::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.  A
 // server need only package client requests to execute as jobs, and
@@ -94,12 +95,12 @@ BSLS_IDENT("$Id: $")
 // utility to search multiple files concurrently.
 //
 // The example program will take as input a string and a list of files to
-// search.  The program creates a 'bdlmt::ThreadPool', and then enqueues a single
-// "job" for each file to be searched.  Each thread in the pool will take a job
-// from the queue, open the file, and search for the string.  If a match is
-// found, the job adds the filename to an array of matching filenames.  Because
-// this array of filenames is shared across multiple jobs and across multiple
-// threads, access to the array is controlled via a 'bdlqq::Mutex'.
+// search.  The program creates a 'bdlmt::ThreadPool', and then enqueues a
+// single "job" for each file to be searched.  Each thread in the pool will
+// take a job from the queue, open the file, and search for the string.  If a
+// match is found, the job adds the filename to an array of matching filenames.
+// Because this array of filenames is shared across multiple jobs and across
+// multiple threads, access to the array is controlled via a 'bdlqq::Mutex'.
 //
 ///Setting ThreadPool Attributes
 ///- - - - - - - - - - - - - - -
@@ -128,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //   struct my_FastSearchJobInfo {
 //       const bsl::string        *d_word;    // word to search for
 //       const bsl::string        *d_path;    // path of the file to search
-//       bdlqq::Mutex              *d_mutex;   // mutex to control access to the
+//       bdlqq::Mutex             *d_mutex;   // mutex to control access to the
 //                                            // result file list
 //       bsl::vector<bsl::string> *d_outList; // list of matching files
 //   };
@@ -205,9 +206,9 @@ BSLS_IDENT("$Id: $")
 // start the pool so that the threads can begin while we prepare the jobs.
 //..
 //       bdlmt::ThreadPool pool(defaultAttributes,
-//                            MIN_SEARCH_THREADS,
-//                            MAX_SEARCH_THREADS,
-//                            MAX_SEARCH_THREAD_IDLE);
+//                              MIN_SEARCH_THREADS,
+//                              MAX_SEARCH_THREADS,
+//                              MAX_SEARCH_THREAD_IDLE);
 //
 //       if (0 != pool.start()) {
 //           bsl::cerr << "Failed to start minimum number of threads.\n";
@@ -289,17 +290,16 @@ BSLS_IDENT("$Id: $")
 // Next, we make a change to the loop that enqueues the jobs in 'myFastSearch'.
 // The function starts exactly as in the previous example:
 //..
-//  static void  myFastFunctorSearch( const string& word,
-//                                    const vector<string>& fileList,
-//                                    vector<string>& outFileList
-//                                  )
+//  static void myFastFunctorSearch(const string&         word,
+//                                  const vector<string>& fileList,
+//                                  vector<string>&       outFileList)
 //  {
-//      bdlqq::Mutex     mutex;
+//      bdlqq::Mutex            mutex;
 //      bdlqq::ThreadAttributes defaultAttributes;
-//      bdlmt::ThreadPool pool(defaultAttributes,
-//                           MIN_SEARCH_THREADS,
-//                           MAX_SEARCH_THREADS,
-//                           MAX_SEARCH_THREAD_IDLE);
+//      bdlmt::ThreadPool       pool(defaultAttributes,
+//                                   MIN_SEARCH_THREADS,
+//                                   MAX_SEARCH_THREADS,
+//                                   MAX_SEARCH_THREAD_IDLE);
 //
 //      if (0 != pool.start()) {
 //          bsl::cerr << "Failed to start minimum number of threads.  "
@@ -323,7 +323,7 @@ BSLS_IDENT("$Id: $")
 //          job.d_outList = &outFileList;
 //
 //          bdlf::Function<void (*)()> jobHandle =
-//                         bdlf::BindUtil::bind(&my_FastFunctorSearchJob, &job);
+//                        bdlf::BindUtil::bind(&my_FastFunctorSearchJob, &job);
 //          pool.enqueueJob(jobHandle);
 //      }
 //..
@@ -387,32 +387,36 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    #ifndef INCLUDED_BSL_C_SIGNAL
-    #include <bsl_c_signal.h>              // sigfillset
+    #ifndef INCLUDED_BSL_CSIGNAL
+    #include <bsl_csignal.h>              // sigfillset
     #endif
 #endif
 
 namespace BloombergLP {
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-namespace bdlmt {class ThreadPool;
-struct ThreadPoolWaitNode;
-}  // close package namespace
-
-extern "C" void* bcep_ThreadPoolEntry(void *);
-    // Entry point for processing threads.
-
-                           // =====================
-                           // class bdlmt::ThreadPool
-                           // =====================
-
-extern "C" {
-    typedef void (*bcep_ThreadPoolJobFunc)(void *);
+extern "C" typedef void (*bcep_ThreadPoolJobFunc)(void *);
         // This type declares the prototype for functions that are suitable to
-        // be specified 'bdlmt::ThreadPool::enqueueJob'.
-}
+        // be specified 'bdlmt::FixedThreadPool::enqueueJob'.
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bdlmt {
+
+struct ThreadPoolWaitNode;
+
+extern "C" void *ThreadPoolEntry(void *);
+    // Entry point for processing threads.
+
+extern "C" typedef void (*ThreadPoolJobFunc)(void *);
+    // This type declares the prototype for functions that are suitable to be
+    // specified 'bdlmt::FixedThreadPool::enqueueJob'.
+
+                            // ================
+                            // class ThreadPool
+                            // ================
+
 class ThreadPool {
     // This class implements a thread pool used for concurrently executing
     // multiple user-defined functions ("jobs").
@@ -423,76 +427,79 @@ class ThreadPool {
 
   private:
     // PRIVATE DATA
-    bsl::deque<Job>     d_queue;           // queue of pending jobs
+    bsl::deque<Job>      d_queue;          // queue of pending jobs
 
-    mutable bdlqq::Mutex d_mutex;           // mutex used to control access to
+    mutable bdlqq::Mutex d_mutex;          // mutex used to control access to
                                            // this thread pool
 
-    bdlqq::Condition    d_drainCond;        // condition variable used to signal
+    bdlqq::Condition     d_drainCond;      // condition variable used to signal
                                            // that the queue is fully drained
                                            // and that all active jobs have
                                            // completed
 
-    bdlqq::ThreadAttributes    d_threadAttributes; // thread attributes to be used when
+    bdlqq::ThreadAttributes
+                         d_threadAttributes;
+                                           // thread attributes to be used when
                                            // constructing processing threads
 
-    volatile int       d_maxThreads;       // maximum number of processing
+    volatile int         d_maxThreads;     // maximum number of processing
                                            // threads that can be started at
                                            // any given time by this thread
                                            // pool
 
-    volatile int       d_minThreads;       // minimum number of processing
+    volatile int         d_minThreads;     // minimum number of processing
                                            // threads that must running at any
                                            // given time
 
-    volatile int       d_threadCount;      // current number of processing
+    volatile int         d_threadCount;    // current number of processing
                                            // threads started by this thread
                                            // pool
 
-    volatile int       d_createFailures;   // number of thread create failures
+    volatile int         d_createFailures; // number of thread create failures
 
-    volatile int       d_maxIdleTime;      // maximum time (in milliseconds)
+    volatile int         d_maxIdleTime;    // maximum time (in milliseconds)
                                            // that threads (in excess of the
                                            // minimum number of threads) can
                                            // remain idle before being shut
                                            // down
 
-    volatile int       d_numActiveThreads; // current number of threads that
+    volatile int         d_numActiveThreads;
+                                           // current number of threads that
                                            // are actively processing a job
 
-    volatile int       d_numWaiting;       // number of thread currently
+    volatile int         d_numWaiting;     // number of thread currently
                                            // blocked waiting for a job
 
-    volatile int       d_enabled;          // indicates the enabled state of
+    volatile int         d_enabled;        // indicates the enabled state of
                                            // queue; queuing is disabled when
                                            // 0, enabled otherwise
 
-    ThreadPoolWaitNode* volatile  d_waitHead;
-                                           // pointer to the 'WaitNode' control
+    ThreadPoolWaitNode* volatile
+                         d_waitHead;       // pointer to the 'WaitNode' control
                                            // structure of the first thread
                                            // that is waiting for a request
 
-    bsls::AtomicInt64   d_lastResetTime;    // last reset time of percent-busy
+    bsls::AtomicInt64    d_lastResetTime;  // last reset time of percent-busy
                                            // metric in nanoseconds from some
                                            // arbitrary but fixed point in time
 
-    bsls::AtomicInt64   d_callbackTime;     // the total time spent running jobs
+    bsls::AtomicInt64    d_callbackTime;   // the total time spent running jobs
                                            // (callbacks) across all threads,
                                            // in nanoseconds
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    sigset_t           d_blockSet;         // set of signals to be blocked in
+    sigset_t             d_blockSet;       // set of signals to be blocked in
                                            // managed threads
 #endif
 
     // FRIENDS
-    friend void* ::BloombergLP::bcep_ThreadPoolEntry(void *);
+    friend void* ThreadPoolEntry(void *);
 
     // PRIVATE MANIPULATORS
     void doEnqueueJob(const Job& job);
-        // Internal method used to push a job onto 'd_queue' and signal the
-        // next waiting thread if any.  Note that this method must be called
-        // with 'd_mutex' locked.
+        // Internal method used to push the specified 'job' onto 'd_queue' and
+        // signal the next waiting thread if any.  Note that this method must
+        // be called with 'd_mutex' locked.
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     void initBlockSet();
@@ -520,14 +527,14 @@ class ThreadPool {
 
     // CREATORS
     ThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
-                    int                     minThreads,
-                    int                     maxThreads,
-                    int                     maxIdleTime,
-                    bslma::Allocator       *basicAllocator=0);
+               int                             minThreads,
+               int                             maxThreads,
+               int                             maxIdleTime,
+               bslma::Allocator               *basicAllocator = 0);
         // Construct a thread pool with the specified 'threadAttributes',
-        // 'minThread' minimum number of threads, 'maxThreads' maximum number
-        // of threads, and 'maxIdleTime' maximum idle time (in milliseconds),
-        // and optionally using the specified 'basicAllocator'.
+        // 'minThread' and 'maxThreads' minimum and maximum number of threads
+        // respectively, the specified 'maxIdleTime' maximum idle time (in
+        // milliseconds), and using the optionally specified 'basicAllocator'.
 
     ~ThreadPool();
         // Drain all pending jobs and destroy this thread pool.
@@ -544,7 +551,7 @@ class ThreadPool {
         // 'functor' is not "unset".  See 'bdlf_function' for more information
         // on functors.
 
-    int enqueueJob(bcep_ThreadPoolJobFunc function, void *userData);
+    int enqueueJob(ThreadPoolJobFunc function, void *userData);
         // Enqueue the specified 'function' to be executed by the next
         // available thread.  The specified 'userData' pointer will be passed
         // to the function by the processing thread.  Return 0 if enqueued
@@ -625,14 +632,13 @@ class ThreadPool {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // MANIPULATORS
 
 inline
-int ThreadPool::enqueueJob(bcep_ThreadPoolJobFunc  function,
-                                void                   *userData)
+int ThreadPool::enqueueJob(ThreadPoolJobFunc function, void *userData)
 {
     return enqueueJob(bdlf::BindUtil::bindR<void>(function, userData));
 }

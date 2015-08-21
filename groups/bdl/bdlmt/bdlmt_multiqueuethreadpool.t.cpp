@@ -1,8 +1,11 @@
 // bdlmt_multiqueuethreadpool.t.cpp                                   -*-C++-*-
 #include <bdlmt_multiqueuethreadpool.h>
 
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
+#include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
 
@@ -40,12 +43,12 @@ using bsl::flush;
 
 using namespace BloombergLP;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // 'bdlmt_multiqueuethreadpool' private interface
 // MANIPULATORS
 // [ 2] void deleteQueueCb(int id, const bdlf::Function<void (*)()>&
@@ -54,13 +57,14 @@ using namespace BloombergLP;
 //
 // 'bdlmt_multiqueuethreadpool' public interface
 // CREATORS
-// [ 2] bdlmt::MultiQueueThreadPool(const bdlqq::ThreadAttributes& threadAttributes,
-//                                int                    minThreads,
-//                                int                    maxThreads,
-//                                int                    maxIdleTime,
-//                                bslma::Allocator      *basicAllocator = 0);
-// [ 7] bdlmt::MultiQueueThreadPool(bdlmt::ThreadPool  *threadPool,
-//                                bslma::Allocator *basicAllocator = 0);
+// [ 2] bdlmt::MultiQueueThreadPool(
+//                         const bdlqq::ThreadAttributes&  threadAttributes,
+//                         int                             minThreads,
+//                         int                             maxThreads,
+//                         int                             maxIdleTime,
+//                         bslma::Allocator               *basicAllocator = 0);
+// [ 7] bdlmt::MultiQueueThreadPool(bdlmt::ThreadPool *threadPool,
+//                                  bslma::Allocator  *basicAllocator = 0);
 // [ 2] ~bdlmt::MultiQueueThreadPool();
 //
 // MANIPULATORS
@@ -80,7 +84,7 @@ using namespace BloombergLP;
 // [ 4] int numQueues() const;
 // [ 4] int numElements(int id) const;
 // [ 2] const bdlmt::ThreadPool& threadPool() const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] PRIMARY TEST APPARATUS
 // [ 5] OUTPUT (<<) OPERATOR
@@ -90,60 +94,51 @@ using namespace BloombergLP;
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [14] USAGE EXAMPLE 1
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
-
-//=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline.
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // The following macros facilitate thread-safe streaming to standard output.
 
@@ -152,9 +147,9 @@ void aSsErT(int c, const char *s, int i)
 #define MTENDL   bsl::endl;  } coutMutex.unlock()
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
 
-//=============================================================================
+// ============================================================================
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 typedef bdlmt::MultiQueueThreadPool Obj;
 
 typedef bdlf::Function<void (*)()> Func;
@@ -175,87 +170,95 @@ static bdlqq::Mutex coutMutex;
     static const double jumpTheGun = 0.0;
 #endif
 
-//=============================================================================
+// ============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void makeFunc(bdlf::Function<void (*)()> * f, void (*fptr)()) {
     *f = fptr;
 }
 
-void makeFunc( bslma::Allocator *a
-             , bdlf::Function<void (*)()> * f, void (*fptr)()) {
+void makeFunc(bslma::Allocator           *a,
+              bdlf::Function<void (*)()> *f,
+              void (                     *fptr)())
+{
     *f = bdlf::Function<void (*)()>(fptr, a);
 }
 
 template <class A1>
-void makeFunc( bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1)
-             , A1 a1) {
+void makeFunc(bdlf::Function<void (*)()> *f, void (*fptr)(A1), A1 a1)
+{
     *f = bdlf::BindUtil::bind(fptr, a1);
 }
 
 template <class A1>
-void makeFunc( bslma::Allocator * a
-             , bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1)
-             , A1 a1) {
+void makeFunc(bslma::Allocator           *a,
+              bdlf::Function<void (*)()> *f,
+              void (                     *fptr)(A1),
+              A1                          a1)
+{
     *f = bdlf::BindUtil::bindA(a, fptr, a1);
 }
 
 template <class A1, class A2>
-void makeFunc( bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1, A2)
-             , A1 a1
-             , A2 a2) {
+void makeFunc(bdlf::Function<void (*)()> *f,
+              void (                     *fptr)(A1, A2),
+              A1                          a1,
+              A2                          a2)
+{
     *f = bdlf::BindUtil::bind(fptr, a1, a2);
 }
 
 template <class A1, class A2>
-void makeFunc( bslma::Allocator * a
-             , bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1, A2)
-             , A1 a1
-             , A2 a2) {
+void makeFunc(bslma::Allocator           *a,
+              bdlf::Function<void (*)()> *f,
+              void (                     *fptr)(A1, A2),
+              A1                          a1,
+              A2                          a2)
+{
     *f = bdlf::BindUtil::bindA(a, fptr, a1, a2);
 }
 
 template <class A1, class A2, class A3>
-void makeFunc( bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1, A2, A3)
-             , A1 a1
-             , A2 a2
-             , A3 a3) {
+void makeFunc(bdlf::Function<void (*)()> *f,
+              void (                     *fptr)(A1, A2, A3),
+              A1                          a1,
+              A2                          a2,
+              A3                          a3)
+{
     *f = bdlf::BindUtil::bind(fptr, a1, a2, a3);
 }
 
 template <class A1, class A2, class A3>
-void makeFunc( bslma::Allocator * a
-             , bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1, A2, A3)
-             , A1 a1
-             , A2 a2
-             , A3 a3) {
+void makeFunc(bslma::Allocator           *a,
+              bdlf::Function<void (*)()> *f,
+              void (                     *fptr)(A1, A2, A3),
+              A1                          a1,
+              A2                          a2,
+              A3                          a3)
+{
     *f = bdlf::BindUtil::bindA(a, fptr, a1, a2, a3);
 }
 
 template <class A1, class A2, class A3, class A4>
-void makeFunc( bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1, A2, A3, A4)
-             , A1 a1
-             , A2 a2
-             , A3 a3
-             , A4 a4) {
+void makeFunc(bdlf::Function<void (*)()> *f,
+              void (                     *fptr)(A1, A2, A3, A4),
+              A1                          a1,
+              A2                          a2,
+              A3                          a3,
+              A4                          a4)
+{
     *f = bdlf::BindUtil::bind(fptr, a1, a2, a3, a4);
 }
 
 template <class A1, class A2, class A3, class A4>
-void makeFunc( bslma::Allocator * a
-             , bdlf::Function<void (*)()> * f
-             , void (*fptr)(A1, A2, A3, A4)
-             , A1 a1
-             , A2 a2
-             , A3 a3
-             , A4 a4) {
+void makeFunc(bslma::Allocator           *a,
+              bdlf::Function<void (*)()> *f,
+              void (                     *fptr)(A1, A2, A3, A4),
+              A1                          a1,
+              A2                          a2,
+              A3                          a3,
+              A4                          a4)
+{
     *f = bdlf::BindUtil::bindA(a, fptr, a1, a2, a3, a4);
 }
 
@@ -334,9 +337,9 @@ double now() {
     return bdlt::CurrentTime::now().totalSecondsAsDouble();
 }
 
-//=============================================================================
+// ============================================================================
 //       CASE-SPECIFIC TYPES, HELPER FUNCTIONS, AND CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static
 void case9Callback(bsls::AtomicInt *counter, bsl::vector<int> *results)
 {
@@ -356,11 +359,10 @@ void case11CleanUp(bsls::AtomicInt *counter, bdlqq::Barrier *barrier) {
 }
 
 static
-void case12EnqueueJob(
-        bdlmt::MultiQueueThreadPool          *mqtp,
-        int                                 id,
-        const bdlf::Function<void (*)()>&    job,
-        bdlqq::Barrier                      *barrier)
+void case12EnqueueJob(bdlmt::MultiQueueThreadPool       *mqtp,
+                      int                                id,
+                      const bdlf::Function<void (*)()>&  job,
+                      bdlqq::Barrier                    *barrier)
 {
     // Enqueue the specified 'job' to the queue with the specified 'id' managed
     // by the 'bdlmt::MultiQueueThreadPool' pointed to by 'mqtp'.
@@ -377,14 +379,14 @@ void case12EnqueueJob(
 }
 
 static
-void case12DeleteQueue(
-        bdlmt::MultiQueueThreadPool       *mqtp,
-        int                              id,
-        const bdlf::Function<void (*)()>& cleanupCb,
-        bdlqq::Barrier                   *barrier)
+void case12DeleteQueue(bdlmt::MultiQueueThreadPool       *mqtp,
+                       int                                id,
+                       const bdlf::Function<void (*)()>&  cleanupCb,
+                       bdlqq::Barrier                    *barrier)
 {
-    // Delete the queue identified by 'id' from the 'bdlmt::MultiQueueThreadPool'
-    // pointed to by 'mqtp' with the specified 'cleanupCb' callback.
+    // Delete the queue identified by 'id' from the
+    // 'bdlmt::MultiQueueThreadPool' pointed to by 'mqtp' with the specified
+    // 'cleanupCb' callback.
 
     ASSERT(mqtp);
     ASSERT(barrier);
@@ -395,18 +397,18 @@ void case12DeleteQueue(
     barrier->wait();
 }
 
-//=============================================================================
+// ============================================================================
 //           CLASSES AND HELPER FUNCTIONS FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                            // ======================
                            // class my_SearchProfile
                            // ======================
 
 class my_SearchProfile {
-    // This class defines a search profile consisting of a word
-    // and a set of files (given by name) that contain the word.
-    // Here, "word" is defined as any string of characters.
+    // This class defines a search profile consisting of a word and a set of
+    // files (given by name) that contain the word.  Here, "word" is defined as
+    // any string of characters.
 
     bsl::string           d_word;     // word to search for
     bsl::set<bsl::string> d_fileSet;  // set of matching files
@@ -418,44 +420,40 @@ class my_SearchProfile {
 
   public:
     // CREATORS
-    my_SearchProfile(const char       *word,
-                     bslma::Allocator *basicAllocator = 0);
-        // Create a 'my_SearchProfile' with the specified 'word'.
-        // Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the default memory allocator is used.
+    my_SearchProfile(const char *word, bslma::Allocator *basicAllocator = 0);
+        // Create a 'my_SearchProfile' with the specified 'word'.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the default memory allocator is used.
 
     ~my_SearchProfile();
         // Destroy this search profile.
 
     // MANIPULATORS
     void insert(const char *file);
-        // Insert the specified 'file' into the file set maintained
-        // by this search profile.
+        // Insert the specified 'file' into the file set maintained by this
+        // search profile.
 
     // ACCESSORS
     bool isMatch(const char *file) const;
-        // Return 'true' if the specified 'file' matches this search
-        // profile.
+        // Return 'true' if the specified 'file' matches this search profile.
 
     const bsl::set<bsl::string>& fileSet() const;
-        // Return a reference to the non-modifiable file set maintained
-        // by this search profile.
+        // Return a reference to the non-modifiable file set maintained by this
+        // search profile.
 
     const bsl::string& word() const;
-        // Return a reference to the non-modifiable word maintained
-        // by this search profile.
+        // Return a reference to the non-modifiable word maintained by this
+        // search profile.
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                               IMPLEMENTATION
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CREATORS
-my_SearchProfile::my_SearchProfile(
-        const char       *word,
-        bslma::Allocator *basicAllocator)
-: d_word(basicAllocator)
-, d_fileSet(bsl::less<bsl::string>(), basicAllocator)
+my_SearchProfile::my_SearchProfile(const char       *word,
+                                   bslma::Allocator *basicAllocator)
+: d_word(basicAllocator), d_fileSet(bsl::less<bsl::string>(), basicAllocator)
 {
     ASSERT(word);
 
@@ -505,12 +503,12 @@ const bsl::string& my_SearchProfile::word() const
     return d_word;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static
 void my_SearchCb(my_SearchProfile* profile, const char *file)
 {
-    // Insert the specified 'file' to the file set of the specified
-    // search 'profile' if 'file' matches the 'profile'.
+    // Insert the specified 'file' to the file set of the specified search
+    // 'profile' if 'file' matches the 'profile'.
 
     ASSERT(profile);
     ASSERT(file);
@@ -521,29 +519,28 @@ void my_SearchCb(my_SearchProfile* profile, const char *file)
 }
 
 static
-void fastSearch(const bsl::vector<bsl::string>& wordList,
+void fastSearch(const bsl::vector<bsl::string>&  wordList,
                 const bsl::vector<bsl::string>&  fileList,
                 bsl::set<bsl::string>&           resultSet,
                 bslma::Allocator                *basicAllocator = 0)
 {
-    // Return the set of files, specified by 'fileList', containing
-    // every word in the specified 'wordList', in the specified
-    // 'resultSet'.
+    // Return the set of files, specified by 'fileList', containing every word
+    // in the specified 'wordList', in the specified 'resultSet'.
 
     typedef bsl::vector<bsl::string> ListType;
-        // This type is defined for notational convenience when iterating
-        // over 'wordList' or 'fileList'.
+        // This type is defined for notational convenience when iterating over
+        // 'wordList' or 'fileList'.
 
     typedef bsl::pair<int, my_SearchProfile*> RegistryValue;
         // This type is defined for notational convenience.  The first
-        // parameter specifies a queue ID.  The second parameter specifies
-        // an associated search profile.
+        // parameter specifies a queue ID.  The second parameter specifies an
+        // associated search profile.
 
     typedef bsl::map<bsl::string, RegistryValue> RegistryType;
         // This type is defined for notational convenience.  The first
-        // parameter specifies a word.  The second parameter specifies a
-        // tuple containing a queue ID, and an associated search profile
-        // containing the specified word.
+        // parameter specifies a word.  The second parameter specifies a tuple
+        // containing a queue ID, and an associated search profile containing
+        // the specified word.
 
     enum {
         // thread pool configuration
@@ -552,10 +549,12 @@ void fastSearch(const bsl::vector<bsl::string>& wordList,
         MAX_IDLE    = 100   // use a very short idle time since new jobs
                             // arrive only at startup
     };
-    bdlqq::ThreadAttributes           defaultAttrs;
+    bdlqq::ThreadAttributes     defaultAttrs;
     bdlmt::MultiQueueThreadPool pool(defaultAttrs,
-                                   MIN_THREADS, MAX_THREADS, MAX_IDLE,
-                                   basicAllocator);
+                                     MIN_THREADS,
+                                     MAX_THREADS,
+                                     MAX_IDLE,
+                                     basicAllocator);
     RegistryType profileRegistry(bsl::less<bsl::string>(), basicAllocator);
 
     // Start the pool, enabling queue creation and processing.
@@ -607,8 +606,8 @@ void fastSearch(const bsl::vector<bsl::string>& wordList,
     // Stop the pool, and wait while enqueued jobs are processed.
     pool.stop();
 
-    // Construct the 'resultSet' as the intersection of file sets
-    // collected in each search profile.
+    // Construct the 'resultSet' as the intersection of file sets collected in
+    // each search profile.
 
     resultSet.insert(fileList.begin(), fileList.end());
     for (RegistryType::iterator it = profileRegistry.begin();
@@ -649,15 +648,15 @@ struct StressJob {
 };
 int StressJob::s_count = 0;
 
-//=============================================================================
+// ============================================================================
 //                          For test cases 14 and 15
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // This was originally done twice in a loop in case 14, but it is taking so
 // long that it was broken up to be called separately in 2 cases with different
 // values of 'concurrency'.
 
-namespace BCEP_MULTIQUEUETHREADPOOL_CASE_14 {
+namespace MULTIQUEUETHREADPOOL_CASE_14 {
 
 enum {
 #ifndef BSLS_PLATFORM_OS_CYGWIN
@@ -780,8 +779,8 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         mX.stop();
         ASSERT(2 * NUM_QUEUES - 2 == Sleeper::s_finished);
 
-        // make sure that 'drain' on a stopped pool won't segfault or
-        // abort, and that it will return immediately
+        // make sure that 'drain' on a stopped pool won't segfault or abort,
+        // and that it will return immediately
         startTime = now();
         mX.drain();
         time = now() - startTime;
@@ -818,9 +817,9 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
     ASSERT(ii <= MAX_LOOP);
 
 }
-}  // close namespace BCEP_MULTIQUEUETHREADPOOL_CASE_14
+}  // close namespace MULTIQUEUETHREADPOOL_CASE_14
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
 
 int main(int argc, char *argv[]) {
@@ -1082,7 +1081,7 @@ int main(int argc, char *argv[]) {
         // Repeat of test case 14 with different value passed to 'concurrency'
         // --------------------------------------------------------------------
 
-        using namespace BCEP_MULTIQUEUETHREADPOOL_CASE_14;
+        using namespace MULTIQUEUETHREADPOOL_CASE_14;
 
         if (verbose) cout << "Simple test of drainQueue and drain 2\n";
 
@@ -1128,7 +1127,7 @@ int main(int argc, char *argv[]) {
         //   drain()
         // --------------------------------------------------------------------
 
-        using namespace BCEP_MULTIQUEUETHREADPOOL_CASE_14;
+        using namespace MULTIQUEUETHREADPOOL_CASE_14;
 
         if (verbose) cout << "Simple test of drainQueue and drain\n";
 
@@ -1316,16 +1315,16 @@ int main(int argc, char *argv[]) {
 
             Func   cleanupCb;
             bdlqq::Barrier barrier(2);
-            makeFunc< bdlmt::MultiQueueThreadPool *
-                    , int
-                    , const bdlf::Function<void (*)()>&
-                    , bdlqq::Barrier *>( &ta
-                                      , &cleanupCb
-                                      , case12EnqueueJob
-                                      , &mX
-                                      , id2
-                                      , count
-                                      , &barrier);
+            makeFunc<bdlmt::MultiQueueThreadPool *,
+                     int,
+                     const bdlf::Function<void (*)()> &,
+                     bdlqq::Barrier *>(&ta,
+                                       &cleanupCb,
+                                       case12EnqueueJob,
+                                       &mX,
+                                       id2,
+                                       count,
+                                       &barrier);
             // The clean up callback for queue 'id1' will increment 'counter'.
 
             if (veryVerbose) {
@@ -1340,16 +1339,16 @@ int main(int argc, char *argv[]) {
                 cout << "\tCreated queue " << id3 << endl;
             }
             ASSERT(2 == X.numQueues());  // id2 and id3
-            makeFunc< bdlmt::MultiQueueThreadPool *
-                    , int
-                    , const bdlf::Function<void (*)()>&
-                    , bdlqq::Barrier *>( &ta
-                                      , &cleanupCb
-                                      , case12DeleteQueue
-                                      , &mX
-                                      , id2
-                                      , count
-                                      , &barrier);
+            makeFunc<bdlmt::MultiQueueThreadPool *,
+                     int,
+                     const bdlf::Function<void (*)()> &,
+                     bdlqq::Barrier *>(&ta,
+                                       &cleanupCb,
+                                       case12DeleteQueue,
+                                       &mX,
+                                       id2,
+                                       count,
+                                       &barrier);
             if (veryVerbose) {
                 cout << "\tDeleting queue " << id3 << endl;
             }
@@ -1358,7 +1357,7 @@ int main(int argc, char *argv[]) {
             barrier.wait();
 
             while (2 != counter) {         // SPIN
-                bdlqq::ThreadUtil::microSleep(250000);  // trigger thread switch
+                bdlqq::ThreadUtil::microSleep(250000); // trigger thread switch
                 bdlqq::ThreadUtil::yield();
             }
             ASSERT(0 == mX.numQueues());
@@ -1460,8 +1459,11 @@ int main(int argc, char *argv[]) {
             MAX_IDLE = 60000    // milliseconds
         };
 
-        bdlmt::ThreadPool tp(bdlqq::ThreadAttributes(), MIN_THREADS, MAX_THREADS,
-                                                                MAX_IDLE, &ta);
+        bdlmt::ThreadPool tp(bdlqq::ThreadAttributes(),
+                             MIN_THREADS,
+                             MAX_THREADS,
+                             MAX_IDLE,
+                             &ta);
         Obj *pMX = new (ta) Obj(&tp, &ta);
         Obj& mX = *pMX;         const Obj& X = mX;
         Obj mY(&tp, &ta);       const Obj& Y = mY;
@@ -1560,9 +1562,9 @@ int main(int argc, char *argv[]) {
         //
         // Plan:
         //   Iterate over a number of test vectors varying in the minimum and
-        //   maximum number of threads used to create a 'bdlmt::ThreadPool', and
-        //   the number of queues to create.  For each test vector, create a
-        //   modifiable 'bdlmt::MultiQueueThreadPool' object 'mX', and a
+        //   maximum number of threads used to create a 'bdlmt::ThreadPool',
+        //   and the number of queues to create.  For each test vector, create
+        //   a modifiable 'bdlmt::MultiQueueThreadPool' object 'mX', and a
         //   non-modifiable reference to 'mX' named 'X'.  Start 'mX'.  Create
         //   the specified number of queues, and enqueue a fixed number of jobs
         //   to each queue.  Each job (represented as a functor) increments a
@@ -1674,8 +1676,11 @@ int main(int argc, char *argv[]) {
 
                     for (int k = 0; k < NUM_JOBS; ++k) {
                         Func job;
-                        makeFunc(&ta, &job, case9Callback,
-                              &counters[j], &results[j]);
+                        makeFunc(&ta,
+                                 &job,
+                                 case9Callback,
+                                 &counters[j],
+                                 &results[j]);
                         LOOP4_ASSERT(i, LINE, j, k,
                                      0 == mX.enqueueJob(id, job));
                     }
@@ -1752,8 +1757,7 @@ int main(int argc, char *argv[]) {
             Func     cleanupCb;  // empty callback
             Func     block;      // blocks on 'barrier'
             Func     count;      // increments 'counter'
-            makeFunc(&ta, &cleanupCb,
-                  waitOnBarrier, &barrier, 1);
+            makeFunc(&ta, &cleanupCb, waitOnBarrier, &barrier, 1);
             makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
             makeFunc(&ta, &count, incrementCounter, &counter);
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
@@ -1772,7 +1776,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.enqueueJob(id, count));
             ASSERT(0 == mX.enqueueJob(id, count));
             while (5 != X.numElements(id)) {
-                bdlqq::ThreadUtil::microSleep(250000);  // trigger thread switch
+                bdlqq::ThreadUtil::microSleep(250000); // trigger thread switch
                 bdlqq::ThreadUtil::yield();
             }
             ASSERT(5 == X.numElements(id));
@@ -1794,14 +1798,15 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // TESTING ALTERNATE CONSTRUCTORS
         //
-        // Concerns: That a pool constructed with an external 'bdlmt::ThreadPool'
-        // behaves identically to one created with an internal thread pool.
+        // Concerns: That a pool constructed with an external
+        // 'bdlmt::ThreadPool' behaves identically to one created with an
+        // internal thread pool.
         //
         // Plan:
         //   Create a modifiable 'bdlmt::ThreadPool', 'pool', with 1 <
         //   'minThreads' and 'minThreads' < 'maxThreads'.  Create a
-        //   'bdlmt::MultiQueueThreadPool', 'mX', instantiated with 'pool', and a
-        //   non-modifiable reference to 'mX' named 'X'.
+        //   'bdlmt::MultiQueueThreadPool', 'mX', instantiated with 'pool', and
+        //   a non-modifiable reference to 'mX' named 'X'.
         //
         //   Start the pool.  Create a queue and enqueue a large number of jobs
         //   to it.  Each job, represented by a functor, increments a counter,
@@ -1820,8 +1825,9 @@ int main(int argc, char *argv[]) {
         //   the threadpool (corresponding to the last job on the only queue).
         //
         // Testing:
-        //    bdlmt::MultiQueueThreadPool(bdlmt::ThreadPool *threadPool,
-        //                              bslma::Allocator *basicAllocator = 0);
+        //    bdlmt::MultiQueueThreadPool(
+        //                              bdlmt::ThreadPool *threadPool,
+        //                              bslma::Allocator  *basicAllocator = 0);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1838,8 +1844,11 @@ int main(int argc, char *argv[]) {
                 MAX_IDLE    = 60000    // milliseconds
             };
             bdlqq::ThreadAttributes defaultAttrs;
-            bdlmt::ThreadPool pool(defaultAttrs,
-                                 MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
+            bdlmt::ThreadPool       pool(defaultAttrs,
+                                         MIN_THREADS,
+                                         MAX_THREADS,
+                                         MAX_IDLE,
+                                         &ta);
 
             {
                 Obj        mX(&pool, &ta);
@@ -2280,11 +2289,11 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   bdlmt::MultiQueueThreadPool(
-        //                         const bdlqq::ThreadAttributes&  threadAttributes,
-        //                         int                     minThreads,
-        //                         int                     maxThreads,
-        //                         int                     maxIdleTime,
-        //                         bslma::Allocator       *basicAllocator = 0);
+        //                 const bdlqq::ThreadAttributes&  threadAttributes,
+        //                 int                             minThreads,
+        //                 int                             maxThreads,
+        //                 int                             maxIdleTime,
+        //                 bslma::Allocator               *basicAllocator = 0);
         //   ~bdlmt::MultiQueueThreadPool();
         //   int createQueue();
         //   int deleteQueue(int id, const bdlf::Function<void (*)()>&
@@ -2396,9 +2405,9 @@ int main(int argc, char *argv[]) {
             }
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Enqueue many jobs, stop the pool, and verify that all
-            // elements are processed, but neither the queues nor the threads
-            // are destroyed.
+            // Enqueue many jobs, stop the pool, and verify that all elements
+            // are processed, but neither the queues nor the threads are
+            // destroyed.
 
             if (veryVerbose) {
                 const int LINE = L_;
@@ -2619,9 +2628,9 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == tp.numWaitingThreads());
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Start pool.  Enqueue many jobs, stop the pool, and verify
-            // that all elements are processed, but neither the queue nor
-            // the threads are destroyed.
+            // Start pool.  Enqueue many jobs, stop the pool, and verify that
+            // all elements are processed, but neither the queue nor the
+            // threads are destroyed.
             if (veryVerbose) {
                 cout << "\tCalling 'start'" << endl;
             }

@@ -360,9 +360,11 @@ class SpinLockGuard {
         // managed by this object.
 
     // MANIPULATORS
-    void release();
-        // Stop managing the lock specified on construction, without any effect
-        // on the lock (that is, the lock is left in the locked state).
+    SpinLock *release();
+        // Return the lock pointer that was provided at construction and stop
+        // managing it.  (Subsequent calls to 'release()' will return null and
+        // the destruction of this object will not affect the lock.)  The lock
+        // status is not changed by this call.
 };
 
 // ============================================================================
@@ -429,8 +431,10 @@ SpinLockGuard::~SpinLockGuard()
 
 // MANIPULATORS
 inline
-void SpinLockGuard::release() {
+SpinLock *SpinLockGuard::release() {
+    SpinLock *lock = d_lock_p;
     d_lock_p = 0;
+    return lock;
 }
 
 }  // close package namespace

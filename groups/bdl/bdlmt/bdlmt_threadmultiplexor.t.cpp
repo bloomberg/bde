@@ -2,6 +2,8 @@
 
 #include <bdlmt_threadmultiplexor.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlf_bind.h>
 #include <bslmf_if.h>
 #include <bdlqq_semaphore.h>
@@ -12,9 +14,11 @@
 
 #include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
+
+#include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_streambuf.h>
-
 #include <bsl_c_math.h>
 
 using namespace BloombergLP;
@@ -24,13 +28,13 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                   TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
 // TBD: Overview
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 1] bdlmt::ThreadMultiplexor(int, int, bslma::Allocator *);
 // [ 1] ~bdlmt::ThreadMultiplexor();
@@ -42,74 +46,70 @@ using bsl::flush;
 // [ 1] int maxProcessors();
 // [ 1] int numProcessors();
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] USAGE EXAMPLE
 // [ 3] MORE PARTITIONS
 // [ 4] SMALL QUEUE
 // [ 5] STRESS TEST
 // [ 6] CONCERN: Single-processor multiplexor
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline.
-
-//=============================================================================
+// ============================================================================
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-//=============================================================================
+// ============================================================================
 //                GLOBAL SUPPORT FUNCTIONS AND CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                               // ===============
                               // class TestQueue
@@ -134,32 +134,30 @@ class TestQueue {
     typedef bdlmt::ThreadMultiplexor::Job Job;
 
     // CREATORS
-    TestQueue(int                   maxProcessors,
-              int                   queueCapacity,
+    TestQueue(int                     maxProcessors,
+              int                     queueCapacity,
               bdlmt::FixedThreadPool *threadPool,
-              bslma::Allocator     *basicAllocator = 0);
+              bslma::Allocator       *basicAllocator = 0);
 
     ~TestQueue();
 
     // MANIPULATORS
     int processJob(const Job& job);
-      // Submit a job to the thread pool.  If there are processors available
-      // according to the multiplexor, the job will be executed immediately;
-      // otherwise it will be enqueued.
+        // Submit the specified 'job' to the thread pool.  If there are
+        // processors available according to the multiplexor, the job will be
+        // executed immediately; otherwise it will be enqueued.
 
     bdlmt::ThreadMultiplexor *multiplexor();
-      // Return a pointer to the modifiable "multiplexor" attribute.
+        // Return a pointer to the modifiable "multiplexor" attribute.
 };
 
 // CREATORS
-TestQueue::TestQueue(int                   maxProcessors,
-                     int                   queueCapacity,
+TestQueue::TestQueue(int                     maxProcessors,
+                     int                     queueCapacity,
                      bdlmt::FixedThreadPool *threadPool,
-                     bslma::Allocator     *basicAllocator)
+                     bslma::Allocator       *basicAllocator)
 : d_threadPool_p(threadPool)
-, d_multiplexor(maxProcessors,
-                queueCapacity,
-                basicAllocator)
+, d_multiplexor(maxProcessors, queueCapacity, basicAllocator)
 {
 }
 
@@ -170,10 +168,10 @@ TestQueue::~TestQueue()
 // MANIPULATORS
 int TestQueue::processJob(const TestQueue::Job& job)
 {
-    return d_threadPool_p->tryEnqueueJob(
-            bdlf::BindUtil::bind(&bdlmt::ThreadMultiplexor::processJob<Job>,
-                                &d_multiplexor,
-                                job));
+    return d_threadPool_p->tryEnqueueJob(bdlf::BindUtil::bind(
+                                    &bdlmt::ThreadMultiplexor::processJob<Job>,
+                                    &d_multiplexor,
+                                    job));
 }
 
 bdlmt::ThreadMultiplexor *TestQueue::multiplexor() {
@@ -185,11 +183,10 @@ bdlmt::ThreadMultiplexor *TestQueue::multiplexor() {
                            // ======================
 
 class UsageTestChecker {
-    // This class provides a functor to be passed to the ThreadMultiplexor
-    // for testing.  The job the functor does is to increment a counter
-    // controlled by a mutex.  The start of the job can be coordinated
-    // with a semaphore, allowing for forced contention.
-    //
+    // This class provides a functor to be passed to the ThreadMultiplexor for
+    // testing.  The job the functor does is to increment a counter controlled
+    // by a mutex.  The start of the job can be coordinated with a semaphore,
+    // allowing for forced contention.
 
     // DATA
     int                     d_timesCalled;
@@ -206,25 +203,25 @@ public:
 
    // MANIPULATORS
    operator TestQueue::Job ();
-     // Return an invokable functor which calls the 'eval' method of this
-     // object.
+       // Return an invokable functor which calls the 'eval' method of this
+       // object.
 
    void eval();
-     // Perform the function of this object.
+       // Perform the function of this object.
 
    void reset();
-     // Reset the counter variables of this object to 0.
+       // Reset the counter variables of this object to 0.
 
    void setSemaphore(bdlqq::Semaphore* semaphore);
-     // Specify the semaphore which will control the start of the job.
+       // Specify the 'semaphore' which will control the start of the job.
 
    // ACCESSORS
    int timesCalled() const;
-     // Return the number of times the functor was invoked.
+       // Return the number of times the functor was invoked.
 
    int maxProcessors() const;
-     // Return the maximal value of the "processors" attribute of the
-     // multiplexor when executing this functor.
+       // Return the maximal value of the "processors" attribute of the
+       // multiplexor when executing this functor.
 };
 
 // CREATORS
@@ -252,8 +249,8 @@ void UsageTestChecker::eval() {
 
     d_mutex.lock();
     ++d_timesCalled;
-    d_maxProcessors = bsl::max(d_maxProcessors,
-            d_multiplexor->numProcessors());
+    d_maxProcessors =
+        bsl::max(d_maxProcessors, d_multiplexor->numProcessors());
     d_mutex.unlock();
 }
 
@@ -274,14 +271,14 @@ int UsageTestChecker::maxProcessors() const {
     return d_maxProcessors;
 }
 
-//=============================================================================
+// ============================================================================
 //                     TEST CASE 6: SUPPORT FUNCTIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 namespace TEST_CASE_6 {
 
 void testCase6(bdlqq::Semaphore                 *startSemaphore,
-               bdlmt::ThreadMultiplexor          *mX,
-               int                              numJobs,
+               bdlmt::ThreadMultiplexor         *mX,
+               int                               numJobs,
                const bdlf::Function<void(*)()>&  job)
 {
    startSemaphore->wait();
@@ -291,21 +288,20 @@ void testCase6(bdlqq::Semaphore                 *startSemaphore,
 }
 
 }  // close namespace TEST_CASE_6
-//=============================================================================
+// ============================================================================
 //                           COMPONENT USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 namespace TEST_CASE_USAGE_EXAMPLE {
 
 class JobQueue {
    // This class defines a generic processor for user-defined functions
-   // ("jobs").  Jobs specified to the 'processJob' method are executed
-   // in the thread pool specified at construction.
+   // ("jobs").  Jobs specified to the 'processJob' method are executed in the
+   // thread pool specified at construction.
 
 public:
    // PUBLIC TYPES
    typedef bdlmt::ThreadMultiplexor::Job Job;
-     // A callback of this type my be specified to the 'processJob'
-     // method.
+     // A callback of this type my be specified to the 'processJob' method.
 
 private:
    // DATA
@@ -319,34 +315,30 @@ private:
 
 public:
    // CREATORS
-   JobQueue(int                   maxProcessors,
+   JobQueue(int                     maxProcessors,
             bdlmt::FixedThreadPool *threadPool,
-            bslma::Allocator     *basicAllocator = 0);
-     // Create a job queue that executes jobs in the specified
-     // 'threadPool' using no more than the specified 'maxProcessors'.
-     // Optionally specify a 'basicAllocator' used to supply memory.  If
-     // 'basicAllocator is 0, the currently installed default allocator
-     // is used.
+            bslma::Allocator       *basicAllocator = 0);
+       // Create a job queue that executes jobs in the specified 'threadPool'
+       // using no more than the specified 'maxProcessors'.  Optionally specify
+       // a 'basicAllocator' used to supply memory.  If 'basicAllocator is 0,
+       // the currently installed default allocator is used.
 
    ~JobQueue();
-     // Destroy this object.
+       // Destroy this object.
 
    // MANIPULATORS
    int processJob(const Job& job);
-     // Process the specified 'job' in the thread pool specified at
-     // construction.  Return 0 on success, and a non-zero value
-     // otherwise.
+       // Process the specified 'job' in the thread pool specified at
+       // construction.  Return 0 on success, and a non-zero value otherwise.
 
 };
 
 // CREATORS
-JobQueue::JobQueue(int                   maxProcessors,
+JobQueue::JobQueue(int                     maxProcessors,
                    bdlmt::FixedThreadPool *threadPool,
-                   bslma::Allocator     *basicAllocator)
+                   bslma::Allocator       *basicAllocator)
 : d_threadPool_p(threadPool)
-, d_multiplexor (maxProcessors,
-                 threadPool->queueCapacity(),
-                 basicAllocator)
+, d_multiplexor(maxProcessors, threadPool->queueCapacity(), basicAllocator)
 {
 }
 
@@ -357,27 +349,27 @@ JobQueue::~JobQueue()
 // MANIPULATORS
 int JobQueue::processJob(const JobQueue::Job& job)
 {
-    return d_threadPool_p->tryEnqueueJob(
-            bdlf::BindUtil::bind(&bdlmt::ThreadMultiplexor::processJob<Job>,
-                                &d_multiplexor,
-                                job));
+    return d_threadPool_p->tryEnqueueJob(bdlf::BindUtil::bind(
+                                    &bdlmt::ThreadMultiplexor::processJob<Job>,
+                                    &d_multiplexor,
+                                    job));
 }
 
 int usageExample(bslma::Allocator *allocator)
 {
     enum {
-        NUM_THREADS   = 5,   // total number of threads
-        NUM_QUEUES    = 3,   // total number of JobQueue objects
+        NUM_THREADS   = 5,  // total number of threads
+        NUM_QUEUES    = 3,  // total number of JobQueue objects
         MAX_QUEUESIZE = 20  // total number of pending jobs
     };
 
-    int maxProc = bsl::max(1.0,
-            ceil(double(NUM_THREADS)/(NUM_QUEUES-1))-1);
+    int maxProc =
+        bsl::max(1.0, ceil(double(NUM_THREADS) / (NUM_QUEUES - 1)) - 1);
 
     bdlmt::FixedThreadPool tp(NUM_THREADS, MAX_QUEUESIZE, allocator);
-    JobQueue             importantQueue(maxProc, &tp);
-    JobQueue             urgentQueue(maxProc, &tp);
-    JobQueue             criticalQueue(maxProc, &tp);
+    JobQueue               importantQueue(maxProc, &tp);
+    JobQueue               urgentQueue(maxProc, &tp);
+    JobQueue               criticalQueue(maxProc, &tp);
 
     if (0 != tp.start()) {
        ASSERT(!"Could not start thread pool! Threads cannot be created!");
@@ -419,9 +411,9 @@ int usageExample(bslma::Allocator *allocator)
 }
 
 }  // close namespace TEST_CASE_USAGE_EXAMPLE
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -469,14 +461,12 @@ int main(int argc, char *argv[])
             bdlmt::ThreadMultiplexor mX(1, MAX_QUEUESIZE, &ta);
             bdlqq::ThreadGroup threads;
 
-            bdlf::Function<void(*)()> addFunc = bdlf::BindUtil::bind(
-                                                          &bsls::AtomicInt::add,
-                                                          &timesCalled,
-                                                          1);
+            bdlf::Function<void (*)()> addFunc =
+                bdlf::BindUtil::bind(&bsls::AtomicInt::add, &timesCalled, 1);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-               LOOP_ASSERT(i, 0 == threads.addThread(
-                                            bdlf::BindUtil::bind(&testCase6,
+                LOOP_ASSERT(i, 0 == threads.addThread(bdlf::BindUtil::bind(
+                                                               &testCase6,
                                                                &startSemaphore,
                                                                &mX,
                                                                (int)NUM_JOBS,
@@ -585,11 +575,11 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(iChecker.maxProcessors(),
                         IQUEUE_MAX_PROC == iChecker.maxProcessors());
-            // With very low system resources it may be impossible to run
-            // the dispatching thread frequently enough to get all 4 threads
-            // in the UNIQUE group executing simultaneously.  This check
-            // usually works but tends to fail during important release
-            // builds.  Much more trouble than it's worth.
+            // With very low system resources it may be impossible to run the
+            // dispatching thread frequently enough to get all 4 threads in the
+            // UNIQUE group executing simultaneously.  This check usually works
+            // but tends to fail during important release builds.  Much more
+            // trouble than it's worth.
             //
             //LOOP_ASSERT(uChecker.maxProcessors(),
             //            UQUEUE_MAX_PROC == uChecker.maxProcessors());
