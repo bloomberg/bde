@@ -82,7 +82,7 @@ namespace {
 
    //Unnamed namespace scopes private classes and methods for testing
 
-bsls::SpinLock coutLock;
+bsls::SpinLock coutLock = BSLS_SPINLOCK_UNLOCKED;
 
 template <class POOL>
 class TestRun

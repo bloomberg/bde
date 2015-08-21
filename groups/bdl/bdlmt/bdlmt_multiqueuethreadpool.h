@@ -545,21 +545,22 @@ class MultiQueueThreadPool {
     >                 d_queuePool;          // pool of queue contexts
 
     bdlcc::ObjectCatalog<MultiQueueThreadPool_QueueContext*>
-                     d_queueRegistry;      // registry of queue contexts
+                      d_queueRegistry;      // registry of queue contexts
 
     mutable bdlqq::RWMutex
-                     d_registryLock;       // synchronizes registry access
-    bsls::AtomicInt  d_numActiveQueues;    // number of non-empty queues
+                      d_registryLock;       // synchronizes registry access
+    bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
-    volatile int     d_state;              // maintains internal state
-    bsls::SpinLock   d_stateLock;          // synchronizes internal state
+    volatile int      d_state;              // maintains internal state
+    bsls::SpinLock    d_stateLock;          // synchronizes internal state
 
-    bsls::AtomicInt  d_numDequeued;        // the total number of requests
-                                           // processed by this pool since the
-                                           // last time this value was reset
-    bsls::AtomicInt  d_numEnqueued;        // the total number of requests
-                                           // enqueued into this pool since the
-                                           // last time this value was reset
+    bsls::AtomicInt   d_numDequeued;        // the total number of requests
+                                            // processed by this pool since the
+                                            // last time this value was reset
+    bsls::AtomicInt   d_numEnqueued;        // the total number of requests
+                                            // enqueued into this pool since
+                                            // the last time this value was
+                                            // reset
   private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool(const MultiQueueThreadPool&);
