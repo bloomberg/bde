@@ -42,9 +42,43 @@ int typeTest(const btlso::Platform::WinSockets&) { return 2; }
 // process, any compile-time tests we come up with should probably reside
 // directly in the header or implementation file.
 //-----------------------------------------------------------------------------
-// [ 1] Ensure that ThreadPolicy is set.
-// [ 1] Ensure that exactly one of each THREADS type is set.
+// [ 1] 'BTLSO_PLATFORM_BSD_SOCKETS' and 'BTLSO_PLATFORM_WIN_SOCKETS'
 //=============================================================================
+// [ 2] USAGE EXAMPLE
+
+///Usage
+///-----
+// Writing portable software sometimes involves specializing implementations
+// to work with platform-specific interfaces.  For example, a socket-level
+// communications framework would need to operate differently on a platform
+// having a Windows operating system than on one having a Unix one (but it is
+// probably unnecessary to distinguish between their respective versions):
+//..
+    // my_socket.h
+//  #include <btlso_platform.h>
+//
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
+        #ifndef INCLUDED_WINSOCK2
+        #include <winsock2.h>
+        #define INCLUDED_WINSOCK2
+        #endif
+    #endif
+//
+    class my_Socket {
+//
+    #ifdef BTLSO_PLATFORM_WIN_SOCKETS
+        SOCKET d_socketObject;  // Windows SOCKET handle
+    #else
+        int d_socketObject;     // Unix socket descriptor
+    #endif
+//
+    // ...
+//
+    };
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -54,6 +88,30 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, replace 'assert' with
+        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+        //:   operations.  (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
+
+        my_Socket socket;
+
+      } break;
       case 1: {
         // --------------------------------------------------------
         // MINIMAL DEFINITION TEST:
@@ -66,7 +124,6 @@ int main(int argc, char *argv[]) {
 
             // Compile-time tests for this case are located in the validation
             // section of this component's header file.
-
 
         if (verbose) cout << endl << "Verify typedefs are set" << endl;
 
@@ -96,7 +153,6 @@ int main(int argc, char *argv[]) {
             #endif
 
         }
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

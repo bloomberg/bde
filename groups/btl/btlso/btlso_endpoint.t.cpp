@@ -27,34 +27,34 @@ using namespace bsl;
 // getters.  'bslma::TestAllocator' is used to test proper allocator usage.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [3] bool isValid(const bslstl::StringRef& hostname, int port);
+// [ 3] bool isValid(const bslstl::StringRef& hostname, int port);
 //
 // CREATORS
-// [2] btlso::Endpoint(*basicAllocator = 0);
-// [2] btlso::Endpoint(btlso::Endpoint& original, *basicAllocator = 0);
-// [ ] btlso::Endpoint(hostname, port, *basicAllocator = 0);
-// [2] ~btlso::Endpoint();
+// [ 2] btlso::Endpoint(*basicAllocator = 0);
+// [ 2] btlso::Endpoint(btlso::Endpoint& original, *basicAllocator = 0);
+// [ 2] btlso::Endpoint(hostname, port, *basicAllocator = 0);
+// [ 2] ~btlso::Endpoint();
 //
 // MANIPULATORS
-// [ ] btlso::Endpoint& operator=(const btlso::Endpoint& rhs) = default;
-// [2] void set(hostname, int port);
-// [3] int setIfValid(hostname, int port);
-// [ ] void swap(baltzo::LocalTimeDescriptor& other);
+// [ 2] btlso::Endpoint& operator=(const btlso::Endpoint& rhs) = default;
+// [ 2] void set(hostname, int port);
+// [ 3] int setIfValid(hostname, int port);
+// [  ] void swap(bltso::Endpoint& other);
 //
 // ACCESSORS
-// [2] const bsl::string& hostname() const;
-// [2] int port() const;
-// [ ] Allocator *allocator() const;
-// [ ] ostream& print(ostream& stream, level, spacesPerLevel) const;
+// [ 2] const bsl::string& hostname() const;
+// [ 2] int port() const;
+// [ 2] Allocator *allocator() const;
+// [  ] ostream& print(ostream& stream, level, spacesPerLevel) const;
 //
 // FREE OPERATORS
-// [ ] bool operator==(lhs, rhs);
-// [2] bool operator!=(lhs, rhs);
-// [ ] bsl::ostream& operator<<(stream, object);
+// [ 2] bool operator==(lhs, rhs);
+// [ 2] bool operator!=(lhs, rhs);
+// [ 2] bsl::ostream& operator<<(stream, object);
 //-----------------------------------------------------------------------------
-// [1] BREATHING TEST
-// [4] USAGE EXAMPLE
-// [2] CONCERN: All memory allocation is from the object's allocator.
+// [ 1] BREATHING TEST
+// [ 4] USAGE EXAMPLE
+// [ 2] CONCERN: All memory allocation is from the object's allocator.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -288,6 +288,7 @@ int main(int argc, char *argv[])
         //   void set(hostname, int port);
         //   const bsl::string& hostname() const;
         //   int port() const;
+        //   bool operator==(lhs, rhs);
         //   bool operator!=(lhs, rhs);
         // --------------------------------------------------------------------
 
@@ -302,7 +303,7 @@ int main(int argc, char *argv[])
         ASSERT(address1.hostname() == "localhost");
         ASSERT(address1.port() == 8194);
         if (verbose) {
-            cout << "address1=" << address1 << endl;
+            cout << "address1 = " << address1 << endl;
         }
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
@@ -313,22 +314,42 @@ int main(int argc, char *argv[])
             btlso::Endpoint address2(address1, &ea);
             ASSERT(address2.hostname() == "localhost");
             ASSERT(address2.port() == 8194);
+            ASSERT(address2.allocator() == &ea);
             ASSERT(address1 == address2);
             if (verbose) {
-                cout << "address2=" << address2 << endl;
+                cout << "address2 = " << address2 << endl;
             }
 
             address2.set("bloomberg.com", 80);
             ASSERT(address1 != address2);
             if (verbose) {
-                cout << "address1=" << address1
-                     << " address2=" << address2
+                cout << "address1 = " << address1
+                     << " address2 = " << address2
                      << endl;
             }
-            address1 = address2;
+            address1.swap(address2);
             ASSERT(address1.hostname() == "bloomberg.com");
             ASSERT(address1.port() == 80);
+            ASSERT(address2.hostname() == "localhost");
+            ASSERT(address2.port() == 8194);
 
+            address1 = address2;
+            ASSERT(address1.hostname() == "localhost");
+            ASSERT(address1.port() == 8194);
+        }
+
+        btlso::Endpoint address3("localhost", 8194);
+        ASSERT(address3.hostname() == "localhost");
+        ASSERT(address3.port() == 8194);
+        ASSERT(address1 == address3);
+
+        {
+            btlso::Endpoint address4;
+            ASSERT(!address4.port());
+            ASSERT(address1 != address4);
+
+            address4 = address1;
+            ASSERT(address1 == address4);
         }
 
         // verify that the default allocator was not used

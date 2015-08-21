@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 // Finally, we print 'value' to 'bsl::cout'.
 //..
 if (veryVerbose)
-    bsl::cout << value << bsl::endl;
+     bsl::cout << value << bsl::endl;
 //..
 // This statement produces the following output on 'stdout':
 //..

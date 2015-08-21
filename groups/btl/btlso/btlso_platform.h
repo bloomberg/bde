@@ -12,7 +12,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   btlso_platform: namespace for platform socket traits
 //
-//@SEE_ALSO:
+//@MACROS:
+//  DEFAULT_POLLING_MECHANISM:  Type specifying polling mechanism on a platform
+//  BTLSO_PLATFORM_BSD_SOCKETS: Defined on 'BSLS_PLATFORM_OS_UNIX' platforms
+//  BTLSO_PLATFORM_WIN_SOCKETS: Defined on 'BSLS_PLATFORM_OS_WINDOWS'
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -23,6 +26,37 @@ BSLS_IDENT("$Id: $")
 // 'btlso_platform'.  These incomplete types are intended to be used in
 // specializing template implementations or to enable function overloading
 // based on the prevalent system's characteristics.
+//
+///Usage
+///-----
+// Writing portable software sometimes involves specializing implementations
+// to work with platform-specific interfaces.  For example, a socket-level
+// communications framework would need to operate differently on a platform
+// having a Windows operating system than on one having a Unix one (but it is
+// probably unnecessary to distinguish between their respective versions):
+//..
+//  // my_socket.h
+//  #include <btlso_platform.h>
+//
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
+//      #ifndef INCLUDED_WINSOCK2
+//      #include <winsock2.h>
+//      #define INCLUDED_WINSOCK2
+//      #endif
+//  #endif
+//
+//  class my_Socket {
+//
+//  #ifdef BTLSO_PLATFORM_WIN_SOCKETS
+//      SOCKET d_socketObject;  // Windows SOCKET handle
+//  #else
+//      int d_socketObject;     // Unix socket descriptor
+//  #endif
+//
+//  // ...
+//
+//  };
+//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
@@ -32,13 +66,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-                            // ====================
-                            // class btlso::Platform
-                            // ====================
-
 namespace BloombergLP {
 
 namespace btlso {
+
+                            // ==============
+                            // class Platform
+                            // ==============
+
 struct Platform {
     // Provide a namespace for socket trait definitions.
 

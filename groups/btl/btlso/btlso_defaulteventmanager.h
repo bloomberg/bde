@@ -135,21 +135,9 @@ namespace bsls { class TimeInterval; }                          // bdet -> bdlt
 namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
 }  // close namespace bdet
 
-namespace btlso {class TimeMetrics;
+namespace btlso {
 
-                            // =====================
-                            // struct EventMgr
-                            // =====================
-
-struct EventMgr {
-    // Provides a type definition for the default event manager for a given
-    // platform.
-
-    // This class is DEPRECATED: instead of 'EventMgr::TYPE', use
-    // 'DefaultEventManager<>' directly.
-
-    typedef DefaultEventManager<> TYPE;
-};
+class TimeMetrics;
 
                      // ===============================
                      // class DefaultEventManager

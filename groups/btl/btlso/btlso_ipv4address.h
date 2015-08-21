@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // btlso::IPv4Address: IPv4 (Internet Protocol version 4) address
 //
-//@SEE_ALSO:
+//@SEE_ALSO: btlso_endpoint
 //
 //@AUTHOR: Xinyu Xiang (xxiang)
 //
@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 // number.  A logical IP address is represented using a 32-bit integer, which
 // is commonly segmented into 4 8-bit fields called octets, each of which can
 // be converted into a decimal number in the range [0, 255].  The resulting
-// value can be expressed in dotted decimal notation (e.g., "220.218.5.28").
-// A port number has the range [0, 65535].
+// value can be expressed in dotted decimal notation (e.g., "220.218.5.28").  A
+// port number has the range [0, 65535].
 //
 // A 'btlso::IPv4Address' object represents an IPv4 address containing both the
 // logical IP address and the port number.  Note that in the public interface
@@ -43,9 +43,8 @@ BSLS_IDENT("$Id: $")
 //o "a.b"      where a is an 8-bit int and b is a 24-bit int
 //o "a"        where a is a 32-bit int
 //..
-//
-// Additionally, an IP 'address' in string format represents 255.255.255.255
-// if it has one of the following four formats:
+// Additionally, an IP 'address' in string format represents 255.255.255.255 if
+// it has one of the following four formats:
 //..
 //o "a.b.c.d"  where a, b, c, and d are each 8-bit ints representing -1 or 255
 //o "a.b.c"    where a and b are both 8-bit ints representing -1 or
@@ -54,7 +53,6 @@ BSLS_IDENT("$Id: $")
 //             a 24-bit int representing -1 or 16777215.
 //o "a"        where a is a 32-bit int representing -1 or 4294967295.
 //..
-//
 // In both those cases a, b, c, and d can each be represented in decimal,
 // octal, or (upper or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.
 //
@@ -90,8 +88,8 @@ BSLS_IDENT("$Id: $")
 //    const int IP = htonl(0x7f000001UL);
 //    ip2.setIpAddress(IP);           assert( IP == ip2.ipAddress() );
 //..
-// Confirm that 'ip2' still has the same IP address as 'ip1', as the 32-bit
-// IP address 0x7f000001 has the dotted decimal notation "127.0.0.1".
+// Confirm that 'ip2' still has the same IP address as 'ip1', as the 32-bit IP
+// address 0x7f000001 has the dotted decimal notation "127.0.0.1".
 //..
 //    assert( ip2.ipAddress() == ip1.ipAddress() );
 //..
@@ -112,8 +110,16 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -123,11 +129,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso {
-                         // =======================
+
+                         // =================
                          // class IPv4Address
-                         // =======================
+                         // =================
 
 class IPv4Address {
     // Each instance of this class represents an IPv4 address.  A static method
@@ -153,11 +159,9 @@ class IPv4Address {
                                     // invalid, the port number is still valid,
                                     // i.e., it is in the range [0, 65535],
                                     // although its actual value is undefined.
-  private:
 
     // PRIVATE CLASS METHODS
-    static int machineIndependentInetPtonIPv4(int        *addr,
-                                              const char *address);
+    static int machineIndependentInetPtonIPv4(int *addr, const char *address);
         // Convert the specified Internet host 'address' from the IPv4
         // numbers-and-dots notation into binary form (in network byte order)
         // and store it in the location the specified 'addr' points to.  Return
@@ -169,35 +173,28 @@ class IPv4Address {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IPv4Address,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(IPv4Address, bsl::is_trivially_copyable)
 
     // TYPES
     enum {
-        k_ANY_ADDRESS = 0  // Indicate that it is up to the service provider to
+        k_ANY_ADDRESS = 0, // Indicate that it is up to the service provider to
                            // assign an appropriate IP.  Note that a local
                            // platform usually defines 'INADDR_ANY' to have
                            // value 0 for the same implication.
 
-      , k_ANY_PORT    = 0  // Indicate that it is up to the service provider to
+        k_ANY_PORT    = 0  // Indicate that it is up to the service provider to
                            // assign an appropriate port.
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_ANY_ADDRESS = k_ANY_ADDRESS
       , BTESO_ANY_PORT    = k_ANY_PORT
-      , ANY_ADDRESS = k_ANY_ADDRESS
-      , ANY_PORT    = k_ANY_PORT
+      , ANY_ADDRESS       = k_ANY_ADDRESS
+      , ANY_PORT          = k_ANY_PORT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
     // CLASS METHODS
-    static int isValid(const char *address);
-        // !DEPRECATED!: Use 'isValidAddress' instead.
-        //
-        // Return 0 if the specified IP 'address' is valid, and non-zero
-        // otherwise.  See {Valid String Representations of IPv4 Addresses}
-        // under {DESCRIPTION} for details of valid string representations of
-        // IP addresses.
-
     static bool isValidAddress(const char *address);
         // Return 'true' if the specified IP 'address' is valid, and 'false'
         // otherwise.  See {Valid String Representations of IPv4 Addresses}
@@ -212,19 +209,18 @@ class IPv4Address {
         //
         // Windows XP currently does not support the inet_aton function as
         // specified by the contract above (inet_pton does not handle
-        // hexadecimal or octal numerals.) In DRQS 44521942 it is noted that
+        // hexadecimal or octal numerals.)  In DRQS 44521942 it is noted that
         // 255.255.255.255, while being a valid address, is not parsed
-        // correctly by inet_addr because -1 is used as an error code. This
+        // correctly by inet_addr because -1 is used as an error code.  This
         // function checks if the specified 'address' is an IP representation
-        // of a address with an integer value of -1. This function is intended
+        // of a address with an integer value of -1.  This function is intended
         // to detect all cases in which a valid address of 255.255.255.255 is
         // wrongfully detected as an invalid address by inet_addr.
 
     // CREATORS
     IPv4Address();
-        // Create a 'IPv4Address' object having an IP of
-        // 'k_ANY_ADDRESS' value and a port number of 'k_ANY_PORT'
-        // value.
+        // Create a 'IPv4Address' object having an IP of 'k_ANY_ADDRESS' value
+        // and a port number of 'k_ANY_PORT' value.
 
     IPv4Address(const char *address, int portNumber);
         // Create a 'IPv4Address' object having the value given by the
@@ -242,8 +238,8 @@ class IPv4Address {
         // [0, 65535].
 
     IPv4Address(const IPv4Address& original);
-        // Create a 'IPv4Address' object having the value of the
-        // specified 'original' object.
+        // Create a 'IPv4Address' object having the value of the specified
+        // 'original' object.
 
     ~IPv4Address();
         // Destroy this object.
@@ -265,21 +261,21 @@ class IPv4Address {
         // byte order as an 'int' on the local platform.
 
     void setPortNumber(int portNumber);
-        // Set this object to have the specified 'portNumber'.  The behavior
-        // is undefined unless 'portNumber' is in the range [0, 65535].
+        // Set this object to have the specified 'portNumber'.  The behavior is
+        // undefined unless 'portNumber' is in the range [0, 65535].
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
         // 'stream' using the specified 'version' format, and return a
         // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this
-        // object is unaltered and 'stream' is invalidated but otherwise
-        // unmodified.  If 'version' is supported but 'stream' becomes
-        // invalid during this operation, this object has an undefined, but
-        // valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     // ACCESSORS
     int loadIpAddress(char *result) const;
@@ -292,14 +288,14 @@ class IPv4Address {
     int formatIpAddress(char *result) const;
         // Load into the specified 'result' this object's logical IP address
         // and port represented in the dotted decimal notation followed by a
-        // colon and the port as a null-terminated string and return the
-        // number of bytes used to store the result (including the null
-        // character).  The behavior is undefined unless 'result' refers to a
-        // valid array of at least 22 characters.
+        // colon and the port as a null-terminated string and return the number
+        // of bytes used to store the result (including the null character).
+        // The behavior is undefined unless 'result' refers to a valid array of
+        // at least 22 characters.
 
     int ipAddress() const;
-        // Return the 32-bit IP address of this object in network byte
-        // order as an 'int' on the local platform.
+        // Return the 32-bit IP address of this object in network byte order as
+        // an 'int' on the local platform.
 
     int portNumber() const;
         // Return the port number of this object.
@@ -323,8 +319,6 @@ class IPv4Address {
         // Return the most current BDEX streaming version number supported by
         // this class.  (See the package-group-level documentation for more
         // information on BDEX streaming of container types.)
-        //
-        // DEPRECATED: replaced by 'maxSupportedBdexVersion()'
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -337,33 +331,32 @@ class IPv4Address {
         // Assign to this object the value read from the specified input
         // 'stream' using the specified 'version' format, and return a
         // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this
-        // object is unaltered and 'stream' is invalidated but otherwise
-        // unmodified.  If 'version' is supported but 'stream' becomes
-        // invalid during this operation, this object has an undefined, but
-        // valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 };
 
 // FREE OPERATORS
 inline
 bool operator==(const IPv4Address& lhs, const IPv4Address& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'IPv4Address' objects have the
-    // same value if and only if their respective fields for IP address and
-    // port number, each have the same value.
+    // value, and 'false' otherwise.  Two 'IPv4Address' objects have the same
+    // value if and only if their respective fields for IP address and port
+    // number, each have the same value.
 
 inline
 bool operator!=(const IPv4Address& lhs, const IPv4Address& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'IPv4Address' objects do
-    // not have the same value if their respective fields for IP address or
-    // port number differ in values.
+    // same value, and 'false' otherwise.  Two 'IPv4Address' objects do not
+    // have the same value if their respective fields for IP address or port
+    // number differ in values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&            output,
-                         const IPv4Address& address);
+bsl::ostream& operator<<(bsl::ostream& output, const IPv4Address& address);
     // Write the specified IPv4 'address' value to the specified 'output'
     // stream in the format of address:portNumber, e.g., "127.0.0.1:5".
 
@@ -372,12 +365,6 @@ bsl::ostream& operator<<(bsl::ostream&            output,
 // ============================================================================
 
 // CLASS METHODS
-inline
-int IPv4Address::isValid(const char *address)
-{
-    return isValidAddress(address) ? 0 : 1;
-}
-
 inline
 bool IPv4Address::isValidAddress(const char *address)
 {
@@ -513,24 +500,22 @@ STREAM& IPv4Address::bdexStreamOut(STREAM& stream, int version) const
 
 // FREE OPERATORS
 inline
-bool btlso::operator==(const IPv4Address& lhs,
-                const IPv4Address& rhs)
+bool btlso::operator==(const IPv4Address& lhs, const IPv4Address& rhs)
 {
     return lhs.ipAddress()  == rhs.ipAddress()
         && lhs.portNumber() == rhs.portNumber();
 }
 
 inline
-bool btlso::operator!=(const IPv4Address& lhs,
-                const IPv4Address& rhs)
+bool btlso::operator!=(const IPv4Address& lhs, const IPv4Address& rhs)
 {
     return lhs.ipAddress()  != rhs.ipAddress()
         || lhs.portNumber() != rhs.portNumber();
 }
 
 inline
-bsl::ostream& btlso::operator<<(bsl::ostream&            output,
-                         const IPv4Address& address)
+bsl::ostream& btlso::operator<<(bsl::ostream&      output,
+                                const IPv4Address& address)
 {
     return address.streamOut(output);
 }

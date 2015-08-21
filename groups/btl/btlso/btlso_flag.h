@@ -21,6 +21,38 @@ BSLS_IDENT("$Id: $")
 // directly to a standard 'ostream'.  In addition, this class supports
 // functions that convert these types to a well-defined ascii representation.
 //
+///Enumerators
+///-----------
+//..
+//  Type         Name                Description
+//  ------------ -----------------   -----------------------------------------
+//  FlagType
+//               k_ASYNC_INTERRUPT   Flag permitting an operation to be
+//                                   interrupted by an asynchronous event
+//
+//               k_NFLAGS            Number of 'FlagType' enumerators
+//
+//  BlockingMode
+//               e_BLOCKING_MODE     Flag indicating blocking mode
+//
+//               e_NONBLOCKING_MODE  Flag indicating non-blocking mode
+//
+//  ShutdownType
+//               e_SHUTDOWN_RECEIVE  Shut down input stream of connection
+//
+//               e_SHUTDOWN_SEND     Shut down output stream of connection
+//
+//               e_SHUTDOWN_BOTH     Shut down both input and output streams
+//                                   of connection
+//
+//  IOWaitType
+//               e_IO_READ           Wait for data to arrive on a socket
+//
+//               e_IO_WRITE          Wait for buffer space to write on a socket
+//
+//               e_IO_RW             Wait for data to arrive or buffer space
+//                                   to write on a socket
+//..
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -80,7 +112,7 @@ struct Flag {
                                   // implementation will ignore such events if
                                   // possible, or fail otherwise.
 
-        k_NFLAGS          = 1     // The number of Flag enumerators.  This
+        k_NFLAGS          = 1     // The number of FlagType enumerators.  This
                                   // must be maintained "by hand" since flags
                                   // are not consecutive.
 

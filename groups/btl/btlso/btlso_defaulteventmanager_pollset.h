@@ -431,9 +431,6 @@ class DefaultEventManager<Platform::POLLSET>
         // incompatible events for the same socket 'handle' will result in
         // undefined behavior.  Return 0 in success and a non-zero value, which
         // is the same as native error code, on error.
-        //
-        // DEPRECATED: use registerSocketEvent passing a
-        // 'EventManager::FailureCallback' instead.
 
     virtual
     void deregisterSocketEvent(const SocketHandle::Handle& handle,

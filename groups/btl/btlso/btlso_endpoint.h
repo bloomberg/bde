@@ -69,10 +69,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -95,10 +91,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
+
 namespace btlso {
-                        // ====================
+
+                        // ==============
                         // class Endpoint
-                        // ====================
+                        // ==============
 
 class Endpoint {
     // This value-semantic class characterizes a TCP, UDP, SCTP, etc. address
@@ -127,8 +126,7 @@ class Endpoint {
 
     // CREATORS
     explicit Endpoint(bslma::Allocator *basicAllocator = 0);
-        // Create a 'Endpoint' object having the (default) attribute
-        // values:
+        // Create a 'Endpoint' object having the (default) attribute values:
         //..
         //  hostname() == ""
         //  port()     == 0
@@ -138,20 +136,19 @@ class Endpoint {
         // used.
 
     Endpoint(const bslstl::StringRef&  hostname,
-                   int                       port,
-                   bslma::Allocator         *basicAllocator = 0);
-        // Create a Endpoint object from the specified 'hostname' and
-        // 'port'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used. The behavior is undefined unless
-        // 'isValid(hostname, port)' is 'true'.
+             int                       port,
+             bslma::Allocator         *basicAllocator = 0);
+        // Create a Endpoint object from the specified 'hostname' and 'port'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless 'isValid(hostname, port)' is
+        // 'true'.
 
-    Endpoint(const Endpoint&  original,
-                   bslma::Allocator      *basicAllocator = 0);
-        // Create a 'Endpoint' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+    Endpoint(const Endpoint& original, bslma::Allocator *basicAllocator = 0);
+        // Create a 'Endpoint' object having the same value as the specified
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     //! ~Endpoint() = default;
         // Destroy this object.
@@ -198,40 +195,39 @@ class Endpoint {
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to 'stream'.
         // Optionally specify an initial indentation 'level', whose absolute
         // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute
-        // value indicates the number of spaces per indentation level for this
-        // and all of its nested objects.  If 'level' is negative, suppress
+        // specified, optionally specify 'spacesPerLevel', whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If 'level' is negative, suppress
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
 bool operator==(const Endpoint& lhs, const Endpoint& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Endpoint' objects have the
-    // same value if all of the corresponding values of their 'hostname' and
-    // 'port' attributes are the same.
+    // value, and 'false' otherwise.  Two 'Endpoint' objects have the same
+    // value if all of the corresponding values of their 'hostname' and 'port'
+    // attributes are the same.
 
 bool operator!=(const Endpoint& lhs, const Endpoint& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'Endpoint' objects do not
-    // have the same value if any of the corresponding values of their
-    // 'hostname' and 'port' attributes are not the same.
+    // same value, and 'false' otherwise.  Two 'Endpoint' objects do not have
+    // the same value if any of the corresponding values of their 'hostname'
+    // and 'port' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&   stream,
-                         const Endpoint& object);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.  Note that this human-readable
-    // format is not fully specified and can change without notice.
+bsl::ostream& operator<<(bsl::ostream& stream, const Endpoint& object);
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.
 
 // FREE FUNCTIONS
 void swap(btlso::Endpoint& a, btlso::Endpoint& b);
@@ -244,16 +240,16 @@ void swap(btlso::Endpoint& a, btlso::Endpoint& b);
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // --------------------
+                            // --------------
                             // class Endpoint
-                            // --------------------
+                            // --------------
 
 // CLASS METHODS
 inline
 bool Endpoint::isValid(const bslstl::StringRef& hostname, int port)
 {
     return (1 <= hostname.length() && hostname.length() <= 255
-            && 1 <= port && port <= 65535)
+                                                 && 1 <= port && port <= 65535)
         || (hostname.isEmpty() && 0 == port);
 }
 
@@ -266,9 +262,9 @@ Endpoint::Endpoint(bslma::Allocator *basicAllocator)
 }
 
 inline
-Endpoint::Endpoint(const bslstl::StringRef& hostname,
-                               int                      port,
-                               bslma::Allocator        *basicAllocator)
+Endpoint::Endpoint(const bslstl::StringRef&  hostname,
+                   int                       port,
+                   bslma::Allocator         *basicAllocator)
 : d_hostname(basicAllocator)
 , d_port(0)
 {
@@ -276,8 +272,7 @@ Endpoint::Endpoint(const bslstl::StringRef& hostname,
 }
 
 inline
-Endpoint::Endpoint(const Endpoint&  original,
-                               bslma::Allocator      *basicAllocator)
+Endpoint::Endpoint(const Endpoint& original, bslma::Allocator *basicAllocator)
 : d_hostname(original.d_hostname, basicAllocator)
 , d_port(original.d_port)
 {
@@ -298,7 +293,7 @@ void Endpoint::set(const bslstl::StringRef& hostname, int port)
     BSLS_ASSERT_SAFE(isValid(hostname, port));
 
     d_hostname.assign(hostname.begin(), hostname.end());
-    d_port     = port;
+    d_port = port;
 }
 
 inline
@@ -306,7 +301,7 @@ int Endpoint::setIfValid(const bslstl::StringRef& hostname, int port)
 {
     if (isValid(hostname, port)) {
         d_hostname.assign(hostname.begin(), hostname.end());
-        d_port     = port;
+        d_port = port;
         return 0;                                                     // RETURN
     }
     else {
