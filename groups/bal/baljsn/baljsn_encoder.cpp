@@ -148,7 +148,7 @@ int Encoder_EncodeImpl::encodeImp(const bsl::vector<char>&  value,
     bsl::string base64String;
     bdlde::Base64Encoder encoder(0);
     base64String.resize(
-        bdlde::Base64Encoder::encodedLength(static_cast<int>(value.size()), 0));
+       bdlde::Base64Encoder::encodedLength(static_cast<int>(value.size()), 0));
 
     // Ensure length is a multiple of 4.
 

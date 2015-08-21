@@ -33756,24 +33756,24 @@ class Address {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 3 // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 3 // the number of attributes in this class
     };
 
     enum {
-        ATTRIBUTE_INDEX_STREET = 0,
+        k_ATTRIBUTE_INDEX_STREET = 0,
             // index for "Street" attribute
-        ATTRIBUTE_INDEX_CITY = 1,
+        k_ATTRIBUTE_INDEX_CITY = 1,
             // index for "City" attribute
-        ATTRIBUTE_INDEX_STATE = 2
+        k_ATTRIBUTE_INDEX_STATE = 2
             // index for "State" attribute
     };
 
     enum {
-        ATTRIBUTE_ID_STREET = 0,
+        k_ATTRIBUTE_ID_STREET = 0,
             // id for "Street" attribute
-        ATTRIBUTE_ID_CITY = 1,
+        k_ATTRIBUTE_ID_CITY = 1,
             // id for "City" attribute
-        ATTRIBUTE_ID_STATE = 2
+        k_ATTRIBUTE_ID_STATE = 2
             // id for "State" attribute
     };
 
@@ -33958,21 +33958,21 @@ const char Address::CLASS_NAME[] = "Address";
 
 const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_STREET,
+        k_ATTRIBUTE_ID_STREET,
         "street",                 // name
         sizeof("street") - 1,     // name length
         "street",  // annotation
         bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
-        ATTRIBUTE_ID_CITY,
+        k_ATTRIBUTE_ID_CITY,
         "city",                 // name
         sizeof("city") - 1,     // name length
         "city",  // annotation
         bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
-        ATTRIBUTE_ID_STATE,
+        k_ATTRIBUTE_ID_STATE,
         "state",                 // name
         sizeof("state") - 1,     // name length
         "state",  // annotation
@@ -33992,7 +33992,7 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
              && bdlb::CharType::toUpper(name[2])=='T'
              && bdlb::CharType::toUpper(name[3])=='Y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];   // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]; // RETURN
             }
         } break;
         case 5: {
@@ -34002,7 +34002,8 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
              && bdlb::CharType::toUpper(name[3])=='T'
              && bdlb::CharType::toUpper(name[4])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];  // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE];
+                                                                      // RETURN
             }
         } break;
         case 6: {
@@ -34013,7 +34014,8 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
              && bdlb::CharType::toUpper(name[4])=='E'
              && bdlb::CharType::toUpper(name[5])=='T')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]; // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET];
+                                                                      // RETURN
             }
         } break;
     }
@@ -34023,12 +34025,12 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
 const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_STREET:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];
-      case ATTRIBUTE_ID_CITY:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];
-      case ATTRIBUTE_ID_STATE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];
+      case k_ATTRIBUTE_ID_STREET:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET];
+      case k_ATTRIBUTE_ID_CITY:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY];
+      case k_ATTRIBUTE_ID_STATE:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE];
       default:
         return 0;
     }
@@ -34149,17 +34151,18 @@ int Address::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+    ret = manipulator(&d_street,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+    ret = manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+    ret = manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -34171,26 +34174,26 @@ template <class MANIPULATOR>
 inline
 int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_STREET: {
+      case k_ATTRIBUTE_ID_STREET: {
         return manipulator(&d_street,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_CITY: {
+      case k_ATTRIBUTE_ID_CITY: {
         return manipulator(&d_city,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_STATE: {
+      case k_ATTRIBUTE_ID_STATE: {
         return manipulator(&d_state,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -34200,12 +34203,12 @@ int Address::manipulateAttribute(MANIPULATOR&  manipulator,
                                  const char   *name,
                                  int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -34236,17 +34239,17 @@ int Address::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+    ret = accessor(d_street, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+    ret = accessor(d_city, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+    ret = accessor(d_state, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -34258,24 +34261,25 @@ template <class ACCESSOR>
 inline
 int Address::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_STREET: {
+      case k_ATTRIBUTE_ID_STREET: {
         return accessor(d_street,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_CITY: {
-        return accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+      case k_ATTRIBUTE_ID_CITY: {
+        return accessor(d_city, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_STATE: {
-        return accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+      case k_ATTRIBUTE_ID_STATE: {
+        return accessor(d_state,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -34285,12 +34289,12 @@ int Address::accessAttribute(ACCESSOR&   accessor,
                              const char *name,
                              int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return e_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -34336,24 +34340,24 @@ class Employee {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 3 // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 3 // the number of attributes in this class
     };
 
     enum {
-        ATTRIBUTE_INDEX_NAME = 0,
+        k_ATTRIBUTE_INDEX_NAME = 0,
             // index for "Name" attribute
-        ATTRIBUTE_INDEX_HOME_ADDRESS = 1,
+        k_ATTRIBUTE_INDEX_HOME_ADDRESS = 1,
             // index for "HomeAddress" attribute
-        ATTRIBUTE_INDEX_AGE = 2
+        k_ATTRIBUTE_INDEX_AGE = 2
             // index for "Age" attribute
     };
 
     enum {
-        ATTRIBUTE_ID_NAME = 0,
+        k_ATTRIBUTE_ID_NAME = 0,
             // id for "Name" attribute
-        ATTRIBUTE_ID_HOME_ADDRESS = 1,
+        k_ATTRIBUTE_ID_HOME_ADDRESS = 1,
             // id for "HomeAddress" attribute
-        ATTRIBUTE_ID_AGE = 2
+        k_ATTRIBUTE_ID_AGE = 2
             // id for "Age" attribute
     };
 
@@ -34537,21 +34541,21 @@ const char Employee::CLASS_NAME[] = "Employee";
 
 const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_NAME,
+        k_ATTRIBUTE_ID_NAME,
         "name",                 // name
         sizeof("name") - 1,     // name length
         "name",  // annotation
         bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
-        ATTRIBUTE_ID_HOME_ADDRESS,
+        k_ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",                 // name
         sizeof("homeAddress") - 1,     // name length
         "homeAddress",  // annotation
         bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
-        ATTRIBUTE_ID_AGE,
+        k_ATTRIBUTE_ID_AGE,
         "age",                 // name
         sizeof("age") - 1,     // name length
         "age",  // annotation
@@ -34571,7 +34575,7 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[1])=='G'
              && bdlb::CharType::toUpper(name[2])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE];  // RETURN
             }
         } break;
         case 4:{
@@ -34580,7 +34584,7 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='M'
              && bdlb::CharType::toUpper(name[3])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]; // RETURN
             }
         } break;
         case 11: {
@@ -34596,7 +34600,7 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[9])=='S'
              && bdlb::CharType::toUpper(name[10])=='S')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS];
                                                                       // RETURN
             }
         } break;
@@ -34607,12 +34611,12 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
 const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_NAME:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
-      case ATTRIBUTE_ID_HOME_ADDRESS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
-      case ATTRIBUTE_ID_AGE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+      case k_ATTRIBUTE_ID_NAME:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME];
+      case k_ATTRIBUTE_ID_HOME_ADDRESS:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS];
+      case k_ATTRIBUTE_ID_AGE:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE];
       default:
         return 0;
     }
@@ -34640,18 +34644,24 @@ bsl::ostream& Employee::print(bsl::ostream& stream,
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Name = ";
-        bdlb::PrintMethods::print(stream, d_name,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_name,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "HomeAddress = ";
-        bdlb::PrintMethods::print(stream, d_homeAddress,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_homeAddress,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Age = ";
-        bdlb::PrintMethods::print(stream, d_age,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_age,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
@@ -34733,18 +34743,18 @@ int Employee::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_homeAddress,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -34756,25 +34766,27 @@ template <class MANIPULATOR>
 inline
 int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
+      case k_ATTRIBUTE_ID_NAME: {
         return manipulator(&d_name,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
-        return manipulator(&d_homeAddress,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+      case k_ATTRIBUTE_ID_HOME_ADDRESS: {
+        return manipulator(
+                         &d_homeAddress,
+                         ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_AGE: {
-        return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      case k_ATTRIBUTE_ID_AGE: {
+        return manipulator(&d_age,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -34784,12 +34796,12 @@ int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
                                   const char   *name,
                                   int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -34820,18 +34832,18 @@ int Employee::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_homeAddress,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+                   ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -34843,24 +34855,24 @@ template <class ACCESSOR>
 inline
 int Employee::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      case k_ATTRIBUTE_ID_NAME: {
+        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
+      case k_ATTRIBUTE_ID_HOME_ADDRESS: {
         return accessor(d_homeAddress,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_AGE: {
-        return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      case k_ATTRIBUTE_ID_AGE: {
+        return accessor(d_age, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -34870,12 +34882,12 @@ int Employee::accessAttribute(ACCESSOR&   accessor,
                               const char *name,
                               int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return e_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -35027,13 +35039,13 @@ struct Color {
   public:
     // TYPES
     enum Value {
-        RED   = 0
-      , GREEN = 1
-      , BLUE  = 2
+        e_RED   = 0
+      , e_GREEN = 1
+      , e_BLUE  = 2
     };
 
     enum {
-        NUM_ENUMERATORS = 3
+        k_NUM_ENUMERATORS = 3
     };
 
     // CONSTANTS
@@ -35100,17 +35112,17 @@ class FullName {
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_NAME = 0
-      , ATTRIBUTE_ID_IDS  = 1
+        k_ATTRIBUTE_ID_NAME = 0
+      , k_ATTRIBUTE_ID_IDS  = 1
     };
 
     enum {
-        NUM_ATTRIBUTES = 2
+        k_NUM_ATTRIBUTES = 2
     };
 
     enum {
-        ATTRIBUTE_INDEX_NAME = 0
-      , ATTRIBUTE_INDEX_IDS  = 1
+        k_ATTRIBUTE_INDEX_NAME = 0
+      , k_ATTRIBUTE_INDEX_IDS  = 1
     };
 
     // CONSTANTS
@@ -35268,25 +35280,25 @@ class Employee {
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_NAME      = 0
-      , ATTRIBUTE_ID_AGE       = 1
-      , ATTRIBUTE_ID_IDS       = 2
-      , ATTRIBUTE_ID_FULLNAME  = 3
-      , ATTRIBUTE_ID_CAR_COLOR = 4
-      , ATTRIBUTE_ID_FRIENDS   = 5
+        k_ATTRIBUTE_ID_NAME      = 0
+      , k_ATTRIBUTE_ID_AGE       = 1
+      , k_ATTRIBUTE_ID_IDS       = 2
+      , k_ATTRIBUTE_ID_FULLNAME  = 3
+      , k_ATTRIBUTE_ID_CAR_COLOR = 4
+      , k_ATTRIBUTE_ID_FRIENDS   = 5
     };
 
     enum {
-        NUM_ATTRIBUTES = 6
+        k_NUM_ATTRIBUTES = 6
     };
 
     enum {
-        ATTRIBUTE_INDEX_NAME      = 0
-      , ATTRIBUTE_INDEX_AGE       = 1
-      , ATTRIBUTE_INDEX_IDS       = 2
-      , ATTRIBUTE_INDEX_FULLNAME  = 3
-      , ATTRIBUTE_INDEX_CAR_COLOR = 4
-      , ATTRIBUTE_INDEX_FRIENDS   = 5
+        k_ATTRIBUTE_INDEX_NAME      = 0
+      , k_ATTRIBUTE_INDEX_AGE       = 1
+      , k_ATTRIBUTE_INDEX_IDS       = 2
+      , k_ATTRIBUTE_INDEX_FULLNAME  = 3
+      , k_ATTRIBUTE_INDEX_CAR_COLOR = 4
+      , k_ATTRIBUTE_INDEX_FRIENDS   = 5
     };
 
     // CONSTANTS
@@ -35483,12 +35495,12 @@ int FullName::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    ret = manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -35499,19 +35511,21 @@ int FullName::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int FullName::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      case k_ATTRIBUTE_ID_NAME: {
+        return manipulator(&d_name,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_IDS: {
-        return manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      case k_ATTRIBUTE_ID_IDS: {
+        return manipulator(&d_ids,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -35520,12 +35534,12 @@ int FullName::manipulateAttribute(MANIPULATOR&  manipulator,
                                   const char   *name,
                                   int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -35549,12 +35563,12 @@ int FullName::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    ret = accessor(d_ids, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -35565,19 +35579,19 @@ int FullName::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int FullName::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      case k_ATTRIBUTE_ID_NAME: {
+        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_IDS: {
-        return accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      case k_ATTRIBUTE_ID_IDS: {
+        return accessor(d_ids, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -35586,12 +35600,12 @@ int FullName::accessAttribute(ACCESSOR&   accessor,
                               const char *name,
                               int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return e_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -35619,32 +35633,38 @@ int Employee::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = manipulator(&d_name,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    ret = manipulator(&d_age,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    ret = manipulator(&d_ids,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+    ret = manipulator(&d_fullname,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FULLNAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+    ret = manipulator(&d_carColor,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CAR_COLOR]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+    ret = manipulator(&d_friends,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FRIENDS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -35655,35 +35675,41 @@ int Employee::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      case k_ATTRIBUTE_ID_NAME: {
+        return manipulator(&d_name,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_AGE: {
-        return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      case k_ATTRIBUTE_ID_AGE: {
+        return manipulator(&d_age,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_IDS: {
-        return manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      case k_ATTRIBUTE_ID_IDS: {
+        return manipulator(&d_ids,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FULLNAME: {
-        return manipulator(&d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+      case k_ATTRIBUTE_ID_FULLNAME: {
+        return manipulator(&d_fullname,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FULLNAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_CAR_COLOR: {
-        return manipulator(&d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+      case k_ATTRIBUTE_ID_CAR_COLOR: {
+        return manipulator(&d_carColor,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CAR_COLOR]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FRIENDS: {
-        return manipulator(&d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+      case k_ATTRIBUTE_ID_FRIENDS: {
+        return manipulator(&d_friends,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FRIENDS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -35692,12 +35718,12 @@ int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
                                   const char   *name,
                                   int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -35745,32 +35771,34 @@ int Employee::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    ret = accessor(d_ids, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+    ret = accessor(d_fullname,
+                   ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FULLNAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+    ret = accessor(d_carColor,
+                   ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CAR_COLOR]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+    ret = accessor(d_friends, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FRIENDS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -35781,35 +35809,40 @@ int Employee::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int Employee::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      case k_ATTRIBUTE_ID_NAME: {
+        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_AGE: {
-        return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      case k_ATTRIBUTE_ID_AGE: {
+        return accessor(d_age,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_IDS: {
-        return accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      case k_ATTRIBUTE_ID_IDS: {
+        return accessor(d_ids,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FULLNAME: {
-        return accessor(d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+      case k_ATTRIBUTE_ID_FULLNAME: {
+        return accessor(d_fullname,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FULLNAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_CAR_COLOR: {
-        return accessor(d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+      case k_ATTRIBUTE_ID_CAR_COLOR: {
+        return accessor(d_carColor,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CAR_COLOR]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_FRIENDS: {
-        return accessor(d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+      case k_ATTRIBUTE_ID_FRIENDS: {
+        return accessor(d_friends,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FRIENDS]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -35818,12 +35851,12 @@ int Employee::accessAttribute(ACCESSOR&   accessor,
                               const char *name,
                               int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return e_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -35917,19 +35950,19 @@ const char Color::CLASS_NAME[] = "Color";
 
 const bdlat_EnumeratorInfo Color::ENUMERATOR_INFO_ARRAY[] = {
     {
-        Color::RED,
+        Color::e_RED,
         "RED",
         sizeof("RED") - 1,
         ""
     },
     {
-        Color::GREEN,
+        Color::e_GREEN,
         "GREEN",
         sizeof("GREEN") - 1,
         ""
     },
     {
-        Color::BLUE,
+        Color::e_BLUE,
         "BLUE",
         sizeof("BLUE") - 1,
         ""
@@ -35941,9 +35974,9 @@ const bdlat_EnumeratorInfo Color::ENUMERATOR_INFO_ARRAY[] = {
 int Color::fromInt(Color::Value *result, int number)
 {
     switch (number) {
-      case Color::RED:
-      case Color::GREEN:
-      case Color::BLUE:
+      case Color::e_RED:
+      case Color::e_GREEN:
+      case Color::e_BLUE:
         *result = (Color::Value)number;
         return 0;                                                     // RETURN
       default:
@@ -35973,13 +36006,13 @@ int Color::fromString(Color::Value *result,
 const char *Color::toString(Color::Value value)
 {
     switch (value) {
-      case RED: {
+      case e_RED: {
         return "RED";                                                 // RETURN
       } break;
-      case GREEN: {
+      case e_GREEN: {
         return "GREEN";                                               // RETURN
       } break;
-      case BLUE: {
+      case e_BLUE: {
         return "BLUE";                                                // RETURN
       } break;
     }
@@ -35998,14 +36031,14 @@ const char FullName::CLASS_NAME[] = "FullName";
 
 const bdlat_AttributeInfo FullName::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_NAME,
+        k_ATTRIBUTE_ID_NAME,
         "name",
         sizeof("name") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_IDS,
+        k_ATTRIBUTE_ID_IDS,
         "ids",
         sizeof("ids") - 1,
         "",
@@ -36036,10 +36069,10 @@ const bdlat_AttributeInfo *FullName::lookupAttributeInfo(
 const bdlat_AttributeInfo *FullName::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_NAME:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
-      case ATTRIBUTE_ID_IDS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS];
+      case k_ATTRIBUTE_ID_NAME:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME];
+      case k_ATTRIBUTE_ID_IDS:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS];
       default:
         return 0;
     }
@@ -36093,42 +36126,42 @@ const char Employee::CLASS_NAME[] = "Employee";
 
 const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_NAME,
+        k_ATTRIBUTE_ID_NAME,
         "name",
         sizeof("name") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
     },
     {
-        ATTRIBUTE_ID_AGE,
+        k_ATTRIBUTE_ID_AGE,
         "age",
         sizeof("age") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_IDS,
+        k_ATTRIBUTE_ID_IDS,
         "ids",
         sizeof("ids") - 1,
         "",
         bdlat_FormattingMode::e_DEC
     },
     {
-        ATTRIBUTE_ID_FULLNAME,
+        k_ATTRIBUTE_ID_FULLNAME,
         "fullname",
         sizeof("fullname") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_CAR_COLOR,
+        k_ATTRIBUTE_ID_CAR_COLOR,
         "car_color",
         sizeof("car_color") - 1,
         "",
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        ATTRIBUTE_ID_FRIENDS,
+        k_ATTRIBUTE_ID_FRIENDS,
         "friends",
         sizeof("friends") - 1,
         "",
@@ -36159,18 +36192,18 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
 const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_NAME:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
-      case ATTRIBUTE_ID_AGE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
-      case ATTRIBUTE_ID_IDS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS];
-      case ATTRIBUTE_ID_FULLNAME:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME];
-      case ATTRIBUTE_ID_CAR_COLOR:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR];
-      case ATTRIBUTE_ID_FRIENDS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS];
+      case k_ATTRIBUTE_ID_NAME:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME];
+      case k_ATTRIBUTE_ID_AGE:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE];
+      case k_ATTRIBUTE_ID_IDS:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_IDS];
+      case k_ATTRIBUTE_ID_FULLNAME:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FULLNAME];
+      case k_ATTRIBUTE_ID_CAR_COLOR:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CAR_COLOR];
+      case k_ATTRIBUTE_ID_FRIENDS:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_FRIENDS];
       default:
         return 0;
     }
@@ -36494,15 +36527,15 @@ class HexBinarySequence {
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_ELEMENT1 = 0
+        k_ATTRIBUTE_ID_ELEMENT1 = 0
     };
 
     enum {
-        NUM_ATTRIBUTES = 1
+        k_NUM_ATTRIBUTES = 1
     };
 
     enum {
-        ATTRIBUTE_INDEX_ELEMENT1 = 0
+        k_ATTRIBUTE_INDEX_ELEMENT1 = 0
     };
 
     // CONSTANTS
@@ -36664,7 +36697,8 @@ int HexBinarySequence::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = manipulator(&d_element1,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -36675,15 +36709,16 @@ int HexBinarySequence::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int HexBinarySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case k_ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(&d_element1,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_ELEMENT1]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -36692,12 +36727,12 @@ int HexBinarySequence::manipulateAttribute(MANIPULATOR&  manipulator,
                                            const char   *name,
                                            int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -36715,7 +36750,8 @@ int HexBinarySequence::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    ret = accessor(d_element1,
+                   ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_ELEMENT1]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -36726,15 +36762,16 @@ int HexBinarySequence::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int HexBinarySequence::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1: {
-        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      case k_ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(d_element1,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_ELEMENT1]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -36743,12 +36780,12 @@ int HexBinarySequence::accessAttribute(ACCESSOR&   accessor,
                                        const char *name,
                                        int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return e_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -36784,7 +36821,7 @@ const char HexBinarySequence::CLASS_NAME[] = "HexBinarySequence";
 
 const bdlat_AttributeInfo HexBinarySequence::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_ELEMENT1,
+        k_ATTRIBUTE_ID_ELEMENT1,
         "element1",
         sizeof("element1") - 1,
         "",
@@ -36806,7 +36843,7 @@ const bdlat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
      && name[5]=='n'
      && name[6]=='t'
      && name[7]=='1') {
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];       // RETURN
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_ELEMENT1];     // RETURN
     }
     return 0;
 }
@@ -36814,8 +36851,8 @@ const bdlat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
 const bdlat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_ELEMENT1:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      case k_ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_ELEMENT1];
       default:
         return 0;
     }

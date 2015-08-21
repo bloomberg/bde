@@ -16,10 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides a class, 'baljsn::Decoder', for decoding
-// value-semantic objects in the JSON format.  In particular, the 'class'
-// contains a parameterized 'decode' function that decodes an object from a
-// specified stream.  There are two overloaded versions of this function:
+//@DESCRIPTION: This component provides a class, 'baljsn::Decoder', for
+// decoding value-semantic objects in the JSON format.  In particular, the
+// 'class' contains a parameterized 'decode' function that decodes an object
+// from a specified stream.  There are two overloaded versions of this
+// function:
 //..
 //: o one that reads from a 'bsl::streambuf'
 //: o one that reads from a 'bsl::istream'
