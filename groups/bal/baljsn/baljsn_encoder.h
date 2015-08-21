@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::ostringstream os;
 //
 //  baljsn::EncoderOptions options;
-//  options.setEncodingStyle(baljsn::EncoderOptions::BAEJSN_PRETTY);
+//  options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
 //  options.setInitialIndentLevel(1);
 //  options.setSpacesPerLevel(4);
 //
@@ -150,7 +150,7 @@ BSLS_IDENT("$Id: $")
 //                            "            \"state\" : \"New York\"\n"
 //                            "        },\n"
 //                            "        \"age\" : 21\n"
-//                            "    }";
+//                            "    }\n";
 //
 //  assert(EXP_OUTPUT == os.str());
 //..

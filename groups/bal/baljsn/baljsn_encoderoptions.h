@@ -62,15 +62,15 @@ BSLS_IDENT("$Id: $")
 //  baljsn::EncoderOptions options;
 //  assert(0 == options.initialIndentLevel());
 //  assert(0 == options.spacesPerLevel());
-//  assert(baljsn::EncoderOptions::BAEJSN_COMPACT == options.encodingStyle());
+//  assert(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
 //  assert(false == options.encodeEmptyArrays());
 //  assert(false == options.encodeNullElements());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
 //..
-//  options.setEncodingStyle(baljsn::EncoderOptions::BAEJSN_PRETTY);
-//  assert(baljsn::EncoderOptions::BAEJSN_PRETTY == options.encodingStyle());
+//  options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+//  assert(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
 //
 //  options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
 //  assert(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
