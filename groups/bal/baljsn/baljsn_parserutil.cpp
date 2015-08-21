@@ -259,7 +259,7 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
     // Based on the value of 'exponent' update the range value digits range,
     // [valueBegin..valueEnd).
 
-    int numFractionalDigits = fractionalEnd - fractionalBegin;
+    int numFractionalDigits = static_cast<int>(fractionalEnd - fractionalBegin);
     int numAdditionalDigits = 0;
     if (isExpNegative) {
         // Shrink the value digits range by 'exponent'.  The fractional digits

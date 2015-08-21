@@ -104,27 +104,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -183,8 +162,9 @@ int main(int argc, char *argv[])
     bool verbose             = argc > 2;
     bool veryVerbose         = argc > 3;
     bool veryVeryVerbose     = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVerbose;
+    
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
@@ -520,33 +500,33 @@ int main(int argc, char *argv[])
         {
             const struct {
                 int         d_line;
-                float      d_value;
+                float       d_value;
                 const char *d_result;
             } DATA[] = {
-                //LINE         VALUE   RESULT
-                //----         -----   ------
+                //LINE         VALUE    RESULT
+                //----         -----    ------
 
-                { L_,            0.0,  "0" },
-                { L_,          0.125,  "0.125" },
-                { L_,            1.0,  "1" },
-                { L_,           10.0,  "10" },
-                { L_,           -1.5,  "-1.5" },
-                { L_,         -1.5e1,  "-15" },
+                { L_,            0.0f,  "0" },
+                { L_,          0.125f,  "0.125" },
+                { L_,            1.0f,  "1" },
+                { L_,           10.0f,  "10" },
+                { L_,           -1.5f,  "-1.5" },
+                { L_,         -1.5e1f,  "-15" },
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-                { L_,   -1.23456e-20,  "-1.23456e-020" },
-                { L_,    1.23456e-20,  "1.23456e-020" },
+                { L_,   -1.23456e-20f,  "-1.23456e-020" },
+                { L_,    1.23456e-20f,  "1.23456e-020" },
 #else
-                { L_,   -1.23456e-20,  "-1.23456e-20" },
-                { L_,    1.23456e-20,  "1.23456e-20" },
+                { L_,   -1.23456e-20f,  "-1.23456e-20" },
+                { L_,    1.23456e-20f,  "1.23456e-20" },
 #endif
-                { L_,         1.0e-1,  "0.1" },
-                { L_,       0.123456,  "0.123456" }
+                { L_,         1.0e-1f,  "0.1" },
+                { L_,       0.123456f,  "0.123456" }
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE  = DATA[ti].d_line;
-                const float      VALUE = DATA[ti].d_value;
+                const float       VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
 
                 bsl::ostringstream oss;

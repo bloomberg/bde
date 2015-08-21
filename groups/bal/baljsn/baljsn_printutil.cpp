@@ -59,7 +59,8 @@ int PrintUtil::printString(bsl::ostream&            stream,
                            const bslstl::StringRef& value)
 {
 
-    if (!bdlde::Utf8Util::isValid(value.data(), value.length())) {
+    if (!bdlde::Utf8Util::isValid(value.data(),
+                                  static_cast<int>(value.length()))) {
         return -1;                                                    // RETURN
     }
 

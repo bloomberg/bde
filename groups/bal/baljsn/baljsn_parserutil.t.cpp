@@ -118,27 +118,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -751,7 +730,7 @@ int main(int argc, char *argv[])
 
                 bdlt::DatetimeTz value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1148,7 +1127,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Datetime value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1403,7 +1382,7 @@ int main(int argc, char *argv[])
 
                 bdlt::DateTz value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1544,7 +1523,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Date value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1685,7 +1664,7 @@ int main(int argc, char *argv[])
 
                 bdlt::TimeTz value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1805,7 +1784,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Time value;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1951,7 +1930,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -2118,7 +2097,8 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef    isb(INPUT.data(), INPUT.length());
+                StringRef    isb(INPUT.data(),
+                                 static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2175,7 +2155,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-            const Type ERROR_VALUE = 99.99;
+            const Type ERROR_VALUE = 99.99f;
 
             static const struct {
                 int         d_line;    // line number
@@ -2218,9 +2198,9 @@ int main(int argc, char *argv[])
                 {  L_,    "1.5",                    1.5f,       true    },
                 {  L_,    "1.9",                    1.9f,       true    },
 
-                {  L_,   "100.123",              100.123,       true    },
-                {  L_,   "99.5",                    99.5,       true    },
-                {  L_,    "0.86",                   0.86,       true    },
+                {  L_,   "100.123",             100.123f,       true    },
+                {  L_,   "99.5",                   99.5f,       true    },
+                {  L_,    "0.86",                  0.86f,       true    },
 
                 {  L_,    "1e0",                       1,       true    },
                 {  L_,    "1E0",                       1,       true    },
@@ -2242,8 +2222,8 @@ int main(int argc, char *argv[])
                 {  L_,    "1E1",                      10,       true    },
                 {  L_,    "1e+1",                     10,       true    },
                 {  L_,    "1E+1",                     10,       true    },
-                {  L_,    "1e-1",                    0.1,       true    },
-                {  L_,    "1E-1",                    0.1,       true    },
+                {  L_,    "1e-1",                   0.1f,       true    },
+                {  L_,    "1E-1",                   0.1f,       true    },
 
                 {  L_,  "-",          ERROR_VALUE,   false   },
                 {  L_,  ".5",         ERROR_VALUE,   false   },
@@ -2284,7 +2264,8 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef    isb(INPUT.data(), INPUT.length());
+                StringRef    isb(INPUT.data(),
+                                 static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2557,7 +2538,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2881,7 +2862,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3128,7 +3109,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3423,7 +3404,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3663,7 +3644,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3941,7 +3922,7 @@ int main(int argc, char *argv[])
                 const int    IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -4152,7 +4133,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), INPUT.length());
+                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -4372,7 +4353,8 @@ int main(int argc, char *argv[])
 
                 // char values
                 {
-                    StringRef isb(INPUT.data(), INPUT.length());
+                    StringRef isb(INPUT.data(),
+                                  static_cast<int>(INPUT.length()));
                     const int rc = Util::getValue(&c, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -4385,7 +4367,8 @@ int main(int argc, char *argv[])
 
                 // signed char values
                 {
-                    StringRef isb(INPUT.data(), INPUT.length());
+                    StringRef isb(INPUT.data(),
+                                  static_cast<int>(INPUT.length()));
                     const int rc = Util::getValue(&sc, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -4473,7 +4456,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P(LINE) P(INPUT) P(EXP) }
 
                 {
-                    StringRef isb(INPUT.data(), INPUT.length());
+                    StringRef isb(INPUT.data(),
+                                  static_cast<int>(INPUT.length()));
                     const int rc = Util::getValue(&value, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);

@@ -70,8 +70,9 @@ namespace baljsn {
 int Tokenizer::reloadStringBuffer()
 {
     d_stringBuffer.resize(k_MAX_STRING_SIZE);
-    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
-                                             k_MAX_STRING_SIZE);
+    const int numRead =
+                      static_cast<int>(d_streamBuf_p->sgetn(&d_stringBuffer[0],
+                                                            k_MAX_STRING_SIZE));
     d_cursor = 0;
     d_stringBuffer.resize(numRead);
     return numRead;
@@ -81,8 +82,9 @@ int Tokenizer::expandBufferForLargeValue()
 {
     d_stringBuffer.resize(d_stringBuffer.length() + k_MAX_STRING_SIZE);
 
-    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[d_valueIter],
-                                             k_MAX_STRING_SIZE);
+    const int numRead =
+            static_cast<int>(d_streamBuf_p->sgetn(&d_stringBuffer[d_valueIter],
+                                                  k_MAX_STRING_SIZE));
     return numRead ? 0 : -1;
 }
 
@@ -94,9 +96,9 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
 
     d_valueIter = d_valueIter - d_valueBegin;
 
-    const int numRead = d_streamBuf_p->sgetn(
-                                         &d_stringBuffer[d_valueIter],
-                                         k_MAX_STRING_SIZE - d_valueIter);
+    const int numRead =
+       static_cast<int>(d_streamBuf_p->sgetn(&d_stringBuffer[d_valueIter],
+                                             k_MAX_STRING_SIZE - d_valueIter));
 
     if (numRead > 0) {
         d_stringBuffer.resize(d_valueIter + numRead);
@@ -451,7 +453,8 @@ int Tokenizer::resetStreamBufGetPointer()
         return 0;                                                     // RETURN
     }
 
-    const int numExtraCharsRead = d_stringBuffer.size() - d_cursor;
+    const int numExtraCharsRead = static_cast<int>(d_stringBuffer.size()
+                                                                   - d_cursor);
     const bsl::streamoff newPos = d_streamBuf_p->pubseekoff(-numExtraCharsRead,
                                                             bsl::ios_base::end,
                                                             bsl::ios_base::in);
