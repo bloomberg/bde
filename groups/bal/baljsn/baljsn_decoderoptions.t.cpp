@@ -124,7 +124,6 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\n";                                               \
        aSsErT(1, #X, __LINE__); } }
 
-
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -662,16 +661,16 @@ int main(int argc, char *argv[])
         typedef int   T1;        // 'maxDepth'
         typedef bool  T2;        // 'skipUnknownElements'
 
-        // ----------------------------------------
-        // Attribute 1 Values: 'maxDepth'
-        // ----------------------------------------
+                      // ------------------------------
+                      // Attribute 1 Values: 'maxDepth'
+                      // ------------------------------
 
         const T1 A1 = INT_MAX;               // baseline
         const T1 B1 = 0;
 
-        // ------------------------------------
-        // Attribute 2 Values: 'skipUnknownElements'
-        // ------------------------------------
+                // -----------------------------------------
+                // Attribute 2 Values: 'skipUnknownElements'
+                // -----------------------------------------
 
         const T2 A2 = true;                  // baseline
         const T2 B2 = false;
@@ -687,8 +686,8 @@ int main(int argc, char *argv[])
 
         // The first row of the table below represents an object value
         // consisting of "baseline" attribute values (A1..An).  Each subsequent
-        // row differs (slightly) from the first in exactly one attribute
-        // value (Bi).
+        // row differs (slightly) from the first in exactly one attribute value
+        // (Bi).
 
         //LINE  DEPTH   SKIP
         //----  -----   ----
@@ -851,7 +850,7 @@ int main(int argc, char *argv[])
 #define SP " "
 
         // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
         // ------------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -876,7 +875,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
         // ------------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -919,7 +918,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected output
         // -----------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -932,7 +931,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
+        // P-2.1.4: { A B } x { -9 } x { -9 } --> 2 expected outputs
         // -----------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -1041,16 +1040,16 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // -----------------------------------------------------
-        // 'D' values: These are the default-constructed values.
-        // -----------------------------------------------------
+          // -----------------------------------------------------
+          // 'D' values: These are the default-constructed values.
+          // -----------------------------------------------------
 
         const int   D1   = 32;                    // 'maxDepth'
         const int   D2   = true;                  // 'skipUnknownElements'
 
-        // -------------------------------------------------------
-        // 'A' values: Boundary values.
-        // -------------------------------------------------------
+                       // ----------------------------
+                       // 'A' values: Boundary values.
+                       // ----------------------------
 
         const int   A1   = INT_MAX;              // 'maxDepth'
         const int   A2   = false;                // 'skipUnknownElements'
@@ -1206,9 +1205,9 @@ int main(int argc, char *argv[])
             ASSERT(A1 == X.maxDepth());
             ASSERT(A2 == X.skipUnknownElements());
 
-            // ---------------------------------------
-            // Set all attributes to their 'B' values.
-            // ---------------------------------------
+                 // ---------------------------------------
+                 // Set all attributes to their 'B' values.
+                 // ---------------------------------------
 
             mX.setMaxDepth(B1);
 
@@ -1272,9 +1271,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Verify the object's attribute values." << endl;
 
-        // -------------------------------------
-        // Verify the object's attribute values.
-        // -------------------------------------
+                  // -------------------------------------
+                  // Verify the object's attribute values.
+                  // -------------------------------------
 
         LOOP2_ASSERT(D1, X.maxDepth(), D1 == X.maxDepth());
         LOOP2_ASSERT(D2, X.skipUnknownElements(),

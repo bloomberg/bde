@@ -146,7 +146,6 @@ static void aSsErT(int c, const char *s, int i)
 #define NL "\n"
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 
-
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -732,37 +731,37 @@ int main(int argc, char *argv[])
         typedef bool  T4;        // 'encodeEmptyArrays'
         typedef bool  T5;        // 'encodeNullElements'
 
-        // ----------------------------------------
-        // Attribute 1 Values: 'initialIndentLevel'
-        // ----------------------------------------
+                 // ----------------------------------------
+                 // Attribute 1 Values: 'initialIndentLevel'
+                 // ----------------------------------------
 
         const T1 A1 = 1;               // baseline
         const T1 B1 = INT_MAX;
 
-        // ------------------------------------
-        // Attribute 2 Values: 'spacesPerLevel'
-        // ------------------------------------
+                   // ------------------------------------
+                   // Attribute 2 Values: 'spacesPerLevel'
+                   // ------------------------------------
 
         const T2 A2 = INT_MAX;         // baseline
         const T2 B2 = 10;
 
-        // -----------------------------------
-        // Attribute 3 Values: 'encodingStyle'
-        // -----------------------------------
+                   // -----------------------------------
+                   // Attribute 3 Values: 'encodingStyle'
+                   // -----------------------------------
 
         const T3 A3 = Obj::e_COMPACT;         // baseline
         const T3 B3 = Obj::e_PRETTY;
 
-        // ---------------------------------------
-        // Attribute 4 Values: 'encodeEmptyArrays'
-        // ---------------------------------------
+                 // ---------------------------------------
+                 // Attribute 4 Values: 'encodeEmptyArrays'
+                 // ---------------------------------------
 
         const T4 A4 = false;           // baseline
         const T4 B4 = true;
 
-        // ----------------------------------------
-        // Attribute 5 Values: 'encodeNullElements'
-        // ----------------------------------------
+                 // ----------------------------------------
+                 // Attribute 5 Values: 'encodeNullElements'
+                 // ----------------------------------------
 
         const T5 A5 = false;           // baseline
         const T5 B5 = true;
@@ -781,8 +780,8 @@ int main(int argc, char *argv[])
 
         // The first row of the table below represents an object value
         // consisting of "baseline" attribute values (A1..An).  Each subsequent
-        // row differs (slightly) from the first in exactly one attribute
-        // value (Bi).
+        // row differs (slightly) from the first in exactly one attribute value
+        // (Bi).
 
         //LINE  INDENT  SPL  STYLE   EEA  ENE
         //----  ------  ---  -----   ---  ---
@@ -974,7 +973,7 @@ int main(int argc, char *argv[])
 #define SP " "
 
    // ------------------------------------------------------------------
-   // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+   // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
    // ------------------------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
@@ -1008,7 +1007,7 @@ int main(int argc, char *argv[])
                                                                              },
 
    // ------------------------------------------------------------------
-   // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+   // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
    // ------------------------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
@@ -1068,9 +1067,9 @@ int main(int argc, char *argv[])
                                        "]"
                                                                              },
 
-   // -----------------------------------------------------------------
-   // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
-   // -----------------------------------------------------------------
+           // ----------------------------------------------------
+           // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected output
+           // ----------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
 //----  -  ---  ---  --- ----- --- --- ---
@@ -1085,7 +1084,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
+        // P-2.1.4: { A B } x { -9 } x { -9 } --> 2 expected outputs
         // -----------------------------------------------------------------
 
 //LINE  L  SPL  IND  SPL STYLE EEA  ENE EXP
@@ -1207,9 +1206,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // -----------------------------------------------------
-        // 'D' values: These are the default-constructed values.
-        // -----------------------------------------------------
+          // -----------------------------------------------------
+          // 'D' values: These are the default-constructed values.
+          // -----------------------------------------------------
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
@@ -1217,9 +1216,9 @@ int main(int argc, char *argv[])
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
 
-        // -------------------------------------------------------
-        // 'A' values: Boundary values.
-        // -------------------------------------------------------
+                       // ----------------------------
+                       // 'A' values: Boundary values.
+                       // ----------------------------
 
         const int   A1   = INT_MAX;              // 'initialIndentLevel'
         const int   A2   = 4;                    // 'spacesPerLevel'
@@ -1525,9 +1524,9 @@ int main(int argc, char *argv[])
             ASSERT(A4 == X.encodeEmptyArrays());
             ASSERT(A5 == X.encodeNullElements());
 
-            // ---------------------------------------
-            // Set all attributes to their 'B' values.
-            // ---------------------------------------
+                 // ---------------------------------------
+                 // Set all attributes to their 'B' values.
+                 // ---------------------------------------
 
             mX.setInitialIndentLevel(B1);
 
@@ -1630,9 +1629,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Verify the object's attribute values." << endl;
 
-        // -------------------------------------
-        // Verify the object's attribute values.
-        // -------------------------------------
+                  // -------------------------------------
+                  // Verify the object's attribute values.
+                  // -------------------------------------
 
         LOOP2_ASSERT(D1, X.initialIndentLevel(), D1 == X.initialIndentLevel());
         LOOP2_ASSERT(D2, X.spacesPerLevel(),     D2 == X.spacesPerLevel());

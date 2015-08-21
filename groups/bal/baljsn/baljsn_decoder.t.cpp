@@ -66,7 +66,6 @@ using bsl::endl;
 // [ 5] MULTI-THREADING TEST CASE
 // [ 6] DRQS 43702912
 
-
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -33736,14 +33735,12 @@ static const int NUM_JSON_COMPACT_MESSAGES =
 BSLMF_ASSERT(NUM_JSON_PRETTY_MESSAGES  == NUM_XML_TEST_MESSAGES);
 BSLMF_ASSERT(NUM_JSON_COMPACT_MESSAGES == NUM_XML_TEST_MESSAGES);
 
-
 namespace BloombergLP {
-
 namespace test {
 
-                               // =============
-                               // class Address
-                               // =============
+                              // =============
+                              // class Address
+                              // =============
 
 class Address {
     // Address
@@ -33795,8 +33792,8 @@ class Address {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -33808,8 +33805,7 @@ class Address {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Address(const Address&    original,
-            bslma::Allocator *basicAllocator = 0);
+    Address(const Address& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -33823,33 +33819,33 @@ class Address {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -33886,16 +33882,16 @@ class Address {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -33904,8 +33900,8 @@ class Address {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -33940,8 +33936,8 @@ bool operator!=(const Address& lhs, const Address& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -33951,9 +33947,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Address)
 
 namespace test {
 
-                               // -------------
-                               // class Address
-                               // -------------
+                              // -------------
+                              // class Address
+                              // -------------
 
 // CONSTANTS
 
@@ -33986,9 +33982,8 @@ const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-const bdlat_AttributeInfo *Address::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 4: {
@@ -34041,10 +34036,9 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& Address::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Address::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -34202,10 +34196,9 @@ int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
 template <class MANIPULATOR>
 inline
-int Address::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Address::manipulateAttribute(MANIPULATOR&  manipulator,
+                                 const char   *name,
+                                 int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -34288,10 +34281,9 @@ int Address::accessAttribute(ACCESSOR& accessor, int id) const
 
 template <class ACCESSOR>
 inline
-int Address::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Address::accessAttribute(ACCESSOR&   accessor,
+                             const char *name,
+                             int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -34326,9 +34318,9 @@ const bsl::string& Address::state() const
 
 namespace test {
 
-                               // ==============
-                               // class Employee
-                               // ==============
+                              // ==============
+                              // class Employee
+                              // ==============
 
 class Employee {
     // Employee
@@ -34380,8 +34372,8 @@ class Employee {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -34393,8 +34385,7 @@ class Employee {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Employee(const Employee&   original,
-             bslma::Allocator *basicAllocator = 0);
+    Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -34408,33 +34399,33 @@ class Employee {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -34470,16 +34461,16 @@ class Employee {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -34488,8 +34479,8 @@ class Employee {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -34524,8 +34515,8 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -34533,12 +34524,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Employee)
 
-
 namespace test {
 
-                               // --------------
-                               // class Employee
-                               // --------------
+                              // --------------
+                              // class Employee
+                              // --------------
 
 // CONSTANTS
 
@@ -34572,8 +34562,8 @@ const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 3: {
@@ -34630,10 +34620,9 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& Employee::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Employee::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -34791,10 +34780,9 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
 template <class MANIPULATOR>
 inline
-int Employee::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
+                                  const char   *name,
+                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -34878,10 +34866,9 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
 
 template <class ACCESSOR>
 inline
-int Employee::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Employee::accessAttribute(ACCESSOR&   accessor,
+                              const char *name,
+                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -35025,18 +35012,15 @@ void *threadFunction(void *data)
 
 }  // close namespace CASE5
 
-
 namespace BloombergLP {
-
 namespace bslma { class Allocator; }
-
 namespace case4 { class FullName; }
 namespace case4 { class Employee; }
 namespace case4 {
 
-                                // ===========
-                                // class Color
-                                // ===========
+                               // ===========
+                               // class Color
+                               // ===========
 
 struct Color {
 
@@ -35084,16 +35068,16 @@ struct Color {
         // enumerator).
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
+        // Write to the specified 'stream' the string representation of the
+        // specified enumeration 'value'.  Return a reference to the modifiable
+        // 'stream'.
 };
 
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, Color::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace case4
 
@@ -35101,12 +35085,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, Color::Value rhs);
 
 BDLAT_DECL_ENUMERATION_TRAITS(case4::Color)
 
-
 namespace case4 {
 
-                               // ==============
-                               // class FullName
-                               // ==============
+                              // ==============
+                              // class FullName
+                              // ==============
 
 class FullName {
 
@@ -35142,8 +35125,8 @@ class FullName {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -35155,8 +35138,7 @@ class FullName {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    FullName(const FullName& original,
-             bslma::Allocator *basicAllocator = 0);
+    FullName(const FullName& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'FullName' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -35170,33 +35152,33 @@ class FullName {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -35213,16 +35195,16 @@ class FullName {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -35231,8 +35213,8 @@ class FullName {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -35269,9 +35251,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case4::FullName)
 
 namespace case4 {
 
-                               // ==============
-                               // class Employee
-                               // ==============
+                              // ==============
+                              // class Employee
+                              // ==============
 
 class Employee {
 
@@ -35319,8 +35301,8 @@ class Employee {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -35332,8 +35314,7 @@ class Employee {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Employee(const Employee& original,
-             bslma::Allocator *basicAllocator = 0);
+    Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -35347,33 +35328,33 @@ class Employee {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -35405,16 +35386,16 @@ class Employee {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -35423,8 +35404,8 @@ class Employee {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -35476,14 +35457,14 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case4::Employee)
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace case4 {
 
-                                // -----------
-                                // class Color
-                                // -----------
+                               // -----------
+                               // class Color
+                               // -----------
 
 // CLASS METHODS
 inline
@@ -35492,11 +35473,9 @@ int Color::fromString(Value *result, const bsl::string& string)
     return fromString(result, string.c_str(), string.length());
 }
 
-
-
-                               // --------------
-                               // class FullName
-                               // --------------
+                              // --------------
+                              // class FullName
+                              // --------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -35537,10 +35516,9 @@ int FullName::manipulateAttribute(MANIPULATOR& manipulator, int id)
 }
 
 template <class MANIPULATOR>
-int FullName::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int FullName::manipulateAttribute(MANIPULATOR&  manipulator,
+                                  const char   *name,
+                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -35604,10 +35582,9 @@ int FullName::accessAttribute(ACCESSOR& accessor, int id) const
 }
 
 template <class ACCESSOR>
-int FullName::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int FullName::accessAttribute(ACCESSOR&   accessor,
+                              const char *name,
+                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -35632,11 +35609,9 @@ const bsl::vector<int>& FullName::ids() const
     return d_ids;
 }
 
-
-
-                               // --------------
-                               // class Employee
-                               // --------------
+                              // --------------
+                              // class Employee
+                              // --------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -35713,10 +35688,9 @@ int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 }
 
 template <class MANIPULATOR>
-int Employee::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
+                                  const char   *name,
+                                  int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -35840,10 +35814,9 @@ int Employee::accessAttribute(ACCESSOR& accessor, int id) const
 }
 
 template <class ACCESSOR>
-int Employee::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Employee::accessAttribute(ACCESSOR&   accessor,
+                              const char *name,
+                              int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -35896,29 +35869,22 @@ const bsl::vector<FullName>& Employee::friends() const
 
 // FREE FUNCTIONS
 
-
 inline
-bool case4::operator==(
-        const case4::FullName& lhs,
-        const case4::FullName& rhs)
+bool case4::operator==(const case4::FullName& lhs, const case4::FullName& rhs)
 {
     return  lhs.name() == rhs.name()
          && lhs.ids() == rhs.ids();
 }
 
 inline
-bool case4::operator!=(
-        const case4::FullName& lhs,
-        const case4::FullName& rhs)
+bool case4::operator!=(const case4::FullName& lhs, const case4::FullName& rhs)
 {
     return  lhs.name() != rhs.name()
          || lhs.ids() != rhs.ids();
 }
 
 inline
-bool case4::operator==(
-        const case4::Employee& lhs,
-        const case4::Employee& rhs)
+bool case4::operator==(const case4::Employee& lhs, const case4::Employee& rhs)
 {
     return  lhs.name() == rhs.name()
          && lhs.age() == rhs.age()
@@ -35929,9 +35895,7 @@ bool case4::operator==(
 }
 
 inline
-bool case4::operator!=(
-        const case4::Employee& lhs,
-        const case4::Employee& rhs)
+bool case4::operator!=(const case4::Employee& lhs, const case4::Employee& rhs)
 {
     return  lhs.name() != rhs.name()
          || lhs.age() != rhs.age()
@@ -35943,9 +35907,9 @@ bool case4::operator!=(
 
 namespace case4 {
 
-                                // -----------
-                                // class Color
-                                // -----------
+                               // -----------
+                               // class Color
+                               // -----------
 
 // CONSTANTS
 
@@ -35987,10 +35951,9 @@ int Color::fromInt(Color::Value *result, int number)
     }
 }
 
-int Color::fromString(
-        Color::Value *result,
-        const char         *string,
-        int                 stringLength)
+int Color::fromString(Color::Value *result,
+                      const char   *string,
+                      int           stringLength)
 {
     for (int i = 0; i < 3; ++i) {
         const bdlat_EnumeratorInfo& enumeratorInfo =
@@ -36025,10 +35988,9 @@ const char *Color::toString(Color::Value value)
     return 0;
 }
 
-
-                               // --------------
-                               // class FullName
-                               // --------------
+                              // --------------
+                              // class FullName
+                              // --------------
 
 // CONSTANTS
 
@@ -36054,8 +36016,8 @@ const bdlat_AttributeInfo FullName::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *FullName::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     for (int i = 0; i < 2; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
@@ -36121,9 +36083,9 @@ void FullName::reset()
     bdlat_ValueTypeFunctions::reset(&d_ids);
 }
 
-                               // --------------
-                               // class Employee
-                               // --------------
+                              // --------------
+                              // class Employee
+                              // --------------
 
 // CONSTANTS
 
@@ -36177,8 +36139,8 @@ const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     for (int i = 0; i < 6; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
@@ -36268,18 +36230,16 @@ void Employee::reset()
     bdlat_ValueTypeFunctions::reset(&d_friends);
 }
 
-
 }  // close namespace case4
 
 }  // close enterprise namespace
 
 namespace BloombergLP {
-
 namespace test {
 
-                               // =============================
-                               // class HexBinaryCustomizedType
-                               // =============================
+                      // =============================
+                      // class HexBinaryCustomizedType
+                      // =============================
 
 class HexBinaryCustomizedType {
 
@@ -36288,9 +36248,9 @@ class HexBinaryCustomizedType {
 
     // PRIVATE CLASS METHODS
     static int checkRestrictions(const char *value, int size);
-        // Check if the specified 'value' having the specified 'size'
-        // satisfies the restrictions of this class.  Return 0 if successful
-        // (i.e., the restrictions are satisfied) and non-zero otherwise.
+        // Check if the specified 'value' having the specified 'size' satisfies
+        // the restrictions of this class.  Return 0 if successful (i.e., the
+        // restrictions are satisfied) and non-zero otherwise.
 
     static int checkRestrictions(const bsl::vector<char>& value);
         // Check if the specified 'value' satisfies the restrictions of this
@@ -36311,8 +36271,9 @@ class HexBinaryCustomizedType {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    HexBinaryCustomizedType(const HexBinaryCustomizedType& original,
-                            bslma::Allocator *basicAllocator = 0);
+    HexBinaryCustomizedType(
+                           const HexBinaryCustomizedType&  original,
+                           bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'HexBinaryCustomizedType' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -36330,8 +36291,8 @@ class HexBinaryCustomizedType {
         // successful and non-zero otherwise.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     bsl::vector<char>& array();
         // Return the array encapsulated by this object.
@@ -36375,8 +36336,8 @@ bool operator!=(const HexBinaryCustomizedType& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream& stream,
                          const HexBinaryCustomizedType& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -36385,14 +36346,14 @@ bsl::ostream& operator<<(bsl::ostream& stream,
 BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(test::HexBinaryCustomizedType)
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace test {
-                               // -----------------------------
-                               // class HexBinaryCustomizedType
-                               // -----------------------------
 
+                      // -----------------------------
+                      // class HexBinaryCustomizedType
+                      // -----------------------------
 
 // PRIVATE CLASS METHODS
 int HexBinaryCustomizedType::checkRestrictions(const char *value, int size)
@@ -36458,8 +36419,9 @@ bsl::vector<char>& HexBinaryCustomizedType::array()
 }
 
 // ACCESSORS
-bsl::ostream& HexBinaryCustomizedType::print(bsl::ostream& stream,
-                                             int           level,
+bsl::ostream& HexBinaryCustomizedType::print(
+                                            bsl::ostream& stream,
+                                            int           level,
                                             int           spacesPerLevel) const
 {
     if (d_value.empty()) {
@@ -36520,10 +36482,9 @@ bsl::ostream& operator<<(bsl::ostream& stream,
 
 const char HexBinaryCustomizedType::CLASS_NAME[] = "HexBinaryCT";
 
-
-                             // ==================
-                             // class HexBinarySequence
-                             // ==================
+                         // =======================
+                         // class HexBinarySequence
+                         // =======================
 
 class HexBinarySequence {
 
@@ -36556,8 +36517,8 @@ class HexBinarySequence {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -36567,8 +36528,8 @@ class HexBinarySequence {
         // Create an object of type 'HexBinarySequence' having the default
         // value.
 
-    HexBinarySequence(const HexBinarySequence& original,
-                      bslma::Allocator *basicAllocator = 0);
+    HexBinarySequence(const HexBinarySequence&  original,
+                      bslma::Allocator         *basicAllocator = 0);
         // Create an object of type 'HexBinarySequence' having the value of the
         // specified 'original' object.
 
@@ -36580,38 +36541,37 @@ class HexBinarySequence {
         // Assign to this object the value of the specified 'rhs' object.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
-
 
     HexBinaryCustomizedType& element1();
         // Return a reference to the modifiable "Element1" attribute of this
@@ -36636,16 +36596,16 @@ class HexBinarySequence {
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -36654,8 +36614,8 @@ class HexBinarySequence {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -36683,8 +36643,8 @@ bool operator!=(const HexBinarySequence& lhs, const HexBinarySequence& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const HexBinarySequence& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -36694,9 +36654,9 @@ BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(test::HexBinarySequence)
 
 namespace test {
 
-                             // ------------------
-                             // class HexBinarySequence
-                             // ------------------
+                         // -----------------------
+                         // class HexBinarySequence
+                         // -----------------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -36728,10 +36688,9 @@ int HexBinarySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 }
 
 template <class MANIPULATOR>
-int HexBinarySequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int HexBinarySequence::manipulateAttribute(MANIPULATOR&  manipulator,
+                                           const char   *name,
+                                           int           nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -36780,10 +36739,9 @@ int HexBinarySequence::accessAttribute(ACCESSOR& accessor, int id) const
 }
 
 template <class ACCESSOR>
-int HexBinarySequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int HexBinarySequence::accessAttribute(ACCESSOR&   accessor,
+                                       const char *name,
+                                       int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -36805,25 +36763,20 @@ const HexBinaryCustomizedType& HexBinarySequence::element1() const
 // FREE FUNCTIONS
 
 inline
-bool operator==(const HexBinarySequence& lhs,
-                const HexBinarySequence& rhs)
+bool operator==(const HexBinarySequence& lhs, const HexBinarySequence& rhs)
 {
     return lhs.element1() == rhs.element1();
 }
 
 inline
-bool operator!=(
-        const HexBinarySequence& lhs,
-        const HexBinarySequence& rhs)
+bool operator!=(const HexBinarySequence& lhs, const HexBinarySequence& rhs)
 {
     return !(lhs == rhs);
 }
 
-
-
-                             // ------------------
-                             // class HexBinarySequence
-                             // ------------------
+                         // -----------------------
+                         // class HexBinarySequence
+                         // -----------------------
 
 // CONSTANTS
 
@@ -36842,8 +36795,8 @@ const bdlat_AttributeInfo HexBinarySequence::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     if (name[0]=='e'
      && name[1]=='l'
@@ -36903,10 +36856,9 @@ void HexBinarySequence::reset()
 
 // ACCESSORS
 
-bsl::ostream& HexBinarySequence::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& HexBinarySequence::print(bsl::ostream& stream,
+                                       int           level,
+                                       int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -36951,7 +36903,6 @@ bsl::ostream& operator<<(bsl::ostream& stream,
 
 }  // close namespace test
 }  // close enterprise namespace
-
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -37290,8 +37241,8 @@ int main(int argc, char *argv[])
                 int         d_lineNum;  // source line number
                 const char *d_text_p;   // json text
             } DATA[] = {
-                // line  input
-                // ----  -----
+                //line   input
+                //----   -----
                 {   L_,   "]   {}"    },
                 {   L_,   "}   {}"    },
                 {   L_,   "\"  {}"    },
@@ -37324,8 +37275,8 @@ int main(int argc, char *argv[])
             int         d_lineNum;  // source line number
             const char *d_text_p;   // json text
         } DATA[] = {
-         // line  input
-         // ----  -----
+        //line    input
+        //-----   -----
 
         // invalid token after first character
         {    L_,  "{{   }"   },
@@ -38280,8 +38231,8 @@ int main(int argc, char *argv[])
                 int         d_lineNum;  // source line number
                 const char *d_text_p;   // json text
             } DATA[] = {
-                // line  input
-                // ----  -----
+                //line  input
+                //----  -----
                 {
                     L_,
                     "["
