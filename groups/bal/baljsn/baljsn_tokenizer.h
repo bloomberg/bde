@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //  assert(!rc);
 //
 //  baljsn::Tokenizer::TokenType token = tokenizer.tokenType();
-//  assert(baljsn::Tokenizer::BAEJSN_START_OBJECT == token);
+//  assert(baljsn::Tokenizer::e_START_OBJECT == token);
 //
 //  rc = tokenizer.advanceToNextToken();
 //  assert(!rc);
@@ -78,8 +78,8 @@ BSLS_IDENT("$Id: $")
 //
 //  // Continue reading elements till '}' is encountered
 //
-//  while (baljsn::Tokenizer::BAEJSN_END_OBJECT != token) {
-//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_NAME == token);
+//  while (baljsn::Tokenizer::e_END_OBJECT != token) {
+//      assert(baljsn::Tokenizer::e_ELEMENT_NAME == token);
 //
 //      // Read element name
 //
@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //      assert(!rc);
 //
 //      token = tokenizer.tokenType();
-//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_VALUE == token);
+//      assert(baljsn::Tokenizer::e_ELEMENT_VALUE == token);
 //
 //      rc = tokenizer.value(&nodeValue);
 //      assert(!rc);

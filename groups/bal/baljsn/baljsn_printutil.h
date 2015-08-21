@@ -34,12 +34,12 @@ BSLS_IDENT("$Id: $")
 //  double               number
 //  char *               string
 //  bsl::string          string
-//  bdlt::Date            string     ISO 8601 format
-//  bdlt::DateTz          string     ISO 8601 format
-//  bdlt::Time            string     ISO 8601 format
-//  bdlt::TimeTz          string     ISO 8601 format
-//  bdlt::Datetime        string     ISO 8601 format
-//  bdlt::DatetimeTz      string     ISO 8601 format
+//  bdlt::Date           string     ISO 8601 format
+//  bdlt::DateTz         string     ISO 8601 format
+//  bdlt::Time           string     ISO 8601 format
+//  bdlt::TimeTz         string     ISO 8601 format
+//  bdlt::Datetime       string     ISO 8601 format
+//  bdlt::DatetimeTz     string     ISO 8601 format
 //..
 //
 ///Usage
@@ -135,40 +135,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Date; }                                  // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-
-}  // close namespace bdet
-
-namespace bdlt { class Time; }                                  // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-
-}  // close namespace bdet
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-
-}  // close namespace bdet
-
-namespace bdlt { class DateTz; }                                // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-
-}  // close namespace bdet
-
-namespace bdlt { class TimeTz; }                                // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-
-}  // close namespace bdet
-
-namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-
-}  // close namespace bdet
-
 namespace baljsn {
 
                              // ===============
@@ -211,12 +177,12 @@ struct PrintUtil {
     static int printValue(bsl::ostream& stream, double                  value);
     static int printValue(bsl::ostream& stream, const char             *value);
     static int printValue(bsl::ostream& stream, const bsl::string&      value);
-    static int printValue(bsl::ostream& stream, const bdlt::Time&        value);
-    static int printValue(bsl::ostream& stream, const bdlt::Date&        value);
-    static int printValue(bsl::ostream& stream, const bdlt::Datetime&    value);
-    static int printValue(bsl::ostream& stream, const bdlt::TimeTz&      value);
-    static int printValue(bsl::ostream& stream, const bdlt::DateTz&      value);
-    static int printValue(bsl::ostream& stream, const bdlt::DatetimeTz&  value);
+    static int printValue(bsl::ostream& stream, const bdlt::Time&       value);
+    static int printValue(bsl::ostream& stream, const bdlt::Date&       value);
+    static int printValue(bsl::ostream& stream, const bdlt::Datetime&   value);
+    static int printValue(bsl::ostream& stream, const bdlt::TimeTz&     value);
+    static int printValue(bsl::ostream& stream, const bdlt::DateTz&     value);
+    static int printValue(bsl::ostream& stream, const bdlt::DatetimeTz& value);
         // Encode the specified 'value' into JSON format and output the result
         // to the specified 'stream'.  Return 0 on success and a non-zero value
         // otherwise.

@@ -99,17 +99,17 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
               case 'u':
               case 'U': {
 
-                enum { NUM_UNICODE_DIGITS = 4 };
+                enum { k_NUM_UNICODE_DIGITS = 4 };
 
-                if (iter + NUM_UNICODE_DIGITS >= end) {
+                if (iter + k_NUM_UNICODE_DIGITS >= end) {
                     return -1;                                        // RETURN
                 }
 
                 ++iter;
 
-                char tmp[NUM_UNICODE_DIGITS + 1];
-                bsl::strncpy(tmp, iter, NUM_UNICODE_DIGITS);
-                tmp[NUM_UNICODE_DIGITS] = '\0';
+                char tmp[k_NUM_UNICODE_DIGITS + 1];
+                bsl::strncpy(tmp, iter, k_NUM_UNICODE_DIGITS);
+                tmp[k_NUM_UNICODE_DIGITS] = '\0';
 
                 char         *end = 0;
                 unsigned int  utf32input[2] = { 0 };
@@ -130,7 +130,8 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 // allocation here.
 
                 bsl::string utf8String;
-                const int rc = bdlde::CharConvertUtf32::utf32ToUtf8(&utf8String,
+                const int rc = bdlde::CharConvertUtf32::utf32ToUtf8(
+                                                                   &utf8String,
                                                                    utf32input);
 
                 if (rc) {
@@ -170,13 +171,14 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
         return -1;                                                    // RETURN
     }
 
-    const int MAX_STRING_LENGTH = 63;
-    char      buffer[MAX_STRING_LENGTH + 1];
+    const int k_MAX_STRING_LENGTH = 63;
+    char      buffer[k_MAX_STRING_LENGTH + 1];
 
-    bdlma::BufferedSequentialAllocator allocator(buffer, MAX_STRING_LENGTH + 1);
-    bsl::string                       dataString(data.data(),
-                                                 data.length(),
-                                                 &allocator);
+    bdlma::BufferedSequentialAllocator allocator(buffer,
+                                                 k_MAX_STRING_LENGTH + 1);
+    bsl::string                        dataString(data.data(),
+                                                  data.length(),
+                                                  &allocator);
 
     char   *endPtr = 0;
     errno          = 0;
@@ -389,18 +391,18 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
 
 int ParserUtil::getValue(bool *value, bslstl::StringRef data)
 {
-    enum { BAEJSN_TRUE_LENGTH = 4, BAEJSN_FALSE_LENGTH = 5 };
+    enum { k_TRUE_LENGTH = 4, k_FALSE_LENGTH = 5 };
 
-    if (BAEJSN_TRUE_LENGTH == data.length()
+    if (k_TRUE_LENGTH == data.length()
      && 0                  == bsl::strncmp("true",
                                            data.data(),
-                                           BAEJSN_TRUE_LENGTH)) {
+                                           k_TRUE_LENGTH)) {
         *value = true;
     }
-    else if (BAEJSN_FALSE_LENGTH == data.length()
-          && 0                   == bsl::strncmp("false",
-                                                 data.data(),
-                                                 BAEJSN_FALSE_LENGTH)) {
+    else if (k_FALSE_LENGTH == data.length()
+          && 0              == bsl::strncmp("false",
+                                            data.data(),
+                                            k_FALSE_LENGTH)) {
         *value = false;
     }
     else {
