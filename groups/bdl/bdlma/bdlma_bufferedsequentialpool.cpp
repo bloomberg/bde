@@ -24,25 +24,19 @@ namespace bdlma {
 // PRIVATE ACCESSORS
 int BufferedSequentialPool::calculateNextBufferSize(int size) const
 {
-    int nextSize = d_buffer.bufferSize();
+    unsigned int nextSize = d_buffer.bufferSize();
 
     if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
         return nextSize;                                              // RETURN
     }
 
-    int oldSize;
     do {
-        oldSize   = nextSize;
         nextSize *= GROWTH_FACTOR;
-    } while (nextSize < size && oldSize < nextSize);
+    } while (nextSize < static_cast<unsigned>(size));
 
-    // If 'nextSize' overflows, use 'oldSize'.
-
-    if (oldSize >= nextSize) {
-        nextSize = oldSize;
-    }
-
-    return nextSize <= d_maxBufferSize ? nextSize : d_maxBufferSize;
+    return nextSize < static_cast<unsigned>(d_maxBufferSize)
+           ? nextSize
+           : d_maxBufferSize;
 }
 
 // CREATORS
