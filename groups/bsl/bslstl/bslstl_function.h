@@ -1462,33 +1462,23 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
 
         // Compute the distance (in bytes) between the start of the source and
         // the start of the destination to see if they overlap.
-        std::ptrdiff_t dist =
+        std::size_t dist = static_cast<std::size_t>(
             abs(reinterpret_cast<const char*>(rep->d_allocator_p) -
-                reinterpret_cast<const char*>(&other));
+                reinterpret_cast<const char*>(&other)));
 
         if (dist >= sizeof(Adaptor)) {
             // Input and output don't overlap.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             ::new ((void*) rep->d_allocator_p)
                                    Adaptor(bslmf::MovableRefUtil::move(other));
-#else
-            ::new ((void*) rep->d_allocator_p) Adaptor(other);
-#endif
             other.~Adaptor();
         }
         else {
             // Input and output overlap so we need to move through a temporary
             // variable.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             Adaptor temp(bslmf::MovableRefUtil::move(other));
             other.~Adaptor();
             ::new ((void*) rep->d_allocator_p)
                                     Adaptor(bslmf::MovableRefUtil::move(temp));
-#else
-            Adaptor temp(other);
-            other.~Adaptor();
-            ::new ((void*) rep->d_allocator_p) Adaptor(temp);
-#endif
         }
       } break;
 
