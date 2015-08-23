@@ -74,6 +74,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_addrvaluereference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ALLOCATORARGT
+#include <bslmf_allocatorargt.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -195,10 +199,6 @@ class bdef_Function;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl {
-
-// TBD: Move into its own component (or into uses_allocator component)
-struct allocator_arg_t { };
-static const allocator_arg_t allocator_arg = {};
 
 // Forward declarations
 template <class FUNC>
