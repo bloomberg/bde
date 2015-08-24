@@ -27,31 +27,13 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The component under test defines a single value-semantic class that
-// implements a time interval having millisecond resolution.  The time interval
-// is maintained internally as a (signed) 64-bit integer representing the total
-// number of milliseconds comprising the interval.  The value of the time
-// interval is accessed either in terms of its total-millisecond representation
-// (via 'totalMilliseconds'), or in terms of its (derived) canonical five-field
-// representation (via 'days', 'hours', 'minutes', 'seconds', and
-// 'milliseconds').
-//
-// We will therefore follow our standard ten-case approach to testing
-// value-semantic types, except that we will verify test apparatus in case 3
-// (in lieu of the generator function, 'gg'), with the default constructor,
-// (trivial) destructor, and primary manipulator ('setTotalMilliseconds')
-// tested fully in case 2.
+// TBD
 //
 // Primary Manipulators:
-//: o 'setTotalMilliseconds'
+//: o TBD
 //
 // Basic Accessors:
-//: o 'days'
-//: o 'hours'
-//: o 'minutes'
-//: o 'seconds'
-//: o 'milliseconds'
-//: o 'totalMilliseconds'
+//: o TBD
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.

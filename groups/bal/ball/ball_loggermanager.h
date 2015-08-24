@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //                   ball::Logger: log record store and publication manager
 //            ball::LoggerManager: logger factory and category administrator
 // ball::LoggerManagerScopedGuard: scoped guard for managing singleton creation
-//       ball::LoggerCategoryIter: sequential accessor of read-only categories
-//      ball::LoggerCategoryManip: sequential accessor of modifiable categories
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
@@ -500,8 +498,9 @@ BSLS_IDENT("$Id: $")
 //       return product;
 //   }
 //..
+//
 ///Usage 3 -- Initialization #2
-///- - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - -
 // In this example, we demonstrate a more elaborate initial configuration for
 // the logger manager.  In particular, we create the singleton logger manager
 // with a configuration that has a category name filter functor, a
@@ -891,11 +890,12 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace ball {class LoggerManager;
-class LoggerCategoryIter;
-class LoggerCategoryManip;
+namespace ball {
+
+class LoggerManager;
 class Observer;
 class RecordBuffer;
+
 }  // close package namespace
 
 
@@ -1554,7 +1554,7 @@ class LoggerManager {
         // Note that a valid category address is *always* returned.
 
     const Category *setCategory(CategoryHolder *categoryHolder,
-                                     const char          *categoryName);
+                                const char          *categoryName);
         // Add to the category registry of this logger manager a new category
         // having the specified 'categoryName' and default threshold levels if
         // 'categoryName' is not present in the registry and the number of
@@ -1569,10 +1569,10 @@ class LoggerManager {
         // Note that a valid category address is *always* returned.
 
     Category *setCategory(const char *categoryName,
-                               int         recordLevel,
-                               int         passLevel,
-                               int         triggerLevel,
-                               int         triggerAllLevel);
+                          int         recordLevel,
+                          int         passLevel,
+                          int         triggerLevel,
+                          int         triggerAllLevel);
         // Add to the category registry of this logger manager a new category
         // having the specified 'categoryName' and 'recordLevel', 'passLevel',
         // 'triggerLevel', and 'triggerAllLevel' threshold levels,
@@ -1670,6 +1670,16 @@ class LoggerManager {
     void removeAllRules();
         // Remove every rule from the set of rules maintained by this object.
 
+    template <class CATEGORY_VISITOR>
+    void visitCategories(const CATEGORY_VISITOR& visitor);
+        // Invoke the specified 'visitor' functor on each category managed by
+        // this object, supplying that functor modifiable access to each
+        // category.  'visitor' must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(Category *);
+        //..
+
     // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the address of the modifiable allocator held by this logger
@@ -1725,7 +1735,7 @@ class LoggerManager {
         // this object.
 
     bool isCategoryEnabled(const Category *category,
-                           int                  severity) const;
+                           int             severity) const;
 
         // Return 'true' if the specified 'severity' is more severe (i.e., is
         // numerically less than) at least one of the threshold levels of the
@@ -1742,11 +1752,22 @@ class LoggerManager {
         // thread's attributes (i.e., 'Rule::evaluate()' returns 'true'
         // for the collection of attributes maintained by the current thread's
         // 'AttributeContext' object).
+
+    template <class CATEGORY_VISITOR>
+    void visitCategories(const CATEGORY_VISITOR& visitor) const;
+        // Invoke the specified 'visitor' functor on each category managed by
+        // this object, supplying that functor non-modifiable access to each
+        // category.  'visitor' must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(const Category *);
+        //..
+
 };
 
-                        // ===================================
+                        // ==============================
                         // class LoggerManagerScopedGuard
-                        // ===================================
+                        // ==============================
 
 class LoggerManagerScopedGuard {
     // This class implements a scoped guard that, on construction, creates the
@@ -1779,106 +1800,6 @@ class LoggerManagerScopedGuard {
         // destroy this scoped guard.
 };
 
-                        // =============================
-                        // class LoggerCategoryIter
-                        // =============================
-
-class LoggerCategoryIter {
-    // This class provides sequential, read-only access to the categories in
-    // the registry of a logger manager.  The order of iteration is undefined.
-    //
-    // This class is *DEPRECATED*, and should not be used.
-
-    // DATA
-    CategoryManagerIter d_iter;  // contained category manager iterator
-
-    // NOT IMPLEMENTED
-    LoggerCategoryIter(const LoggerCategoryIter& original);
-    LoggerCategoryIter& operator=(const LoggerCategoryIter& rhs);
-
-    bool operator==(const LoggerCategoryIter&) const;
-    bool operator!=(const LoggerCategoryIter&) const;
-
-  public:
-    // CREATORS
-    explicit LoggerCategoryIter(const LoggerManager& loggerManager);
-        // Create an iterator for the specified 'loggerManager' initialized to
-        // refer to the first category in the sequence of categories maintained
-        // by 'loggerManager'.  The order of iteration is undefined.  The
-        // behavior is undefined unless the lifetime of 'loggerManager' is at
-        // least as long as the lifetime of this iterator.
-
-    ~LoggerCategoryIter();
-        // Destroy this iterator.
-
-    // MANIPULATORS
-    void operator++();
-        // Advance this iterator to refer to the next unvisited category.  If
-        // no such category exists, this iterator becomes invalid.  The
-        // behavior is undefined unless this iterator is initially valid.
-        // Note that the order of iteration is undefined.
-
-    // ACCESSORS
-    operator const void *() const;
-        // Return a non-zero value if this iterator is valid, and 0 otherwise.
-
-    const Category& operator()() const;
-        // Return a reference to the non-modifiable category currently
-        // referred to by this iterator.  The behavior is undefined unless
-        // this iterator is valid.
-};
-
-                        // ==============================
-                        // class LoggerCategoryManip
-                        // ==============================
-
-class LoggerCategoryManip {
-    // This class provides sequential, modifiable access to the categories in
-    // the registry of a logger manager.  The order of iteration is undefined.
-    //
-    // This class is *DEPRECATED*, and should not be used.
-
-    // DATA
-    CategoryManagerManip d_manip;  // contained category manager
-                                        // manipulator
-
-    // NOT IMPLEMENTED
-    LoggerCategoryManip(const LoggerCategoryManip& original);
-    LoggerCategoryManip& operator=(const LoggerCategoryManip& rhs);
-
-    bool operator==(const LoggerCategoryManip&) const;
-    bool operator!=(const LoggerCategoryManip&) const;
-
-  public:
-    // CREATORS
-    explicit LoggerCategoryManip(LoggerManager *loggerManager);
-        // Create a manipulator for the specified 'loggerManager' initialized
-        // to refer to the first category in the sequence of categories
-        // maintained by 'loggerManager'.  The order of iteration is undefined.
-        // The behavior is undefined unless 'loggerManager' is non-null and the
-        // lifetime of 'loggerManager' is at least as long as the lifetime of
-        // this manipulator.
-
-    ~LoggerCategoryManip();
-        // Destroy this manipulator.
-
-    // MANIPULATORS
-    void advance();
-        // Advance this manipulator to refer to the next unvisited category.
-        // If no such category exists, this manipulator becomes invalid.  The
-        // behavior is undefined unless this manipulator is initially valid.
-        // Note that the order of iteration is undefined.
-
-    Category& operator()();
-        // Return a reference to the modifiable category currently referred to
-        // by this manipulator.  The behavior is undefined unless this
-        // manipulator is valid.
-
-    // ACCESSORS
-    operator const void *() const;
-        // Return a non-zero value if this manipulator is valid, and 0
-        // otherwise.
-};
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -1895,6 +1816,21 @@ bool LoggerManager::isInitialized()
     return (LoggerManager *)0 != s_singleton_p;
 }
 
+// MANIPULATORS
+template <class CATEGORY_VISITOR>
+inline
+void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor)
+{
+    d_categoryManager.visitCategories(visitor);
+}
+
+// ACCESSORS
+template <class CATEGORY_VISITOR>
+inline
+void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor) const
+{
+    d_categoryManager.visitCategories(visitor);
+}
                         // -----------------------------------
                         // class LoggerManagerScopedGuard
                         // -----------------------------------
@@ -1917,83 +1853,7 @@ LoggerManagerScopedGuard::~LoggerManagerScopedGuard()
     LoggerManager::shutDownSingleton();
 }
 
-                        // -----------------------------
-                        // class LoggerCategoryIter
-                        // -----------------------------
-
-// CREATORS
-inline
-LoggerCategoryIter::LoggerCategoryIter(
-                                       const LoggerManager& loggerManager)
-: d_iter(loggerManager.d_categoryManager)
-{
-}
-
-inline
-LoggerCategoryIter::~LoggerCategoryIter()
-{
-}
-
-// MANIPULATORS
-inline
-void LoggerCategoryIter::operator++()
-{
-    ++d_iter;
-}
 }  // close package namespace
-
-// ACCESSORS
-inline
-ball::LoggerCategoryIter::operator const void *() const
-{
-    return d_iter;
-}
-
-namespace ball {
-inline
-const Category& LoggerCategoryIter::operator()() const
-{
-    return d_iter();
-}
-
-                        // ------------------------------
-                        // class LoggerCategoryManip
-                        // ------------------------------
-
-// CREATORS
-inline
-LoggerCategoryManip::LoggerCategoryManip(
-                                             LoggerManager *loggerManager)
-: d_manip(&loggerManager->d_categoryManager)
-{
-}
-
-inline
-LoggerCategoryManip::~LoggerCategoryManip()
-{
-}
-
-// MANIPULATORS
-inline
-void LoggerCategoryManip::advance()
-{
-    d_manip.advance();
-}
-
-inline
-Category& LoggerCategoryManip::operator()()
-{
-    return d_manip();
-}
-}  // close package namespace
-
-// ACCESSORS
-inline
-ball::LoggerCategoryManip::operator const void *() const
-{
-    return d_manip;
-}
-
 }  // close enterprise namespace
 
 #endif

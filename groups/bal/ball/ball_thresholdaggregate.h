@@ -50,9 +50,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace ball {
-                        // =============================
+                        // ========================
                         // class ThresholdAggregate
-                        // =============================
+                        // ========================
 
 class ThresholdAggregate {
     // This class implements an aggregate of the four logging threshold levels.
@@ -94,9 +94,9 @@ class ThresholdAggregate {
 
     // CREATORS
     ThresholdAggregate(int recordLevel,
-                            int passLevel,
-                            int triggerLevel,
-                            int triggerAllLevel);
+                       int passLevel,
+                       int triggerLevel,
+                       int triggerAllLevel);
         // Create a threshold aggregate whose threshold levels are the
         // specified 'recordLevel', 'passLevel', 'triggerLevel', and
         // 'triggerAllLevel', respectively.  The behavior is undefined if any
@@ -227,9 +227,9 @@ int ThresholdAggregate::triggerAllLevel() const
 // CLASS METHODS
 inline
 bool ThresholdAggregate::areValidThresholdLevels(int recordLevel,
-                                                      int passLevel,
-                                                      int triggerLevel,
-                                                      int triggerAllLevel)
+                                                 int passLevel,
+                                                 int triggerLevel,
+                                                 int triggerAllLevel)
 {
     enum { k_BITS_PER_CHAR = 8 };
 

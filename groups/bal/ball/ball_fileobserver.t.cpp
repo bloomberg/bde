@@ -21,6 +21,7 @@
 #include <bdlt_epochutil.h>
 #include <bdlt_localtimeoffset.h>
 #include <bdlf_function.h>
+#include <bdls_testutil.h>
 #include <bdlsu_filesystemutil.h>
 #include <bdlsu_processutil.h>
 
@@ -135,38 +136,39 @@ static void aSsErT2(int c, const char *s, int i)
 
 #define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cerr << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cerr << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cerr << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cerr << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cerr << '\t' << flush;          // Print tab w/o newline.
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
@@ -509,9 +511,9 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     ASSERT(ascii)
 
     for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
-       if (bsl::strlen(itr().data()) > 0) {
-           result->push_back(itr().data());
-       }
+        if (itr().length() > 0) {
+            result->push_back(itr());
+        }
     }
 }
 
@@ -685,20 +687,20 @@ int main(int argc, char *argv[])
          << "=========================================================" <<endl;
 
         const bdlt::Datetime UTC_ARRAY[] = { bdlt::EpochUtil::epoch(),
-                                        bdlt::Datetime(2001,
-                                                         9,
-                                                        11,
-                                                     8 + 4, // UTC
-                                                        46,
-                                                        30,
-                                                         0),
-                                        bdlt::Datetime(9999,
-                                                        12,
-                                                        31,
-                                                        23,
-                                                        59,
-                                                        59,
-                                                       999)
+                                             bdlt::Datetime(2001,
+                                                            9,
+                                                            11,
+                                                            8 + 4, // UTC
+                                                            46,
+                                                            30,
+                                                            0),
+                                             bdlt::Datetime(9999,
+                                                            12,
+                                                            31,
+                                                            23,
+                                                            59,
+                                                            59,
+                                                            999)
                                       };
         const int NUM_UTC_ARRAY = sizeof UTC_ARRAY / sizeof *UTC_ARRAY;
 
@@ -707,7 +709,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_UTC_ARRAY; ++i) {
                 bdlt::Datetime utcDatetime = UTC_ARRAY[i];
 
-                if (veryVerbose) { T_() P_(i) P(utcDatetime) }
+                if (veryVerbose) { T_ P_(i) P(utcDatetime) }
 
                 TestCurrentTimeCallback::setUtcDatetime(utcDatetime);
                 bsls::TimeInterval result = TestCurrentTimeCallback::load();
@@ -731,7 +733,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_UTC_ARRAY; ++i) {
                 bdlt::Datetime utcDatetime = UTC_ARRAY[i];
 
-                if (veryVerbose) { T_() P_(i) P(utcDatetime) }
+                if (veryVerbose) { T_ P_(i) P(utcDatetime) }
 
                 TestCurrentTimeCallback::setUtcDatetime(utcDatetime);
 
@@ -761,14 +763,14 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_LTO_ARRAY; ++i) {
                 int localTimeOffset = LTO_ARRAY[i];
 
-                if (veryVerbose) { T_() P_(i) P(localTimeOffset) }
+                if (veryVerbose) { T_ P_(i) P(localTimeOffset) }
 
                 TestLocalTimeOffsetCallback::setLocalTimeOffset(
                                                               localTimeOffset);
                 for (int j = 0; j < NUM_UTC_ARRAY; ++j) {
                     bdlt::Datetime utcDatetime  = UTC_ARRAY[j];
 
-                    if (veryVerbose) { T_() T_() P_(j) P(utcDatetime) }
+                    if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
                     int result =
                               TestLocalTimeOffsetCallback::loadLocalTimeOffset(
@@ -794,14 +796,14 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_LTO_ARRAY; ++i) {
                 int localTimeOffset = LTO_ARRAY[i];
 
-                if (veryVerbose) { T_() P_(i) P(localTimeOffset) }
+                if (veryVerbose) { T_ P_(i) P(localTimeOffset) }
 
                 TestLocalTimeOffsetCallback::setLocalTimeOffset(
                                                               localTimeOffset);
                 for (int j = 0; j < NUM_UTC_ARRAY; ++j) {
                     bdlt::Datetime utcDatetime  = UTC_ARRAY[j];
 
-                    if (veryVerbose) { T_() T_() P_(j) P(utcDatetime) }
+                    if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
                     int result =
                             bdlt::LocalTimeOffset::localTimeOffset(utcDatetime)
@@ -846,10 +848,10 @@ int main(int argc, char *argv[])
 
         BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
 
-        int                 logRecordCount  = 0;
-        int                 testLocalTimeOffsetInSeconds;
-        bsl::string         datetimeField;
-        bsl::ostringstream  expectedDatetimeField;
+        int                  logRecordCount  = 0;
+        int                  testLocalTimeOffsetInSeconds;
+        bsl::string          datetimeField;
+        bsl::ostringstream   expectedDatetimeField;
         const bdlt::Datetime testUtcDatetime = UTC_ARRAY[1];
 
         bdlt::CurrentTime::CurrentTimeCallback originalCurrentTimeCallback =
@@ -873,23 +875,29 @@ int main(int argc, char *argv[])
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
         expectedDatetimeField.str("");
         expectedDatetimeField << testUtcDatetime;
-        if (veryVerbose) { T_()
+  
+        if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
-        ASSERT(expectedDatetimeField.str() == datetimeField);
-        ASSERT(expectedLoadCount           ==
-                                     TestLocalTimeOffsetCallback::loadCount());
+        ASSERTV(expectedDatetimeField.str(), 
+                datetimeField,
+                expectedDatetimeField.str() == datetimeField);
+        ASSERTV(expectedLoadCount ==
+                TestLocalTimeOffsetCallback::loadCount());
 
         BALL_LOG_TRACE << "log 2" << BALL_LOG_END; ++logRecordCount;
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
         expectedDatetimeField.str("");
         expectedDatetimeField << testUtcDatetime;
-        if (veryVerbose) { T_()
+        if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
-        ASSERT(expectedDatetimeField.str() == datetimeField);
-        ASSERT(expectedLoadCount           ==
-                                     TestLocalTimeOffsetCallback::loadCount());
+        ASSERTV(expectedDatetimeField.str(), 
+                datetimeField, 
+                expectedDatetimeField.str() == datetimeField);
+
+        ASSERTV(expectedLoadCount ==
+                TestLocalTimeOffsetCallback::loadCount());
 
         if (veryVerbose) cout << "\tLog with Publish In Local Time Enabled"
                               << endl;
@@ -901,7 +909,7 @@ int main(int argc, char *argv[])
         TestLocalTimeOffsetCallback::setLocalTimeOffset(
                                                  testLocalTimeOffsetInSeconds);
 
-        if (veryVerbose) { T_() P(testLocalTimeOffsetInSeconds); }
+        if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
 
         BALL_LOG_TRACE << "log 3" << BALL_LOG_END; ++logRecordCount;
                                                    ++expectedLoadCount;
@@ -914,7 +922,7 @@ int main(int argc, char *argv[])
                                                   0,
                                                   testLocalTimeOffsetInSeconds,
                                                   0);
-        if (veryVerbose) { T_()
+        if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
         ASSERT(expectedDatetimeField.str() == datetimeField);
@@ -925,7 +933,7 @@ int main(int argc, char *argv[])
         TestLocalTimeOffsetCallback::setLocalTimeOffset(
                                                  testLocalTimeOffsetInSeconds);
 
-        if (veryVerbose) { T_() P(testLocalTimeOffsetInSeconds); }
+        if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
 
         BALL_LOG_TRACE << "log 4" << BALL_LOG_END; ++logRecordCount;
                                                    ++expectedLoadCount;
@@ -938,7 +946,7 @@ int main(int argc, char *argv[])
                                                   0,
                                                   testLocalTimeOffsetInSeconds,
                                                   0);
-        if (veryVerbose) { T_()
+        if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
         ASSERT(expectedDatetimeField.str() == datetimeField);
@@ -953,7 +961,7 @@ int main(int argc, char *argv[])
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
         expectedDatetimeField.str("");
         expectedDatetimeField << testUtcDatetime;
-        if (veryVerbose) { T_()
+        if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
         ASSERT(expectedDatetimeField.str() == datetimeField);
@@ -2173,14 +2181,16 @@ int main(int argc, char *argv[])
             int fileOffset = FileUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
-            Q(Ignore warning about /bogus/path/foo -- it is expected);
-            ASSERT(-1 == mX.enableFileLogging("/bogus/path/foo"));
             bsl::stringstream ss;
 
             multiplexObserver.registerObserver(&mX);
 
             BALL_LOG_SET_CATEGORY("bael::FileObserverTest");
-
+            
+            if (veryVerbose) {
+                cerr << fn << endl;
+                cerr << fileName << endl;
+            }
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(ss.rdbuf());
             ASSERT(0 == mX.enableFileLogging(fn.c_str()));
@@ -2203,12 +2213,15 @@ int main(int argc, char *argv[])
             int linesNum = 0;
             bsl::string line;
             while (getline(fs, line)) {
+                bsl::cerr << "Line: " << line << bsl::endl;
                 if (linesNum >= 6) {
                     // check format
                     bsl::string coutLine;
                     getline(coutFs, coutLine);
-                    ASSERT(coutLine == line);
-                    //bsl::cerr << coutLine << endl << line << endl;
+
+                    ASSERTV(coutLine, line, coutLine == line);
+                    bsl::cerr << "coutLine: '" << coutLine << "'" << endl 
+                              << "line: '" << line << "'" <<endl;
                 }
                 ++linesNum;
             }
@@ -2217,6 +2230,7 @@ int main(int argc, char *argv[])
             coutFs.close();
             ASSERT(12 == linesNum);
 
+            break;
             ASSERT(X.isFileLoggingEnabled());
             mX.disableFileLogging();
             ASSERT(!X.isFileLoggingEnabled());

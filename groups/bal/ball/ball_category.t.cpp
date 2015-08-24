@@ -1,7 +1,9 @@
-// ball_userfieldvalue.t.cpp                                          -*-C++-*-
-#include <ball_userfieldvalue.h>
+// ball_category.t.cpp                                                -*-C++-*-
+#include <ball_category.h>
 
-#include <bslim_testutil.h>
+#include <ball_severity.h>                                  // for testing only
+
+#include <bdls_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -14,6 +16,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -31,7 +34,7 @@ using namespace bsl;
 //: o TBD
 //
 // Basic Accessors:
-//: o TB
+//: o TBD
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -42,7 +45,7 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] UserFieldValue();
+// [  ] Category();
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -74,23 +77,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -107,8 +110,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::UserFieldValue Obj;
-typedef ball::UserFieldType  Type;
+typedef ball::Category Obj;
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -171,46 +173,41 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-///Usage
-///-----
-// This section illustrates intended use of this component.
+///Example 1: Basic Use of 'ball::Category'
+/// - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates creating a category and accessing its
+// threshold information.
 //
-///Example 1: Basic Use of 'ball::UserFieldValue'
-/// - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to create and use a
-// 'ball::UserFieldValue' object.  Note that 'ball::UserFieldValue' objects
-// are typically used in a description of a sequence of user fields (see
-// 'ball_userfields').
+// Note that other components in the logging subsystem provide more user
+// focused examples of using categories (see {'ball_loggermanager'},
+// {'ball_administration'}, and 'ball_categorymanager'}).
 //
-// First, we create a default 'ball::UserFieldValue', 'valueA', and observe
-// that it is in the unset state, meaning that 'isUnset' is true and its type
-// is 'ball::UserFieldValue::e_VOID':
+// First we create a simple category, 'example', that has the record-level,
+// trigger-level, and trigger-all thresholds set to OFF and the pass-level set
+// to WARN, and verify these values:
 //..
-    ball::UserFieldValue valueA;
+    ball::Category example("example",
+                           ball::Severity::e_OFF,
+                           ball::Severity::e_WARN,
+                           ball::Severity::e_OFF,
+                           ball::Severity::e_OFF);
 //
-    ASSERT(true                        == valueA.isUnset());
-    ASSERT(ball::UserFieldType::e_VOID == valueA.type());
+    ASSERT(0 == bsl::strcmp("example", example.categoryName()));
+    ASSERT(ball::Severity::e_OFF  == example.recordLevel());
+    ASSERT(ball::Severity::e_WARN == example.passLevel());
+    ASSERT(ball::Severity::e_OFF  == example.triggerLevel());
+    ASSERT(ball::Severity::e_OFF  == example.triggerAllLevel());
 //..
-// Next, we create a second 'ball::UserFieldValue' having the value 5, and
-// then confirm its value and observe that it does not compare equal to the
-// 'valueA':
-//..
-    ball::UserFieldValue valueB(5);
+// See {'ball_loggermanager'} for more information on the use of various
+// thresholds levels.
 //
-    ASSERT(false                        == valueB.isUnset());
-    ASSERT(ball::UserFieldType::e_INT64 == valueB.type());
-    ASSERT(5                            == valueB.theInt64())
-//
-    ASSERT(valueA != valueB);
+// Finally, we test if a the category is enabled for log record recorded with
+// 'e_ERROR' severity:
 //..
-// Finally, we call 'reset' of 'valueB' resetting it to the unset state, and
-// observer that 'valueA' now compares equal to 'valueB':
+    if (example.isEnabled(ball::Severity::e_ERROR)) {
+        // publish record
+    }
 //..
-    valueB.reset();
-//
-    ASSERT(valueA == valueB);
-//..
-
       } break;
       case 1: {
 
@@ -237,6 +234,7 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
+/*
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
@@ -431,7 +429,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
         ASSERT(1 == (X == Y));        ASSERT(0 == (X != Y));
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
-
+*/
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

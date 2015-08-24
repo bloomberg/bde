@@ -607,13 +607,13 @@ int TestLocalTimeOffsetCallback::loadCount()
 void splitStringIntoLines(bsl::vector<bsl::string> *result,
                           const char               *ascii)
 {
-    ASSERT(result)
-    ASSERT(ascii)
+    ASSERT(result);
+    ASSERT(ascii);
 
     for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
-       if (bsl::strlen(itr().data()) > 0) {
-           result->push_back(itr().data());
-       }
+        if (itr().length() > 0) {
+            result->push_back(itr());
+        }
     }
 }
 

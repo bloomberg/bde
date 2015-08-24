@@ -200,10 +200,15 @@ class FixedSizeRecordBuffer: public RecordBuffer {
                                                  // current sum of sizes of
                                                  // contained records
 
+    // Implementation note:  The order of the following data members is
+    // required to enusre proper intialization order.
+
+    CountingAllocator             d_allocator;   // allocator for 'd_deque'
+
     bsl::deque<bsl::shared_ptr<Record> >
                                   d_deque;       // deque of record handles
 
-    CountingAllocator             d_allocator;   // allocator for 'd_deque'
+
 
     // NOT IMPLEMENTED
     FixedSizeRecordBuffer(const FixedSizeRecordBuffer&);
