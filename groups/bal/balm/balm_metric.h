@@ -61,24 +61,22 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 // This example demonstrates how to create the default 'balm::MetricsManager'
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') to which the default
-// metrics manager will publish metrics.  Note that the default metrics
-// manager is intended to be created and destroyed by the *owner* of 'main'.
-// An instance of the manager should be created during the initialization of
-// an application (while the task has a single thread) and destroyed just
-// prior to termination (when there is similarly a single thread).
+// Create a 'balm::DefaultMetricsManagerScopedGuard' to manage the lifetime of
+// the default metrics manager instance.  At construction, provide the scoped
+// guard an output stream ('stdout') to which the default metrics manager will
+// publish metrics.  Note that the default metrics manager is intended to be
+// created and destroyed by the *owner* of 'main'. An instance of the manager
+// should be created during the initialization of an application (while the task
+// has a single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
 //  {
-//
 //      // ...
 //
 //      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
 //..
-// Once the default manager object has been created, it can be accessed using
-// the 'instance' operation.
+// The default manager object can be accessed using the 'instance' operation.
 //..
 //      balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
 //      assert(0 != manager);
@@ -87,6 +85,9 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 // goes out of scope.  Clients that choose to call
 // 'balm::DefaultMetricsManager::create()' explicitly must also explicitly call
 // 'balm::DefaultMetricsManager::destroy()'.
+//
+//  }
+//..
 //
 ///Example 2 - Metric Collection with 'balm::Metric'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -132,9 +133,29 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //         d_elapsedTime.update(stopwatch.elapsedTime());
 //         return returnCode;
 //      }
-//
 //  // ...
 //  };
+//  // ...
+//
+//      EventManager eventManager;
+//      eventManager.handleEvent(0, "ab");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdef");
+//
+//      manager->publishAll();
+//
+//      eventManager.handleEvent(0, "ab");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdef");
+//
+//      eventManager.handleEvent(0, "a");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abc");
+//      eventManager.handleEvent(0, "abdefg");
+//
+//      manager->publishAll();
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION

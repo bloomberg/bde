@@ -362,14 +362,13 @@ BSLS_IDENT("$Id: $")
 // This example demonstrates how to create the default 'balm::MetricsManager'
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
-// provide this guard with an output stream ('stdout') to which the default
-// metrics manager will publish metrics.  Note that the default metrics
-// manager is intended to be created and destroyed by the *owner* of 'main':
-// An instance of the manager should be created during the initialization of
-// an application (while the task has a single thread) and destroyed just
-// prior to termination (when there is similarly a single thread).
+// Create a 'balm::DefaultMetricsManagerScopedGuard' to manage the lifetime of
+// the default metrics manager instance, and provide it a stream ('stdout')
+// that we want to publish metrics to.  Note that the default metrics
+// manager is intended to be created and released by the *owner* of  'main'.
+// The instance should be created during the initialization of an
+// application (while the task has a single thread) and released just prior to
+// termination (when there is similarly a single thread).
 //..
 //  int main(int argc, char *argv[])
 //  {
@@ -383,10 +382,10 @@ BSLS_IDENT("$Id: $")
 //      balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
 //      assert(0 != manager);
 //..
-// Note that the default metrics manager will be destroyed when 'managerGuard'
-// goes out of scope; clients who instead choose to call
-// 'balm::DefaultMetricsManager::create' explicitly must also explicitly call
-// 'balm::DefaultMetricsManager::destroy()'.
+// Note that the default metrics manager will be released when the
+// 'managerGuard' exits this scoped and is destroyed.  Clients that choose to
+// explicitly call 'balm::DefaultMetricsManager::create()' must also explicitly
+// call 'balm::DefaultMetricsManager::release()'.
 //
 ///Example 2 - Updating a Metric
 ///- - - - - - - - - - - - - - -

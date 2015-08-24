@@ -474,10 +474,10 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example illustrates how to create and use a
-// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry' object,
-// 'registry', and then using this registry to create a 'balm::MetricId' for a
-// metric "MetricA" belonging to the category "MyCategory" (i.e.,
-// "MyCategory.MetricA").
+// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry'
+// object, 'registry', and then using this registry to create a
+// 'balm::MetricId' for a metric "MetricA" belonging to the category
+// "MyCategory" (i.e., "MyCategory.MetricA").
 //..
     bslma::Allocator    *allocator = bslma::Default::allocator(0);
     balm::MetricRegistry  registry(allocator);

@@ -41,14 +41,13 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //  balm::MetricDescription descriptionA(&category, "MetricA");
 //  balm::MetricDescription descriptionB(&category, "MetricB");
 //..
-// Now we create three 'balm::MetricId' objects, representing distinct values:
+// Now we create three 'balm::MetricId' objects:
 //..
 //  balm::MetricId invalidId;
 //  balm::MetricId metricIdA(&descriptionA);
 //  balm::MetricId metricIdB(&descriptionB);
 //..
-// We can access and verify the properties of the 'balm::MetricId' objects
-// we have created:
+// We can access and verify their properties:
 //..
 //  assert(false == invalidId.isValid());
 //  assert(true  == metricIdA.isValid());

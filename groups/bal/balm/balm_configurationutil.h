@@ -56,17 +56,17 @@ BSLS_IDENT("$Id: $")
 // publication type for the metric to be average:
 //..
 //      balm::ConfigurationUtil::setPreferredPublicationType(
-//                                             "myCategory",
-//                                             "avgElapsedTimeMs",
+//                                          "myCategory",
+//                                          "avgElapsedTimeMs",
 //                                          balm::PublicationType::e_BALM_AVG);
 //..
 // Next, because we will record the elapsed time in seconds, we configure a
 // format to scale the elapsed time by 1000.0:
 //..
 //     balm::ConfigurationUtil::setFormatSpec(
-//                                    "myCategory",
-//                                    "avgElapsedTimeMs",
-//                                    balm::PublicationType::e_BALM_AVG,
+//                                   "myCategory",
+//                                   "avgElapsedTimeMs",
+//                                   balm::PublicationType::e_BALM_AVG,
 //                                   balm::MetricFormatSpec(1000.0, "%.2f ms");
 //..
 // We now collect an example value of .005:

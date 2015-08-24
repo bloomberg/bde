@@ -144,19 +144,19 @@ int main(int argc, char *argv[])
 
     balm::MetricSample sample(allocator);
 //
-    sample.setTimeStamp(
-                   bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
-    sample.appendGroup(records.data(),
-                       records.size(),
+    sample.setElapsedTime(bsls::TimeInterval(5));
+    sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
+    sample.appendGroup(records.data(), records.size(),
                        bsls::TimeInterval(5, 0));
 
     myPublisher.publish(sample);
 //..
 // The output of this example would look similar to:
 //..
-// 28MAR2008_18:37:46.623+0000 - 2 Records   5s Elapsed Time
-//         MyCategory.Metric1 (count = 5, total = 25, min = 6, max = 25)
-//         MyCategory.Metric2 (count = 2, total = 7, min = 3, max = 11)
+// 05FEB2009_19:52:11.723+0000 2 Records
+//     Elapsed Time: 5s
+//         MyCategory.MetricA [ count = 5, total = 25, min = 6, max = 25 ]
+//         MyCategory.MetricB [ count = 2, total = 7, min = 3, max = 11 ]
 //..
 
       } break;

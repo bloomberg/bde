@@ -1325,8 +1325,8 @@ int main(int argc, char *argv[])
 // This example demonstrates how to create the default 'baem::MetricManager'
 // instance and perform a trivial configuration.
 //
-// Create a 'balm::DefaultMetricsManagerScopedGuard' that manages the lifetime
-// of the default metrics manager instance, and provide it a stream ('stdout')
+// Create a 'balm::DefaultMetricsManagerScopedGuard' to manage the lifetime of
+// the default metrics manager instance, and provide it a stream ('stdout')
 // that we want to publish metrics to.  Note that the default metrics
 // manager is intended to be created and released by the *owner* of  'main'.
 // The instance should be created during the initialization of an
@@ -1335,7 +1335,6 @@ int main(int argc, char *argv[])
 //..
 //  int main(int argc, char *argv[])
     {
-
     // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
@@ -1343,8 +1342,8 @@ int main(int argc, char *argv[])
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation
 //..
-        balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-                        ASSERT(0       != manager);
+       balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+       ASSERT(0 != manager);
 //..
 // Note that the default metrics manager will be released when the
 // 'managerGuard' exits this scoped and is destroyed.  Clients that choose to

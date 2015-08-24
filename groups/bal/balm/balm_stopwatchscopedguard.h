@@ -76,16 +76,16 @@ BSLS_IDENT("$Id: $")
 //      balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
 //      assert(0 != manager);
 //..
-// Note that the default metrics manager will be destroyed when 'managerGuard'
-// goes out of scope.  Clients that choose to call
-// 'balm::DefaultMetricsManager::create()' explicitly must also explicitly call
-// 'balm::DefaultMetricsManager::destroy()'.
+// Note that the default metrics manager will be released when 'managerGuard'
+// exits this scoped and is destroyed.  Clients that choose to explicitly call
+// the 'balm::DefaultMetricsManager::create' method must also explicitly call
+// the 'balm::DefaultMetricsManager::release' method.
 //
 ///Example 2 - Metric Collection with 'balm::StopwatchScopedGuard'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
 // values.  In the following example we implement a hypothetical request
-// processor similar to the one in example 2.  We use a 'balm::Metric'
+// processor similar to the one in example 3.  We use a 'balm::Metric'
 // ('d_elapsedTime') and a 'balm::StopwatchScopedGuard' ('guard') to record the
 // elapsed time of the request-processing function.
 //..
@@ -95,6 +95,7 @@ BSLS_IDENT("$Id: $")
 //      balm::Metric d_elapsedTime;
 //
 //    public:
+//
 //      // CREATORS
 //      RequestProcessor()
 //      : d_elapsedTime("MyCategory", "RequestProcessor/elapsedTime")
@@ -102,20 +103,44 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      int processRequest(const bsl::string& request)
-//          // Process the specified 'request'; return 0 on success, and a
+//          // Process the specified 'request'.  Return 0 on success, and a
 //          // non-zero value otherwise.
 //      {
 //         int returnCode = 0;
 //
 //         balm::StopwatchScopedGuard guard(&d_elapsedTime);
 //
-//         // Perform some task.
+//  // ...
 //
 //         return returnCode;
 //      }
 //
 //  // ...
 //  };
+//
+//  // ...
+//
+//      RequestProcessor processor;
+//
+//      processor.processRequest("ab");
+//      processor.processRequest("abc");
+//      processor.processRequest("abc");
+//      processor.processRequest("abdef");
+//
+//      manager->publishAll();
+//
+//      processor.processRequest("ab");
+//      processor.processRequest("abc");
+//      processor.processRequest("abc");
+//      processor.processRequest("abdef");
+//
+//      processor.processRequest("a");
+//      processor.processRequest("abc");
+//      processor.processRequest("abc");
+//      processor.processRequest("abdefg");
+//
+//      manager->publishAll();
+//
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION

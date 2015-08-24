@@ -254,17 +254,18 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example demonstrates how to create and access a
-// 'balm::MetricDescription' object.  We start by creating a category.  Then we
-// use that category to create three metric description objects with different
-// names.
+// 'balm::MetricDescription' object.  We start by creating a category. 
 //..
     balm::Category myCategory("MyCategory");
+//..
+// Then we use that category to create three metric description objects with
+// different names:
+//..
     balm::MetricDescription metricA(&myCategory, "A");
     balm::MetricDescription metricB(&myCategory, "B");
     balm::MetricDescription metricC(&myCategory, "C");
 //..
-// Once the metricdescription object have been created we can use the
-// 'category' and 'name' methods to access their value.
+// We can use the 'category' and 'name' methods to access their value.
 //..
     ASSERT(&myCategory == metricA.category());
     ASSERT(&myCategory == metricB.category());

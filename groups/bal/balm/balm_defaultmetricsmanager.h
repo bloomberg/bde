@@ -66,15 +66,18 @@ BSLS_IDENT("$Id: $")
 // Once the default instance has been created, it can be accessed using the
 // static 'instance' method.
 //..
-//      balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-//                    assert(0 != manager);
+//      balm::MetricsManager *manager =
+//                                      balm::DefaultMetricsManager::instance();
+//      assert(0 != manager);
 //..
-// We use the default 'manager' instance to update the collector for a single
-// metric, and then publish all the collected metrics.
+// The default metrics manager, by default, is configured with a
+// 'balm::StreamPublisher' object that will publish all recorded metrics to the
+// consoled.  We use the default 'manager' instance to update the collector
+// for a single metric, and then publish all metrics.
 //..
 //      balm::Collector *myMetric =
-//            manager->collectorRepository().getDefaultCollector("MyCategory",
-//                                                               "MyMetric");
+//            manager->collectorRepository().getDefaultCollector(
+//                                                    "MyCategory", "MyMetric");
 //      myMetric->update(10);
 //      manager->publishAll();
 //..
@@ -86,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the default metrics manager will be destroyed when 'managerGuard'
 // exits this scope and is destroyed.  Clients that choose to explicitly call
-// the 'balm::DefaultMetricsManager::create' method must also explicitly call
+// 'balm::DefaultMetricsManager::create()' must also explicitly call
 // 'balm::DefaultMetricsManager::destroy()'.
 
 #ifndef INCLUDED_BALSCM_VERSION

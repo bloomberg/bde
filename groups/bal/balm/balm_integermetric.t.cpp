@@ -391,7 +391,6 @@ int main(int argc, char *argv[])
 //..
 //  int main(int argc, char *argv[])
     {
-
     // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
@@ -399,8 +398,8 @@ int main(int argc, char *argv[])
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation.
 //..
-        balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-                        ASSERT(0       != manager);
+      balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
+      ASSERT(0 != manager);
 //..
 // Note that the default metrics manager will be released when 'managerGuard'
 // exits this scoped and is destroyed.  Clients that choose to explicitly call

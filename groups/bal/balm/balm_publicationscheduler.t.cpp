@@ -1300,7 +1300,7 @@ int main(int argc, char *argv[])
                             allocator);
 //..
 // We now register the 'publisher' we have created with the metrics 'manager'
-// to publish our categories.  The, we 'start' the timer-event scheduler we
+// to publish our categories.  Then, we 'start' the timer-event scheduler we
 // will supply to the 'balm::PublicationScheduler'.
 //..
     manager.addGeneralPublisher(publisher);
@@ -1324,13 +1324,14 @@ int main(int argc, char *argv[])
 // specified.
 //..
     bsls::TimeInterval intervalA, intervalB, intervalC, defaultInterval;
-        ASSERT( scheduler.findCategorySchedule(&intervalA, "A"));
-        ASSERT( scheduler.findCategorySchedule(&intervalB, "B"));
-        ASSERT(!scheduler.findCategorySchedule(&intervalC, "C"));
-        ASSERT( scheduler.getDefaultSchedule(&defaultInterval));
-        ASSERT(bsls::TimeInterval(.05) == intervalA);
-        ASSERT(bsls::TimeInterval(.05) == intervalB);
-        ASSERT(bsls::TimeInterval(.10) == defaultInterval);
+    ASSERT( scheduler.findCategorySchedule(&intervalA, "A"));
+    ASSERT( scheduler.findCategorySchedule(&intervalB, "B"));
+    ASSERT(!scheduler.findCategorySchedule(&intervalC, "C"));
+    ASSERT( scheduler.getDefaultSchedule(&defaultInterval));
+
+    ASSERT(bsls::TimeInterval(.05) == intervalA);
+    ASSERT(bsls::TimeInterval(.05) == intervalB);
+    ASSERT(bsls::TimeInterval(.10) == defaultInterval);
 //..
 // Finally we add a couple metrics and wait just over .1 seconds.
 //..

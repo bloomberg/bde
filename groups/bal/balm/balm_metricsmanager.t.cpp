@@ -1219,13 +1219,13 @@ void ConcurrencyTest::runTest()
 //..
     class EventHandler {
         // Provide an example event handling mechanism that records metrics
-        // for the size of the processed event messages and the number of
-        // failures using 'balm::Collector' objects provided by a
+        // for (1) the size of the processed event messages and (2) the number
+        // of failures using 'balm::Collector' objects provided by a
         // 'balm::MetricsManager'.
 
         // PRIVATE DATA
-        balm::Collector *d_eventMessageSize_p; // collect the message size
-        balm::Collector *d_eventFailure_p;     // collect the number of failures
+        balm::Collector *d_eventMessageSizes_p; // collect the message sizes
+        balm::Collector *d_eventFailures_p;   // collect the number of failures
 
     // ...
 
@@ -1239,12 +1239,12 @@ void ConcurrencyTest::runTest()
 // 'balm_metric') rather than explicitly pass the address of 'manager'.
 //..
         EventHandler(balm::MetricsManager *manager)
-        : d_eventMessageSize_p(
+        : d_eventMessageSizes_p(
                manager->collectorRepository().getDefaultCollector(
-                                            "MyCategory", "messageSize"))
-        , d_eventFailure_p(
+                                                "MyCategory", "messageSizes"))
+        , d_eventFailures_p(
                manager->collectorRepository().getDefaultCollector(
-                                            "MyCategory", "eventFailure"))
+                                                "MyCategory", "eventFailures"))
         {}
 
         // MANIPULATORS
@@ -1258,12 +1258,12 @@ void ConcurrencyTest::runTest()
             // if there was an error handling the event.
         {
            int returnCode = 0;
-           d_eventMessageSize_p->update(eventMessage.size());
+           d_eventMessageSizes_p->update(eventMessage.size());
 
     // ...    (Process the event)
 
            if (0 != returnCode) {
-               d_eventFailure_p->update(1);
+               d_eventFailures_p->update(1);
            }
            return returnCode;
         }
@@ -1292,32 +1292,36 @@ void ConcurrencyTest::runTest()
         bsls::AtomicInt       d_numEvents;         // number of requests
 
         bsls::TimeInterval    d_periodStart;       // start of the current
-                                                  // period
+                                                   // period
 
         balm::MetricId        d_eventsPerSecId;    // identifies the events-
-                                                  // per-second metric
+                                                   // per-second metric
         balm::MetricsManager::CallbackHandle
-                             d_callbackHandle;    // identifies the callback
+                             d_callbackHandle;     // identifies the callback
 
         balm::MetricsManager *d_metricsManager_p;  // metrics manager (held,
-                                                  // but not owned)
+                                                   // but not owned)
      // ...
 
         // PRIVATE MANIPULATORS
         void collectMetricsCb(bsl::vector<balm::MetricRecord> *records,
-                              bool                            resetFlag);
+                              bool                             resetFlag);
             // Append to the specified 'records' the aggregated values of the
-            // metrics recorded by this request processor.  Note that this
-            // method is intended to be used as a callback, and is consistent
-            // with the 'balm::MetricsManager::RecordsCollectionCallback'
-            // function prototype.
+            // metrics recorded by this event handler and, if 'resetFlag' is
+            // 'true', reset those metric values to their default state.  Note
+            // that this method is intended to be used as a callback, and is
+            // consistent with the
+            // 'balm::MetricsManager::RecordsCollectionCallback' function
+            // prototype.
 
       public:
         // CREATORS
         EventHandlerWithCallback(balm::MetricsManager *manager,
                                  bslma::Allocator    *basicAllocator = 0);
             // Initialize this object to use the specified 'manager' to record
-            // and publish metrics.
+            // and publish metrics.  Optionally specify a 'basicAllocator'
+            // used to supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
 
         ~EventHandlerWithCallback();
             // Destroy this request processor.
@@ -1350,8 +1354,8 @@ void ConcurrencyTest::runTest()
 //..
     // PRIVATE MANIPULATORS
     void EventHandlerWithCallback::collectMetricsCb(
-                                     bsl::vector<balm::MetricRecord> *records,
-                                     bool                            resetFlag)
+                                    bsl::vector<balm::MetricRecord> *records,
+                                    bool                             resetFlag)
     {
         int numEvents = resetFlag ?
                         (int)d_numEvents.swap(0) :
@@ -1374,8 +1378,8 @@ void ConcurrencyTest::runTest()
 //..
     // CREATORS
     EventHandlerWithCallback::EventHandlerWithCallback(
-                                           balm::MetricsManager *manager,
-                                           bslma::Allocator    *basicAllocator)
+                                          balm::MetricsManager *manager,
+                                          bslma::Allocator     *basicAllocator)
     : d_numEvents(0)
     , d_periodStart(bdlt::CurrentTime::now())
     , d_eventsPerSecId()
@@ -1412,8 +1416,8 @@ void ConcurrencyTest::runTest()
 //..
     EventHandlerWithCallback::~EventHandlerWithCallback()
     {
-        int rc = d_metricsManager_p->removeCollectionCallback(
-                                                             d_callbackHandle);
+        int rc =
+               d_metricsManager_p->removeCollectionCallback(d_callbackHandle);
         ASSERT(0 == rc);
     }
 
@@ -1506,8 +1510,8 @@ int main(int argc, char *argv[])
 ///Example 1 - Initialize a 'balm::MetricsManager'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create and configure a
-// 'balm::MetricsManager' that we will use to record and publish metric
-// values.  We first create a 'balm::MetricsManager' object and a
+// 'balm::MetricsManager' that we will use to record and publish metric values.
+// We first create a 'balm::MetricsManager' object and a
 // 'SimpleStreamPublisher' object.  Note that,  'SimpleStreamPublisher' is an
 // example implementation of the 'balm::Publisher' protocol defined in the
 // 'balm_publisher' component, in practice clients can use a standard
@@ -1537,7 +1541,7 @@ int main(int argc, char *argv[])
 // record metrics for "MyCategory" using instances of the 'EventHandler'
 // and 'EventHandlerWithCallback' classes (defined above).  This example
 // assumes that an instance, 'manager', of the 'balm::MetricsManager' class has
-// been initialized as in example 1.  Note that, in practice the publish
+// been initialized as in example 1.  Note that in practice the publish
 // operation is normally tied to a scheduling mechanism (e.g., see the
 // 'balm::PublicationScheduler').
 //..

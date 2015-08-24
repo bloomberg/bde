@@ -449,8 +449,9 @@ int main(int argc, char *argv[])
     intCollector2->update(6);
 //..
 // We can use the repository to collect recorded values from the collectors it
-// manages.  Since there are four collectors, there should be four recorded
-// values.  Note the order in which the records are returned is undefined.
+// manages.  Since there are collectors for four metrics, there should be four
+// recorded values.  Note the order in which the records are returned is
+// undefined.
 //..
     bsl::vector<balm::MetricRecord> records;
     repository.collectAndReset(&records, metricRegistry.getCategory("Test"));
@@ -463,13 +464,12 @@ int main(int argc, char *argv[])
          bsl::cout << *it << bsl::endl;
     }
 //..
-// The exact format of the output is determined by the 'balm::MetricRecord'
-// component, but should contain the following information:
+// The output of the for-loop should be:
 //..
-// [ metric: 1, count: 2, total: 3, min: 1, max: 2 ]
-// [ metric: 2, count: 1, total: 4, min: 4, max: 4 ]
-// [ metric: 3, count: 1, total: 5, min: 5, max: 5 ]
-// [ metric: 4, count: 1, total: 6, min: 6, max: 6 ]
+//  [ Test.C1: 2 3 1 2 ]
+//  [ Test.C2: 1 4 4 4 ]
+//  [ Test.C3: 1 5 5 5 ]
+//  [ Test.C4: 1 6 6 6 ]
 //..
 
       } break;

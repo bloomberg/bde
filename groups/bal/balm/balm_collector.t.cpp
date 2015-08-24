@@ -264,10 +264,11 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example creates a 'balm::Collector', modifies its values, then
-// collects a 'balm::MetricRecord'.  We start by creating a 'balm::MetricId'
-// object by hand; however, in practice an id should be obtained from a
-// 'balm::MetricRegistry' object (such as the one owned by a
-// 'balm::MetricsManager').
+// collects a 'balm::MetricRecord'.
+//
+// We start by creating a 'balm::MetricId' object by hand; but in
+// practice, an id should be obtained from a 'balm::MetricRegistry' object
+// (such as the one owned by a 'balm::MetricsManager'):
 //..
     balm::Category           myCategory("MyCategory");
     balm::MetricDescription  description(&myCategory, "MyMetric");

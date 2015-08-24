@@ -68,7 +68,8 @@ BSLS_IDENT("$Id: $")
 //                          allocator);
 //..
 // We now register the 'publisher' we have created with the metrics 'manager'
-// to publish our categories and 'start' the timer-event scheduler.
+// to publish our categories.  Then, we 'start' the timer-event scheduler we
+// will supply to the 'balm::PublicationScheduler'.
 //..
 //  manager.addGeneralPublisher(publisher);
 //  timer.start();

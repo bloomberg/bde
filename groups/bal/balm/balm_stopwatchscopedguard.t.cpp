@@ -369,11 +369,11 @@ bool TestPublisher::contains(const balm::MetricId& id) const
 //..
 ///Example 2 - Metric collection with 'balm::StopwatchScopedGuard'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We can alternatively use the 'balm::StopwatchScopedGuard' to record metric
+// Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
 // values.  In the following example we implement a hypothetical request
-// processor similar to example 3.  We use 'balm::Metric' and a
-// 'balm::StopwatchScopedGuard' to record the elapsed time of the request
-// processing function.
+// processor similar to the one in example 3.  We use a 'balm::Metric'
+// ('d_elapsedTime') and a 'balm::StopwatchScopedGuard' ('guard') to record the
+// elapsed time of the request-processing function.
 //..
     class RequestProcessor {
 
@@ -466,8 +466,8 @@ int main(int argc, char *argv[])
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation.
 //..
-        balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-                        ASSERT(0       != manager);
+       balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+       ASSERT(0 != manager);
 //..
 // Note that the default metrics manager will be released when 'managerGuard'
 // exits this scoped and is destroyed.  Clients that choose to explicitly call

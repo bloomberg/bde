@@ -64,9 +64,9 @@ BSLS_IDENT("$Id: $")
 //  balm::MetricSample sample(allocator);
 //
 //  sample.setElapsedTime(bsls::TimeInterval(5));
-//  sample.setTimeStamp(
-//                 bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
-//  sample.appendRecords(records.data(), records.size());
+//  sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
+//  sample.appendGroup(records.data(), records.size(),
+//                     bsls::TimeInterval(5, 0));
 //
 //  myPublisher.publish(sample);
 //..

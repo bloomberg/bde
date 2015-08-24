@@ -152,7 +152,9 @@ int main(int argc, char *argv[])
 // how to record metrics.
 //
 // First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  Note that the default
+// lifetime of the default metrics manager instance.  At construction, we
+// provide the 'balm::DefaultMetricsManagerScopedGuard' an output stream
+// ('stdout') to which it will publish metrics.  Note that the default
 // metrics manager is intended to be created and destroyed by the *owner* of
 // 'main'.  The instance should be created during the initialization of an
 // application (while the task has a single thread) and destroyed just prior to
@@ -168,8 +170,9 @@ int main(int argc, char *argv[])
 // Once the default instance has been created, it can be accessed using the
 // static 'instance' method.
 //..
-        balm::MetricsManager *manager  = balm::DefaultMetricsManager::instance();
-                      ASSERT(0 != manager);
+       balm::MetricsManager *manager =
+                                       balm::DefaultMetricsManager::instance();
+       ASSERT(0 != manager);
 //..
 // The default metrics manager, by default, is configured with a
 // 'balm::StreamPublisher' object that will publish all recorded metrics to the
@@ -177,13 +180,16 @@ int main(int argc, char *argv[])
 // for a single metric, and then publish all metrics.
 //..
         balm::Collector *myMetric =
-              manager->collectorRepository().getDefaultCollector("MyCategory",
-                                                                 "MyMetric");
+              manager->collectorRepository().getDefaultCollector(
+                                                     "MyCategory", "MyMetric");
         myMetric->update(10);
         manager->publishAll();
 //..
 // The output of this example would look similar to:
 //..
+// 05FEB2009_19:20:12.697+0000 1 Records
+//    Elapsed Time: 0.009311s
+//            MyCategory.MyMetric [ count = 1, total = 10, min = 10, max = 10 ]
 //..
 // Note that the default metrics manager will be destroyed when 'managerGuard'
 // exits this scope and is destroyed.  Clients that choose to explicitly call

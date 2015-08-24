@@ -53,8 +53,7 @@ BSLS_IDENT("$Id: $")
 //  balm::MetricDescription metricB(&myCategory, "B");
 //  balm::MetricDescription metricC(&myCategory, "C");
 //..
-// Once the metric description objects have been created we can use the
-// 'category' and 'name' methods to access their values:
+// We can use the 'category' and 'name' methods to access their values:
 //..
 //  assert(&myCategory == metricA.category());
 //  assert(&myCategory == metricB.category());

@@ -66,11 +66,11 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create and configure a
 // 'balm::MetricsManager' that we will use to record and publish metric values.
-// We first create a 'balm::MetricsManager' object and a 'SimpleStreamPublisher'
-// object.  Note that 'SimpleStreamPublisher' is an example implementation of
-// the 'balm::Publisher' protocol defined in the 'balm_publisher' component.
-// In practice, clients typically use a standard publisher class (e.g.,
-// 'balm::StreamPublisher').
+// We first create a 'balm::MetricsManager' object and a
+// 'SimpleStreamPublisher' object.  Note that 'SimpleStreamPublisher' is an
+// example implementation of the 'balm::Publisher' protocol defined in the
+// 'balm_publisher' component. In practice, clients typically use a standard
+// publisher class (e.g., 'balm::StreamPublisher').
 //..
 //  int main(int argc, char *argv[]) {
 //  {
@@ -106,11 +106,9 @@ BSLS_IDENT("$Id: $")
 //      // of failures, using 'balm::Collector' objects provided by a
 //      // 'balm::MetricsManager'.
 //
-//      // DATA
+//      // PRIVATE DATA
 //      balm::Collector *d_eventMessageSizes_p;  // collect the message sizes
-//
-//      balm::Collector *d_eventFailures_p;      // collect the number of
-//                                              // failures
+//      balm::Collector *d_eventFailures_p;   // collect the number of failures
 //
 //  // ...
 //
@@ -159,12 +157,12 @@ BSLS_IDENT("$Id: $")
 //..
 ///Example 3 - Recording Metric Values with a Callback
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// The metrics manager provides a facility to register a callback to report
-// metric values.  A callback should be used if clients want to customize how
-// a metric, or group of metrics, are recorded.  In the following example, the
-// 'EventHandlerWithCallback' class maintains a metric for the average number
-// of events per second that it reports through a
-// 'balm::MetricsManager::RecordsCollectionCallback'.
+// The metrics manager provides a facility to register a callback that will
+// report metric values.  A callback should be used if clients want to
+// customize how a metric, or group of metrics, are recorded.  In the following
+// example, the 'EventHandlerWithCallback' class maintains a metric for the
+// average number of events per second that it reports through a
+// 'balm::MetricsManager::MetricsCollectionCallback'.
 //..
 //  // eventhandlerwithcallback.h
 //
@@ -177,20 +175,20 @@ BSLS_IDENT("$Id: $")
 //      bsls::AtomicInt       d_numEvents;         // number of events
 //
 //      bsls::TimeInterval    d_periodStart;       // start of the current
-//                                                // period
+//                                                 // period
 //
 //      balm::MetricId        d_eventsPerSecId;    // identifies the events-
-//                                                // per-second metric
+//                                                 // per-second metric
 //      balm::MetricsManager::CallbackHandle
-//                           d_callbackHandle;    // identifies the callback
+//                            d_callbackHandle;    // identifies the callback
 //
 //      balm::MetricsManager *d_metricsManager_p;  // metrics manager (held,
-//                                                // but not owned)
+//                                                 // but not owned)
 //   // ...
 //
 //      // PRIVATE MANIPULATORS
 //      void collectMetricsCb(bsl::vector<balm::MetricRecord> *records,
-//                            bool                            resetFlag);
+//                            bool                             resetFlag);
 //          // Append to the specified 'records' the aggregated values of the
 //          // metrics recorded by this event handler and, if 'resetFlag' is
 //          // 'true', reset those metric values to their default state.  Note
@@ -240,9 +238,11 @@ BSLS_IDENT("$Id: $")
 //  // PRIVATE MANIPULATORS
 //  void EventHandlerWithCallback::collectMetricsCb(
 //                                  bsl::vector<balm::MetricRecord> *records,
-//                                  bool                            resetFlag)
+//                                  bool                             resetFlag)
 //  {
-//      int numEvents = resetFlag ? d_numEvents.swap(0) : (int)d_numEvents;
+//      int numEvents = resetFlag ?
+//                      (int)d_numEvents.swap(0) :
+//                      (int)d_numEvents;
 //      bsls::TimeInterval now         = bdlt::CurrentTime::now();
 //      bsls::TimeInterval elapsedTime = now - d_periodStart;
 //      d_periodStart = now;
@@ -261,8 +261,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  // CREATORS
 //  EventHandlerWithCallback::EventHandlerWithCallback(
-//                                         balm::MetricsManager *manager,
-//                                         bslma::Allocator    *basicAllocator)
+//                                        balm::MetricsManager *manager,
+//                                        bslma::Allocator     *basicAllocator)
 //  : d_numEvents(0)
 //  , d_periodStart(bdlt::CurrentTime::now())
 //  , d_eventsPerSecId()

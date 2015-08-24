@@ -43,8 +43,9 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 // The following example demonstrates how a 'balm::MetricRecord' can be used
 // to describe a set of metric values.  In the example we create a
 // 'RequestProcessor' class that collects information about the sizes of the
-// requests it has processed, and provides a 'loadRequestSizeInformation'
-// method that populates a 'balm::MetricRecord' containing that information.
+// requests it has processed.  The 'RequestProcessor' also provides a
+// 'loadRequestSizeInformation' method that populates a 'balm::MetricRecord'
+// object describing the sizes of the requests it has processed.
 //..
 //  class RequestProcessor {
 //      // This class defines a request processor that provides metric
@@ -75,11 +76,12 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //      {
 //          ++d_numRequests;
 //          d_totalRequestSize += request.size();
-//          d_minRequestSize   =  bsl::min(d_minRequestSize, request.size());
-//          d_maxRequestSize   =  bsl::max(d_maxRequestSize, request.size());
+//          d_minRequestSize   =  bsl::min(d_minRequestSize,
+//                                         (unsigned int)request.size());
+//          d_maxRequestSize   =  bsl::max(d_maxRequestSize,
+//                                         (unsigned int)request.size());
 //
 //          // Process the request.
-//
 //      }
 //..
 // Now we declare a function that populates a 'balm::MetricRecord' describing

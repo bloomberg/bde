@@ -77,7 +77,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main(int argc, char *argv[])
 //  {
-//
 //      // ...
 //
 //      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
@@ -88,10 +87,10 @@ BSLS_IDENT("$Id: $")
 //     balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
 //     assert(0 != manager);
 //..
-// Note that the default metrics manager will be destroyed when 'managerGuard'
-// goes out of scope.  Clients that choose to call
-// 'balm::DefaultMetricsManager::create' explicitly must also explicitly call
-// 'balm::DefaultMetricsManager::destroy()'.
+// Note that the default metrics manager will be released when 'managerGuard'
+// exits this scoped and is destroyed.  Clients that choose to explicitly call
+// 'balm::DefaultMetricsManager::create' must also explicitly call
+// 'balm::DefaultMetricsManager::release()'.
 //
 ///Example 2 - Metric Collection with 'balm::Metric'
 ///- - - - - - - - - - - - - - - - - - - - - - - -

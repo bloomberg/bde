@@ -368,13 +368,15 @@ int main(int argc, char *argv[])
     ASSERT(0 == format.formatSpec(balm::PublicationType::e_BALM_TOTAL));
 //..
 // We can use the 'balm::MetricFormatSpec::formatValue' utility function to
-// format the value 0.055 to the console:
+// format the value 0.055 to the console.  Note however, that there is no
+// guarantee that every implementation of 'balm::Publisher' will format metrics
+// in this way.
 //..
-    balm::MetricFormatSpec::formatValue(
-         bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_BALM_AVG));
+    balm::MetricFormatSpec::formatValue(bsl::cout, .055,
+                        *format.formatSpec(balm::PublicationType::e_BALM_AVG));
     bsl::cout << bsl::endl;
-    balm::MetricFormatSpec::formatValue(
-         bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_BALM_RATE));
+    balm::MetricFormatSpec::formatValue(bsl::cout, .055,
+                       *format.formatSpec(balm::PublicationType::e_BALM_RATE));
     bsl::cout << bsl::endl;
 //..
 // The resulting console output will be:

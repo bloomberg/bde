@@ -352,8 +352,12 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example demonstrates how to use a 'balm::ConfigurationUtil' to
-// configure the output for a metric.
+// The following examples demonstrate how to use 'balm::ConfigurationUtil'.
+//
+///Configuring the Output of a Metric
+/// - - - - - - - - - - - - - - - - -
+// This example uses 'balm::ConfigurationUtil' to configure the output for a
+// metric.
 //
 // We start by initializing a default metrics manager by creating a
 // 'balm::DefaultMetricsManagerScopedGuard', which manages the
@@ -367,7 +371,6 @@ int main(int argc, char *argv[])
 //..
 //  int main(int argc, char *argv[])
 //  {
-//
         // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
@@ -377,18 +380,18 @@ int main(int argc, char *argv[])
 // preferred publication type for the metric to be average:
 //..
         balm::ConfigurationUtil::setPreferredPublicationType(
-                                               "myCategory",
-                                               "avgElapsedTimeMs",
-                                               balm::PublicationType::e_BALM_AVG);
+                                            "myCategory",
+                                            "avgElapsedTimeMs",
+                                            balm::PublicationType::e_BALM_AVG);
 //..
 // Next, because we will record the elapsed time in seconds, we configure a
 // format to scale the elapsed time by 1000.0.
 //..
        balm::ConfigurationUtil::setFormatSpec(
-                                     "myCategory",
-                                     "avgElapsedTimeMs",
-                                     balm::PublicationType::e_BALM_AVG,
-                                     balm::MetricFormatSpec(1000.0, "%.2f ms"));
+                                    "myCategory",
+                                    "avgElapsedTimeMs",
+                                    balm::PublicationType::e_BALM_AVG,
+                                    balm::MetricFormatSpec(1000.0, "%.2f ms"));
 //..
 // We now collect some example an example value of .005:
 //..
@@ -399,6 +402,12 @@ int main(int argc, char *argv[])
 // periodic publication of metrics:
 //..
     balm::DefaultMetricsManager::instance()->publishAll();
+//..
+// The output for the publication will look like:
+//..
+//  06AUG2009_20:27:51.982+0000 1 Records
+//          Elapsed Time: 0.000816s
+//                  myCategory.avgElapsedTimeMs[ avg (total/count) = 5.00 ms ]
 //..
     } break;
       case 6: {

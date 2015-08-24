@@ -92,11 +92,11 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 // guarantee that every implementation of 'balm::Publisher' will format metrics
 // in this way.
 //..
-//  balm::MetricFormatSpec::formatValue(
-//     bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_BALM_AVG));
+//  balm::MetricFormatSpec::formatValue(bsl::cout, .055,
+//                       *format.formatSpec(balm::PublicationType::e_BALM_AVG));
 //  bsl::cout << bsl::endl;
-//  balm::MetricFormatSpec::formatValue(
-//    bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_BALM_RATE));
+//  balm::MetricFormatSpec::formatValue(bsl::cout, .055,
+//                      *format.formatSpec(balm::PublicationType::e_BALM_RATE));
 //  bsl::cout << bsl::endl;
 //..
 // The resulting console output will be:

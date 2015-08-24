@@ -180,8 +180,7 @@ int main(int argc, char *argv[])
     balm::MetricId metricIdA(&descriptionA);
     balm::MetricId metricIdB(&descriptionB);
 //..
-// We can access and verify the properties of the 'balm::MetricId' objects
-// we have created.
+// We can access and verify their properties:
 //..
     ASSERT(!invalidId.isValid());
     ASSERT( metricIdA.isValid());
@@ -201,6 +200,7 @@ int main(int argc, char *argv[])
     balm::MetricId copyMetricIdA(metricIdA);
 
     ASSERT(metricIdA == copyMetricIdA);
+//..
 // Note that two 'balm::MetricId' objects that have different
 // 'balm::MetricDescription' object addresses are *not* equal, *even* if the
 // descriptions have the same name and category.
