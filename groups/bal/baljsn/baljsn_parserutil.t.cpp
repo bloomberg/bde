@@ -28,6 +28,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsl_cstdlib.h>
+
 using namespace BloombergLP;
 using namespace bsl;
 using bsl::cout;
@@ -128,8 +130,8 @@ typedef baljsn::ParserUtil Util;
 
 bool areBuffersEqual(const char *lhs, const char *rhs)
     // Compare the data written to the specified 'lhs' with the data in the
-    // specified 'rhs' ignoring whitespace in the specified 'lhs'.  Return
-    // 'true' if they are equal, and 'false' otherwise.
+    // specified 'rhs' ignoring whitespace in the 'lhs'.  Return 'true' if they
+    // are equal, and 'false' otherwise.
 {
     while (*lhs) {
         if (' ' == *lhs) {
@@ -4397,7 +4399,7 @@ int main(int argc, char *argv[])
         //: 1 Use a brute force approach to test both cases.  Confirm that the
         //:   return value is 0.
         //:
-        //: 2 Try to decode an errorneous value and verify that the return
+        //: 2 Try to decode an erroneous value and verify that the return
         //:   value is non-zero.
         //
         // Testing:

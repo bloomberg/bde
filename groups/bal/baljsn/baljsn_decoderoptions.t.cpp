@@ -11,6 +11,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -573,9 +574,9 @@ int main(int argc, char *argv[])
         //:
         //: 5 'false == (X != X)'  (i.e., identity)
         //:
-        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
+        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutative)
         //:
-        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
+        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutative)
         //:
         //: 8 'X != Y' if and only if '!(X == Y)'
         //:
@@ -618,8 +619,8 @@ int main(int argc, char *argv[])
         //:
         //:     3 Create an object 'Y' having the value 'R2'.
         //:
-        //:     4 Verify the commutativity property and expected return value
-        //:       for both '==' and '!='.  (C-1..3, 6..8)
+        //:     4 Verify the commutative property and expected return value for
+        //:       both '==' and '!='.  (C-1..3, 6..8)
         //
         // Testing:
         //   bool operator==(const baljsn::DecoderOptions& lhs, rhs);
@@ -734,7 +735,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
-                // Verify value, and commutativity.
+                // Verify value, and commutative.
 
                 LOOP4_ASSERT(LINE1, LINE2, X, Y,  EXP == (X == Y));
                 LOOP4_ASSERT(LINE1, LINE2, Y, X,  EXP == (Y == X));

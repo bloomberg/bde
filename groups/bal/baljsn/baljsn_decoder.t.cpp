@@ -16,20 +16,27 @@
 
 #include <bdlde_utf8util.h>
 #include <bdlsb_fixedmeminstreambuf.h>
+
+#include <bdlat_typetraits.h>
+
+#include <bdlb_print.h>
 #include <bdlb_printmethods.h>  // for printing vector
 #include <bdlb_chartype.h>
 
 #include <bdlqq_threadutil.h>
 
-// These header are for testing only and the hierarchy level of baejsn was
+// These header are for testing only and the hierarchy level of 'baljsn' was
 // increase because of them.  They should be remove when possible.
 #include <balb_testmessages.h>
 #include <balxml_decoder.h>
+#include <balxml_decoderoptions.h>
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
 
-#include <bsl_vector.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -112,29 +119,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
-#define WS "   \t       \n      \v       \f       \r       "
-
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -146,7 +130,7 @@ const char XML_SCHEMA[] =
 "<?xml version='1.0' encoding='UTF-8'?>"
 "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"
 "           xmlns:bdem='http://bloomberg.com/schemas/bdem'"
-"           bdem:package='baea'"
+"           bdem:package='bala'"
 "           elementFormDefault='qualified'>"
 ""
 "<xs:complexType name='Choice1'>"
@@ -36076,7 +36060,7 @@ FullName::FullName(bslma::Allocator *basicAllocator)
 {
 }
 
-FullName::FullName(const FullName& original,
+FullName::FullName(const FullName&   original,
                    bslma::Allocator *basicAllocator)
 : d_ids(original.d_ids, basicAllocator)
 , d_name(original.d_name, basicAllocator)
@@ -36211,7 +36195,7 @@ Employee::Employee(bslma::Allocator *basicAllocator)
 {
 }
 
-Employee::Employee(const Employee& original,
+Employee::Employee(const Employee&   original,
                    bslma::Allocator *basicAllocator)
 : d_ids(original.d_ids, basicAllocator)
 , d_friends(original.d_friends, basicAllocator)
@@ -36357,10 +36341,10 @@ bool operator!=(const HexBinaryCustomizedType& lhs,
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream,
+bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const HexBinaryCustomizedType& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return
+    // a reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -36495,7 +36479,7 @@ bool operator!=(const HexBinaryCustomizedType& lhs,
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream,
+bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const HexBinaryCustomizedType& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -36855,8 +36839,8 @@ HexBinarySequence::HexBinarySequence(bslma::Allocator *basicAllocator)
 {
 }
 
-HexBinarySequence::HexBinarySequence(const HexBinarySequence& original,
-                           bslma::Allocator *basicAllocator)
+HexBinarySequence::HexBinarySequence(const HexBinarySequence&  original,
+                                     bslma::Allocator         *basicAllocator)
 : d_element1(original.d_element1, basicAllocator)
 {
 }
@@ -36922,7 +36906,7 @@ bsl::ostream& HexBinarySequence::print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream,
+bsl::ostream& operator<<(bsl::ostream&            stream,
                          const HexBinarySequence& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -36977,7 +36961,7 @@ int main(int argc, char *argv[])
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use 'bas_codegen.pl' to create the 'Employee'
 // 'class' for storing that information, and decode into that object using the
-// baejsn decoder.
+// baljsn decoder.
 //
 // First, we will define the XML schema inside a file called 'employee.xsd':
 //..
@@ -37030,7 +37014,7 @@ int main(int argc, char *argv[])
 
     bsl::istringstream is(INPUT);
 //..
-// Now, we will decode this object using the 'decode' function of the baejsn
+// Now, we will decode this object using the 'decode' function of the baljsn
 // decoder by providing it a 'baljsn::DecoderOptions' object.  The decoder
 // options allow us to specify that unknown elements should *not* be skipped.
 // Setting this option to 'false' will result in the decoder returning an error
@@ -37233,7 +37217,7 @@ int main(int argc, char *argv[])
         // TESTING INVALID JSON RETURNS AN ERROR
         //
         // Concerns:
-        //: 1 The decoder returns an error on encoutering invalid JSON text.
+        //: 1 The decoder returns an error on encountering invalid JSON text.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a table with JSON text.
@@ -38395,7 +38379,7 @@ int main(int argc, char *argv[])
         //: 1 The decoder correctly skips unknown elements if the
         //:   'skipUnknownElement' decoder option is specified.
         //:
-        //: 2 The decoder returns an error on encoutering unknown elements if
+        //: 2 The decoder returns an error on encountering unknown elements if
         //:   the 'skipUnknownElement' decoder option is *not* specified.
         //
         // Plan:

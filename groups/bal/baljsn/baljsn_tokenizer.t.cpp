@@ -19,6 +19,9 @@
 #include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>        // for testing only
 
+#include <bsl_cstring.h>
+#include <bsl_cstdlib.h>
+
 using namespace BloombergLP;
 using namespace bsl;
 using bsl::cout;
@@ -99,27 +102,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
-
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 #define WS "   \t       \n      \v       \f       \r       "
 
@@ -1526,7 +1508,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY
+        // TESTING 'advanceToNextToken' TO 'e_END_ARRAY'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -1590,8 +1572,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                 << "TESTING 'advanceToNextToken' TO BAEJSN_END_ARRAY" << endl
-                 << "================================================" << endl;
+                 << "TESTING 'advanceToNextToken' TO 'e_END_ARRAY'" << endl
+                 << "=============================================" << endl;
 
         const struct {
             int             d_line;
@@ -2542,7 +2524,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_START_ARRAY
+        // TESTING 'advanceToNextToken' TO 'e_START_ARRAY'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -2596,8 +2578,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'advanceToNextToken' TO BAEJSN_NAME" << endl
-                      << "===========================================" << endl;
+                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "========================================" << endl;
 
         const struct {
             int             d_line;
@@ -2882,7 +2864,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT
+        // TESTING 'advanceToNextToken' TO 'e_END_OBJECT'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -2946,8 +2928,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "TESTING 'advanceToNextToken' TO BAEJSN_END_OBJECT" << endl
-                << "=================================================" << endl;
+                << "TESTING 'advanceToNextToken' TO 'e_END_OBJECT'" << endl
+                << "==============================================" << endl;
 
         const struct {
             int             d_line;
@@ -3716,7 +3698,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_VALUE
+        // TESTING 'advanceToNextToken' TO 'e_VALUE'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -3778,8 +3760,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                     << "TESTING 'advanceToNextToken' TO BAEJSN_VALUE" << endl
-                     << "============================================" << endl;
+                     << "TESTING 'advanceToNextToken' TO 'e_VALUE'" << endl
+                     << "=========================================" << endl;
 
         const struct {
             int             d_line;
@@ -4590,7 +4572,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_NAME
+        // TESTING 'advanceToNextToken' TO 'e_NAME'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -4646,8 +4628,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'advanceToNextToken' TO BAEJSN_NAME" << endl
-                      << "===========================================" << endl;
+                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "========================================" << endl;
 
         const struct {
             int             d_line;
@@ -5132,7 +5114,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT
+        // TESTING 'advanceToNextToken' TO 'e_START_OBJECT'
         //
         // Concerns:
         //: 1 The following transitions are correctly handled:
@@ -5188,8 +5170,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-              << "TESTING 'advanceToNextToken' TO BAEJSN_START_OBJECT" << endl
-              << "===================================================" << endl;
+              << "TESTING 'advanceToNextToken' TO 'e_START_OBJECT'" << endl
+              << "================================================" << endl;
 
         const struct {
             int             d_line;

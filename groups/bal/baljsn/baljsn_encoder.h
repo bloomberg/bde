@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use 'bas_codegen.pl' to create the 'Employee'
 // 'class' for storing that information, populate an 'Employee' object, and
-// encode that object using the baejsn encoder.
+// encode that object using the baljsn encoder.
 //
 // First, we will define the XML schema inside a file called 'employee.xsd':
 //..

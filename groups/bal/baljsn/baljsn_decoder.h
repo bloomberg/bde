@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baljsn::Decoder: JSON decoder for 'bdeat'-compliant types
 //
-//@SEE_ALSO: baljsn_encoder, baljsn_parserutil, baejsn_parser
+//@SEE_ALSO: baljsn_encoder, baljsn_parserutil, baljsn_parser
 //
 //@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
 //
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use 'bas_codegen.pl' to create the 'Employee'
 // 'class' for storing that information, and decode into that object using the
-// baejsn decoder.
+// baljsn decoder.
 //
 // First, we will define the XML schema inside a file called 'employee.xsd':
 //..
@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //
 //  bsl::istringstream is(INPUT);
 //..
-// Now, we will decode this object using the 'decode' function of the baejsn
+// Now, we will decode this object using the 'decode' function of the baljsn
 // decoder by providing it a 'baljsn::DecoderOptions' object.  The decoder
 // options allow us to specify that unknown elements should *not* be skipped.
 // Setting this option to 'false' will result in the decoder returning an error

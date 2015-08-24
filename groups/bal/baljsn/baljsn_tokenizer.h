@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::streambuf' containing JSON data with a tokenizer object and then call
 // the 'advanceToNextToken' function to extract individual data values.
 //
-// This 'class' was created to be used by other components in the 'baejsn'
+// This 'class' was created to be used by other components in the 'baljsn'
 // package and in most cases clients should use the 'baljsn_decoder' component
 // instead of using this 'class'.
 //

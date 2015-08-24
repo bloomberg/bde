@@ -13,6 +13,8 @@
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
 
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -644,7 +646,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Character are encoded as a single character string.
         //:
-        //: 2 All escape charaters are encoded corrected.
+        //: 2 All escape characters are encoded corrected.
         //:
         //: 3 Control characters are encoded as hex.
         //:
@@ -958,8 +960,7 @@ int main(int argc, char *argv[])
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
-    return testStatus;                                                // RETURN
-    return -1;
+    return testStatus;
 }
 
 // ----------------------------------------------------------------------------

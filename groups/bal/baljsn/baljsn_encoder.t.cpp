@@ -1,6 +1,8 @@
 // baljsn_encoder.t.cpp                                               -*-C++-*-
 #include <baljsn_encoder.h>
 
+#include <balb_testmessages.h>
+
 #include <bdls_testutil.h>
 
 #include <bdlat_attributeinfo.h>
@@ -9,34 +11,48 @@
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_valuetypefunctions.h>
-#include <bdlsb_fixedmeminstreambuf.h>
 
-#include <bdlde_utf8util.h>
-#include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlb_printmethods.h>  // for printing vector
 #include <bdlb_chartype.h>
 
-// These header are for testing only and the hierarchy level of baejsn was
+#include <bdlde_utf8util.h>
+
+#include <bdlsb_fixedmeminstreambuf.h>
+#include <bdlsb_memoutstreambuf.h>
+
+// These header are for testing only and the hierarchy level of 'baljsn' was
 // increase because of them.  They should be remove when possible.
-#include <balb_testmessages.h>
 #include <balxml_decoder.h>
-#include <balxml_decoder.h>
+#include <balxml_decoderoptions.h>
 #include <balxml_encoder.h>
 #include <balxml_encoderoptions.h>
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
 
+#include <bdlat_typetraits.h>
+
 #include <bdlb_nullablevalue.h>
 #include <bdlb_nullableallocatedvalue.h>
 
+#include <bdlt_date.h>
+#include <bdlt_datetz.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
+#include <bdlt_time.h>
+#include <bdlt_timetz.h>
+
 #include <bslma_testallocator.h>
 
-#include <bsl_c_limits.h>
+#include <bslmf_assert.h>
+
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_utility.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -117,27 +133,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -158,7 +153,7 @@ const char XML_SCHEMA[] =
 "<?xml version='1.0' encoding='UTF-8'?>"
 "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"
 "           xmlns:bdem='http://bloomberg.com/schemas/bdem'"
-"           bdem:package='baea'"
+"           bdem:package='bala'"
 "           elementFormDefault='qualified'>"
 ""
 "<xs:complexType name='Choice1'>"
@@ -30290,7 +30285,6 @@ int main(int argc, char *argv[])
     bool verbose = argc > 2;
     bool veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
-    //veryVeryVeryVerbose = argc > 5;
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
@@ -30322,7 +30316,7 @@ int main(int argc, char *argv[])
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use 'bas_codegen.pl' to create the 'Employee'
 // 'class' for storing that information, populate an 'Employee' object, and
-// encode that object using the baejsn encoder.
+// encode that object using the baljsn encoder.
 //
 // First, we will define the XML schema inside a file called 'employee.xsd':
 //..
@@ -31141,7 +31135,7 @@ int main(int argc, char *argv[])
         //:   1 Encode an unselected Choice object and verify it returns an
         //:     error.
         //:
-        //:   2 Encode a selected Choice an verify it reutnrs a name-value
+        //:   2 Encode a selected Choice an verify it returns a name-value
         //:     pair.
         //:
         //:   3 Encode a selected Choice, where the selection is an unselected
@@ -31323,8 +31317,8 @@ int main(int argc, char *argv[])
                 const char    *d_result_p;
             } DATA[] = {
 
-            //LINE  INPUT  EEA     Style  INDENT     SPL    RESULT
-            //----  -----  ---     -----  ------     ---    ------
+            //LINE  INPUT  "EEA"   Style  INDENT    "SPL"   RESULT
+            //----  -----  -----   -----  ------    -----   ------
 
              { L_,    "",  false,     C,      0,      0,    ""           },
              { L_,    "",  false,     P,      0,      0,    ""           },
@@ -31838,7 +31832,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // ENCODING NULLABLES
+        // ENCODING NULL-ABLES
         //
         // Concerns:
         //: 1 Null value is encoded to "null".
@@ -31862,8 +31856,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ENCODING NULLABLES" << endl
-                          << "==================" << endl;
+                          << "ENCODING NULL-ABLES" << endl
+                          << "===================" << endl;
 
         if (verbose) cout << "Encode null value" << endl;
         {
@@ -32282,7 +32276,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Character are encoded as a single character string.
         //:
-        //: 2 All escape charaters are encoded corrected.
+        //: 2 All escape characters are encoded corrected.
         //:
         //: 3 Control characters are encoded as hex.
         //
