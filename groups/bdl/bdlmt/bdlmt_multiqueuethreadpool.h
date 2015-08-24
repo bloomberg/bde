@@ -167,11 +167,10 @@ BSLS_IDENT("$Id: $")
 //      return d_word;
 //  }
 //..
-//
 // Next, we define a helper function to perform a search of a word in a
-// particular file.  The function is parameterized by a search profile and
-// a file name.  If the specified file name matches the profile, it is
-// inserted into the profile's file list.
+// particular file.  The function is parameterized by a search profile and a
+// file name.  If the specified file name matches the profile, it is inserted
+// into the profile's file list.
 //..
 //  void my_SearchCb(my_SearchProfile* profile, const char *file)
 //  {
@@ -186,17 +185,15 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-//
 // Lastly, we present the front end to the search application: 'fastSearch'.
 // 'fastSearch' is parameterized by a list of words to search for, a list of
 // files to search in, and a set which is populated with the search results.
 // 'fastSearch' instantiates a 'bdlmt::MultiQueueThreadPool', and creates a
 // queue for each word.  It then associates each queue with a search profile
-// based on a word in the word list.  Then, it enqueues a job to each queue
-// for each file in the file list that tries to match the file to each
-// search profile.  Lastly, 'fastSearch' collects the results, which is the
-// set intersection of each file set maintained by the individual search
-// profiles.
+// based on a word in the word list.  Then, it enqueues a job to each queue for
+// each file in the file list that tries to match the file to each search
+// profile.  Lastly, 'fastSearch' collects the results, which is the set
+// intersection of each file set maintained by the individual search profiles.
 //..
 //  void fastSearch(const bsl::vector<bsl::string>&  wordList,
 //                  const bsl::vector<bsl::string>&  fileList,
@@ -274,7 +271,7 @@ BSLS_IDENT("$Id: $")
 //              const bsl::string&        word = *jt;
 //              RegistryValue&            rv   = profileRegistry[word];
 //              bdlf::Function<void (*)()> job  =
-//                  bdlf::BindUtil::bind(&my_SearchCb, rv.second, file.c_str());
+//                 bdlf::BindUtil::bind(&my_SearchCb, rv.second, file.c_str());
 //              int rc = pool.enqueueJob(rv.first, job);
 //              LOOP_ASSERT(word, 0 == rc);
 //          }
@@ -323,12 +320,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXATOMICTYPES
-#include <bdlqq_xxxatomictypes.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSLS_SPINLOCK
+#include <bsls_spinlock.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -358,8 +355,8 @@ namespace bdlmt {
 
 class MultiQueueThreadPool_Queue {
     // This private class provides a lightweight queue, plus a spin lock.
-    // Thread-safety may be implemented by the client by acquiring
-    // and manipulating the queue's lock vis-a-vis the 'mutex' function.
+    // Thread-safety may be implemented by the client by acquiring and
+    // manipulating the queue's lock vis-a-vis the 'mutex' function.
 
   public:
     // PUBLIC TYPES
@@ -381,17 +378,15 @@ class MultiQueueThreadPool_Queue {
     };
 
   private:
-    bsl::deque<Job>       d_list;
-    bsls::AtomicInt        d_numPendingJobs; // number of unprocessed jobs
-    volatile int          d_state;          // maintains enqueue state
-    bsls::AtomicInt        d_numEnqueued;    // the number of items enqueued
-                                            // into this queue since the
-                                            // creation or the last time
-                                            // it was reset.
-    bsls::AtomicInt        d_numDequeued;    // the number of items dequeued
-                                            // into this queue since the
-                                            // creation or the last time
-                                            // it was reset.
+    bsl::deque<Job> d_list;
+    bsls::AtomicInt d_numPendingJobs; // number of unprocessed jobs
+    volatile int    d_state;          // maintains enqueue state
+    bsls::AtomicInt d_numEnqueued;    // the number of items enqueued into this
+                                      // queue since creation or the last time
+                                      // it was reset.
+    bsls::AtomicInt d_numDequeued;    // the number of items dequeued from this
+                                      // queue since creation or the last time
+                                      // it was reset.
   private:
     // FRIENDS
     friend class MultiQueueThreadPool;
@@ -400,15 +395,14 @@ class MultiQueueThreadPool_Queue {
   private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool_Queue(const MultiQueueThreadPool_Queue&);
-    MultiQueueThreadPool_Queue& operator=(
-                                    const MultiQueueThreadPool_Queue&);
+    MultiQueueThreadPool_Queue &operator=(const MultiQueueThreadPool_Queue &);
 
     // CREATORS
     explicit
     MultiQueueThreadPool_Queue(bslma::Allocator *basicAllocator = 0);
-        // Create a 'MultiQueueThreadPool_Queue' with an initial capacity
-        // of 0.  Optionally specify a 'basicAllocator' used to supply memory
-        // If 'basicAllocator' is 0, the default memory allocator is used.
+        // Create a 'MultiQueueThreadPool_Queue' with an initial capacity of 0.
+        // Optionally specify a 'basicAllocator' used to supply memory If
+        // 'basicAllocator' is 0, the default memory allocator is used.
 
   public:
     // CREATORS
@@ -474,17 +468,17 @@ class MultiQueueThreadPool_QueueContext {
         // ID must be bound to the functor at the time of its instantiation.
 
     // PUBLIC DATA MEMBERS
-    MultiQueueThreadPool_Queue  d_queue;
-    mutable bdlqq::SpinLock            d_lock;
-    QueueProcessorCb                 d_processingCb;
-    bool                             d_destroyFlag;
+    MultiQueueThreadPool_Queue d_queue;
+    mutable bsls::SpinLock     d_lock;
+    QueueProcessorCb           d_processingCb;
+    bool                       d_destroyFlag;
 
   private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool_QueueContext(
-                               const MultiQueueThreadPool_QueueContext&);
+                                     const MultiQueueThreadPool_QueueContext&);
     MultiQueueThreadPool_QueueContext& operator=(
-                               const MultiQueueThreadPool_QueueContext&);
+                                     const MultiQueueThreadPool_QueueContext&);
 
   public:
     // TRAITS
@@ -493,8 +487,7 @@ class MultiQueueThreadPool_QueueContext {
 
     // CREATORS
     explicit
-    MultiQueueThreadPool_QueueContext(
-                                         bslma::Allocator *basicAllocator = 0);
+    MultiQueueThreadPool_QueueContext(bslma::Allocator *basicAllocator = 0);
         // Construct a queue context object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the default memory allocator is used.
@@ -510,7 +503,7 @@ class MultiQueueThreadPool_QueueContext {
         // new object.  Note that this method is not thread-safe.
 
     // ACCESSORS
-    bdlqq::SpinLock& mutex() const;
+    bsls::SpinLock& mutex() const;
         // Return the lock that is used by this context.
 
 };
@@ -542,33 +535,32 @@ class MultiQueueThreadPool {
   private:
     // DATA
     bslma::Allocator *d_allocator_p;        // memory allocator (held)
-    ThreadPool  *d_threadPool_p;       // threads for queue processing
+    ThreadPool       *d_threadPool_p;       // threads for queue processing
     bool              d_threadPoolIsOwned;  // 'true' if thread pool is owned
 
-    bdlcc::ObjectPool<MultiQueueThreadPool_QueueContext,
-                    bdlcc::ObjectPoolFunctors::DefaultCreator,
-                    bdlcc::ObjectPoolFunctors::Reset<
-                                     MultiQueueThreadPool_QueueContext> >
-                     d_queuePool;          // pool of queue contexts
+    bdlcc::ObjectPool<
+          MultiQueueThreadPool_QueueContext,
+          bdlcc::ObjectPoolFunctors::DefaultCreator,
+          bdlcc::ObjectPoolFunctors::Reset<MultiQueueThreadPool_QueueContext>
+    >                 d_queuePool;          // pool of queue contexts
 
     bdlcc::ObjectCatalog<MultiQueueThreadPool_QueueContext*>
-                     d_queueRegistry;      // registry of queue contexts
+                      d_queueRegistry;      // registry of queue contexts
 
     mutable bdlqq::RWMutex
-                     d_registryLock;       // synchronizes registry access
+                      d_registryLock;       // synchronizes registry access
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
-    volatile int     d_state;              // maintains internal state
-    bdlqq::SpinLock    d_stateLock;          // synchronizes internal state
+    volatile int      d_state;              // maintains internal state
+    bsls::SpinLock    d_stateLock;          // synchronizes internal state
 
-    bsls::AtomicInt   d_numDequeued;        // the total number of request
-                                           // processed by this pool
-                                           // since the last time this value
-                                           // was reset
-    bsls::AtomicInt   d_numEnqueued;        // the total number of request
-                                           // enqueued into this pool
-                                           // since the last time this value
-                                           // was reset
+    bsls::AtomicInt   d_numDequeued;        // the total number of requests
+                                            // processed by this pool since the
+                                            // last time this value was reset
+    bsls::AtomicInt   d_numEnqueued;        // the total number of requests
+                                            // enqueued into this pool since
+                                            // the last time this value was
+                                            // reset
   private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool(const MultiQueueThreadPool&);
@@ -580,7 +572,7 @@ class MultiQueueThreadPool {
 
     void deleteQueueCb(int                    id,
                        const CleanupFunctor&  cleanupFunctor,
-                       bdlqq::Barrier         *barrier);
+                       bdlqq::Barrier        *barrier);
         // Remove the queue associated with the specified 'id' from the queue
         // registry, execute the specified 'cleanupFunctor', wait on the
         // specified 'barrier', and then delete the referenced queue.
@@ -590,11 +582,10 @@ class MultiQueueThreadPool {
         // dequeue the next job, and process it.
 
     int enqueueJobImpl(int id, const Job& functor, int where);
-        // Enqueue the specified 'functor' to the queue specified by 'id'
-        // at either the front or the back of the queue, as specified by
-        // 'where'.  Return 0 if enqueued successfully, and a non-zero value if
-        // queuing is otherwise.  The behavior is undefined unless 'functor'
-        // is bound.
+        // Enqueue the specified 'functor' to the queue specified by 'id' at
+        // either the front or the back of the queue, as specified by 'where'.
+        // Return 0 if enqueued successfully, and a non-zero value if queuing
+        // is otherwise.  The behavior is undefined unless 'functor' is bound.
 
   public:
     // TRAITS
@@ -603,35 +594,34 @@ class MultiQueueThreadPool {
 
     // CREATORS
     MultiQueueThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
-                              int                     minThreads,
-                              int                     maxThreads,
-                              int                     maxIdleTime,
-                              bslma::Allocator       *basicAllocator = 0);
+                         int                             minThreads,
+                         int                             maxThreads,
+                         int                             maxIdleTime,
+                         bslma::Allocator               *basicAllocator = 0);
         // Construct a 'MultiQueueThreadPool' with the specified
-        // 'threadAttributes', 'minThread' minimum number of threads,
-        // 'maxThreads' maximum number of threads, 'maxIdleTime' maximum
-        // idle time (in milliseconds).  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the default memory
-        // allocator is used.  Note that the 'MultiQueueThreadPool' is
-        // created without any queues.  Although queues may be created, 'start'
-        // must be called before enqueuing jobs.
+        // 'threadAttributes', 'minThread' and 'maxThreads' minimum and maximum
+        // number of threads respectively, and the specified 'maxIdleTime'
+        // maximum idle time (in milliseconds).  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the default memory allocator is used.  Note that the
+        // 'MultiQueueThreadPool' is created without any queues.  Although
+        // queues may be created, 'start' must be called before enqueuing jobs.
 
     explicit
-    MultiQueueThreadPool(ThreadPool  *threadPool,
-                              bslma::Allocator *basicAllocator = 0);
-        // Construct a 'MultiQueueThreadPool' with the specified
-        // 'threadPool'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the default memory allocator is
-        // used.  The behavior is undefined if 'threadPool' is 0.  Note that
-        // the 'MultiQueueThreadPool' is created without any queues.
-        // Although queues may be created, 'start' must be called before
-        // enqueuing jobs.
+    MultiQueueThreadPool(ThreadPool       *threadPool,
+                         bslma::Allocator *basicAllocator = 0);
+        // Construct a 'MultiQueueThreadPool' with the specified 'threadPool'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the default memory allocator is used.  The
+        // behavior is undefined if 'threadPool' is 0.  Note that the
+        // 'MultiQueueThreadPool' is created without any queues.  Although
+        // queues may be created, 'start' must be called before enqueuing jobs.
 
     ~MultiQueueThreadPool();
         // Destroy this multi-queue thread pool.  Disable queuing on all
         // queues, and wait until all queues are empty.  Then, delete all
-        // queues, and shut down the thread pool if the thread pool is owned
-        // by this object.  This method will block if any thread is executing
+        // queues, and shut down the thread pool if the thread pool is owned by
+        // this object.  This method will block if any thread is executing
         // 'start' or 'stop' at the time of the call.
 
     // MANIPULATORS
@@ -643,12 +633,12 @@ class MultiQueueThreadPool {
 
     int deleteQueue(int id, const CleanupFunctor& cleanupFunctor);
         // Disable enqueuing to the queue associated with the specified 'id',
-        // and enqueue 'cleanupFunctor' to the *front* of the queue.
-        // The specified 'cleanupFunctor' is guaranteed to be the last queue
+        // and enqueue the specified 'cleanupFunctor' to the *front* of the
+        // queue.  The 'cleanupFunctor' is guaranteed to be the last queue
         // element processed, after which the queue is destroyed and removed
         // from all internal registries.  The caller will NOT be blocked until
-        // 'cleanupFunctor' executes to completion.  Return 0 on success, and
-        // a non-zero value otherwise.  The behavior is undefined if this
+        // 'cleanupFunctor' executes to completion.  Return 0 on success, and a
+        // non-zero value otherwise.  The behavior is undefined if this
         // function is called simultaneously with 'disableQueue', 'drainQueue',
         // 'start', 'drain', 'stop', or 'shutdown'.  Note that passing an
         // unbound 'cleanupFunctor' is equivalent to passing a 'cleanupFunctor'
@@ -657,8 +647,8 @@ class MultiQueueThreadPool {
 
     int deleteQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id',
-        // and block the calling thread until a currently-active callback,
-        // if any, is completed.  Return 0 on success, and a non-zero value
+        // and block the calling thread until a currently-active callback, if
+        // any, is completed.  Return 0 on success, and a non-zero value
         // otherwise.
 
     int disableQueue(int id);
@@ -675,14 +665,13 @@ class MultiQueueThreadPool {
 
     int enqueueJob(int id, const Job& functor);
         // Enqueue the specified 'functor' to the queue specified by 'id'.
-        // Return 0 if enqueued successfully, and a non-zero value if
-        // queuing is otherwise.  The behavior is undefined unless 'functor'
-        // is bound.
+        // Return 0 if enqueued successfully, and a non-zero value if queuing
+        // is otherwise.  The behavior is undefined unless 'functor' is bound.
 
     int enableQueue(int id);
         // Enable enqueuing to the queue associated with the specified 'id'.
-        // Return 0 on success, and a non-zero value otherwise.  It is an
-        // error to call 'enableQueue' if a previous call to 'stop' is being
+        // Return 0 on success, and a non-zero value otherwise.  It is an error
+        // to call 'enableQueue' if a previous call to 'stop' is being
         // executed.
 
     void numProcessedReset(int *numDequeued, int *numEnqueued);
@@ -722,11 +711,10 @@ class MultiQueueThreadPool {
         // unblocks.
 
     void shutdown();
-        // Disable queuing on all queues, and wait until all queues are
-        // empty.  Then, delete all queues, and shut down the thread pool if
-        // the thread pool is owned by this object.  This method will block
-        // if any thread is executing 'start' or 'drain' or 'stop' at the time
-        // of the call.
+        // Disable queuing on all queues, and wait until all queues are empty.
+        // Then, delete all queues, and shut down the thread pool if the thread
+        // pool is owned by this object.  This method will block if any thread
+        // is executing 'start' or 'drain' or 'stop' at the time of the call.
 
     // ACCESSORS
     int numQueues() const;
@@ -749,12 +737,12 @@ class MultiQueueThreadPool {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------------
+                      // --------------------------
                       // class MultiQueueThreadPool
-                      // -------------------------------
+                      // --------------------------
 
 // MANIPULATORS
 inline
@@ -766,12 +754,11 @@ int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 
 inline
 void MultiQueueThreadPool::numProcessedReset(int *numDequeued,
-                                                  int *numEnqueued)
+                                             int *numEnqueued)
 {
-    // Implementation note:
-    // This is not entirely thread-consistent, though thread safe.
-    // If in between the two 'swap' operations the number enqueued changes,
-    // we can get a slightly inconsistent picture.
+    // Implementation note: This is not entirely thread-consistent, though
+    // thread safe.  If in between the two 'swap' operations the number
+    // enqueued changes, we can get a slightly inconsistent picture.
 
     *numDequeued = d_numDequeued.swap(0);
     *numEnqueued = d_numEnqueued.swap(0);
@@ -780,7 +767,7 @@ void MultiQueueThreadPool::numProcessedReset(int *numDequeued,
 // ACCESSORS
 inline
 void MultiQueueThreadPool::numProcessed(int *numDequeued,
-                                             int *numEnqueued) const
+                                        int *numEnqueued) const
 {
     *numDequeued = d_numDequeued;
     *numEnqueued = d_numEnqueued;
@@ -797,8 +784,8 @@ const ThreadPool& MultiQueueThreadPool::threadPool() const
 {
     return *d_threadPool_p;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

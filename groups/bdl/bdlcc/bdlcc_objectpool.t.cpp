@@ -5,7 +5,7 @@
 #include <bdls_testutil.h>
 
 #include <bdlcc_fixedqueue.h>
-#include <bslma_testallocator.h>
+
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_threadattributes.h>
@@ -14,15 +14,20 @@
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_usesbslmaallocator.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_alignmentfromtype.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_string.h>
@@ -180,10 +185,11 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 bdlqq::ThreadAttributes attributes;
-void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
-   // to i'th thread.  Finally join all the threads.
+void executeInParallel(int                               numThreads,
+                       bdlqq::ThreadUtil::ThreadFunction function)
+    // Create the specified 'numThreads', each executing the specified
+    // 'function'.  Number each thread (sequentially from 0 to 'numThreads-1')
+    // by passing i to i'th thread.  Finally join all the threads.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                new bdlqq::ThreadUtil::Handle[numThreads];
@@ -192,7 +198,7 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::create(&threads[i],
                                   attributes,
-                                  func,
+                                  function,
                                   static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
@@ -212,6 +218,11 @@ struct ConstructorTestHelp3
    int d_resetCount;
    int d_startCount;
 
+  private:
+    // Not implemened:
+    ConstructorTestHelp3(const ConstructorTestHelp3&);
+
+  public:
    // CREATORS
    ConstructorTestHelp3(int startCount, bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
@@ -249,6 +260,11 @@ struct ConstructorTestHelp1a
    bslma::Allocator     *d_allocator_p; //held
    int                   d_resetCount;
 
+  private:
+    // Not implemened:
+    ConstructorTestHelp1a(const ConstructorTestHelp1a&);
+
+  public:
    // CREATORS
    ConstructorTestHelp1a(bslma::Allocator *basicAllocator=0)
       : d_allocator_p(basicAllocator)
@@ -256,8 +272,8 @@ struct ConstructorTestHelp1a
    {}
 
    // TRAITS
-   BSLALG_DECLARE_NESTED_TRAITS(ConstructorTestHelp1a,
-                                bslalg::TypeTraitUsesBslmaAllocator);
+   BSLMF_NESTED_TRAIT_DECLARATION(ConstructorTestHelp1a,
+                                bslma::UsesBslmaAllocator);
 
    // ACCESSORS
    void reset();
@@ -324,14 +340,16 @@ void ConstructorTestHelp1a::reset()
 void ConstructorTestHelp1b::reset()
 {++d_resetCount;}
 
-void ConstructorTestHelp1a::resetWithCount(ConstructorTestHelp1a *self, int c)
+void ConstructorTestHelp1a::resetWithCount(ConstructorTestHelp1a *self,
+                                           int                    count)
 {
-   self->d_resetCount = c;
+   self->d_resetCount = count;
 }
 
-void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
+void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
+                                           int                    count)
 {
-   self->d_resetCount = c;
+   self->d_resetCount = count;
 }
 
    struct Address {
@@ -342,14 +360,19 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
    struct UsesAllocatorType {
        bslma::Allocator     *d_allocator_p;
 
+     private:
+       // Not implemened:
+       UsesAllocatorType(const UsesAllocatorType&);
+
+     public:
        // CREATORS
        UsesAllocatorType(bslma::Allocator *basicAllocator=0)
            : d_allocator_p(basicAllocator)
        {}
 
        // TRAITS
-       BSLALG_DECLARE_NESTED_TRAITS(UsesAllocatorType,
-                                    bslalg::TypeTraitUsesBslmaAllocator);
+       BSLMF_NESTED_TRAIT_DECLARATION(UsesAllocatorType,
+                                      bslma::UsesBslmaAllocator);
    };
 
    struct OtherType {
@@ -486,10 +509,10 @@ static void badCreateString(void *address)
 static void createString(void               *address,
                          const bsl::string&  initial,
                          bslma::Allocator   *allocator)
-    // Create a 'str::string' object at the specified 'address' in an initial
-    // state equal to the specified 'default' string.  Use the specified
-    // 'allocator' to supply memory.  If 'allocator' is 0, the currently
-    // installed default allocator is used.
+    // Create a 'str::string' object at the specified 'address' with the
+    // specified 'initial' value.  Use the specified 'allocator' to supply
+    // memory.  If 'allocator' is 0, the currently installed default allocator
+    // is used.
 {
     new(address) bsl::string(initial, allocator);
 }
@@ -507,6 +530,10 @@ class A
 {
     int              *d_value_p;
     bslma::Allocator *d_alloc_p;
+
+  private:
+    // Not implemented:
+    A(const A&);
 
   public:
     static int constructorCount;
@@ -543,9 +570,13 @@ class B
     int              *d_value_p;
     bslma::Allocator *d_alloc_p;
 
-public:
+  private:
+    // Not implemented:
+    B(const B&);
+
+  public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(B, bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(B, bslma::UsesBslmaAllocator);
 
     static int constructorCount;
     static int destructorCount;
@@ -652,7 +683,7 @@ extern "C"
 
     void *workerThread9(void *arg)
     {
-        (void *)arg;
+        (void)arg;
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i){
             Counter *c = pool->getObject();
@@ -695,7 +726,7 @@ extern "C"
 #endif
     void *workerThread8(void *arg)
     {
-        (void *)arg;
+        (void)arg;
         my_Class *p = pool->getObject();
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
@@ -746,7 +777,7 @@ extern "C"
 #endif
     void *workerThread7(void *arg)
     {
-        (void *)arg;
+        (void)arg;
         int previous = 0, current;
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
@@ -897,7 +928,7 @@ extern "C"
 
     void *workerThread5(void *arg)
     {
-        (void *)arg;
+        (void)arg;
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i){
             my_Class *p = pool->getObject();
@@ -1137,9 +1168,9 @@ namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
         }
 
         void destroyQuery(Query *query)
-            // Simulate query destruction.
+            // Simulate destruction of the specified 'query'.
         {
-            (void *)query;
+            (void)query;
         }
     } *queryFactory;
 
@@ -1161,14 +1192,14 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
 // object of a query factory class 'QueryFactory'.
 //..
     enum {
-        k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open
-                                        // a connection (in microseconds)
+        k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open a
+                                        // connection (in microseconds)
 
-        k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close
-                                        // a connection (in microseconds)
+        k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close a
+                                        // connection (in microseconds)
 
-        k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute
-                                        // a query (in microseconds)
+        k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute a query
+                                        // (in microseconds)
     };
 
     class my_DatabaseConnection
@@ -1188,7 +1219,7 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
         void executeQuery(Query *query)
         {
             bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
-            (void *)query;
+            (void)query;
         }
     };
 //..
@@ -1196,9 +1227,9 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-    extern "C" void serverThread(bsls::AtomicInt             *queries,
-                                 int                          max,
-                                 void(*queryHandler)(Query*))
+    extern "C" void serverThread(bsls::AtomicInt *queries,
+                                 int              max,
+                                 void             (*queryHandler)(Query*))
     {
         while (++(*queries) <= max) {
             Query *query = queryFactory->createQuery();
@@ -1700,7 +1731,7 @@ int main(int argc, char *argv[])
             bdlcc::ObjectPool<bsl::string> pool(objectCreator, -1, &ta);
 
             bsl::string *myString = pool.getObject();
-            (void *)myString;
+            (void)myString;
             ASSERT(0 == defaultAlloc.numBytesInUse())
         }
 
@@ -1711,7 +1742,7 @@ int main(int argc, char *argv[])
                                      bdlf::PlaceHolders::_1), -1, &ta);
 
             bsl::string *myString = pool.getObject();
-            (void *)myString;
+            (void)myString;
             ASSERT(0 < defaultAlloc.numBytesInUse())
         }
       } break;
@@ -1754,7 +1785,7 @@ int main(int argc, char *argv[])
             createBThrow = 1;  // first construction will throw
             try {
                 B *b2Ptr = mX.getObject();  // throws
-                (void *)b2Ptr;
+                (void)b2Ptr;
             }
             catch(const Exception& e) {
                 if (verbose)

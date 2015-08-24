@@ -1,9 +1,8 @@
 // baljsn_decoderoptions.t.cpp                                        -*-C++-*-
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(baejsn_decoderoptions_t_cpp,"$Id$ $CSID$")
-
 #include <baljsn_decoderoptions.h>
+
+#include <bdls_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -12,6 +11,7 @@ BSLS_IDENT_RCSID(baejsn_decoderoptions_t_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -79,73 +79,67 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [11] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << bsl::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
-                                              // Print identifier and value.
-#define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
-                                              // Quote identifier literally.
-#define P_(X) bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-                                              // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define NL "\n"
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_FAIL(expr)      BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr)      BSLS_ASSERTTEST_ASSERT_PASS(expr)
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
@@ -248,7 +242,7 @@ int main(int argc, char *argv[])
 //..
     const int  MAX_DEPTH             = 10;
     const bool SKIP_UNKNOWN_ELEMENTS = false;
-//
+
     baljsn::DecoderOptions options;
     ASSERT(32   == options.maxDepth());
     ASSERT(true == options.skipUnknownElements());
@@ -258,7 +252,7 @@ int main(int argc, char *argv[])
 //..
     options.setMaxDepth(MAX_DEPTH);
     ASSERT(MAX_DEPTH == options.maxDepth());
-//
+
     options.setSkipUnknownElements(SKIP_UNKNOWN_ELEMENTS);
     ASSERT(SKIP_UNKNOWN_ELEMENTS == options.skipUnknownElements());
 //..
@@ -580,9 +574,9 @@ int main(int argc, char *argv[])
         //:
         //: 5 'false == (X != X)'  (i.e., identity)
         //:
-        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
+        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutative)
         //:
-        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
+        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutative)
         //:
         //: 8 'X != Y' if and only if '!(X == Y)'
         //:
@@ -625,8 +619,8 @@ int main(int argc, char *argv[])
         //:
         //:     3 Create an object 'Y' having the value 'R2'.
         //:
-        //:     4 Verify the commutativity property and expected return value
-        //:       for both '==' and '!='.  (C-1..3, 6..8)
+        //:     4 Verify the commutative property and expected return value for
+        //:       both '==' and '!='.  (C-1..3, 6..8)
         //
         // Testing:
         //   bool operator==(const baljsn::DecoderOptions& lhs, rhs);
@@ -662,16 +656,16 @@ int main(int argc, char *argv[])
         typedef int   T1;        // 'maxDepth'
         typedef bool  T2;        // 'skipUnknownElements'
 
-        // ----------------------------------------
-        // Attribute 1 Values: 'maxDepth'
-        // ----------------------------------------
+                      // ------------------------------
+                      // Attribute 1 Values: 'maxDepth'
+                      // ------------------------------
 
         const T1 A1 = INT_MAX;               // baseline
         const T1 B1 = 0;
 
-        // ------------------------------------
-        // Attribute 2 Values: 'skipUnknownElements'
-        // ------------------------------------
+                // -----------------------------------------
+                // Attribute 2 Values: 'skipUnknownElements'
+                // -----------------------------------------
 
         const T2 A2 = true;                  // baseline
         const T2 B2 = false;
@@ -687,8 +681,8 @@ int main(int argc, char *argv[])
 
         // The first row of the table below represents an object value
         // consisting of "baseline" attribute values (A1..An).  Each subsequent
-        // row differs (slightly) from the first in exactly one attribute
-        // value (Bi).
+        // row differs (slightly) from the first in exactly one attribute value
+        // (Bi).
 
         //LINE  DEPTH   SKIP
         //----  -----   ----
@@ -741,7 +735,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
-                // Verify value, and commutativity.
+                // Verify value, and commutative.
 
                 LOOP4_ASSERT(LINE1, LINE2, X, Y,  EXP == (X == Y));
                 LOOP4_ASSERT(LINE1, LINE2, Y, X,  EXP == (Y == X));
@@ -851,7 +845,7 @@ int main(int argc, char *argv[])
 #define SP " "
 
         // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
         // ------------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -876,7 +870,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
         // ------------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -919,7 +913,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected output
         // -----------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -932,7 +926,7 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
+        // P-2.1.4: { A B } x { -9 } x { -9 } --> 2 expected outputs
         // -----------------------------------------------------------------
 
         //LINE L SPL  MD   SUE  EXP
@@ -1041,16 +1035,16 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // -----------------------------------------------------
-        // 'D' values: These are the default-constructed values.
-        // -----------------------------------------------------
+          // -----------------------------------------------------
+          // 'D' values: These are the default-constructed values.
+          // -----------------------------------------------------
 
         const int   D1   = 32;                    // 'maxDepth'
         const int   D2   = true;                  // 'skipUnknownElements'
 
-        // -------------------------------------------------------
-        // 'A' values: Boundary values.
-        // -------------------------------------------------------
+                       // ----------------------------
+                       // 'A' values: Boundary values.
+                       // ----------------------------
 
         const int   A1   = INT_MAX;              // 'maxDepth'
         const int   A2   = false;                // 'skipUnknownElements'
@@ -1206,9 +1200,9 @@ int main(int argc, char *argv[])
             ASSERT(A1 == X.maxDepth());
             ASSERT(A2 == X.skipUnknownElements());
 
-            // ---------------------------------------
-            // Set all attributes to their 'B' values.
-            // ---------------------------------------
+                 // ---------------------------------------
+                 // Set all attributes to their 'B' values.
+                 // ---------------------------------------
 
             mX.setMaxDepth(B1);
 
@@ -1272,9 +1266,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Verify the object's attribute values." << endl;
 
-        // -------------------------------------
-        // Verify the object's attribute values.
-        // -------------------------------------
+                  // -------------------------------------
+                  // Verify the object's attribute values.
+                  // -------------------------------------
 
         LOOP2_ASSERT(D1, X.maxDepth(), D1 == X.maxDepth());
         LOOP2_ASSERT(D2, X.skipUnknownElements(),

@@ -19,18 +19,18 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides a thread-safe event scheduler.
-// 'bdlmt::EventScheduler' implements methods to schedule and cancel recurring
-// and one-time events.  All of the callbacks for these events are processed by
-// a separate thread (called the dispatcher thread).  By default the callbacks
-// are also executed in the dispatcher thread, but that behavior can be altered
-// by providing a dispatcher functor at creation time (see the section "The
-// Dispatcher Thread and the Dispatcher Functor").
+// 'bdlmt::EventScheduler', that implements methods to schedule and cancel
+// recurring and one-time events.  All of the callbacks for these events are
+// processed by a separate thread (called the dispatcher thread).  By default
+// the callbacks are also executed in the dispatcher thread, but that behavior
+// can be altered by providing a dispatcher functor at creation time (see the
+// section "The Dispatcher Thread and the Dispatcher Functor").
 //
-// Events may be referred to by 'EventHandle' and 'RecurringEventHandle'
-// objects, which clean up after themselves when they go out of scope, or by
-// 'Event' and 'RecurringEvent' pointers, which must be released using
-// 'releaseEventRaw'.  Such pointers are used in the "Raw" API of this class
-// and must be used carefully.
+// Events may be referred to by 'bdlmt::EventSchedulerEventHandle' and
+// 'bdlmt::EventSchedulerRecurringEventHandle' objects, which clean up after
+// themselves when they go out of scope, or by 'Event' and 'RecurringEvent'
+// pointers, which must be released using 'releaseEventRaw'.  Such pointers are
+// used in the "Raw" API of this class and must be used carefully.
 //
 ///Comparison to 'bdlmt::TimerEventScheduler'
 /// - - - - - - - - - - - - - - - - - - - -
@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 // large numbers of events.  The disadvantage of this component relative to
 // 'bdlmt_timereventscheduler' is that handles referring to managed events in a
 // 'bdlmt::EventScheduler' are reference-counted and need to be released, while
-// handles of events in a 'bdlmt::TimerEventScheduler' are integral types that do
-// not need to be released.
+// handles of events in a 'bdlmt::TimerEventScheduler' are integral types that
+// do not need to be released.
 //
 ///Thread Safety and "Raw" Event Pointers
 ///--------------------------------------
@@ -65,8 +65,8 @@ BSLS_IDENT("$Id: $")
 //     references; *each* such added reference must be released separately.
 //..
 // 'bdlmt::EventSchedulerEventHandle' and
-// 'bdlmt::EventSchedulerRecurringEventHandle' are *const* *thread-safe*.  It is
-// not safe for multiple threads to invoke non-const methods on the same
+// 'bdlmt::EventSchedulerRecurringEventHandle' are *const* *thread-safe*.  It
+// is not safe for multiple threads to invoke non-const methods on the same
 // EventHandle or RecurringEventHandle object concurrently.
 //
 ///The Dispatcher Thread and the Dispatcher Functor
@@ -162,8 +162,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage Example 2: Server Timeouts
 ///--------------------------------
-// The following example shows how to use a 'bdlmt::EventScheduler' to implement
-// a timeout mechanism in a server.  'my_Session' maintains several
+// The following example shows how to use a 'bdlmt::EventScheduler' to
+// implement a timeout mechanism in a server.  'my_Session' maintains several
 // connections.  It closes a connection if the data for it does not arrive
 // before a timeout (specified at the server creation time).
 //
@@ -222,7 +222,7 @@ BSLS_IDENT("$Id: $")
 // };
 //
 // my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
-//                      bslma::Allocator         *alloc)
+//                      bslma::Allocator          *alloc)
 // : d_connections(alloc)
 // , d_scheduler(alloc)
 // , d_ioTimeout(ioTimeout)
@@ -245,9 +245,9 @@ BSLS_IDENT("$Id: $")
 //
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
-//         &connection->d_timerId,
-//         bdlt::CurrentTime::now() + d_ioTimeout,
-//         bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+//        &connection->d_timerId,
+//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //
 // void my_Server::closeConnection(my_Server::Connection *connection)
@@ -257,7 +257,7 @@ BSLS_IDENT("$Id: $")
 //
 // void my_Server::dataAvailable(my_Server::Connection *connection,
 //                               void                  *data,
-//                               int                   length)
+//                               int                    length)
 // {
 //     // If connection has already timed out and closed, simply return.
 //     if (d_scheduler.cancelEvent(connection->d_timerId)) {
@@ -268,9 +268,10 @@ BSLS_IDENT("$Id: $")
 //     connection->d_session_p->processData(data, length);
 //
 //     // setup the timeout for data arrival
-//     d_scheduler.scheduleEvent(&connection->d_timerId,
-//         bdlt::CurrentTime::now() + d_ioTimeout,
-//         bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+//     d_scheduler.scheduleEvent(
+//        &connection->d_timerId,
+//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
 
@@ -306,7 +307,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_systemclocktype.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -329,12 +330,14 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace bdlmt {class EventSchedulerEventHandle;
+namespace bdlmt {
+
+class EventSchedulerEventHandle;
 class EventSchedulerRecurringEventHandle;
 
-                             // =========================
-                             // class EventScheduler
-                             // =========================
+                            // ====================
+                            // class EventScheduler
+                            // ====================
 
 class EventScheduler {
     // This class provides a thread-safe event scheduler that executes
@@ -368,7 +371,8 @@ class EventScheduler {
 
     typedef EventSchedulerRecurringEventHandle RecurringEventHandle;
 
-    typedef bdlf::Function<void(*)(const bdlf::Function<void(*)()>&)> Dispatcher;
+    typedef bdlf::Function<void (*)(const bdlf::Function<void (*)()>&)>
+                                               Dispatcher;
         // Defines a type alias for the dispatcher functor type.
 
   private:
@@ -390,16 +394,16 @@ class EventScheduler {
     bdlqq::ThreadUtil::Handle
                           d_dispatcherThread;   // dispatcher thread handle
 
-    bdlqq::Mutex           d_mutex;              // synchronizes access to
+    bdlqq::Mutex          d_mutex;              // synchronizes access to
                                                 // condition variables
 
-    bdlqq::Condition       d_queueCondition;     // condition variable used to
+    bdlqq::Condition      d_queueCondition;     // condition variable used to
                                                 // signal when the queues need
                                                 // to be checked again (when
                                                 // they become non-empty or get
                                                 // a new front member)
 
-    bdlqq::Condition       d_iterationCondition; // condition variable used to
+    bdlqq::Condition      d_iterationCondition; // condition variable used to
                                                 // signal when the dispatcher
                                                 // is ready to enter next
                                                 // iteration (synchronizes
@@ -463,20 +467,18 @@ class EventScheduler {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    explicit EventScheduler(
-                              bsls::SystemClockType::Enum  clockType,
-                              bslma::Allocator            *basicAllocator = 0);
+    explicit EventScheduler(bsls::SystemClockType::Enum  clockType,
+                            bslma::Allocator            *basicAllocator = 0);
         // Construct an event scheduler using the default dispatcher functor
         // (see the "The dispatcher thread and the dispatcher functor" section
         // in component-level doc) and use the specified 'clockType' to
-        // indicate the epoch used for all time intervals (see
-        // {Supported Clock-Types} in the component documentation).  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // indicate the epoch used for all time intervals (see {Supported
+        // Clock-Types} in the component documentation).  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     explicit EventScheduler(const Dispatcher&  dispatcherFunctor,
-                                 bslma::Allocator  *basicAllocator = 0);
+                            bslma::Allocator  *basicAllocator = 0);
         // Construct an event scheduler using the specified 'dispatcherFunctor'
         // (see "The dispatcher thread and the dispatcher functor" section in
         // component-level doc) and use the realtime clock epoch for all time
@@ -485,10 +487,9 @@ class EventScheduler {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    explicit EventScheduler(
-                              const Dispatcher&            dispatcherFunctor,
-                              bsls::SystemClockType::Enum  clockType,
-                              bslma::Allocator            *basicAllocator = 0);
+    explicit EventScheduler(const Dispatcher&            dispatcherFunctor,
+                            bsls::SystemClockType::Enum  clockType,
+                            bslma::Allocator            *basicAllocator = 0);
         // Construct an event scheduler using the specified 'dispatcherFunctor'
         // (see "The dispatcher thread and the dispatcher functor" section in
         // component-level doc) and use the specified 'clockType' to indicate
@@ -529,28 +530,28 @@ class EventScheduler {
     int cancelEventAndWait(const Event          *handle);
     int cancelEventAndWait(const RecurringEvent *handle);
         // Cancel the event having the specified 'handle'.  Block until the
-        // event having the specified 'handle' (if it is valid) is either
-        // successfully canceled or dispatched before the call returns.  Return
-        // 0 on successful cancellation, and a non-zero value if the 'handle'
-        // is invalid *or* if the event has already been dispatched or
-        // canceled.  The behavior is undefined if this method is invoked from
-        // the dispatcher thread.  Note that if the event is being executed
-        // when this method is invoked, this method will block until it is
-        // completed and then return a nonzero value.
+        // event having 'handle' (if it is valid) is either successfully
+        // canceled or dispatched before the call returns.  Return 0 on
+        // successful cancellation, and a non-zero value if 'handle' is invalid
+        // *or* if the event has already been dispatched or canceled.  The
+        // behavior is undefined if this method is invoked from the dispatcher
+        // thread.  Note that if the event is being executed when this method
+        // is invoked, this method will block until it is completed and then
+        // return a nonzero value.
 
     int cancelEventAndWait(EventHandle          *handle);
     int cancelEventAndWait(RecurringEventHandle *handle);
         // Cancel the event having the specified 'handle' and release
-        // '*handle'.  Block until the event having the specified 'handle' (if
-        // it is valid) is either successfully canceled or dispatched before
-        // the call returns.  Return 0 on successful cancellation, and a
-        // non-zero value if the 'handle' is invalid *or* if the event has
-        // already been dispatched or canceled.  The behavior is undefined if
-        // this method is invoked from the dispatcher thread.  Note that if the
-        // event is being executed when this method is invoked, this method
-        // will block until it is completed and then return a nonzero value.
-        // Also note that it is guaranteed that '*handle' will be released
-        // whether this call is successful or not.
+        // '*handle'.  Block until the event having 'handle' (if it is valid)
+        // is either successfully canceled or dispatched before the call
+        // returns.  Return 0 on successful cancellation, and a non-zero value
+        // if 'handle' is invalid *or* if the event has already been dispatched
+        // or canceled.  The behavior is undefined if this method is invoked
+        // from the dispatcher thread.  Note that if the event is being
+        // executed when this method is invoked, this method will block until
+        // it is completed and then return a nonzero value.  Also note that it
+        // is guaranteed that '*handle' will be released whether this call is
+        // successful or not.
 
     void releaseEventRaw(Event          *handle);
     void releaseEventRaw(RecurringEvent *handle);
@@ -560,7 +561,7 @@ class EventScheduler {
         // avoid leaking resources.  The behavior is undefined if the value of
         // 'handle' is used for any purpose after being released.
 
-    int rescheduleEvent(const Event              *handle,
+    int rescheduleEvent(const Event               *handle,
                         const bsls::TimeInterval&  newTime);
         // Reschedule the event referred to by the specified 'handle' at the
         // specified 'newTime'.  Return 0 on successful reschedule, and a
@@ -570,23 +571,22 @@ class EventScheduler {
         // the clock indicated at construction (see {'Supported Clock-Types'}
         // in the component documentation).
 
-    int rescheduleEventAndWait(const Event              *handle,
+    int rescheduleEventAndWait(const Event               *handle,
                                const bsls::TimeInterval&  newTime);
         // Reschedule the event referred to by the specified 'handle' at the
-        // specified 'newTime'.  Block until the event having the specified
-        // 'handle' (if it is valid) is either successfully rescheduled or
-        // dispatched before the call returns.  Return 0 on successful
-        // reschedule, and a non-zero value if the 'handle' is invalid *or* if
-        // the event has already been dispatched.  The 'newTime' is an absolute
-        // time represented as an interval from some epoch, which is detemined
-        // by the clock indicated at construction (see
-        // {'Supported Clock-Types'} in the component documentation).  The
-        // behavior is undefined if this method is invoked from the dispatcher
-        // thread.
+        // specified 'newTime'.  Block until the event having 'handle' (if it
+        // is valid) is either successfully rescheduled or dispatched before
+        // the call returns.  Return 0 on successful reschedule, and a non-zero
+        // value if 'handle' is invalid *or* if the event has already been
+        // dispatched.  The 'newTime' is an absolute time represented as an
+        // interval from some epoch, which is detemined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).  The behavior is undefined if this method is invoked
+        // from the dispatcher thread.
 
     void scheduleEvent(const bsls::TimeInterval&         time,
                        const bdlf::Function<void(*)()>&  callback);
-    void scheduleEvent(EventHandle                     *event,
+    void scheduleEvent(EventHandle                      *event,
                        const bsls::TimeInterval&         time,
                        const bdlf::Function<void(*)()>&  callback);
         // Schedule the specified 'callback' to be dispatched at the specified
@@ -598,7 +598,7 @@ class EventScheduler {
         // Note that 'time' may be in the past, in which case the event will be
         // executed as soon as possible.
 
-    void scheduleEventRaw(Event                           **event,
+    void scheduleEventRaw(Event                            **event,
                           const bsls::TimeInterval&          time,
                           const bdlf::Function<void(*)()>&   callback);
         // Schedule the specified 'callback' to be dispatched at the specified
@@ -611,42 +611,42 @@ class EventScheduler {
         // it is no longer needed.
 
     void scheduleRecurringEvent(
-            const bsls::TimeInterval&        interval,
-            const bdlf::Function<void(*)()>& callback,
-            const bsls::TimeInterval&        startTime = bsls::TimeInterval(0));
+           const bsls::TimeInterval&        interval,
+           const bdlf::Function<void(*)()>& callback,
+           const bsls::TimeInterval&        startTime = bsls::TimeInterval(0));
     void scheduleRecurringEvent(
-            RecurringEventHandle            *event,
-            const bsls::TimeInterval&         interval,
-            const bdlf::Function<void(*)()>&  callback,
-            const bsls::TimeInterval&         startTime = bsls::TimeInterval(0));
+          RecurringEventHandle             *event,
+          const bsls::TimeInterval&         interval,
+          const bdlf::Function<void(*)()>&  callback,
+          const bsls::TimeInterval&         startTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
-        // optionally-specified 'startTime'.  If 'startTime' is not specified,
+        // optionally specified 'startTime'.  If 'startTime' is not specified,
         // the first event is dispatched at one 'interval' from now.  Load into
-        // the optionally-specified 'event' a handle that can be used to cancel
+        // the optionally specified 'event' a handle that can be used to cancel
         // the event (by invoking 'cancelEvent').  The 'startTime' is an
         // absolute time represented as an interval from some epoch, which is
-        // detemined by the clock indicated at construction (see
-        // {'Supported Clock-Types'} in the component documentation).  The
-        // behavior is undefined if 'interval' is exactly 0 seconds.
+        // detemined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  The behavior is
+        // undefined if 'interval' is exactly 0 seconds.
 
     void scheduleRecurringEventRaw(
-           RecurringEvent                  **event,
-           const bsls::TimeInterval&          interval,
-           const bdlf::Function<void(*)()>&   callback,
-           const bsls::TimeInterval&          startTime = bsls::TimeInterval(0));
+         RecurringEvent                   **event,
+         const bsls::TimeInterval&          interval,
+         const bdlf::Function<void(*)()>&   callback,
+         const bsls::TimeInterval&          startTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
-        // optionally-specified 'startTime'.  If 'startTime' is not specified,
+        // optionally specified 'startTime'.  If 'startTime' is not specified,
         // the first event is dispatched at one 'interval' from now.  Load into
         // the specified 'event' pointer a handle that can be used to cancel
         // the event (by invoking 'cancelEvent').  The 'startTime' is an
         // absolute time represented as an interval from some epoch, which is
-        // detemined by the clock indicated at construction (see
-        // {'Supported Clock-Types'} in the component documentation).  The
-        // 'event' pointer must be released by invoking 'releaseEventRaw' when
-        // it is no longer needed.  The behavior is undefined if 'interval' is
-        // exactly 0 seconds.
+        // detemined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  The 'event' pointer
+        // must be released by invoking 'releaseEventRaw' when it is no longer
+        // needed.  The behavior is undefined if 'interval' is exactly 0
+        // seconds.
 
     int start();
         // Begin dispatching events on this scheduler.  The dispatcher thread
@@ -724,8 +724,7 @@ class EventSchedulerEventHandle
     EventSchedulerEventHandle();
         // Create a new handle object that does not refer to an event.
 
-    EventSchedulerEventHandle(
-                               const EventSchedulerEventHandle& original);
+    EventSchedulerEventHandle(const EventSchedulerEventHandle& original);
         // Create a new handle object referring to the same event as the
         // specified 'rhs' handle.
 
@@ -733,8 +732,7 @@ class EventSchedulerEventHandle
         // Destroy this object and release the managed reference, if any.
 
     // MANIPULATORS
-    EventSchedulerEventHandle& operator=(
-                                    const EventSchedulerEventHandle& rhs);
+    EventSchedulerEventHandle& operator=(const EventSchedulerEventHandle& rhs);
         // Release this handle's reference, if any; then make this handle refer
         // to the same event as the specified 'rhs' handle.  Return a
         // modifiable reference to this handle.
@@ -754,10 +752,9 @@ class EventSchedulerEventHandle
 
 class EventSchedulerRecurringEventHandle
 {
-    // Objects of this type refer to recurring events in the
-    // 'EventScheduler' API.  They are convertible to
-    // 'const RecurringEvent*' references and may be used in any method which
-    // expects these.
+    // Objects of this type refer to recurring events in the 'EventScheduler'
+    // API.  They are convertible to 'const RecurringEvent*' references and may
+    // be used in any method which expects these.
 
     // PRIVATE TYPES
     typedef bsl::pair<bdlf::Function<void(*)()>, bsls::TimeInterval>
@@ -780,7 +777,7 @@ class EventSchedulerRecurringEventHandle
         // Create a new handle object.
 
     EventSchedulerRecurringEventHandle(
-                      const EventSchedulerRecurringEventHandle& original);
+                           const EventSchedulerRecurringEventHandle& original);
         // Create a new handle object referring to the same recurring event as
         // the specified 'rhs' handle.
 
@@ -789,7 +786,7 @@ class EventSchedulerRecurringEventHandle
 
     // MANIPULATORS
     EventSchedulerRecurringEventHandle& operator=(
-                           const EventSchedulerRecurringEventHandle& rhs);
+                                const EventSchedulerRecurringEventHandle& rhs);
         // Release the reference managed by this handle, if any; then make this
         // handle refer to the same recurring event as the specified 'rhs'
         // handle.  Return a modifiable reference to this event handle.
@@ -805,7 +802,7 @@ class EventSchedulerRecurringEventHandle
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                      // ------------------------------------
@@ -819,9 +816,9 @@ EventSchedulerEventHandle::EventSchedulerEventHandle()
 }
 
 inline
-EventSchedulerEventHandle::EventSchedulerEventHandle
-                                   (const EventSchedulerEventHandle& rhs)
-: d_handle(rhs.d_handle)
+EventSchedulerEventHandle::EventSchedulerEventHandle(
+                                     const EventSchedulerEventHandle& original)
+: d_handle(original.d_handle)
 {
 }
 
@@ -833,8 +830,7 @@ EventSchedulerEventHandle::~EventSchedulerEventHandle()
 // MANIPULATORS
 inline
 EventSchedulerEventHandle&
-EventSchedulerEventHandle::operator=(
-                                     const EventSchedulerEventHandle& rhs)
+EventSchedulerEventHandle::operator=(const EventSchedulerEventHandle& rhs)
 {
     d_handle = rhs.d_handle;
     return *this;
@@ -848,32 +844,31 @@ void EventSchedulerEventHandle::release()
 }  // close package namespace
 
 // ACCESSORS
-// the scoping of "Event" below should not be necessary, but xlc (versions 8
+
+// The scoping of "Event" below should not be necessary, but xlc (versions 8
 // and 9) requires it
 inline
 bdlmt::EventSchedulerEventHandle::
-                  operator const bdlmt::EventSchedulerEventHandle::Event*() const
+operator const bdlmt::EventSchedulerEventHandle::Event*() const
 {
     return (const Event*)((const EventQueue::Pair*)d_handle);
 }
 
 namespace bdlmt {
-                   // ---------------------------------------------
-                   // class EventSchedulerRecurringEventHandle
-                   // ---------------------------------------------
+                // ----------------------------------------
+                // class EventSchedulerRecurringEventHandle
+                // ----------------------------------------
 
 // CREATORS
 inline
-EventSchedulerRecurringEventHandle::
-                                      EventSchedulerRecurringEventHandle()
+EventSchedulerRecurringEventHandle::EventSchedulerRecurringEventHandle()
 {
 }
 
 inline
-EventSchedulerRecurringEventHandle::
-                                       EventSchedulerRecurringEventHandle(
-                           const EventSchedulerRecurringEventHandle& rhs)
-: d_handle(rhs.d_handle)
+EventSchedulerRecurringEventHandle::EventSchedulerRecurringEventHandle(
+                            const EventSchedulerRecurringEventHandle& original)
+: d_handle(original.d_handle)
 {
 }
 
@@ -893,7 +888,7 @@ void EventSchedulerRecurringEventHandle::release()
 inline
 EventSchedulerRecurringEventHandle&
 EventSchedulerRecurringEventHandle::operator=(
-                            const EventSchedulerRecurringEventHandle& rhs)
+                                 const EventSchedulerRecurringEventHandle& rhs)
 {
     d_handle = rhs.d_handle;
     return *this;
@@ -901,11 +896,12 @@ EventSchedulerRecurringEventHandle::operator=(
 }  // close package namespace
 
 // ACCESSORS
-// the scoping of "RecurringEvent" below should not be necessary, but xlc
+
+// The scoping of "RecurringEvent" below should not be necessary, but xlc
 // (versions 8 and 9) requires it
 inline
 bdlmt::EventSchedulerRecurringEventHandle::operator
-         const bdlmt::EventSchedulerRecurringEventHandle::RecurringEvent*() const
+       const bdlmt::EventSchedulerRecurringEventHandle::RecurringEvent*() const
 {
     return (const RecurringEvent*)((const RecurringEventQueue::Pair*)d_handle);
 }
@@ -937,9 +933,8 @@ int EventScheduler::cancelEvent(const RecurringEvent *handle)
 }
 
 inline
-void EventScheduler::scheduleEvent(
-                                    const bsls::TimeInterval& time,
-                                    const bdlf::Function<void(*)()>& callback)
+void EventScheduler::scheduleEvent(const bsls::TimeInterval&        time,
+                                   const bdlf::Function<void(*)()>& callback)
 {
     scheduleEventRaw(0, time, callback);
 }
@@ -947,8 +942,7 @@ void EventScheduler::scheduleEvent(
 inline
 void EventScheduler::releaseEventRaw(Event *handle)
 {
-    d_eventQueue.releaseReferenceRaw(
-                                  reinterpret_cast<EventQueue::Pair*>(
+    d_eventQueue.releaseReferenceRaw(reinterpret_cast<EventQueue::Pair*>(
                                              reinterpret_cast<void*>(handle)));
 }
 
@@ -962,9 +956,9 @@ void EventScheduler::releaseEventRaw(RecurringEvent *handle)
 
 inline
 void EventScheduler::scheduleRecurringEvent(
-                               const bsls::TimeInterval&        interval,
-                               const bdlf::Function<void(*)()>& callback,
-                               const bsls::TimeInterval&        startTime)
+                                    const bsls::TimeInterval&        interval,
+                                    const bdlf::Function<void(*)()>& callback,
+                                    const bsls::TimeInterval&        startTime)
 {
     scheduleRecurringEventRaw(0, interval, callback, startTime);
 }
@@ -1001,8 +995,8 @@ int EventScheduler::numRecurringEvents() const
 {
     return d_recurringQueue.length();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

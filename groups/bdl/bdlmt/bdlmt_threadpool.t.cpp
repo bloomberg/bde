@@ -1,6 +1,8 @@
 // bdlmt_threadpool.t.cpp                                             -*-C++-*-
 #include <bdlmt_threadpool.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlqq_configuration.h>
 
 #include <bslma_testallocator.h>
@@ -10,6 +12,7 @@
 
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_timeinterval.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 #include <bsls_atomic.h>
@@ -19,8 +22,9 @@
 #include <bdlqq_lockguard.h>  // For test only
 #include <bdlqq_threadattributes.h>     // For test only
 #include <bdlqq_threadutil.h>     // For test only
-#include <bsl_c_stdio.h>            // For FILE in usage example
-#include <bsl_c_stdlib.h>           // for atoi
+#include <bsl_cstddef.h>
+#include <bsl_cstdio.h>           // For FILE in usage example
+#include <bsl_cstdlib.h>          // for atoi
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -38,15 +42,15 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              OVERVIEW
 //
 // [3 ] bdlmt::ThreadPool(const bcemt::Attributes&,int , int , int );
 // [3 ] ~bdlmt::ThreadPool();
 // [  ] int enqueueJob(bdlf::Function<void (*)()>);
-// [4 ] int enqueueJob(bcep_ThreadPoolJobFunc , void *);
+// [4 ] int enqueueJob(ThreadPoolJobFunc , void *);
 // [4 ] void start();
 // [4 ] void stop();
 // [4 ] void drain();
@@ -60,7 +64,7 @@ using namespace bsl;  // automatically added by script
 // [3 ] int threadFailures() const;
 // [8 ] double percentBusy() const
 // [8 ] double resetPercentBusy()
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [1 ] Breathing test
 // [6 ] Max idle time functionality
 // [5 ] Min/max thread functionality
@@ -69,58 +73,60 @@ using namespace bsl;  // automatically added by script
 // [10] USAGE EXAMPLE
 // [11] USAGE EXAMPLE (Functor Interface)
 // [12] TESTING CPU consumption of an idle pool.
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define NL()  cout << endl;                   // Print newline
-#define P64(X) printf(#X " = %lld\n", (X));   // Print 64-bit integer id & val
-#define P64_(X) printf(#X " = %lld,  ", (X)); // Print 64-bit integer w/o '\n'
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef bdlmt::ThreadPool Obj;
 
-//=============================================================================
+// ============================================================================
 //                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define STARTPOOL(x) \
     if (0 != x.start()) { \
@@ -258,10 +264,10 @@ static double getCurrentCpuTime()
 #endif
 }
 
-//=============================================================================
+// ============================================================================
 //                         USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
+// ----------------------------------------------------------------------------
+namespace THREADPOOL_USAGE_EXAMPLE {
 
 ///Usage
 ///-----
@@ -272,12 +278,12 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
 // utility to search multiple files concurrently.
 //
 // The example program will take as input a string and a list of files to
-// search.  The program creates a 'bdlmt::ThreadPool', and then enqueues a single
-// "job" for each file to be searched.  Each thread in the pool will take a job
-// from the queue, open the file, and search for the string.  If a match is
-// found, the job adds the filename to an array of matching filenames.  Because
-// this array of filenames is shared across multiple jobs and across multiple
-// threads, access to the array is controlled via a 'bdlqq::Mutex'.
+// search.  The program creates a 'bdlmt::ThreadPool', and then enqueues a
+// single "job" for each file to be searched.  Each thread in the pool will
+// take a job from the queue, open the file, and search for the string.  If a
+// match is found, the job adds the filename to an array of matching filenames.
+// Because this array of filenames is shared across multiple jobs and across
+// multiple threads, access to the array is controlled via a 'bdlqq::Mutex'.
 //
 ///Setting ThreadPool Attributes
 ///- - - - - - - - - - - - - - -
@@ -380,16 +386,16 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
                        const bsl::vector<bsl::string>& fileList,
                        bsl::vector<bsl::string>&       outFileList)
     {
-        bdlqq::Mutex     mutex;
+        bdlqq::Mutex            mutex;
         bdlqq::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
 //..
-        bdlmt::ThreadPool pool(defaultAttributes,
-                             MIN_SEARCH_THREADS,
-                             MAX_SEARCH_THREADS,
-                             MAX_SEARCH_THREAD_IDLE);
+        bdlmt::ThreadPool       pool(defaultAttributes,
+                                     MIN_SEARCH_THREADS,
+                                     MAX_SEARCH_THREADS,
+                                     MAX_SEARCH_THREAD_IDLE);
 
         if (0 != pool.start()) {
             bsl::cerr << "Failed to start minimum number of threads.  "
@@ -477,17 +483,16 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
 // Next, we make a change to the loop that enqueues the jobs in 'myFastSearch'.
 // The function starts exactly as in the previous example:
 //..
-    static void  myFastFunctorSearch( const string& word,
-                                      const vector<string>& fileList,
-                                      vector<string>& outFileList
-                                    )
+    static void myFastFunctorSearch(const string&         word,
+                                    const vector<string>& fileList,
+                                    vector<string>&       outFileList)
     {
-        bdlqq::Mutex     mutex;
+        bdlqq::Mutex            mutex;
         bdlqq::ThreadAttributes defaultAttributes;
-        bdlmt::ThreadPool pool(defaultAttributes,
-                             MIN_SEARCH_THREADS,
-                             MAX_SEARCH_THREADS,
-                             MAX_SEARCH_THREAD_IDLE);
+        bdlmt::ThreadPool       pool(defaultAttributes,
+                                     MIN_SEARCH_THREADS,
+                                     MAX_SEARCH_THREADS,
+                                     MAX_SEARCH_THREAD_IDLE);
 
         if (0 != pool.start()) {
             bsl::cerr << "Failed to start minimum number of threads.  "
@@ -529,11 +534,11 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
     }
 //..
 
-}  // close namespace BCEP_THREADPOOL_USAGE_EXAMPLE
+}  // close namespace THREADPOOL_USAGE_EXAMPLE
 
-//=============================================================================
+// ============================================================================
 //                         CASE 8 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 static void counter(int *result, int num)
 {
@@ -543,9 +548,9 @@ static void counter(int *result, int num)
     }
 }
 
-//=============================================================================
+// ============================================================================
 //                         CASE 7 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 enum {
     DEPTH_LIMIT = 10,
             MIN = 5,
@@ -575,9 +580,9 @@ void TestJobFunction7(void *ptr)
 
 }
 
-//=============================================================================
+// ============================================================================
 //                         CASE 13 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 void testJobFunction13_2(bdlqq::Barrier *barrier)
 {
@@ -606,9 +611,8 @@ Test13Object::Test13Object(bdlqq::Barrier *barrier_p, Obj *threadPool_p)
 
 Test13Object::~Test13Object()
 {
-    bdlf::Function<void(*)(void)> job = bdlf::BindUtil::bind(
-                                                          &testJobFunction13_2,
-                                                          d_barrier_p);
+    bdlf::Function<void (*)(void)> job =
+                       bdlf::BindUtil::bind(&testJobFunction13_2, d_barrier_p);
     ASSERT(0 == d_threadPool_p->enqueueJob(job));
 }
 
@@ -620,9 +624,9 @@ extern "C" {
     }
 }
 
-//=============================================================================
+// ============================================================================
 //                         CASE -1 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int testTimingJobFunction(const int N)
     // This function is used to simulate a thread pool job.  It accepts an
@@ -637,9 +641,9 @@ int testTimingJobFunction(const int N)
     return result;
 }
 
-//=============================================================================
+// ============================================================================
 //                         CASE -2 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 struct MinusTwoJob {
     void operator()()
@@ -648,9 +652,9 @@ struct MinusTwoJob {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -661,7 +665,7 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     bdlqq::Configuration::setDefaultThreadStackSize(
-                     bdlqq::Configuration::recommendedDefaultThreadStackSize());
+                    bdlqq::Configuration::recommendedDefaultThreadStackSize());
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
@@ -734,7 +738,7 @@ int main(int argc, char *argv[])
 
             double startIdleCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                T_(); P(startIdleCpuTime);
+                T_ P(startIdleCpuTime)
             }
             bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedIdleCpuTime = getCurrentCpuTime()
@@ -742,7 +746,7 @@ int main(int argc, char *argv[])
 
             startIdleCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                T_(); P_(consumedIdleCpuTime);
+                T_ P_(consumedIdleCpuTime)
             }
             double additiveFudge = 0.01 // to allow for imprecisions in timing
                                  + getCurrentCpuTime() - startIdleCpuTime;
@@ -751,7 +755,7 @@ int main(int argc, char *argv[])
             double maxConsumedCpuTime = fudgeFactor *
                            (additiveFudge + consumedIdleCpuTime * MAX_THREADS);
             if (veryVerbose) {
-                P(maxConsumedCpuTime);
+                P(maxConsumedCpuTime)
             }
 
             Obj x(attr, MIN_THREADS, MAX_THREADS, IDLE_TIME);
@@ -759,26 +763,25 @@ int main(int argc, char *argv[])
             STARTPOOL(x);
 
             if (veryVerbose) {
-                T_(); P_(IDLE_TIME); P_(MIN_THREADS); P_(MAX_THREADS);
-                P(SLEEP_TIME);
+                T_ P_(IDLE_TIME) P_(MIN_THREADS) P_(MAX_THREADS) P(SLEEP_TIME)
             }
 
             double startCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                 T_(); P(startCpuTime);
+                 T_ P(startCpuTime)
             }
             bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedCpuTime = getCurrentCpuTime() - startCpuTime;
 
             if (veryVerbose) {
-                T_(); P(consumedCpuTime);
+                T_ P(consumedCpuTime)
             }
             x.stop();
 
             // Failure if more than 10 times idle CPU time consumed per thread
             // plus 50ms (to allow for imprecisions in timing)
             if (verbose && !(consumedCpuTime < maxConsumedCpuTime)) {
-                T_(); P(maxConsumedCpuTime);
+                T_ P(maxConsumedCpuTime)
             }
             LOOP2_ASSERT(consumedCpuTime, maxConsumedCpuTime,
                          consumedCpuTime < maxConsumedCpuTime);
@@ -803,7 +806,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: Usage Example" << endl
                           << "======================" << endl ;
 
-        using namespace BCEP_THREADPOOL_USAGE_EXAMPLE;
+        using namespace THREADPOOL_USAGE_EXAMPLE;
         {
             bsl::vector<bsl::string> fileList;
             bsl::vector<bsl::string> outFileList;
@@ -831,7 +834,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: Usage Example" << endl
                           << "======================" << endl ;
 
-        using namespace BCEP_THREADPOOL_USAGE_EXAMPLE;
+        using namespace THREADPOOL_USAGE_EXAMPLE;
         {
             bsl::vector<bsl::string> fileList;
             bsl::vector<bsl::string> outFileList;
@@ -903,8 +906,11 @@ int main(int argc, char *argv[])
 
             };
             bdlqq::ThreadAttributes attributes;
-            Obj mX(attributes, MIN_THREADS, MAX_THREADS, IDLE_TIME,
-                   &testAllocator);
+            Obj                     mX(attributes,
+                                       MIN_THREADS,
+                                       MAX_THREADS,
+                                       IDLE_TIME,
+                                       &testAllocator);
             const Obj& X = mX;
 
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
@@ -945,7 +951,7 @@ int main(int argc, char *argv[])
                          percentBusy2,
                          percentBusy1 >= percentBusy2);
 
-            if (veryVerbose) { T_(); P_(percentBusy1); P(percentBusy2); }
+            if (veryVerbose) { T_ P_(percentBusy1) P(percentBusy2) }
 
             double percentX  = X.percentBusy();
             double percentMX = mX.resetPercentBusy();
@@ -968,7 +974,7 @@ int main(int argc, char *argv[])
             percentBusy2 = mX.resetPercentBusy();
 
             if (veryVerbose) {
-                T_(); P_(percentBusy1); P(percentBusy2); T_(); P(result);
+                T_ P_(percentBusy1) P(percentBusy2) T_ P(result)
             }
 
             LOOP_ASSERT(percentBusy1, 0 <= percentBusy1);
@@ -1000,7 +1006,7 @@ int main(int argc, char *argv[])
         //   counter has reached a limit.
         //
         // Testing:
-        //   int enqueueJob(bcep_ThreadPoolJobFunc , void *);
+        //   int enqueueJob(ThreadPoolJobFunc , void *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING a job enqueuing other jobs" << endl
@@ -1013,7 +1019,7 @@ int main(int argc, char *argv[])
             localX.enqueueJob(TestJobFunction7, NULL);
             barrier.wait();
             ASSERT(DEPTH_LIMIT == depthCounter);
-            if (veryVerbose) { T_(); P(depthCounter); }
+            if (veryVerbose) { T_ P(depthCounter) }
         }
 
       } break;
@@ -1062,7 +1068,7 @@ int main(int argc, char *argv[])
             Obj x(attr, MIN, MAX, IDLE);
 
             if (veryVerbose) {
-                T_(); P_(IDLE); P_(MIN); P_(MAX); P(BURST);
+                T_ P_(IDLE) P_(MIN) P_(MAX) P(BURST)
             }
 
             STARTPOOL(x);
@@ -1105,7 +1111,7 @@ int main(int argc, char *argv[])
             duration += duration * 0.3;
 
             if (veryVerbose) {
-                T_(); P_(t1); P_(t2); P(duration);
+                T_ P_(t1) P_(t2) P(duration)
             }
 
             // This suspends for AT LEAST duration... one millisecond has 1000
@@ -1225,8 +1231,7 @@ int main(int argc, char *argv[])
                 const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_(); P_(i); P(IDLE);
-                    T_(); P_(MIN); P(MAX);
+                    T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
                 }
 
                 LOOP_ASSERT(i, MIN == X.minThreads());
@@ -1235,7 +1240,7 @@ int main(int argc, char *argv[])
 
                 if (0 != x.start()) {
                     bsl::cout << "Case 5: Thread start failure.  Skipping:\n";
-                    T_(); P_(MIN); P(MAX);
+                    T_ P_(MIN) P(MAX)
                     continue;
                 }
                 ASSERT(x.numWaitingThreads() == MIN);
@@ -1250,7 +1255,7 @@ int main(int argc, char *argv[])
                         if (0 != startCond.timedWait(&mutex, timeout)) {
                             bsl::cout << "Case 5: Thread start failure.  "
                                       << "Skipping at: ";
-                            P(j);
+                            P(j)
                             ASSERT(false);
                             args.d_stopSig++;
                             stopCond.broadcast();
@@ -1262,8 +1267,8 @@ int main(int argc, char *argv[])
                 }
 
                 if (veryVeryVerbose) {
-                    T_(); P_(MIN); P_(MAX); P(x.numActiveThreads());
-                    P(x.numWaitingThreads());
+                    T_ P_(MIN) P_(MAX) P(x.numActiveThreads())
+                    P(x.numWaitingThreads())
                 }
                 ASSERT(MIN==x.numActiveThreads());
                 ASSERT(0 == x.numWaitingThreads());
@@ -1300,8 +1305,7 @@ int main(int argc, char *argv[])
                 const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_(); P_(i); P(IDLE);
-                    T_(); P_(MIN); P(MAX);
+                    T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
                 }
 
                 LOOP_ASSERT(i, MIN == X.minThreads());
@@ -1310,7 +1314,7 @@ int main(int argc, char *argv[])
 
                 if (0 != x.start()) {
                     bsl::cout << "Case 5: Thread start failure.  Skipping:\n";
-                    T_(); P_(MIN); P(MAX);
+                    T_ P_(MIN) P(MAX)
                     ASSERT(false);
                     continue;
                 }
@@ -1328,7 +1332,7 @@ int main(int argc, char *argv[])
                         if (0 != startCond.timedWait(&mutex, timeout)) {
                             bsl::cout << "Case 5: Thread start failure.  "
                                          "Skipping at: ";
-                            P(j);
+                            P(j)
                             ASSERT(false);
                             args.d_stopSig++;
                             stopCond.broadcast();
@@ -1340,9 +1344,9 @@ int main(int argc, char *argv[])
                 }
 
                 if (veryVeryVerbose) {
-                    T_(); P_(MIN); P_(MAX); P(X.numActiveThreads());
-                    T_(); P_(X.numWaitingThreads()); P(X.numPendingJobs());
-                    NL();
+                    T_ P_(MIN) P_(MAX) P(X.numActiveThreads())
+                    T_ P_(X.numWaitingThreads()) P(X.numPendingJobs())
+                    cout << "\n";
                 }
 
                 mutex.unlock();
@@ -1354,9 +1358,9 @@ int main(int argc, char *argv[])
 
                 x.enqueueJob(TestJobFunction2, &args);
                 if (veryVeryVerbose) {
-                    T_(); P_(MIN); P_(MAX); P(x.numActiveThreads());
-                    T_(); P_(X.numWaitingThreads()); P(X.numPendingJobs());
-                    NL();
+                    T_ P_(MIN) P_(MAX) P(x.numActiveThreads())
+                    T_ P_(X.numWaitingThreads()) P(X.numPendingJobs())
+                    cout << "\n";
                 }
 
                 ASSERT(MAX==x.numActiveThreads());
@@ -1390,7 +1394,7 @@ int main(int argc, char *argv[])
         //   additional threads were created and one item remained in queue.
         //
         // Testing:
-        //   int enqueueJob(bcep_ThreadPoolJobFunc , void *);
+        //   int enqueueJob(ThreadPoolJobFunc , void *);
         //   void stop();
         //   void drain();
         //   void shutdown();
@@ -1441,8 +1445,7 @@ int main(int argc, char *argv[])
             const Obj& X = x;
 
             if (veryVerbose) {
-                T_(); P_(i); P(IDLE);
-                T_(); P_(MIN); P(MAX);
+                T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
             }
 
             LOOP_ASSERT(i, MIN == X.minThreads());
@@ -1461,14 +1464,14 @@ int main(int argc, char *argv[])
                 }
             }
             if (veryVeryVerbose) {
-                T_(); P_(x.numActiveThreads()); P(x.numWaitingThreads());
+                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
             }
             args.d_stopSig++;
             mutex.unlock();
             stopCond.broadcast();
             x.drain();
             if (veryVeryVerbose) {
-                T_(); P_(x.numActiveThreads()); P(x.numWaitingThreads());
+                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
             }
             ASSERT(0   == x.numActiveThreads());
             ASSERT(MIN == x.numWaitingThreads());
@@ -1498,8 +1501,7 @@ int main(int argc, char *argv[])
             const Obj& X = x;
 
             if (veryVerbose) {
-                T_(); P_(i); P(IDLE);
-                T_(); P_(MIN); P(MAX);
+                T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
             }
 
             LOOP_ASSERT(i, MIN == X.minThreads());
@@ -1525,7 +1527,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());
             if (veryVeryVerbose) {
-                T_(); P_(x.numActiveThreads()); P(x.numWaitingThreads());
+                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
             }
 
         }
@@ -1555,8 +1557,7 @@ int main(int argc, char *argv[])
             const Obj& X = x;
 
             if (veryVerbose) {
-                T_(); P_(i); P(IDLE);
-                T_(); P_(MIN); P(MAX);
+                T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
             }
 
             LOOP_ASSERT(i, MIN == X.minThreads());
@@ -1578,7 +1579,7 @@ int main(int argc, char *argv[])
                 x.enqueueJob(TestJobFunction2, &args);
             }
             if (veryVeryVerbose) {
-                T_(); P(x.numPendingJobs());
+                T_ P(x.numPendingJobs())
             }
 
             ASSERT(MAX == x.numPendingJobs());
@@ -1590,7 +1591,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());
             if (veryVeryVerbose) {
-                T_(); P_(x.numActiveThreads()); P(x.numWaitingThreads());
+                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
             }
         }
 
@@ -1645,8 +1646,7 @@ int main(int argc, char *argv[])
                 const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_(); P_(i); P(IDLE);
-                    T_(); P_(MIN); P(MAX);
+                    T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
                 }
 
                 LOOP_ASSERT(i, MIN  == X.minThreads());
@@ -1676,17 +1676,17 @@ int main(int argc, char *argv[])
         //   and 'VC' denote unique, but otherwise arbitrary, object values,
         //   while '0' denotes the default object value.
         //
-        // 1.  Create a default object x1.          { x1:0        }
-        // 2.  Create an object x2 (copy from x1).  { x1:0  x2:0  }
-        // 3.  Set x1 to VA.                        { x1:VA x2:0  }
-        // 4.  Set x2 to VA.                        { x1:VA x2:VA }
-        // 5.  Set x2 to VB.                        { x1:VA x2:VB }
-        // 6.  Set x1 to 0.                         { x1:0  x2:VB }
-        // 7.  Create an object x3 (with value VC). { x1:0  x2:VB x3:VC }
-        // 8.  Create an object x4 (copy from x1).  { x1:0  x2:VB x3:VC x4:0 }
-        // 9.  Assign x2 = x1.                      { x1:0  x2:0  x3:VC x4:0 }
-        // 10. Assign x2 = x3.                      { x1:0  x2:VC x3:VC x4:0 }
-        // 11. Assign x1 = x1 (aliasing).           { x1:0  x2:VC x3:VC x4:0 }
+        // 1.   Create a default object x1          { x1:0        }
+        // 2.   Create an object x2 (copy from x1)  { x1:0  x2:0  }
+        // 3.   Set x1 to VA                        { x1:VA x2:0  }
+        // 4.   Set x2 to VA                        { x1:VA x2:VA }
+        // 5.   Set x2 to VB                        { x1:VA x2:VB }
+        // 6.   Set x1 to 0                         { x1:0  x2:VB }
+        // 7.   Create an object x3 (with value VC) { x1:0  x2:VB x3:VC }
+        // 8.   Create an object x4 (copy from x1)  { x1:0  x2:VB x3:VC x4:0 }
+        // 9.   Assign x2 = x1                      { x1:0  x2:0  x3:VC x4:0 }
+        // 10.  Assign x2 = x3                      { x1:0  x2:VC x3:VC x4:0 }
+        // 11.  Assign x1 = x1 (aliasing)           { x1:0  x2:VC x3:VC x4:0 }
         //
         // Testing:
         //   This Test Case exercises basic value-semantic functionality.
@@ -1760,10 +1760,11 @@ int main(int argc, char *argv[])
             for (int i=0; i<NITERATIONS; ++i) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
-                                         (bdlqq::ThreadUtil::ThreadFunction)
-                                           TestJobFunction1,
-                                         &args );
+                bdlqq::ThreadUtil::create(
+                           &threadHandles[i],
+                           attributes,
+                           (bdlqq::ThreadUtil::ThreadFunction)TestJobFunction1,
+                           &args);
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
@@ -1802,10 +1803,10 @@ int main(int argc, char *argv[])
                 mutex.lock();
                 args.d_startSig=0;
                 args.d_stopSig=0;
-                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
-                                         (bdlqq::ThreadUtil::ThreadFunction)
-                                         TestJobFunction2,
-                                         &args );
+                bdlqq::ThreadUtil::create(
+                           &threadHandles[i], attributes,
+                           (bdlqq::ThreadUtil::ThreadFunction)TestJobFunction2,
+                           &args);
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
@@ -1868,7 +1869,7 @@ int main(int argc, char *argv[])
             xP = &localX;
             STARTPOOL(localX);
             const Obj::Job job(bdlf::BindUtil::bind(&testTimingJobFunction,
-                                                   verbose ? verbose : 100));
+                                                    verbose ? verbose : 100));
 
             bsls::Stopwatch timer;  timer.start();
             for (int i = 0; i < ITERATIONS; ++i) {
@@ -1877,8 +1878,8 @@ int main(int argc, char *argv[])
             }
             localX.drain();
             double averageQueueSize = queueSize / ITERATIONS;
-            P(averageQueueSize);
-            P(timer.elapsedTime());
+            P(averageQueueSize)
+            P(timer.elapsedTime())
             localX.shutdown();
         }
 
@@ -1917,8 +1918,9 @@ int main(int argc, char *argv[])
 
         tp.shutdown();
       } break;
-      default:
+      default: {
           testStatus = -1;
+      }
     }
 
     return testStatus;

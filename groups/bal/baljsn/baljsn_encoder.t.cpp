@@ -1,40 +1,58 @@
 // baljsn_encoder.t.cpp                                               -*-C++-*-
 #include <baljsn_encoder.h>
 
+#include <balb_testmessages.h>
+
+#include <bdls_testutil.h>
+
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_valuetypefunctions.h>
-#include <bdlsb_fixedmeminstreambuf.h>
 
-#include <bdlde_utf8util.h>
-#include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlb_printmethods.h>  // for printing vector
 #include <bdlb_chartype.h>
 
-// These header are for testing only and the hierarchy level of baejsn was
+#include <bdlde_utf8util.h>
+
+#include <bdlsb_fixedmeminstreambuf.h>
+#include <bdlsb_memoutstreambuf.h>
+
+// These header are for testing only and the hierarchy level of 'baljsn' was
 // increase because of them.  They should be remove when possible.
-#include <balb_testmessages.h>
 #include <balxml_decoder.h>
-#include <balxml_decoder.h>
+#include <balxml_decoderoptions.h>
 #include <balxml_encoder.h>
 #include <balxml_encoderoptions.h>
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
 
+#include <bdlat_typetraits.h>
+
 #include <bdlb_nullablevalue.h>
 #include <bdlb_nullableallocatedvalue.h>
 
+#include <bdlt_date.h>
+#include <bdlt_datetz.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
+#include <bdlt_time.h>
+#include <bdlt_timetz.h>
+
 #include <bslma_testallocator.h>
 
-#include <bsl_c_limits.h>
+#include <bslmf_assert.h>
+
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_utility.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -71,82 +89,49 @@ using bsl::endl;
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-#define LOOP0_ASSERT ASSERT
+}  // close unnamed namespace
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP1_ASSERT LOOP_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
-// pre-proccessor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
-#define EXPAND(X)                                            \
-    X
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
-    N
-
-#define NUM_ARGS(...)                                        \
-    EXPAND(NUM_ARGS_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
-
-#define LOOPN_ASSERT_IMPL(N, ...)                            \
-    EXPAND(LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define LOOPN_ASSERT(N, ...)                                 \
-    LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...)                                         \
-    LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -168,7 +153,7 @@ const char XML_SCHEMA[] =
 "<?xml version='1.0' encoding='UTF-8'?>"
 "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"
 "           xmlns:bdem='http://bloomberg.com/schemas/bdem'"
-"           bdem:package='baea'"
+"           bdem:package='bala'"
 "           elementFormDefault='qualified'>"
 ""
 "<xs:complexType name='Choice1'>"
@@ -28853,14 +28838,12 @@ static const int NUM_JSON_COMPACT_MESSAGES =
 BSLMF_ASSERT(NUM_JSON_PRETTY_MESSAGES == NUM_XML_TEST_MESSAGES);
 BSLMF_ASSERT(NUM_JSON_COMPACT_MESSAGES == NUM_XML_TEST_MESSAGES);
 
-
 namespace BloombergLP {
-
 namespace test {
 
-                               // =============
-                               // class Address
-                               // =============
+                              // =============
+                              // class Address
+                              // =============
 
 class Address {
     // Address
@@ -28876,24 +28859,24 @@ class Address {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 3 // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 3 // the number of attributes in this class
     };
 
     enum {
-        ATTRIBUTE_INDEX_STREET = 0,
+        k_ATTRIBUTE_INDEX_STREET = 0,
             // index for "Street" attribute
-        ATTRIBUTE_INDEX_CITY = 1,
+        k_ATTRIBUTE_INDEX_CITY = 1,
             // index for "City" attribute
-        ATTRIBUTE_INDEX_STATE = 2
+        k_ATTRIBUTE_INDEX_STATE = 2
             // index for "State" attribute
     };
 
     enum {
-        ATTRIBUTE_ID_STREET = 0,
+        k_ATTRIBUTE_ID_STREET = 0,
             // id for "Street" attribute
-        ATTRIBUTE_ID_CITY = 1,
+        k_ATTRIBUTE_ID_CITY = 1,
             // id for "City" attribute
-        ATTRIBUTE_ID_STATE = 2
+        k_ATTRIBUTE_ID_STATE = 2
             // id for "State" attribute
     };
 
@@ -28918,8 +28901,8 @@ class Address {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -28931,8 +28914,7 @@ class Address {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Address(const Address&    original,
-            bslma::Allocator *basicAllocator = 0);
+    Address(const Address& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -28958,33 +28940,33 @@ class Address {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -29023,23 +29005,23 @@ class Address {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -29048,8 +29030,8 @@ class Address {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -29084,8 +29066,8 @@ bool operator!=(const Address& lhs, const Address& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -29095,9 +29077,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Address)
 
 namespace test {
 
-                               // -------------
-                               // class Address
-                               // -------------
+                              // -------------
+                              // class Address
+                              // -------------
 
 // CONSTANTS
 
@@ -29106,21 +29088,21 @@ const char Address::CLASS_NAME[] = "Address";
 
 const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_STREET,
+        k_ATTRIBUTE_ID_STREET,
         "street",                 // name
         sizeof("street") - 1,     // name length
         "street",  // annotation
         bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
-        ATTRIBUTE_ID_CITY,
+        k_ATTRIBUTE_ID_CITY,
         "city",                 // name
         sizeof("city") - 1,     // name length
         "city",  // annotation
         bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
-        ATTRIBUTE_ID_STATE,
+        k_ATTRIBUTE_ID_STATE,
         "state",                 // name
         sizeof("state") - 1,     // name length
         "state",  // annotation
@@ -29130,9 +29112,8 @@ const bdlat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
 
 // CLASS METHODS
 
-const bdlat_AttributeInfo *Address::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+const bdlat_AttributeInfo *Address::lookupAttributeInfo(const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 4: {
@@ -29141,7 +29122,7 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='T'
              && bdlb::CharType::toUpper(name[3])=='Y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];   // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]; // RETURN
             }
         } break;
         case 5: {
@@ -29151,7 +29132,8 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[3])=='T'
              && bdlb::CharType::toUpper(name[4])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];  // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE];
+                                                                      // RETURN
             }
         } break;
         case 6: {
@@ -29162,7 +29144,8 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[4])=='E'
              && bdlb::CharType::toUpper(name[5])=='T')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]; // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET];
+                                                                      // RETURN
             }
         } break;
     }
@@ -29172,12 +29155,12 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(
 const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_STREET:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET];
-      case ATTRIBUTE_ID_CITY:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY];
-      case ATTRIBUTE_ID_STATE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE];
+      case k_ATTRIBUTE_ID_STREET:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET];
+      case k_ATTRIBUTE_ID_CITY:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY];
+      case k_ATTRIBUTE_ID_STATE:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE];
       default:
         return 0;
     }
@@ -29185,10 +29168,9 @@ const bdlat_AttributeInfo *Address::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& Address::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Address::print(bsl::ostream& stream,
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -29325,17 +29307,18 @@ int Address::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+    ret = manipulator(&d_street,
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+    ret = manipulator(&d_city, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+    ret = manipulator(&d_state, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -29347,42 +29330,41 @@ template <class MANIPULATOR>
 inline
 int Address::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_STREET: {
+      case k_ATTRIBUTE_ID_STREET: {
         return manipulator(&d_street,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_CITY: {
+      case k_ATTRIBUTE_ID_CITY: {
         return manipulator(&d_city,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_STATE: {
+      case k_ATTRIBUTE_ID_STATE: {
         return manipulator(&d_state,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
 template <class MANIPULATOR>
 inline
-int Address::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Address::manipulateAttribute(MANIPULATOR&  manipulator,
+                                 const char   *name,
+                                 int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -29427,17 +29409,17 @@ int Address::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_street, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+    ret = accessor(d_street, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+    ret = accessor(d_city, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+    ret = accessor(d_state, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -29449,40 +29431,40 @@ template <class ACCESSOR>
 inline
 int Address::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_STREET: {
+      case k_ATTRIBUTE_ID_STREET: {
         return accessor(d_street,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STREET]);
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STREET]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_CITY: {
-        return accessor(d_city, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CITY]);
+      case k_ATTRIBUTE_ID_CITY: {
+        return accessor(d_city, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_CITY]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_STATE: {
-        return accessor(d_state, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_STATE]);
+      case k_ATTRIBUTE_ID_STATE: {
+        return accessor(d_state,
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_STATE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
 template <class ACCESSOR>
 inline
-int Address::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Address::accessAttribute(ACCESSOR&   accessor,
+                             const char *name,
+                             int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return e_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -29510,9 +29492,9 @@ const bsl::string& Address::state() const
 
 namespace test {
 
-                               // ==============
-                               // class Employee
-                               // ==============
+                              // ==============
+                              // class Employee
+                              // ==============
 
 class Employee {
     // Employee
@@ -29528,24 +29510,24 @@ class Employee {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 3 // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 3 // the number of attributes in this class
     };
 
     enum {
-        ATTRIBUTE_INDEX_NAME = 0,
+        k_ATTRIBUTE_INDEX_NAME = 0,
             // index for "Name" attribute
-        ATTRIBUTE_INDEX_HOME_ADDRESS = 1,
+        k_ATTRIBUTE_INDEX_HOME_ADDRESS = 1,
             // index for "HomeAddress" attribute
-        ATTRIBUTE_INDEX_AGE = 2
+        k_ATTRIBUTE_INDEX_AGE = 2
             // index for "Age" attribute
     };
 
     enum {
-        ATTRIBUTE_ID_NAME = 0,
+        k_ATTRIBUTE_ID_NAME = 0,
             // id for "Name" attribute
-        ATTRIBUTE_ID_HOME_ADDRESS = 1,
+        k_ATTRIBUTE_ID_HOME_ADDRESS = 1,
             // id for "HomeAddress" attribute
-        ATTRIBUTE_ID_AGE = 2
+        k_ATTRIBUTE_ID_AGE = 2
             // id for "Age" attribute
     };
 
@@ -29570,8 +29552,8 @@ class Employee {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -29583,8 +29565,7 @@ class Employee {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Employee(const Employee&   original,
-             bslma::Allocator *basicAllocator = 0);
+    Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -29610,33 +29591,33 @@ class Employee {
         // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'manipulator' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'id', supplying
+        // 'manipulator' with the corresponding attribute information
+        // structure.  Return the value returned from the invocation of
+        // 'manipulator' if 'id' identifies an attribute of this class, and -1
+        // otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of the
+        // (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
@@ -29674,23 +29655,23 @@ class Employee {
         // Write the value of this object to the specified output 'stream'
         // using the specified 'version' format and return a reference to the
         // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor' with
+        // the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the last
+        // invocation of 'accessor' (i.e., the invocation that terminated the
+        // sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -29699,8 +29680,8 @@ class Employee {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
+        // this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
@@ -29735,8 +29716,8 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -29744,12 +29725,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Employee)
 
-
 namespace test {
 
-                               // --------------
-                               // class Employee
-                               // --------------
+                              // --------------
+                              // class Employee
+                              // --------------
 
 // CONSTANTS
 
@@ -29758,21 +29738,21 @@ const char Employee::CLASS_NAME[] = "Employee";
 
 const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_NAME,
+        k_ATTRIBUTE_ID_NAME,
         "name",                 // name
         sizeof("name") - 1,     // name length
         "name",  // annotation
         bdlat_FormattingMode::e_TEXT // formatting mode
     },
     {
-        ATTRIBUTE_ID_HOME_ADDRESS,
+        k_ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",                 // name
         sizeof("homeAddress") - 1,     // name length
         "homeAddress",  // annotation
         bdlat_FormattingMode::e_DEFAULT // formatting mode
     },
     {
-        ATTRIBUTE_ID_AGE,
+        k_ATTRIBUTE_ID_AGE,
         "age",                 // name
         sizeof("age") - 1,     // name length
         "age",  // annotation
@@ -29783,8 +29763,8 @@ const bdlat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
 // CLASS METHODS
 
 const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
-        const char *name,
-        int         nameLength)
+                                                        const char *name,
+                                                        int         nameLength)
 {
     switch(nameLength) {
         case 3: {
@@ -29792,7 +29772,7 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[1])=='G'
              && bdlb::CharType::toUpper(name[2])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];    // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE];  // RETURN
             }
         } break;
         case 4: {
@@ -29801,7 +29781,7 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[2])=='M'
              && bdlb::CharType::toUpper(name[3])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];   // RETURN
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]; // RETURN
             }
         } break;
         case 11: {
@@ -29817,7 +29797,7 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[9])=='S'
              && bdlb::CharType::toUpper(name[10])=='S')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
+                return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS];
                                                                       // RETURN
             }
         } break;
@@ -29828,12 +29808,12 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(
 const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_NAME:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
-      case ATTRIBUTE_ID_HOME_ADDRESS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS];
-      case ATTRIBUTE_ID_AGE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+      case k_ATTRIBUTE_ID_NAME:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME];
+      case k_ATTRIBUTE_ID_HOME_ADDRESS:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS];
+      case k_ATTRIBUTE_ID_AGE:
+        return &ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE];
       default:
         return 0;
     }
@@ -29841,10 +29821,9 @@ const bdlat_AttributeInfo *Employee::lookupAttributeInfo(int id)
 
 // ACCESSORS
 
-bsl::ostream& Employee::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& Employee::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -29980,18 +29959,18 @@ int Employee::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_homeAddress,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+                      ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -30003,41 +29982,42 @@ template <class MANIPULATOR>
 inline
 int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
+      case k_ATTRIBUTE_ID_NAME: {
         return manipulator(&d_name,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
-        return manipulator(&d_homeAddress,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+      case k_ATTRIBUTE_ID_HOME_ADDRESS: {
+        return manipulator(
+                         &d_homeAddress,
+                         ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_AGE: {
-        return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      case k_ATTRIBUTE_ID_AGE: {
+        return manipulator(&d_age,
+                           ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
 template <class MANIPULATOR>
 inline
-int Employee::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+int Employee::manipulateAttribute(MANIPULATOR&  manipulator,
+                                  const char   *name,
+                                  int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -30082,18 +30062,18 @@ int Employee::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_homeAddress,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+                   ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -30105,40 +30085,39 @@ template <class ACCESSOR>
 inline
 int Employee::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_NAME: {
-        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      case k_ATTRIBUTE_ID_NAME: {
+        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_NAME]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_HOME_ADDRESS: {
+      case k_ATTRIBUTE_ID_HOME_ADDRESS: {
         return accessor(d_homeAddress,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_HOME_ADDRESS]);
+                        ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_HOME_ADDRESS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_AGE: {
-        return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      case k_ATTRIBUTE_ID_AGE: {
+        return accessor(d_age, ATTRIBUTE_INFO_ARRAY[k_ATTRIBUTE_INDEX_AGE]);
                                                                       // RETURN
       } break;
       default:
-        return NOT_FOUND;                                             // RETURN
+        return e_NOT_FOUND;                                           // RETURN
     }
 }
 
 template <class ACCESSOR>
 inline
-int Employee::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+int Employee::accessAttribute(ACCESSOR&   accessor,
+                              const char *name,
+                              int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { e_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;                                              // RETURN
+       return e_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -30173,8 +30152,8 @@ namespace {
 // ----------------------------------------------------------------------------
 
 void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
-    // Print to stdout the length and the characters that are difference in
-    // the specified 'lhs' and 'rhs' strings.
+    // Print to stdout the length and the characters that are difference in the
+    // specified 'lhs' and 'rhs' strings.
 {
     const int len1 = lhs.size();
     const int len2 = rhs.size();
@@ -30306,7 +30285,6 @@ int main(int argc, char *argv[])
     bool verbose = argc > 2;
     bool veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
-    //veryVeryVeryVerbose = argc > 5;
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
@@ -30338,7 +30316,7 @@ int main(int argc, char *argv[])
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use 'bas_codegen.pl' to create the 'Employee'
 // 'class' for storing that information, populate an 'Employee' object, and
-// encode that object using the baejsn encoder.
+// encode that object using the baljsn encoder.
 //
 // First, we will define the XML schema inside a file called 'employee.xsd':
 //..
@@ -30377,7 +30355,6 @@ int main(int argc, char *argv[])
 //..
 // Next, we will populate a 'test::Employee' object:
 //..
-    {
     test::Employee employee;
     employee.name()                 = "Bob";
     employee.homeAddress().street() = "Lexington Ave";
@@ -30390,18 +30367,18 @@ int main(int argc, char *argv[])
     baljsn::Encoder encoder;
 //..
 // Now, we will output this object in the JSON format by invoking the 'encode'
-// method of the encoder.  We will also create a 'baljsn::EncoderOptions' object
-// that allows us to specify that the encoding should be done in a pretty
-// format, and what the initial indent level and spaces per level should be.
-// We will then pass that object to the 'encode' method:
+// method of the encoder.  We will also create a 'baljsn::EncoderOptions'
+// object that allows us to specify that the encoding should be done in a
+// pretty format, and what the initial indent level and spaces per level should
+// be.  We will then pass that object to the 'encode' method:
 //..
     bsl::ostringstream os;
-//
+
     baljsn::EncoderOptions options;
     options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
     options.setInitialIndentLevel(1);
     options.setSpacesPerLevel(4);
-//
+
     const int rc = encoder.encode(os, employee, options);
     ASSERT(!rc);
     ASSERT(os);
@@ -30417,9 +30394,8 @@ int main(int argc, char *argv[])
                               "        },\n"
                               "        \"age\" : 21\n"
                               "    }\n";
-//
+
     ASSERT(EXP_OUTPUT == os.str());
-    }
 //..
       } break;
       case 13: {
@@ -31088,8 +31064,8 @@ int main(int argc, char *argv[])
             mX.element1() = balb::CustomString("Hello");
             mX.element2() = 42;
             mX.element3() = bdlt::DatetimeTz(
-                                  bdlt::Datetime(2012, 12, 31, 12, 59, 59, 999),
-                                  -720);
+                                 bdlt::Datetime(2012, 12, 31, 12, 59, 59, 999),
+                                 -720);
 
             {
                 Obj  encoder;
@@ -31159,7 +31135,7 @@ int main(int argc, char *argv[])
         //:   1 Encode an unselected Choice object and verify it returns an
         //:     error.
         //:
-        //:   2 Encode a selected Choice an verify it reutnrs a name-value
+        //:   2 Encode a selected Choice an verify it returns a name-value
         //:     pair.
         //:
         //:   3 Encode a selected Choice, where the selection is an unselected
@@ -31341,8 +31317,8 @@ int main(int argc, char *argv[])
                 const char    *d_result_p;
             } DATA[] = {
 
-            //LINE  INPUT  EEA     Style  INDENT     SPL    RESULT
-            //----  -----  ---     -----  ------     ---    ------
+            //LINE  INPUT  "EEA"   Style  INDENT    "SPL"   RESULT
+            //----  -----  -----   -----  ------    -----   ------
 
              { L_,    "",  false,     C,      0,      0,    ""           },
              { L_,    "",  false,     P,      0,      0,    ""           },
@@ -31856,7 +31832,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // ENCODING NULLABLES
+        // ENCODING NULL-ABLES
         //
         // Concerns:
         //: 1 Null value is encoded to "null".
@@ -31880,8 +31856,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ENCODING NULLABLES" << endl
-                          << "==================" << endl;
+                          << "ENCODING NULL-ABLES" << endl
+                          << "===================" << endl;
 
         if (verbose) cout << "Encode null value" << endl;
         {
@@ -32300,7 +32276,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Character are encoded as a single character string.
         //:
-        //: 2 All escape charaters are encoded corrected.
+        //: 2 All escape characters are encoded corrected.
         //:
         //: 3 Control characters are encoded as hex.
         //

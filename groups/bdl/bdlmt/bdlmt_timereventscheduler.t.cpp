@@ -1,6 +1,8 @@
 // bdlmt_timereventscheduler.t.cpp                                    -*-C++-*-
 #include <bdlmt_timereventscheduler.h>
 
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bsls_atomic.h>
 #include <bdlqq_barrier.h>
@@ -21,6 +23,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
@@ -32,9 +35,9 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
-//=============================================================================
+// ============================================================================
 //                                   TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
 // Testing 'bdlmt::TimerEventScheduler' is divided into 2 parts (apart from
@@ -42,32 +45,29 @@ using bsl::flush;
 // isolation, the second is more integrated in that it tests a particular
 // situation in context, with a combination of functions.
 //
-// [2] Verify that callbacks are invoked as expected when multiple
-// clocks and multiple events are scheduled.
+// [2] Verify that callbacks are invoked as expected when multiple clocks and
+// multiple events are scheduled.
 //
-// [3] Verify that 'cancelEvent' works correctly in various white box
+// [3] Verify that 'cancelEvent' works correctly in various white box states.
+//
+// [4] Verify that 'cancelAllEvents' works correctly in various white box
 // states.
 //
-// [4] Verify that 'cancelAllEvents' works correctly in various white
-// box states.
+// [5] Verify that 'cancelClock' works correctly in various white box states.
 //
-// [5] Verify that 'cancelClock' works correctly in various white box
+// [6] Verify that 'cancelAllClocks' works correctly in various white box
 // states.
-//
-// [6] Verify that 'cancelAllClocks' works correctly in various white
-// box states.
 //
 // [7] Test 'scheduleEvent', 'cancelEvent', 'cancelAllEvents',
-// 'startClock', 'cancelClock' and 'cancelAllClocks' when they are
-// invoked from dispatcher thread.
+// 'startClock', 'cancelClock' and 'cancelAllClocks' when they are invoked from
+// dispatcher thread.
 //
 // [8] Test the scheduler with a user-defined dispatcher.
 //
-// [9] Verify that 'start' and 'stop' work correctly in various white
-// box states.
+// [9] Verify that 'start' and 'stop' work correctly in various white box
+// states.
 //
-// [10] Verify the concurrent scheduling and cancelling of clocks and
-// events.
+// [10] Verify the concurrent scheduling and cancelling of clocks and events.
 //
 // [11] Verify the concurrent scheduling and cancelling-all of clocks and
 // events.
@@ -75,7 +75,7 @@ using bsl::flush;
 // [14] Given 'numEvents' and 'numClocks' (where 'numEvents <= 2**24 - 1' and
 // 'numClocks <= 2**24 - 1'), ensure that *at least* 'numEvents' and
 // 'numClocks' may be concurrently scheduled.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [01] bdlmt::TimerEventScheduler(allocator = 0);
 // [19] bdlmt::TimerEventScheduler(clockType, allocator = 0);
@@ -117,70 +117,70 @@ using bsl::flush;
 // [06] void cancelAllClocks(bool wait=false);
 //
 // ACCESSORS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [25] USAGE EXAMPLE
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << #M << ": " <<  \
-       M << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define E(X) cout << (X) << endl;             // Print value.
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define E_(X) cout << (X) << flush;           // Print value.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
-#define PF(X) (cout << #X " = " << (X) << endl, false)
-//=============================================================================
+#define E(X)  cout << (X) << endl;     // Print value.
+#define E_(X) cout << (X) << flush;    // Print value.
+
+// ============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define ET(X) { printMutex.lock(); E(X); printMutex.unlock(); }
 #define ET_(X) { printMutex.lock(); E_(X); printMutex.unlock(); }
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
 
-static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert macros
+static bdlqq::Mutex &assertMutex = printMutex;// mutex to protect assert macros
 
 #define ASSERTT(X) { assertMutex.lock(); aSsErT(!(X), #X, __LINE__); \
                                              assertMutex.unlock();}
@@ -210,9 +210,9 @@ static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert macros
        << ": " << L << "\t" << #M << ": " << M << endl; \
        aSsErT(1, #X, __LINE__); assertMutex.unlock(); } }
 
-//=============================================================================
+// ============================================================================
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
@@ -243,9 +243,9 @@ static const bsls::TimeInterval APPRECIABLE_DIFFERENCE (0,  20000000); //  20ms
 
 static inline bool isUnacceptable(const bsls::TimeInterval& t1,
                                   const bsls::TimeInterval& t2)
-    // Return true if the specified 't1' and 't2' are unacceptably not
-    // (the definition of *unacceptable* is implementation-defined) equal,
-    // otherwise return false.
+    // Return true if the specified 't1' and 't2' are unacceptably not (the
+    // definition of *unacceptable* is implementation-defined) equal, otherwise
+    // return false.
 {
     bsls::TimeInterval absDifference = (t1 > t2) ? (t1 - t2) : (t2 - t1);
     return (ALLOWABLE_DIFFERENCE > absDifference)? true : false;
@@ -253,9 +253,9 @@ static inline bool isUnacceptable(const bsls::TimeInterval& t1,
 
 static inline bool isApproxEqual(const bsls::TimeInterval& t1,
                                  const bsls::TimeInterval& t2)
-    // Return true if the specified 't1' and 't2' are approximately
-    // (the definition of *approximate* is implementation-defined) equal,
-    // otherwise return false.
+    // Return true if the specified 't1' and 't2' are approximately (the
+    // definition of *approximate* is implementation-defined) equal, otherwise
+    // return false.
 {
     bsls::TimeInterval absDifference = (t1 > t2) ? (t1 - t2) : (t2 - t1);
     return (ALLOWABLE_DIFFERENCE > absDifference)? true : false;
@@ -263,9 +263,9 @@ static inline bool isApproxEqual(const bsls::TimeInterval& t1,
 
 static inline bool isApproxGreaterThan(const bsls::TimeInterval& t1,
                                        const bsls::TimeInterval& t2)
-    // Return true if the specified 't1' is approximately (the definition
-    // of *approximate* is implementation-defined) greater than the
-    // specified 't2', otherwise return false.
+    // Return true if the specified 't1' is approximately (the definition of
+    // *approximate* is implementation-defined) greater than the specified
+    // 't2', otherwise return false.
 {
     return ((t1 - t2) > APPRECIABLE_DIFFERENCE)? true : false;
 }
@@ -286,11 +286,11 @@ void myMicroSleep(int microSeconds, int seconds)
 
 template <class TESTCLASS>
 void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
-                               const int  microSeconds,
-                               int        numAttempts,
-                               int        numExecuted = 0)
+                                  const int  microSeconds,
+                                  int        numAttempts,
+                                  int        numExecuted = 0)
     // Check that the specified 'testObject' has been executed one more time in
-    // addition to the originally specified 'numExecuted' times, for the
+    // addition to the optionally specified 'numExecuted' times, for the
     // specified 'numAttempts' separated by the specified 'microSeconds', and
     // return as soon as that is true or when the 'numAttempts' all fail.
 {
@@ -314,11 +314,11 @@ static inline double dnow()
                          // function executeInParallel
                          // ==========================
 
-static void executeInParallel(int numThreads,
+static void executeInParallel(int                               numThreads,
                               bdlqq::ThreadUtil::ThreadFunction func)
-   // Create the specified 'numThreads', each executing the specified 'func'.
-   // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
-   // to i'th thread.  Finally join all the threads.
+    // Create the specified 'numThreads', each executing the specified 'func'.
+    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
+    // to i'th thread.  Finally join all the threads.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                new bdlqq::ThreadUtil::Handle[numThreads];
@@ -341,54 +341,54 @@ static void executeInParallel(int numThreads,
 class TestClass {
     // This class encapsulates the data associated with a clock or an event.
 
-    bool              d_isClock;                 // true if this is a clock,
-                                                 // false when this is an
-                                                 // event
+    bool                d_isClock;                 // true if this is a clock,
+                                                   // false when this is an
+                                                   // event
 
-    bsls::TimeInterval d_periodicInterval;        // periodic interval if
-                                                 // this is a recurring event
+    bsls::TimeInterval  d_periodicInterval;        // periodic interval if this
+                                                   // is a recurring event
 
-    bsls::TimeInterval d_expectedTimeAtExecution; // expected time at which
-                                                 // callback should run
+    bsls::TimeInterval  d_expectedTimeAtExecution; // expected time at which
+                                                   // callback should run
 
-    bsls::AtomicInt    d_numExecuted;             // number of times callback
-                                                 // has been executed
+    bsls::AtomicInt     d_numExecuted;             // number of times callback
+                                                   // has been executed
 
-    bsls::AtomicInt    d_executionTime;           // duration for which
-                                                 // callback executes
+    bsls::AtomicInt     d_executionTime;           // duration for which
+                                                   // callback executes
 
-    int               d_line;                    // for error reporting
+    int                 d_line;                    // for error reporting
 
-    bsls::AtomicInt    d_delayed;                 // will be set to true if
-                                                 // any execution of the
-                                                 // callback is delayed from
-                                                 // its expected execution time
+    bsls::AtomicInt     d_delayed;                 // will be set to true if
+                                                   // any execution of the
+                                                   // callback is delayed from
+                                                   // its expected execution
+                                                   // time
 
-    bsls::TimeInterval d_referenceTime;           // time from which execution
-                                                 // time is referenced for
-                                                 // debugging purpose
+    bsls::TimeInterval  d_referenceTime;           // time from which execution
+                                                   // time is referenced for
+                                                   // debugging purpose
 
-    bsls::TimeInterval *d_globalLastExecutionTime;
-                                                 // last time *ANY* callback
-                                                 // was executed
+    bsls::TimeInterval *d_globalLastExecutionTime; // last time *ANY* callback
+                                                   // was executed
 
-    bool               d_assertOnFailure;        // case 2 must not assert on
-                                                 // failure unless it fails
-                                                 // too many times
+    bool                d_assertOnFailure;         // case 2 must not assert on
+                                                   // failure unless it fails
+                                                   // too many times
 
-    bsls::AtomicInt     d_failures;               // timing failures
+    bsls::AtomicInt     d_failures;                // timing failures
 
     // FRIENDS
-    friend bsl::ostream& operator << (bsl::ostream& os,
-                                      const TestClass& testObject);
+    friend bsl::ostream& operator<<(bsl::ostream&    os,
+                                    const TestClass& testObject);
 
   public:
     // CREATORS
-    TestClass(int line,
-              bsls::TimeInterval expectedTimeAtExecution,
+    TestClass(int                 line,
+              bsls::TimeInterval  expectedTimeAtExecution,
               bsls::TimeInterval *globalLastExecutionTime ,
-              int executionTime = 0,
-              bool assertOnFailure = true):
+              int                 executionTime = 0,
+              bool                assertOnFailure = true):
       d_isClock(false),
       d_periodicInterval(0),
       d_expectedTimeAtExecution(expectedTimeAtExecution),
@@ -403,12 +403,12 @@ class TestClass {
     {
     }
 
-    TestClass(int line,
-              bsls::TimeInterval expectedTimeAtExecution,
-              bsls::TimeInterval periodicInterval,
+    TestClass(int                 line,
+              bsls::TimeInterval  expectedTimeAtExecution,
+              bsls::TimeInterval  periodicInterval,
               bsls::TimeInterval *globalLastExecutionTime,
-              int executionTime = 0,
-              bool assertOnFailure = true):
+              int                 executionTime = 0,
+              bool                assertOnFailure = true):
       d_isClock(true),
       d_periodicInterval(periodicInterval),
       d_expectedTimeAtExecution(expectedTimeAtExecution),
@@ -440,10 +440,9 @@ class TestClass {
 
     // MANIPULATORS
     void callback()
-        // This function is the callback associated with this clock or
-        // event.  On execution, it print an error if it has not been
-        // executed at expected time.  It also updates any relevant class
-        // data.
+        // This function is the callback associated with this clock or event.
+        // On execution, it print an error if it has not been executed at
+        // expected time.  It also updates any relevant class data.
     {
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         if (veryVerbose) {
@@ -455,12 +454,10 @@ class TestClass {
             printMutex.unlock();
         }
 
-        // if this execution has been delayed due to a long running callback
-        // or due to high loads during parallel testing
-        if (d_delayed ||
-            isApproxGreaterThan(*d_globalLastExecutionTime,
-                                d_expectedTimeAtExecution))
-        {
+        // if this execution has been delayed due to a long running callback or
+        // due to high loads during parallel testing
+        if (d_delayed || isApproxGreaterThan(*d_globalLastExecutionTime,
+                                             d_expectedTimeAtExecution)) {
             d_delayed = true;
             d_expectedTimeAtExecution = now;
         }
@@ -531,9 +528,9 @@ bsl::ostream& operator << (bsl::ostream& os, const TestClass& testObject)
                               // ================
 
 struct TestClass1 {
-    // This class define a function 'callback' that is used as a callback
-    // for a clock or an event.  The class keeps track of number of times
-    // the callback has been executed.
+    // This class define a function 'callback' that is used as a callback for a
+    // clock or an event.  The class keeps track of number of times the
+    // callback has been executed.
 
     bsls::AtomicInt  d_numStarted;
     bsls::AtomicInt  d_numExecuted;
@@ -611,21 +608,21 @@ struct TestPrintClass {
 
 void cancelEventCallback(Obj *scheduler,
                          int *handlePtr,
-                         int wait,
-                         int expectedStatus)
-    // Invoke 'scheduler->cancelEvent(*handlePtr, wait)' and assert that
-    // result of the 'cancelEvent' is equal to the specified
+                         int  wait,
+                         int  expectedStatus)
+    // Invoke 'cancelEvent' on the specified 'scheduler' passing the specified
+    // '*handlePtr' and 'wait' and assert that the result equals the specified
     // 'expectedStatus'.
 {
     int ret = scheduler->cancelEvent(*handlePtr, wait);
     LOOP_ASSERTT(ret, expectedStatus == ret);
 }
 
-void cancelEventCallbackWithState(Obj *scheduler,
-                                 int *handlePtr,
-                                 const bsl::shared_ptr<int>& state)
-    // Invoke 'scheduler->cancelEvent(*handlePtr, wait)' and assert that
-    // the state is still valid.
+void cancelEventCallbackWithState(Obj                         *scheduler,
+                                  int                         *handlePtr,
+                                  const bsl::shared_ptr<int>&  state)
+    // Invoke 'cancelEvent' on the specified 'scheduler' passing '*handlePtr'
+    // and assert that the specified 'state' remains valid.
 {
     const int s = *state;
     int ret = scheduler->cancelEvent(*handlePtr);
@@ -633,11 +630,11 @@ void cancelEventCallbackWithState(Obj *scheduler,
 }
 
 static void cancelClockCallback(Obj *scheduler,
-                               int *handlePtr,
-                               int wait,
-                               int expectedStatus)
-    // Invoke 'scheduler->cancelClock(*handlePtr, wait)' and assert that
-    // result of the 'cancelClock' is equal to the specified
+                                int *handlePtr,
+                                int  wait,
+                                int  expectedStatus)
+    // Invoke 'cancelClocks' on the specified 'scheduler' passing the specified
+    // '*handlePtr' and 'wait' and assert that the result equals the specified
     // 'expectedStatus'.
 {
     int ret = scheduler->cancelClock(*handlePtr, wait);
@@ -645,27 +642,26 @@ static void cancelClockCallback(Obj *scheduler,
 }
 
 static void cancelAllEventsCallback(Obj *scheduler, int wait)
-
-    // Invoke 'scheduler->cancelAllEvents(wait)'.
+    // Invoke 'cancelAllEvents' on the specified 'scheduler' passing 'wait'.
 {
     scheduler->cancelAllEvents(wait);
 }
 
 static void cancelAllClocksCallback(Obj *scheduler, int wait)
-    // Invoke 'scheduler->cancelAllClocks(wait)'.
+    // Invoke 'cancelAllClocks' on the specified 'scheduler' passing 'wait'.
 {
     scheduler->cancelAllClocks(wait);
 }
 
-//=============================================================================
+// ============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
-//=============================================================================
+// ============================================================================
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                          USAGE EXAMPLE RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
 {
 
                               // ================
@@ -708,18 +704,21 @@ class my_Server {
 
     void dataAvailable(Connection *connection, void *data, int length);
 
+    my_Server(const my_Server&);             // unimplemented
+    my_Server& operator=(const my_Server&);  // unimplemented
+
   public:
     // CREATORS
-    my_Server(const bsls::TimeInterval& ioTimeout,
-              bslma::Allocator *allocator = 0);
+    my_Server(const bsls::TimeInterval&  ioTimeout,
+              bslma::Allocator          *allocator = 0);
     ~my_Server();
 };
 
 // CREATORS
-my_Server::my_Server(const bsls::TimeInterval& ioTimeout,
-                     bslma::Allocator *alloc)
-: d_connections(alloc)
-, d_scheduler(alloc)
+my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
+                     bslma::Allocator          *allocator)
+: d_connections(allocator)
+, d_scheduler(allocator)
 , d_ioTimeout(ioTimeout)
 {
      d_scheduler.start();
@@ -734,8 +733,8 @@ my_Server::~my_Server()
 void my_Server::newConnection(my_Server::Connection *connection)
 {
     connection->d_timerId = d_scheduler.scheduleEvent(
-      bdlt::CurrentTime::now() + d_ioTimeout,
-      bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+          bdlt::CurrentTime::now() + d_ioTimeout,
+          bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
 void my_Server::closeConnection(my_Server::Connection *connection)
@@ -744,7 +743,7 @@ void my_Server::closeConnection(my_Server::Connection *connection)
 
 void my_Server::dataAvailable(my_Server::Connection *connection,
                               void                  *data,
-                              int                   length)
+                              int                    length)
 {
     if (d_scheduler.cancelEvent(connection->d_timerId)) {
         return;                                                       // RETURN
@@ -753,79 +752,79 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
     connection->d_session_p->processData(data, length);
 
     connection->d_timerId = d_scheduler.scheduleEvent(
-      bdlt::CurrentTime::now() + d_ioTimeout,
-      bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+          bdlt::CurrentTime::now() + d_ioTimeout,
+          bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
 
-//=============================================================================
+// ============================================================================
 //                         CASE 20 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_24
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24
 {
 
 void dispatcherFunction(bdlf::Function<void(*)()> functor)
-    // This is a dispatcher function that simply execute the
-    // specified 'functor'.
+    // This is a dispatcher function that simply execute the specified
+    // 'functor'.
 {
     functor();
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_24
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24
+// ============================================================================
 //                         CASE 20 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_23
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23
 {
 
 void dispatcherFunction(bdlf::Function<void(*)()> functor)
-    // This is a dispatcher function that simply execute the
-    // specified 'functor'.
+    // This is a dispatcher function that simply execute the specified
+    // 'functor'.
 {
     functor();
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_23
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23
+// ============================================================================
 //                         CASE 22 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_22
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_22
 {
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_22
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_22
+// ============================================================================
 //                         CASE 21 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_21
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21
 {
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_21
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21
+// ============================================================================
 //                         CASE 20 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_20
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20
 {
 
 void dispatcherFunction(bdlf::Function<void(*)()> functor)
-    // This is a dispatcher function that simply execute the
-    // specified 'functor'.
+    // This is a dispatcher function that simply execute the specified
+    // 'functor'.
 {
     functor();
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_20
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20
+// ============================================================================
 //                         CASE 19 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_19
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19
 {
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_19
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19
+// ============================================================================
 //                         CASE 17 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_18
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_18
 {
 struct Func {
     int                             d_eventIndex;
@@ -842,6 +841,7 @@ struct Func {
 
     void operator()();
 };
+
 Obj*                     Func::s_scheduler;
 bsl::vector<Obj::Handle> Func::s_handles;
 bsl::vector<int>         Func::s_indexes;
@@ -856,12 +856,12 @@ void Func::operator()()
     }
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_18
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_18
 
-//=============================================================================
+// ============================================================================
 //                         CASE 17 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_17
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_17
 {
 struct Func {
     static const Obj *s_scheduler;
@@ -879,12 +879,12 @@ struct Func {
 const Obj *Func::s_scheduler;
 int Func::s_numEvents;
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_17
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_17
 
-//=============================================================================
+// ============================================================================
 //                         CASE 16 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_16
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16
 {
 
 enum { BUFSIZE = 40 * 1000 };
@@ -925,19 +925,19 @@ struct Recurser {
 };
 bool Recurser::s_finished = false;
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_16
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16
 
-//=============================================================================
+// ============================================================================
 //                         CASE 15 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // case 15 just reuses the case 14 related entities
 
-//=============================================================================
+// ============================================================================
 //                         CASE 14 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
 {
     struct Slowfunctor {
         typedef bsl::list<double>       dateTimeList;
@@ -986,13 +986,13 @@ namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14
     abs(const _Tp& __a) {
         return 0 <= __a ? __a : - __a;
     }
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                          CASE 13 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_13
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_13
 {
 
 void countInvoked(bsls::AtomicInt *numInvoked)
@@ -1002,7 +1002,7 @@ void countInvoked(bsls::AtomicInt *numInvoked)
     }
 }
 
-void scheduleEvent(Obj            *scheduler,
+void scheduleEvent(Obj             *scheduler,
                    bsls::AtomicInt *numAdded,
                    bsls::AtomicInt *numInvoked,
                    bdlqq::Barrier  *barrier)
@@ -1011,8 +1011,8 @@ void scheduleEvent(Obj            *scheduler,
 
     while (true) {
         Obj::Handle handle = scheduler->scheduleEvent(
-                               bdlt::CurrentTime::now(),
-                               bdlf::BindUtil::bind(&countInvoked, numInvoked));
+                              bdlt::CurrentTime::now(),
+                              bdlf::BindUtil::bind(&countInvoked, numInvoked));
         if (Obj::e_INVALID_HANDLE == handle) {
             break;
         }
@@ -1021,7 +1021,7 @@ void scheduleEvent(Obj            *scheduler,
     }
 }
 
-void startClock(Obj            *scheduler,
+void startClock(Obj             *scheduler,
                 bsls::AtomicInt *numAdded,
                 bsls::AtomicInt *numInvoked,
                 bdlqq::Barrier  *barrier)
@@ -1030,8 +1030,8 @@ void startClock(Obj            *scheduler,
 
     while (true) {
         Obj::Handle handle = scheduler->startClock(
-                               bsls::TimeInterval(1),
-                               bdlf::BindUtil::bind(&countInvoked, numInvoked));
+                              bsls::TimeInterval(1),
+                              bdlf::BindUtil::bind(&countInvoked, numInvoked));
         if (Obj::e_INVALID_HANDLE == handle) {
             break;
         }
@@ -1051,25 +1051,25 @@ int numBitsRequired(int maxValue)
                                                    CHAR_BIT * sizeof maxValue);
 }
 
-// Calculate the largest integer indentifiable using the specified 'numBits'.
+// Calculate the largest integer identifiable using the specified 'numBits'.
 int maxNodeIndex(int numBits)
 {
     return (1 << numBits) - 2;
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_13
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_13
 
-//=============================================================================
+// ============================================================================
 //                         CASE 12 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_12
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_12
 {
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_12
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_12
+// ============================================================================
 //                         CASE 11 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_11
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_11
 {
 
 enum {
@@ -1100,7 +1100,7 @@ void *workerThread11(void *arg)
               bsls::TimeInterval now = bdlt::CurrentTime::now();
               x.scheduleEvent(now + T6,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj[id]));
+                                                     &testObj[id]));
               x.cancelAllEvents();
               bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
               if (!testTimingFailure) {
@@ -1121,7 +1121,7 @@ void *workerThread11(void *arg)
               bsls::TimeInterval now = bdlt::CurrentTime::now();
               x.startClock(T6,
                            bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                 &testObj[id]));
+                                                  &testObj[id]));
               x.cancelAllClocks();
               bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
               if (!testTimingFailure) {
@@ -1142,11 +1142,11 @@ void *workerThread11(void *arg)
 }
 } // extern "C"
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_11
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_11
+// ============================================================================
 //                         CASE 10 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_10
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_10
 {
 
 enum {
@@ -1180,10 +1180,10 @@ void *workerThread10(void *arg)
           }
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bdlt::CurrentTime::now();
-              Handle h = x.scheduleEvent(now + T6,
-                                         bdlf::MemFnUtil::memFn(
-                                                   &TestClass1::callback,
-                                                   &testObj[id]));
+              Handle h =
+                  x.scheduleEvent(now + T6,
+                                  bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                         &testObj[id]));
               if (veryVeryVerbose) {
                   int *handle = (int*)(h & 0x8fffffff);
                   printMutex.lock();
@@ -1212,10 +1212,10 @@ void *workerThread10(void *arg)
           }
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bdlt::CurrentTime::now();
-              Handle h = x.startClock(T6,
-                                      bdlf::MemFnUtil::memFn(
-                                                   &TestClass1::callback,
-                                                   &testObj[id]));
+              Handle h =
+                  x.startClock(T6,
+                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj[id]));
               if (veryVeryVerbose) {
                   int *handle = (int*)(h & 0x8fffffff);
                   printMutex.lock();
@@ -1240,57 +1240,57 @@ void *workerThread10(void *arg)
 }
 } // extern "C"
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_10
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_10
+// ============================================================================
 //                         CASE 9 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_9
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
 {
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_9
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
+// ============================================================================
 //                         CASE 8 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_8
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8
 {
 
 void dispatcherFunction(bdlf::Function<void(*)()> functor)
-    // This is a dispatcher function that simply execute the
-    // specified 'functor'.
+    // This is a dispatcher function that simply execute the specified
+    // 'functor'.
 {
     functor();
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_8
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8
+// ============================================================================
 //                          CASE 7 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_7
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_7
 {
 
 void schedulingCallback(Obj        *scheduler,
                         TestClass1 *event,
                         TestClass1 *clock)
     // Schedule the specified 'event' and the specified 'clock' on the
-    // specified 'scheduler'.  Schedule the clock first to ensure that
-    // it will get executed before the event does.
+    // specified 'scheduler'.  Schedule the clock first to ensure that it will
+    // get executed before the event does.
 {
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const bsls::TimeInterval T4(4 * DECI_SEC);
 
     scheduler->startClock(T2, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    clock));
+                                                     clock));
 
     scheduler->scheduleEvent(bdlt::CurrentTime::now() + T4,
                              bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                   event));
+                                                    event));
 }
 
 void test7_a()
 {
-      // Schedule an event at T2 that itself schedules an event at
-      // T2+T4=T7 and a clock with period T2 (clicking at T4, T6,
-      // ...), and verify that callbacks are executed as expected.
+      // Schedule an event at T2 that itself schedules an event at T2+T4=T7 and
+      // a clock with period T2 (clicking at T4, T6, ...), and verify that
+      // callbacks are executed as expected.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -1303,11 +1303,9 @@ void test7_a()
     TestClass1 event;
     TestClass1 clock;
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.scheduleEvent(now + T2,
-                    bdlf::BindUtil::bind(&schedulingCallback,
-                                        &x,
-                                        &event,
-                                        &clock));
+    x.scheduleEvent(
+                now + T2,
+                bdlf::BindUtil::bind(&schedulingCallback, &x, &event, &clock));
 
     myMicroSleep(T8, 0);
     makeSureTestObjectIsExecuted(event, mT, 200);
@@ -1317,11 +1315,10 @@ void test7_a()
 
 void test7_b()
 {
-      // Schedule an event e1 at time T such that it cancels itself
-      // with wait argument (this will fail), and an event e2 that
-      // will be pending when c1 will execute (this is done by waiting
-      // long enough before starting the scheduler).  Make sure no
-      // deadlock results.
+      // Schedule an event e1 at time T such that it cancels itself with wait
+      // argument (this will fail), and an event e2 that will be pending when
+      // c1 will execute (this is done by waiting long enough before starting
+      // the scheduler).  Make sure no deadlock results.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T(1 * DECI_SEC);
@@ -1335,16 +1332,15 @@ void test7_b()
     TestClass1 testObj;
 
     Handle handleToBeCancelled =
-      x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                      bdlf::BindUtil::bind(&cancelEventCallback,
-                                          &x,
-                                          &handleToBeCancelled,
-                                          1,
-                                          -1));
+        x.scheduleEvent(bdlt::CurrentTime::now() + T,
+                        bdlf::BindUtil::bind(&cancelEventCallback,
+                                             &x,
+                                             &handleToBeCancelled,
+                                             1,
+                                             -1));
 
     x.scheduleEvent(bdlt::CurrentTime::now() + T2,
-                    bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                          &testObj));
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T6, 0);  // let testObj's callback be pending
 
@@ -1357,12 +1353,12 @@ void test7_b()
 
 void test7_c()
 {
-      // Schedule an event e1 at time T such that it invokes
-      // 'cancelAllEvents' with wait argument, and another event e2 at
-      // time T2 that will be pending when e1 will execute (this is done
-      // by waiting long enough before starting the scheduler).  Make
-      // sure no deadlock results of e1 waiting for e2 to complete (both
-      // are running in the dispatcher thread).
+      // Schedule an event e1 at time T such that it invokes 'cancelAllEvents'
+      // with wait argument, and another event e2 at time T2 that will be
+      // pending when e1 will execute (this is done by waiting long enough
+      // before starting the scheduler).  Make sure no deadlock results of e1
+      // waiting for e2 to complete (both are running in the dispatcher
+      // thread).
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T(1 * DECI_SEC);
@@ -1377,12 +1373,10 @@ void test7_c()
     TestClass1 testObj2;
 
     x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                    bdlf::BindUtil::bind(&cancelAllEventsCallback, &x,
-                                        1));
+                    bdlf::BindUtil::bind(&cancelAllEventsCallback, &x, 1));
 
     x.scheduleEvent(bdlt::CurrentTime::now() + T2,
-                    bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                          &testObj1));
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
     myMicroSleep(T6, 0); // let testObj1's callback be pending
 
@@ -1395,10 +1389,10 @@ void test7_c()
 
 void test7_d()
 {
-      // Schedule a clock c1 such that it cancels itself with wait
-      // argument (this will fail), and an event e2 that will be pending
-      // when c1 will execute (this is done by waiting long enough before
-      // starting the scheduler).  Make sure no deadlock results.
+    // Schedule a clock c1 such that it cancels itself with wait argument (this
+    // will fail), and an event e2 that will be pending when c1 will execute
+    // (this is done by waiting long enough before starting the scheduler).
+    // Make sure no deadlock results.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T(1 * DECI_SEC);
@@ -1411,16 +1405,16 @@ void test7_d()
 
     TestClass1 testObj;
 
-    Handle handleToBeCancelled =
-      x.startClock(T, bdlf::BindUtil::bind(&cancelClockCallback,
-                                          &x,
-                                          &handleToBeCancelled,
-                                          1,
-                                          0));
+    Handle handleToBeCancelled = x.startClock(
+                                     T,
+                                     bdlf::BindUtil::bind(&cancelClockCallback,
+                                                          &x,
+                                                          &handleToBeCancelled,
+                                                          1,
+                                                          0));
 
     x.scheduleEvent(bdlt::CurrentTime::now() + T2,
-                    bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                          &testObj));
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T6, 0);   // let testObj1's callback be pending
 
@@ -1433,10 +1427,10 @@ void test7_d()
 
 void test7_e()
 {
-      // Schedule a clock c1 such that it invokes 'cancelAllClocks' with
-      // wait argument, and an event e2 that will be pending when c1 will
-      // execute (this is done by waiting long enough before starting the
-      // scheduler).  Make sure no deadlock results.
+    // Schedule a clock c1 such that it invokes 'cancelAllClocks' with wait
+    // argument, and an event e2 that will be pending when c1 will execute
+    // (this is done by waiting long enough before starting the scheduler).
+    // Make sure no deadlock results.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T(1 * DECI_SEC);
@@ -1449,13 +1443,10 @@ void test7_e()
 
     TestClass1 testObj;
 
-    x.startClock(T,
-                 bdlf::BindUtil::bind(&cancelAllClocksCallback,
-                                     &x, 1));
+    x.startClock(T, bdlf::BindUtil::bind(&cancelAllClocksCallback, &x, 1));
 
     x.scheduleEvent(bdlt::CurrentTime::now() + T2,
-                    bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                          &testObj));
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T6, 0); // let testObj1's callback be pending
 
@@ -1487,44 +1478,40 @@ void test7_f()
         bsl::shared_ptr<int> ptr1; ptr1.createInplace(&ta, 1);
         bsl::shared_ptr<int> ptr2; ptr2.createInplace(&ta, 2);
 
-        h1 =
-        x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                        bdlf::BindUtil::bind(
-                                         &cancelEventCallbackWithState,
-                                         &x,
-                                         &h1,
-                                         ptr1));
-        h2 =
-        x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                        bdlf::BindUtil::bind(
-                                         &cancelEventCallbackWithState,
-                                         &x,
-                                         &h2,
-                                         ptr2));
+        h1 = x.scheduleEvent(bdlt::CurrentTime::now() + T,
+                             bdlf::BindUtil::bind(
+                                                 &cancelEventCallbackWithState,
+                                                 &x,
+                                                 &h1,
+                                                 ptr1));
+        h2 = x.scheduleEvent(bdlt::CurrentTime::now() + T,
+                             bdlf::BindUtil::bind(
+                                                 &cancelEventCallbackWithState,
+                                                 &x,
+                                                 &h2,
+                                                 ptr2));
     }
 
     x.scheduleEvent(bdlt::CurrentTime::now() + T3,
-                    bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                            &testObj));
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T10, 0);
     makeSureTestObjectIsExecuted(testObj, mT, 100);
     ASSERT( 1 == testObj.numExecuted() );
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_7
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_7
 
-//=============================================================================
+// ============================================================================
 //                         CASE 6 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_6
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6
 {
 
 void test6_a()
 {
-      // Schedule clocks starting at T3 and T5, invoke
-      // 'cancelAllClocks' at time T and make sure that both are
-      // cancelled successfully.
+      // Schedule clocks starting at T3 and T5, invoke 'cancelAllClocks' at
+      // time T and make sure that both are cancelled successfully.
 
     const int T = 1 * DECI_SEC_IN_MICRO_SEC;
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -1538,11 +1525,9 @@ void test6_a()
     TestClass1 testObj2;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj1));
+    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
-    x.startClock(T5, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj2));
+    x.startClock(T5, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
 
     sleepUntilMs(T / 1000);
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
@@ -1559,14 +1544,13 @@ void test6_a()
 
 void test6_b()
 {
-      // Schedule clocks c1 at T(which executes for T10 time), c2 at
-      // T2 and c3 at T3.  Let all clocks be simultaneously put onto
-      // the pending list (this is done by sleeping enough time before
-      // starting the scheduler).  Let c1's first execution be started
-      // (by sleeping enough time), invoke 'cancelAllClocks' without
-      // wait argument, verify that c1's first execution has not yet
-      // completed and verify that c2 and c3 are cancelled without any
-      // executions.
+      // Schedule clocks c1 at T(which executes for T10 time), c2 at T2 and c3
+      // at T3.  Let all clocks be simultaneously put onto the pending list
+      // (this is done by sleeping enough time before starting the scheduler).
+      // Let c1's first execution be started (by sleeping enough time), invoke
+      // 'cancelAllClocks' without wait argument, verify that c1's first
+      // execution has not yet completed and verify that c2 and c3 are
+      // cancelled without any executions.
 
     bsls::TimeInterval  T(1 * DECI_SEC);
     bsls::TimeInterval  T2(2 * DECI_SEC);
@@ -1584,16 +1568,16 @@ void test6_b()
     TestClass1 testObj3;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.startClock( T, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj1),
+    x.startClock(T,
+                 bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1),
                  now - T3);
 
-    x.startClock(T2, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj2),
+    x.startClock(T2,
+                 bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2),
                  now - T2);
 
-    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj3),
+    x.startClock(T3,
+                 bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3),
                  now - T);
 
     double start = dnow();
@@ -1618,13 +1602,13 @@ void test6_b()
 
 void test6_c()
 {
-      // Schedule clocks c1 at T(which executes for T10 time), c2 at.
-      // T2 and c3 at T3.  Let all clocks be simultaneously put onto
-      // the pending list (this is done by sleeping enough time before
-      // starting the scheduler).  Let c1's first execution be started
-      // (by sleeping enough time), invoke 'cancelAllClocks' with wait
-      // argument, verify that c1's first execution has completed and
-      // verify that c2 and c3 are cancelled without any executions.
+    // Schedule clocks c1 at T(which executes for T10 time), c2 at.  T2 and c3
+    // at T3.  Let all clocks be simultaneously put onto the pending list (this
+    // is done by sleeping enough time before starting the scheduler).  Let
+    // c1's first execution be started (by sleeping enough time), invoke
+    // 'cancelAllClocks' with wait argument, verify that c1's first execution
+    // has completed and verify that c2 and c3 are cancelled without any
+    // executions.
 
     bsls::TimeInterval  T(1 * DECI_SEC);
     bsls::TimeInterval  T2(2 * DECI_SEC);
@@ -1646,16 +1630,16 @@ void test6_c()
     TestClass1 testObj3;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.startClock(T,  bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj1),
+    x.startClock(T,
+                 bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1),
                  now - T2);
 
-    x.startClock(T2, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj2),
+    x.startClock(T2,
+                 bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2),
                  now - T);
 
-    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj3),
+    x.startClock(T3,
+                 bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3),
                  now);
 
     double start = dnow();
@@ -1682,33 +1666,32 @@ void test6_c()
     ASSERT( numExecuted[3] == testObj3.numExecuted() );
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_6
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6
+// ============================================================================
 //                         CASE 5 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_5
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5
 {
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_5
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5
+// ============================================================================
 //                         CASE 4 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_4
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4
 {
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_4
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4
+// ============================================================================
 //                         CASE 3 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_3
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_3
 {
 
 void test3_a()
 {
     if (verbose) ET_("\tSchedule event and cancel before execution.\n");
 
-      // Schedule an event at T2, cancel it at time T and verify the
-      // result.
+      // Schedule an event at T2, cancel it at time T and verify the result.
 
     const int T = 1 * DECI_SEC_IN_MICRO_SEC;
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -1721,9 +1704,8 @@ void test3_a()
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     Handle h = x.scheduleEvent(now + T5,
-                               bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj));
+                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
     sleepUntilMs(T / 1000);
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
     if (elapsed < T2) {
@@ -1736,11 +1718,10 @@ void test3_a()
 void test3_b()
 {
     if (verbose) ET_("\tCancel pending event (should fail).\n");
-      // Schedule 2 events at T and T2.  Let both be simultaneously put
-      // onto the pending list (this is done by sleeping enough time
-      // before starting the scheduler), invoke 'cancelEvent(handle)'
-      // on the second event while it is still on pending list and
-      // verify that cancel fails.
+      // Schedule 2 events at T and T2.  Let both be simultaneously put onto
+      // the pending list (this is done by sleeping enough time before starting
+      // the scheduler), invoke 'cancelEvent(handle)' on the second event while
+      // it is still on pending list and verify that cancel fails.
 
     bsls::TimeInterval  T(1 * DECI_SEC);
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -1752,13 +1733,13 @@ void test3_b()
     TestClass1 testObj2;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    (void)      x.scheduleEvent(now + T, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj1));
+    (void)x.scheduleEvent(now + T,
+                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                 &testObj1));
 
-    Handle h2 = x.scheduleEvent(now + T2, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj2));
+    Handle h2 = x.scheduleEvent(now + T2,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                       &testObj2));
     myMicroSleep(T3, 0);
     x.start();
     myMicroSleep(T3, 0);
@@ -1774,11 +1755,10 @@ void test3_b()
 void test3_c()
 {
     if (verbose) ET_("\tCancel pending event (should fail again).\n");
-      // Schedule 2 events at T and T2.  Let both be simultaneously put
-      // onto the pending list (this is done by sleeping enough time
-      // before starting the scheduler), invoke 'cancelEvent(handle,
-      // wait)' on the second event while it is still on pending list
-      // and verify that cancel fails.
+      // Schedule 2 events at T and T2.  Let both be simultaneously put onto
+      // the pending list (this is done by sleeping enough time before starting
+      // the scheduler), invoke 'cancelEvent(handle, wait)' on the second event
+      // while it is still on pending list and verify that cancel fails.
 
     bsls::TimeInterval  T(1 * DECI_SEC);
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -1790,13 +1770,13 @@ void test3_c()
     TestClass1 testObj2;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    (void)      x.scheduleEvent(now + T, bdlf::MemFnUtil::memFn(
-                                                &TestClass1::callback,
-                                                &testObj1));
+    (void)x.scheduleEvent(now + T,
+                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                 &testObj1));
 
-    Handle h2 = x.scheduleEvent(now + T2, bdlf::MemFnUtil::memFn(
-                                                &TestClass1::callback,
-                                                &testObj2));
+    Handle h2 = x.scheduleEvent(now + T2,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                       &testObj2));
     myMicroSleep(T3, 0);
     x.start();
     myMicroSleep(T3, 0);  // give enough time to be put on pending list
@@ -1808,8 +1788,8 @@ void test3_c()
 void test3_d()
 {
     if (verbose) ET_("\tCancel event from another event prior.\n");
-      // Schedule events e1 and e2 at T and T2 respectively, cancel
-      // e2 from e1 and verify that cancellation succeed.
+      // Schedule events e1 and e2 at T and T2 respectively, cancel e2 from e1
+      // and verify that cancellation succeed.
 
     const bsls::TimeInterval T(1 * DECI_SEC);
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -1820,36 +1800,34 @@ void test3_d()
     TestClass1 testObj;
     Handle handleToBeCancelled;
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    handleToBeCancelled =
-      x.scheduleEvent(now + T2,
-                      bdlf::MemFnUtil::memFn(
-                                    &TestClass1::callback,
-                                    &testObj));
+    handleToBeCancelled = x.scheduleEvent(
+                       now + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-    // It could possibly happen that testObj has already been scheduled
-    // for execution, and thus the following cancelEvent will fail.  Make
-    // sure that does not happen.
+    // It could possibly happen that testObj has already been scheduled for
+    // execution, and thus the following cancelEvent will fail.  Make sure that
+    // does not happen.
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
     if (elapsed < T) {
         x.scheduleEvent(now + T,
                         bdlf::BindUtil::bind(&cancelEventCallback,
-                                            &x,
-                                            &handleToBeCancelled,
-                                            0,
-                                            0));
+                                             &x,
+                                             &handleToBeCancelled,
+                                             0,
+                                             0));
 
         myMicroSleep(T3, 0);
         ASSERT( 0 == testObj.numExecuted() );
     }
-    // Else should we complain that too much time has elapsed?
-    // In any case, this is not a failure, do not stop.
+    // Else should we complain that too much time has elapsed?  In any case,
+    // this is not a failure, do not stop.
 }
 
 void test3_e()
 {
     if (verbose) ET_("\tCancel event from subsequent event (should fail).\n");
-      // Schedule events e1 and e2 at T and T2 respectively, cancel
-      // e1 from e2 and verify that cancellation fails.
+      // Schedule events e1 and e2 at T and T2 respectively, cancel e1 from e2
+      // and verify that cancellation fails.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T(1 * DECI_SEC);
@@ -1861,18 +1839,16 @@ void test3_e()
     TestClass1 testObj;
     Handle handleToBeCancelled;
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    handleToBeCancelled =
-      x.scheduleEvent(now + T,
-                      bdlf::MemFnUtil::memFn(
-                                 &TestClass1::callback,
-                                 &testObj));
+    handleToBeCancelled = x.scheduleEvent(
+                      now + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     x.scheduleEvent(now + T2,
                     bdlf::BindUtil::bind(&cancelEventCallback,
-                                        &x,
-                                        &handleToBeCancelled,
-                                        0,
-                                        -1));
+                                         &x,
+                                         &handleToBeCancelled,
+                                         0,
+                                         -1));
 
     myMicroSleep(T3, 0);
     makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -1892,12 +1868,12 @@ void test3_f()
     Obj x(&ta); x.start();
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     Handle handleToBeCancelled =
-      x.scheduleEvent(now + T,
-                      bdlf::BindUtil::bind(&cancelEventCallback,
-                                          &x,
-                                          &handleToBeCancelled,
-                                          0,
-                                          -1));
+        x.scheduleEvent(now + T,
+                        bdlf::BindUtil::bind(&cancelEventCallback,
+                                             &x,
+                                             &handleToBeCancelled,
+                                             0,
+                                             -1));
 
     myMicroSleep(T3, 0);
     // The assert is performed by 'cancelEventCallback'.
@@ -1907,9 +1883,9 @@ void test3_g()
 {
     if (verbose) ET_("\tCancel pending event from pending event prior.\n");
       // Schedule e1 and e2 at T and T2 respectively.  Let both be
-      // simultaneously put onto the pending list (this is done by
-      // sleeping enough time before starting the scheduler), cancel
-      // e2 from e1 and verify that it succeeds.
+      // simultaneously put onto the pending list (this is done by sleeping
+      // enough time before starting the scheduler), cancel e2 from e1 and
+      // verify that it succeeds.
 
     bsls::TimeInterval  T(1 * DECI_SEC);
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -1921,33 +1897,31 @@ void test3_g()
     TestClass1 testObj;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    Handle handleToBeCancelled =
-       x.scheduleEvent(now + T2,
-                       bdlf::MemFnUtil::memFn(
-                                  &TestClass1::callback,
-                                  &testObj));
+    Handle handleToBeCancelled = x.scheduleEvent(
+                      now + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     x.scheduleEvent(now + T,
                     bdlf::BindUtil::bind(&cancelEventCallback,
-                                        &x,
-                                        &handleToBeCancelled,
-                                        0,
-                                        0));
+                                         &x,
+                                         &handleToBeCancelled,
+                                         0,
+                                         0));
 
     myMicroSleep(T3, 0);
     x.start();
 
-    // Note that it is guaranteed that pending events are executed in
-    // time order.
+    // Note that it is guaranteed that pending events are executed in time
+    // order.
     myMicroSleep(T3, 0);
     ASSERT( 0 == testObj.numExecuted() );
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_3
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_3
+// ============================================================================
 //                         CASE 2 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_2
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2
 {
 
 struct testCase2Data {
@@ -1959,9 +1933,11 @@ struct testCase2Data {
     bool              d_delayed;
 };
 
-bool testCallbacks(int *failures, const float totalTime,
-                   const testCase2Data* DATA, const int NUM_DATA,
-                   TestClass **testObjects)
+bool testCallbacks(int                  *failures,
+                   const float           totalTime,
+                   const testCase2Data  *DATA,
+                   const int             NUM_DATA,
+                   TestClass           **testObjects)
 {
     bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
@@ -1982,30 +1958,29 @@ bool testCallbacks(int *failures, const float totalTime,
 
         if (ISCLOCK) {
             testObjects[i] = new TestClass(
-                    LINE,
-                    now + bsls::TimeInterval(STARTTIME * DECI_SEC),
-                    bsls::TimeInterval(PERIODICINTERVAL * DECI_SEC),
-                    &globalLastExecutionTime,
-                    EXECUTIONTIME * DECI_SEC_IN_MICRO_SEC,
-                    assertOnFailure);
+                               LINE,
+                               now + bsls::TimeInterval(STARTTIME * DECI_SEC),
+                               bsls::TimeInterval(PERIODICINTERVAL * DECI_SEC),
+                               &globalLastExecutionTime,
+                               EXECUTIONTIME * DECI_SEC_IN_MICRO_SEC,
+                               assertOnFailure);
 
             x.startClock(bsls::TimeInterval(PERIODICINTERVAL * DECI_SEC),
-                    bdlf::MemFnUtil::memFn(&TestClass::callback,
-                        testObjects[i]),
-                    now + bsls::TimeInterval(STARTTIME * DECI_SEC));
+                         bdlf::MemFnUtil::memFn(&TestClass::callback,
+                                                testObjects[i]),
+                         now + bsls::TimeInterval(STARTTIME * DECI_SEC));
         }
         else {
             testObjects[i] = new TestClass(
-                    LINE,
-                    now + bsls::TimeInterval(STARTTIME * DECI_SEC),
-                    &globalLastExecutionTime,
-                    EXECUTIONTIME * DECI_SEC_IN_MICRO_SEC,
-                    assertOnFailure);
+                                LINE,
+                                now + bsls::TimeInterval(STARTTIME * DECI_SEC),
+                                &globalLastExecutionTime,
+                                EXECUTIONTIME * DECI_SEC_IN_MICRO_SEC,
+                                assertOnFailure);
 
-            x.scheduleEvent(
-                    now + bsls::TimeInterval(STARTTIME * DECI_SEC),
-                    bdlf::MemFnUtil::memFn(&TestClass::callback,
-                        testObjects[i]));
+            x.scheduleEvent(now + bsls::TimeInterval(STARTTIME * DECI_SEC),
+                            bdlf::MemFnUtil::memFn(&TestClass::callback,
+                                                   testObjects[i]));
         }
     }
 
@@ -2069,19 +2044,18 @@ bool testCallbacks(int *failures, const float totalTime,
     return result;
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_2
-//=============================================================================
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2
+// ============================================================================
 //                         CASE 1 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_1
+// ----------------------------------------------------------------------------
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1
 {
 
 void test1_a()
 {
-    // Create and start a scheduler object, schedule a clock of T3
-    // interval, schedule an event at T6, invoke 'stop' at T4 and
-    // then verify the state.  Invoke 'start' and then verify the
-    // state.
+    // Create and start a scheduler object, schedule a clock of T3 interval,
+    // schedule an event at T6, invoke 'stop' at T4 and then verify the state.
+    // Invoke 'start' and then verify the state.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
@@ -2096,11 +2070,10 @@ void test1_a()
     TestClass1 testObj2;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj1));
+    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
-    x.scheduleEvent(now + T6, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj2));
+    x.scheduleEvent(now + T6,
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
 
     myMicroSleep(T4, 0);
     makeSureTestObjectIsExecuted(testObj1, mT, 100);
@@ -2122,8 +2095,8 @@ void test1_a()
     LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
 
     if (0 == NEXEC2) {
-        // If testObj2 has already executed its event, there is not much
-        // point to test this.
+        // If testObj2 has already executed its event, there is not much point
+        // to test this.
 
         x.start();
         myMicroSleep(T4, 0);
@@ -2132,9 +2105,9 @@ void test1_a()
         LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 + 1 <= nExec);
     }
     else {
-        // However, if testObj2 has already executed its event, we should
-        // make sure it do so legally, i.e., after the requisite period of
-        // time.  Note that 'elapsed' was measure *after* the 'x.stop()'.
+        // However, if testObj2 has already executed its event, we should make
+        // sure it do so legally, i.e., after the requisite period of time.
+        // Note that 'elapsed' was measure *after* the 'x.stop()'.
 
         LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
     }
@@ -2142,8 +2115,8 @@ void test1_a()
 
 void test1_b()
 {
-    // Create and start a scheduler object, schedule two clocks of
-    // T3 interval, invoke 'cancelAllClocks' and verify the result.
+    // Create and start a scheduler object, schedule two clocks of T3 interval,
+    // invoke 'cancelAllClocks' and verify the result.
 
     const bsls::TimeInterval T3(3 * DECI_SEC);
     const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
@@ -2156,13 +2129,13 @@ void test1_b()
     TestClass1 testObj2;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    Handle h1 = x.startClock(T3, bdlf::MemFnUtil::memFn(
-                                     &TestClass1::callback,
-                                     &testObj1));
+    Handle h1 = x.startClock(T3,
+                             bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                    &testObj1));
 
-    Handle h2 = x.startClock(T3, bdlf::MemFnUtil::memFn(
-                                     &TestClass1::callback,
-                                     &testObj2));
+    Handle h2 = x.startClock(T3,
+                             bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                    &testObj2));
 
     x.cancelAllClocks();
     ASSERT( 0 != x.cancelClock(h1) );
@@ -2179,9 +2152,8 @@ void test1_b()
 
 void test1_c()
 {
-    // Create and start a scheduler object, schedule a clock of T3,
-    // let it execute once and then cancel it and then verify the
-    // expected result.
+    // Create and start a scheduler object, schedule a clock of T3, let it
+    // execute once and then cancel it and then verify the expected result.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const bsls::TimeInterval T3(3 * DECI_SEC);
@@ -2195,9 +2167,9 @@ void test1_c()
     TestClass1 testObj;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    Handle h = x.startClock(T3, bdlf::MemFnUtil::memFn(
-                                  &TestClass1::callback,
-                                  &testObj));
+    Handle h = x.startClock(T3,
+                            bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                   &testObj));
 
     sleepUntilMs(T4 / 1000);
     makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -2237,23 +2209,23 @@ void test1_d()
     TestClass1 testObj3;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    Handle h1 = x.scheduleEvent(now + T, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj1));
-    Handle h2 = x.scheduleEvent(now + T2, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj2));
-    Handle h3 = x.scheduleEvent(now + T3, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj3));
+    Handle h1 = x.scheduleEvent(now + T,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                       &testObj1));
+    Handle h2 = x.scheduleEvent(now + T2,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                       &testObj2));
+    Handle h3 = x.scheduleEvent(now + T3,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                       &testObj3));
     x.cancelAllEvents();
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now();
 
-    // It is possible that h1 (more likely), h2, or h3 (less likely)
-    // have run before they got cancelled because of delays.  (Happened
-    // once on xlC-8.2i in 64 bit mode...) But in either case, cancelling
-    // the event again should fail.  However the numExecuted() test below
-    // may be 1 in that case.
+    // It is possible that h1 (more likely), h2, or h3 (less likely) have run
+    // before they got cancelled because of delays.  (Happened once on xlC-8.2i
+    // in 64 bit mode...)  But in either case, cancelling the event again
+    // should fail.  However the numExecuted() test below may be 1 in that
+    // case.
 
     ASSERT( 0 != x.cancelEvent(h1) );
     ASSERT( 0 != x.cancelEvent(h2) );
@@ -2263,8 +2235,8 @@ void test1_d()
 
     int nExec;
 
-    // Be defensive about this and only assert when *guaranteed* that
-    // object cannot have been called back.
+    // Be defensive about this and only assert when *guaranteed* that object
+    // cannot have been called back.
     if (elapsed < T) {
         nExec = testObj1.numExecuted();
         LOOP_ASSERT(nExec, 0 == nExec);
@@ -2277,8 +2249,8 @@ void test1_d()
         nExec = testObj3.numExecuted();
         LOOP_ASSERT(nExec, 0 == nExec);
     }
-    // Else should we complain that too much time has elapsed?
-    // In any case, this is not a failure, do not stop.
+    // Else should we complain that too much time has elapsed?  In any case,
+    // this is not a failure, do not stop.
 }
 
 void test1_e()
@@ -2297,9 +2269,9 @@ void test1_e()
     TestClass1 testObj;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    Handle h = x.scheduleEvent(now + T2, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj));
+    Handle h = x.scheduleEvent(now + T2,
+                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
 
     myMicroSleep(T3, 0);
     makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -2310,9 +2282,9 @@ void test1_e()
 
 void test1_f()
 {
-    // Create and start a scheduler object, schedule an event at
-    // T2, cancel it at T and verify that it is cancelled.  Verify
-    // that cancelling it again results in failure.
+    // Create and start a scheduler object, schedule an event at T2, cancel it
+    // at T and verify that it is cancelled.  Verify that cancelling it again
+    // results in failure.
 
     const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
@@ -2325,9 +2297,9 @@ void test1_f()
     TestClass1 testObj;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    Handle h = x.scheduleEvent(now + T2, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj));
+    Handle h = x.scheduleEvent(now + T2,
+                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
 
     sleepUntilMs(T / 1000);
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
@@ -2339,15 +2311,15 @@ void test1_f()
         int nExec = testObj.numExecuted();
         LOOP_ASSERT(nExec, 0 == nExec);
     }
-    // Else should we complain that too much time has elapsed?
-    // In any case, this is not a failure, do not stop.
+    // Else should we complain that too much time has elapsed?  In any case,
+    // this is not a failure, do not stop.
 }
 
 void test1_g()
 {
-    // Create and start a scheduler object, schedule a clock of T3
-    // interval, schedule an event at T3.  Verify that event and
-    // clock callbacks are being invoked at expected times.
+    // Create and start a scheduler object, schedule a clock of T3 interval,
+    // schedule an event at T3.  Verify that event and clock callbacks are
+    // being invoked at expected times.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 100 microsecs
     const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
@@ -2366,11 +2338,9 @@ void test1_g()
     TestClass1 testObj2;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj1));
-    x.scheduleEvent(now + T3, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj2));
+    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+    x.scheduleEvent(now + T3,
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
     if (elapsed < T3) {
         ASSERT(1 == x.numEvents());
@@ -2422,11 +2392,11 @@ void test1_g()
 
 void test1_h()
 {
-    // Create and start a scheduler object, schedule a clock of T3
-    // interval, verify that clock callback gets invoked at expected
-    // times.  The reason we cannot test that 1 == X.numClocks() is that
-    // the clocks may be in the middle of execution (popped and not yet
-    // rescheduled, in which case 0 == X.numClocks()).
+    // Create and start a scheduler object, schedule a clock of T3 interval,
+    // verify that clock callback gets invoked at expected times.  The reason
+    // we cannot test that 1 == X.numClocks() is that the clocks may be in the
+    // middle of execution (popped and not yet rescheduled, in which case
+    // 0 == X.numClocks()).
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
@@ -2441,8 +2411,7 @@ void test1_h()
     TestClass1 testObj;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                           &testObj));
+    x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
     if (elapsed < T3) {
         ASSERT(0 == x.numEvents());
@@ -2479,8 +2448,8 @@ void test1_h()
 
 void test1_i()
 {
-    // Create and start a scheduler object, schedule 2 events at
-    // different times, verify that they execute at expected time.
+    // Create and start a scheduler object, schedule 2 events at different
+    // times, verify that they execute at expected time.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
@@ -2501,12 +2470,10 @@ void test1_i()
     TestClass1 testObj2;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.scheduleEvent(now + T4, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj1));
-    x.scheduleEvent(now + T6, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj2));
+    x.scheduleEvent(now + T4,
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+    x.scheduleEvent(now + T6,
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
     if (elapsed < T3) {
         ASSERT(2 == x.numEvents());
@@ -2554,9 +2521,9 @@ void test1_i()
 
 void test1_j()
 {
-    // Create and start a scheduler object, schedule an event at T2,
-    // using key K2.  Try to cancel using K1 and verify that it fails.
-    // Then try to cancel using K2 and verify that it succeeds.
+    // Create and start a scheduler object, schedule an event at T2, using key
+    // K2.  Try to cancel using K1 and verify that it fails.  Then try to
+    // cancel using K2 and verify that it succeeds.
 
     const int T = 1 * DECI_SEC_IN_MICRO_SEC;
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -2576,9 +2543,8 @@ void test1_j()
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     double start = dnow();
     Handle h = x.scheduleEvent(now + T2,
-                               bdlf::MemFnUtil::memFn(
-                                                   &TestClass1::callback,
-                                                   &testObj),
+                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj),
                                K2);
     ASSERT(1 == x.numEvents());
     ASSERT(0 == x.numClocks());
@@ -2603,8 +2569,8 @@ void test1_j()
 
 void test1_k()
 {
-    // Create and start a scheduler object, schedule an event at T2,
-    // verify that it is not executed at T but is executed at T3.
+    // Create and start a scheduler object, schedule an event at T2, verify
+    // that it is not executed at T but is executed at T3.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const int T = 1 * DECI_SEC_IN_MICRO_SEC;
@@ -2622,9 +2588,8 @@ void test1_k()
     TestClass1 testObj;
 
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    x.scheduleEvent(now + T2, bdlf::MemFnUtil::memFn(
-                                             &TestClass1::callback,
-                                             &testObj));
+    x.scheduleEvent(now + T2,
+                    bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
     bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
     if (elapsed < T2) {
         ASSERT(1 == x.numEvents());
@@ -2647,11 +2612,11 @@ void test1_k()
     ASSERT(0 == x.numClocks());
 }
 
-}  // close namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_1
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
@@ -2718,7 +2683,7 @@ int main(int argc, char *argv[])
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE;
         bslma::TestAllocator ta(veryVeryVerbose);
         my_Server server(bsls::TimeInterval(10), &ta);
 
@@ -2750,7 +2715,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "===========================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_24;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -2802,7 +2767,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=======================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_23;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -2819,7 +2784,7 @@ int main(int argc, char *argv[])
 
         x.scheduleEvent(bdlt::CurrentTime::now() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                              &testObj));
+                                               &testObj));
 
         myMicroSleep(T2, 0);
         makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -2851,7 +2816,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=====================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_22;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_22;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -2898,7 +2863,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_21;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -2911,8 +2876,8 @@ int main(int argc, char *argv[])
         TestClass1 testObj;
 
         x.scheduleEvent(
-                       bdlt::CurrentTime::now() + T,
-                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
         myMicroSleep(T2, 0);
         makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -2946,7 +2911,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "=============================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_20;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -2996,7 +2961,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "===========================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_19;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -3032,7 +2997,7 @@ int main(int argc, char *argv[])
         //   does not disappear.
         // -----------------------------------------------------------------
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_18;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_18;
 
         if (verbose) {
             cout << "cancelEvent test\n"
@@ -3046,8 +3011,8 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < 10; ++i) {
             Obj::Handle handle =
-                      mX.scheduleEvent(now - bsls::TimeInterval((10 - i) * 0.1),
-                                                                      Func(i));
+                     mX.scheduleEvent(now - bsls::TimeInterval((10 - i) * 0.1),
+                                      Func(i));
             Func::s_handles.push_back(handle);
         }
 
@@ -3087,7 +3052,7 @@ int main(int argc, char *argv[])
                     "================================\n";
         }
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_17;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_17;
 
         Obj mX;
         Func::s_scheduler = &mX;
@@ -3134,7 +3099,7 @@ int main(int argc, char *argv[])
             cout << "Attributes test\n";
         }
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_16;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16;
 
         bdlqq::ThreadAttributes attr;
 
@@ -3194,7 +3159,7 @@ int main(int argc, char *argv[])
                          "===========================================\n";
 
         // reusing
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14;
 
         int ii;
         enum { MAX_LOOP = 4 };
@@ -3207,16 +3172,17 @@ int main(int argc, char *argv[])
             const double CLOCKTIME1 = sf.SLEEP_SECONDS / 2;
 
             scheduler.startClock(bsls::TimeInterval(CLOCKTIME1),
-                           bdlf::MemFnUtil::memFn(&Slowfunctor::callback, &sf));
+                                 bdlf::MemFnUtil::memFn(&Slowfunctor::callback,
+                                                        &sf));
             bsls::TimeInterval afterStarted = bdlt::CurrentTime::now();
 
             scheduler.scheduleEvent(
-                           afterStarted + bsls::TimeInterval(2.0),
-                           bdlf::MemFnUtil::memFn(&Fastfunctor::callback, &ff));
+                          afterStarted + bsls::TimeInterval(2.0),
+                          bdlf::MemFnUtil::memFn(&Fastfunctor::callback, &ff));
 
             scheduler.scheduleEvent(
-                           afterStarted + bsls::TimeInterval(3.0),
-                           bdlf::MemFnUtil::memFn(&Fastfunctor::callback, &ff));
+                          afterStarted + bsls::TimeInterval(3.0),
+                          bdlf::MemFnUtil::memFn(&Fastfunctor::callback, &ff));
 
             sleepUntilMs(4 * 1000 * 1000 / 1000);
                             // wait 40 time execution time of sf.callback().
@@ -3252,9 +3218,9 @@ int main(int argc, char *argv[])
                 P(afterStarted.totalSecondsAsDouble() - startTime);
             }
 
-            // go through even elements - they should be right on time
-            // Note this has unavoidable intermittent failures as the sleep
-            // function may go over by as much as 2 seconds.
+            // go through even elements - they should be right on time Note
+            // this has unavoidable intermittent failures as the sleep function
+            // may go over by as much as 2 seconds.
             double prevTime = startTime;
             const double sTolerance = 0.03;
             ++sfit, ++sfit;
@@ -3278,7 +3244,8 @@ int main(int argc, char *argv[])
             // to be testing the accuracy of the 'microSleep' method in this
             // component -- especially since it can be really unreasonably slow
             // on a heavily loaded machine (i.e., during the nighttime runs).
-            // Testing of that routine has been moved to 'bdlqq_threadutil.t.cpp'.
+            // Testing of that routine has been moved to
+            // 'bdlqq_threadutil.t.cpp'.
 
             // go through odd elements - they should be SLEEP_SECONDS later
             sfit = sf.timeList().begin();
@@ -3344,7 +3311,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting accumulated time lag\n"
                                "============================\n";
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14;
 
         bslma::TestAllocator ta;
 
@@ -3358,9 +3325,9 @@ int main(int argc, char *argv[])
             const double TOLERANCE_BEHIND = 0.25;
             const double TOLERANCE_AHEAD  = 0.03;
 
-            scheduler.startClock(bsls::TimeInterval(CLOCKTIME1),
-                                 bdlf::MemFnUtil::memFn(&Slowfunctor::callback,
-                                                       &sf));
+            scheduler.startClock(
+                          bsls::TimeInterval(CLOCKTIME1),
+                          bdlf::MemFnUtil::memFn(&Slowfunctor::callback, &sf));
 
             sleepUntilMs(6 * 1000 * 1000 / 1000);
                                                     // wait 20 clock cycles
@@ -3368,8 +3335,8 @@ int main(int argc, char *argv[])
             scheduler.stop();
 
             sleepUntilMs(3 * 1000 * 1000 / 1000);
-                    // let running tasks finish, test that clock queue
-                    // did not get large
+                    // let running tasks finish, test that clock queue did not
+                    // get large
 
             int slowfunctorSize = sf.timeList().size();
 
@@ -3458,7 +3425,7 @@ int main(int argc, char *argv[])
                           << "======================================"
                           << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_13;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_13;
 
         const int TEST_DATA[] = {
             (1 <<  3),     // some small value
@@ -3478,12 +3445,13 @@ int main(int argc, char *argv[])
                 bdlqq::Barrier     barrier(NUM_THREADS + 1);
                 bdlqq::ThreadGroup threadGroup;
 
-                threadGroup.addThreads(bdlf::BindUtil::bind(&scheduleEvent,
-                                                           &mX,
-                                                           &numAdded,
-                                                           (bsls::AtomicInt*)0,
-                                                           &barrier),
-                                       NUM_THREADS);
+                threadGroup.addThreads(
+                                     bdlf::BindUtil::bind(&scheduleEvent,
+                                                          &mX,
+                                                          &numAdded,
+                                                          (bsls::AtomicInt *)0,
+                                                          &barrier),
+                                     NUM_THREADS);
                 barrier.wait();
                 threadGroup.joinAll();
 
@@ -3492,12 +3460,13 @@ int main(int argc, char *argv[])
 
                 numAdded = 0;
 
-                threadGroup.addThreads(bdlf::BindUtil::bind(&startClock,
-                                                           &mX,
-                                                           &numAdded,
-                                                           (bsls::AtomicInt*)0,
-                                                           &barrier),
-                                       NUM_THREADS);
+                threadGroup.addThreads(
+                                     bdlf::BindUtil::bind(&startClock,
+                                                          &mX,
+                                                          &numAdded,
+                                                          (bsls::AtomicInt *)0,
+                                                          &barrier),
+                                     NUM_THREADS);
                 barrier.wait();
                 threadGroup.joinAll();
 
@@ -3539,7 +3508,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'rescheduleEvent'" << endl
                           << "=========================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_12;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_12;
         {
           // Create and start a scheduler object, schedule an event at T2,
           // reschedule it at T and verify that reschedule succeeds.  Verify
@@ -3560,9 +3529,9 @@ int main(int argc, char *argv[])
           TestClass1 testObj;
 
           bsls::TimeInterval now = bdlt::CurrentTime::now();
-          Handle h = x.scheduleEvent(now + T2, bdlf::MemFnUtil::memFn(
-                                                   &TestClass1::callback,
-                                                   &testObj));
+          Handle h = x.scheduleEvent(
+                      now + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
           myMicroSleep(T, 0);
           bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
@@ -3599,10 +3568,9 @@ int main(int argc, char *argv[])
 
           bsls::TimeInterval now = bdlt::CurrentTime::now();
           Handle h = x.scheduleEvent(
-                          now + T2,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj),
-                          key);
+                       now + T2,
+                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj),
+                       key);
 
           myMicroSleep(T, 0);
           bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
@@ -3647,7 +3615,7 @@ int main(int argc, char *argv[])
                  << "TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL" << endl
                  << "================================================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_11;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_11;
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
         ASSERT( 0 == x.start() );
 
@@ -3679,7 +3647,7 @@ int main(int argc, char *argv[])
         TestClass1 testObj;
         x.scheduleEvent(bdlt::CurrentTime::now() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                              &testObj));
+                                               &testObj));
         myMicroSleep(T4, 0);
         ASSERT( 1 == testObj.numExecuted() );
 
@@ -3712,7 +3680,7 @@ int main(int argc, char *argv[])
                  << "TESTING CONCURRENT SCHEDULING AND CANCELLING" << endl
                  << "============================================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_10;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_10;
 
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
         ASSERT( 0 == x.start() );
@@ -3726,13 +3694,13 @@ int main(int argc, char *argv[])
                              0 == testObj[i].numExecuted() );
             }
         } else {
-            // In the highly unlikely event, that one thread could not
-            // invoke 'cancelEvent' or 'cancelClock' in time to guarantee
-            // that the event it had scheduled earlier was cancelled, the
-            // test fails.  This can be prevented by increasing the delay
-            // (initially T, currently T4) with which the event is
-            // scheduled.  Note that the delay T10 with which this test is
-            // executed must be increased correspondingly.
+            // In the highly unlikely event, that one thread could not invoke
+            // 'cancelEvent' or 'cancelClock' in time to guarantee that the
+            // event it had scheduled earlier was cancelled, the test fails.
+            // This can be prevented by increasing the delay (initially T,
+            // currently T4) with which the event is scheduled.  Note that the
+            // delay T10 with which this test is executed must be increased
+            // correspondingly.
 
             // The following message will be reported by the nightly build,
             // although it will not trigger a failure.
@@ -3747,7 +3715,7 @@ int main(int argc, char *argv[])
         TestClass1 testObj;
         x.scheduleEvent(bdlt::CurrentTime::now() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                              &testObj));
+                                               &testObj));
         myMicroSleep(T2, 0);
         makeSureTestObjectIsExecuted(testObj, mT, 100);
         ASSERT( 1 == testObj.numExecuted() );
@@ -3806,168 +3774,168 @@ int main(int argc, char *argv[])
                           << "TESTING 'start' and 'stop'" << endl
                           << "==========================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_9;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9;
         {
-          // Invoke 'start' multiple times and verify that the scheduler
-          // is still in good state (this is done by scheduling an event
-          // and verifying that it is executed as expected).
+            // Invoke 'start' multiple times and verify that the scheduler is
+            // still in good state (this is done by scheduling an event and
+            // verifying that it is executed as expected).
 
-          const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          const bsls::TimeInterval T(1 * DECI_SEC);
-          const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+            const int mT = DECI_SEC_IN_MICRO_SEC / 10;  // 10ms
+            const bsls::TimeInterval T(1 * DECI_SEC);
+            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
 
-          ASSERT( 0 == x.start() );
-          ASSERT( 0 == x.start() );
+            ASSERT(0 == x.start());
+            ASSERT(0 == x.start());
 
-          TestClass1 testObj;
-          x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T2, 0);
-          makeSureTestObjectIsExecuted(testObj, mT, 100);
-          ASSERT( 1 == testObj.numExecuted() );
+            TestClass1 testObj;
+            x.scheduleEvent(
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            ASSERT(1 == testObj.numExecuted());
         }
 
         {
-          // Invoke 'stop' multiple times and verify that the scheduler is
-          // still in good state (this is done by starting the scheduler,
-          // scheduling an event and verifying that it is executed as
-          // expected).
+            // Invoke 'stop' multiple times and verify that the scheduler is
+            // still in good state (this is done by starting the scheduler,
+            // scheduling an event and verifying that it is executed as
+            // expected).
 
-          const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          const bsls::TimeInterval T(1 * DECI_SEC);
-          const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+            const int mT = DECI_SEC_IN_MICRO_SEC / 10;  // 10ms
+            const bsls::TimeInterval T(1 * DECI_SEC);
+            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
 
-          x.stop();
-          x.stop();
-          ASSERT( 0 == x.start() );
-          x.stop();
-          x.stop();
-          ASSERT( 0 == x.start() );
+            x.stop();
+            x.stop();
+            ASSERT(0 == x.start());
+            x.stop();
+            x.stop();
+            ASSERT(0 == x.start());
 
-          TestClass1 testObj;
-          x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T2, 0);
-          makeSureTestObjectIsExecuted(testObj, mT, 100);
-          ASSERT( 1 == testObj.numExecuted() );
+            TestClass1 testObj;
+            x.scheduleEvent(
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            ASSERT(1 == testObj.numExecuted());
         }
 
         {
-          // Restart scheduler after stopping and make sure that the
-          // scheduler is still in good state (this is done by starting
-          // the scheduler, scheduling an event and verifying that it is
-          // executed as expected).  Repeat this several time.
+            // Restart scheduler after stopping and make sure that the
+            // scheduler is still in good state (this is done by starting the
+            // scheduler, scheduling an event and verifying that it is executed
+            // as expected).  Repeat this several time.
 
-          const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          const bsls::TimeInterval T(1 * DECI_SEC);
-          const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+            const int mT = DECI_SEC_IN_MICRO_SEC / 10;  // 10ms
+            const bsls::TimeInterval T(1 * DECI_SEC);
+            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
 
-          TestClass1 testObj;
+            TestClass1 testObj;
 
-          ASSERT( 0 == x.start() );
-          x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T2, 0);
-          makeSureTestObjectIsExecuted(testObj, mT, 100);
-          ASSERT( 1 == testObj.numExecuted() );
-          x.stop();
+            ASSERT(0 == x.start());
+            x.scheduleEvent(
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            ASSERT(1 == testObj.numExecuted());
+            x.stop();
 
-          nExec = testObj.numExecuted();
-          ASSERT( 0 == x.start() );
-          x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T2, 0);
-          makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
-          ASSERT( 2 == testObj.numExecuted() );
-          x.stop();
+            nExec = testObj.numExecuted();
+            ASSERT(0 == x.start());
+            x.scheduleEvent(
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
+            ASSERT(2 == testObj.numExecuted());
+            x.stop();
 
-          nExec = testObj.numExecuted();
-          ASSERT( 0 == x.start() );
-          x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T2, 0);
-          makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
-          ASSERT( 3 == testObj.numExecuted() );
+            nExec = testObj.numExecuted();
+            ASSERT(0 == x.start());
+            x.scheduleEvent(
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T2, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
+            ASSERT(3 == testObj.numExecuted());
         }
 
         {
-          // Start the scheduler, sleep for a while to ensure that
-          // scheduler gets blocked, invoke 'stop' and verify that scheduler
-          // is actually stopped.
+            // Start the scheduler, sleep for a while to ensure that scheduler
+            // gets blocked, invoke 'stop' and verify that scheduler is
+            // actually stopped.
 
-          const bsls::TimeInterval T(1 * DECI_SEC);
-          const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
+            const bsls::TimeInterval T(1 * DECI_SEC);
+            const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
 
-          ASSERT( 0 == x.start() );
-          myMicroSleep(T3, 0);
-          x.stop();
+            ASSERT(0 == x.start());
+            myMicroSleep(T3, 0);
+            x.stop();
 
-          // Make sure that scheduler is stopped.
-          TestClass1 testObj;
-          x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T3, 0);
-          ASSERT( 0 == testObj.numExecuted() );
+            // Make sure that scheduler is stopped.
+            TestClass1 testObj;
+            x.scheduleEvent(
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T3, 0);
+            ASSERT(0 == testObj.numExecuted());
         }
 
         {
-          // Start the scheduler, schedule an event, sleep for a while to
-          // ensure that scheduler gets blocked, invoke 'stop' before the
-          // event is expired and verify the state.
+            // Start the scheduler, schedule an event, sleep for a while to
+            // ensure that scheduler gets blocked, invoke 'stop' before the
+            // event is expired and verify the state.
 
-          const bsls::TimeInterval T(1 * DECI_SEC);
-          const bsls::TimeInterval T4(4 * DECI_SEC);
+            const bsls::TimeInterval T(1 * DECI_SEC);
+            const bsls::TimeInterval T4(4 * DECI_SEC);
 
-          const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
-          const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
+            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+            const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
 
-          TestClass1 testObj;
-          ASSERT( 0 == x.start() );
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
-          x.scheduleEvent(now + T4,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T2, 0);
-          x.stop();
+            TestClass1 testObj;
+            ASSERT(0 == x.start());
+            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            x.scheduleEvent(
+                      now + T4,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T2, 0);
+            x.stop();
 
-          // Make sure that scheduler is stopped, but allow for the possibility
-          // that myMicroSleep overslept and apply defensive techniques.
-          bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
-          if (elapsed < T4) {
-              myMicroSleep(T3, 0);
-              ASSERT( 0 == testObj.numExecuted() );
-          }
+            // Make sure that scheduler is stopped, but allow for the
+            // possibility that myMicroSleep overslept and apply defensive
+            // techniques.
+            bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+            if (elapsed < T4) {
+                myMicroSleep(T3, 0);
+                ASSERT(0 == testObj.numExecuted());
+            }
 
-          // Make *really* sure that scheduler is stopped.
-          int numExecutedUnchanged = testObj.numExecuted();
-          x.scheduleEvent(bdlt::CurrentTime::now() + T,
-                          bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                &testObj));
-          myMicroSleep(T3, 0);
-          ASSERT(numExecutedUnchanged == testObj.numExecuted() );
+            // Make *really* sure that scheduler is stopped.
+            int numExecutedUnchanged = testObj.numExecuted();
+            x.scheduleEvent(
+                      bdlt::CurrentTime::now() + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+            myMicroSleep(T3, 0);
+            ASSERT(numExecutedUnchanged == testObj.numExecuted());
         }
-
       } break;
       case 8: {
         // -----------------------------------------------------------------
@@ -3993,7 +3961,7 @@ int main(int argc, char *argv[])
                           << "================================="
                           << "============================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_8;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -4010,7 +3978,7 @@ int main(int argc, char *argv[])
 
         x.scheduleEvent(bdlt::CurrentTime::now() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                              &testObj));
+                                               &testObj));
 
         myMicroSleep(T2, 0);
         makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -4081,7 +4049,7 @@ int main(int argc, char *argv[])
                           << "================================================"
                           << "======\n";
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_7;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_7;
 
         typedef void (*Func)();
 
@@ -4152,7 +4120,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'cancelAllClocks'" << endl
                           << "=========================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_6;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6;
 
         typedef void (*Func)();
 
@@ -4222,136 +4190,139 @@ int main(int argc, char *argv[])
                           << "TESTING 'cancelClock'" << endl
                           << "=====================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_5;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5;
         {
-            // Schedule a clock starting at T2, cancel it at time T and
-            // verify that it has been successfully cancelled.
+            // Schedule a clock starting at T2, cancel it at time T and verify
+            // that it has been successfully cancelled.
 
-          const int T = 1 * DECI_SEC_IN_MICRO_SEC;
-          const bsls::TimeInterval T2(2 * DECI_SEC);
-          const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
+            const int T = 1 * DECI_SEC_IN_MICRO_SEC;
+            const bsls::TimeInterval T2(2 * DECI_SEC);
+            const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta); x.start();
-          TestClass1 testObj;
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
+            x.start();
+            TestClass1 testObj;
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
-          Handle h = x.startClock(T2, bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj));
+            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            Handle h = x.startClock(
+                      T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-          sleepUntilMs(T / 1000);
-          bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
-          if (elapsed < T2) {
-              ASSERT( 0 == x.cancelClock(h) );
-              myMicroSleep(T3, 0);
-              ASSERT( 0 == testObj.numExecuted() );
-          }
+            sleepUntilMs(T / 1000);
+            bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+            if (elapsed < T2) {
+                ASSERT(0 == x.cancelClock(h));
+                myMicroSleep(T3, 0);
+                ASSERT(0 == testObj.numExecuted());
+            }
         }
 
         {
-            // Schedule two clocks c1 and c2 starting at T and T2.  Let both
-            // be simultaneously put onto the pending list (this is done by
-            // sleeping enough time before starting the scheduler), cancel
-            // c2 before it's callback is dispatched and verify the result.
+            // Schedule two clocks c1 and c2 starting at T and T2.  Let both be
+            // simultaneously put onto the pending list (this is done by
+            // sleeping enough time before starting the scheduler), cancel c2
+            // before it's callback is dispatched and verify the result.
 
-          bsls::TimeInterval  T(1 * DECI_SEC);
-          const bsls::TimeInterval T2(2 * DECI_SEC);
-          const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
-          const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
-          const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
-          TestClass1 testObj1(T10);
-          TestClass1 testObj2;
+            bsls::TimeInterval T(1 * DECI_SEC);
+            const bsls::TimeInterval T2(2 * DECI_SEC);
+            const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
+            const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
+            const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
+            TestClass1 testObj1(T10);
+            TestClass1 testObj2;
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
-          (void)      x.startClock(T,  bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj1));
+            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            (void)x.startClock(
+                     T,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
-          Handle h2 = x.startClock(T2, bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj2));
-          myMicroSleep(T3, 0);
-          x.start();
-          myMicroSleep(T3, 0);
-          ASSERT( 0 == x.cancelClock(h2) );
-          bool cancelledInTime =
-                 (bdlt::CurrentTime::now() - now).totalSecondsAsDouble() < 0.99;
-          myMicroSleep(T20, 0);
-          if (cancelledInTime) {
-              LOOP_ASSERT(testObj2.numExecuted(), 0 == testObj2.numExecuted());
-          }
+            Handle h2 = x.startClock(
+                     T2,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
+            myMicroSleep(T3, 0);
+            x.start();
+            myMicroSleep(T3, 0);
+            ASSERT(0 == x.cancelClock(h2));
+            bool cancelledInTime =
+                (bdlt::CurrentTime::now() - now).totalSecondsAsDouble() < 0.99;
+            myMicroSleep(T20, 0);
+            if (cancelledInTime) {
+                LOOP_ASSERT(testObj2.numExecuted(),
+                            0 == testObj2.numExecuted());
+            }
         }
 
         {
-            // Schedule a clock (whose callback executes for T5 time)
-            // starting at T.  Let its first execution be started (by
-            // sleeping for T2 time), cancel it without wait argument,
-            // verify that its execution has not yet completed, make sure
-            // that it is cancelled after this execution.
+            // Schedule a clock (whose callback executes for T5 time) starting
+            // at T.  Let its first execution be started (by sleeping for T2
+            // time), cancel it without wait argument, verify that its
+            // execution has not yet completed, make sure that it is cancelled
+            // after this execution.
 
-          const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          bsls::TimeInterval  T(1 * DECI_SEC);
-          const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
-          const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
-          x.start();
+            const int mT = DECI_SEC_IN_MICRO_SEC / 10;  // 10ms
+            bsls::TimeInterval T(1 * DECI_SEC);
+            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+            const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
+            x.start();
 
-          TestClass1 testObj(T5);
+            TestClass1 testObj(T5);
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
-          Handle h = x.startClock(T, bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj));
+            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            Handle h = x.startClock(
+                      T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-          myMicroSleep(T2, 0);
-          ASSERT( 0 == x.cancelClock(h) );
-          if ((bdlt::CurrentTime::now() - now).totalSecondsAsDouble() < 0.59) {
-              ASSERT( 0 == testObj.numExecuted() );
-              myMicroSleep(T5, 0);
-              makeSureTestObjectIsExecuted(testObj, mT, 100);
-              ASSERT( 1 == testObj.numExecuted() );
-          }
+            myMicroSleep(T2, 0);
+            ASSERT(0 == x.cancelClock(h));
+            if ((bdlt::CurrentTime::now() - now).totalSecondsAsDouble() <
+                0.59) {
+                ASSERT(0 == testObj.numExecuted());
+                myMicroSleep(T5, 0);
+                makeSureTestObjectIsExecuted(testObj, mT, 100);
+                ASSERT(1 == testObj.numExecuted());
+            }
         }
 
         {
-            // Schedule a clock (whose callback executes for T5 time)
-            // starting at T.  Let its first execution be started (by
-            // sleeping for T2 time), cancel it with wait argument, verify
-            // that its execution has completed, make sure that it is
-            // cancelled after this execution.
+            // Schedule a clock (whose callback executes for T5 time) starting
+            // at T.  Let its first execution be started (by sleeping for T2
+            // time), cancel it with wait argument, verify that its execution
+            // has completed, make sure that it is cancelled after this
+            // execution.
 
-          const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          bsls::TimeInterval  T(1 * DECI_SEC);
-          const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
-          const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
-          bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
-          x.start();
+            const int mT = DECI_SEC_IN_MICRO_SEC / 10;  // 10ms
+            bsls::TimeInterval T(1 * DECI_SEC);
+            const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+            const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj x(&ta);
+            x.start();
 
-          TestClass1 testObj(T5);
+            TestClass1 testObj(T5);
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
-          Handle h = x.startClock(T, bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj));
+            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            Handle h = x.startClock(
+                      T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
-          myMicroSleep(T2, 0);
-          int wait = 1;
-          ASSERT( 0 == x.cancelClock(h, wait) );
-          int numEx = testObj.numExecuted();
-          if ((bdlt::CurrentTime::now() - now).totalSecondsAsDouble() < 0.59) {
-              LOOP_ASSERT(testObj.numExecuted(), 1 == numEx);
-          }
-          myMicroSleep(T5, 0);
-          makeSureTestObjectIsExecuted(testObj, mT, 100);
-          LOOP2_ASSERT(numEx, testObj.numExecuted(),
-                                               numEx == testObj.numExecuted());
+            myMicroSleep(T2, 0);
+            int wait = 1;
+            ASSERT(0 == x.cancelClock(h, wait));
+            int numEx = testObj.numExecuted();
+            if ((bdlt::CurrentTime::now() - now).totalSecondsAsDouble() <
+                                                                        0.59) {
+                LOOP_ASSERT(testObj.numExecuted(), 1 == numEx);
+            }
+            myMicroSleep(T5, 0);
+            makeSureTestObjectIsExecuted(testObj, mT, 100);
+            LOOP2_ASSERT(numEx, testObj.numExecuted(),
+                         numEx == testObj.numExecuted());
         }
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -4401,7 +4372,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'cancelAllEvents'" << endl
                           << "=========================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_4;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4;
         {
             // Schedule events at T, T2 and T3, invoke 'cancelAllEvents' and
             // verify the result.
@@ -4417,20 +4388,17 @@ int main(int argc, char *argv[])
           TestClass1 testObj3;
 
           bsls::TimeInterval now = bdlt::CurrentTime::now();
-          Handle h1 = x.scheduleEvent(now + T,
-                                      bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj1));
+          Handle h1 = x.scheduleEvent(
+                     now + T,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
-          Handle h2 = x.scheduleEvent(now + T2,
-                                                 bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj2));
+          Handle h2 = x.scheduleEvent(
+                     now + T2,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
 
-          Handle h3 = x.scheduleEvent(now + T3,
-                                      bdlf::MemFnUtil::memFn(
-                                                 &TestClass1::callback,
-                                                 &testObj3));
+          Handle h3 = x.scheduleEvent(
+                     now + T3,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3));
 
           x.cancelAllEvents();
           ASSERT( 0 != x.cancelEvent(h1) );
@@ -4439,14 +4407,13 @@ int main(int argc, char *argv[])
         }
 
         {
-            // Schedule a few events in the past and one in the future.
-            // The second event will take a long time.  Sleep long enough
-            // to get the events in the past pending, but not the one in
-            // the future.  CancelAllEvents without 'wait' specified.  Verify
-            // that the appropriate events got canceled.
-            // So as not to be thrown off by intermittent excessively long
-            // sleeps, be prepared to start this test over a certain number
-            // of times before giving up.
+            // Schedule a few events in the past and one in the future.  The
+            // second event will take a long time.  Sleep long enough to get
+            // the events in the past pending, but not the one in the future.
+            // CancelAllEvents without 'wait' specified.  Verify that the
+            // appropriate events got canceled.  So as not to be thrown off by
+            // intermittent excessively long sleeps, be prepared to start this
+            // test over a certain number of times before giving up.
 
           const bsls::TimeInterval  T(1 * DECI_SEC);
           const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -4473,19 +4440,19 @@ int main(int argc, char *argv[])
               bsls::TimeInterval now = bdlt::CurrentTime::now();
               x.scheduleEvent(now - (T2 + T),
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj0));
+                                                     &testObj0));
 
               x.scheduleEvent(now - T2,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj1));
+                                                     &testObj1));
 
               x.scheduleEvent(now - T,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj2));
+                                                     &testObj2));
 
               x.scheduleEvent(now + T7,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj3));
+                                                     &testObj3));
 
               now = bdlt::CurrentTime::now();
               x.start();
@@ -4524,14 +4491,13 @@ int main(int argc, char *argv[])
         }
 
         {
-            // Schedule a few events in the past and one in the future.
-            // The second event will take a long time.  Sleep long enough
-            // to get the events in the past pending, but not the one in
-            // the future.  CancelAllEvents with 'wait' specified.  Verify
-            // that the appropriate events got canceled.
-            // So as not to be thrown off by intermittent excessively long
-            // sleeps, be prepared to start this test over a certain number
-            // of times before giving up.
+            // Schedule a few events in the past and one in the future.  The
+            // second event will take a long time.  Sleep long enough to get
+            // the events in the past pending, but not the one in the future.
+            // CancelAllEvents with 'wait' specified.  Verify that the
+            // appropriate events got canceled.  So as not to be thrown off by
+            // intermittent excessively long sleeps, be prepared to start this
+            // test over a certain number of times before giving up.
 
           const bsls::TimeInterval  T(1 * DECI_SEC);
           const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -4556,19 +4522,19 @@ int main(int argc, char *argv[])
               bsls::TimeInterval now = bdlt::CurrentTime::now();
               x.scheduleEvent(now - (T + T2),
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj0));
+                                                     &testObj0));
 
               x.scheduleEvent(now - T2,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj1));
+                                                     &testObj1));
 
               x.scheduleEvent(now - T,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj2));
+                                                     &testObj2));
 
               x.scheduleEvent(now + T7,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                    &testObj3));
+                                                     &testObj3));
 
               x.start();
               myMicroSleep(T3, 0); // give enough time to put on pending list
@@ -4672,7 +4638,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'cancelEvent'" << endl
                           << "=====================" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_3;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_3;
 
         typedef void (*Func)();
 
@@ -4739,7 +4705,7 @@ int main(int argc, char *argv[])
         const int SUCCESS_THRESHOLD = 1;
         const int ALLOWED_DEVIATIONS = 1;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_2;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2;
         {
             // schedule multiple clocks and multiple events and verify that
             // their callbacks execute at appropriate times.
@@ -4786,10 +4752,12 @@ int main(int argc, char *argv[])
             for (int i = 0; passed < SUCCESS_THRESHOLD && i < ATTEMPTS; ++i)
             {
                 deviations = 0;
-                if (testCallbacks(&deviations, TOTAL_TIME,
-                                  DATA, NUM_DATA, testObjects) ||
-                    deviations <= ALLOWED_DEVIATIONS)
-                {
+                if (testCallbacks(&deviations,
+                                  TOTAL_TIME,
+                                  DATA,
+                                  NUM_DATA,
+                                  testObjects) ||
+                    deviations <= ALLOWED_DEVIATIONS) {
                     ++passed;
                     if (verbose)
                         cout << "  Test case 2: PASSED\n";
@@ -4805,8 +4773,11 @@ int main(int argc, char *argv[])
                 // If this should succeed, then count it towards the successes
                 // and run again, until either failure or enough successes.
 
-                while (testCallbacks(0, TOTAL_TIME,
-                            DATA, NUM_DATA, testObjects)) {
+                while (testCallbacks(0,
+                                     TOTAL_TIME,
+                                     DATA,
+                                     NUM_DATA,
+                                     testObjects)) {
                     ++passed;
                     if (verbose)
                         cout << "  Test case 2: PASSED\n";
@@ -4851,10 +4822,12 @@ int main(int argc, char *argv[])
             int passed = 0, failed = 0, deviations = 0;
             for (int i = 0; passed < SUCCESS_THRESHOLD && i < ATTEMPTS; ++i) {
                 deviations = 0;
-                if (testCallbacks(&deviations, TOTAL_TIME,
-                                  DATA, NUM_DATA, testObjects) ||
-                    deviations <= ALLOWED_DEVIATIONS)
-                {
+                if (testCallbacks(&deviations,
+                                  TOTAL_TIME,
+                                  DATA,
+                                  NUM_DATA,
+                                  testObjects) ||
+                    deviations <= ALLOWED_DEVIATIONS) {
                     ++passed;
                     if (verbose)
                         cout << "  Test case 2: PASSED\n";
@@ -4869,8 +4842,11 @@ int main(int argc, char *argv[])
                 // Run one more time and let LOOP_ASSERT report the failures.
                 // If this should succeed, then count it towards the successes
                 // and run again, until either failure or enough successes.
-                while (testCallbacks(0, TOTAL_TIME,
-                            DATA, NUM_DATA, testObjects)) {
+                while (testCallbacks(0,
+                                     TOTAL_TIME,
+                                     DATA,
+                                     NUM_DATA,
+                                     testObjects)) {
                     ++passed;
                     if (verbose)
                         cout << "  Test case 2: PASSED\n";
@@ -4886,7 +4862,6 @@ int main(int argc, char *argv[])
                 ASSERT( 0 );
             }
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -4952,7 +4927,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_1;
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1;
 
         typedef void (*Func)();
 
@@ -4994,13 +4969,13 @@ int main(int argc, char *argv[])
         }
 
         {
-            cout << endl
-                 << endl << "First, a realtime clock will be used to verify"
-                 << endl << "unexpected behavior during a system clock"
-                 << endl << "change (this test will continue until this"
-                 << endl << "problem is detected; *you* must move the system"
-                 << endl << "time backwards)."
-                 << endl;
+            cout << "\n"
+                    "\nFirst, a realtime clock will be used to verify"
+                    "\nunexpected behavior during a system clock"
+                    "\nchange (this test will continue until this"
+                    "\nproblem is detected; *you* must move the system"
+                    "\ntime backwards)."
+                    "\n";
 
             Obj x(bsls::SystemClockType::e_REALTIME);
             x.start();
@@ -5011,9 +4986,9 @@ int main(int argc, char *argv[])
                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
             for (int i = 1; i <= 300; ++i) {
                 const bsls::TimeInterval T(static_cast<double>(i));
-                x.scheduleEvent(currentTime + T,
-                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
-                                                      &testObj));
+                x.scheduleEvent(
+                      currentTime + T,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             }
 
             int numExecuted = -1;
@@ -5026,18 +5001,18 @@ int main(int argc, char *argv[])
         }
 
         {
-            cout << endl
-                 << endl << "Excellent!  The expected behavior occurred.  For"
-                 << endl << "the second part of the test, a monotonic clock"
-                 << endl << "will be used.  Here, a message will be printed"
-                 << endl << "every second and if the messages stop printing"
-                 << endl << "before iteration 300 while you are changing the"
-                 << endl << "system time there is an issue.  You may use"
-                 << endl << "CNTRL-C to exit this test at any time.  The test"
-                 << endl << "will begin in three seconds; do not change the"
-                 << endl << "system time until after you see the first printed"
-                 << endl << "message."
-                 << endl;
+            cout << "\n"
+                    "\nExcellent!  The expected behavior occurred.  For"
+                    "\nthe second part of the test, a monotonic clock"
+                    "\nwill be used.  Here, a message will be printed"
+                    "\nevery second and if the messages stop printing"
+                    "\nbefore iteration 300 while you are changing the"
+                    "\nsystem time there is an issue.  You may use"
+                    "\nCNTRL-C to exit this test at any time.  The test"
+                    "\nwill begin in three seconds; do not change the"
+                    "\nsystem time until after you see the first printed"
+                    "\nmessage."
+                    "\n";
 
             myMicroSleep(0, 3); // 3 seconds
 
@@ -5050,9 +5025,9 @@ int main(int argc, char *argv[])
                      bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC);
             for (int i = 1; i <= 300; ++i) {
                 const bsls::TimeInterval T(static_cast<double>(i));
-                x.scheduleEvent(currentTime + T,
-                               bdlf::MemFnUtil::memFn(&TestPrintClass::callback,
-                                                     &testObj));
+                x.scheduleEvent(
+                  currentTime + T,
+                  bdlf::MemFnUtil::memFn(&TestPrintClass::callback, &testObj));
             }
 
             int numExecuted = -1;
@@ -5063,8 +5038,7 @@ int main(int argc, char *argv[])
 
             x.cancelAllEvents(true);
         }
-
-      }  break;
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

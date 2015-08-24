@@ -9,7 +9,6 @@ BSLS_IDENT_RCSID(baljsn_printutil_cpp,"$Id$ $CSID$")
 #include <bsl_sstream.h>
 
 namespace BloombergLP {
-
 namespace {
 
 char getEscapeChar(char value)
@@ -51,15 +50,17 @@ char getEscapeChar(char value)
 }  // close unnamed namespace
 
 namespace baljsn {
-                           // ----------------------
-                           // class PrintUtil
-                           // ----------------------
+
+                             // ---------------
+                             // class PrintUtil
+                             // ---------------
 
 int PrintUtil::printString(bsl::ostream&            stream,
-                                  const bslstl::StringRef& value)
+                           const bslstl::StringRef& value)
 {
 
-    if (!bdlde::Utf8Util::isValid(value.data(), value.length())) {
+    if (!bdlde::Utf8Util::isValid(value.data(),
+                                  static_cast<int>(value.length()))) {
         return -1;                                                    // RETURN
     }
 

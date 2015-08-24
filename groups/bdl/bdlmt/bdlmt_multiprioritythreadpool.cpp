@@ -32,33 +32,43 @@ BSLS_IDENT_RCSID(bdlmt_multiprioritythreadpool_cpp,"$Id$ $CSID$")
 // stopping, they must stop before processing any other jobs.
 
 #include <bslma_default.h>
+
+#include <bdlf_bind.h>
+#include <bdlf_memfn.h>
+
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
-#include <bdlf_bind.h>
+
 #include <bslma_allocator.h>
+
 #include <bsls_assert.h>
+
+#include <bsl_csignal.h>
 
 namespace BloombergLP {
 
-// LOCAL TYPES
+namespace {
+
 enum StartState {       // type of 'd_threadStartState'
-    STARTING,
-    STARTED,
-    STOPPING,
-    STOPPED
+    e_STARTING,
+    e_STARTED,
+    e_STOPPING,
+    e_STOPPED
 };
 
 enum SuspendState {     // type of 'd_threadSuspendState'
-    SUSPENDING,
-    SUSPENDED,
-//  RESUMING,   // not used - we go straight from suspended to resumed
-    RESUMED
+    e_SUSPENDING,
+    e_SUSPENDED,
+//  e_RESUMING,   // not used - we go straight from suspended to resumed
+    e_RESUMED
 };
 
+}  // close unnamed namespace
+
 namespace bdlmt {
-                       // ----------------------------------
+                       // -----------------------------
                        // class MultipriorityThreadPool
-                       // ----------------------------------
+                       // -----------------------------
 
 // PRIVATE MANIPULATORS
 void MultipriorityThreadPool::worker()
@@ -66,55 +76,57 @@ void MultipriorityThreadPool::worker()
     {
         bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
-        if (STOPPING == d_threadStartState) {
+        if (e_STOPPING == d_threadStartState) {
             return;                                                   // RETURN
         }
-        BSLS_ASSERT(STARTING == d_threadStartState);
+        BSLS_ASSERT(e_STARTING == d_threadStartState);
 
         if (d_numThreads == ++d_numStartedThreads) {
-            d_threadStartState = STARTED;
+            d_threadStartState = e_STARTED;
             d_allThreadsStartedCondition.broadcast();
         }
         else {
             do {
                 d_allThreadsStartedCondition.wait(&d_mutex);
-            } while (STARTING == d_threadStartState);
-            // Note that state might have been changed to 'STOPPING' if
-            // any threads failed to start.
+            } while (e_STARTING == d_threadStartState);
+            // Note that state might have been changed to 'e_STOPPING' if any
+            // threads failed to start.
         }
     }
 
     while (1) {
-        if (STARTED != d_threadStartState || RESUMED != d_threadSuspendState) {
+        if (e_STARTED != d_threadStartState ||
+            e_RESUMED != d_threadSuspendState) {
             bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
             do {
                 // Note 'd_metaMutex' may or may not be locked when we get
                 // here.
 
-                if (STOPPING == d_threadStartState) {
+                if (e_STOPPING == d_threadStartState) {
                     --d_numStartedThreads;
                     return;                                           // RETURN
                 }
-                BSLS_ASSERT(STARTED == d_threadStartState);
+                BSLS_ASSERT(e_STARTED == d_threadStartState);
 
-                BSLS_ASSERT(SUSPENDED != d_threadSuspendState);
-                if (SUSPENDING == d_threadSuspendState) {
+                BSLS_ASSERT(e_SUSPENDED != d_threadSuspendState);
+                if (e_SUSPENDING == d_threadSuspendState) {
                     if (d_numThreads == ++d_numSuspendedThreads) {
-                        d_threadSuspendState = SUSPENDED;
+                        d_threadSuspendState = e_SUSPENDED;
                         d_allThreadsSuspendedCondition.broadcast();
                     }
                     do {
                         d_resumeCondition.wait(&d_mutex);
-                    } while (RESUMED != d_threadSuspendState
-                          && STARTED == d_threadStartState);
+                    } while (e_RESUMED != d_threadSuspendState
+                          && e_STARTED == d_threadStartState);
                     --d_numSuspendedThreads;
                 }
 
                 // If we were suspended and then told to stop, we will pass
-                // through this point within 'SUSPENDED' and 'STOPPING' states.
-            } while (STARTED != d_threadStartState
-                  || RESUMED != d_threadSuspendState);
+                // through this point within 'e_SUSPENDED' and 'e_STOPPING'
+                // states.
+            } while (e_STARTED != d_threadStartState
+                  || e_RESUMED != d_threadSuspendState);
         }  // release mutex
 
         {
@@ -141,8 +153,8 @@ MultipriorityThreadPool::MultipriorityThreadPool(
 : d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
 , d_threadGroup(bslma::Default::allocator(basicAllocator))
 , d_numThreads(numThreads)
-, d_threadStartState(STOPPED)
-, d_threadSuspendState(RESUMED)
+, d_threadStartState(e_STOPPED)
+, d_threadSuspendState(e_RESUMED)
 , d_numStartedThreads(0)
 , d_numSuspendedThreads(0)
 , d_numActiveThreads(0)
@@ -153,16 +165,16 @@ MultipriorityThreadPool::MultipriorityThreadPool(
 }
 
 MultipriorityThreadPool::MultipriorityThreadPool(
-                                      int                     numThreads,
-                                      int                     numPriorities,
-                                      const bdlqq::ThreadAttributes&  threadAttributes,
-                                      bslma::Allocator       *basicAllocator)
+                              int                             numThreads,
+                              int                             numPriorities,
+                              const bdlqq::ThreadAttributes&  threadAttributes,
+                              bslma::Allocator               *basicAllocator)
 : d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
 , d_threadAttributes(threadAttributes)
 , d_threadGroup(bslma::Default::allocator(basicAllocator))
 , d_numThreads(numThreads)
-, d_threadStartState(STOPPED)
-, d_threadSuspendState(RESUMED)
+, d_threadStartState(e_STOPPED)
+, d_threadSuspendState(e_RESUMED)
 , d_numStartedThreads(0)
 , d_numSuspendedThreads(0)
 , d_numActiveThreads(0)
@@ -173,17 +185,17 @@ MultipriorityThreadPool::MultipriorityThreadPool(
 
     // Force all threads to be joinable.
     d_threadAttributes.setDetachedState(
-                                       bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
+                                   bdlqq::ThreadAttributes::e_CREATE_JOINABLE);
 }
 
 MultipriorityThreadPool::~MultipriorityThreadPool()
 {
-    BSLS_ASSERT(STOPPED == d_threadStartState);
+    BSLS_ASSERT(e_STOPPED == d_threadStartState);
 }
 
 // MANIPULATORS
 int MultipriorityThreadPool::enqueueJob(const ThreadFunctor& job,
-                                             int                  priority)
+                                        int                  priority)
 {
     BSLS_ASSERT((unsigned) priority < (unsigned) d_queue.numPriorities());
     // checks '0 <= priority < numPriorities()'
@@ -191,10 +203,9 @@ int MultipriorityThreadPool::enqueueJob(const ThreadFunctor& job,
     return d_queue.pushBack(job, priority);
 }
 
-int MultipriorityThreadPool::enqueueJob(
-                                          bcemt_ThreadFunction  jobFunction,
-                                          void                 *jobData,
-                                          int                   priority)
+int MultipriorityThreadPool::enqueueJob(bcemt_ThreadFunction  jobFunction,
+                                        void                 *jobData,
+                                        int                   priority)
 {
     return enqueueJob(bdlf::BindUtil::bind(jobFunction, jobData), priority);
 }
@@ -214,10 +225,10 @@ int MultipriorityThreadPool::startThreads()
     bdlqq::LockGuard<bdlqq::Mutex> metaLock(&d_metaMutex);
     int rc = 0;
 
-    if (STARTED == d_threadStartState) {
+    if (e_STARTED == d_threadStartState) {
         return 0;                                                     // RETURN
     }
-    BSLS_ASSERT(STOPPED == d_threadStartState);
+    BSLS_ASSERT(e_STOPPED == d_threadStartState);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     sigset_t oldBlockSet, newBlockSet;  // set of signals to be blocked in
@@ -251,41 +262,41 @@ int MultipriorityThreadPool::startThreads()
     {
         bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
-        d_threadStartState = STARTING;
-        if (SUSPENDED == d_threadSuspendState) {
+        d_threadStartState = e_STARTING;
+        if (e_SUSPENDED == d_threadSuspendState) {
             // This is necessary because when we wait on
             // 'd_allThreadsStartedCondition', we need to be waiting for a
-            // state transition to 'SUSPENDED' to confirm our wait is over.
-            d_threadSuspendState = SUSPENDING;
+            // state transition to 'e_SUSPENDED' to confirm our wait is over.
+            d_threadSuspendState = e_SUSPENDING;
         }
 
         int startedThreads = d_threadGroup.addThreads(workerFunctor,
                                                       d_numThreads,
                                                       d_threadAttributes);
         if (d_numThreads == startedThreads) {
-            if (SUSPENDING == d_threadSuspendState) {
+            if (e_SUSPENDING == d_threadSuspendState) {
                 do {
                     d_allThreadsSuspendedCondition.wait(&d_mutex);
-                } while (SUSPENDED != d_threadSuspendState);
+                } while (e_SUSPENDED != d_threadSuspendState);
             }
             else {
                 do {
                     d_allThreadsStartedCondition.wait(&d_mutex);
-                } while (STARTING == d_threadStartState);
+                } while (e_STARTING == d_threadStartState);
             }
-            BSLS_ASSERT(STARTED      == d_threadStartState);
+            BSLS_ASSERT(e_STARTED      == d_threadStartState);
             BSLS_ASSERT(d_numThreads == d_numStartedThreads);
         }
         else {
             // start failed -- shut down all the threads
 
-            d_threadStartState = STOPPING;
+            d_threadStartState = e_STOPPING;
             d_allThreadsStartedCondition.broadcast();
 
-            // Note that if we are in the 'SUSPENDING' state, the threads will
-            // wait on this condition before they wait on the suspended
+            // Note that if we are in the 'e_SUSPENDING' state, the threads
+            // will wait on this condition before they wait on the suspended
             // condition.  Once released from the started condition, they will
-            // run straight into the check for 'STOPPED' before reaching the
+            // run straight into the check for 'e_STOPPED' before reaching the
             // wait on a suspended condition.
 
             {
@@ -293,10 +304,10 @@ int MultipriorityThreadPool::startThreads()
                 d_threadGroup.joinAll();
             }
 
-            if (SUSPENDING == d_threadSuspendState) {
-                d_threadSuspendState = SUSPENDED;
+            if (e_SUSPENDING == d_threadSuspendState) {
+                d_threadSuspendState = e_SUSPENDED;
             }
-            d_threadStartState = STOPPED;
+            d_threadStartState = e_STOPPED;
 
             rc = -1;
         }
@@ -307,10 +318,10 @@ int MultipriorityThreadPool::startThreads()
     pthread_sigmask(SIG_SETMASK, &oldBlockSet, &newBlockSet);
 #endif
 
-    BSLS_ASSERT(STARTED   == d_threadStartState
-                || STOPPED   == d_threadStartState);
-    BSLS_ASSERT(RESUMED   == d_threadSuspendState
-                || SUSPENDED == d_threadSuspendState);
+    BSLS_ASSERT(e_STARTED   == d_threadStartState
+             || e_STOPPED   == d_threadStartState);
+    BSLS_ASSERT(e_RESUMED   == d_threadSuspendState
+             || e_SUSPENDED == d_threadSuspendState);
 
     return rc;
 }
@@ -320,15 +331,15 @@ void MultipriorityThreadPool::stopThreads()
     bdlqq::LockGuard<bdlqq::Mutex> metaLock(&d_metaMutex);
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
-    if (STOPPED == d_threadStartState) {
+    if (e_STOPPED == d_threadStartState) {
         return;                                                       // RETURN
     }
 
-    BSLS_ASSERT(STARTED == d_threadStartState);
-    d_threadStartState = STOPPING;
+    BSLS_ASSERT(e_STARTED == d_threadStartState);
+    d_threadStartState = e_STOPPING;
 
     // Give waiting threads a chance to stop.
-    if (SUSPENDED == d_threadSuspendState) {
+    if (e_SUSPENDED == d_threadSuspendState) {
         BSLS_ASSERT(0 == numActiveThreads());
         d_resumeCondition.broadcast();
     }
@@ -336,9 +347,9 @@ void MultipriorityThreadPool::stopThreads()
         const ThreadFunctor nullJob;
         // Push high-priority null jobs into multi-priority queue, in case
         // threads are already blocking on pops of the queue for input.
-        // 'worker' will do a no-op when it encounters these jobs.  There
-        // might be fewer than 'numThreads()' threads to stop, but extra
-        // null jobs do no harm.
+        // 'worker' will do a no-op when it encounters these jobs.  There might
+        // be fewer than 'numThreads()' threads to stop, but extra null jobs do
+        // no harm.
         d_queue.pushFrontMultipleRaw(nullJob, 0, d_numThreads);
     }
 
@@ -347,7 +358,7 @@ void MultipriorityThreadPool::stopThreads()
         d_threadGroup.joinAll();
     }
 
-    d_threadStartState = STOPPED;
+    d_threadStartState = e_STOPPED;
 
     BSLS_ASSERT(0 == d_numStartedThreads);
     BSLS_ASSERT(0 == d_numSuspendedThreads);
@@ -359,31 +370,31 @@ void MultipriorityThreadPool::suspendProcessing()
     bdlqq::LockGuard<bdlqq::Mutex> metaLock(&d_metaMutex);
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
-    if (SUSPENDED == d_threadSuspendState) {
+    if (e_SUSPENDED == d_threadSuspendState) {
         return;                                                       // RETURN
     }
-    BSLS_ASSERT(RESUMED == d_threadSuspendState);
+    BSLS_ASSERT(e_RESUMED == d_threadSuspendState);
 
-    if (STOPPED == d_threadStartState) {
-        d_threadSuspendState = SUSPENDED;
+    if (e_STOPPED == d_threadStartState) {
+        d_threadSuspendState = e_SUSPENDED;
 
         BSLS_ASSERT(0 == d_numStartedThreads);
         BSLS_ASSERT(0 == d_numSuspendedThreads);
         return;                                                       // RETURN
     }
 
-    d_threadSuspendState = SUSPENDING;
+    d_threadSuspendState = e_SUSPENDING;
 
     const ThreadFunctor nullJob;
 
-    // Push high-priority null jobs into multi-priority queue, in case
-    // threads are already blocking on pops of the queue for input.
-    // 'worker' will do a no-op when it encounters these jobs.
+    // Push high-priority null jobs into multi-priority queue, in case threads
+    // are already blocking on pops of the queue for input.  'worker' will do a
+    // no-op when it encounters these jobs.
     d_queue.pushFrontMultipleRaw(nullJob, 0, d_numThreads);
 
     do {
         d_allThreadsSuspendedCondition.wait(&d_mutex);
-    } while (SUSPENDED != d_threadSuspendState);
+    } while (e_SUSPENDED != d_threadSuspendState);
 
     BSLS_ASSERT(d_numThreads == d_numStartedThreads);
     BSLS_ASSERT(d_numThreads == d_numSuspendedThreads);
@@ -393,14 +404,14 @@ void MultipriorityThreadPool::resumeProcessing()
 {
     bdlqq::LockGuard<bdlqq::Mutex> metaLock(&d_metaMutex);
 
-    if (RESUMED == d_threadSuspendState) {
+    if (e_RESUMED == d_threadSuspendState) {
         return;                                                       // RETURN
     }
-    BSLS_ASSERT(SUSPENDED == d_threadSuspendState);
+    BSLS_ASSERT(e_SUSPENDED == d_threadSuspendState);
 
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
-    d_threadSuspendState = RESUMED;
+    d_threadSuspendState = e_RESUMED;
     d_resumeCondition.broadcast();
 }
 
@@ -409,15 +420,16 @@ void MultipriorityThreadPool::drainJobs()
     bdlqq::LockGuard<bdlqq::Mutex> metaLock(&d_metaMutex);
 
     // If these two conditions are not true, this method will hang.
-    BSLS_ASSERT(STARTED == d_threadStartState);
-    BSLS_ASSERT(RESUMED == d_threadSuspendState);
+    BSLS_ASSERT(e_STARTED == d_threadStartState);
+    BSLS_ASSERT(e_RESUMED == d_threadSuspendState);
 
     bdlqq::Barrier barrier(d_numThreads + 1);
     const ThreadFunctor barrierJob =
-                         bdlf::MemFnUtil::memFn(&bdlqq::Barrier::wait, &barrier);
+                       bdlf::MemFnUtil::memFn(&bdlqq::Barrier::wait, &barrier);
 
-    d_queue.pushBackMultipleRaw(barrierJob, d_queue.numPriorities() - 1,
-                                                                 d_numThreads);
+    d_queue.pushBackMultipleRaw(barrierJob,
+                                d_queue.numPriorities() - 1,
+                                d_numThreads);
 
     barrier.wait();
 }
@@ -444,12 +456,12 @@ bool MultipriorityThreadPool::isEnabled() const
 
 bool MultipriorityThreadPool::isStarted() const
 {
-    return STARTED == d_threadStartState;
+    return e_STARTED == d_threadStartState;
 }
 
 bool MultipriorityThreadPool::isSuspended() const
 {
-    return SUSPENDED == d_threadSuspendState;
+    return e_SUSPENDED == d_threadSuspendState;
 }
 
 int MultipriorityThreadPool::numActiveThreads() const

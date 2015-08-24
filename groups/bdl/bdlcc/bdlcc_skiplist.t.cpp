@@ -27,8 +27,8 @@
 #include <bsls_assert.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_c_stdlib.h>  // cstdlib does not include rand_r
-#include <bsl_cmath.h>     // floor/ceil
+#include <bsl_c_stdlib.h>  // 'rand_r'
+#include <bsl_cmath.h>     // 'floor', 'ceil'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -345,8 +345,11 @@ class SimpleScheduler
         }
     }
 
-public:
+  private:
+    // Not implemented:
+    SimpleScheduler(const SimpleScheduler&);
 
+  public:
     //CREATORS
     SimpleScheduler(bslma::Allocator *basicAllocator = 0)
     : d_list(basicAllocator)
@@ -658,7 +661,7 @@ enum {
 void threadFunc(TimeQ *timeQueue,
                 int    numIterations,
                 int    sendCount,
-                int    rcvCount,
+                int    receiveCount,
                 int    delay)
 {
     bsl::vector<TimeQ::Pair*> timers;
@@ -679,7 +682,7 @@ void threadFunc(TimeQ *timeQueue,
         }
 
         // "receive" replies
-        for (int rcv=0; rcv<rcvCount; rcv++) {
+        for (int rcv=0; rcv<receiveCount; rcv++) {
             timeQueue->remove(timers[rcv]);
             timeQueue->releaseReferenceRaw(timers[rcv]);
         }
@@ -707,7 +710,7 @@ void threadFunc(TimeQ *timeQueue,
         }
 
         // clean up remaining handles
-        for (int cln=rcvCount; cln<sendCount; cln++) {
+        for (int cln=receiveCount; cln<sendCount; cln++) {
             timeQueue->releaseReferenceRaw(timers[cln]);
         }
 
@@ -1839,7 +1842,8 @@ int main(int argc, char *argv[])
             typedef Obj::PairHandle H;
             typedef int (Obj::*Updater)(const Obj::Pair*,
                                         const int &,
-                                        bool*, bool);
+                                        bool*,
+                                        bool);
             {
                 Obj obj(&ta);
                 H h;

@@ -131,8 +131,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  class my_Session {
 //      // Pure protocol class to process a data buffer of arbitrary size.
-//      // Concrete implementations in the "real world" would typically
-//      // manage an external connection like a socket.
+//      // Concrete implementations in the "real world" would typically manage
+//      // an external connection like a socket.
 //
 //    public:
 //      my_Session();
@@ -163,7 +163,6 @@ BSLS_IDENT("$Id: $")
 //  class my_Server {
 //      // Simple server supporting multiple Connections.
 //
-//    private:
 //      bsl::vector<my_Connection*>      d_connections;
 //      bdlcc::TimeQueue<my_Connection*> d_timeQueue;
 //      int                              d_ioTimeout;
@@ -183,9 +182,9 @@ BSLS_IDENT("$Id: $")
 //          // Upon seeing this signal, the TimerMonitor thread will wake up
 //          // and look for expired timers.
 //          //
-//          // Behavior is undefined if 'connection' has already been added
-//          // to any 'my_Server' and has not been removed via member
-//          // function 'closeConnection'.
+//          // Behavior is undefined if 'connection' has already been added to
+//          // any 'my_Server' and has not been removed via member function
+//          // 'closeConnection'.
 //
 //      void removeConnection(my_Connection *connection);
 //          // Remove the specified 'connection' from the current 'my_Server',
@@ -193,21 +192,22 @@ BSLS_IDENT("$Id: $")
 //
 //      virtual void closeConnection(my_Connection *connection)=0;
 //          // Provide a mechanism for a concrete implementation to close a
-//          // connection.
+//          // specified 'connection'.
 //
 //      void dataAvailable(my_Connection *connection,
 //                         void          *buffer_p,
 //                         int            length);
-//          // Receive in 'buffer_p' a pointer to a data buffer of 'length'
-//          // bytes, and pass this to 'connection' to be processed.  Behavior
-//          // is undefined if 'connection' is not currently added to this
-//          // 'my_Server' object, or if 'length' <= 0.
+//          // Receive in the specified 'buffer_p' a pointer to a data buffer
+//          // of the specified 'length' bytes, and pass this to the specified
+//          // 'connection' to be processed.  Behavior is undefined if
+//          // 'connection' is not currently added to this 'my_Server' object,
+//          // or if 'length' <= 0.
 //
 //    protected:
 //      virtual void monitorConnections()=0;
 //          // Monitor all connections in the current 'my_Server'.  When data
-//          // becomes available for a given connection, pass the data to
-//          // that connection for processing.
+//          // becomes available for a given connection, pass the data to that
+//          // connection for processing.
 //
 //      void monitorTimers();
 //          // Monitor all timers in the current 'my_Server', and handle each
@@ -216,13 +216,18 @@ BSLS_IDENT("$Id: $")
 //      friend void *my_connectionMonitorThreadEntry(void *server);
 //      friend void *my_timerMonitorThreadEntry(void *server);
 //
+//    private:
+//      // Not implemented:
+//      my_Server(const my_Server&);
+//
 //    public:
 //      // CREATORS
 //      explicit
 //      my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
-//          // Construct a 'my_Server' object with a timeout value of
-//          // 'ioTimeout' seconds.  Use the specified 'basicAllocator' for all
-//          // memory allocation for data members of 'my_Server'.
+//          // Construct a 'my_Server' object with a timeout value of the
+//          // specified 'ioTimeout' seconds.  Use the optionally specified
+//          // 'basicAllocator' for all memory allocation for data members of
+//          // 'my_Server'.
 //
 //      virtual ~my_Server();
 //
@@ -314,14 +319,14 @@ BSLS_IDENT("$Id: $")
 // connection to the queue with a new time value.
 //..
 //  void my_Server::dataAvailable(my_Connection *connection,
-//                                void          *data,
+//                                void          *buffer_p,
 //                                int            length)
 //  {
 //      if (connection->d_timerId) {
 //          if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
 //          connection->d_timerId = 0;
 //      }
-//      connection->d_session_p->processData(data, length);
+//      connection->d_session_p->processData(buffer_p, length);
 //
 //      int isNewTop = 0;
 //
@@ -474,13 +479,17 @@ BSLS_IDENT("$Id: $")
 //
 //    protected:
 //      virtual void closeConnection(my_Connection *connection);
-//          // Close external connection and call 'removeConnection' when
-//          // done.
+//          // Close the specified external 'connection' and call
+//          // 'removeConnection' when done.
 //
 //      virtual void monitorConnections();
 //          // Monitor all connections in the current 'my_Server'.  When data
-//          // becomes available for a given connection, pass the data to
-//          // that connection for processing.
+//          // becomes available for a given connection, pass the data to that
+//          // connection for processing.
+//
+//    private:
+//      // Not implemented:
+//      my_TestServer(const my_TestServer&);
 //
 //    public:
 //      // CREATORS
@@ -793,8 +802,8 @@ class TimeQueue {
 
     // PRIVATE MANIPULATORS
     void freeNode(Node *node);
-        // Prepare this node for being reused on the free list by incrementing
-        // the iteration count.  Set 'd_prev_p' field to 0.
+        // Prepare the specified 'node' for being reused on the free list by
+        // incrementing the iteration count.  Set 'd_prev_p' field to 0.
 
     void putFreeNode(Node *node);
         // Destroy the data located at the specified 'node' and reattach this
@@ -834,7 +843,7 @@ class TimeQueue {
               bool              poolTimerMemory,
               bslma::Allocator *basicAllocator = 0);
         // [!DEPRECATED!] Use the other constructor overloads instead.  Note
-        // that the 'poolTimerMemory' (optional) argument controlled whether
+        // that the specified 'poolTimerMemory' argument controlled whether
         // additional memory used by an internal 'bsl::map' was pooled.  When
         // 'bsl::map' was modified to pool its own nodes, this option became
         // irrelevant and is now ignored.
@@ -855,34 +864,37 @@ class TimeQueue {
         // Add a new item to this queue having the specified 'time' value, and
         // associated 'data'.  Optionally use the specified 'key' to uniquely
         // identify the item in subsequent calls to 'remove' and 'update'.
-        // Optionally load into the specified 'isNewTop' a non-zero value if
-        // the item is now the lowest item in this queue, and a 0 value
-        // otherwise.  If specified, load into 'newLength', the new number of
-        // items in this queue.  Return a value that may be used to identify
-        // the newly added item in future calls to time queue on success, and
+        // Optionally load into the optionally specified 'isNewTop' a non-zero
+        // value if the item is now the lowest item in this queue, and a 0
+        // value otherwise.  If specified, load into the optionally specified
+        // 'newLength', the new number of items in this queue.  Return a value
+        // that may be used to identify the newly added item in future calls to
+        // time queue on success, and
         // -1 if the maximum queue length has been reached.
 
     Handle add(const TimeQueueItem<DATA>&  item,
                int                        *isNewTop = 0,
                int                        *newLength = 0);
-        // Add a new item to this queue having the specified 'time' value, and
-        // associated 'data'.  Optionally load into the specified 'isNewTop' a
-        // non-zero value if the replaces is now the lowest item in this queue,
-        // and a 0 value otherwise.  If specified, load into 'newLength', the
-        // new number of items in this queue.  Return a value that may be used
-        // to identify the newly added item in future calls to time queue.
+        // Add the value of the specified 'item' to this queue.  Optionally
+        // load into the optionally specified 'isNewTop' a non-zero value if
+        // the replaces is now the lowest element in this queue, and a 0 value
+        // otherwise.  If specified, load into the optionally specified
+        // 'newLength', the new number of elements in this queue.  Return a
+        // value that may be used to identify the newly added element in future
+        // calls to time queue.
 
     int popFront(TimeQueueItem<DATA> *buffer = 0,
                  int                 *newLength = 0,
                  bsls::TimeInterval  *newMinTime = 0);
         // Atomically remove the top item from this queue, and optionally load
-        // into the specified 'buffer' the time and associated data of the item
-        // removed.  Optionally load into the specified 'newLength', the number
-        // of items remaining in the queue.  Optionally load into the specified
-        // 'newMinTime' the new lowest time in this queue.  Return 0 on
-        // success, and a non-zero value if there are no items in the queue.
-        // Note that if 'DATA' follows the 'bdema' allocator model, the
-        // allocator of the 'buffer' is used to supply memory.
+        // into the optionally specified 'buffer' the time and associated data
+        // of the item removed.  Optionally load into the optionally specified
+        // 'newLength', the number of items remaining in the queue.  Optionally
+        // load into the optionally specified 'newMinTime' the new lowest time
+        // in this queue.  Return 0 on success, and a non-zero value if there
+        // are no items in the queue.  Note that if 'DATA' follows the 'bdema'
+        // allocator model, the allocator of the 'buffer' is used to supply
+        // memory.
 
     void popLE(const bsls::TimeInterval&          time,
                bsl::vector<TimeQueueItem<DATA> > *buffer = 0,
@@ -890,17 +902,17 @@ class TimeQueue {
                bsls::TimeInterval                *newMinTime = 0);
         // Remove from this queue all the items that have a time value less
         // than or equal to the specified 'time', and optionally append into
-        // the specified 'buffer' a list of the removed items, ordered by their
-        // corresponding time values (top item first).  Optionally load into
-        // the specified 'newLength' the number of items remaining in this
-        // queue, and into the specified 'newMinTime' the lowest remaining time
-        // value in this queue.  Note that 'newMinTime' is only loaded if there
-        // are items remaining in the time queue; therefore, 'newLength' should
-        // be specified and examined to determine whether items remain, and
-        // 'newMinTime' used only when 'newLength' > 0.  Also note that if
-        // 'DATA' follows the 'bdema' allocator model, the allocator of the
-        // 'buffer' vector is used to supply memory for the items appended to
-        // the 'buffer'.
+        // the optionally specified 'buffer' a list of the removed items,
+        // ordered by their corresponding time values (top item first).
+        // Optionally load into the optionally specified 'newLength' the number
+        // of items remaining in this queue, and into the optionally specified
+        // 'newMinTime' the lowest remaining time value in this queue.  Note
+        // that 'newMinTime' is only loaded if there are items remaining in the
+        // time queue; therefore, 'newLength' should be specified and examined
+        // to determine whether items remain, and 'newMinTime' used only when
+        // 'newLength' > 0.  Also note that if 'DATA' follows the 'bdema'
+        // allocator model, the allocator of the 'buffer' vector is used to
+        // supply memory for the items appended to the 'buffer'.
 
     void popLE(const bsls::TimeInterval&          time,
                int                                maxTimers,
@@ -909,15 +921,15 @@ class TimeQueue {
                bsls::TimeInterval                *newMinTime = 0);
         // Remove from this queue up to the specified 'maxTimers' number of
         // items that have a time value less than or equal to the specified
-        // 'time', and optionally append into the specified 'buffer' a list of
-        // the removed items, ordered by their corresponding time values (top
-        // item first).  Optionally load into the optionally specified
-        // 'newLength' the number of items remaining in this queue, and into
-        // the optionally specified 'newMinTime' the lowest remaining time
-        // value in this queue.  The behavior is undefined unless 'maxTimers'
-        // >= 0.  Note that 'newMinTime' is only loaded if there are items
-        // remaining in the time queue; therefore, 'newLength' should be
-        // specified and examined to determine whether items remain, and
+        // 'time', and optionally append into the optionally specified 'buffer'
+        // a list of the removed items, ordered by their corresponding time
+        // values (top item first).  Optionally load into the optionally
+        // specified 'newLength' the number of items remaining in this queue,
+        // and into the optionally specified 'newMinTime' the lowest remaining
+        // time value in this queue.  The behavior is undefined unless
+        // 'maxTimers' >= 0.  Note that 'newMinTime' is only loaded if there
+        // are items remaining in the time queue; therefore, 'newLength' should
+        // be specified and examined to determine whether items remain, and
         // 'newMinTime' used only when 'newLength' > 0.  Also note that if
         // 'DATA' follows the 'bdema' allocator model, the allocator of the
         // 'buffer' vector is used to supply memory.  Note finally that all the
@@ -925,12 +937,12 @@ class TimeQueue {
         // the elements remaining in this queue.
 
     int remove(Handle               handle,
-               int                 *newMinLength = 0,
+               int                 *newLength = 0,
                bsls::TimeInterval  *newMinTime = 0,
                TimeQueueItem<DATA> *item = 0);
     int remove(Handle               handle,
                const Key&           key,
-               int                 *newMinLength = 0,
+               int                 *newLength = 0,
                bsls::TimeInterval  *newMinTime = 0,
                TimeQueueItem<DATA> *item = 0);
         // Remove from this queue the item having the specified 'handle', and

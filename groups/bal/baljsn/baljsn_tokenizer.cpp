@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(baljsn_tokenizer_cpp,"$Id$ $CSID$")
 
 #include <bdlb_chartype.h>
 
+#include <bsl_cstring.h>
 #include <bsl_ios.h>
 #include <bsl_streambuf.h>
 
@@ -13,8 +14,8 @@ BSLS_IDENT_RCSID(baljsn_tokenizer_cpp,"$Id$ $CSID$")
 
 // IMPLEMENTATION NOTES
 // --------------------
-// The following table provides the various transitions that need to be
-// handled with the tokenizer.
+// The following table provides the various transitions that need to be handled
+// with the tokenizer.
 //
 //   Current Token             Curr Char    Next Char         Following Token
 //   -------------             ---------    ---------         ---------------
@@ -53,25 +54,26 @@ BSLS_IDENT_RCSID(baljsn_tokenizer_cpp,"$Id$ $CSID$")
 //..
 
 namespace BloombergLP {
-
 namespace {
 
-    const char *WHITESPACE = " \n\t\v\f\r";
-    const char *TOKENS     = "{}[]:,";
+    static const char *WHITESPACE = " \n\t\v\f\r";
+    static const char *TOKENS     = "{}[]:,";
 
 }  // close unnamed namespace
 
 namespace baljsn {
-                            // -----------------------
-                            // struct Tokenizer
-                            // -----------------------
+
+                             // ----------------
+                             // struct Tokenizer
+                             // ----------------
 
 // PRIVATE MANIPULATORS
 int Tokenizer::reloadStringBuffer()
 {
     d_stringBuffer.resize(k_MAX_STRING_SIZE);
-    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[0],
-                                             k_MAX_STRING_SIZE);
+    const int numRead =
+                     static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[0],
+                                                           k_MAX_STRING_SIZE));
     d_cursor = 0;
     d_stringBuffer.resize(numRead);
     return numRead;
@@ -81,8 +83,9 @@ int Tokenizer::expandBufferForLargeValue()
 {
     d_stringBuffer.resize(d_stringBuffer.length() + k_MAX_STRING_SIZE);
 
-    const int numRead = d_streamBuf_p->sgetn(&d_stringBuffer[d_valueIter],
-                                             k_MAX_STRING_SIZE);
+    const int numRead =
+            static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
+                                                  k_MAX_STRING_SIZE));
     return numRead ? 0 : -1;
 }
 
@@ -94,9 +97,9 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
 
     d_valueIter = d_valueIter - d_valueBegin;
 
-    const int numRead = d_streamBuf_p->sgetn(
-                                         &d_stringBuffer[d_valueIter],
-                                         k_MAX_STRING_SIZE - d_valueIter);
+    const int numRead =
+       static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
+                                             k_MAX_STRING_SIZE - d_valueIter));
 
     if (numRead > 0) {
         d_stringBuffer.resize(d_valueIter + numRead);
@@ -451,8 +454,9 @@ int Tokenizer::resetStreamBufGetPointer()
         return 0;                                                     // RETURN
     }
 
-    const int numExtraCharsRead = d_stringBuffer.size() - d_cursor;
-    const bsl::streamoff newPos = d_streamBuf_p->pubseekoff(-numExtraCharsRead,
+    const int numExtraCharsRead = static_cast<int>(d_stringBuffer.size()
+                                                                   - d_cursor);
+    const bsl::streamoff newPos = d_streambuf_p->pubseekoff(-numExtraCharsRead,
                                                             bsl::ios_base::end,
                                                             bsl::ios_base::in);
 

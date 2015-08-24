@@ -4,9 +4,9 @@
 #include <bsls_atomic.h>  // for testing only
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
-#include <bdlqq_xxxatomictypes.h>  // for SpinLock
 
 #include <bsls_platform.h>
+#include <bsls_spinlock.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeutil.h>
@@ -59,7 +59,7 @@ using namespace bsl;  // automatically added by script
 
 static int testStatus = 0;
 
-static bdlqq::SpinLock coutLock;
+static bsls::SpinLock coutLock = BSLS_SPINLOCK_UNLOCKED;
 
 void aSsErT(int c, const char *s, int i, bool lock=true) {
     if (c) {

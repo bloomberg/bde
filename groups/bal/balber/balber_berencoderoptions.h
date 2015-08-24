@@ -71,7 +71,7 @@ class BerEncoderOptions {
     int d_bdeVersionConformance;
         // The largest BDE version that can be assumed of the corresponding
         // decoder for the encoded message, expressed as
-        // '10000*majorVersion + 100*minorVersion + patchVersion' (e.g.  1.5.0
+        // '10000*majorVersion + 100*minorVersion + patchVersion' (e.g.,  1.5.0
         // is expressed as 10500).  Ideally, the BER encoder should be
         // permitted to generate any BER that conforms to X.690 (Basic Encoding
         // Rules) and X.694 (mapping of XSD to ASN.1).  In practice, however,
@@ -352,8 +352,6 @@ inline
 bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and return a
     // reference to the modifiable 'stream'.
-
-
 }
 
 // TRAITS

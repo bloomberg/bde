@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mechanism for partitioning a collection of threads.
 //
 //@CLASSES:
-// bdlmt::ThreadMultiplexor: mechanism for partitioning multi-threaded processing
+// bdlmt::ThreadMultiplexor: mechanism to partition multi-threaded processing
 //
 //@AUTHOR: David Rubin (drubin6)
 //
@@ -41,9 +41,9 @@ BSLS_IDENT("$Id: $")
 // jobs at any particular time.  Additional threads enqueue jobs to a pending
 // job queue, which is processed by the next available processing thread.
 //
-// Typically, a 'bdlmt::ThreadMultiplexor' instance is used in conjunction with a
-// thread pool (e.g., 'bdlmt::FixedThreadPool'), where each thread pool thread
-// calls the multiplexor 'processJob' method to perform some work.  The
+// Typically, a 'bdlmt::ThreadMultiplexor' instance is used in conjunction with
+// a thread pool (e.g., 'bdlmt::FixedThreadPool'), where each thread pool
+// thread calls the multiplexor 'processJob' method to perform some work.  The
 // multiplexor guarantees that no more that the configured number of threads
 // will process jobs concurrently.  This guarantee allows a single thread pool
 // to be used in a variety of situations that require partitioning thread
@@ -59,17 +59,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage Examples
 ///--------------
-// The following usage example illustrates how the 'bdlmt::ThreadMultiplexor' can
-// be used to share thread resources between three separate work queues.
-// Assume that there are three classes of jobs: jobs that are important,
-// jobs that are urgent, and jobs that are critical.  We would like to
-// execute each class of jobs in a single thread pool, but we want
-// ensure that all types of jobs can be executed at any time.
+// The following usage example illustrates how the 'bdlmt::ThreadMultiplexor'
+// can be used to share thread resources between three separate work queues.
+// Assume that there are three classes of jobs: jobs that are important, jobs
+// that are urgent, and jobs that are critical.  We would like to execute each
+// class of jobs in a single thread pool, but we want ensure that all types of
+// jobs can be executed at any time.
 //
 // We begin by defining a class that encapsulates the notion of a job queue.
-// Our 'JobQueue' class holds a reference to a 'bdlmt::FixedThreadPool', used to
-// instantiate the job queue, and owns an instance of 'bdlmt::ThreadMultiplexor',
-// used to process jobs.
+// Our 'JobQueue' class holds a reference to a 'bdlmt::FixedThreadPool', used
+// to instantiate the job queue, and owns an instance of
+// 'bdlmt::ThreadMultiplexor', used to process jobs.
 //..
 //  class JobQueue {
 //      // This class defines a generic processor for user-defined functions
@@ -84,8 +84,8 @@ BSLS_IDENT("$Id: $")
 //
 //    private:
 //      // DATA
-//      bdlmt::FixedThreadPool   *d_threadPool_p;    // (held, not owned)
-//      bdlmt::ThreadMultiplexor  d_multiplexor;     // used to partition threads
+//      bdlmt::FixedThreadPool   *d_threadPool_p;  // (held, not owned)
+//      bdlmt::ThreadMultiplexor  d_multiplexor;   // used to partition threads
 //
 //    private:
 //      // NOT IMPLEMENTED
@@ -94,9 +94,9 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      JobQueue(int                   maxProcessors,
+//      JobQueue(int                     maxProcessors,
 //               bdlmt::FixedThreadPool *threadPool,
-//               bslma::Allocator     *basicAllocator = 0);
+//               bslma::Allocator       *basicAllocator = 0);
 //        // Create a job queue that executes jobs in the specified
 //        // 'threadPool' using no more than the specified 'maxProcessors'.
 //        // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -121,18 +121,17 @@ BSLS_IDENT("$Id: $")
 //..
 // This allows multiple 'JobQueue' instances to share the same threadpool
 // without starving each other when the thread pool has more than one thread.
-// For this usage example, we assume M (number of multiplexors) = 3, and
-// T (number of threads) = 5, so maxProc = 2.  It is important to note
-// that every call to 'processJob' enqueues a job to the thread pool, so
-// the length of the thread pool queue determines the maximum number of
-// jobs that can be accepted by the JobQueue.  (Multiple JobQueues share
-// the same maximum *together*, so not all will be able to reach
-// their individual maximum at the same time).
+// For this usage example, we assume M (number of multiplexors) = 3, and T
+// (number of threads) = 5, so maxProc = 2.  It is important to note that every
+// call to 'processJob' enqueues a job to the thread pool, so the length of the
+// thread pool queue determines the maximum number of jobs that can be accepted
+// by the JobQueue.  (Multiple JobQueues share the same maximum *together*, so
+// not all will be able to reach their individual maximum at the same time).
 //..
 //
-//   JobQueue::JobQueue(int                   maxProcessors,
+//   JobQueue::JobQueue(int                     maxProcessors,
 //                      bdlmt::FixedThreadPool *threadPool,
-//                      bslma::Allocator     *basicAllocator)
+//                      bslma::Allocator       *basicAllocator)
 //   : d_threadPool_p(threadPool)
 //   , d_multiplexor (maxProcessors,
 //                    threadPool->queueCapacity(),
@@ -149,8 +148,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  int JobQueue::processJob(const JobQueue::Job& job)
 //  {
-//      return d_threadPool_p->tryEnqueueJob(
-//              bdlf::BindUtil::bind(&bdlmt::ThreadMultiplexor::processJob<Job>,
+//      return d_threadPool_p->tryEnqueueJob(bdlf::BindUtil::bind(
+//                                  &bdlmt::ThreadMultiplexor::processJob<Job>,
 //                                  &d_multiplexor,
 //                                  job));
 //  }
@@ -283,8 +282,8 @@ class ThreadMultiplexor {
 
     // CREATORS
     ThreadMultiplexor(int               maxProcessors,
-                           int               maxQueueSize,
-                           bslma::Allocator *basicAllocator = 0);
+                      int               maxQueueSize,
+                      bslma::Allocator *basicAllocator = 0);
         // Create a thread multiplexor which uses, at most, the specified
         // 'maxProcessors' number of threads to process user-specified jobs,
         // identified as callbacks of type 'Job'.  Jobs that cannot be
@@ -317,7 +316,7 @@ class ThreadMultiplexor {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // MANIPULATORS
@@ -332,11 +331,10 @@ int ThreadMultiplexor::processJob(const JOBTYPE& job)
     // allowing the execution of a job in the current thread.
 
     int previousNumProcessors = d_numProcessors;
-    if (previousNumProcessors < d_maxProcessors
-     && previousNumProcessors == d_numProcessors.testAndSwap(
-                                            previousNumProcessors,
-                                            previousNumProcessors + 1))
-    {
+    if (previousNumProcessors < d_maxProcessors &&
+        previousNumProcessors ==
+                      d_numProcessors.testAndSwap(previousNumProcessors,
+                                                  previousNumProcessors + 1)) {
         // Process the job
         job();
         --d_numProcessors;
@@ -363,8 +361,8 @@ int ThreadMultiplexor::numProcessors() const
 {
     return d_numProcessors;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 #endif
 
