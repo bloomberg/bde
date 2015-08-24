@@ -500,7 +500,6 @@ void queryCallBack(const QueryResult& result)
     // For testing only, we simulate a callback that takes a given time to
     // process a query.
 {
-    (void) result; // unused for testing, to silence warnings
     bdlqq::ThreadUtil::microSleep(CALLBACK_PROCESSING_TIME);
 }
 

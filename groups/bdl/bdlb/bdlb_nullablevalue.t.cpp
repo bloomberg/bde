@@ -888,7 +888,7 @@ int main(int argc, char *argv[])
             ASSERT(obj1 == Zobj1);
             ASSERT(obj2 == Zobj2);
 
-            ASSERT(not Swappable::swap_called());
+            ASSERT(!   Swappable::swap_called());
             swap(obj1, obj2);
             ASSERT(    Swappable::swap_called());
 

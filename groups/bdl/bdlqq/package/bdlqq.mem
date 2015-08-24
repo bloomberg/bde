@@ -25,6 +25,7 @@ bdlqq_semaphoreimpl_darwin
 bdlqq_semaphoreimpl_pthread
 bdlqq_semaphoreimpl_win32
 bdlqq_sluice
+bdlqq_threadargument
 bdlqq_threadattributes
 bdlqq_threadgroup
 bdlqq_threadlocalvariable

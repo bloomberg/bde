@@ -538,32 +538,26 @@ namespace MULTIPRIORITY_USAGE_TEST_CASE {
 // when multiple stopped threads are simultaneously ready to run, so we won't
 // see any effect of the different priorities in this case.
 
-struct MostUrgentThreadFunctor {
-    void operator()() const
-    {
-        if (verbose) {
-            bsl::printf("Most urgent\n");
-        }
+void *MostUrgentThreadFunctor(void* arg) {
+    if (verbose) {
+        bsl::printf("Most urgent\n");
     }
-};
+    return 0;
+}
 
-struct FairlyUrgentThreadFunctor {
-    void operator()() const
-    {
-        if (verbose) {
-            bsl::printf("Fairly urgent\n");
-        }
+void *FairlyUrgentThreadFunctor(void* arg) {
+    if (verbose) {
+        bsl::printf("Fairly urgent\n");
     }
-};
+    return 0;
+}
 
-struct LeastUrgentThreadFunctor {
-    void operator()() const
-    {
-        if (verbose) {
-            bsl::printf("Least urgent\n");
-        }
+void *LeastUrgentThreadFunctor(void* arg) {
+    if (verbose) {
+        bsl::printf("Least urgent\n");
     }
-};
+    return 0;
+}
 
 }  // close namespace MULTIPRIORITY_USAGE_TEST_CASE
 
@@ -1630,10 +1624,10 @@ int main(int argc, char *argv[])
         enum { NUM_THREADS = 3 };
 
         bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
-        bdlqq::ThreadUtil::Invokable functions[NUM_THREADS] = {
-                                                  MostUrgentThreadFunctor(),
-                                                  FairlyUrgentThreadFunctor(),
-                                                  LeastUrgentThreadFunctor() };
+        bcemt_ThreadFunction functions[NUM_THREADS] = {
+                                                  MostUrgentThreadFunctor,
+                                                  FairlyUrgentThreadFunctor,
+                                                  LeastUrgentThreadFunctor };
         double priorities[NUM_THREADS] = { 1.0, 0.5, 0.0 };
 
         bdlqq::ThreadAttributes attributes;
@@ -1647,8 +1641,8 @@ int main(int argc, char *argv[])
                  bdlqq::ThreadUtil::convertToSchedulingPriority(policy,
                                                                priorities[i]));
             int rc = bdlqq::ThreadUtil::create(&handles[i],
-                                              attributes,
-                                              functions[i]);
+                                               attributes,
+                                               functions[i], 0);
             ASSERT(0 == rc);
         }
 

@@ -15,19 +15,18 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlqq_threadattributes, bdlqq_configuration
 //
 //@DESCRIPTION: This component defines a utility 'struct', 'bdlqq::ThreadUtil',
-// that serves as a name space for suit of pure functions to create threads,
+// that serves as a name space for a suite of pure functions to create threads,
 // join them (make one thread block and wait for another thread to exit),
 // manipulate thread handles, manipulate the current thread, and (on some
 // platforms) access thread-local storage.
 //
 ///Creating a Simple Thread with Default Attributes
 ///------------------------------------------------
-// Clients call 'bdlqq::ThreadUtil::create()' to create threads.  This function
-// requires a thread entry point as either a "C" linkage function pointer (of a
-// type defined by 'bdlqq::ThreadUtil::ThreadFunction') or an "invokable" based
-// on 'bdlf::Function' (of a type defined by 'bdlqq::ThreadUtil::Invokable'),
-// and a 'void' pointer to 'userData'.  Upon creation of the thread, the
-// supplied thread entry point is invoked by passing it the 'userData'.  The
+// Clients call 'bdlqq::ThreadUtil::create()' to create threads. Threads
+// may be started using a "C" linkage function pointer (of a type defined by
+// 'bdlqq::ThreadUtil::ThreadFunction') and a 'void' pointer to 'userData' to
+// be passed to the function; or an "invokable" object of parameterized type
+// (any copy-constructible type on which 'operator()' may be invoked).  The
 // invoked function becomes the main driver for the new thread; when it
 // returns, the thread terminates.
 //
@@ -239,10 +238,10 @@ BSLS_IDENT("$Id: $")
 //      enum { NUM_THREADS = 3 };
 //
 //      bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
-//      bdlqq::ThreadUtil::Invokable functions[NUM_THREADS] = {
-//                                                MostUrgentThreadFunctor(),
-//                                                FairlyUrgentThreadFunctor(),
-//                                                LeastUrgentThreadFunctor() };
+//      bcemt_ThreadFunction functions[NUM_THREADS] = {
+//                                                MostUrgentThreadFunction,
+//                                                FairlyUrgentThreadFunction,
+//                                                LeastUrgentThreadFunction };
 //      double priorities[NUM_THREADS] = { 1.0, 0.5, 0.0 };
 //
 //      bdlqq::ThreadAttributes attributes;
@@ -256,8 +255,8 @@ BSLS_IDENT("$Id: $")
 //               bdlqq::ThreadUtil::convertToSchedulingPriority(policy,
 //                                                             priorities[i]));
 //          int rc = bdlqq::ThreadUtil::create(&handles[i],
-//                                            attributes,
-//                                            functions[i]);
+//                                             attributes,
+//                                             functions[i], 0);
 //          assert(0 == rc);
 //      }
 //
@@ -270,6 +269,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADARGUMENT
+#include <bdlqq_threadargument.h>
 #endif
 
 #ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
@@ -302,6 +305,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_MANAGEDPTR
+#include <bslma_managedptr.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -357,17 +368,24 @@ struct ThreadUtil {
     typedef bcemt_ThreadFunction                   ThreadFunction;
         // Prototype for thread entry-point functions.
 
-    typedef bdlf::Function<void(*)()>              Invokable;
-        // Invokable functor wrapper, usable also as a thread entry point.
-
     typedef Imp::Key                               Key;
         // Thread-specific key type, used to refer to thread-specific storage.
 
     typedef bcemt_KeyDestructorFunction            Destructor;
         // Prototype for thread-specific key destructors.
 
+private:
     // CLASS METHODS
-                         // *** Thread Management ***
+    template <typename INVOKABLE>
+    static void *invokerFunction(void* threadArg);
+        // Interpreting the specified 'threadArg' as the address of an object
+        // of type 'ThreadArgument<INVOKABLE>', call 'threadArg->object()()'
+        // and then deallocate the argument using 'threadArg->allocator()'.
+        // Return 0. 
+
+public:
+    // PUBLIC CLASS METHODS
+                // *** Thread Management ***
 
     static int convertToSchedulingPriority(
               ThreadAttributes::SchedulingPolicy policy,
@@ -395,12 +413,11 @@ struct ThreadUtil {
         // than 0 or unset.  Note that unless explicitly "detached" (by
         // invoking the 'detach' class method with 'handle') or the
         // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
-        // must be made once the thread terminates to reclaim any system
-        // resources associated with the newly-created thread.  Also note that
-        // the platform-specific values of default thread stack size vary
-        // wildly between platforms; failure to specify a stack size, either
-        // through 'attributes' or 'Configuration', can lead to
-        // non-portable code.
+        // must be made to reclaim any system resources associated with the
+        // newly-created thread.  Also note that the platform-specific values
+        // of default thread stack size vary wildly between platforms; failure
+        // to specify a stack size, either through 'attributes' or
+        // 'Configuration', can lead to non-portable code.
 
     static int create(Handle         *handle,
                       ThreadFunction  function,
@@ -414,17 +431,17 @@ struct ThreadUtil {
         // 'ThreadUtil' methods.  Return 0 on success, and a non-zero
         // value otherwise.  The behavior is undefined unless 'handle != 0'.
         // Note that unless explicitly "detached" (by invoking
-        // 'detach(*handle)'), a call to 'join' must be made once the thread
-        // terminates to reclaim any system resources associated with the
-        // newly-created thread.  Also note that the platform-specific values
-        // of default thread stack size vary wildly between platforms; failure
-        // to specify a stack size, either through a 'ThreadAttributes'
-        // object or through 'Configuration', can lead to non-portable
-        // code.
+        // 'detach(*handle)'), a call to 'join' must be made to reclaim any
+        // system resources associated with the newly-created thread.  Also
+        // note that the platform-specific values of default thread stack size
+        // vary wildly between platforms; failure to specify a stack size,
+        // either through a 'ThreadAttributes' object or through
+        // 'Configuration', can lead to non-portable code.
 
+    template <typename INVOKABLE>
     static int create(Handle                  *handle,
                       const ThreadAttributes&  attributes,
-                      const Invokable&         function,
+                      const INVOKABLE&         function,
                       bslma::Allocator        *allocator = 0);
         // Create a new thread of program control having the specified
         // 'attributes' that invokes the specified 'function' object, and load
@@ -435,19 +452,21 @@ struct ThreadUtil {
         // is used'.  Return 0 on success and a non-zero value otherwise.  The
         // behavior is undefined unless 'handle != 0', unless 'allocator' is
         // thread-safe, and unless 'attributes.stackSize' is either greater
-        // than 0 or unset.  Note that unless explicitly "detached" (by
-        // invoking 'detach(*handle)') or the 'BCEMT_CREATE_DETACHED' attribute
-        // is specified, a call to 'join' must be made once the thread
-        // terminates to reclaim any system resources associated with the
+        // than 0 or unset.  'INVOKABLE' shall be a copy-constructible type
+        // having the equivalent of 'void operator()'. Note that unless
+        // explicitly "detached" (by invoking 'detach(*handle)') or the
+        // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
+        // must be made to reclaim any system resources associated with the
         // newly-created thread.  Also note that the lifetime of 'allocator',
-        // if specified, must exceed the lifeetime of the thread.  Also note
+        // if specified, must exceed the lifetime of the thread.  Also note
         // that the platform-specific values of default thread stack size vary
         // wildly between platforms; failure to specify a stack size, either
-        // through 'attributes' or 'Configuration', can lead to
-        // non-portable code.
+        // through 'attributes' or 'Configuration', can lead to non-portable
+        // code.
 
+    template <typename INVOKABLE>
     static int create(Handle           *handle,
-                      const Invokable&  function,
+                      const INVOKABLE&  function,
                       bslma::Allocator *allocator = 0);
         // Create a new thread of program control having default attributes
         // (e.g., "stack size", "scheduling priority", etc) provided by either
@@ -459,15 +478,16 @@ struct ThreadUtil {
         // If no 'allocator' is specified, the global allocator is used'.
         // Return 0 on success, and a non-zero value otherwise.  The behavior
         // is undefined unless 'handle != 0' and unless 'allocator' is
-        // thread-safe.  Note that unless explicitly "detached" (by invoking
-        // 'detach(*handle)'), a call to 'join' must be made once the thread
-        // terminates to reclaim any system resources associated with the
-        // newly-created thread.  Also note that the lifetime of 'allocator',
-        // if specified, must exceed the lifeetime of the thread.  Also note
-        // that the platform-specific values of default thread stack size vary
-        // wildly between platforms; failure to specify a stack size, either
-        // through a 'ThreadAttributes' object or through
-        // 'Configuration', can lead to non-portable code.
+        // thread-safe.  'INVOKABLE' shall be a copy-constructible type
+        // having the equivalent of 'void operator()'.  Note that unless
+        // explicitly "detached" (by invoking 'detach(*handle)'), a call to
+        // 'join' must be made to reclaim any
+        // system resources associated with the newly-created thread.  Also
+        // note that the lifetime of 'allocator', if specified, must exceed the
+        // lifeetime of the thread.  Also note that the platform-specific
+        // values of default thread stack size vary wildly between platforms;
+        // failure to specify a stack size, either through a 'ThreadAttributes'
+        // object or through 'Configuration', can lead to non-portable code.
 
     static int detach(Handle& handle);
         // "Detach" the thread identified by the specified 'handle' such that
@@ -689,16 +709,30 @@ struct ThreadUtil {
                             // struct ThreadUtil
                             // -----------------
 
-                        // *** Thread Management ***
+
+template <typename INVOKABLE>
+inline
+void* bdlqq::ThreadUtil::invokerFunction(void *threadArgRaw)
+{
+    ThreadArgument<INVOKABLE> *threadArg =
+        (ThreadArgument<INVOKABLE>*)threadArgRaw;
+    bslma::ManagedPtr<ThreadArgument<INVOKABLE> > threadArgGuard(
+                                                        threadArg,
+                                                        threadArg->allocator());
+    (*threadArgGuard->object())();
+    return 0;
+}
+
+                    // *** Thread Management ***
 
 // CLASS METHODS
 inline
 int bdlqq::ThreadUtil::create(Handle                  *handle,
-                              const ThreadAttributes&  attribute,
+                              const ThreadAttributes&  attributes,
                               ThreadFunction           function,
                               void                    *userData)
 {
-    return Imp::create(handle, attribute, function, userData);
+    return Imp::create(handle, attributes, function, userData);
 }
 
 inline
@@ -709,6 +743,45 @@ int bdlqq::ThreadUtil::create(Handle         *handle,
     return Imp::create(handle, function, userData);
 }
 
+template <typename INVOKABLE>
+inline
+int bdlqq::ThreadUtil::create(Handle                  *handle,
+                              const ThreadAttributes&  attributes,
+                              const INVOKABLE&         function,
+                              bslma::Allocator        *allocator) {
+    allocator = bslma::Default::globalAllocator(allocator);
+    bcemt_ThreadFunction threadEntry =
+        (bcemt_ThreadFunction)(&invokerFunction<INVOKABLE>);
+    
+    bslma::ManagedPtr<ThreadArgument<INVOKABLE> > threadData(
+        new (*allocator) ThreadArgument<INVOKABLE>(function, allocator),
+        allocator);
+    int rc = create(handle, attributes, threadEntry, threadData.ptr());
+    if (0 == rc) {
+        threadData.release();
+    }
+    return rc;
+}
+
+template <typename INVOKABLE>
+inline
+static int bdlqq::ThreadUtil::create(Handle           *handle,
+                                     const INVOKABLE&  function,
+                                     bslma::Allocator *allocator) {
+    allocator = bslma::Default::globalAllocator(allocator);
+    bcemt_ThreadFunction threadEntry =
+        (bcemt_ThreadFunction)(&invokerFunction<INVOKABLE>);
+    
+    bslma::ManagedPtr<ThreadArgument<INVOKABLE> > threadData(
+        new (*allocator) ThreadArgument<INVOKABLE>(function, allocator),
+        allocator);
+    int rc = create(handle, threadEntry, threadData.ptr());
+    if (0 == rc) {
+        threadData.release();
+    }
+    return rc;
+}
+    
 inline
 int bdlqq::ThreadUtil::detach(Handle& handle)
 {

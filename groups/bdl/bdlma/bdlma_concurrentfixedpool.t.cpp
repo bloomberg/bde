@@ -278,7 +278,7 @@ void *workerThread(void *arg) {
         int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
             printf("Thread %d: Allocated %p\n",
-                   static_cast<int>(bdlqq::ThreadUtil::self()),
+                   static_cast<int>(bdlqq::ThreadUtil::selfIdAsUint64()),
                    buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);

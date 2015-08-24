@@ -16,22 +16,6 @@ BSLS_IDENT_RCSID(bdlqq_threadutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-extern "C" {
-
-void *bcemt_ThreadUtil_threadFunc(void *arg)
-    // extern "C" formatted routine which allows us to call a C++ functor
-    // through the pthreads interface (which is written in C)
-{
-    typedef bdlqq::ThreadUtil::Invokable Invokable;
-    bslma::ManagedPtr<Invokable> functionPtr(
-                                          (Invokable *) arg,
-                                          ((Invokable *) arg)->getAllocator());
-    (*functionPtr)();
-    return 0;
-}
-
-}  // extern "C"
-
                             // -----------------
                             // struct ThreadUtil
                             // -----------------
@@ -67,48 +51,6 @@ int bdlqq::ThreadUtil::convertToSchedulingPriority(
 #endif
 
     return static_cast<int>(bsl::floor(ret));
-}
-
-int bdlqq::ThreadUtil::create(Handle                  *handle,
-                              const ThreadAttributes&  attributes,
-                              const Invokable&         function,
-                              bslma::Allocator        *allocator)
-{
-    if (!allocator) {
-        allocator = bslma::Default::globalAllocator();
-    }
-
-    bslma::ManagedPtr<Invokable> functionPtr(
-                   new (*allocator) Invokable(function, allocator), allocator);
-
-    const int rc = create(handle,
-                          attributes,
-                          bcemt_ThreadUtil_threadFunc,
-                          functionPtr.ptr());
-    if (0 == rc) {
-        functionPtr.release();
-    }
-    return rc;
-}
-
-int bdlqq::ThreadUtil::create(Handle           *handle,
-                              const Invokable&  function,
-                              bslma::Allocator *allocator)
-{
-    if (!allocator) {
-        allocator = bslma::Default::globalAllocator();
-    }
-
-    bslma::ManagedPtr<Invokable> functionPtr(
-                   new (*allocator) Invokable(function, allocator), allocator);
-
-    const int rc = create(handle,
-                          bcemt_ThreadUtil_threadFunc,
-                          functionPtr.ptr());
-    if (0 == rc) {
-        functionPtr.release();
-    }
-    return rc;
 }
 
 }  // close enterprise namespace
