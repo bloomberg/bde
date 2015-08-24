@@ -90,9 +90,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 struct ConvertibleType {
     int d_value;
@@ -679,7 +679,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::ChoiceA& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_choicea.cpp  -*-C++-*-
@@ -837,7 +837,7 @@ bsl::ostream& ChoiceA::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_choiceb.h   -*-C++-*-
@@ -1421,7 +1421,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::ChoiceB& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_choiceb.cpp  -*-C++-*-
@@ -1577,7 +1577,7 @@ bsl::ostream& ChoiceB::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizeda.h   -*-C++-*-
@@ -1858,7 +1858,7 @@ bsl::ostream& test::operator<<(bsl::ostream&            stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizeda.cpp  -*-C++-*-
@@ -1893,7 +1893,7 @@ const char CustomizedA::CLASS_NAME[] = "CustomizedA";
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizedb.h   -*-C++-*-
@@ -2035,7 +2035,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedB& rhs);
     // reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -2174,7 +2174,7 @@ bsl::ostream& test::operator<<(bsl::ostream&            stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizedb.cpp  -*-C++-*-
@@ -2209,7 +2209,7 @@ const char CustomizedB::CLASS_NAME[] = "CustomizedB";
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_enumerationa.h   -*-C++-*-
@@ -2448,7 +2448,7 @@ bsl::ostream& test::operator<<(bsl::ostream&             stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_enumerationa.cpp  -*-C++-*-
@@ -2530,7 +2530,7 @@ int EnumerationA::fromString(EnumerationA::Value *result,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_enumerationb.h   -*-C++-*-
@@ -2769,7 +2769,7 @@ bsl::ostream& test::operator<<(bsl::ostream&             stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_enumerationb.cpp  -*-C++-*-
@@ -2851,7 +2851,7 @@ int EnumerationB::fromString(EnumerationB::Value *result,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_sequencea.h   -*-C++-*-
@@ -3345,7 +3345,7 @@ bsl::ostream& test::operator<<(bsl::ostream&          stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_sequencea.cpp  -*-C++-*-
@@ -3494,7 +3494,7 @@ bsl::ostream& SequenceA::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_sequenceb.h   -*-C++-*-
@@ -3988,7 +3988,7 @@ bsl::ostream& test::operator<<(bsl::ostream&          stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_sequenceb.cpp  -*-C++-*-
@@ -4137,7 +4137,7 @@ bsl::ostream& SequenceB::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_employee.h   -*-C++-*-
@@ -4728,7 +4728,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Employee& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_employee.cpp  -*-C++-*-
@@ -4928,7 +4928,7 @@ bsl::ostream& Employee::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_trainee.h   -*-C++-*-
@@ -5464,7 +5464,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Trainee& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_trainee.cpp  -*-C++-*-
@@ -5634,7 +5634,7 @@ bsl::ostream& Trainee::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mixedsequence.h   -*-C++-*-
@@ -6414,7 +6414,7 @@ bsl::ostream& test::operator<<(bsl::ostream&              stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mixedsequence.cpp  -*-C++-*-
@@ -6683,12 +6683,12 @@ bsl::ostream& MixedSequence::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.  This
 // component can be used with types supported by the 'bdeat' framework.  In

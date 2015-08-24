@@ -211,9 +211,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-                              // =============
-                              // class Decoder
-                              // =============
+                               // =============
+                               // class Decoder
+                               // =============
 
 class Decoder {
     // This class provides a mechanism for decoding JSON data into
@@ -340,9 +340,9 @@ class Decoder {
         // log is reset each time 'decode' is called.
 };
 
-                      // =============================
-                      // struct Decoder_ElementVisitor
-                      // =============================
+                       // =============================
+                       // struct Decoder_ElementVisitor
+                       // =============================
 
 struct Decoder_ElementVisitor {
     // This 'class' implements a visitor for decoding elements within a
@@ -373,9 +373,9 @@ struct Decoder_ElementVisitor {
         // otherwise.
 };
 
-                      // =============================
-                      // struct Decoder_DecodeImpProxy
-                      // =============================
+                       // =============================
+                       // struct Decoder_DecodeImpProxy
+                       // =============================
 
 struct Decoder_DecodeImpProxy {
     // This class provides a functor that dispatches the appropriate
@@ -404,12 +404,12 @@ struct Decoder_DecodeImpProxy {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                              // -------------
-                              // class Decoder
-                              // -------------
+                               // -------------
+                               // class Decoder
+                               // -------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
@@ -994,9 +994,9 @@ bsl::string Decoder::loggedMessages() const
     return d_logStream.str();
 }
 
-                      // -----------------------------
-                      // struct Decoder_ElementVisitor
-                      // -----------------------------
+                       // -----------------------------
+                       // struct Decoder_ElementVisitor
+                       // -----------------------------
 
 template <class TYPE>
 inline
@@ -1016,9 +1016,9 @@ int Decoder_ElementVisitor::operator()(TYPE *value, const INFO& info)
                                   TypeCategory());
 }
 
-                      // -----------------------------
-                      // struct Decoder_DecodeImpProxy
-                      // -----------------------------
+                       // -----------------------------
+                       // struct Decoder_DecodeImpProxy
+                       // -----------------------------
 
 // MANIPULATORS
 template <class TYPE>

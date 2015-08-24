@@ -386,9 +386,9 @@ namespace balxml {class Reader;
 class ErrorInfo;
 class Decoder;
 
-                      // ===================================
-                      // class Decoder_ElementContext
-                      // ===================================
+                        // ============================
+                        // class Decoder_ElementContext
+                        // ============================
 
 class Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -425,9 +425,9 @@ class Decoder_ElementContext {
     int beginParse(Decoder *decoder);
 };
 
-                      // ====================
-                      // class Decoder
-                      // ====================
+                               // =============
+                               // class Decoder
+                               // =============
 
 class Decoder {
     // Engine for decoding value-semantic objects in XML format.  The 'decode'
@@ -696,9 +696,9 @@ class Decoder {
         // number is reset to zero on a call to 'open'.
 };
 
-                       // ================================
-                       // class Decoder_ErrorLogger
-                       // ================================
+                         // =========================
+                         // class Decoder_ErrorLogger
+                         // =========================
 
 class Decoder_ErrorLogger {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -790,9 +790,9 @@ class Decoder_UnknownElementContext;
 class Decoder_StdStringContext;      // proxy context
 class Decoder_StdVectorCharContext;  // proxy context
 
-                     // =====================================
-                     // class Decoder_ListParser<TYPE>
-                     // =====================================
+                       // ==============================
+                       // class Decoder_ListParser<TYPE>
+                       // ==============================
 
 template <class TYPE>
 class Decoder_ListParser {
@@ -867,9 +867,9 @@ class Decoder_ListParser {
 };
 }  // close package namespace
 
-                // ==============================================
-                // struct balxml::Decoder_InstantiateContext<TYPE>
-                // ==============================================
+              // ===============================================
+              // struct balxml::Decoder_InstantiateContext<TYPE>
+              // ===============================================
 
 
 namespace balxml {template <class CATEGORY, class TYPE>
@@ -943,9 +943,9 @@ struct Decoder_InstantiateContext<bdlat_TypeCategory::Enumeration, TYPE>
     typedef Decoder_SimpleContext<TYPE> Type;
 };
 
-                   // ========================================
-                   // struct Decoder_SelectContext<TYPE>
-                   // ========================================
+                     // ==================================
+                     // struct Decoder_SelectContext<TYPE>
+                     // ==================================
 
 template <class TYPE>
 struct Decoder_SelectContext {
@@ -962,9 +962,9 @@ struct Decoder_SelectContext {
     Decoder_InstantiateContext<TypeCategory, TYPE>::Type Type;
 };
 
-                   // ========================================
-                   // class Decoder_ChoiceContext<TYPE>
-                   // ========================================
+                     // =================================
+                     // class Decoder_ChoiceContext<TYPE>
+                     // =================================
 
 template <class TYPE>
 class Decoder_ChoiceContext :  public Decoder_ElementContext {
@@ -1008,9 +1008,9 @@ class Decoder_ChoiceContext :  public Decoder_ElementContext {
                                 Decoder *decoder);
 };
 
-                     // ====================================
-                     // class Decoder_NillableContext
-                     // ====================================
+                       // =============================
+                       // class Decoder_NillableContext
+                       // =============================
 
 class Decoder_NillableContext :  public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1112,9 +1112,9 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
                                 Decoder *decoder);
 };
 
-                  // ==========================================
-                  // class Decoder_SequenceContext<TYPE>
-                  // ==========================================
+                    // ===================================
+                    // class Decoder_SequenceContext<TYPE>
+                    // ===================================
 
 template <class TYPE>
 class Decoder_SequenceContext : public Decoder_ElementContext {
@@ -1155,9 +1155,9 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
                                 Decoder *decoder);
 };
 
-                   // ========================================
-                   // class Decoder_SimpleContext<TYPE>
-                   // ========================================
+                     // =================================
+                     // class Decoder_SimpleContext<TYPE>
+                     // =================================
 
 template <class TYPE>
 class Decoder_SimpleContext : public Decoder_ElementContext {
@@ -1199,9 +1199,9 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
                                 Decoder *decoder);
 };
 
-                   // ============================================
+                   // =====================================
                    // class Decoder_CustomizedContext<TYPE>
-                   // ============================================
+                   // =====================================
 
 template <class TYPE>
 class Decoder_CustomizedContext : public Decoder_ElementContext {
@@ -1250,9 +1250,9 @@ class Decoder_CustomizedContext : public Decoder_ElementContext {
                                 Decoder *decoder);
 };
 
-                  // ==========================================
-                  // class Decoder_UnknownElementContext
-                  // ==========================================
+                    // ===================================
+                    // class Decoder_UnknownElementContext
+                    // ===================================
 
 class Decoder_UnknownElementContext :
                                          public Decoder_ElementContext {
@@ -1292,9 +1292,9 @@ class Decoder_UnknownElementContext :
                                 Decoder *decoder);
 };
 
-                       // ================================
-                       // class Decoder_UTF8Context
-                       // ================================
+                         // =========================
+                         // class Decoder_UTF8Context
+                         // =========================
 
 template <class TYPE>
 class Decoder_UTF8Context : public Decoder_ElementContext {
@@ -1333,9 +1333,9 @@ class Decoder_UTF8Context : public Decoder_ElementContext {
                                 Decoder *decoder);
 };
 
-                     // =====================================
-                     // class Decoder_StdStringContext
-                     // =====================================
+                       // ==============================
+                       // class Decoder_StdStringContext
+                       // ==============================
 
 class Decoder_StdStringContext : public Decoder_ElementContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1394,9 +1394,9 @@ class Decoder_StdStringContext : public Decoder_ElementContext {
                                 Decoder *decoder);
 };
 
-                   // =========================================
-                   // class Decoder_StdVectorCharContext
-                   // =========================================
+                     // ==================================
+                     // class Decoder_StdVectorCharContext
+                     // ==================================
 
 class Decoder_StdVectorCharContext :
                                          public Decoder_ElementContext {
@@ -1466,9 +1466,9 @@ class Decoder_StdVectorCharContext :
                                 Decoder *decoder);
 };
 
-                  // ===========================================
-                  // class Decoder_PrepareSequenceContext
-                  // ===========================================
+                    // ====================================
+                    // class Decoder_PrepareSequenceContext
+                    // ====================================
 
 class Decoder_PrepareSequenceContext {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1500,9 +1500,9 @@ class Decoder_PrepareSequenceContext {
                    const INFO_TYPE& info);
 };
 
-                // ===============================================
-                // class Decoder_ParseSequenceSimpleContent
-                // ===============================================
+                  // ========================================
+                  // class Decoder_ParseSequenceSimpleContent
+                  // ========================================
 
 class Decoder_ParseSequenceSimpleContent {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1538,9 +1538,9 @@ class Decoder_ParseSequenceSimpleContent {
     int operator()(bsl::string *object, const INFO_TYPE& info);
 };
 
-                 // ============================================
-                 // class Decoder_ParseSequenceSubElement
-                 // ============================================
+                   // =====================================
+                   // class Decoder_ParseSequenceSubElement
+                   // =====================================
 
 class Decoder_ParseSequenceSubElement {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1576,9 +1576,9 @@ class Decoder_ParseSequenceSubElement {
     int execute(TYPE *object, int id, int formattingMode);
 };
 
-                      // ===================================
-                      // class Decoder_ParseAttribute
-                      // ===================================
+                        // ============================
+                        // class Decoder_ParseAttribute
+                        // ============================
 
 class Decoder_ParseAttribute {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1630,9 +1630,9 @@ class Decoder_ParseAttribute {
     bool failed() const;
 };
 
-                       // ================================
-                       // class Decoder_ParseObject
-                       // ================================
+                         // =========================
+                         // class Decoder_ParseObject
+                         // =========================
 
 class Decoder_ParseObject {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1718,9 +1718,9 @@ class Decoder_ParseObject {
     int execute(TYPE *object, int formattingMode);
 };
 
-                   // ========================================
-                   // class Decoder_ParseNillableObject
-                   // ========================================
+                     // =================================
+                     // class Decoder_ParseNillableObject
+                     // =================================
 
 class Decoder_ParseNillableObject {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1767,9 +1767,9 @@ class Decoder_ParseNillableObject {
 //                               PROXY CLASSES
 // ============================================================================
 
-                 // ====================================
-                 // struct Decoder_decodeImpProxy
-                 // ====================================
+                       // =============================
+                       // struct Decoder_decodeImpProxy
+                       // =============================
 
 struct Decoder_decodeImpProxy {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1798,9 +1798,9 @@ struct Decoder_decodeImpProxy {
     }
 };
 
-               // =================================================
-               // struct Decoder_ParseAttribute_executeProxy
-               // =================================================
+                 // ==========================================
+                 // struct Decoder_ParseAttribute_executeProxy
+                 // ==========================================
 
 struct Decoder_ParseAttribute_executeProxy {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1822,9 +1822,9 @@ struct Decoder_ParseAttribute_executeProxy {
     }
 };
 
-             // ====================================================
-             // struct Decoder_ParseAttribute_executeImpProxy
-             // ====================================================
+               // =============================================
+               // struct Decoder_ParseAttribute_executeImpProxy
+               // =============================================
 
 struct Decoder_ParseAttribute_executeImpProxy {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1854,9 +1854,9 @@ struct Decoder_ParseAttribute_executeImpProxy {
     }
 };
 
-                // ==============================================
-                // struct Decoder_ParseObject_executeProxy
-                // ==============================================
+                  // =======================================
+                  // struct Decoder_ParseObject_executeProxy
+                  // =======================================
 
 struct Decoder_ParseObject_executeProxy {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1878,9 +1878,9 @@ struct Decoder_ParseObject_executeProxy {
     }
 };
 
-               // =================================================
-               // struct Decoder_ParseObject_executeImpProxy
-               // =================================================
+                 // ==========================================
+                 // struct Decoder_ParseObject_executeImpProxy
+                 // ==========================================
 
 struct Decoder_ParseObject_executeImpProxy {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1910,9 +1910,9 @@ struct Decoder_ParseObject_executeImpProxy {
     }
 };
 
-           // =========================================================
-           // struct Decoder_ParseNillableObject_executeImpProxy
-           // =========================================================
+             // ==================================================
+             // struct Decoder_ParseNillableObject_executeImpProxy
+             // ==================================================
 
 struct Decoder_ParseNillableObject_executeImpProxy {
     // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1946,9 +1946,9 @@ struct Decoder_ParseNillableObject_executeImpProxy {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // ----------------------------------
-                         // class balxml::Decoder::MemOutStream
-                         // ----------------------------------
+                    // -----------------------------------
+                    // class balxml::Decoder::MemOutStream
+                    // -----------------------------------
 
 inline
 balxml::Decoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
@@ -1987,9 +1987,9 @@ void Decoder::setNumUnknownElementsSkipped(int value)
     d_numUnknownElementsSkipped = value;
 }
 
-                             // --------------------
-                             // class Decoder
-                             // --------------------
+                               // -------------
+                               // class Decoder
+                               // -------------
 
 inline
 const DecoderOptions *Decoder::options() const
@@ -2162,9 +2162,9 @@ int Decoder::decodeImp(TYPE *object, ANY_CATEGORY)
     return elementContext.beginParse(this);
 }
 
-                   // ----------------------------------------
-                   // class Decoder_ChoiceContext<TYPE>
-                   // ----------------------------------------
+                     // ---------------------------------
+                     // class Decoder_ChoiceContext<TYPE>
+                     // ---------------------------------
 
 template <class TYPE>
 inline
@@ -2406,9 +2406,9 @@ int Decoder_PushParserContext<TYPE, PARSER>::parseSubElement(
     return k_FAILURE;
 }
 
-                  // ------------------------------------------
-                  // class Decoder_SequenceContext<TYPE>
-                  // ------------------------------------------
+                    // -----------------------------------
+                    // class Decoder_SequenceContext<TYPE>
+                    // -----------------------------------
 
 // CREATORS
 template <class TYPE>
@@ -2549,9 +2549,9 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(
                                                         lenName);
 }
 
-                   // ----------------------------------------
-                   // class Decoder_SimpleContext<TYPE>
-                   // ----------------------------------------
+                     // ---------------------------------
+                     // class Decoder_SimpleContext<TYPE>
+                     // ---------------------------------
 
 // CREATORS
 template <class TYPE>
@@ -2643,9 +2643,9 @@ int Decoder_SimpleContext<TYPE>::parseSubElement(
     return k_FAILURE;  // will trigger failure in parser
 }
 
-                   // --------------------------------------------
+                   // -------------------------------------
                    // class Decoder_CustomizedContext<TYPE>
-                   // --------------------------------------------
+                   // -------------------------------------
 
 // CREATORS
 template <class TYPE>
@@ -2709,9 +2709,9 @@ int Decoder_CustomizedContext<TYPE>::parseSubElement(
     return d_baseContext.parseSubElement(elementName, decoder);
 }
 
-                       // --------------------------------
-                       // class Decoder_UTF8Context
-                       // --------------------------------
+                         // -------------------------
+                         // class Decoder_UTF8Context
+                         // -------------------------
 
 // CREATORS
 template <class TYPE>
@@ -2784,9 +2784,9 @@ int Decoder_UTF8Context<TYPE>::parseSubElement(
     return k_FAILURE;  // will trigger failure in parser
 }
 
-                  // -------------------------------------------
-                  // class Decoder_PrepareSequenceContext
-                  // -------------------------------------------
+                    // ------------------------------------
+                    // class Decoder_PrepareSequenceContext
+                    // ------------------------------------
 
 // CREATORS
 inline
@@ -2812,9 +2812,9 @@ int Decoder_PrepareSequenceContext::operator()(const TYPE&,
     return k_SUCCESS;
 }
 
-                // -----------------------------------------------
-                // class Decoder_ParseSequenceSimpleContent
-                // -----------------------------------------------
+                  // ----------------------------------------
+                  // class Decoder_ParseSequenceSimpleContent
+                  // ----------------------------------------
 
 // CREATORS
 inline
@@ -2882,9 +2882,9 @@ int Decoder_ParseSequenceSimpleContent::operator()(
     return k_SUCCESS;
 }
 
-                 // --------------------------------------------
-                 // class Decoder_ParseSequenceSubElement
-                 // --------------------------------------------
+                   // -------------------------------------
+                   // class Decoder_ParseSequenceSubElement
+                   // -------------------------------------
 
 // CREATORS
 inline
@@ -2921,9 +2921,9 @@ int Decoder_ParseSequenceSubElement::execute(TYPE *object,
     return parseObject.execute(object, formattingMode);
 }
 
-                      // -----------------------------------
-                      // class Decoder_ParseAttribute
-                      // -----------------------------------
+                        // ----------------------------
+                        // class Decoder_ParseAttribute
+                        // ----------------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
@@ -3033,9 +3033,9 @@ bool Decoder_ParseAttribute::failed() const
     return d_failed;
 }
 
-                       // --------------------------------
-                       // class Decoder_ParseObject
-                       // --------------------------------
+                         // -------------------------
+                         // class Decoder_ParseObject
+                         // -------------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
@@ -3300,9 +3300,9 @@ int Decoder_ParseObject::execute(TYPE *object, int formattingMode)
     return executeImp(object, formattingMode, TypeCategory());
 }
 
-                   // ----------------------------------------
-                   // class Decoder_ParseNillableObject
-                   // ----------------------------------------
+                     // ---------------------------------
+                     // class Decoder_ParseNillableObject
+                     // ---------------------------------
 
 // IMPLEMENTATION MANIPULATORS
 template <class TYPE>

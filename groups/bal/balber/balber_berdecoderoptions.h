@@ -59,9 +59,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace balber {
 
-                     // =======================
-                     // class BerDecoderOptions
-                     // =======================
+                          // =======================
+                          // class BerDecoderOptions
+                          // =======================
 
 class BerDecoderOptions {
     // BER decoding options
@@ -358,7 +358,7 @@ BDLAT_DECL_SEQUENCE_TRAITS(balber::BerDecoderOptions)
 namespace balber {
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                           // -----------------------

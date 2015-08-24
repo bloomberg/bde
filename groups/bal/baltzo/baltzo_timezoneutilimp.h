@@ -171,9 +171,9 @@ namespace baltzo {
 class LocalTimePeriod;
 class ZoneinfoCache;
 
-                        // =====================
-                        // class TimeZoneUtilImp
-                        // =====================
+                           // =====================
+                           // class TimeZoneUtilImp
+                           // =====================
 
 struct TimeZoneUtilImp {
     // This 'struct' provides a namespace for utility functions that convert

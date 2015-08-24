@@ -59,9 +59,9 @@ namespace BloombergLP {
 namespace btlb { class Blob; }
 
 namespace btlb {
-                        // ===========================
-                        // class InBlobStreamBuf
-                        // ===========================
+                           // =====================
+                           // class InBlobStreamBuf
+                           // =====================
 
 class InBlobStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
@@ -171,9 +171,9 @@ class InBlobStreamBuf : public bsl::streambuf {
         // "streamed" blob has at least one buffer.
 };
 
-                        // ============================
-                        // class OutBlobStreamBuf
-                        // ============================
+                           // ======================
+                           // class OutBlobStreamBuf
+                           // ======================
 
 class OutBlobStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
@@ -284,12 +284,12 @@ class OutBlobStreamBuf : public bsl::streambuf {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // ===========================
-                         // class InBlobStreamBuf
-                         // ===========================
+                           // =====================
+                           // class InBlobStreamBuf
+                           // =====================
 
 // MANIPULATORS
 inline
@@ -327,9 +327,9 @@ int InBlobStreamBuf::previousBuffersLength() const
     return d_previousBuffersLength;
 }
 
-                        // ============================
-                        // class OutBlobStreamBuf
-                        // ============================
+                           // ======================
+                           // class OutBlobStreamBuf
+                           // ======================
 
 // MANIPULATORS
 inline

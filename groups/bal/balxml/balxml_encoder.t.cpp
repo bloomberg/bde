@@ -39,9 +39,9 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -55,9 +55,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
-//=============================================================================
+// ============================================================================
 
 template <class T>
 void printValue(bsl::ostream& out, const T& value)
@@ -365,9 +365,9 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
 
 #endif
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
                aSsErT(1, #X, __LINE__); } }
@@ -407,9 +407,9 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
                cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
                                                  // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -418,9 +418,9 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balxml::Encoder        Encoder;
 typedef balxml::EncoderOptions EncoderOptions;
@@ -669,7 +669,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequence& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -892,7 +892,7 @@ bsl::ostream& test::operator<<(
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequence.cpp  -*-C++-*-
@@ -1051,7 +1051,7 @@ bsl::ostream& MySequence::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnullables.h   -*-C++-*-
@@ -1308,7 +1308,7 @@ bsl::ostream& operator<<(bsl::ostream&                   stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -1577,7 +1577,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                         stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnullables.cpp  -*-C++-*-
@@ -1761,7 +1761,7 @@ bsl::ostream& MySequenceWithNullables::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mychoice.h   -*-C++-*-
@@ -2008,7 +2008,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyChoice& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline
@@ -2299,7 +2299,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mychoice.cpp  -*-C++-*-
@@ -2468,7 +2468,7 @@ bsl::ostream& MyChoice::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewitharrays.h   -*-C++-*-
@@ -2772,7 +2772,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -3200,7 +3200,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                      stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewitharrays.cpp  -*-C++-*-
@@ -3479,7 +3479,7 @@ bsl::ostream& MySequenceWithArrays::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoicechoice.h   -*-C++-*-
@@ -3733,7 +3733,7 @@ bsl::ostream& operator<<(bsl::ostream&                               stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline
@@ -4038,7 +4038,7 @@ bsl::ostream& test::operator<<(
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoicechoice.cpp  -*-C++-*-
@@ -4210,7 +4210,7 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoice.h   -*-C++-*-
@@ -4464,7 +4464,7 @@ bsl::ostream& operator<<(bsl::ostream&                         stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -4737,7 +4737,7 @@ bsl::ostream& test::operator<<(
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithanonymouschoice.cpp  -*-C++-*-
@@ -4933,7 +4933,7 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithattributes.h   -*-C++-*-
@@ -5201,7 +5201,7 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -5508,7 +5508,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                          stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithattributes.cpp  -*-C++-*-
@@ -5729,7 +5729,7 @@ bsl::ostream& MySequenceWithAttributes::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimplecontent.h   -*-C++-*-
@@ -5982,7 +5982,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySimpleContent& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -6247,7 +6247,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                 stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimplecontent.cpp  -*-C++-*-
@@ -6447,7 +6447,7 @@ bsl::ostream& MySimpleContent::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimpleintcontent.h   -*-C++-*-
@@ -6701,7 +6701,7 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -6965,7 +6965,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                    stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysimpleintcontent.cpp  -*-C++-*-
@@ -7165,7 +7165,7 @@ bsl::ostream& MySimpleIntContent::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnillables.h   -*-C++-*-
@@ -7420,7 +7420,7 @@ bsl::ostream& operator<<(bsl::ostream&                   stream,
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -7689,7 +7689,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                         stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_mysequencewithnillables.cpp  -*-C++-*-
@@ -7876,7 +7876,7 @@ bsl::ostream& MySequenceWithNillables::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_address.h   -*-C++-*-
@@ -8122,7 +8122,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Address& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -8377,7 +8377,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Address& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_address.cpp  -*-C++-*-
@@ -8558,7 +8558,7 @@ bsl::ostream& Address::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_employee.h   -*-C++-*-
@@ -8803,7 +8803,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Employee& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -9058,7 +9058,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::Employee& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
 // test_employee.cpp  -*-C++-*-
@@ -9243,12 +9243,12 @@ bsl::ostream& Employee::print(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-File Block removed*
+//                        *End-of-File Block removed*
 // ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.
 // Suppose we have an XML schema inside a file named 'employee.xsd':
@@ -9333,9 +9333,9 @@ bsl::ostream& Employee::print(
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

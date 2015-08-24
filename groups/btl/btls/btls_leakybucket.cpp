@@ -54,9 +54,9 @@ bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
 }  // close unnamed namespace
 
 namespace btls {
-                            //------------------
-                            // class LeakyBucket
-                            //------------------
+                             // -----------------
+                             // class LeakyBucket
+                             // -----------------
 
 // CLASS METHODS
 bsls::TimeInterval LeakyBucket::calculateDrainTime(

@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(bdlde_charconvertstatus,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlde {
 
-                     // ------------------------
-                     // struct CharConvertStatus
-                     // ------------------------
+                          // ------------------------
+                          // struct CharConvertStatus
+                          // ------------------------
 
 // CLASS METHODS
 bsl::ostream& CharConvertStatus::print(bsl::ostream&           stream,

@@ -307,9 +307,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // ==========================
-                        // class ErrorInfo
-                        // ==========================
+                              // ===============
+                              // class ErrorInfo
+                              // ===============
 class ErrorInfo
 {
     // This class provides detailed information for errors encounted during
@@ -461,7 +461,7 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     // output is one-line without a terminating newline.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // MANIPULATORS

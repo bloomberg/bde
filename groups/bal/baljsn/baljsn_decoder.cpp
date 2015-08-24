@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(baljsn_decoder_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace baljsn {
 
-                              // -------------
-                              // class Decoder
-                              // -------------
+                               // -------------
+                               // class Decoder
+                               // -------------
 
 // PRIVATE MANIPULATORS
 int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)

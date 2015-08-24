@@ -40,7 +40,7 @@ using namespace bsl;
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -56,7 +56,7 @@ static void aSsErT(int c, const char *s, int i)
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define C_(X)   << #X << ": " << X << '\t'
@@ -70,7 +70,7 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP7_ASSERT(I,J,K,L,M,N,O,X) A_(X,C_(I)C_(J)C_(K)C_(L)C_(M)C_(N)C_(O))
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -80,20 +80,20 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef balst::AssertionLogger Obj;
 
 // ============================================================================
-//                            GLOBAL HELPER CLASSES
+//                           GLOBAL HELPER CLASSES
 // ----------------------------------------------------------------------------
 
 template <ball::Severity::Level Level>
@@ -141,9 +141,9 @@ AlwaysAssert::~AlwaysAssert()
     BSLS_ASSERT_OPT(false);
 }
 
-//=============================================================================
+// ============================================================================
 //                    HELPER FUNCTIONS FOR USAGE EXAMPLE
-//=============================================================================
+// ============================================================================
 
 // Usage
 ///-----
@@ -239,7 +239,7 @@ void protect_the_subsystem()
 //..
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

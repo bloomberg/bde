@@ -172,7 +172,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define E_(X) cout << (X) << flush;    // Print value.
 
 // ============================================================================
-//                    THREAD-SAFE OUTPUT AND ASSERT MACROS
+//                   THREAD-SAFE OUTPUT AND ASSERT MACROS
 // ----------------------------------------------------------------------------
 static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define ET(X) { printMutex.lock(); E(X); printMutex.unlock(); }
@@ -211,7 +211,7 @@ static bdlqq::Mutex &assertMutex = printMutex;// mutex to protect assert macros
        aSsErT(1, #X, __LINE__); assertMutex.unlock(); } }
 
 // ============================================================================
-//          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
+//         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
@@ -334,9 +334,9 @@ static void executeInParallel(int                               numThreads,
     delete [] threads;
 }
 
-                         // ===============
-                         // class TestClass
-                         // ===============
+                              // ===============
+                              // class TestClass
+                              // ===============
 
 class TestClass {
     // This class encapsulates the data associated with a clock or an event.
@@ -575,9 +575,9 @@ struct TestClass1 {
     }
 };
 
-                              // ====================
-                              // class TestPrintClass
-                              // ====================
+                            // ====================
+                            // class TestPrintClass
+                            // ====================
 
 struct TestPrintClass {
     // This class define a function 'callback' that prints a message.  This
@@ -654,11 +654,11 @@ static void cancelAllClocksCallback(Obj *scheduler, int wait)
 }
 
 // ============================================================================
-//                   HELPER CLASSES AND FUNCTIONS FOR TESTING
+//                 HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-//                          USAGE EXAMPLE RELATED ENTITIES
+//                      USAGE EXAMPLE RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
@@ -989,7 +989,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
 
 // ----------------------------------------------------------------------------
-//                          CASE 13 RELATED ENTITIES
+//                         CASE 13 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_13
@@ -1242,14 +1242,14 @@ void *workerThread10(void *arg)
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_10
 // ============================================================================
-//                         CASE 9 RELATED ENTITIES
+//                          CASE 9 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
 // ============================================================================
-//                         CASE 8 RELATED ENTITIES
+//                          CASE 8 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8
 {
@@ -1503,7 +1503,7 @@ void test7_f()
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_7
 
 // ============================================================================
-//                         CASE 6 RELATED ENTITIES
+//                          CASE 6 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6
 {
@@ -1668,21 +1668,21 @@ void test6_c()
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6
 // ============================================================================
-//                         CASE 5 RELATED ENTITIES
+//                          CASE 5 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5
 // ============================================================================
-//                         CASE 4 RELATED ENTITIES
+//                          CASE 4 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4
 // ============================================================================
-//                         CASE 3 RELATED ENTITIES
+//                          CASE 3 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_3
 {
@@ -1919,7 +1919,7 @@ void test3_g()
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_3
 // ============================================================================
-//                         CASE 2 RELATED ENTITIES
+//                          CASE 2 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2
 {
@@ -2046,7 +2046,7 @@ bool testCallbacks(int                  *failures,
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2
 // ============================================================================
-//                         CASE 1 RELATED ENTITIES
+//                          CASE 1 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1
 {
@@ -2615,7 +2615,7 @@ void test1_k()
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {

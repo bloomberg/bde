@@ -87,7 +87,7 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//              MODIFIED "STANDARD" BDE ASSERT TEST MACRO
+//                 MODIFIED "STANDARD" BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -110,7 +110,7 @@ bool aSsErT(int c, const char *s, int i)
 #define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
@@ -156,7 +156,7 @@ bool aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -173,7 +173,7 @@ bool aSsErT(int c, const char *s, int i)
 #define R_(X) #X " = " << (X) << " "
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
@@ -182,7 +182,7 @@ bool aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                               GLOBAL TYPEDEFS
+//                              GLOBAL TYPEDEFS
 // ----------------------------------------------------------------------------
 
 typedef bdlde::CharConvertUtf32  Util;
@@ -2095,7 +2095,7 @@ const char * const charUtf8MultiLang =
                                  reinterpret_cast<const char *>(utf8MultiLang);
 
 // ============================================================================
-//                              Padded String Ref
+//                             Padded String Ref
 // ============================================================================
 
 namespace {
@@ -2148,9 +2148,9 @@ class PaddedStringRef {
 
 }  // close unnamed namespace
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 char *decodeFourByteUtf8String(char *outBuf, unsigned val)
     // Translate the specified 'val' to UTF-8 to be written to the specified

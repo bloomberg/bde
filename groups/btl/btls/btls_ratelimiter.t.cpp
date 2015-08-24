@@ -126,7 +126,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
+//                 STANDARD BDE VARIADIC ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
@@ -138,7 +138,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -148,7 +148,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
@@ -158,7 +158,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 typedef btls::RateLimiter    Obj;
 typedef bsls::TimeInterval   Ti;
@@ -166,7 +166,7 @@ typedef bsls::Types::Uint64 Uint64;
 typedef unsigned int        uint;
 
 // ============================================================================
-//                                USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 ///Usage
@@ -234,7 +234,7 @@ typedef unsigned int        uint;
 //..
 
 // ============================================================================
-//                                 MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

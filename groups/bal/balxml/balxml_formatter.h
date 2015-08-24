@@ -254,9 +254,9 @@ namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bd
 }  // close namespace bdet
 
 namespace balxml {
-                        // ======================
-                        // class Formatter
-                        // ======================
+                              // ===============
+                              // class Formatter
+                              // ===============
 
 class Formatter {
     // This class provides a set of XML-style formatting utilities that
@@ -560,12 +560,12 @@ class Formatter {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -----------------------------------
-                        // class balxml::Formatter::ElemContext
-                        // -----------------------------------
+                    // ------------------------------------
+                    // class balxml::Formatter::ElemContext
+                    // ------------------------------------
 
 // CREATORS
 #ifdef BDE_BUILD_TARGET_SAFE_2

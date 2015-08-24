@@ -727,9 +727,9 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
 }  // close unnamed namespace
 
 namespace balxml {
-                         // --------------------------------
+                         // -------------------------
                          // struct TypesPrintUtil_Imp
-                         // --------------------------------
+                         // -------------------------
 
 // BASE64 FUNCTIONS
 

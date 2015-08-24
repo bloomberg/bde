@@ -61,9 +61,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class MutexImpl;
 
-                // =======================================
-                // class MutexImpl<Platform::PosixThreads>
-                // =======================================
+                  // =======================================
+                  // class MutexImpl<Platform::PosixThreads>
+                  // =======================================
 
 template <>
 class MutexImpl<Platform::PosixThreads> {
@@ -124,9 +124,9 @@ class MutexImpl<Platform::PosixThreads> {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                // ---------------------------------------
-                // class MutexImpl<Platform::PosixThreads>
-                // ---------------------------------------
+                  // ---------------------------------------
+                  // class MutexImpl<Platform::PosixThreads>
+                  // ---------------------------------------
 
 // CREATORS
 inline

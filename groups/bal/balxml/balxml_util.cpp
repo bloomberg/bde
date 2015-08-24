@@ -12,9 +12,9 @@ BSLS_IDENT_RCSID(balxml_util_cpp,"$Id$ $CSID$")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // ------------------
-                        // struct Util
-                        // ------------------
+                                // -----------
+                                // struct Util
+                                // -----------
 
 // CLASS METHODS
 bool

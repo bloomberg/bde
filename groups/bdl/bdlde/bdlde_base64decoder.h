@@ -400,9 +400,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlde {
-                        // =========================
-                        // class Base64Decoder
-                        // =========================
+                            // ===================
+                            // class Base64Decoder
+                            // ===================
 
 class Base64Decoder {
     // This class implements a mechanism capable of converting data of
@@ -571,12 +571,12 @@ class Base64Decoder {
 };
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                              // -------------------
-                              // class Base64Decoder
-                              // -------------------
+                            // -------------------
+                            // class Base64Decoder
+                            // -------------------
 
 // CLASS METHODS
 inline

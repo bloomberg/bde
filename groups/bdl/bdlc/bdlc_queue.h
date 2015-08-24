@@ -218,9 +218,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlc {
-                         // ================
-                         // class Queue
-                         // ================
+                                // ===========
+                                // class Queue
+                                // ===========
 
 template <class T>
 class Queue {

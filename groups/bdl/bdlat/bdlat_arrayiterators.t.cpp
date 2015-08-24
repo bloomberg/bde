@@ -88,9 +88,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
@@ -100,15 +100,15 @@ static int veryVeryVerbose = 0;
 
 namespace Obj = bdlat_ArrayIterators;
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 namespace Test {
 
-                       // ================
-                       // class FixedArray
-                       // ================
+                              // ================
+                              // class FixedArray
+                              // ================
 
 template <int SIZE, class TYPE> class FixedArray;
     // Fixed-sized array that conforms to the 'bdlat_arrayfunctions' interface
@@ -180,9 +180,9 @@ class FixedArray
     //  ~FixedArray();
 };
 
-                       // ============================
-                       // class FixedArrayElement
-                       // ============================
+                          // =======================
+                          // class FixedArrayElement
+                          // =======================
 
 template <class TYPE> class FixedArrayElement;
     // Proxy object to access an element of a FixedArray.  The 'accessElement'
@@ -266,9 +266,9 @@ namespace bdlat_ArrayFunctions {
 }  // close namespace bdlat_ArrayFunctions
 }  // close enterprise namespace
 
-                       // ----------------------
-                       // class Test::FixedArray
-                       // ----------------------
+                           // ----------------------
+                           // class Test::FixedArray
+                           // ----------------------
 
 // CREATOR
 template <int SIZE, class TYPE>
@@ -354,9 +354,9 @@ int Test::bdlat_valueTypeAssign(LHS_TYPE                       *lhs,
     return 0;
 }
 
-                        // ===============
-                        // class TestValue
-                        // ===============
+                              // ===============
+                              // class TestValue
+                              // ===============
 
 template <class TYPE>
 struct TestValue {
@@ -390,9 +390,9 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
     return probe.result();
 }
 
-//=============================================================================
-//                  CLASSES AND FUNCTIONS FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//             CLASSES AND FUNCTIONS FOR TESTING USAGE EXAMPLES
+// ----------------------------------------------------------------------------
 
 // To use the facilities in this component, you must of course include the
 // header file:
@@ -468,9 +468,9 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

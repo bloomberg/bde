@@ -170,9 +170,9 @@ class ConditionImpl;
 
 class Mutex;
 
-                            // ===============
-                            // class Condition
-                            // ===============
+                              // ===============
+                              // class Condition
+                              // ===============
 
 class Condition {
     // This 'class' implements a portable inter-thread signaling primitive.
@@ -248,9 +248,9 @@ class Condition {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ---------------
-                            // class Condition
-                            // ---------------
+                              // ---------------
+                              // class Condition
+                              // ---------------
 
 // CREATORS
 inline

@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(balxml_encoder_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                   // -------------------------------------
+                   // --------------------------------------
                    // class baexml::BerEncoder::MemOutStream
-                   // -------------------------------------
+                   // --------------------------------------
 
 balxml::Encoder::MemOutStream::~MemOutStream()
 {
@@ -86,9 +86,9 @@ ErrorInfo::Severity  Encoder::logError(
     return d_severity;
 }
 
-                       // ----------------------------
-                       // class Encoder_Context
-                       // ----------------------------
+                           // ---------------------
+                           // class Encoder_Context
+                           // ---------------------
 
 Encoder_Context::Encoder_Context(
                                 Formatter *formatter,
@@ -98,9 +98,9 @@ Encoder_Context::Encoder_Context(
 {
 }
 
-                       // ------------------------------
-                       // class Encoder_EncodeObject
-                       // ------------------------------
+                         // --------------------------
+                         // class Encoder_EncodeObject
+                         // --------------------------
 
 int Encoder_EncodeObject::executeImp(
                                       const bsl::vector<char>&  object,

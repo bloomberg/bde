@@ -230,9 +230,9 @@ namespace BloombergLP {
 
 namespace balxml {class PrefixStack;
 
-                        // =============================
-                        // class ElementAttribute
-                        // =============================
+                           // ======================
+                           // class ElementAttribute
+                           // ======================
 
 class ElementAttribute {
     // Class to represent the properties of an attribute in an XML element
@@ -452,7 +452,7 @@ bsl::ostream& operator<<(bsl::ostream&                  os,
     // computed are not computed by this function.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // ACCESSORS

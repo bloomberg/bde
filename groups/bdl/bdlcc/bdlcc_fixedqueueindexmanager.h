@@ -230,9 +230,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                       // ============================
-                       // class FixedQueueIndexManager
-                       // ============================
+                        // ============================
+                        // class FixedQueueIndexManager
+                        // ============================
 
 class FixedQueueIndexManager {
     // This class implements a circular buffer of atomic state variables.
@@ -486,12 +486,12 @@ class FixedQueueIndexManager {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                       // ----------------------------
-                       // class FixedQueueIndexManager
-                       // ----------------------------
+                        // ----------------------------
+                        // class FixedQueueIndexManager
+                        // ----------------------------
 
 // PRIVATE ACCESSORS
 inline

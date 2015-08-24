@@ -202,9 +202,9 @@ namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlsos {
 
-                         // =======================
-                         // class TcpTimedConnector
-                         // =======================
+                          // =======================
+                          // class TcpTimedConnector
+                          // =======================
 
 class TcpTimedConnector : public btlsc::TimedChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for
@@ -383,7 +383,7 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

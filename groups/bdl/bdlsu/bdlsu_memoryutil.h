@@ -62,9 +62,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                       // =======================
-                       // struct MemoryUtil
-                       // =======================
+                             // =================
+                             // struct MemoryUtil
+                             // =================
 
 struct MemoryUtil {
 

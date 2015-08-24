@@ -124,9 +124,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balxml {
-                           // ============================
+                           // =====================
                            // class HexParser<TYPE>
-                           // ============================
+                           // =====================
 
 template <class TYPE>
 class HexParser {
@@ -178,9 +178,9 @@ class HexParser {
         // parser.
 };
 
-                       // ==============================
-                       // struct HexParser_Helper
-                       // ==============================
+                          // =======================
+                          // struct HexParser_Helper
+                          // =======================
 
 class HexParser_Helper {
     // Namespace for facilities that are used in the implementation of
@@ -197,9 +197,9 @@ class HexParser_Helper {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // ----------------------------
+                           // ---------------------
                            // class HexParser<TYPE>
-                           // ----------------------------
+                           // ---------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>

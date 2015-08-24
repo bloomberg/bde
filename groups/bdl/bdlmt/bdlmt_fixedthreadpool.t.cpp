@@ -119,19 +119,19 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlmt::FixedThreadPool Obj;
 
 // ============================================================================
-//                              DEFAULT ALLOCATOR
+//                             DEFAULT ALLOCATOR
 // ----------------------------------------------------------------------------
 
 bslma::TestAllocator taDefault;
 
 // ============================================================================
-//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
 #define STARTPOOL(x) \
@@ -284,7 +284,7 @@ static double getCurrentCpuTime()
 }
 
 // ============================================================================
-//                         USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 #define SEARCH_THREADS     10
 #define SEARCH_QUEUE_CAPACITY  50
@@ -593,7 +593,7 @@ extern "C" {
 }
 
 // ============================================================================
-//                         CASE 9 RELATED ENTITIES
+//                          CASE 9 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
 static void counter(int *result, int num) {
@@ -604,7 +604,7 @@ static void counter(int *result, int num) {
 }
 
 // ============================================================================
-//                         CASE 6 RELATED ENTITIES
+//                          CASE 6 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 enum {
     DEPTH_LIMIT = 10,
@@ -635,7 +635,7 @@ void testJobFunction5(void *ptr)
 }
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

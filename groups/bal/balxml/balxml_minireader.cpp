@@ -272,9 +272,9 @@ void replaceCharReferences(char *text)
 
 namespace BloombergLP  {
 
-                  // -----------------------------
-                  // class balxml::MiniReader::Node
-                  // -----------------------------
+                       // ------------------------------
+                       // class balxml::MiniReader::Node
+                       // ------------------------------
 
 balxml::MiniReader::Node::Node(bslma::Allocator *basicAllocator)
 : d_type          (e_NODE_TYPE_NONE)
@@ -363,9 +363,9 @@ balxml::MiniReader::Node::addAttribute(const Attribute& attr)
 }
 
 namespace balxml {
-                          // -----------------------
-                          // class MiniReader
-                          // -----------------------
+                              // ----------------
+                              // class MiniReader
+                              // ----------------
 
 // CREATORS
 MiniReader::MiniReader(bslma::Allocator *basicAllocator)
@@ -923,9 +923,9 @@ MiniReader::advanceToNextNode()
     return rc;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              PRIVATE methods
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int
 MiniReader::skipSpaces()
 {

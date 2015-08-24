@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
 // 'float', respectively.  Furthermore, we have a need to BER encode employee
 // records as a sequence of values (for out-of-process consumption).
-// 
+//
 // Assume that we have defined a 'usage::EmployeeRecord' class to represent
 // employee record values, and assume that we have provided the 'bdlat'
 // specializations that allow the 'balber' codec components to represent class
@@ -260,9 +260,9 @@ class  BerEncoder_Visitor;
 class  BerEncoder_UniversalElementVisitor;
 class  BerEncoder_LevelGuard;
 
-                           // ================
-                           // class BerEncoder
-                           // ================
+                              // ================
+                              // class BerEncoder
+                              // ================
 
 class BerEncoder {
     // This class contains the parameterized 'encode' functions that encode
@@ -477,9 +477,9 @@ class BerEncoder {
         // log is reset each time 'encode' is called.
 };
 
-        // ===================================
-        // private class BerEncoder_LevelGuard
-        // ===================================
+                    // ===================================
+                    // private class BerEncoder_LevelGuard
+                    // ===================================
 
 class BerEncoder_LevelGuard {
     // This class serves the purpose to automatically increment-decrement the
@@ -498,9 +498,9 @@ class BerEncoder_LevelGuard {
     ~BerEncoder_LevelGuard();
 };
 
-                 // ================================
-                 // private class BerEncoder_Visitor
-                 // ================================
+                      // ================================
+                      // private class BerEncoder_Visitor
+                      // ================================
 
 class BerEncoder_Visitor {
     // This class is used as a visitor for visiting contained objects during
@@ -524,9 +524,9 @@ class BerEncoder_Visitor {
     int operator()(const TYPE& value, const INFO& info);
 };
 
-         // ================================================
-         // private class BerEncoder_UniversalElementVisitor
-         // ================================================
+              // ================================================
+              // private class BerEncoder_UniversalElementVisitor
+              // ================================================
 
 class BerEncoder_UniversalElementVisitor {
     // This class is used as a visitor for visiting the top-level element and
@@ -563,9 +563,9 @@ class BerEncoder_UniversalElementVisitor {
 //                               PROXY CLASSES
 // ============================================================================
 
-                 // =============================
-                 // struct BerEncoder_encodeProxy
-                 // =============================
+                       // =============================
+                       // struct BerEncoder_encodeProxy
+                       // =============================
 
 struct BerEncoder_encodeProxy {
     // Component-private struct.  Provides accessor that that keeps current
@@ -594,12 +594,12 @@ struct BerEncoder_encodeProxy {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                         // --------------------------------------
-                         // class balber::BerEncoder::MemOutStream
-                         // --------------------------------------
+                   // --------------------------------------
+                   // class balber::BerEncoder::MemOutStream
+                   // --------------------------------------
 
 inline
 balber::BerEncoder::MemOutStream::MemOutStream(
@@ -632,9 +632,9 @@ int balber::BerEncoder::MemOutStream::length() const
 
 namespace balber {
 
-              // ----------------------------
-              // class BerEncoder::LevelGuard
-              // ----------------------------
+                        // ----------------------------
+                        // class BerEncoder::LevelGuard
+                        // ----------------------------
 
 inline
 BerEncoder_LevelGuard::BerEncoder_LevelGuard(BerEncoder *encoder)
@@ -649,9 +649,9 @@ BerEncoder_LevelGuard::~BerEncoder_LevelGuard()
     --d_encoder->d_currentDepth;
 }
 
-              // -----------------------------
-              // struct BerEncoder_encodeProxy
-              // -----------------------------
+                       // -----------------------------
+                       // struct BerEncoder_encodeProxy
+                       // -----------------------------
 
 template <typename TYPE>
 inline
@@ -683,9 +683,9 @@ int BerEncoder_encodeProxy::operator()(const TYPE& object)
     return this->operator()(object, TypeCategory());
 }
 
-                         // ----------------
-                         // class BerEncoder
-                         // ----------------
+                              // ----------------
+                              // class BerEncoder
+                              // ----------------
 
 // ACCESSORS
 inline
@@ -1051,9 +1051,9 @@ int BerEncoder::encodeImpl(const TYPE&                          value,
     return bdlat_TypeCategoryUtil::accessByCategory(value, proxy);
 }
 
-                 // --------------------------------
-                 // private class BerEncoder_Visitor
-                 // --------------------------------
+                      // --------------------------------
+                      // private class BerEncoder_Visitor
+                      // --------------------------------
 
 // CREATORS
 inline
@@ -1091,9 +1091,9 @@ int BerEncoder_Visitor::operator()(const TYPE& value, const INFO& info)
     return rc;
 }
 
-         // ------------------------------------------------
-         // private class BerEncoder_UniversalElementVisitor
-         // ------------------------------------------------
+              // ------------------------------------------------
+              // private class BerEncoder_UniversalElementVisitor
+              // ------------------------------------------------
 
 // CREATORS
 inline

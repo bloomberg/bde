@@ -59,9 +59,9 @@ enum {
 
 namespace btlsos {
 
-                         // =======================
-                         // class TcpCbChannel_RReg
-                         // =======================
+                          // =======================
+                          // class TcpCbChannel_RReg
+                          // =======================
 
 class TcpCbChannel_RReg {
 public:
@@ -280,9 +280,9 @@ bsl::ostream& operator<<(bsl::ostream& out, const TcpCbChannel_RReg& reg)
     return out;
 }
 
-                         // =======================
-                         // class TcpCbChannel_WReg
-                         // =======================
+                          // =======================
+                          // class TcpCbChannel_WReg
+                          // =======================
 
 class TcpCbChannel_WReg {
 public:
@@ -456,9 +456,9 @@ void TcpCbChannel_WReg::invokeConditionally(int status, int augStatus) const
 
 }  // close package namespace
 
-                     // ================================
-                     // local function completeOperation
-                     // ================================
+                      // ================================
+                      // local function completeOperation
+                      // ================================
 
 static inline
 int completeOperation(btlsos::TcpCbChannel_RReg *request,
@@ -557,9 +557,9 @@ int completeOperation(btlsos::TcpCbChannel_RReg *request,
     return rv;
 }
 
-                       // ===========================
-                       // local function dequeue<REG>
-                       // ===========================
+                        // ===========================
+                        // local function dequeue<REG>
+                        // ===========================
 
 template <class REG>
 inline void
@@ -583,9 +583,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     queue->clear();
 }
 
-                     // ===============================
-                     // local function initializeBuffer
-                     // ===============================
+                      // ===============================
+                      // local function initializeBuffer
+                      // ===============================
 
 static inline
 void initializeBuffer(bsl::vector<char>                       *buffer,
@@ -612,9 +612,9 @@ namespace btlsos {
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                            // ------------------
-                            // class TcpCbChannel
-                            // ------------------
+                             // ------------------
+                             // class TcpCbChannel
+                             // ------------------
 
 // PRIVATE MANIPULATORS
 

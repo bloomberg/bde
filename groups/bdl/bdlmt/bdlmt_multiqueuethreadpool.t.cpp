@@ -148,7 +148,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
 
 // ============================================================================
-//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
+//            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
 typedef bdlmt::MultiQueueThreadPool Obj;
 
@@ -171,7 +171,7 @@ static bdlqq::Mutex coutMutex;
 #endif
 
 // ============================================================================
-//                      GLOBAL HELPER FUNCTIONS FOR TESTING
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 void makeFunc(bdlf::Function<void (*)()> * f, void (*fptr)()) {
     *f = fptr;
@@ -338,7 +338,7 @@ double now() {
 }
 
 // ============================================================================
-//       CASE-SPECIFIC TYPES, HELPER FUNCTIONS, AND CLASSES FOR TESTING
+//      CASE-SPECIFIC TYPES, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 static
 void case9Callback(bsls::AtomicInt *counter, bsl::vector<int> *results)
@@ -398,7 +398,7 @@ void case12DeleteQueue(bdlmt::MultiQueueThreadPool       *mqtp,
 }
 
 // ============================================================================
-//           CLASSES AND HELPER FUNCTIONS FOR TESTING USAGE EXAMPLES
+//          CLASSES AND HELPER FUNCTIONS FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
                            // ======================
@@ -447,7 +447,7 @@ class my_SearchProfile {
 };
 
 // ----------------------------------------------------------------------------
-//                               IMPLEMENTATION
+//                              IMPLEMENTATION
 // ----------------------------------------------------------------------------
 
 // CREATORS
@@ -649,7 +649,7 @@ struct StressJob {
 int StressJob::s_count = 0;
 
 // ============================================================================
-//                          For test cases 14 and 15
+//                         For test cases 14 and 15
 // ----------------------------------------------------------------------------
 
 // This was originally done twice in a loop in case 14, but it is taking so

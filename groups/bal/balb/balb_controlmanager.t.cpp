@@ -16,9 +16,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -55,18 +55,18 @@ static void aSsErT(int c, const char *s, int i)
                     << #M << ": " << M << "\n";                           \
                aSsErT(1, #X, __LINE__); }}
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number.
 #define T_()  cout << '\t' << flush;          // Print tab w/o newline.
 
-//=============================================================================
-//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
@@ -162,9 +162,9 @@ class Dispatcher
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = (argc > 1) ? atoi(argv[1]) : 1;

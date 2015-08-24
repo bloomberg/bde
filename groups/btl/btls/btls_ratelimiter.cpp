@@ -6,9 +6,9 @@
 namespace BloombergLP {
 
 namespace btls {
-                            //------------------
-                            // class RateLimiter
-                            //------------------
+                             // -----------------
+                             // class RateLimiter
+                             // -----------------
 
 // CREATORS
 RateLimiter::RateLimiter(bsls::Types::Uint64       sustainedRateLimit,

@@ -121,7 +121,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -131,9 +131,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
-//                           GLOBAL DATA FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                          GLOBAL DATA FOR TESTING
+// ----------------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #   define PS "\\"
@@ -158,9 +158,9 @@ static const size_t NUM_VALID_NAMES = NUM_NAMES - 1;
 static const size_t NUM_VALID_NAMES = NUM_NAMES;
 #endif
 
-//=============================================================================
-//                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlsu::FilesystemUtil Obj;
 
@@ -453,9 +453,9 @@ namespace UsageExample2 {
 
 }  // close namespace UsageExample2
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

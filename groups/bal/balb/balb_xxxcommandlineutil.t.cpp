@@ -36,7 +36,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP ASSERT TEST MACROS
+//                   STANDARD BDE LOOP ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
@@ -55,7 +55,7 @@ static void aSsErT(int c, const char *s, int i)
 
 
 // ============================================================================
-//                  SEMI STANDARD TEST OUTPUT MACROS
+//                     SEMI STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
@@ -67,11 +67,11 @@ static void aSsErT(int c, const char *s, int i)
 #define NL "\n"
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//                                 USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 namespace UsageExample1 {
@@ -146,9 +146,9 @@ void process(const bsl::string& configFilename)
 //..
 }  // close namespace UsageExample1
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

@@ -32,9 +32,9 @@ using bsl::flush;
 //                              --------
 //-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -48,9 +48,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
-//=============================================================================
+// ============================================================================
 
 template <class T>
 void printValue(bsl::ostream& out, const T& value)
@@ -338,9 +338,9 @@ void printValue(bsl::ostream& out, const bsl::string& value)
     printValue(out, value.c_str());
 }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
                aSsErT(1, #X, __LINE__); } }
@@ -380,9 +380,9 @@ void printValue(bsl::ostream& out, const bsl::string& value)
                cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
                                                  // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -391,9 +391,9 @@ void printValue(bsl::ostream& out, const bsl::string& value)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balxml::TypesParserUtil Util;
 
@@ -576,7 +576,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline
@@ -639,7 +639,7 @@ bsl::ostream& test::operator<<(bsl::ostream&              stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_myenumeration.cpp  -*-C++-*-
@@ -728,7 +728,7 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizedint.h   -*-C++-*-
@@ -858,7 +858,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedInt& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -964,7 +964,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizedint.cpp  -*-C++-*-
@@ -999,7 +999,7 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizedstring.h   -*-C++-*-
@@ -1143,7 +1143,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedString& rhs);
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
@@ -1252,7 +1252,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_customizedstring.cpp  -*-C++-*-
@@ -1289,12 +1289,12 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.  It
 // parses a Base64 string into an 'bsl::vector<char>':
@@ -1326,9 +1326,9 @@ void usageExample()
 }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

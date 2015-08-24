@@ -422,9 +422,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlmt {
-                       // ==================================
+                       // =============================
                        // class MultipriorityThreadPool
-                       // ==================================
+                       // =============================
 
 class MultipriorityThreadPool {
     // This class implements a thread-enabled, integrally-prioritized

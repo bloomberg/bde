@@ -275,9 +275,9 @@ struct QLock {
         // Return true if this lock is locked and false otherwise.
 };
 
-                        // =====================
-                        // class QLock_EventFlag
-                        // =====================
+                           // =====================
+                           // class QLock_EventFlag
+                           // =====================
 
 class QLock_EventFlag {
     // [!PRIVATE!] This class provides a thread-safe mechanism for one thread
@@ -332,9 +332,9 @@ class QLock_EventFlag {
         // for this flag to be set.
 };
 
-                            // ================
-                            // class QLockGuard
-                            // ================
+                              // ================
+                              // class QLockGuard
+                              // ================
 
 class QLockGuard  {
     // This class provides the means to acquire and release the lock on a
@@ -432,9 +432,9 @@ bool bdlqq::QLock::isLocked() const
     return bsls::AtomicOperations::getPtr(&d_guardQueueTail) != 0;
 }
 
-                        // ---------------------
-                        // class QLock_EventFlag
-                        // ---------------------
+                           // ---------------------
+                           // class QLock_EventFlag
+                           // ---------------------
 
 // CREATORS
 inline
@@ -455,9 +455,9 @@ void bdlqq::QLock_EventFlag::reset()
     d_status = 0;
 }
 
-                            // ----------------
-                            // class QLockGuard
-                            // ----------------
+                              // ----------------
+                              // class QLockGuard
+                              // ----------------
 
 // CREATORS
 inline

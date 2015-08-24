@@ -66,9 +66,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -80,9 +80,9 @@ static void aSsErT(int c, const char *s, int i)
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -95,9 +95,9 @@ static void aSsErT(int c, const char *s, int i)
                     << J << "\t" \
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X)  cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X)  cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -105,7 +105,7 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -115,18 +115,18 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef baltzo::ZoneinfoUtil                      Obj;
 typedef baltzo::Zoneinfo                          Tz;
 typedef baltzo::Zoneinfo::TransitionConstIterator TzIt;
 typedef baltzo::LocalTimeDescriptor               Desc;
 typedef baltzo::LocalTimeValidity                 Validity;
 
-//=============================================================================
+// ============================================================================
 //                              TEST FUNCTIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
     // Return the interval in seconds from UNIX epoch time of the specified
@@ -209,7 +209,7 @@ void addTransitions(baltzo::Zoneinfo            *result,
 }
 
 // ============================================================================
-//                         GLOBAL CLASSES FOR TESTING
+//                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
 struct LogVerbosityGuard {
@@ -265,9 +265,9 @@ struct LogVerbosityGuard {
     }
 };
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

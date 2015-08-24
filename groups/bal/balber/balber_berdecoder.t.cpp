@@ -46,7 +46,7 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
@@ -79,7 +79,7 @@ static void aSsErT(int c, const char *s, int i) {
    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P(N) aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 #undef P
 #define P(X) { bsl::cout << #X " = "; \
@@ -93,7 +93,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
@@ -107,7 +107,7 @@ static bool     veryVerbose = false;
 static bool veryVeryVerbose = false;
 
 // ============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
 bsl::vector<char> loadFromHex(const char *hexData)
@@ -299,7 +299,7 @@ void printDiagnostic(balber::BerDecoder & decoder)
 }
 
 // ============================================================================
-//                  GLOBAL HELPER CLASSES FOR TESTING
+//                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
 // The code below was generated using the following command:
@@ -2141,9 +2141,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::BasicRecord)
 
 namespace test {
 
-                             // ============================
-                             // class BasicRecordWithVariant
-                             // ============================
+                        // ============================
+                        // class BasicRecordWithVariant
+                        // ============================
 
 class BasicRecordWithVariant {
     // A representative small record type
@@ -3617,7 +3617,7 @@ struct Messages {
 }  // close namespace test
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 namespace test {
@@ -5266,9 +5266,9 @@ const bsl::string& BasicRecord::s() const
     return d_s;
 }
 
-                             // ----------------------------
-                             // class BasicRecordWithVariant
-                             // ----------------------------
+                        // ----------------------------
+                        // class BasicRecordWithVariant
+                        // ----------------------------
 
 // CREATORS
 inline
@@ -8540,9 +8540,9 @@ bsl::ostream& BasicRecord::print(
     return stream << bsl::flush;
 }
 
-                             // -----------------
-                             // class BasicRecordWithVariant
-                             // -----------------
+                        // ----------------------------
+                        // class BasicRecordWithVariant
+                        // ----------------------------
 
 // CONSTANTS
 
@@ -10015,7 +10015,7 @@ static void usageExample()
 // 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
 // 'float', respectively.  Furthermore, we have a need to BER encode employee
 // records as a sequence of values (for out-of-process consumption).
-// 
+//
 // Assume that we have defined a 'usage::EmployeeRecord' class to represent
 // employee record values, and assume that we have provided the 'bdlat'
 // specializations that allow the 'balber' codec components to represent class
@@ -10063,7 +10063,7 @@ static void usageExample()
 }
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

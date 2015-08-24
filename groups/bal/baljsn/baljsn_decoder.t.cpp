@@ -120,7 +120,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef baljsn::Decoder Obj;
@@ -33712,9 +33712,9 @@ BSLMF_ASSERT(NUM_JSON_COMPACT_MESSAGES == NUM_XML_TEST_MESSAGES);
 namespace BloombergLP {
 namespace test {
 
-                              // =============
-                              // class Address
-                              // =============
+                               // =============
+                               // class Address
+                               // =============
 
 class Address {
     // Address
@@ -33921,9 +33921,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Address)
 
 namespace test {
 
-                              // -------------
-                              // class Address
-                              // -------------
+                               // -------------
+                               // class Address
+                               // -------------
 
 // CONSTANTS
 
@@ -34296,9 +34296,9 @@ const bsl::string& Address::state() const
 
 namespace test {
 
-                              // ==============
-                              // class Employee
-                              // ==============
+                               // ==============
+                               // class Employee
+                               // ==============
 
 class Employee {
     // Employee
@@ -34504,9 +34504,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Employee)
 
 namespace test {
 
-                              // --------------
-                              // class Employee
-                              // --------------
+                               // --------------
+                               // class Employee
+                               // --------------
 
 // CONSTANTS
 
@@ -35004,9 +35004,9 @@ namespace case4 { class FullName; }
 namespace case4 { class Employee; }
 namespace case4 {
 
-                               // ===========
-                               // class Color
-                               // ===========
+                                // ===========
+                                // class Color
+                                // ===========
 
 struct Color {
 
@@ -35073,9 +35073,9 @@ BDLAT_DECL_ENUMERATION_TRAITS(case4::Color)
 
 namespace case4 {
 
-                              // ==============
-                              // class FullName
-                              // ==============
+                               // ==============
+                               // class FullName
+                               // ==============
 
 class FullName {
 
@@ -35237,9 +35237,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case4::FullName)
 
 namespace case4 {
 
-                              // ==============
-                              // class Employee
-                              // ==============
+                               // ==============
+                               // class Employee
+                               // ==============
 
 class Employee {
 
@@ -35443,14 +35443,14 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case4::Employee)
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 namespace case4 {
 
-                               // -----------
-                               // class Color
-                               // -----------
+                                // -----------
+                                // class Color
+                                // -----------
 
 // CLASS METHODS
 inline
@@ -35459,9 +35459,9 @@ int Color::fromString(Value *result, const bsl::string& string)
     return fromString(result, string.c_str(), string.length());
 }
 
-                              // --------------
-                              // class FullName
-                              // --------------
+                               // --------------
+                               // class FullName
+                               // --------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -35597,9 +35597,9 @@ const bsl::vector<int>& FullName::ids() const
     return d_ids;
 }
 
-                              // --------------
-                              // class Employee
-                              // --------------
+                               // --------------
+                               // class Employee
+                               // --------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -35914,9 +35914,9 @@ bool case4::operator!=(const case4::Employee& lhs, const case4::Employee& rhs)
 
 namespace case4 {
 
-                               // -----------
-                               // class Color
-                               // -----------
+                                // -----------
+                                // class Color
+                                // -----------
 
 // CONSTANTS
 
@@ -35995,9 +35995,9 @@ const char *Color::toString(Color::Value value)
     return 0;
 }
 
-                              // --------------
-                              // class FullName
-                              // --------------
+                               // --------------
+                               // class FullName
+                               // --------------
 
 // CONSTANTS
 
@@ -36090,9 +36090,9 @@ void FullName::reset()
     bdlat_ValueTypeFunctions::reset(&d_ids);
 }
 
-                              // --------------
-                              // class Employee
-                              // --------------
+                               // --------------
+                               // class Employee
+                               // --------------
 
 // CONSTANTS
 
@@ -36244,9 +36244,9 @@ void Employee::reset()
 namespace BloombergLP {
 namespace test {
 
-                      // =============================
-                      // class HexBinaryCustomizedType
-                      // =============================
+                       // =============================
+                       // class HexBinaryCustomizedType
+                       // =============================
 
 class HexBinaryCustomizedType {
 
@@ -36353,14 +36353,14 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
 BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(test::HexBinaryCustomizedType)
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 namespace test {
 
-                      // -----------------------------
-                      // class HexBinaryCustomizedType
-                      // -----------------------------
+                       // -----------------------------
+                       // class HexBinaryCustomizedType
+                       // -----------------------------
 
 // PRIVATE CLASS METHODS
 int HexBinaryCustomizedType::checkRestrictions(const char *value, int size)
@@ -36489,9 +36489,9 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
 
 const char HexBinaryCustomizedType::CLASS_NAME[] = "HexBinaryCT";
 
-                         // =======================
-                         // class HexBinarySequence
-                         // =======================
+                          // =======================
+                          // class HexBinarySequence
+                          // =======================
 
 class HexBinarySequence {
 
@@ -36661,9 +36661,9 @@ BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(test::HexBinarySequence)
 
 namespace test {
 
-                         // -----------------------
-                         // class HexBinarySequence
-                         // -----------------------
+                          // -----------------------
+                          // class HexBinarySequence
+                          // -----------------------
 
 // MANIPULATORS
 template <class MANIPULATOR>
@@ -36785,9 +36785,9 @@ bool operator!=(const HexBinarySequence& lhs, const HexBinarySequence& rhs)
     return !(lhs == rhs);
 }
 
-                         // -----------------------
-                         // class HexBinarySequence
-                         // -----------------------
+                          // -----------------------
+                          // class HexBinarySequence
+                          // -----------------------
 
 // CONSTANTS
 
@@ -36916,7 +36916,7 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
 }  // close enterprise namespace
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

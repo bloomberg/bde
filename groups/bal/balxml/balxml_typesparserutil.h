@@ -204,9 +204,9 @@ namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bd
 }  // close namespace bdet
 
 namespace balxml {
-                           // =============================
+                           // ======================
                            // struct TypesParserUtil
-                           // =============================
+                           // ======================
 
 struct TypesParserUtil {
     // This 'struct' contains functions for parsing input strings using various
@@ -279,9 +279,9 @@ struct TypesParserUtil {
         // otherwise.
 };
 
-                         // =================================
+                         // ==========================
                          // struct TypesParserUtil_Imp
-                         // =================================
+                         // ==========================
 
 struct TypesParserUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
@@ -571,9 +571,9 @@ struct TypesParserUtil_Imp {
 //                               PROXY CLASSES
 // ============================================================================
 
-                // ==================================================
+                // ===========================================
                 // struct TypesParserUtil_Imp_parseBase64Proxy
-                // ==================================================
+                // ===========================================
 
 struct TypesParserUtil_Imp_parseBase64Proxy {
     // Component-private struct.  Do not use.
@@ -607,9 +607,9 @@ struct TypesParserUtil_Imp_parseBase64Proxy {
     }
 };
 
-                // ===================================================
+                // ============================================
                 // struct TypesParserUtil_Imp_parseDecimalProxy
-                // ===================================================
+                // ============================================
 
 struct TypesParserUtil_Imp_parseDecimalProxy {
     // Component-private struct.  Do not use.
@@ -643,9 +643,9 @@ struct TypesParserUtil_Imp_parseDecimalProxy {
     }
 };
 
-                // ===================================================
+                // ============================================
                 // struct TypesParserUtil_Imp_parseDefaultProxy
-                // ===================================================
+                // ============================================
 
 struct TypesParserUtil_Imp_parseDefaultProxy {
     // Component-private struct.  Do not use.
@@ -679,9 +679,9 @@ struct TypesParserUtil_Imp_parseDefaultProxy {
     }
 };
 
-                  // ===============================================
+                  // ========================================
                   // struct TypesParserUtil_Imp_parseHexProxy
-                  // ===============================================
+                  // ========================================
 
 struct TypesParserUtil_Imp_parseHexProxy {
     // Component-private struct.  Do not use.
@@ -715,9 +715,9 @@ struct TypesParserUtil_Imp_parseHexProxy {
     }
 };
 
-                 // ================================================
+                 // =========================================
                  // struct TypesParserUtil_Imp_parseListProxy
-                 // ================================================
+                 // =========================================
 
 struct TypesParserUtil_Imp_parseListProxy {
     // Component-private struct.  Do not use.
@@ -751,9 +751,9 @@ struct TypesParserUtil_Imp_parseListProxy {
     }
 };
 
-                 // ================================================
+                 // =========================================
                  // struct TypesParserUtil_Imp_parseTextProxy
-                 // ================================================
+                 // =========================================
 
 struct TypesParserUtil_Imp_parseTextProxy {
     // Component-private struct.  Do not use.
@@ -791,9 +791,9 @@ struct TypesParserUtil_Imp_parseTextProxy {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // -----------------------------
+                           // ----------------------
                            // struct TypesParserUtil
-                           // -----------------------------
+                           // ----------------------
 
 template <class TYPE>
 int TypesParserUtil::parse(TYPE       *result,
@@ -922,9 +922,9 @@ int TypesParserUtil::parseText(TYPE       *result,
                                                  inputLength, Tag());
 }
 
-                         // ---------------------------------
+                         // --------------------------
                          // struct TypesParserUtil_Imp
-                         // ---------------------------------
+                         // --------------------------
 
 // BASE64 FUNCTIONS
 

@@ -7,9 +7,9 @@ BSLS_IDENT_RCSID(btlb_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlb {
-                     // -----------------------------------
-                     // class PooledBlobBufferFactory
-                     // -----------------------------------
+                       // -----------------------------
+                       // class PooledBlobBufferFactory
+                       // -----------------------------
 
 // CREATORS
 PooledBlobBufferFactory::PooledBlobBufferFactory(

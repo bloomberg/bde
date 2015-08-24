@@ -268,16 +268,16 @@ const unsigned int PRIME_NUMBERS_IMP[] = {
 static const int NUM_PRIME_NUMBERS_IMP =
                           sizeof PRIME_NUMBERS_IMP / sizeof *PRIME_NUMBERS_IMP;
 
-                // -------------------------------------
-                // private struct HashTableDefaultTraits
-                // -------------------------------------
+                   // -------------------------------------
+                   // private struct HashTableDefaultTraits
+                   // -------------------------------------
 
 // CLASS DATA
 const char bdlc::HashTableDefaultTraits::REMOVED_KEYWORD[] = "(* REMOVED *)";
 
-                    // -------------------------------
-                    // struct bdlc::HashTable_ImpUtil
-                    // -------------------------------
+                       // ------------------------------
+                       // struct bdlc::HashTable_ImpUtil
+                       // ------------------------------
 
 // CLASS DATA
 const unsigned int *bdlc::HashTable_ImpUtil::PRIME_NUMBERS = PRIME_NUMBERS_IMP;

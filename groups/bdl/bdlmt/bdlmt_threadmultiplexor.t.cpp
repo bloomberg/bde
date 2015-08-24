@@ -100,7 +100,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
+//            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -108,7 +108,7 @@ static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
 // ============================================================================
-//                GLOBAL SUPPORT FUNCTIONS AND CLASSES FOR TESTING
+//             GLOBAL SUPPORT FUNCTIONS AND CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
                               // ===============
@@ -272,7 +272,7 @@ int UsageTestChecker::maxProcessors() const {
 }
 
 // ============================================================================
-//                     TEST CASE 6: SUPPORT FUNCTIONS
+//                      TEST CASE 6: SUPPORT FUNCTIONS
 // ----------------------------------------------------------------------------
 namespace TEST_CASE_6 {
 
@@ -289,7 +289,7 @@ void testCase6(bdlqq::Semaphore                 *startSemaphore,
 
 }  // close namespace TEST_CASE_6
 // ============================================================================
-//                           COMPONENT USAGE EXAMPLE
+//                          COMPONENT USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 namespace TEST_CASE_USAGE_EXAMPLE {
 
@@ -412,7 +412,7 @@ int usageExample(bslma::Allocator *allocator)
 
 }  // close namespace TEST_CASE_USAGE_EXAMPLE
 // ============================================================================
-//                                 MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

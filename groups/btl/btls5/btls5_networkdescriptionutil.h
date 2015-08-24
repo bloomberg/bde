@@ -85,9 +85,9 @@ namespace BloombergLP {
 
 namespace btls5 {
 
-                     // =============================
-                     // struct NetworkDescriptionUtil
-                     // =============================
+                       // =============================
+                       // struct NetworkDescriptionUtil
+                       // =============================
 
 struct NetworkDescriptionUtil {
     // This 'struct' provides a namespace for utility functions that operate on

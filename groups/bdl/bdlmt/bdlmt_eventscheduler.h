@@ -696,9 +696,9 @@ class EventScheduler {
         // scheduler.
 };
 
-                    // ====================================
-                    // class EventSchedulerEventHandle
-                    // ====================================
+                      // ===============================
+                      // class EventSchedulerEventHandle
+                      // ===============================
 
 class EventSchedulerEventHandle
 {
@@ -746,9 +746,9 @@ class EventSchedulerEventHandle
         // this handle does not manage a reference.
 };
 
-                 // =============================================
-                 // class EventSchedulerRecurringEventHandle
-                 // =============================================
+                  // ========================================
+                  // class EventSchedulerRecurringEventHandle
+                  // ========================================
 
 class EventSchedulerRecurringEventHandle
 {
@@ -805,9 +805,9 @@ class EventSchedulerRecurringEventHandle
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                     // ------------------------------------
-                     // class EventSchedulerEventHandle
-                     // ------------------------------------
+                      // -------------------------------
+                      // class EventSchedulerEventHandle
+                      // -------------------------------
 
 // CREATORS
 inline
@@ -855,9 +855,9 @@ operator const bdlmt::EventSchedulerEventHandle::Event*() const
 }
 
 namespace bdlmt {
-                // ----------------------------------------
-                // class EventSchedulerRecurringEventHandle
-                // ----------------------------------------
+                  // ----------------------------------------
+                  // class EventSchedulerRecurringEventHandle
+                  // ----------------------------------------
 
 // CREATORS
 inline
@@ -907,9 +907,9 @@ bdlmt::EventSchedulerRecurringEventHandle::operator
 }
 
 namespace bdlmt {
-                          // -------------------------
-                          // class EventScheduler
-                          // -------------------------
+                            // --------------------
+                            // class EventScheduler
+                            // --------------------
 
 // MANIPULATORS
 inline

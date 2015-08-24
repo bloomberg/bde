@@ -119,13 +119,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlmt::ThreadPool Obj;
 
 // ============================================================================
-//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
 #define STARTPOOL(x) \
@@ -265,7 +265,7 @@ static double getCurrentCpuTime()
 }
 
 // ============================================================================
-//                         USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 namespace THREADPOOL_USAGE_EXAMPLE {
 
@@ -537,7 +537,7 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 }  // close namespace THREADPOOL_USAGE_EXAMPLE
 
 // ============================================================================
-//                         CASE 8 RELATED ENTITIES
+//                          CASE 8 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
 static void counter(int *result, int num)
@@ -549,7 +549,7 @@ static void counter(int *result, int num)
 }
 
 // ============================================================================
-//                         CASE 7 RELATED ENTITIES
+//                          CASE 7 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 enum {
     DEPTH_LIMIT = 10,
@@ -653,7 +653,7 @@ struct MinusTwoJob {
 };
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

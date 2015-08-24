@@ -79,7 +79,7 @@ using namespace bsl;
 
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -95,7 +95,7 @@ static void aSsErT(int c, const char *s, int i)
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) {                                                    \
@@ -121,7 +121,7 @@ static void aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -131,7 +131,7 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -153,7 +153,7 @@ bool     veryVeryVerbose = 0;
 bool veryVeryVeryVerbose = 0;
 
 // ============================================================================
-//                     CLASSES AND FUNCTIONS USED IN TESTS
+//                    CLASSES AND FUNCTIONS USED IN TESTS
 // ----------------------------------------------------------------------------
 void breathingTestCb(
    btls5::NetworkConnector::ConnectionStatus                     status,
@@ -176,7 +176,7 @@ void breathingTestCb(
 }
 
 // ============================================================================
-//                     btlmt::SessionPool testing callback
+//                    btlmt::SessionPool testing callback
 // ----------------------------------------------------------------------------
 void poolStateCb(int state, int source, void *)
 {
@@ -371,7 +371,7 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus       status,
 }  // close unnamed namespace
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

@@ -221,9 +221,9 @@ namespace BloombergLP  {
 namespace balxml {class ElementAttribute;
 class PrefixStack;
 
-                        // ===================
-                        // class Reader
-                        // ===================
+                                // ============
+                                // class Reader
+                                // ============
 
 class Reader {
     // This abstract class defines an interface for fast, forward-only access
@@ -624,7 +624,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, Reader::NodeType value)
 
 namespace balxml {
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline bool

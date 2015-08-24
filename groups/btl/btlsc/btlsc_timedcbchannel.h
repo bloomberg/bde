@@ -531,9 +531,9 @@ namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bd
 }  // close namespace bdet
 
 namespace btlsc {
-                        // ==========================
-                        // class TimedCbChannel
-                        // ==========================
+                            // ====================
+                            // class TimedCbChannel
+                            // ====================
 
 class TimedCbChannel : public CbChannel {
     // This class represents a protocol (pure abstract interface) for a

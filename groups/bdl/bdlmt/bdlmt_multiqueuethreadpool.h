@@ -349,9 +349,9 @@ namespace BloombergLP {
 namespace bdlqq { class Barrier; }
 
 namespace bdlmt {
-                   // =====================================
-                   // class MultiQueueThreadPool_Queue
-                   // =====================================
+                      // ================================
+                      // class MultiQueueThreadPool_Queue
+                      // ================================
 
 class MultiQueueThreadPool_Queue {
     // This private class provides a lightweight queue, plus a spin lock.
@@ -452,9 +452,9 @@ class MultiQueueThreadPool_Queue {
         // these values were reset.
 };
 
-               // ============================================
-               // class MultiQueueThreadPool_QueueContext
-               // ============================================
+                  // =======================================
+                  // class MultiQueueThreadPool_QueueContext
+                  // =======================================
 
 class MultiQueueThreadPool_QueueContext {
     // This private class encapsulates a lightweight job queue and a callback
@@ -508,9 +508,9 @@ class MultiQueueThreadPool_QueueContext {
 
 };
 
-                      // ===============================
-                      // class MultiQueueThreadPool
-                      // ===============================
+                         // ==========================
+                         // class MultiQueueThreadPool
+                         // ==========================
 
 class MultiQueueThreadPool {
     // This class implements a dynamic, configurable pool of queues, each of
@@ -740,9 +740,9 @@ class MultiQueueThreadPool {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                      // --------------------------
-                      // class MultiQueueThreadPool
-                      // --------------------------
+                         // --------------------------
+                         // class MultiQueueThreadPool
+                         // --------------------------
 
 // MANIPULATORS
 inline

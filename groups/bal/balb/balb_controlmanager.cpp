@@ -43,9 +43,9 @@ const char LOG_CATEGORY[] = "BAEA.CONTROLMANAGER";
 }  // close unnamed namespace
 
 namespace balb {
-                      // -------------------------
-                      // class ControlManager
-                      // -------------------------
+                            // --------------------
+                            // class ControlManager
+                            // --------------------
 
 // CREATORS
 
@@ -154,9 +154,9 @@ void ControlManager::printUsage(
     d_registryMutex.unlock();
 }
 
-                       // ------------------------------
-                       // class ControlManager_Entry
-                       // ------------------------------
+                         // --------------------------
+                         // class ControlManager_Entry
+                         // --------------------------
 
 // CREATORS
 

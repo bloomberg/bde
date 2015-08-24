@@ -64,14 +64,14 @@ namespace BloombergLP {
 const DWORD MAX_PIPE_BUFFER_LEN = 256; // max "send" message size
 
 namespace balb {
-                       // -----------------------------
-                       // class PipeControlChannel
-                       // -----------------------------
+                          // ------------------------
+                          // class PipeControlChannel
+                          // ------------------------
 
 // PRIVATE MANIPULATORS
 
 // ----------------------------------------------------------------------------
-//                            WINDOWS IMPLEMENTATION
+//                          WINDOWS IMPLEMENTATION
 // ----------------------------------------------------------------------------
 
 int PipeControlChannel::sendEmptyMessage()
@@ -190,7 +190,7 @@ void PipeControlChannel::destroyNamedPipe()
 
 namespace balb {
 // ----------------------------------------------------------------------------
-//                              UNIX IMPLEMENTATION
+//                            UNIX IMPLEMENTATION
 // ----------------------------------------------------------------------------
 
 void PipeControlChannel::destroyNamedPipe()

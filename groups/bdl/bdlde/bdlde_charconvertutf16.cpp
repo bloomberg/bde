@@ -1701,9 +1701,9 @@ namespace BloombergLP {
 BSLMF_ASSERT(!(bslmf::IsSame<wchar_t, unsigned short>::VALUE));
 
 namespace bdlde {
-                        // -----------------------
-                        // struct CharConvertUtf16
-                        // -----------------------
+                          // -----------------------
+                          // struct CharConvertUtf16
+                          // -----------------------
 
 // CLASS METHODS
 

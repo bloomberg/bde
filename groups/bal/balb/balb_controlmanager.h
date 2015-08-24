@@ -105,9 +105,9 @@ namespace BloombergLP {
 
 namespace balb {class ControlManager_Entry;
 
-                         // =========================
-                         // class ControlManager
-                         // =========================
+                            // ====================
+                            // class ControlManager
+                            // ====================
 
 class ControlManager {
     // Dispatch control messages to callbacks by name.
@@ -195,9 +195,9 @@ class ControlManager {
 
 };
 
-                      // ===============================
-                      // class ControlManager_Entry
-                      // ===============================
+                         // ==========================
+                         // class ControlManager_Entry
+                         // ==========================
 
 class ControlManager_Entry {
     // This component-private class represents a function with documentation.
@@ -269,7 +269,7 @@ class ControlManager_Entry {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                          // --------------------------
@@ -316,9 +316,9 @@ const bsl::string& ControlManager_Entry::description() const
     return d_description;
 }
 
-                         // -------------------------
-                         // class ControlManager
-                         // -------------------------
+                            // --------------------
+                            // class ControlManager
+                            // --------------------
 
 // ACCESSORS
 inline

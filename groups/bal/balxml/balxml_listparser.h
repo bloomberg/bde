@@ -156,9 +156,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balxml {
-                           // =============================
+                           // ======================
                            // class ListParser<TYPE>
-                           // =============================
+                           // ======================
 
 template <class TYPE>
 class ListParser {
@@ -231,9 +231,9 @@ class ListParser {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // -----------------------------
+                           // ----------------------
                            // class ListParser<TYPE>
-                           // -----------------------------
+                           // ----------------------
 
 // PRIVATE MANIPULATORS
 

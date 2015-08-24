@@ -59,9 +59,9 @@ baltzo::ZoneinfoCache *initSystemDefaultCache()
     return &cache;
 }
 
-                        // --------------------------
-                        // class DefaultZoneinfoCache
-                        // --------------------------
+                         // --------------------------
+                         // class DefaultZoneinfoCache
+                         // --------------------------
 
 // PRIVATE CLASS METHODS
 baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::instance()

@@ -152,9 +152,9 @@ using namespace bsl;
 // value is NOT passed from the place that allocates the space to the place
 // that does the work.
 
-//=============================================================================
-//              MODIFIED "STANDARD" BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 MODIFIED "STANDARD" BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 // There are two changes here.  First, the variable 'testStatus' and the
 // function 'aSsErT' are moved into the anonymous namespace; previously they
@@ -181,9 +181,9 @@ bool aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << (I) << "\n"; aSsErT(1, #X, __LINE__); }}
@@ -220,9 +220,9 @@ bool aSsErT(int c, const char *s, int i)
        #P << ": " << (P) << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
@@ -230,23 +230,23 @@ bool aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
+// ============================================================================
 //                         CUSTOM TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define R(X) #X " = " << (X)
 #define R_(X) #X " = " << (X) << " "
 
-//=============================================================================
-//                               GLOBAL TYPEDEFS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                              GLOBAL TYPEDEFS
+// ----------------------------------------------------------------------------
 
 typedef bdlde::CharConvertUtf16  Util;
 typedef bdlde::CharConvertStatus Status;
 
-//=============================================================================
-//                               GLOBAL VARIABLES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             GLOBAL VARIABLES
+// ----------------------------------------------------------------------------
 
 static const bdlde::ByteOrder::Enum e_BACKWARDS =
                          bdlde::ByteOrder::e_HOST ==
@@ -254,13 +254,13 @@ static const bdlde::ByteOrder::Enum e_BACKWARDS =
                          ? bdlde::ByteOrder::e_LITTLE_ENDIAN
                          : bdlde::ByteOrder::e_BIG_ENDIAN;
 
-//=============================================================================
+// ============================================================================
 //                           CUSTOM TEST APPARATUS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #if 0
 void fourByteUtf8Val(unsigned val)
@@ -313,9 +313,9 @@ void *hc(unsigned char c)
     return (void *) (unsigned long) c;
 }
 
-//-----------------------------------------------------------------------------
-//              Evaluate and combine: bothAnd, allAnd
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                   Evaluate and combine: bothAnd, allAnd
+// ----------------------------------------------------------------------------
 
 inline
 bool bothAnd(bool a, bool b)
@@ -382,9 +382,9 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
     return a && b && c && d && e && f && g && h;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Assertion-expression with value printing on equality test: EXPECTED_GOT
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // The 'EXPECTED_GOT' macro compresses a great deal of testing and output in a
 // small space, especially for compound types that support comparison and
@@ -399,9 +399,9 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
                               << #GOT << " (" << deChar(GOT) << ")\n\t"), \
                          (aSsErT(1, #EXP " != " #GOT, __LINE__)), 0) )
 
-//-----------------------------------------------------------------------------
-//      FixedVector<>, approximating the c++09 Array<> template
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//          FixedVector<>, approximating the c++09 Array<> template
+// ----------------------------------------------------------------------------
 
 // FixedVector<TYPE, N> replaces vector<TYPE> in a number of places where the
 // execution time of vector<> was found to be a problem.  Rather than recode
@@ -483,9 +483,9 @@ class FixedVector {
     { return d_array[t]; }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // ArrayRange<>: unified handling for array, FixedArray, pointer/length, etc.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //  To prevent template type proliferation with vectors or arrays of various
 //  size, and to avoid making everything a vector with its (very) measurable
@@ -721,9 +721,9 @@ void dummyfun( char* c, GenCheckArrRange<ArrayRange<const char> >& a)
 { a.fill(c); }
 #endif
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //    deChar: Print and evaluate 'char's and 'unsigned char's as 'int's.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //  Template and overloads: 'deChar'
 //      Character types get printed as characters; this is undesirable because
@@ -758,9 +758,9 @@ unsigned int deChar(unsigned char c)
     return static_cast<unsigned>(c);
 }
 
-//-----------------------------------------------------------------------------
-//            Printing strings in hex or mixed hex and graphic
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//             Printing strings in hex or mixed hex and graphic
+// ----------------------------------------------------------------------------
 
 // Some "Print-what-I-point-to" objects, and ways to create and return them.
 // The "hex" versions print all hexadecimal; the "mixed" versions print mixed
@@ -837,9 +837,9 @@ MixedPrImpl<T> prMixedRange(
 void printStr(const char *q);
 void printStr(const unsigned short *p);
 
-//-----------------------------------------------------------------------------
-//                   fillArray<>(), checkArray<>()
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                       fillArray<>(), checkArray<>()
+// ----------------------------------------------------------------------------
 
 // Array fill and fill-check.  Used to verify that unsanctioned writes have
 // not occurred in a 'margin' around the intended output buffer.
@@ -852,9 +852,9 @@ int checkFill(ITER      first,
               ITER      last,
               CHAR_TYPE ch);
 
-//-----------------------------------------------------------------------------
-//    OdomIter: Run multiple nested iterators by means of a single, flat loop
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//  OdomIter: Run multiple nested iterators by means of a single, flat loop
+// ----------------------------------------------------------------------------
 
 template<class ITER, int N_ITER_PARM>
 struct OdomIter {
@@ -997,9 +997,9 @@ struct OdomIter {
     }
 };
 
-//-----------------------------------------------------------------------------
-//  HighBit<> and BufferSizes<>: compile-time computations to help size arrays.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// HighBit<> and BufferSizes<>: compile-time computations to help size arrays.
+// ----------------------------------------------------------------------------
 
 template<unsigned long X>
 struct HighBit {
@@ -1046,9 +1046,9 @@ struct BufferSizes {
     };
 };
 
-//-----------------------------------------------------------------------------
-//  ConvRslt: Summarizing the three return values from a conversion function.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ConvRslt: Summarizing the three return values from a conversion function.
+// ----------------------------------------------------------------------------
 
 //  The ConvRslt holds the three 'return' values from a call to one of the
 //  conversion routines.  It can be printed and compared with its like for
@@ -1106,9 +1106,9 @@ bool operator!=(const ConvRslt& lhs, const ConvRslt& rhs)
 
 ostream& operator<<(ostream& os, const ConvRslt& cvr);
 
-//-----------------------------------------------------------------------------
-//      SrcSpec: bundle parameters to a conversion test.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//             SrcSpec: bundle parameters to a conversion test.
+// ----------------------------------------------------------------------------
 
 // SrcSpec gives the source data, error character, and output buffer size to
 // use for a test.  It does not contain the expected return and
@@ -1130,9 +1130,9 @@ struct SrcSpec {
     }
 };
 
-//-----------------------------------------------------------------------------
-//  WorkPiece and BufferedWPiece: Stewards of the arena for a conversion test.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// WorkPiece and BufferedWPiece: Stewards of the arena for a conversion test.
+// ----------------------------------------------------------------------------
 
 // The WorkPiece describes the output buffer and manages sanity tests.  It does
 // not itself own the buffer because in some cases we run multiple tests and
@@ -1268,9 +1268,9 @@ int surrogateUtf8ToUtf16(unsigned short         *dstBuffer,
                              byteOrder);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Conversion<>: bring SrcSpec, WorkPiece, and a conversion function together.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //  The Conversion template is written as a struct so that each conversion can
 //  be represented by an object with a short local instance name.
@@ -1327,9 +1327,9 @@ struct Conversion {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // ConversionArg<>: Metaprogram find of the function needed for a conversion
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template<class TO_CHAR, class FROM_CHAR>
 struct ConversionArg {
@@ -4502,9 +4502,9 @@ bsl::size_t localUtf16Len(const UTF16_CHAR *str)
 }
 
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char**argv)
 {

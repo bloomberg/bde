@@ -51,9 +51,9 @@ void copyFromPlace(char               *dstBuffer,
 }  // close unnamed namespace
 
 namespace btlb {
-                           // ---------------------
-                           // struct BlobUtil
-                           // ---------------------
+                              // ---------------
+                              // struct BlobUtil
+                              // ---------------
 
 // CLASS METHODS
 void BlobUtil::append(Blob        *dest,

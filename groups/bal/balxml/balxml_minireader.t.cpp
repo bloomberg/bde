@@ -38,9 +38,9 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 #define CHK(X) (X != 0 ? (const char *) X : "(null)")
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -56,9 +56,9 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
@@ -69,9 +69,9 @@ static void aSsErT(int c, const char *s, int i)
 #define NL "\n"
 #define T_ bsl::cout << "\t" << bsl::flush;   // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
@@ -714,9 +714,9 @@ void readHeader(Obj& reader)
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 }
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

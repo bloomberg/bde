@@ -14,9 +14,9 @@ BSLS_IDENT_RCSID(balxml_formatter_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // ===================================
-                        // class balxml::Formatter::ElemContext
-                        // ===================================
+                    // ====================================
+                    // class balxml::Formatter::ElemContext
+                    // ====================================
 
 // ACCESSORS
 #ifdef BDE_BUILD_TARGET_SAFE2
@@ -34,9 +34,9 @@ bool balxml::Formatter::ElemContext::matchTag(const bslstl::StringRef& tag) cons
 
 namespace balxml {
 
-                        // ======================
-                        // class Formatter
-                        // ======================
+                              // ===============
+                              // class Formatter
+                              // ===============
 
 // CREATORS
 Formatter::Formatter(bsl::streambuf   *output,

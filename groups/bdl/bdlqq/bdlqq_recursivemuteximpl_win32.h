@@ -52,9 +52,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class RecursiveMutexImpl;
 
-            // ================================================
-            // class RecursiveMutexImpl<Platform::Win32Threads>
-            // ================================================
+              // ================================================
+              // class RecursiveMutexImpl<Platform::Win32Threads>
+              // ================================================
 
 template <>
 class RecursiveMutexImpl<Platform::Win32Threads>

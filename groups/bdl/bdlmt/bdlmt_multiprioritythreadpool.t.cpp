@@ -123,7 +123,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//              GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
+//         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlmt::MultipriorityThreadPool Obj;
@@ -147,7 +147,7 @@ int veryVeryVeryVerbose;
 }  // close unnamed namespace
 
 // ============================================================================
-//               Classes for test case 13 -- usage example 1
+//                Classes for test case 13 -- usage example 1
 // ============================================================================
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_13 {
@@ -185,7 +185,7 @@ extern "C" void *lessUrgentJob(void *) {
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_13
 
 // ============================================================================
-//               Classes for test case 12 -- usage example 2
+//                Classes for test case 12 -- usage example 2
 // ============================================================================
 
 // The idea here is to have a multithreaded algorithm for calculating prime
@@ -352,7 +352,7 @@ bdlqq::Mutex Functor::s_mutex;
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_12
 
 // ============================================================================
-//                       Classes for test case 11
+//                         Classes for test case 11
 // ============================================================================
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_11 {
@@ -374,7 +374,7 @@ struct Functor {
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_11
 
 // ============================================================================
-//                      Classes for test case 10
+//                         Classes for test case 10
 // ============================================================================
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_10 {
@@ -451,7 +451,7 @@ bdlqq::Barrier *ProducerThread::s_barrier = 0;
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_10
 
 // ============================================================================
-//                           Classes for test case 8
+//                          Classes for test case 8
 // ============================================================================
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_8 {
@@ -554,7 +554,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool) {
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_5
 
 // ============================================================================
-//                           Classes for test case 3
+//                          Classes for test case 3
 // ============================================================================
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_3 {
@@ -574,7 +574,7 @@ extern "C" void *sleepAndAmassCounterBy(void *arg)
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_3
 
 // ============================================================================
-//                           Classes for test case 2
+//                          Classes for test case 2
 // ============================================================================
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_2 {
@@ -601,7 +601,7 @@ extern "C" void *waiter(void *arg) {
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_2
 
 // ============================================================================
-//                    Classes for test case 1 - breathing test
+//                 Classes for test case 1 - breathing test
 // ============================================================================
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_1 {
@@ -618,7 +618,7 @@ extern "C" void *incCounter(void *)
 }  // close namespace MULTIPRIORITYTHREADPOOL_CASE_1
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

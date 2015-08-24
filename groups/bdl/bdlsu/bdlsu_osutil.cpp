@@ -23,9 +23,9 @@ BSLS_IDENT_RCSID(bdlsu_osutil_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // -------------------
-                        // struct bdlsu::OsUtil
-                        // -------------------
+                            // --------------------
+                            // struct bdlsu::OsUtil
+                            // --------------------
 
 // CLASS METHODS
 #ifdef BSLS_PLATFORM_OS_WINDOWS

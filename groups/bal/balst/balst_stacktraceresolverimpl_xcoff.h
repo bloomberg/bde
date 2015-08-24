@@ -96,9 +96,9 @@ namespace balst {
 template <typename RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
-      // =================================================================
-      // class StackTraceResolverImpl<ObjectFileFormat::Xcoff>
-      // =================================================================
+           // =====================================================
+           // class StackTraceResolverImpl<ObjectFileFormat::Xcoff>
+           // =====================================================
 
 template <>
 class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
@@ -345,13 +345,13 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
         // from within the routine.
 };
 
-//=============================================================================
-//                         INLINE FUNCTION DEFINITIONS
-//=============================================================================
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-                         // ----------------------------------
-                         // class StackTraceResolverImpl
-                         // ----------------------------------
+                        // ----------------------------
+                        // class StackTraceResolverImpl
+                        // ----------------------------
 
 // PRIVATE MANIPULATORS
 inline

@@ -38,9 +38,9 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -57,9 +57,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BDLS_TESTUTIL_ASSERT
 #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
@@ -438,9 +438,9 @@ void LinkTestRun<POOL>::run()
 //
 // ACCESSORS
 
-//=============================================================================
-//                    THREAD-SAFE OUTPUT AND ASSERT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   THREAD-SAFE OUTPUT AND ASSERT MACROS
+// ----------------------------------------------------------------------------
 
 static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
@@ -608,9 +608,9 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
    self->d_resetCount = count;
 }
 
-//=============================================================================
-//          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 bdlqq::ThreadAttributes attributes;
 void executeInParallel(int                               numThreads,
                        bdlqq::ThreadUtil::ThreadFunction function)
@@ -635,9 +635,9 @@ void executeInParallel(int                               numThreads,
     delete [] threads;
 }
 
-//=============================================================================
-//                   HELPER CLASSES AND FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 class StringCreator
 {
@@ -713,9 +713,9 @@ class FastLinkPool {
    }
 };
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;

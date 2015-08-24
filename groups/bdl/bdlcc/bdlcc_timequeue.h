@@ -655,9 +655,9 @@ namespace bdlcc {template <class DATA>
 
 class TimeQueueItem;
 
-                             // ====================
-                             // class TimeQueue
-                             // ====================
+                              // ===============
+                              // class TimeQueue
+                              // ===============
 template <class DATA>
 class TimeQueue {
     // This parameterized class provides a public interface which is similar in
@@ -989,9 +989,9 @@ class TimeQueue {
         // queue is empty.
 };
 
-                           // ====================
-                           // struct TimeQueueItem
-                           // ====================
+                            // ====================
+                            // struct TimeQueueItem
+                            // ====================
 
 template <class DATA>
 class TimeQueueItem {
@@ -1090,7 +1090,7 @@ class TimeQueueItem {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                                 // ---------
@@ -1703,9 +1703,9 @@ int TimeQueue<DATA>::minTime(bsls::TimeInterval *buffer) const
     return 0;
 }
 
-                           // --------------------
-                           // struct TimeQueueItem
-                           // --------------------
+                            // --------------------
+                            // struct TimeQueueItem
+                            // --------------------
 
 // CREATORS
 template <class DATA>

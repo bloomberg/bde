@@ -307,9 +307,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlf {
-                      // =========================
-                      // class Bind_TestSlots
-                      // =========================
+                            // ====================
+                            // class Bind_TestSlots
+                            // ====================
 
 template <class VALUE>
 struct Bind_TestSlotsBase {
@@ -355,9 +355,9 @@ typedef Bind_TestSlotsBase<int> Bind_TestSlotsNoAlloc;
     // assigned a value (in case 'bdlf_bind' accesses fields that it
     // should not).
 
-                      // ==============================
-                      // class Bind_TestArgNoAlloc
-                      // ==============================
+                         // =========================
+                         // class Bind_TestArgNoAlloc
+                         // =========================
 
 template <int ID>
 class Bind_TestArgNoAlloc {
@@ -393,9 +393,9 @@ inline
 bool operator!=(Bind_TestArgNoAlloc<ID> const& lhs,
                 Bind_TestArgNoAlloc<ID> const& rhs);
 
-                      // ===============================
-                      // class Bind_TestTypeNoAlloc
-                      // ===============================
+                         // ==========================
+                         // class Bind_TestTypeNoAlloc
+                         // ==========================
 
 class Bind_TestTypeNoAlloc {
     // This 'struct' provides a test class capable of holding up to 14 bound
@@ -575,9 +575,9 @@ inline
 bool operator!=(const Bind_TestTypeNoAlloc& lhs,
                 const Bind_TestTypeNoAlloc& rhs);
 
-                        // ====================================
-                        // class Bind_TestFunctionsNoAlloc
-                        // ====================================
+                      // ===============================
+                      // class Bind_TestFunctionsNoAlloc
+                      // ===============================
 
 struct Bind_TestFunctionsNoAlloc {
     // Global versions of 'Bind_TestTypeNoAlloc' member functions.
@@ -666,9 +666,9 @@ struct Bind_TestFunctionsNoAlloc {
         // 'object' with the specified arguments 'a[0-14]'.
 };
 
-                      // ==================================
-                      // class Bind_TestSlotsAllocBase
-                      // ==================================
+                       // =============================
+                       // class Bind_TestSlotsAllocBase
+                       // =============================
 
 template <class AllocPtr>
 struct Bind_TestSlotsAllocBase
@@ -694,9 +694,9 @@ struct Bind_TestSlotsAllocBase
     static AllocPtr getZ2();
 };
 
-                      // ==============================
-                      // class Bind_TestSlotsAlloc
-                      // ==============================
+                         // =========================
+                         // class Bind_TestSlotsAlloc
+                         // =========================
 
 class Bind_TestSlotsAlloc
 : public Bind_TestSlotsBase<const bslma::Allocator*>
@@ -717,9 +717,9 @@ class Bind_TestSlotsAlloc
         // equal.
 };
 
-                      // ==============================
-                      // class Bind_TestArgAlloc
-                      // ==============================
+                          // =======================
+                          // class Bind_TestArgAlloc
+                          // =======================
 
 template <int ID>
 class Bind_TestArgAlloc {
@@ -791,9 +791,9 @@ inline
 bool operator!=(const Bind_TestArgAlloc<ID>& lhs,
                 const Bind_TestArgAlloc<ID>& rhs);
 
-                      // =============================
-                      // class Bind_TestTypeAlloc
-                      // =============================
+                          // ========================
+                          // class Bind_TestTypeAlloc
+                          // ========================
 
 class Bind_TestTypeAlloc {
     // This class provides a test class capable of holding up to 14 bound
@@ -988,9 +988,9 @@ inline
 bool operator!=(Bind_TestTypeAlloc const& lhs,
                 Bind_TestTypeAlloc const& rhs);
 
-                        // ==================================
-                        // class Bind_TestFunctionsAlloc
-                        // ==================================
+                       // =============================
+                       // class Bind_TestFunctionsAlloc
+                       // =============================
 
 struct Bind_TestFunctionsAlloc {
     // Global versions of 'Bind_TestTypeAlloc' member functions.
@@ -1080,12 +1080,12 @@ struct Bind_TestFunctionsAlloc {
 }  // close package namespace
 
 // ============================================================================
-//                    INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                      // -----------------------------
-                      // class bdlf::Bind_TestSlotsBase
-                      // -----------------------------
+                       // ------------------------------
+                       // class bdlf::Bind_TestSlotsBase
+                       // ------------------------------
 
 // PRIVATE CLASS DATA
 template <class VALUE>
@@ -1204,9 +1204,9 @@ bool bdlf::operator!=(Bind_TestArgNoAlloc<ID> const& lhs,
 }
 
 namespace bdlf {
-                      // -------------------------------
-                      // class Bind_TestTypeNoAlloc
-                      // -------------------------------
+                         // --------------------------
+                         // class Bind_TestTypeNoAlloc
+                         // --------------------------
 
 // CREATORS
 inline
@@ -1676,9 +1676,9 @@ bool bdlf::operator!=(const Bind_TestTypeNoAlloc& lhs,
 }
 
 namespace bdlf {
-                         // ------------------------------------
-                         // class Bind_TestFunctionsNoAlloc
-                         // ------------------------------------
+                      // -------------------------------
+                      // class Bind_TestFunctionsNoAlloc
+                      // -------------------------------
 
 // CLASS METHODS
 inline
@@ -1807,9 +1807,9 @@ int Bind_TestFunctionsNoAlloc::func14(Bind_TestTypeNoAlloc *object,
 }
 }  // close package namespace
 
-                      // ----------------------------------
-                      // class bdlf::Bind_TestSlotsAllocBase
-                      // ----------------------------------
+                    // -----------------------------------
+                    // class bdlf::Bind_TestSlotsAllocBase
+                    // -----------------------------------
 
 // CLASS DATA
 template <class AllocPtr>
@@ -1866,9 +1866,9 @@ AllocPtr Bind_TestSlotsAllocBase<AllocPtr>::getZ2()
 }
 }  // close package namespace
 
-                      // ----------------------------
-                      // class bdlf::Bind_TestArgAlloc
-                      // ----------------------------
+                       // -----------------------------
+                       // class bdlf::Bind_TestArgAlloc
+                       // -----------------------------
 
 // CREATORS
 #if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
@@ -1967,9 +1967,9 @@ bool bdlf::operator!=(const Bind_TestArgAlloc<ID>& lhs,
 }
 
 namespace bdlf {
-                      // -----------------------------
-                      // class Bind_TestTypeAlloc
-                      // -----------------------------
+                          // ------------------------
+                          // class Bind_TestTypeAlloc
+                          // ------------------------
 
 // CREATORS
 inline
@@ -2481,9 +2481,9 @@ bool bdlf::operator!=(const Bind_TestTypeAlloc& lhs,
 }
 
 namespace bdlf {
-                        // ----------------------------------
-                        // class Bind_TestFunctionsAlloc
-                        // ----------------------------------
+                       // -----------------------------
+                       // class Bind_TestFunctionsAlloc
+                       // -----------------------------
 
 inline
 int Bind_TestFunctionsAlloc::func0(Bind_TestTypeAlloc *o)

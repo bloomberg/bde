@@ -98,9 +98,9 @@ namespace btlsos {class TcpCbChannel_RReg;  // Component local class
 
 class TcpCbChannel_WReg;  // Component local class declaration
 
-                            // ==================
-                            // class TcpCbChannel
-                            // ==================
+                             // ==================
+                             // class TcpCbChannel
+                             // ==================
 
 class TcpCbChannel : public btlsc::CbChannel {
     // This class implements a 'btesc'-style (non-timed) callback-based channel
@@ -748,7 +748,7 @@ class TcpCbChannel : public btlsc::CbChannel {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

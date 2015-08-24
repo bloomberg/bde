@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(btls5_proxydescription_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btls5 {
-                         // ----------------------
-                         // class ProxyDescription
-                         // ----------------------
+                           // ----------------------
+                           // class ProxyDescription
+                           // ----------------------
 
 // ACCESSORS
                                   // Aspects

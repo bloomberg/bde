@@ -306,9 +306,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP  {
 
 namespace balxml {
-                        // =======================
-                        // class MiniReader
-                        // =======================
+                              // ================
+                              // class MiniReader
+                              // ================
 
 class MiniReader :  public Reader {
     // This 'class' provides a concrete and efficient implementation of the
@@ -814,9 +814,9 @@ class MiniReader :  public Reader {
         // byte following after the last byte of the current node.
 
 };
-//=============================================================================
-//                              INLINE FUNCTIONS
-//=============================================================================
+// ============================================================================
+//                             INLINE FUNCTIONS
+// ============================================================================
 inline MiniReader::Node &
 MiniReader::currentNode()
 {

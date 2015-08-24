@@ -332,9 +332,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace btls {
-                            // =================
-                            // class LeakyBucket
-                            // =================
+                             // =================
+                             // class LeakyBucket
+                             // =================
 
 class LeakyBucket {
     // This mechanism implements a leaky bucket that allows clients to monitor
@@ -575,9 +575,9 @@ class LeakyBucket {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // -----------------
-                            // class LeakyBucket
-                            // -----------------
+                             // -----------------
+                             // class LeakyBucket
+                             // -----------------
 
 // CREATORS
 inline

@@ -322,9 +322,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlde {
-                        // =====================
-                        // struct Utf8Util
-                        // =====================
+                              // ===============
+                              // struct Utf8Util
+                              // ===============
 
 struct Utf8Util {
     // This struct provides a namespace for static methods used for validating
@@ -498,12 +498,12 @@ struct Utf8Util {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // ---------------------
-                            // struct Utf8Util
-                            // ---------------------
+                              // ---------------
+                              // struct Utf8Util
+                              // ---------------
 
 // CLASS METHODS
 inline

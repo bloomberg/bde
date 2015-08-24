@@ -92,9 +92,9 @@ using namespace std;
 // [ 6] CONCERN: Precondition violations are detected.
 //=============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static bsls::AtomicInt testStatus(0);
 static void aSsErT(int c, const char *s, int i)
 {
@@ -113,9 +113,9 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -131,18 +131,18 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
 #define L_ __LINE__                           // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef baltzo::ZoneinfoCache       Obj;
 typedef baltzo::Zoneinfo            Zone;
 typedef baltzo::LocalTimeDescriptor Desc;
@@ -150,9 +150,9 @@ typedef bsl::shared_ptr<Desc>      DescPtr;
 
 const int U = baltzo::ErrorCode::k_UNSUPPORTED_ID;
 
-//=============================================================================
-//                      GLOBAL CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                        GLOBAL CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 void executeInParallel(int                                numThreads,
                        bdlqq::ThreadUtil::ThreadFunction  func,
@@ -406,9 +406,9 @@ const bsl::string& TestDriverTestLoader::lastRequestedTimeZone() const
     return d_lastRequestedTimeZone;
 }
 
-//=============================================================================
-//                      CONCURRENCY CONCERNS RELATED ENTRIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   CONCURRENCY CONCERNS RELATED ENTRIES
+// ----------------------------------------------------------------------------
 
 namespace BALTZO_ZONEINFOCACHE_CONCURRENCY {
 
@@ -494,17 +494,17 @@ extern "C" void *workerThread(void *arg)
 
 }  // close namespace BALTZO_ZONEINFOCACHE_CONCURRENCY
 
-//=============================================================================
-//                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 // Note that the following was cut & pasted from 'baltzo_testloader' for the
 // purposes of the usage example (replacing 'TestLoader' for
 // 'baltzo::TestLoader'):
 
-                        // ================
-                        // class TestLoader
-                        // ================
+                              // ================
+                              // class TestLoader
+                              // ================
 
 class TestLoader : public baltzo::Loader {
     // This class provides a concrete test implementation of the
@@ -553,9 +553,9 @@ class TestLoader : public baltzo::Loader {
         // other error occurs.
 };
 
-                        // ----------------
-                        // class TestLoader
-                        // ----------------
+                              // ----------------
+                              // class TestLoader
+                              // ----------------
 
 // CREATORS
 inline
@@ -594,9 +594,9 @@ int TestLoader::loadTimeZone(baltzo::Zoneinfo *timeZone,
     return 0;
 }
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

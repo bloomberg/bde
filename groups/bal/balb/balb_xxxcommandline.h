@@ -849,9 +849,9 @@ namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bd
 
 namespace balb {class CommandLine_Constraint;
 
-                        // ====================================
-                        // class CommandLineOccurrenceInfo
-                        // ====================================
+                      // ===============================
+                      // class CommandLineOccurrenceInfo
+                      // ===============================
 
 class CommandLineOccurrenceInfo {
     // This 'class' is a simple attribute class that describes a (potential)
@@ -1081,9 +1081,9 @@ typedef CommandLineOccurrenceInfo CommandLineOccuranceInfo;
     //
     // DEPRECATED: Use 'CommandLineOccurrenceInfo' instead.
 
-                     // =================================
-                     // struct CommandLineOptionType
-                     // =================================
+                        // ============================
+                        // struct CommandLineOptionType
+                        // ============================
 
 struct CommandLineOptionType {
     // This 'struct' provides a namespace for the various option types.  The
@@ -1118,9 +1118,9 @@ struct CommandLineOptionType {
     static bsl::vector<bdlt::Time>     * const BAEA_TIME_ARRAY;
 };
 
-                        // =================================
+                        // ============================
                         // struct CommandLineConstraint
-                        // =================================
+                        // ============================
 
 struct CommandLineConstraint {
     // This 'struct' provides a namespace for a set of useful constraints for
@@ -1169,9 +1169,9 @@ struct CommandLineConstraint {
         // Functor type constraining a value of type 'bdlt::Time'.
 };
 
-                        // ==============================
-                        // class CommandLineTypeInfo
-                        // ==============================
+                         // =========================
+                         // class CommandLineTypeInfo
+                         // =========================
 
 class CommandLineTypeInfo {
     // This 'class' is a simple attribute class that describes the type, the
@@ -1697,9 +1697,9 @@ operator<<(bsl::ostream& stream, const CommandLineTypeInfo& rhs);
     // stream in a (multi-line) human readable format.  Note that the last line
     // is *not* terminated by a newline character.
 
-                        // =================================
+                        // ============================
                         // struct CommandLineOptionInfo
-                        // =================================
+                        // ============================
 
 struct CommandLineOptionInfo {
     // This 'struct' is a simple attribute class that describes the information
@@ -1790,9 +1790,9 @@ operator<<(bsl::ostream& stream, const CommandLineOptionInfo& rhs);
     // stream in a (multi-line) human readable format.  Note that the last line
     // is *not* terminated by a newline character.
 
-                        // ============================
-                        // class CommandLineOption
-                        // ============================
+                          // =======================
+                          // class CommandLineOption
+                          // =======================
 
 class CommandLineOption {
     // This 'class', constructible from and implicitly convertible to
@@ -1966,9 +1966,9 @@ operator<<(bsl::ostream& stream, const CommandLineOption& rhs);
     // stream in a (multi-line) human readable format.  Note that the last line
     // is *not* terminated by a newline character.
 
-                        // ======================
-                        // class CommandLine
-                        // ======================
+                             // =================
+                             // class CommandLine
+                             // =================
 
 class CommandLine {
     // This 'class' parses, validates, and provides access to command-line
@@ -2465,9 +2465,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CommandLine& rhs);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------
-                        // class CommandLine
-                        // ----------------------
+                             // -----------------
+                             // class CommandLine
+                             // -----------------
 
 // CREATORS
 template <int LENGTH>

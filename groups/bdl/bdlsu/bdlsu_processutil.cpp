@@ -35,9 +35,9 @@ BSLS_IDENT_RCSID(bdlsu_processutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace bdlsu {
-                           // ------------------------
-                           // struct ProcessUtil
-                           // ------------------------
+                             // ------------------
+                             // struct ProcessUtil
+                             // ------------------
 
 // CLASS METHODS
 int ProcessUtil::getProcessId() {

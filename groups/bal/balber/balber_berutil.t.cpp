@@ -47,7 +47,7 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 static int testStatus = 0;
 
@@ -92,7 +92,7 @@ static void aSsErT(int c, const char *s, int i) {
                          << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
@@ -101,7 +101,7 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
@@ -117,7 +117,7 @@ typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
 typedef bdlt::PosixDateImpUtil  DateUtil;
 
 // ============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
 int numOctets(const char *s)
@@ -219,7 +219,7 @@ void ignoreAssertHandler(const char *, const char *, int)
 
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

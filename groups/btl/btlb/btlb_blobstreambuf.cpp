@@ -307,9 +307,9 @@ InBlobStreamBuf::~InBlobStreamBuf()
     BSLS_ASSERT(0 == checkInvariant());
 }
 
-                        // ============================
-                        // class OutBlobStreamBuf
-                        // ============================
+                           // ======================
+                           // class OutBlobStreamBuf
+                           // ======================
 
 // PRIVATE MANIPULATORS
 void OutBlobStreamBuf::setPutPosition(bsl::size_t position)

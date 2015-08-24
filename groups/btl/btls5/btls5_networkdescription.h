@@ -114,9 +114,9 @@ namespace btls5 {
 
 class Credentials;
 
-                     // ========================
-                     // class NetworkDescription
-                     // ========================
+                          // ========================
+                          // class NetworkDescription
+                          // ========================
 
 class NetworkDescription {
     // This value-semantic class allows the definition of multiple levels of
@@ -267,12 +267,12 @@ void swap(btls5::NetworkDescription& a, btls5::NetworkDescription& b);
     // allocator.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                     // ------------------------
-                     // class NetworkDescription
-                     // ------------------------
+                          // ------------------------
+                          // class NetworkDescription
+                          // ------------------------
 
 // CREATORS
 inline

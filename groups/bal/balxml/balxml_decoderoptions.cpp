@@ -19,9 +19,9 @@ BSLS_IDENT_RCSID(balxml_decoderoptions_cpp,"$Id$ $CSID$ $CCId$")
 
 namespace BloombergLP {
 
-                            // ---------------------------
-                            // class balxml::DecoderOptions
-                            // ---------------------------
+                        // ----------------------------
+                        // class balxml::DecoderOptions
+                        // ----------------------------
 
 // CONSTANTS
 

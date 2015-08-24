@@ -213,9 +213,9 @@ void defaultDispatcherFunction(const bdlf::Function<void(*)()>& callback) {
 }
 
 namespace bdlmt {
-                           // -------------------------
-                           // class TimerEventScheduler
-                           // -------------------------
+                         // -------------------------
+                         // class TimerEventScheduler
+                         // -------------------------
 
 // PRIVATE MANIPULATORS
 void TimerEventScheduler::yieldToDispatcher()

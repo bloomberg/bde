@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(balber_beruniversaltagnumber_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace balber {
 
-                     // ----------------------------
-                     // struct BerUniversalTagNumber
-                     // ----------------------------
+                        // ----------------------------
+                        // struct BerUniversalTagNumber
+                        // ----------------------------
 
 // CLASS METHODS
 const char *BerUniversalTagNumber::toString(BerUniversalTagNumber::Value value)

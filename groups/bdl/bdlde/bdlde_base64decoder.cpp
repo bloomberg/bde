@@ -89,9 +89,9 @@ static const char decoding[256] = {
 };
 
 
-                        // -------------------------
-                        // class bdlde::Base64Decoder
-                        // -------------------------
+                         // --------------------------
+                         // class bdlde::Base64Decoder
+                         // --------------------------
 
 // CLASS DATA
 

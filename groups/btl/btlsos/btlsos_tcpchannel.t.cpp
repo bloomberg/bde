@@ -123,9 +123,9 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
-//=============================================================================
-//                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef btlsos::TcpChannel Obj;
 typedef btlso::StreamSocket<btlso::IPv4Address> StreamSocket;
 
@@ -333,9 +333,9 @@ struct TestCommand {
 
 char globalBuffer[HELPER_READ]; // To help read from the peer side.
 bslma::TestAllocator testAllocator;
-//=============================================================================
-//                    HELPER FUNCTIONS/CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   HELPER FUNCTIONS/CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 extern "C" {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -1002,9 +1002,9 @@ int processTest(btlsos::TcpChannel          *channel,
     return numErrors;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 

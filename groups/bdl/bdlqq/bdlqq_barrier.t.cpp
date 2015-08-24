@@ -74,9 +74,9 @@ void aSsErT(int c, const char *s, int i, bool lock=true) {
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { \
@@ -98,9 +98,9 @@ void aSsErT(int c, const char *s, int i, bool lock=true) {
            << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__, false); \
    } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -108,9 +108,9 @@ void aSsErT(int c, const char *s, int i, bool lock=true) {
 #define T_()  cout << '\t' << flush;          // Print tab w/o newline
 #define NL()  cout << endl;                   // Print newline
 
-//=============================================================================
-//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
+// ----------------------------------------------------------------------------
 
 struct ThreadArgs {
     // This structure is used to pass arguments to the thread functions that
@@ -144,9 +144,9 @@ struct ThreadArgs {
     }
 };
 
-//-----------------------------------------------------------------------------
-//                           HELPER FUNCTIONS FOR TEST CASE 9
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                     HELPER FUNCTIONS FOR TEST CASE 9
+// ----------------------------------------------------------------------------
 namespace case9 {
 
 struct Control
@@ -220,9 +220,9 @@ void test(int numIterations, int numThreads)
 
 }  // close namespace case9
 
-//-----------------------------------------------------------------------------
-//                           HELPER FUNCTIONS FOR TEST CASE 5
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                     HELPER FUNCTIONS FOR TEST CASE 5
+// ----------------------------------------------------------------------------
 
 extern "C" void * testThread5a(void *arg)
     // This function is used to test the 'wait' and 'timedWait' methods
@@ -266,9 +266,9 @@ extern "C" void * testThread5b(void *arg)
     return arg;
 }
 
-//-----------------------------------------------------------------------------
-//                           HELPER FUNCTIONS FOR TEST CASE 4
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                     HELPER FUNCTIONS FOR TEST CASE 4
+// ----------------------------------------------------------------------------
 
 struct ThreadArgs4 {
     // This structure is used to pass arguments to the thread functions that
@@ -352,9 +352,9 @@ extern "C" void * testThread4(void *arg)
     return arg;
 }
 
-//-----------------------------------------------------------------------------
-//                           HELPER FUNCTIONS FOR TEST CASE 3
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                     HELPER FUNCTIONS FOR TEST CASE 3
+// ----------------------------------------------------------------------------
 
 extern "C" void * testThread3(void *arg)
     // This function is used to test the 'wait' method: it begins by
@@ -371,9 +371,9 @@ extern "C" void * testThread3(void *arg)
     return arg;
 }
 
-//=============================================================================
-//                           USAGE EXAMPLE FROM HEADER
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         USAGE EXAMPLE FROM HEADER
+// ----------------------------------------------------------------------------
 
 enum {
     MAX_BASKET_TRADES = 10
@@ -589,9 +589,9 @@ void case7(bdlqq::Barrier *barrier, bool verbose, int numThreads, int numWaits)
    ASSERT(state == numWaits * numThreads);
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

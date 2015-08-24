@@ -392,9 +392,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace btlb {
 
-                           // ======================
-                           // class BlobBuffer
-                           // ======================
+                              // ================
+                              // class BlobBuffer
+                              // ================
 
 class BlobBuffer {
     // 'BlobBuffer' is a simple in-core representation of a shared
@@ -501,9 +501,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& rhs);
     // Format the specified 'rhs' blob buffer to the specified output 'stream',
     // and return a reference to the modifiable 'stream'.
 
-                        // =============================
-                        // class BlobBufferFactory
-                        // =============================
+                          // =======================
+                          // class BlobBufferFactory
+                          // =======================
 
 class BlobBufferFactory {
     // This class defines a base-level protocol for a 'BlobBuffer'
@@ -520,9 +520,9 @@ class BlobBufferFactory {
         // into the specified 'buffer'.
 };
 
-                              // ================
-                              // class Blob
-                              // ================
+                                 // ==========
+                                 // class Blob
+                                 // ==========
 
 class Blob {
     // 'Blob' is an in-core container for 'BlobBuffer' objects.
@@ -771,12 +771,12 @@ bool operator!=(const Blob& lhs, const Blob& rhs);
     // if they do not hold the same buffers, or do not have the same length.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // ======================
-                           // class BlobBuffer
-                           // ======================
+                              // ================
+                              // class BlobBuffer
+                              // ================
 
 // CREATORS
 inline
@@ -858,9 +858,9 @@ bool btlb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 
 namespace btlb {
 
-                              // ================
-                              // class Blob
-                              // ================
+                                 // ==========
+                                 // class Blob
+                                 // ==========
 
 // MANIPULATORS
 inline

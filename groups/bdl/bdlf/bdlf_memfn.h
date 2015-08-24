@@ -209,9 +209,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlf {
-                        // ============================
-                        // class MemFn_Dereference
-                        // ============================
+                          // =======================
+                          // class MemFn_Dereference
+                          // =======================
 
 template <class OBJTYPE>
 struct MemFn_Dereference {
@@ -260,9 +260,9 @@ struct MemFn_Dereference {
     }
 };
 
-                              // ================
-                              // class MemFn
-                              // ================
+                                // ===========
+                                // class MemFn
+                                // ===========
 
 template <class PROTOTYPE>
 class MemFn {
@@ -755,9 +755,9 @@ class MemFn {
     }
 };
 
-                          // ========================
-                          // class MemFnInstance
-                          // ========================
+                            // ===================
+                            // class MemFnInstance
+                            // ===================
 
 template <class PROTOTYPE, class INSTANCE>
 class MemFnInstance {
@@ -910,9 +910,9 @@ class MemFnInstance {
         // function pointer does not return a result.
 };
 
-                            // =====================
-                            // struct MemFnUtil
-                            // =====================
+                              // ================
+                              // struct MemFnUtil
+                              // ================
 
 struct MemFnUtil {
     // The methods provided in this utility are used for constructing
@@ -937,12 +937,12 @@ struct MemFnUtil {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // ----------------
-                          // class MemFn
-                          // ----------------
+                                // -----------
+                                // class MemFn
+                                // -----------
 
 // CREATORS
 template <class PROTOTYPE>
@@ -959,9 +959,9 @@ MemFn<PROTOTYPE>::MemFn(const MemFn<PROTOTYPE>& original)
 {
 }
 
-                          // ------------------------
-                          // class MemFnInstance
-                          // ------------------------
+                            // -------------------
+                            // class MemFnInstance
+                            // -------------------
 
 // CREATORS
 template <class PROTOTYPE, class INSTANCE>
@@ -1150,9 +1150,9 @@ MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
                                                     a14);
 }
 
-                            // ---------------------
-                            // struct MemFnUtil
-                            // ---------------------
+                              // ----------------
+                              // struct MemFnUtil
+                              // ----------------
 
 // CLASS METHODS
 template <class PROTOTYPE>

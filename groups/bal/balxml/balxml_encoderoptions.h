@@ -76,9 +76,9 @@ namespace BloombergLP {
 
 namespace balxml {
 
-                      // ===============================
-                      // class EncoderOptions
-                      // ===============================
+                            // ====================
+                            // class EncoderOptions
+                            // ====================
 
 class EncoderOptions {
     // Options for performing XML encodings.  Encoding style is either COMPACT
@@ -472,13 +472,13 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(balxml::EncoderOptions
 namespace balxml {
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 
-                      // -------------------------------
-                      // class EncoderOptions
-                      // -------------------------------
+                            // --------------------
+                            // class EncoderOptions
+                            // --------------------
 
 // MANIPULATORS
 template <class MANIPULATOR>

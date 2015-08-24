@@ -39,9 +39,9 @@ bool containsDescriptor(
     return false;
 }
 
-                        // ------------------------
-                        // class ZoneinfoTransition
-                        // ------------------------
+                          // ------------------------
+                          // class ZoneinfoTransition
+                          // ------------------------
 
 // ACCESSORS
 bsl::ostream&
@@ -116,9 +116,9 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&             stream,
     return stream;
 }
 
-                    // ------------------------------
-                    // class Zoneinfo::DescriptorLess
-                    // ------------------------------
+                       // ------------------------------
+                       // class Zoneinfo::DescriptorLess
+                       // ------------------------------
 
 // ACCESSORS
 bool baltzo::Zoneinfo::DescriptorLess::operator()(
@@ -136,9 +136,9 @@ bool baltzo::Zoneinfo::DescriptorLess::operator()(
     return lhs.dstInEffectFlag() < rhs.dstInEffectFlag();
 }
 
-                            // --------------
-                            // class Zoneinfo
-                            // --------------
+                               // --------------
+                               // class Zoneinfo
+                               // --------------
 
 // CLASS METHODS
 bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(

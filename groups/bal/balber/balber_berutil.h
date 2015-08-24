@@ -166,9 +166,9 @@ namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 namespace bdet { typedef ::BloombergLP::bdlt::TimeTz TimeTz; }  // bdet -> bdlt
 
 namespace balber {
-                            // ==============
-                            // struct BerUtil
-                            // ==============
+                               // ==============
+                               // struct BerUtil
+                               // ==============
 
 struct BerUtil {
     // This utility contains functions to encode and decode primitive BER
@@ -276,9 +276,9 @@ struct BerUtil {
         // date/time types are supported.
 };
 
-                        // ==================
-                        // struct BerUtil_Imp
-                        // ==================
+                             // ==================
+                             // struct BerUtil_Imp
+                             // ==================
 
 struct BerUtil_Imp {
     // This 'struct' contains implementation functions used by the namespace
@@ -536,13 +536,13 @@ struct BerUtil_Imp {
                         const BerEncoderOptions *options);
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-                            // ----------------------
-                            // struct balber::BerUtil
-                            // ----------------------
+                           // ----------------------
+                           // struct balber::BerUtil
+                           // ----------------------
 
 // PRIVATE CLASS METHODS
 template <>
@@ -723,9 +723,9 @@ int BerUtil::putValue(bsl::streambuf          *streamBuf,
     return BerUtil_Imp::putValue(streamBuf, value, options);
 }
 
-                      // ------------------
-                      // struct BerUtil_Imp
-                      // ------------------
+                             // ------------------
+                             // struct BerUtil_Imp
+                             // ------------------
 
 // CLASS METHODS
 template <typename TYPE>

@@ -237,9 +237,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlmt {
-                        // ============================
-                        // class ThreadMultiplexor
-                        // ============================
+                          // =======================
+                          // class ThreadMultiplexor
+                          // =======================
 
 class ThreadMultiplexor {
     // This class provides a mechanism for facilitating the use of multiple

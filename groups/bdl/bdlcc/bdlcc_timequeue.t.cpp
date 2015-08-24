@@ -81,9 +81,9 @@ using namespace bsl;  // automatically added by script
 // [13] CONCERN: Memory Pooling
 // [14] Usage example
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -100,9 +100,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BDLS_TESTUTIL_ASSERT
 #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
@@ -123,9 +123,9 @@ void aSsErT(int c, const char *s, int i)
 
 bdlqq::Mutex coutMutex;
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
@@ -133,9 +133,9 @@ static int veryVeryVerbose;
 typedef bdlcc::TimeQueue<const char*> Obj;
 typedef bdlcc::TimeQueueItem<const char*> Item;
 
-                             // ================
-                             // class TestString
-                             // ================
+                              // ================
+                              // class TestString
+                              // ================
 
 class TestString {
     // This class is a string with allocation, except that a
@@ -188,9 +188,9 @@ bool operator!=(const TestString& lhs, const TestString& rhs);
     // Return 0 whether the specified strings 's1' and 's2' do not hold the
     // same C++ string and 1 if they do.
 
-                             // ----------------
-                             // class TestString
-                             // ----------------
+                              // ----------------
+                              // class TestString
+                              // ----------------
 
 // CREATORS
 TestString::TestString(bslma::Allocator *allocator)
@@ -280,9 +280,9 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 }  // close namespace bslma
 }  // close enterprise namespace
 
-//=============================================================================
-//                          CASE 11 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 11 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_TEST_CASE_11 {
 
@@ -376,15 +376,15 @@ void *testLength(void *)
 } // extern "C"
 
 }  // close namespace TIMEQUEUE_TEST_CASE_11
-//=============================================================================
-//                      CASE 10 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         CASE 10 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_TEST_CASE_10 {
 
-                           // ====================
-                           // class TestLockObject
-                           // ====================
+                            // ====================
+                            // class TestLockObject
+                            // ====================
 
 class TestLockObject {
     // This small test object holds a time queue reference, and attempts to
@@ -413,9 +413,9 @@ class TestLockObject {
         // Reset the held queue reference to 0.
 };
 
-                           // --------------------
-                           // class TestLockObject
-                           // --------------------
+                            // --------------------
+                            // class TestLockObject
+                            // --------------------
 
 // CREATORS
 TestLockObject::TestLockObject(
@@ -454,9 +454,9 @@ void TestLockObject::reset()
 
 }  // close namespace TIMEQUEUE_TEST_CASE_10
 
-//=============================================================================
-//                      CASE -100 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                        CASE -100 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_TEST_CASE_MINUS_100 {
 
@@ -552,9 +552,9 @@ void run()
 
 }  // close namespace TIMEQUEUE_TEST_CASE_MINUS_100
 
-//=============================================================================
-//          USAGE EXAMPLE from header (with assert replaced with ASSERT)
-//-----------------------------------------------------------------------------
+// ============================================================================
+//       USAGE EXAMPLE from header (with assert replaced with ASSERT)
+// ----------------------------------------------------------------------------
 
 namespace TIMEQUEUE_USAGE_EXAMPLE {
 
@@ -1068,9 +1068,9 @@ bsls::TimeInterval makeTimeInterval()
     return bsls::TimeInterval((double)counter++);
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

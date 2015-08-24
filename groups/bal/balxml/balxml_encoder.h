@@ -201,9 +201,9 @@ namespace BloombergLP {
 
 namespace balxml {class Encoder_Context;
 
-                             // ====================
-                             // class Encoder
-                             // ====================
+                               // =============
+                               // class Encoder
+                               // =============
 
 class Encoder {
     // This 'class' contains the parameterized 'encode' functions that encode
@@ -361,9 +361,9 @@ class Encoder {
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-                         // =============================
-                         // struct Encoder_Context
-                         // =============================
+                           // ======================
+                           // struct Encoder_Context
+                           // ======================
 
 class Encoder_Context {
     // This 'struct' contains state that is maintained during encoding.  It
@@ -448,9 +448,9 @@ class Encoder_Context {
 
 };
 
-                       // =================================
-                       // class Encoder_EncodeObject
-                       // =================================
+                         // ==========================
+                         // class Encoder_EncodeObject
+                         // ==========================
 
 class Encoder_EncodeObject {
     // Component-private class.  Do not use.
@@ -537,9 +537,9 @@ class Encoder_EncodeObject {
                 int                    formattingMode);
 };
 
-                      // ================================
-                      // class Encoder_EncodeValue
-                      // ================================
+                         // =========================
+                         // class Encoder_EncodeValue
+                         // =========================
 
 class Encoder_EncodeValue {
     // Component-private class.  Do not use.
@@ -590,9 +590,9 @@ class Encoder_EncodeValue {
     int execute(const TYPE& object, int formattingMode);
 };
 
-                    // ======================================
-                    // class Encoder_SequenceFirstPass
-                    // ======================================
+                      // ===============================
+                      // class Encoder_SequenceFirstPass
+                      // ===============================
 
 class Encoder_SequenceFirstPass {
     // Component private class.  Do not use.
@@ -675,9 +675,9 @@ class Encoder_SequenceFirstPass {
         // otherwise.
 };
 
-                  // =======================================
-                  // class Encoder_SequenceSecondPass
-                  // =======================================
+                      // ================================
+                      // class Encoder_SequenceSecondPass
+                      // ================================
 
 class Encoder_SequenceSecondPass {
     // Component-private class.  Do not use.
@@ -715,9 +715,9 @@ class Encoder_SequenceSecondPass {
 //                               PROXY CLASSES
 // ============================================================================
 
-                // ===============================================
-                // struct Encoder_EncodeObject_executeProxy
-                // ===============================================
+                  // ========================================
+                  // struct Encoder_EncodeObject_executeProxy
+                  // ========================================
 
 struct Encoder_EncodeObject_executeProxy {
     // Component-private struct.  Do not use.
@@ -740,9 +740,9 @@ struct Encoder_EncodeObject_executeProxy {
     }
 };
 
-              // ==================================================
-              // struct Encoder_EncodeObject_executeImpProxy
-              // ==================================================
+                // ===========================================
+                // struct Encoder_EncodeObject_executeImpProxy
+                // ===========================================
 
 struct Encoder_EncodeObject_executeImpProxy {
     // Component-private struct.  Do not use.
@@ -776,9 +776,9 @@ struct Encoder_EncodeObject_executeImpProxy {
     }
 };
 
-               // =================================================
-               // struct Encoder_EncodeValue_executeImpProxy
-               // =================================================
+                 // ==========================================
+                 // struct Encoder_EncodeValue_executeImpProxy
+                 // ==========================================
 
 struct Encoder_EncodeValue_executeImpProxy {
     // Component-private struct.  Do not use.
@@ -810,9 +810,9 @@ struct Encoder_EncodeValue_executeImpProxy {
     }
 };
 
-         // =========================================================
-         // struct Encoder_SequenceFirstPass_addAttributeProxy
-         // =========================================================
+             // ==================================================
+             // struct Encoder_SequenceFirstPass_addAttributeProxy
+             // ==================================================
 
 struct Encoder_SequenceFirstPass_addAttributeProxy {
     // Component-private struct.  Do not use.
@@ -837,9 +837,9 @@ struct Encoder_SequenceFirstPass_addAttributeProxy {
     }
 };
 
-        // ============================================================
-        // struct Encoder_SequenceFirstPass_addAttributeImpProxy
-        // ============================================================
+           // =====================================================
+           // struct Encoder_SequenceFirstPass_addAttributeImpProxy
+           // =====================================================
 
 struct Encoder_SequenceFirstPass_addAttributeImpProxy {
     // Component-private struct.  Do not use.
@@ -878,9 +878,9 @@ struct Encoder_SequenceFirstPass_addAttributeImpProxy {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                   // -------------------------------------
+                   // --------------------------------------
                    // class baexml::BerEncoder::MemOutStream
-                   // -------------------------------------
+                   // --------------------------------------
 
 inline
 balxml::Encoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
@@ -911,9 +911,9 @@ int balxml::Encoder::MemOutStream::length() const
 }
 
 namespace balxml {
-                             // --------------------
-                             // class Encoder
-                             // --------------------
+                               // -------------
+                               // class Encoder
+                               // -------------
 
 inline
 bool Encoder::isCompact() const
@@ -1083,9 +1083,9 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
     return rc;
 }
 
-                       // ---------------------------------
-                       // class Encoder_EncodeObject
-                       // ---------------------------------
+                         // --------------------------
+                         // class Encoder_EncodeObject
+                         // --------------------------
 
 // IMPLEMENTATION MANIPULATORS
 template <class TYPE>
@@ -1286,9 +1286,9 @@ int Encoder_EncodeObject::execute(const TYPE&            object,
     return executeImp(object, tag, formattingMode, TypeCategory());
 }
 
-                       // --------------------------------
-                       // class Encoder_EncodeValue
-                       // --------------------------------
+                         // -------------------------
+                         // class Encoder_EncodeValue
+                         // -------------------------
 
 // IMPLEMENTATION MANIPULATORS
 template <class TYPE>
@@ -1424,9 +1424,9 @@ int Encoder_EncodeValue::execute(const TYPE& object,
     return executeImp(object, formattingMode, TypeCategory());
 }
 
-                    // --------------------------------------
-                    // class Encoder_SequenceFirstPass
-                    // --------------------------------------
+                      // -------------------------------
+                      // class Encoder_SequenceFirstPass
+                      // -------------------------------
 
 // IMPLEMENTATION MANIPULATORS
 template <class TYPE>
@@ -1563,9 +1563,9 @@ Encoder_SequenceFirstPass::simpleContentId() const
     return d_simpleContentId;
 }
 
-                    // ---------------------------------------
-                    // class Encoder_SequenceSecondPass
-                    // ---------------------------------------
+                      // --------------------------------
+                      // class Encoder_SequenceSecondPass
+                      // --------------------------------
 
 // CREATORS
 inline

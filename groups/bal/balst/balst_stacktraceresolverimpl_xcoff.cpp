@@ -55,9 +55,9 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 #include <xcoff.h>      // includes: filehdr.h, aouthdr.h, scnhdr.h, linenum.h,
                         // syms.h
 
-//=============================================================================
-//           Debugging trace macros: 'eprintf' and 'zprintf'
-//=============================================================================
+// ============================================================================
+//              Debugging trace macros: 'eprintf' and 'zprintf'
+// ============================================================================
 
 #undef  TRACES
 #define TRACES 0    // debugging traces off
@@ -544,9 +544,9 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-//=============================================================================
-//         Static Definitions and Definitions in the Unnamed Namespace
-//=============================================================================
+// ============================================================================
+//        Static Definitions and Definitions in the Unnamed Namespace
+// ============================================================================
 
 namespace {
 

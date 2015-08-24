@@ -400,9 +400,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                //===========================================
-                // helper class FdStreamBuf_FileHandler
-                //===========================================
+                    // ====================================
+                    // helper class FdStreamBuf_FileHandler
+                    // ====================================
 
 class FdStreamBuf_FileHandler {
     // This private helper class isolates direct operations on files from the
@@ -631,9 +631,9 @@ class FdStreamBuf_FileHandler {
         // 'reset' or 'setWillCloseOnReset'.
 };
 
-                        //========================
-                        // class FdStreamBuf
-                        //========================
+                             // =================
+                             // class FdStreamBuf
+                             // =================
 
 class FdStreamBuf : public bsl::streambuf {
     // This class, derived from the C++ standard library class
@@ -1028,12 +1028,12 @@ class FdStreamBuf : public bsl::streambuf {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                      //------------------------------------
-                      // class FdStreamBuf_FileHandler
-                      //------------------------------------
+                       // -----------------------------
+                       // class FdStreamBuf_FileHandler
+                       // -----------------------------
 
 // CLASS METHODS
 inline
@@ -1116,9 +1116,9 @@ FdStreamBuf_FileHandler::fileDescriptor() const
     return d_fileId;
 }
 
-                            //------------------------
-                            // class FdStreamBuf
-                            //------------------------
+                             // -----------------
+                             // class FdStreamBuf
+                             // -----------------
 
 // PRIVATE MANIPULATORS
 inline

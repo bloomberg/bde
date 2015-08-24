@@ -358,9 +358,9 @@ extern "C" typedef void (*FixedThreadPoolJobFunc)(void *);
     // This type declares the prototype for functions that are suitable to be
     // specified 'bdlmt::FixedThreadPool::enqueueJob'.
 
-                         // =====================
-                         // class FixedThreadPool
-                         // =====================
+                           // =====================
+                           // class FixedThreadPool
+                           // =====================
 
 class FixedThreadPool {
     // This class implements a thread pool used for concurrently executing
@@ -594,9 +594,9 @@ class FixedThreadPool {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------------
-                        // class FixedThreadPool
-                        // ---------------------
+                           // ---------------------
+                           // class FixedThreadPool
+                           // ---------------------
 
 // MANIPULATORS
 inline

@@ -145,18 +145,18 @@ static void aSsErT(int c, const char *s, int i)
        #K << ": " << K << "\t" << #L << ": " << L << "\t" << #M << ": " <<  \
        M << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
-//=============================================================================
-//          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef balb::CommandLine                Obj;
 
@@ -567,9 +567,9 @@ static const struct {
 };
 const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
-//=============================================================================
-//                          HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                       HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
                          // =========================
                          // function generateArgument
@@ -993,9 +993,9 @@ void setLinkedVariable(TypeInfo *typeInfo, BdemType type, void *address)
     };
 }
 
-                         // ================
-                         // function setType
-                         // ================
+                              // ================
+                              // function setType
+                              // ================
 
 void setType(TypeInfo *typeInfo, BdemType type)
     // Set the 'bdem' element type of the specified 'typeInfo' to the
@@ -1100,9 +1100,9 @@ TypeInfo createTypeInfo(BdemType  type,
     return result;
 }
 
-                          // =============================
-                          // function createOccurrenceInfo
-                          // =============================
+                       // =============================
+                       // function createOccurrenceInfo
+                       // =============================
 
 OccurrenceInfo createOccurrenceInfo(OccurrenceType  occurrenceType,
                                     BdemType        type,
@@ -1120,9 +1120,9 @@ OccurrenceInfo createOccurrenceInfo(OccurrenceType  occurrenceType,
     return result;
 }
 
-                          // ========================
+                           // ======================
                            // function parseTypeInfo
-                          // ========================
+                           // ======================
 
 int parseTypeInfo(const char      **endpos,
                   const TypeInfo&   typeInfo,
@@ -1492,9 +1492,9 @@ int parseOccurrenceInfo(const char            **endpos,
     return SUCCESS;
 }
 
-                        // ===============================
-                        // function parseCommandLineOption
-                        // ===============================
+                      // ===============================
+                      // function parseCommandLineOption
+                      // ===============================
 
 int parseCommandLineOption(const char    **endpos,
                            const Option&   commandLineOption,
@@ -1660,9 +1660,9 @@ bool isCompatibleOrdering(const char *const *argv1,
     return true;
 }
 
-//=============================================================================
-//                  USAGE EXAMPLE CLASSES AND FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    USAGE EXAMPLE CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
 namespace BAEA_COMMANDLINE_USAGE_EXAMPLE {
 
 ///Usage
@@ -1884,9 +1884,9 @@ namespace BAEA_COMMANDLINE_USAGE_EXAMPLE {
 
 }  // close namespace BAEA_COMMANDLINE_USAGE_EXAMPLE
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, const char *argv[])  {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;

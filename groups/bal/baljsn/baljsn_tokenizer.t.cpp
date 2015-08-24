@@ -106,7 +106,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define WS "   \t       \n      \v       \f       \r       "
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef baljsn::Tokenizer Obj;
@@ -172,7 +172,7 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
 }
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 typedef bsls::Types::Int64  Int64;

@@ -391,9 +391,9 @@ namespace bdlqq {
     //  Once once = BDLQQ_ONCE_INITIALIZER;
     //..
 
-                                // ==========
-                                // class Once
-                                // ==========
+                                 // ==========
+                                 // class Once
+                                 // ==========
 
 class Once {
     // Gate-keeper class for code that should only execute once per process.
@@ -471,9 +471,9 @@ class Once {
         // 'function' terminates with an exception.
 };
 
-                            // ===============
-                            // class OnceGuard
-                            // ===============
+                              // ===============
+                              // class OnceGuard
+                              // ===============
 
 class OnceGuard {
     // Guard class for using 'Once' safely.  Construct an object of this
@@ -571,9 +571,9 @@ class OnceGuard {
     for (BloombergLP::bdlqq::OnceGuard bcemt_doOnceGuard(&doOnceObj);         \
          bcemt_doOnceGuard.enter(); bcemt_doOnceGuard.leave())
 
-                            // ---------------
-                            // class OnceGuard
-                            // ---------------
+                              // ---------------
+                              // class OnceGuard
+                              // ---------------
 
 // CREATORS
 inline
@@ -600,9 +600,9 @@ bool bdlqq::OnceGuard::isInProgress() const
     return e_IN_PROGRESS == d_state;
 }
 
-                                // ----------
-                                // class Once
-                                // ----------
+                                 // ----------
+                                 // class Once
+                                 // ----------
 
 template <class FUNC>
 inline

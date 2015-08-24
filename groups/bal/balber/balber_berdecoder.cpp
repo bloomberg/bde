@@ -20,9 +20,9 @@ balber::BerDecoder::MemOutStream::~MemOutStream()
 
 namespace balber {
 
-                   // ----------------
-                   // class BerDecoder
-                   // ----------------
+                              // ----------------
+                              // class BerDecoder
+                              // ----------------
 
 // CREATORS
 BerDecoder::BerDecoder(const BerDecoderOptions *options,
@@ -70,9 +70,9 @@ BerDecoder::ErrorSeverity BerDecoder::logMsg(const char *prefix,
     return d_severity;
 }
 
-         // -----------------------------
-         // private class BerDecoder_Node
-         // -----------------------------
+                       // -----------------------------
+                       // private class BerDecoder_Node
+                       // -----------------------------
 
 // ACCESSORS
 int

@@ -88,7 +88,7 @@ using namespace bsl;
 // [-3] CONCERN: Performance on cache misses.
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -103,7 +103,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
@@ -119,7 +119,7 @@ static void aSsErT(int c, const char *s, int i)
                     << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -134,7 +134,7 @@ bool     g_veryVeryVerbose;
 bool g_veryVeryVeryVerbose;
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -145,7 +145,7 @@ bool g_veryVeryVeryVerbose;
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef baltzo::LocalTimeOffsetUtil Util;
@@ -159,7 +159,7 @@ const char *GP1 = "Etc/GMT+1";
 const char *GM1 = "Etc/GMT-1";
 
 // ============================================================================
-//                                 GLOBAL TEST DATA
+//                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
 const char *DEFAULT_TZ_ARRAY[]   = { NY, BE, RY, SA, GMT, GP1, GM1 };
@@ -186,7 +186,7 @@ const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
 const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
 
 // ============================================================================
-//                     TEST TIME ZONE DATA
+//                            TEST TIME ZONE DATA
 // ----------------------------------------------------------------------------
 
 // America/New_York
@@ -1024,7 +1024,7 @@ static const unsigned char EUROPE_BERLIN_DATA[] = {
 };
 
 // ============================================================================
-//                  GLOBAL CLASSES FOR TESTING
+//                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
 struct LogVerbosityGuard {
@@ -1081,7 +1081,7 @@ struct LogVerbosityGuard {
 };
 
 // ============================================================================
-//                                 HELPER FUNCTIONS
+//                             HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
 struct ThreadArg {
@@ -1156,7 +1156,7 @@ void addTransitions(baltzo::Zoneinfo            *result,
 }
 
 // ============================================================================
-//                                 USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 namespace UsageExample1 {
@@ -1255,7 +1255,7 @@ void main1()
 }  // close namespace UsageExample1
 
 // ============================================================================
-//                                 MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

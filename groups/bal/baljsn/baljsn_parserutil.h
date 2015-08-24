@@ -118,9 +118,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-                            // =================
-                            // struct ParserUtil
-                            // =================
+                             // =================
+                             // struct ParserUtil
+                             // =================
 
 struct ParserUtil {
     //This class provides utility functions for decoding data in the JSON
@@ -191,12 +191,12 @@ struct ParserUtil {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // -----------------
-                            // struct ParserUtil
-                            // -----------------
+                             // -----------------
+                             // struct ParserUtil
+                             // -----------------
 
 // CLASS METHODS
 template <class TYPE>

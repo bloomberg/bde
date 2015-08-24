@@ -472,9 +472,9 @@ class LocalTimePeriod;
 
 class ZoneinfoCache;
 
-                        // ===================
-                        // struct TimeZoneUtil
-                        // ===================
+                            // ===================
+                            // struct TimeZoneUtil
+                            // ===================
 
 struct TimeZoneUtil {
     // This 'struct' provides a namespace for utility functions that convert

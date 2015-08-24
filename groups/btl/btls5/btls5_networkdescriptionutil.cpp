@@ -8,9 +8,9 @@ namespace BloombergLP {
 
 namespace btls5 {
 
-                     // -----------------------------
-                     // struct NetworkDescriptionUtil
-                     // -----------------------------
+                       // -----------------------------
+                       // struct NetworkDescriptionUtil
+                       // -----------------------------
 
 // CLASS METHODS
 bool NetworkDescriptionUtil::isWellFormed(

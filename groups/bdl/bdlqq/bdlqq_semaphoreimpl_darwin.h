@@ -54,9 +54,9 @@ namespace bdlqq {
 template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-            // ==============================================
-            // class SemaphoreImpl<Platform::DarwinSemaphore>
-            // ==============================================
+               // ==============================================
+               // class SemaphoreImpl<Platform::DarwinSemaphore>
+               // ==============================================
 
 template <>
 class SemaphoreImpl<Platform::DarwinSemaphore> {
@@ -103,13 +103,13 @@ class SemaphoreImpl<Platform::DarwinSemaphore> {
 
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                            INLINE DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-            // ----------------------------------------------
-            // class SemaphoreImpl<Platform::DarwinSemaphore>
-            // ----------------------------------------------
+               // ----------------------------------------------
+               // class SemaphoreImpl<Platform::DarwinSemaphore>
+               // ----------------------------------------------
 
 // CREATORS
 inline

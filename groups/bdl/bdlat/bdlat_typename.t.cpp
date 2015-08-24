@@ -101,7 +101,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                              USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // We begin by creating abbreviations for formatting modes and by declaring
@@ -227,7 +227,7 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlat_TypeName Obj;
@@ -848,7 +848,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mychoice.cpp  -*-C++-*-
@@ -1007,7 +1007,7 @@ bsl::ostream& MyChoice::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_myenumeration.h   -*-C++-*-
@@ -1244,7 +1244,7 @@ bsl::ostream& test::operator<<(bsl::ostream&              stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_myenumeration.cpp  -*-C++-*-
@@ -1326,7 +1326,7 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mysequence.h   -*-C++-*-
@@ -1818,7 +1818,7 @@ bsl::ostream& test::operator<<(bsl::ostream&           stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mysequence.cpp  -*-C++-*-
@@ -1975,7 +1975,7 @@ bsl::ostream& MySequence::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mycustomizedtype.h   -*-C++-*-
@@ -2258,7 +2258,7 @@ bsl::ostream& test::operator<<(bsl::ostream&                 stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 // test_mycustomizedtype.cpp  -*-C++-*-
@@ -2293,7 +2293,7 @@ const char MyCustomizedType::CLASS_NAME[] = "MyCustomizedType";
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// *End-of-file Block removed.*
+//                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
 class OtherType { int a; double b; };
@@ -2342,7 +2342,7 @@ const char* bdlat_TypeName_xsdName(const MyIntWrapper& object, int format)
 }  // close enterprise namespace
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

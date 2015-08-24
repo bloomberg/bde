@@ -100,9 +100,9 @@ namespace BloombergLP {
 
 namespace balst {
 
-                // ================================================
-                // class StackTraceTestAllocator::BlockHeader
-                // ================================================
+                 // ==========================================
+                 // class StackTraceTestAllocator::BlockHeader
+                 // ==========================================
 
 struct StackTraceTestAllocator::BlockHeader {
     // A record of this type is stored in each block, after the stack pointers
@@ -160,9 +160,9 @@ StackTraceTestAllocator::BlockHeader::BlockHeader(
     BSLMF_ASSERT(sizeof(BlockHeader) == 4 * sizeof(void *));
 }
 
-                // ------------------------------------------------
-                // class StackTraceTestAllocator::BlockHeader
-                // ------------------------------------------------
+                 // ------------------------------------------
+                 // class StackTraceTestAllocator::BlockHeader
+                 // ------------------------------------------
 
 // PRIVATE ACCESSORS
 int StackTraceTestAllocator::checkBlockHeader(

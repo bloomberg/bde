@@ -152,9 +152,9 @@ enum Utf8Bits {
     k_FOUR_OCTET_TAG     = k_THREE_OCTET_MASK // compare this to masked bits
 };
 
-                            // =====================
-                            // local struct Capacity
-                            // =====================
+                           // =====================
+                           // local struct Capacity
+                           // =====================
 
 struct Capacity {
     // Functor passed to 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator' in
@@ -186,9 +186,9 @@ struct Capacity {
         // specified 'rhs', and 'false' otherwise.
 };
 
-                            // ---------------------
-                            // local struct Capacity
-                            // ---------------------
+                           // ---------------------
+                           // local struct Capacity
+                           // ---------------------
 
 // CREATOR
 inline
@@ -228,9 +228,9 @@ bool Capacity::operator>=(bsl::size_t rhs) const
     return d_capacity >= rhs;
 }
 
-                            // =========================
-                            // local struct NoopCapacity
-                            // =========================
+                         // =========================
+                         // local struct NoopCapacity
+                         // =========================
 
 struct NoopCapacity {
     // Functor passed to 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator' in
@@ -259,9 +259,9 @@ struct NoopCapacity {
         // Return 'true'.
 };
 
-                            // -------------------------
-                            // local struct NoopCapacity
-                            // -------------------------
+                         // -------------------------
+                         // local struct NoopCapacity
+                         // -------------------------
 
 // CREATOR
 inline
@@ -295,9 +295,9 @@ bool NoopCapacity::operator>=(bsl::size_t) const
     return true;
 }
 
-                                // ====================
-                                // local struct Swapper
-                                // ====================
+                            // ====================
+                            // local struct Swapper
+                            // ====================
 
 struct Swapper {
     // This 'struct' serves as a template argument.  The type is used for
@@ -314,9 +314,9 @@ unsigned int Swapper::swapBytes(unsigned int x)
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(x);
 }
 
-                              // ========================
-                              // local struct NoopSwapper
-                              // ========================
+                          // ========================
+                          // local struct NoopSwapper
+                          // ========================
 
 struct NoopSwapper {
     // This 'struct' serves as a template argument, to be substituted for
@@ -336,9 +336,9 @@ unsigned int NoopSwapper::swapBytes(unsigned int x)
     return x;
 }
 
-                            // ===========================
-                            // local class Utf8PtrBasedEnd
-                            // ===========================
+                        // ===========================
+                        // local class Utf8PtrBasedEnd
+                        // ===========================
 
 class Utf8PtrBasedEnd {
     // This 'class' is initialized with a pointer to the end of input.  The
@@ -374,9 +374,9 @@ class Utf8PtrBasedEnd {
         // the end.  The behavior is undefined unless 'octets <= d_end'.
 };
 
-                            // ---------------------------
-                            // local class Utf8PtrBasedEnd
-                            // ---------------------------
+                        // ---------------------------
+                        // local class Utf8PtrBasedEnd
+                        // ---------------------------
 
 // CREATORS
 inline
@@ -439,9 +439,9 @@ bool Utf8PtrBasedEnd::verifyContinuations(const OctetType *octets,
     return true;
 }
 
-                            // =============================
-                            // local struct Utf8ZeroBasedEnd
-                            // =============================
+                       // =============================
+                       // local struct Utf8ZeroBasedEnd
+                       // =============================
 
 struct Utf8ZeroBasedEnd {
     // ACCESSORS
@@ -463,9 +463,9 @@ struct Utf8ZeroBasedEnd {
         // The behavior is undefined unless 'n >= 1'.
 };
 
-                          // -----------------------------
-                          // local struct Utf8ZeroBasedEnd
-                          // -----------------------------
+                       // -----------------------------
+                       // local struct Utf8ZeroBasedEnd
+                       // -----------------------------
 
 // ACCESSORS
 inline
@@ -815,9 +815,9 @@ namespace {
     // local classes, 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator', that
     // use those static routines.
 
-                    // =================================
-                    // local class Utf8ToUtf32Translator
-                    // =================================
+                     // =================================
+                     // local class Utf8ToUtf32Translator
+                     // =================================
 
 template <class CAPACITY, class END_FUNCTOR, class SWAPPER>
 class Utf8ToUtf32Translator {
@@ -929,9 +929,9 @@ class Utf8ToUtf32Translator {
         // 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
 };
 
-                    // ---------------------------------
-                    // local class Utf8ToUtf32Translator
-                    // ---------------------------------
+                     // ---------------------------------
+                     // local class Utf8ToUtf32Translator
+                     // ---------------------------------
 
 // PRIVATE CREATORS
 template <class CAPACITY, class END_FUNCTOR, class SWAPPER>
@@ -1075,9 +1075,9 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::translate(
     return ret;
 }
 
-                        // =================================
-                        // local class Utf32ToUtf8Translator
-                        // =================================
+                     // =================================
+                     // local class Utf32ToUtf8Translator
+                     // =================================
 
 template <class CAPACITY, class SWAPPER>
 class Utf32ToUtf8Translator {
@@ -1178,9 +1178,9 @@ class Utf32ToUtf8Translator {
         // is undefined unless 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
 };
 
-                        // ---------------------------------
-                        // local class Utf32ToUtf8Translator
-                        // ---------------------------------
+                     // ---------------------------------
+                     // local class Utf32ToUtf8Translator
+                     // ---------------------------------
 
 // PRIVATE CREATORS
 template <class CAPACITY, class SWAPPER>
@@ -1341,9 +1341,9 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::translate(
 namespace BloombergLP {
 namespace bdlde {
 
-                            // -----------------------
-                            // struct CharConvertUtf32
-                            // -----------------------
+                          // -----------------------
+                          // struct CharConvertUtf32
+                          // -----------------------
 
                                   // UTF8 to UTF32
 

@@ -79,7 +79,7 @@ enum {
 };
 
 // ============================================================================
-//                       LOCAL CLASS AND FUNCTION DEFINITIONS
+//                   LOCAL CLASS AND FUNCTION DEFINITIONS
 // ============================================================================
 
 namespace {
@@ -164,9 +164,9 @@ void format(int                start,
 }  // close unnamed namespace
 
 namespace balb {
-                            // =========================
+                            // ====================
                             // local struct Ordinal
-                            // =========================
+                            // ====================
 
 struct Ordinal {
     // This 'struct' assists in printing numbers as ordinals (1st, 2nd, etc.).
@@ -278,9 +278,9 @@ bool parseValue(void *value, const char *input, bdlmxxx::ElemType::Type type)
     return result;
 }
 
-                         // ===============================
-                         // local function elemTypeToString
-                         // ===============================
+                      // ===============================
+                      // local function elemTypeToString
+                      // ===============================
 
 const char *elemTypeToString(bdlmxxx::ElemType::Type elemType)
 {
@@ -329,9 +329,9 @@ const char *elemTypeToString(bdlmxxx::ElemType::Type elemType)
 }  // close unnamed namespace
 
 namespace balb {
-                   // =======================================
-                   // local class CommandLine_Constraint
-                   // =======================================
+                     // ==================================
+                     // local class CommandLine_Constraint
+                     // ==================================
 
 class CommandLine_Constraint {
 
@@ -450,9 +450,9 @@ bool BoolConstraint::validate(const bdlmxxx::ConstElemRef&, bsl::ostream&) const
     return true;
 }
 
-                   // =================================
-                   // local class ScalarConstraint<...>
-                   // =================================
+                     // =================================
+                     // local class ScalarConstraint<...>
+                     // =================================
 
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 class ScalarConstraint : public balb::CommandLine_Constraint {
@@ -622,9 +622,9 @@ class ScalarConstraint<bdlt::Time,
                        bdlmxxx::ElemType::BDEM_TIME>;
     // Explicit specializations (to force instantiation of all variants).
 
-                 // ================================
-                 // local class ArrayConstraint<...>
-                 // ================================
+                      // ================================
+                      // local class ArrayConstraint<...>
+                      // ================================
 
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 class ArrayConstraint : public balb::CommandLine_Constraint {
@@ -971,12 +971,12 @@ typedef ArrayConstraint<bdlt::Time,
 
 namespace balb {
 // ============================================================================
-//                                  COMPONENT
+//                                 COMPONENT
 // ============================================================================
 
-                    // ------------------------------------
-                    // class CommandLineOccurrenceInfo
-                    // ------------------------------------
+                      // -------------------------------
+                      // class CommandLineOccurrenceInfo
+                      // -------------------------------
 
 // CREATORS
 CommandLineOccurrenceInfo::CommandLineOccurrenceInfo(
@@ -1364,9 +1364,9 @@ balb::operator<<(bsl::ostream& stream, const CommandLineOccurrenceInfo& rhs)
     return rhs.print(stream);
 }
 
-                      // ---------------------------------
-                      // struct balb::CommandLineOptionType
-                      // ---------------------------------
+                     // ----------------------------------
+                     // struct balb::CommandLineOptionType
+                     // ----------------------------------
 
 typedef balb::CommandLineOptionType CLOT;
 
@@ -1394,9 +1394,9 @@ bsl::vector<bdlt::Date>                * const CLOT::BAEA_DATE_ARRAY     = 0;
 bsl::vector<bdlt::Time>                * const CLOT::BAEA_TIME_ARRAY     = 0;
 
 namespace balb {
-                       // ------------------------------
-                       // class CommandLineTypeInfo
-                       // ------------------------------
+                         // -------------------------
+                         // class CommandLineTypeInfo
+                         // -------------------------
 
 // CREATORS
 CommandLineTypeInfo::CommandLineTypeInfo(
@@ -2448,9 +2448,9 @@ balb::operator<<(bsl::ostream& stream, const CommandLineTypeInfo& rhs)
     return rhs.print(stream);
 }
 
-                     // ---------------------------------
+                     // ----------------------------------
                      // struct balb::CommandLineOptionInfo
-                     // ---------------------------------
+                     // ----------------------------------
 
 // FREE OPERATORS
 bool balb::operator==(const CommandLineOptionInfo& lhs,
@@ -2490,9 +2490,9 @@ balb::operator<<(bsl::ostream& stream, const CommandLineOptionInfo& rhs)
 }
 
 namespace balb {
-                          // ----------------------------
+                          // -----------------------
                           // class CommandLineOption
-                          // ----------------------------
+                          // -----------------------
 
 // PRIVATE MANIPULATORS
 void CommandLineOption::init(const CommandLineOptionInfo& optionInfo)
@@ -2849,9 +2849,9 @@ balb::operator<<(bsl::ostream& stream, const CommandLineOption& rhs)
 }
 
 namespace balb {
-                          // ----------------------
-                          // class CommandLine
-                          // ----------------------
+                             // -----------------
+                             // class CommandLine
+                             // -----------------
 
 // PRIVATE MANIPULATORS
 void CommandLine::clear()

@@ -319,9 +319,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btls {
-                            // =================
-                            // class RateLimiter
-                            // =================
+                             // =================
+                             // class RateLimiter
+                             // =================
 
 class RateLimiter {
     // This mechanism implements a rate limiter that allows clients to monitor
@@ -506,9 +506,9 @@ class RateLimiter {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // -----------------
-                            // class RateLimiter
-                            // -----------------
+                             // -----------------
+                             // class RateLimiter
+                             // -----------------
 
 // MANIPULATORS
 inline

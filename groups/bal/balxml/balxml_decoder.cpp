@@ -141,9 +141,9 @@ public:
 }  // close unnamed namespace
 
 namespace balxml {
-                      // -----------------------------------
-                      // class Decoder_ElementContext
-                      // -----------------------------------
+                        // ----------------------------
+                        // class Decoder_ElementContext
+                        // ----------------------------
 
 Decoder_ElementContext::~Decoder_ElementContext()
 {
@@ -156,18 +156,18 @@ Decoder_ElementContext::beginParse(Decoder *decoder)
 }
 }  // close package namespace
 
-                   // -------------------------------------
+                   // --------------------------------------
                    // class baexml::BerDecoder::MemOutStream
-                   // -------------------------------------
+                   // --------------------------------------
 
 balxml::Decoder::MemOutStream::~MemOutStream()
 {
 }
 
 namespace balxml {
-                      // --------------------
-                      // class Decoder
-                      // --------------------
+                               // -------------
+                               // class Decoder
+                               // -------------
 
 // CREATORS
 Decoder::Decoder(
@@ -550,9 +550,9 @@ bslstl::StringRef Decoder::loggedMessages() const
     return bslstl::StringRef();
 }
 
-                     // ------------------------------------
-                     // class Decoder_NillableContext
-                     // ------------------------------------
+                       // -----------------------------
+                       // class Decoder_NillableContext
+                       // -----------------------------
 
 // CREATORS
 Decoder_NillableContext::Decoder_NillableContext()
@@ -660,9 +660,9 @@ bool Decoder_NillableContext::isNil() const
     return d_isNil;
 }
 
-                  // ---------------------------------------
-                  // class Decoder_UnknownElementContext
-                  // ---------------------------------------
+                    // -----------------------------------
+                    // class Decoder_UnknownElementContext
+                    // -----------------------------------
 
 // CREATORS
 
@@ -712,9 +712,9 @@ int Decoder_UnknownElementContext::parseSubElement(
     return beginParse(decoder);
 }
 
-                     // ----------------------------------
-                     // class Decoder_StdStringContext
-                     // ----------------------------------
+                       // ------------------------------
+                       // class Decoder_StdStringContext
+                       // ------------------------------
 
 Decoder_StdStringContext::Decoder_StdStringContext(
                                                    bsl::string *object,
@@ -781,9 +781,9 @@ int Decoder_StdStringContext::parseSubElement(
     return d_context_p->parseSubElement(elementName, decoder);
 }
 
-                   // --------------------------------------
-                   // class Decoder_StdVectorCharContext
-                   // --------------------------------------
+                     // ----------------------------------
+                     // class Decoder_StdVectorCharContext
+                     // ----------------------------------
 
 // CREATORS
 
@@ -858,9 +858,9 @@ int Decoder_StdVectorCharContext::parseSubElement(
     return d_context_p->parseSubElement(elementName, decoder);
 }
 
-                       // -----------------------------
-                       // class Decoder_ParseObject
-                       // -----------------------------
+                         // -------------------------
+                         // class Decoder_ParseObject
+                         // -------------------------
 
 // MANIPULATORS
 

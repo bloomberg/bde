@@ -154,7 +154,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 class FussyDouble {
@@ -207,7 +207,7 @@ typedef FussyDouble Element2;
 typedef bdlc::Queue<Element2> Obj2;
 
 // ============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
 template <class T>
@@ -440,7 +440,7 @@ inline EqualityTester::~EqualityTester()
 }
 
 // ============================================================================
-//                              TEST CASES
+//                                TEST CASES
 // ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
@@ -8021,7 +8021,7 @@ DEFINE_TEST_CASE(1) {
       }
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

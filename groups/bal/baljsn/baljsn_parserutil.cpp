@@ -50,9 +50,9 @@ static const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
 
 namespace baljsn {
 
-                            // -----------------
-                            // struct ParserUtil
-                            // -----------------
+                             // -----------------
+                             // struct ParserUtil
+                             // -----------------
 
 // CLASS METHODS
 int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)

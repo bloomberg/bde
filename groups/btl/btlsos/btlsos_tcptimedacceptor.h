@@ -187,9 +187,9 @@ namespace btlsc { class TimedChannel; }
 namespace btlsc { class Channel; }
 namespace btlsos {
 
-                          // ======================
-                          // class TcpTimedAcceptor
-                          // ======================
+                           // ======================
+                           // class TcpTimedAcceptor
+                           // ======================
 
 class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for a
@@ -413,7 +413,7 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

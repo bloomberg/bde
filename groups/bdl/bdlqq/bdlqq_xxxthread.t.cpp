@@ -72,9 +72,9 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 int verbose;
 int veryVerbose;
@@ -208,9 +208,9 @@ extern "C" void *consumer(void *arg)
 
 namespace {  //unnamed namespace for private classes
 
-                        // =============
-                        // class my_Account
-                        // =============
+                              // ================
+                              // class my_Account
+                              // ================
 
 class my_Account {
 
@@ -282,9 +282,9 @@ double my_Account::balance() const
     return d_money;
 }
 
-                        // ==========================
-                        // class my_SafeAccountHandle
-                        // ==========================
+                         // ==========================
+                         // class my_SafeAccountHandle
+                         // ==========================
 
 class my_SafeAccountHandle {
     // This class provides a thread-safe handle to an account (held, not
@@ -386,9 +386,9 @@ double my_SafeAccountHandle::balance() const
     return res;
 }
 
-                        // ===================
-                        // class ThreadChecker
-                        // ===================
+                            // ===================
+                            // class ThreadChecker
+                            // ===================
 
 class ThreadChecker {
     bdlqq::Mutex d_mutex;
@@ -420,9 +420,9 @@ class ThreadChecker {
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

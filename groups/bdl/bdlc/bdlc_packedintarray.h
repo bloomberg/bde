@@ -700,9 +700,9 @@ class PackedIntArrayImp {
 };
 
 
-                       // ============================
-                       // struct PackedIntArrayImpType
-                       // ============================
+                        // ============================
+                        // struct PackedIntArrayImpType
+                        // ============================
 
 template <class TYPE>
 struct PackedIntArrayImpType {
@@ -726,9 +726,9 @@ struct PackedIntArrayImpType {
                                                                 ::Type Type;
 };
 
-                       // =================================
-                       // class PackedIntArrayConstIterator
-                       // =================================
+                     // =================================
+                     // class PackedIntArrayConstIterator
+                     // =================================
 
 template <class TYPE>
 class PackedIntArrayConstIterator {
@@ -1337,12 +1337,12 @@ void swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b);
     // allocator.
 
 // ============================================================================
-//                           INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                    // -------------------------------
-                    // struct PackedIntArrayImp_Signed
-                    // -------------------------------
+                      // -------------------------------
+                      // struct PackedIntArrayImp_Signed
+                      // -------------------------------
 
 template <class STREAM>
 void PackedIntArrayImp_Signed::bdexGet8(STREAM& stream, int8_t& variable)
@@ -1400,9 +1400,9 @@ void PackedIntArrayImp_Signed::bdexPut64(STREAM& stream, int64_t value)
     stream.putInt64(static_cast<bsls::Types::Int64>(value));
 }
 
-                    // ---------------------------------
-                    // struct PackedIntArrayImp_Unsigned
-                    // ---------------------------------
+                     // ---------------------------------
+                     // struct PackedIntArrayImp_Unsigned
+                     // ---------------------------------
 
 template <class STREAM>
 void PackedIntArrayImp_Unsigned::bdexGet8(STREAM& stream, uint8_t& variable)
@@ -1460,9 +1460,9 @@ void PackedIntArrayImp_Unsigned::bdexPut64(STREAM& stream, uint64_t value)
     stream.putUint64(static_cast<bsls::Types::Uint64>(value));
 }
 
-                        // ------------------------
-                        // struct PackedIntArrayImp
-                        // ------------------------
+                          // ------------------------
+                          // struct PackedIntArrayImp
+                          // ------------------------
 
 // PRIVATE CLASS METHODS
 template <class STORAGE>
@@ -1891,9 +1891,9 @@ bsl::size_t PackedIntArrayImp<STORAGE>::length() const {
     return d_length;
 }
 
-                    // ---------------------------------
-                    // class PackedIntArrayConstIterator
-                    // ---------------------------------
+                     // ---------------------------------
+                     // class PackedIntArrayConstIterator
+                     // ---------------------------------
 
 // PRIVATE CREATORS
 template <class TYPE>
@@ -2165,9 +2165,9 @@ bool operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
     return lhs.d_index >= rhs.d_index;
 }
 
-                    // --------------------
-                    // class PackedIntArray
-                    // --------------------
+                            // --------------------
+                            // class PackedIntArray
+                            // --------------------
 
 // CLASS METHODS
 template <class TYPE>

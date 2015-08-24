@@ -115,9 +115,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                            // =================
-                            // class ThreadGroup
-                            // =================
+                             // =================
+                             // class ThreadGroup
+                             // =================
 
 class ThreadGroup {
     // This class provides a simple mechanism for managing a group of joinable
@@ -189,12 +189,12 @@ class ThreadGroup {
 }  // close package namespace
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                            // -----------------
-                            // class ThreadGroup
-                            // -----------------
+                             // -----------------
+                             // class ThreadGroup
+                             // -----------------
 
 // MANIPULATORS
 inline

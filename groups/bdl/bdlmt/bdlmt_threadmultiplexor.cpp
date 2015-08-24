@@ -13,9 +13,9 @@ BSLS_IDENT_RCSID(bdlmt_threadmultiplexor_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace bdlmt {
-                        // -----------------------
-                        // class ThreadMultiplexor
-                        // -----------------------
+                          // -----------------------
+                          // class ThreadMultiplexor
+                          // -----------------------
 
 // PRIVATE MANIPULATORS
 

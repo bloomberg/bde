@@ -248,9 +248,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                        // ======================
-                        // class ReaderWriterLock
-                        // ======================
+                           // ======================
+                           // class ReaderWriterLock
+                           // ======================
 
 class ReaderWriterLock {
     // This class provides a multi-reader/single-writer lock mechanism.
@@ -414,9 +414,9 @@ class ReaderWriterLock {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ----------------------
-                        // class ReaderWriterLock
-                        // ----------------------
+                           // ----------------------
+                           // class ReaderWriterLock
+                           // ----------------------
 
 // CREATORS
 inline

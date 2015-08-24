@@ -292,9 +292,9 @@ namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bd
 }  // close namespace bdet
 
 namespace bdlsu {
-                        // ===========================
-                        // struct FilesystemUtil
-                        // ===========================
+                           // =====================
+                           // struct FilesystemUtil
+                           // =====================
 
 struct FilesystemUtil {
     // This 'struct' provides a namespace for utility functions dealing with
@@ -741,12 +741,12 @@ struct FilesystemUtil {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------
-                        // struct FilesystemUtil
-                        // ---------------------------
+                           // ---------------------
+                           // struct FilesystemUtil
+                           // ---------------------
 
 // CLASS METHODS
 inline

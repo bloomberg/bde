@@ -63,9 +63,9 @@ namespace {
 
 namespace baljsn {
 
-                             // ----------------
-                             // struct Tokenizer
-                             // ----------------
+                              // ----------------
+                              // struct Tokenizer
+                              // ----------------
 
 // PRIVATE MANIPULATORS
 int Tokenizer::reloadStringBuffer()

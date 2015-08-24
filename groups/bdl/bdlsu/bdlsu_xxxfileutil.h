@@ -200,9 +200,9 @@ namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bd
 }  // close namespace bdet
 
 namespace bdlsu {
-                       // =====================
-                       // struct FileUtil
-                       // =====================
+                              // ===============
+                              // struct FileUtil
+                              // ===============
 
 struct FileUtil {
     // The static methods of this structure provide platform-independent
@@ -560,12 +560,12 @@ struct FileUtil {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                              // ---------------------
+                              // ---------------
                               // struct FileUtil
-                              // ---------------------
+                              // ---------------
 
 // CLASS METHODS
 inline

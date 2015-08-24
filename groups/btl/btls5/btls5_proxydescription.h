@@ -84,9 +84,9 @@ namespace bslma { class Allocator; }
 
 namespace btls5 {
 
-                        // ======================
-                        // class ProxyDescription
-                        // ======================
+                           // ======================
+                           // class ProxyDescription
+                           // ======================
 
 class ProxyDescription {
     // This unconstrained (value-semantic) type describes a SOCKS5 proxy in
@@ -213,12 +213,12 @@ void swap(btls5::ProxyDescription& a, btls5::ProxyDescription& b);
     // allocator.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // ----------------------
-                         // class ProxyDescription
-                         // ----------------------
+                           // ----------------------
+                           // class ProxyDescription
+                           // ----------------------
 
 // CREATORS
 inline

@@ -60,9 +60,9 @@ namespace bdlqq {
 template <class THREAD_POLICY>
 class RecursiveMutexImpl;
 
-            // ===============================================
-            // class RecursiveMutexImpl<Platform::PosixThreads>
-            // ===============================================
+              // ================================================
+              // class RecursiveMutexImpl<Platform::PosixThreads>
+              // ================================================
 
 template <>
 class RecursiveMutexImpl<Platform::PosixThreads> {
@@ -130,9 +130,9 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-            // ------------------------------------------------
-            // class RecursiveMutexImpl<Platform::PosixThreads>
-            // ------------------------------------------------
+              // ------------------------------------------------
+              // class RecursiveMutexImpl<Platform::PosixThreads>
+              // ------------------------------------------------
 
 // CREATORS
 inline

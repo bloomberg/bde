@@ -44,9 +44,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlsu {
-                           // ========================
-                           // struct ProcessUtil
-                           // ========================
+                             // ==================
+                             // struct ProcessUtil
+                             // ==================
 
 struct ProcessUtil {
     // This 'struct' contains utility methods for platform-independent

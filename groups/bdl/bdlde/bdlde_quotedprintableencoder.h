@@ -428,9 +428,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlde {
 
-                          // ============================
-                          // class QuotedPrintableEncoder
-                          // ============================
+                        // ============================
+                        // class QuotedPrintableEncoder
+                        // ============================
 
 class QuotedPrintableEncoder {
     // This class implements a mechanism capable of converting data of

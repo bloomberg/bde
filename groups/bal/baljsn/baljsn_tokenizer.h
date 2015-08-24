@@ -154,9 +154,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-                             // ===============
-                             // class Tokenizer
-                             // ===============
+                              // ===============
+                              // class Tokenizer
+                              // ===============
 
 class Tokenizer {
     // This 'class' provides a mechanism for traversing JSON data stored in a
@@ -339,7 +339,7 @@ class Tokenizer {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS

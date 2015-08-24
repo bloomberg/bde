@@ -90,9 +90,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlb {
-                           // =====================
-                           // struct BlobUtil
-                           // =====================
+                              // ===============
+                              // struct BlobUtil
+                              // ===============
 
 struct BlobUtil {
     // TBD: doc
@@ -280,9 +280,9 @@ struct BlobUtil {
                        bslma::Allocator  *);
 };
 
-                      // ================================
-                      // struct BlobUtilAsciiDumper
-                      // ================================
+                         // ==========================
+                         // struct BlobUtilAsciiDumper
+                         // ==========================
 
 struct BlobUtilAsciiDumper {
     // Utility for ascii dumping a blob to standard output streams.  This class
@@ -303,9 +303,9 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
     // Ascii-dump the blob referenced by the specified 'rhs' to the specified
     // 'stream', and return a reference to the modifiable 'stream'.
 
-                       // ==============================
-                       // struct BlobUtilHexDumper
-                       // ==============================
+                          // ========================
+                          // struct BlobUtilHexDumper
+                          // ========================
 
 struct BlobUtilHexDumper {
     // Utility for hex dumping a blob to standard output streams.  This class
@@ -333,12 +333,12 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
     // 'stream', and return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                              // ---------------------
+                              // ---------------
                               // struct BlobUtil
-                              // ---------------------
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -529,9 +529,9 @@ int BlobUtil::write(STREAM&           stream,
     return 0;
 }
 
-                      // --------------------------------
-                      // struct BlobUtilAsciiDumper
-                      // --------------------------------
+                         // --------------------------
+                         // struct BlobUtilAsciiDumper
+                         // --------------------------
 
 // CREATORS
 inline
@@ -550,9 +550,9 @@ bsl::ostream& btlb::operator<<(bsl::ostream&                    stream,
 }
 
 namespace btlb {
-                       // ------------------------------
-                       // struct BlobUtilHexDumper
-                       // ------------------------------
+                          // ------------------------
+                          // struct BlobUtilHexDumper
+                          // ------------------------
 
 // CREATORS
 inline

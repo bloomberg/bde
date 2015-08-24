@@ -358,9 +358,9 @@ namespace btlsos {
 
 class TcpTimedCbAcceptor_Reg; // component-local class declaration
 
-                         // ========================
-                         // class TcpTimedCbAcceptor
-                         // ========================
+                          // ========================
+                          // class TcpTimedCbAcceptor
+                          // ========================
 
 class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
     // This class implements a 'btesc'-style timed callback-based channel
@@ -655,7 +655,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

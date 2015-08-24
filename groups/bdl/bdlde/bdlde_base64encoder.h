@@ -398,9 +398,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlde {
-                        // =========================
-                        // class Base64Encoder
-                        // =========================
+                            // ===================
+                            // class Base64Encoder
+                            // ===================
 
 class Base64Encoder {
     // This class implements a mechanism capable of converting data of
@@ -612,9 +612,9 @@ class Base64Encoder {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // -------------------------
-                        // class Base64Encoder
-                        // -------------------------
+                            // -------------------
+                            // class Base64Encoder
+                            // -------------------
 
 // PRIVATE MANIPULATORS
 template <class OUTPUT_ITERATOR>

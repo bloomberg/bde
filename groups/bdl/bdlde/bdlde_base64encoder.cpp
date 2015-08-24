@@ -27,9 +27,9 @@ static const char enc[] = {
     '4', '5', '6', '7', '8', '9', '+', '/',  // 070
 };
 
-                        // -------------------------
-                        // class bdlde::Base64Encoder
-                        // -------------------------
+                         // --------------------------
+                         // class bdlde::Base64Encoder
+                         // --------------------------
 
 const char *const bdlde::Base64Encoder::s_encodedChars_p = enc;
 

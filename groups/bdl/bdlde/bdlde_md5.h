@@ -120,9 +120,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlde {
 
-                                // =========
-                                // class Md5
-                                // =========
+                                 // =========
+                                 // class Md5
+                                 // =========
 
 class Md5 {
     // This 'class' represents an MD5 digest that can be updated as additional
@@ -276,9 +276,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Md5& digest);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                                // ---------
-                                // class Md5
-                                // ---------
+                                 // ---------
+                                 // class Md5
+                                 // ---------
 
 // CLASS METHODS
 inline

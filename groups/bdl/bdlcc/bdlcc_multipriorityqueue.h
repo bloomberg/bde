@@ -452,9 +452,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                // =========================================
-                // local class MultipriorityQueue_Node<TYPE>
-                // =========================================
+                 // =========================================
+                 // local class MultipriorityQueue_Node<TYPE>
+                 // =========================================
 
 template <class TYPE>
 class MultipriorityQueue_Node {
@@ -502,9 +502,9 @@ class MultipriorityQueue_Node {
         // Return a reference to the non-modifiable item stored in this node.
 };
 
-                      // ==============================
-                      // class MultipriorityQueue<TYPE>
-                      // ==============================
+                       // ==============================
+                       // class MultipriorityQueue<TYPE>
+                       // ==============================
 
 template <class TYPE>
 class MultipriorityQueue {
@@ -704,12 +704,12 @@ class MultipriorityQueue {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                // -----------------------------------------
-                // local class MultipriorityQueue_Node<TYPE>
-                // -----------------------------------------
+                 // -----------------------------------------
+                 // local class MultipriorityQueue_Node<TYPE>
+                 // -----------------------------------------
 
 // CREATORS
 template <class TYPE>
@@ -753,9 +753,9 @@ const TYPE& MultipriorityQueue_Node<TYPE>::item() const
     return d_item.object();
 }
 
-                      // ------------------------------
-                      // class MultipriorityQueue<TYPE>
-                      // ------------------------------
+                       // ------------------------------
+                       // class MultipriorityQueue<TYPE>
+                       // ------------------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>

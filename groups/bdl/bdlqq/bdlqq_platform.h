@@ -48,9 +48,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlqq {
 
-                            // ==============
-                            // class Platform
-                            // ==============
+                               // ==============
+                               // class Platform
+                               // ==============
 
 struct Platform {
     // This 'struct' provides a namespace for concurrency trait definitions.

@@ -138,9 +138,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balst {
-                 // =========================================
-                 // class StackTraceResolver_FileHelper
-                 // =========================================
+                    // ===================================
+                    // class StackTraceResolver_FileHelper
+                    // ===================================
 
 class StackTraceResolver_FileHelper {
     // This class provides a low-level file utility functions for
@@ -208,7 +208,7 @@ class StackTraceResolver_FileHelper {
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                      // -----------------------------------

@@ -69,9 +69,9 @@ using namespace bsl;  // automatically added by script
 // [ 6] TESTING CONCERN: CONCURRENT WRITES
 // [ 7] TESTING USAGE EXAMPLE
 
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -108,18 +108,18 @@ static void aSsErT(int c, const char *s, int i)
                     << #M << ": " << M << "\n";                           \
                aSsErT(1, #X, __LINE__); }}
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number.
 #define T_()  cout << '\t' << flush;          // Print tab w/o newline.
 
-//=============================================================================
-//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
@@ -136,9 +136,9 @@ namespace {
 
 const char LOG_CATEGORY[] = "BAEA.PCC.TEST";
 
-                       // ===================
-                       // class ControlServer
-                       // ===================
+                            // ===================
+                            // class ControlServer
+                            // ===================
 
 class ControlServer {
 
@@ -261,9 +261,9 @@ void onSigPipe(int) {
     BALL_LOG_WARN << "SIGPIPE received" << BALL_LOG_END;
 }
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
     int test = (argc > 1) ? bsl::atoi(argv[1]) : 1;

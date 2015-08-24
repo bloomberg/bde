@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(baltzo_localdatetime_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                            // -----------------
+                            // -------------------
                             // class LocalDatetime
-                            // -----------------
+                            // -------------------
 
 // ACCESSORS
                         // Aspects

@@ -166,9 +166,9 @@ namespace BloombergLP {
 namespace bslma { class Allocator; }
 
 namespace balb {
-                       // =============================
-                       // class PipeControlChannel
-                       // =============================
+                          // ========================
+                          // class PipeControlChannel
+                          // ========================
 
 class PipeControlChannel {
     // This class is a mechanism for reading control messages from a named
@@ -273,7 +273,7 @@ class PipeControlChannel {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 inline

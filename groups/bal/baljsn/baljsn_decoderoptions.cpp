@@ -12,9 +12,9 @@ BSLS_IDENT_RCSID(baljsn_decoderoptions_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace baljsn {
 
-                           // --------------------
-                           // class DecoderOptions
-                           // --------------------
+                            // --------------------
+                            // class DecoderOptions
+                            // --------------------
 
 // ACCESSORS
 

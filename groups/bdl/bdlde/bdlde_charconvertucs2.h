@@ -282,9 +282,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlde {
-                        // ============================
-                        // struct CharConvertUcs2
-                        // ============================
+                           // ======================
+                           // struct CharConvertUcs2
+                           // ======================
 
 struct CharConvertUcs2 {
     // This 'struct' provides a namespace for a suite of pure procedures to

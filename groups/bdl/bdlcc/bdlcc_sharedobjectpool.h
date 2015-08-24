@@ -270,9 +270,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlcc {
 
-                        // ==========================
-                        // class SharedObjectPool_Rep
-                        // ==========================
+                         // ==========================
+                         // class SharedObjectPool_Rep
+                         // ==========================
 
 template <class TYPE, class RESETTER>
 class SharedObjectPool_Rep: public bslma::SharedPtrRep {
@@ -345,9 +345,9 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
         // Return a pointer to the in-place object.
 };
 
-                          // ======================
-                          // class SharedObjectPool
-                          // ======================
+                           // ======================
+                           // class SharedObjectPool
+                           // ======================
 
 template <class TYPE,
           class CREATOR=ObjectPoolFunctors::DefaultCreator,
@@ -461,12 +461,12 @@ class SharedObjectPool {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // class SharedObjectPool_Rep
-                        // --------------------------
+                         // --------------------------
+                         // class SharedObjectPool_Rep
+                         // --------------------------
 
 // CREATORS
 template <class TYPE, class RESETTER>

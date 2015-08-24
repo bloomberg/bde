@@ -137,9 +137,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-                             // ===============
-                             // class PrintUtil
-                             // ===============
+                              // ===============
+                              // class PrintUtil
+                              // ===============
 
 struct PrintUtil {
     // This 'struct' provides functions for printing objects to output streams
@@ -189,12 +189,12 @@ struct PrintUtil {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                             // ----------------
-                             // struct PrintUtil
-                             // ----------------
+                              // ----------------
+                              // struct PrintUtil
+                              // ----------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>

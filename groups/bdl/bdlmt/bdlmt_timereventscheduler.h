@@ -275,9 +275,9 @@ namespace bdlmt {
 
 struct TimerEventSchedulerDispatcher;
 
-                        // =========================
-                        // class TimerEventScheduler
-                        // =========================
+                         // =========================
+                         // class TimerEventScheduler
+                         // =========================
 
 class TimerEventScheduler {
     // This class provides a thread-safe event scheduler.  'scheduleEvent'

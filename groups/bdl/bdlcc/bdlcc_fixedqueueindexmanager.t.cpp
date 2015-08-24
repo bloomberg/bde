@@ -100,9 +100,9 @@ using namespace bsl;
 // [11] CONCERN: Thread-Safety (concurrent access does not corrupt state)
 // [12] CONCERN: maxCombinedIndex
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -119,9 +119,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BDLS_TESTUTIL_ASSERT
 #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
@@ -141,7 +141,7 @@ void aSsErT(int c, const char *s, int i)
 #define L_  BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -158,9 +158,9 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -168,9 +168,9 @@ static int veryVeryVerbose = 0;
 
 typedef bdlcc::FixedQueueIndexManager Obj;
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 bsl::ostream& operator<<(bsl::ostream&                        stream,
                          const bdlcc::FixedQueueIndexManager& indexManager)
@@ -262,9 +262,9 @@ void gg(Obj          *result,
     }
 }
 
-//=============================================================================
-//                          USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -385,9 +385,9 @@ void gg(Obj          *result,
     }
 //..
 
-//=============================================================================
-//                  *IMPLEMENTATION SPECIFIC* TOOLS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      *IMPLEMENTATION SPECIFIC* TOOLS
+// ----------------------------------------------------------------------------
 
 // The following tools flagrantly make use of implementation details and
 // platform specific behavior (i.e., 'reinterpret_cast').  Extraordinary
@@ -584,9 +584,9 @@ void dirtyGG(Obj          *result,
                               * static_cast<unsigned int>(result->capacity()));
 }
 
-//=============================================================================
-//  TESTING: THREAD SAFETY (NO STATE CORRUPTION)
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               TESTING: THREAD SAFETY (NO STATE CORRUPTION)
+// ----------------------------------------------------------------------------
 
 class TestThreadStateBarrier {
      bdlqq::Barrier   d_barrier;
@@ -880,9 +880,9 @@ void assertValidState(Obj *x)
     }
 }
 
-//=============================================================================
-//                           PERFORMANCE TEST
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             PERFORMANCE TEST
+// ----------------------------------------------------------------------------
 
 namespace PERFORMANCE_TEST {
 
@@ -961,9 +961,9 @@ void readerThread(Obj                    *x,
 
 }  // close namespace PERFORMANCE_TEST
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

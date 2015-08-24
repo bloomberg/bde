@@ -25,9 +25,9 @@ using namespace BloombergLP;
 // [ 3] USAGE EXMAPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -41,9 +41,9 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); }}
@@ -59,9 +59,9 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl;
                                               // Print identifier and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;
@@ -72,9 +72,9 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ bsl::cout << "\t" << bsl::flush;   // Print a tab (w/o newline)
 #define NL "\n"
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 #define CHK(X) (X != 0 ? (const char *) X : "")
 #define NUM_ATTRIBUTES 5
 
@@ -459,9 +459,9 @@ int usageExample()
 //..
 // End of usage example, extract to the 'balxml::Reader' header file.
 
-                        // ----------------
-                        // class TestReader
-                        // ----------------
+                              // ----------------
+                              // class TestReader
+                              // ----------------
 
 // Do to the size of the TestReader's implementation it does not get promoted
 // to the usage example in the 'balxml::Reader' header.
@@ -830,9 +830,9 @@ unsigned int TestReader::options() const {
     return 0;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

@@ -841,9 +841,9 @@ class HashTable {
         // compile unless the 'VALUE' parameter is not 'bslmf::Nil'.
 };
 
-                    // =============================
-                    // struct HashTableDefaultTraits
-                    // =============================
+                       // =============================
+                       // struct HashTableDefaultTraits
+                       // =============================
 
 struct HashTableDefaultTraits {
     // Default traits provided by this component.  See component-level
@@ -961,9 +961,9 @@ struct HashTableDefaultHash2 {
 
 //  ---  Anything below this line is implementation specific.  Do not use.  ---
 
-                    // ================================
-                    // private struct HashTable_ImpUtil
-                    // ================================
+                      // ================================
+                      // private struct HashTable_ImpUtil
+                      // ================================
 
 struct HashTable_ImpUtil {
     // Component-private struct.  Do not use.  Implementation helper functions
@@ -1335,9 +1335,9 @@ const VALUE& bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
     return d_buckets[(size_type)handle].second;
 }
 
-                // -------------------------------------
-                // private struct HashTableDefaultTraits
-                // -------------------------------------
+                   // -------------------------------------
+                   // private struct HashTableDefaultTraits
+                   // -------------------------------------
 
 template <class BUCKET>
 inline

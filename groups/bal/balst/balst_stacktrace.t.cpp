@@ -20,7 +20,7 @@
 #undef SS
 
 // ============================================================================
-//                          ADL SWAP TEST HELPER
+//                           ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
 
 // TBD move this into its own component?
@@ -139,7 +139,7 @@ using namespace bsl;
 // [ 8] balst::StackTrace   g(const char *spec);
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -155,7 +155,7 @@ static void aSsErT(int c, const char *s, int i)
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) {                                                    \
@@ -181,7 +181,7 @@ static void aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -191,14 +191,14 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef balst::StackTrace      Obj;
@@ -266,7 +266,7 @@ const Element &V0 = VALUES[0],  &VA = V0, // 'V0', 'V1', ... are used in
               &V4 = VALUES[4],  &VE = V4; // conjunction with 'g' and 'gg'.
 
 // ============================================================================
-//                                 TYPE TRAITS
+//                                TYPE TRAITS
 // ----------------------------------------------------------------------------
 
 BSLMF_ASSERT((bslalg::HasTrait<Obj,
@@ -375,9 +375,9 @@ bool TestAllocatorMonitor::isTotalUp() const
     return d_allocator_p->numBlocksTotal() != d_lastTotal;
 }
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 void stretch(Obj *object, int size)
    // Using only primary manipulators, extend the length of the specified
@@ -525,7 +525,7 @@ EqualityTester::~EqualityTester()
 }
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

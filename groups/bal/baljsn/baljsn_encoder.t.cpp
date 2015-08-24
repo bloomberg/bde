@@ -134,7 +134,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef baljsn::Encoder                       Obj;
@@ -28841,9 +28841,9 @@ BSLMF_ASSERT(NUM_JSON_COMPACT_MESSAGES == NUM_XML_TEST_MESSAGES);
 namespace BloombergLP {
 namespace test {
 
-                              // =============
-                              // class Address
-                              // =============
+                               // =============
+                               // class Address
+                               // =============
 
 class Address {
     // Address
@@ -29077,9 +29077,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Address)
 
 namespace test {
 
-                              // -------------
-                              // class Address
-                              // -------------
+                               // -------------
+                               // class Address
+                               // -------------
 
 // CONSTANTS
 
@@ -29492,9 +29492,9 @@ const bsl::string& Address::state() const
 
 namespace test {
 
-                              // ==============
-                              // class Employee
-                              // ==============
+                               // ==============
+                               // class Employee
+                               // ==============
 
 class Employee {
     // Employee
@@ -29727,9 +29727,9 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::Employee)
 
 namespace test {
 
-                              // --------------
-                              // class Employee
-                              // --------------
+                               // --------------
+                               // class Employee
+                               // --------------
 
 // CONSTANTS
 
@@ -30276,7 +30276,7 @@ void testNumber()
 }  // close unnamed namespace
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

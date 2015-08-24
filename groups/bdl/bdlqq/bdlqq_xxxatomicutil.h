@@ -644,9 +644,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                            // =================
-                            // struct AtomicUtil
-                            // =================
+                             // =================
+                             // struct AtomicUtil
+                             // =================
 
 struct AtomicUtil {
     // This 'struct' provides a namespace for a suite of atomic operations.

@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(baljsn_encoder_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace baljsn {
 
-                         // -----------------------
-                         // class Encoder_Formatter
-                         // -----------------------
+                          // -----------------------
+                          // class Encoder_Formatter
+                          // -----------------------
 
 // CREATORS
 Encoder_Formatter::Encoder_Formatter(bsl::ostream&         stream,
@@ -135,9 +135,9 @@ void Encoder_Formatter::closeDocument()
     }
 }
 
-                         // ------------------------
-                         // class Encoder_EncodeImpl
-                         // ------------------------
+                          // ------------------------
+                          // class Encoder_EncodeImpl
+                          // ------------------------
 
 // PRIVATE MANIPULATORS
 int Encoder_EncodeImpl::encodeImp(const bsl::vector<char>&  value,

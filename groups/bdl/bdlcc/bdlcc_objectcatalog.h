@@ -318,9 +318,9 @@ namespace bdlcc {template <class TYPE> class ObjectCatalog_AutoCleanup;
 template <class TYPE> class ObjectCatalogIter;
 template <class TYPE> class ObjectCatalog;
 
-                  // =====================================
-                  // local class ObjectCatalog_AutoCleanup
-                  // =====================================
+                   // =====================================
+                   // local class ObjectCatalog_AutoCleanup
+                   // =====================================
 
 template <class TYPE>
 class ObjectCatalog_AutoCleanup {
@@ -365,9 +365,9 @@ class ObjectCatalog_AutoCleanup {
         // object, if any.
 };
 
-                           // ===================
-                           // class ObjectCatalog
-                           // ===================
+                            // ===================
+                            // class ObjectCatalog
+                            // ===================
 
 template <class TYPE>
 class ObjectCatalog {
@@ -479,9 +479,9 @@ class ObjectCatalog {
         // introduced for testing purposes only.
 };
 
-                         // =======================
-                         // class ObjectCatalogIter
-                         // =======================
+                          // =======================
+                          // class ObjectCatalogIter
+                          // =======================
 
 template <class TYPE>
 class ObjectCatalogIter {
@@ -540,13 +540,13 @@ class ObjectCatalogIter {
         // is *valid*.
 };
 
-//-----------------------------------------------------------------------------
-//                             INLINE DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                            INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
-                  // -------------------------------------
-                  // local class ObjectCatalog_AutoCleanup
-                  // -------------------------------------
+                   // -------------------------------------
+                   // local class ObjectCatalog_AutoCleanup
+                   // -------------------------------------
 
 // CREATORS
 template <class TYPE>
@@ -597,9 +597,9 @@ void ObjectCatalog_AutoCleanup<TYPE>::release()
     d_node_p = 0;
 }
 
-                           // -------------------
-                           // class ObjectCatalog
-                           // -------------------
+                            // -------------------
+                            // class ObjectCatalog
+                            // -------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>

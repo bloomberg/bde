@@ -266,9 +266,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balxml {
-                        // =============================
-                        // class ValidatingReader
-                        // =============================
+                           // ======================
+                           // class ValidatingReader
+                           // ======================
 
 class ValidatingReader : public Reader {
     // TBD Class description
@@ -315,7 +315,7 @@ class ValidatingReader : public Reader {
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 }  // close enterprise namespace

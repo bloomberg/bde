@@ -194,9 +194,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlde {
-                        // =============================
-                        // struct CharConvertUtf32
-                        // =============================
+                          // =======================
+                          // struct CharConvertUtf32
+                          // =======================
 
 struct CharConvertUtf32 {
     // This 'struct' provides a namespace for a suite of static functions to

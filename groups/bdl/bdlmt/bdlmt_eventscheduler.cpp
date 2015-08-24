@@ -28,9 +28,9 @@ void defaultDispatcherFunction(const bdlf::Function<void (*)()>& callback)
 }
 
 namespace bdlmt {
-                             // -------------------------
-                             // class EventScheduler
-                             // -------------------------
+                            // --------------------
+                            // class EventScheduler
+                            // --------------------
 
 // PRIVATE MANIPULATORS
 bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)

@@ -82,15 +82,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 namespace Obj = bdlat_EnumFunctions;
 
-//=============================================================================
-//                           CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 enum my_Enum {};
 
@@ -139,7 +139,7 @@ struct PolygonType {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CLASS METHODS
@@ -205,9 +205,9 @@ struct bdlat_BasicEnumerationWrapper<geom::PolygonType::Value> :
 
 }  // close enterprise namespace
 
-//=============================================================================
-//                    BAS_CODEGEN.PL-GENERATED ENUMERATION
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   BAS_CODEGEN.PL-GENERATED ENUMERATION
+// ----------------------------------------------------------------------------
 namespace BloombergLP {
 
 namespace test {
@@ -310,7 +310,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, PrimaryColor::Value rhs);
 BDLAT_DECL_ENUMERATION_TRAITS(test::PrimaryColor)
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 namespace test {
@@ -500,9 +500,9 @@ int PrimaryColor::fromString(PrimaryColor::Value *result,
 }  // close enterprise namespace
 
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BloombergLP {
 

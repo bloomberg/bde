@@ -55,9 +55,9 @@ static void aSsErT(int c, const char *s, int i) {
 }
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
@@ -70,9 +70,9 @@ static void aSsErT(int c, const char *s, int i) {
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -80,15 +80,15 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_()  cout << '\t' << flush;          // Print tab w/o newline
 #define NL()  cout << endl;                   // Print newline
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore> Obj;
 
-//=============================================================================
-//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
+// ----------------------------------------------------------------------------
 
 class MyCondition {
     // This class defines a platform-independent condition variable.  Using
@@ -470,9 +470,9 @@ void IntQueue::pushInt(int n)
     d_resourceSem.post();
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 

@@ -61,9 +61,9 @@ namespace balst {
 template <typename RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
-    // ===================================================================
-    // class StackTraceResolverImpl<ObjectFileFormat::Windows>
-    // ===================================================================
+          // =======================================================
+          // class StackTraceResolverImpl<ObjectFileFormat::Windows>
+          // =======================================================
 
 template <>
 class StackTraceResolverImpl<ObjectFileFormat::Windows> {
@@ -96,9 +96,9 @@ class StackTraceResolverImpl<ObjectFileFormat::Windows> {
         // from within the routine.
 };
 
-                         // ----------------------------------
-                         // class StackTraceResolverImpl
-                         // ----------------------------------
+                        // ----------------------------
+                        // class StackTraceResolverImpl
+                        // ----------------------------
 
 inline
 int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()

@@ -12,9 +12,9 @@
 namespace BloombergLP {
 namespace bdlsb {
 
-                      // -----------------------------
-                      // class OverflowMemOutStreamBuf
-                      // -----------------------------
+                       // -----------------------------
+                       // class OverflowMemOutStreamBuf
+                       // -----------------------------
 
 // PRIVATE MANIPULATORS
 void OverflowMemOutStreamBuf::grow(int n)

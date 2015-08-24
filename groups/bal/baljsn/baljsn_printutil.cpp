@@ -51,9 +51,9 @@ char getEscapeChar(char value)
 
 namespace baljsn {
 
-                             // ---------------
-                             // class PrintUtil
-                             // ---------------
+                              // ---------------
+                              // class PrintUtil
+                              // ---------------
 
 int PrintUtil::printString(bsl::ostream&            stream,
                            const bslstl::StringRef& value)

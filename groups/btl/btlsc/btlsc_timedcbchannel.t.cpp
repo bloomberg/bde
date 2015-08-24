@@ -61,9 +61,9 @@ using namespace bsl;  // automatically added by script
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 //=============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -75,9 +75,9 @@ static void aSsErT(int c, const char *s, int i)
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -85,9 +85,9 @@ static void aSsErT(int c, const char *s, int i)
 #define PS(X) cout << #X " = \n" << (X) << endl; // Print identifier and value.
 #define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
 
-//=============================================================================
-//                      CONCRETE DERIVED TYPE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                           CONCRETE DERIVED TYPE
+// ----------------------------------------------------------------------------
 class MyChannel : public btlsc::TimedCbChannel {
   // Test class used to verify protocol.
 
@@ -299,9 +299,9 @@ void myRdCbFn(int, int) { }
 void myBufRdCbFn(const char *, int, int) { }
 void myWrCbFn(int, int) { }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 

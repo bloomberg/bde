@@ -487,9 +487,9 @@ void convertUcs2ToUtf8(unsigned char        **dstBufferPtr,
 namespace BloombergLP {
 namespace bdlde {
 
-                            // ----------------------
-                            // struct CharConvertUcs2
-                            // ----------------------
+                           // ----------------------
+                           // struct CharConvertUcs2
+                           // ----------------------
 
 int CharConvertUcs2::utf8ToUcs2(unsigned short *dstBuffer,
                                 bsl::size_t     dstCapacity,

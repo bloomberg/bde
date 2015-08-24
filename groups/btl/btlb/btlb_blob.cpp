@@ -64,9 +64,9 @@ class InvalidBlobBufferFactory : private btlb::BlobBufferFactory {
 }  // close unnamed namespace
 
 namespace btlb {
-                           // ======================
-                           // class BlobBuffer
-                           // ======================
+                              // ================
+                              // class BlobBuffer
+                              // ================
 
 // MANIPULATORS
 BlobBuffer& BlobBuffer::operator=(const BlobBuffer& rhs)
@@ -105,18 +105,18 @@ bsl::ostream& btlb::operator<<(bsl::ostream& stream, const BlobBuffer& buffer)
 }
 
 namespace btlb {
-                        // =============================
-                        // class BlobBufferFactory
-                        // =============================
+                          // =======================
+                          // class BlobBufferFactory
+                          // =======================
 
 // CREATORS
 BlobBufferFactory::~BlobBufferFactory()
 {
 }
 
-                              // ================
-                              // class Blob
-                              // ================
+                                 // ==========
+                                 // class Blob
+                                 // ==========
 
 // PRIVATE ACCESSORS
 int Blob::assertInvariants() const

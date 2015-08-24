@@ -101,9 +101,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-                           // ====================
-                           // class EncoderOptions
-                           // ====================
+                            // ====================
+                            // class EncoderOptions
+                            // ====================
 
 class EncoderOptions {
     // This simply constrained (value-semantic) attribute class describes
@@ -258,12 +258,12 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
     // the attribute names elided.
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // --------------------
-                           // class EncoderOptions
-                           // --------------------
+                            // --------------------
+                            // class EncoderOptions
+                            // --------------------
 
 // CREATORS
 inline

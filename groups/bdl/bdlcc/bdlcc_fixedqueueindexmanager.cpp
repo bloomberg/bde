@@ -279,9 +279,9 @@ static unsigned int discardDisabledFlag(unsigned int encodedPushIndex)
 
 namespace bdlcc {
 
-                       // ----------------------------
-                       // class FixedQueueIndexManager
-                       // ----------------------------
+                        // ----------------------------
+                        // class FixedQueueIndexManager
+                        // ----------------------------
 
 // CLASS METHODS
 int FixedQueueIndexManager::circularDifference(unsigned int minuend,

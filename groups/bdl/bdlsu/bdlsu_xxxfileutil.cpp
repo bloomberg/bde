@@ -253,9 +253,9 @@ int removeFile(const char *path)
 #endif
 
 namespace bdlsu {
-                              // ---------------------
+                              // ---------------
                               // struct FileUtil
-                              // ---------------------
+                              // ---------------
 
 
                                 // both Unix and Windows

@@ -183,9 +183,9 @@ const char *leafDelimiter(const bsl::string &path, int rootEnd)
 }
 
 namespace bdlsu {
-                              // =====================
+                              // ===============
                               // struct PathUtil
-                              // =====================
+                              // ===============
 
 // CLASS METHODS
 int PathUtil::appendIfValid(bsl::string            *path,

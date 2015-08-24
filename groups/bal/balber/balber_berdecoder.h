@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
 // 'float', respectively.  Furthermore, we have a need to BER encode employee
 // records as a sequence of values (for out-of-process consumption).
-// 
+//
 // Assume that we have defined a 'usage::EmployeeRecord' class to represent
 // employee record values, and assume that we have provided the 'bdlat'
 // specializations that allow the 'balber' codec components to represent class
@@ -184,9 +184,9 @@ class BerDecoder_Node;
 class BerDecoder_NodeVisitor;
 class BerDecoder_UniversalElementVisitor;
 
-                         // ================
-                         // class BerDecoder
-                         // ================
+                              // ================
+                              // class BerDecoder
+                              // ================
 
 class BerDecoder {
     // This class contains the parameterized 'decode' functions that decode
@@ -351,9 +351,9 @@ class BerDecoder {
 };
 
 
-                    // =============================
-                    // private class BerDecoder_Node
-                    // =============================
+                       // =============================
+                       // private class BerDecoder_Node
+                       // =============================
 
 class BerDecoder_Node {
     // This class provides current context for BER decoding process and
@@ -511,9 +511,9 @@ class BerDecoder_Node {
         // Return the position of node tag from the beginning of input stream.
 };
 
-                 // ====================================
-                 // private class BerDecoder_NodeVisitor
-                 // ====================================
+                    // ====================================
+                    // private class BerDecoder_NodeVisitor
+                    // ====================================
 
 class BerDecoder_NodeVisitor {
     // This class is used as a visitor for visiting contained objects during
@@ -538,9 +538,9 @@ class BerDecoder_NodeVisitor {
     int operator()(TYPE *variable, const INFO& info);
 };
 
-         // ================================================
-         // private class BerDecoder_UniversalElementVisitor
-         // ================================================
+              // ================================================
+              // private class BerDecoder_UniversalElementVisitor
+              // ================================================
 
 class BerDecoder_UniversalElementVisitor {
     // This 'class' is used as a visitor for visiting the top-level element and
@@ -570,9 +570,9 @@ class BerDecoder_UniversalElementVisitor {
     int operator()(TYPE *variable);
 };
 
-                         // =======================
-                         // class BerDecoder_Zeroer
-                         // =======================
+                          // =======================
+                          // class BerDecoder_Zeroer
+                          // =======================
 
 class BerDecoder_Zeroer {
     // This class is a deleter that just zeroes out a given pointer upon
@@ -597,13 +597,13 @@ class BerDecoder_Zeroer {
 
 }  // close package namespace
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-                         // --------------------------------------
-                         // class balber::BerDecoder::MemOutStream
-                         // --------------------------------------
+                   // --------------------------------------
+                   // class balber::BerDecoder::MemOutStream
+                   // --------------------------------------
 
 // CREATORS
 inline
@@ -636,9 +636,9 @@ int balber::BerDecoder::MemOutStream::length() const
 }
 
 namespace balber {
-                         // ----------------
-                         // class BerDecoder
-                         // ----------------
+                              // ----------------
+                              // class BerDecoder
+                              // ----------------
 
 // MANIPULATORS
 inline BerDecoder::ErrorSeverity
@@ -755,9 +755,9 @@ int BerDecoder::numUnknownElementsSkipped() const
     return d_numUnknownElementsSkipped;
 }
 
-                         // -----------------------------
-                         // private class BerDecoder_Node
-                         // -----------------------------
+                       // -----------------------------
+                       // private class BerDecoder_Node
+                       // -----------------------------
 
 // CREATORS
 inline
@@ -1204,9 +1204,9 @@ BerDecoder_Node::decodeArray(TYPE *variable)
     return BerDecoder::e_BER_SUCCESS;
 }
 
-                 // ------------------------------------
-                 // private class BerDecoder_NodeVisitor
-                 // ------------------------------------
+                    // ------------------------------------
+                    // private class BerDecoder_NodeVisitor
+                    // ------------------------------------
 
 // CREATORS
 inline
@@ -1227,9 +1227,9 @@ int BerDecoder_NodeVisitor::operator()(TYPE *variable, const INFO& info)
     return d_node->operator()(variable);
 }
 
-         // ------------------------------------------------
-         // private class BerDecoder_UniversalElementVisitor
-         // ------------------------------------------------
+              // ------------------------------------------------
+              // private class BerDecoder_UniversalElementVisitor
+              // ------------------------------------------------
 
 // CREATORS
 inline

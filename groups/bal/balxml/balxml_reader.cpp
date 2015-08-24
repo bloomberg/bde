@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(balxml_reader_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balxml {
-                        // -------------------
-                        // class Reader
-                        // -------------------
+                                // ------------
+                                // class Reader
+                                // ------------
 
 // PUBLIC CREATORS
 Reader::~Reader(void)

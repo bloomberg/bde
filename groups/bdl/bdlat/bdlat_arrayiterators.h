@@ -158,9 +158,9 @@ namespace BloombergLP {
 
 namespace bdlat_ArrayIterators {
 
-                        // ========================
-                        // class BackInsertIterator
-                        // ========================
+                          // ========================
+                          // class BackInsertIterator
+                          // ========================
 
 template <class TYPE>
 class BackInsertIterator
@@ -252,9 +252,9 @@ backInserter(bsl::vector<TYPE, ALLOC> *array);
                    // namespace bdlat_ArrayIterators
                    // ------------------------------
 
-                       // ------------------------
-                       // class BackInsertIterator
-                       // ------------------------
+                          // ------------------------
+                          // class BackInsertIterator
+                          // ------------------------
 
 // CREATORS
 template <class TYPE>

@@ -60,9 +60,9 @@ using namespace BloombergLP;
 // [6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -110,18 +110,18 @@ static void aSsErT(int c, const char *s, int i) {
 // only the '<testcase>' test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) bsl::cout << #X " = " << (X) << bsl::endl; // Print ID and value.
 #define Q(X) bsl::cout << "<| " #X " |>" << bsl::endl;  // Quote ID literally.
 #define P_(X) bsl::cout << #X " = " << (X) << ", " << flush; // P(X) w/o '\n'
 #define L_ __LINE__                                // current Line number
 #define T_ bsl::cout << "\t" << flush;             // Print a tab (w/o newline)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
@@ -129,9 +129,9 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-//=============================================================================
-//                  GLOBAL HELPER TYPES AND FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               GLOBAL HELPER TYPES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 #define NUM_ELEMENTS(array) (sizeof(array) / sizeof(*(array)))
 
@@ -237,9 +237,9 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     return true;
 }
 
-//=============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    CLASSES FOR TESTING USAGE EXAMPLES
+// ----------------------------------------------------------------------------
 
 // In this example, we create a parser for a simple file of percentages.
 // The file is formatted as a sequence of lines, with each line containing a
@@ -497,9 +497,9 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

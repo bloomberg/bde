@@ -167,9 +167,9 @@ class Iovec {
         // Return the length of the writable buffer.
 };
 
-                                // ==========
-                                // class Ovec
-                                // ==========
+                                 // ==========
+                                 // class Ovec
+                                 // ==========
 
 class Ovec {
     // This class provides a platform-independent data structure for
@@ -313,9 +313,9 @@ int Iovec::length() const
 #endif
 }
 
-                                // ----------
-                                // class Ovec
-                                // ----------
+                                 // ----------
+                                 // class Ovec
+                                 // ----------
 
 // CREATORS
 inline

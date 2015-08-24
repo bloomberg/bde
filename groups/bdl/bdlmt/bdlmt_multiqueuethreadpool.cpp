@@ -29,9 +29,9 @@ void noOp() { }
 }  // close unnamed namespace
 
 namespace bdlmt {
-                   // --------------------------------
-                   // class MultiQueueThreadPool_Queue
-                   // --------------------------------
+                      // --------------------------------
+                      // class MultiQueueThreadPool_Queue
+                      // --------------------------------
 
 // CREATORS
 inline
@@ -140,9 +140,9 @@ void MultiQueueThreadPool_Queue::numProcessed(int *numDequeued,
     *numEnqueued = d_numEnqueued;
 }
 
-               // --------------------------------------------
-               // class MultiQueueThreadPool_QueueContext
-               // --------------------------------------------
+                  // ---------------------------------------
+                  // class MultiQueueThreadPool_QueueContext
+                  // ---------------------------------------
 
 // CREATORS
 inline
@@ -177,9 +177,9 @@ bsls::SpinLock& MultiQueueThreadPool_QueueContext::mutex() const
 }
 }  // close package namespace
 
-                      // ---------------------------------
-                      // class bdlmt::MultiQueueThreadPool
-                      // ---------------------------------
+                     // ---------------------------------
+                     // class bdlmt::MultiQueueThreadPool
+                     // ---------------------------------
 
 // TYPES
 typedef bdlcc::ObjectCatalogIter<bdlmt::MultiQueueThreadPool_QueueContext*>

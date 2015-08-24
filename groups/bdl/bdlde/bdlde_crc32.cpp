@@ -149,9 +149,9 @@ static const unsigned int CRC_TABLE[256] = {
 };
 
 namespace bdlde {
-                            // -----------------
-                            // class Crc32
-                            // -----------------
+                                // -----------
+                                // class Crc32
+                                // -----------
 
 // MANIPULATORS
 void Crc32::update(const void *data, int length)

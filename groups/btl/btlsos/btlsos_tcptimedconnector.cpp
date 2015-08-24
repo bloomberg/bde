@@ -156,9 +156,9 @@ RESULT *timedAllocate(
 
 namespace btlsos {
 
-                        // =========================
-                        // class TcpTimedCbConnector
-                        // =========================
+                         // =========================
+                         // class TcpTimedCbConnector
+                         // =========================
 
 // CREATORS
 TcpTimedConnector::TcpTimedConnector(

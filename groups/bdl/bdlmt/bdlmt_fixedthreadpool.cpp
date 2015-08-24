@@ -51,9 +51,9 @@ void initBlockSet(sigset_t *blockSet)
 namespace BloombergLP {
 
 namespace bdlmt {
-                         // --------------------------
-                         // class FixedThreadPool
-                         // --------------------------
+                           // ---------------------
+                           // class FixedThreadPool
+                           // ---------------------
 
 // PRIVATE MANIPULATORS
 void FixedThreadPool::processJobs()

@@ -81,7 +81,7 @@ using namespace bsl;
 //=============================================================================
 
 // ============================================================================
-//                      BTES_RESERVATIOGUARD TEST HELPER
+//                     BTES_RESERVATIOGUARD TEST HELPER
 // ----------------------------------------------------------------------------
 
 class mock_LB {
@@ -309,9 +309,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 STANDARD BDE VARIADIC ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
 #define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
@@ -322,7 +322,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -332,7 +332,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_ __LINE__                           // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
@@ -343,9 +343,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 typedef btls::LeakyBucket    Obj;
 typedef bsls::TimeInterval   Ti;
 typedef bsls::Types::Uint64 Uint64;
@@ -406,9 +406,9 @@ static Ti testLB(
     return actual;
 }
 
-//=============================================================================
-//                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -448,9 +448,9 @@ bool sendData(const char *buffer, size_t dataSize)
 }
 //..
 
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

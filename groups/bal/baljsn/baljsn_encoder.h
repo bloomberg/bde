@@ -238,9 +238,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-                              // =============
-                              // class Encoder
-                              // =============
+                               // =============
+                               // class Encoder
+                               // =============
 
 class Encoder {
     // This class provides a mechanism for encoding value-semantic objects in
@@ -327,9 +327,9 @@ class Encoder {
         // log is reset each time 'encode' is called.
 };
 
-                         // =======================
-                         // class Encoder_Formatter
-                         // =======================
+                          // =======================
+                          // class Encoder_Formatter
+                          // =======================
 
 class Encoder_Formatter {
     // This class implements a formatter providing operations for rending JSON
@@ -415,9 +415,9 @@ class Encoder_Formatter {
         // to an array element.
 };
 
-                         // ========================
-                         // class Encoder_EncodeImpl
-                         // ========================
+                          // ========================
+                          // class Encoder_EncodeImpl
+                          // ========================
 
 class Encoder_EncodeImpl {
     // This class implements the parameterized 'encode' functions that encode
@@ -515,9 +515,9 @@ class Encoder_EncodeImpl {
         // being used by this encoder.
 };
 
-                      // =============================
-                      // struct Encoder_ElementVisitor
-                      // =============================
+                       // =============================
+                       // struct Encoder_ElementVisitor
+                       // =============================
 
 struct Encoder_ElementVisitor {
     // This class encodes elements in an array or a choice in the JSON format.
@@ -547,9 +547,9 @@ struct Encoder_ElementVisitor {
         // format.  Return 0 on success and a non-zero value otherwise.
 };
 
-                      // =============================
-                      // class Encoder_SequenceVisitor
-                      // =============================
+                       // =============================
+                       // class Encoder_SequenceVisitor
+                       // =============================
 
 class Encoder_SequenceVisitor {
     // This functor class encodes element in a sequence.  It should be passed
@@ -597,9 +597,9 @@ class Encoder_SequenceVisitor {
         // format.  Return 0 on success and a non-zero value otherwise.
 };
 
-                   // ====================================
-                   // struct Encoder_DynamicTypeDispatcher
-                   // ====================================
+                    // ====================================
+                    // struct Encoder_DynamicTypeDispatcher
+                    // ====================================
 
 struct Encoder_DynamicTypeDispatcher {
     // This class is used to dispatch the appropriate 'encodeImp' method for a
@@ -628,12 +628,12 @@ struct Encoder_DynamicTypeDispatcher {
 };
 
 // ============================================================================
-//                             INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                              // -------------
-                              // class Encoder
-                              // -------------
+                               // -------------
+                               // class Encoder
+                               // -------------
 
 // PRIVATE MANIPULATORS
 inline
@@ -745,9 +745,9 @@ bool Encoder_Formatter::isArrayElement() const
     return d_isArrayElement;
 }
 
-                         // ------------------------
-                         // class Encoder_EncodeImpl
-                         // ------------------------
+                          // ------------------------
+                          // class Encoder_EncodeImpl
+                          // ------------------------
 
 // PRIVATE MANIPULATORS
 inline
@@ -953,9 +953,9 @@ const EncoderOptions *Encoder_EncodeImpl::encoderOptions() const
     return d_encoderOptions_p;
 }
 
-                      // ------------------------------
-                      // struct Encoder_SequenceVisitor
-                      // ------------------------------
+                       // ------------------------------
+                       // struct Encoder_SequenceVisitor
+                       // ------------------------------
 
 // PRIVATE CLASS METHODS
 template <class TYPE>
@@ -1047,9 +1047,9 @@ int Encoder_SequenceVisitor::operator()(const TYPE& value, const INFO& info)
     return visitor(value, info);
 }
 
-                      // -----------------------------
-                      // struct Encoder_ElementVisitor
-                      // -----------------------------
+                       // -----------------------------
+                       // struct Encoder_ElementVisitor
+                       // -----------------------------
 
 template <class TYPE>
 inline
@@ -1084,9 +1084,9 @@ int Encoder_ElementVisitor::operator()(const TYPE& value, const INFO& info)
     return 0;
 }
 
-                   // ------------------------------------
-                   // struct Encoder_DynamicTypeDispatcher
-                   // ------------------------------------
+                    // ------------------------------------
+                    // struct Encoder_DynamicTypeDispatcher
+                    // ------------------------------------
 
 // MANIPULATORS
 template <class TYPE>

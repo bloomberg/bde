@@ -488,9 +488,9 @@ static void initStates(unsigned int (*state)[4])
 
 namespace bdlde {
 
-                                // ---------
-                                // class Md5
-                                // ---------
+                                 // ---------
+                                 // class Md5
+                                 // ---------
 
 // CREATORS
 Md5::Md5()

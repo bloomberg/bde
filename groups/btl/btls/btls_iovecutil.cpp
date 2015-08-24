@@ -20,9 +20,9 @@ namespace btls {
 
 namespace {
 
-                         // ------------------------
-                         // local function templates
-                         // ------------------------
+                          // ------------------------
+                          // local function templates
+                          // ------------------------
 
 template <class IOVEC>
 void genericAppendToBlob(btlb::Blob  *blob,
@@ -240,9 +240,9 @@ int genericScatter(const IOVEC *buffers,
 
 }  // close unnamed namespace
 
-                         // ---------------
-                         // class IovecUtil
-                         // ---------------
+                              // ---------------
+                              // class IovecUtil
+                              // ---------------
 
 void IovecUtil::appendToBlob(btlb::Blob  *blob,
                              const Iovec *buffers,

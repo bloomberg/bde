@@ -99,9 +99,9 @@ void initializeCondition(pthread_cond_t              *cond,
 
 }  // close unnamed namespace
 
-             // -------------------------------------------
-             // class ConditionImpl<Platform::PosixThreads>
-             // -------------------------------------------
+                // -------------------------------------------
+                // class ConditionImpl<Platform::PosixThreads>
+                // -------------------------------------------
 
 // CREATORS
 bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::ConditionImpl(

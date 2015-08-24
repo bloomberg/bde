@@ -208,7 +208,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                    GLOBAL TYPEDEFS FOR TESTING
+//                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlc::IndexClerk     Obj;
@@ -417,7 +417,7 @@ Obj g(const char *spec)
 }
 
 // ============================================================================
-//           Additional Functionality Needed to Complete Usage Test Case
+//        Additional Functionality Needed to Complete Usage Test Case
 // ----------------------------------------------------------------------------
 
 #if defined(BDE_BUILD_TARGET_SAFE)
@@ -512,7 +512,7 @@ class Security {
 //..
 
 // ============================================================================
-//                              MAIN PROGRAM
+//                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

@@ -185,9 +185,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balb {
-                       // ========================
-                       // class PerformanceMonitor
-                       // ========================
+                          // ========================
+                          // class PerformanceMonitor
+                          // ========================
 
 class PerformanceMonitor {
     // Provides a mechanism to collect performance statistics for an arbitrary
@@ -578,12 +578,12 @@ typedef bsls::Platform::OsHpUx OsType;
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-              // --------------------------------------------
-              // class balb::PerformanceMonitor::ConstIterator
-              // --------------------------------------------
+               // ---------------------------------------------
+               // class balb::PerformanceMonitor::ConstIterator
+               // ---------------------------------------------
 
 // CREATORS
 inline
@@ -650,9 +650,9 @@ bool balb::PerformanceMonitor::ConstIterator::operator!=(
     return d_it != rhs.d_it;
 }
 
-              // -----------------------------------------
-              // class balb::PerformanceMonitor::Statistics
-              // -----------------------------------------
+                 // ------------------------------------------
+                 // class balb::PerformanceMonitor::Statistics
+                 // ------------------------------------------
 
 // ACCESSORS
 inline
@@ -716,9 +716,9 @@ const bdlt::Datetime& balb::PerformanceMonitor::Statistics::startupTime() const
 }
 
 namespace balb {
-                   // -----------------------------
-                   // class PerformanceMonitor
-                   // -----------------------------
+                          // ------------------------
+                          // class PerformanceMonitor
+                          // ------------------------
 
 // ACCESSORS
 inline

@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(baltzo_localtimedescriptor_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-                        // -------------------------
-                        // class LocalTimeDescriptor
-                        // -------------------------
+                         // -------------------------
+                         // class LocalTimeDescriptor
+                         // -------------------------
 
 // ACCESSORS
 

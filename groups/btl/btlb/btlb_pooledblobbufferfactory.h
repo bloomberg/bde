@@ -46,9 +46,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlb {
-                     // ===================================
-                     // class PooledBlobBufferFactory
-                     // ===================================
+                       // =============================
+                       // class PooledBlobBufferFactory
+                       // =============================
 
 class PooledBlobBufferFactory: public BlobBufferFactory {
     // This class implements the 'BlobBufferFactory' protocol and
@@ -83,12 +83,12 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
 };
 
 // ============================================================================
-//              INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//               INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
-                     // -----------------------------------
-                     // class PooledBlobBufferFactory
-                     // -----------------------------------
+                       // -----------------------------
+                       // class PooledBlobBufferFactory
+                       // -----------------------------
 
 // ACCESSORS
 inline

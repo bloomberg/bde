@@ -106,9 +106,9 @@ enum {
 
 namespace btlsos {
 
-                  // =====================================
-                  // class btesos_TcpTimedCbConnector_RReg
-                  // =====================================
+                   // =====================================
+                   // class btesos_TcpTimedCbConnector_RReg
+                   // =====================================
 
 class TcpTimedCbConnector_Reg {
 
@@ -292,9 +292,9 @@ TcpTimedCbConnector_Reg::timedCallback() const {
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                        // -------------------------
-                        // class TcpTimedCbConnector
-                        // -------------------------
+                         // -------------------------
+                         // class TcpTimedCbConnector
+                         // -------------------------
 
 // PRIVATE MANIPULATORS
 

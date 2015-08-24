@@ -77,15 +77,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 namespace Obj = bdlat_ArrayFunctions;
 
-//=============================================================================
-//                           CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
                         // ===========================
                         // class GetValue<LVALUE_TYPE>
@@ -136,9 +136,9 @@ class AssignValue {
         // Do nothing with the specified 'object'.
 };
 
-                       // ================
-                       // class FixedArray
-                       // ================
+                              // ================
+                              // class FixedArray
+                              // ================
 
 namespace Test {
 
@@ -267,9 +267,9 @@ int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object) const
     return -1;
 }
 
-                       // ----------------------
-                       // class Test::FixedArray
-                       // ----------------------
+                           // ----------------------
+                           // class Test::FixedArray
+                           // ----------------------
 
 template <int SIZE, class TYPE>
 inline
@@ -449,9 +449,9 @@ void usageExample(int verbose)
 //..
 }  // close namespace BDLAT_ARRAYFUNCTIONS_USAGE_EXAMPLE
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

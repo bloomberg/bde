@@ -78,9 +78,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlde {
 
-                           // ========================
-                           // struct CharConvertStatus
-                           // ========================
+                          // ========================
+                          // struct CharConvertStatus
+                          // ========================
 
 struct CharConvertStatus {
     // This 'struct' provides a namespace for enumerating the set of mask
@@ -162,12 +162,12 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     //..
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                     // -------------------------------
-                     // struct bdlde::CharConvertStatus
-                     // -------------------------------
+                      // -------------------------------
+                      // struct bdlde::CharConvertStatus
+                      // -------------------------------
 
 // FREE OPERATORS
 inline

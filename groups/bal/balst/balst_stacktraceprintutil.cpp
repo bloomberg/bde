@@ -20,9 +20,9 @@ BSLS_IDENT_RCSID(balst_stacktraceprintutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace balst {
-                       // -------------------------------
-                       // class StackTracePrintUtil
-                       // -------------------------------
+                         // -------------------------
+                         // class StackTracePrintUtil
+                         // -------------------------
 
 // CLASS METHOD
 bsl::ostream& StackTracePrintUtil::printStackTrace(

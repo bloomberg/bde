@@ -103,9 +103,9 @@ using namespace bsl;  // automatically added by script
 //
 // ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACRO
+// ----------------------------------------------------------------------------
 
 static int testStatus = 0;
 
@@ -148,9 +148,9 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
@@ -162,9 +162,9 @@ static void aSsErT(int c, const char *s, int i)
 #define VVV(X) { if (veryVeryVerbose) { cout << "\t\t\t" << X << endl; } }
 #define VVVV(X) { if (veryVeryVeryVerbose) {cout << "\t\t\t\t" << X << endl;} }
 
-//=============================================================================
-//                       GLOBAL TYPEDEFS/CONSTANTS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         GLOBAL TYPEDEFS/CONSTANTS
+// ----------------------------------------------------------------------------
 
 typedef bdlde::QuotedPrintableEncoder Obj;
 
@@ -201,9 +201,9 @@ const int NUM_STATES = sizeof STATE_NAMES / sizeof *STATE_NAMES;
 
 char assertion[ERROR_STATE + 1 == NUM_STATES];
 
-                        // ===================
-                        // class StateAccessor
-                        // ===================
+                            // ===================
+                            // class StateAccessor
+                            // ===================
 
 class StateAccessor {
   private:
@@ -746,9 +746,9 @@ class StateTransitionMatrix {
     }
 };
 
-//=============================================================================
-//                         TEST HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                           TEST HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
 
                         // =============================
                         // Function findEquivalenceClass
@@ -1285,13 +1285,13 @@ const char* getStateInText(bdlde::QuotedPrintableEncoder *object)
 
 #endif
 
-//=============================================================================
-//                         TEST HELPER CLASSES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                            TEST HELPER CLASSES
+// ----------------------------------------------------------------------------
 
-                        //====================
-                        // class InputIterator
-                        //====================
+                            // ===================
+                            // class InputIterator
+                            // ===================
 
 class InputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1376,9 +1376,9 @@ bool operator!=(const InputIterator& lhs, const InputIterator& rhs)
     return !(lhs == rhs);
 }
 
-                        //=====================
-                        // class OutputIterator
-                        //=====================
+                            // ====================
+                            // class OutputIterator
+                            // ====================
 
 class OutputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1463,13 +1463,13 @@ bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs)
     return !(lhs == rhs);
 }
 
-//=============================================================================
-//                       SUPPORT FOR USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                         SUPPORT FOR USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

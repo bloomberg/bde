@@ -240,9 +240,9 @@ class LockWriteGuard : public WriteLockGuard<T> {
 
 };
 
-                        // ==========================
-                        // class WriteLockGuardUnlock
-                        // ==========================
+                         // ==========================
+                         // class WriteLockGuardUnlock
+                         // ==========================
 
 template <class T>
 class WriteLockGuardUnlock {
@@ -397,9 +397,9 @@ T *bdlqq::WriteLockGuard<T>::ptr() const
     return d_lock_p;
 }
 
-                        // --------------------------
-                        // class WriteLockGuardUnlock
-                        // --------------------------
+                         // --------------------------
+                         // class WriteLockGuardUnlock
+                         // --------------------------
 
 // CREATORS
 template <class T>

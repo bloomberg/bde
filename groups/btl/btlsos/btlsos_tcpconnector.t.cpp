@@ -136,9 +136,9 @@ static bdlqq::Mutex  g_mutex;   // for i/o synchronization in all threads
 #define PT(X) g_mutex.lock(); P(X); g_mutex.unlock();
 #define QT(X) g_mutex.lock(); Q(X); g_mutex.unlock();
 #define P_T(X) g_mutex.lock(); P_(X); g_mutex.unlock();
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef btlsos::TcpConnector Obj;
 typedef btlso::StreamSocket<btlso::IPv4Address> StreamSocket;
@@ -222,9 +222,9 @@ struct TestCommand {
     int                d_expNumChannels;
 };
 
-//=============================================================================
-//                      HELPER FUNCTIONS/CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   HELPER FUNCTIONS/CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -519,9 +519,9 @@ int processTest(
       }
 //..
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 

@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(bdlf_bind_test_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace bdlf {
-                      // ------------------------------
-                      // class Bind_TestSlotsAlloc
-                      // ------------------------------
+                         // -------------------------
+                         // class Bind_TestSlotsAlloc
+                         // -------------------------
 
 // CLASS METHODS
 bool Bind_TestSlotsAlloc::verifySlots(

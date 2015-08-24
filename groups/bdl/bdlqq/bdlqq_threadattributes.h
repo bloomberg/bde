@@ -254,9 +254,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlqq {
-                        // ======================
-                        // class ThreadAttributes
-                        // ======================
+                           // ======================
+                           // class ThreadAttributes
+                           // ======================
 
 class ThreadAttributes {
     // This simply constrained (value-semantic) attribute class characterizes a
@@ -514,9 +514,9 @@ bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ----------------------
-                        // class ThreadAttributes
-                        // ----------------------
+                           // ----------------------
+                           // class ThreadAttributes
+                           // ----------------------
 
 // CREATORS
 inline

@@ -59,9 +59,9 @@ void bindJoin(bdlqq::ThreadUtil::Handle handle)
 
 }  // close unnamed namespace
 
-                            // -----------------
-                            // class ThreadGroup
-                            // -----------------
+                             // -----------------
+                             // class ThreadGroup
+                             // -----------------
 
 // CREATORS
 

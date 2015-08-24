@@ -18,9 +18,9 @@ BSLS_IDENT_RCSID(baltzo_timezoneutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                            // ------------------
-                            // class TimeZoneUtil
-                            // ------------------
+                             // ------------------
+                             // class TimeZoneUtil
+                             // ------------------
 
 // CLASS METHODS
 int baltzo::TimeZoneUtil::convertUtcToLocalTime(

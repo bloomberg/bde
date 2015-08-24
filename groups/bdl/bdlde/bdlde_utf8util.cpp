@@ -345,9 +345,9 @@ int validateAndCountCharacters(const char **invalidString,
 namespace BloombergLP {
 
 namespace bdlde {
-                            // ---------------------
-                            // struct Utf8Util
-                            // ---------------------
+                              // ---------------
+                              // struct Utf8Util
+                              // ---------------
 
 // CLASS METHODS
 int Utf8Util::advanceIfValid(int         *status,

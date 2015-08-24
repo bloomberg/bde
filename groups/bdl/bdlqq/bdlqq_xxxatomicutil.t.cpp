@@ -83,9 +83,9 @@ static int testStatus = 0;
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { \
@@ -105,9 +105,9 @@ static int testStatus = 0;
               << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__, true); } }
 
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
@@ -117,9 +117,9 @@ static int testStatus = 0;
 #define P64(X) printf(#X " = %lld\n", (X));   // Print 64-bit integer id & val
 #define P64_(X) printf(#X " = %lld,  ", (X)); // Print 64-bit integer w/o '\n'
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlqq::AtomicUtil Obj;
 
@@ -139,9 +139,9 @@ typedef void* (*THREAD_ENTRY)(void *arg);
 
 const bsls::Types::Int64 OFFSET_64 = 0xA00000000LL;
 
-//=============================================================================
-//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
+// ----------------------------------------------------------------------------
 
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -899,9 +899,9 @@ class my_CountedHandleRep {
     void increment();
     int decrement();
 };
-                        // =========================
-                        // class my_CountedHandle
-                        // =========================
+                           // ======================
+                           // class my_CountedHandle
+                           // ======================
 template <class INSTANCE, class FACTORY>
 class my_CountedHandle {
     my_CountedHandleRep<INSTANCE, FACTORY> *d_rep_p;  // shared rep.
@@ -960,9 +960,9 @@ int my_CountedHandleRep<INSTANCE, FACTORY>::decrement()
 {
     return bdlqq::AtomicUtil::decrementIntNv(&d_count);
 }
-                        // -------------------------
-                        // class my_CountedHandle
-                        // -------------------------
+                           // ----------------------
+                           // class my_CountedHandle
+                           // ----------------------
 template <class INSTANCE, class FACTORY>
 inline
 my_CountedHandle<INSTANCE, FACTORY>::my_CountedHandle()
@@ -1110,9 +1110,9 @@ inline TYPE *my_PtrStack<TYPE>::pop()
     return item;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 
 int main(int argc, char *argv[]) {

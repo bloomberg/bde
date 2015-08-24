@@ -141,9 +141,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balxml {
-                        // ==============================
-                        // class NamespaceRegistry
-                        // ==============================
+                          // =======================
+                          // class NamespaceRegistry
+                          // =======================
 
 class NamespaceRegistry {
     // Mapping that associates a unique integer with each registered namespace
@@ -285,7 +285,7 @@ bsl::ostream& operator<<(bsl::ostream& os, const NamespaceRegistry& r);
     // 'os'.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // CREATORS
