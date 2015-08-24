@@ -36343,8 +36343,8 @@ bool operator!=(const HexBinaryCustomizedType& lhs,
 inline
 bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const HexBinaryCustomizedType& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return
-    // a reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and return a
+    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
