@@ -1,0 +1,816 @@
+// bdlb_tokenizer.h                                                   -*-C++-*-
+#ifndef INCLUDED_BDLB_TOKENIZER
+#define INCLUDED_BDLB_TOKENIZER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide access to user-described tokens via string references.
+//
+//@CLASSES:
+//  TokenizerIterator: input iterator for user-delimited tokens within a string
+//  Tokenizer: lexor for tokens defined via *hard* and/or *soft* delimiters
+//
+//@SEE_ALSO: bslstl_stringref
+//
+//@AUTHOR: John Lakos (jlakos)
+//
+//@DESCRIPTION: This component defines a mechanism, 'bdlb::tokenizer', that
+// provides non-destructive sequential (read-only) access to tokens in a given
+// input string as characterized by two disjoint sets of user-specified
+// delimiter characters, each of which is supplied at construction via
+// either a 'const bslstl::StringRef&' or (for efficiency, when only the
+// leading characters of the input string may need to be parsed) a
+// 'const char *'.  Note that each character (including '\0') that is not
+// explicitly designated  as a delimiter character is assumed to be *token*
+// character.
+//
+///Soft versus Hard Delimiters
+///---------------------------
+// The tokenizer recognizes two distinct kinds of delimiter characters, *soft*
+// and *hard*.
+//
+// A *soft* *delimiter* is a maximal (non-empty) sequence of soft-delimiter
+// characters.  Soft delimiters, typically whitespace characters, are used to
+// separate (rather than terminate) tokens, and thus never result in an empty
+// token.
+//
+// A *hard* *delimiter* is a maximal (non-empty) sequence of delimiter
+// characters consisting of exactly one hard-delimiter character.  Hard
+// delimiters, typically printable punctuation characters such ('/') or colon
+// (':' ), are used to terminate (rather than just separate) tokens, and
+// thus a hard delimiter that is not preceded by a token character results
+// in an empty token.
+//
+// Soft delimiters are used in applications where multiple consecutive
+// delimiter characters are to be treated as just a single delimiter.  For
+// example, if we want the input string "Sticks  and stones" to parse into
+// a sequence of three non-empty tokens ["Sticks", "and", "stones"], rather
+// than the five-token sequence ["Sticks", "". "". "and", "stones"], we would
+// make the space (' ') a soft-delimiter character.
+//
+// Hard delimiters are used in applications where consecutive delimiter
+// characters are to be treated as separate delimiters, giving rise to the
+// possibility of empty tokens.  Making the slash ('/') in the standard date
+// format a hard delimiter for the input string "15//9" yields the three-token
+// sequence ["15", "", "9"], rather than the two-token one ["15", "9"] had it
+// been made soft.
+//
+// All members within each respective character set are considered equivalent
+// with respect to tokanization.  For example, making '/' and ':' *soft*
+// *delimiter* characters on the questionably formatted date "2015/:10:/31"
+// would yield the token sequence ["2015", "10", "31"], whereas making '/' and
+// ':' *hard* *delimiter* characters would result in the token sequence
+// ["2015", "", "10", "", "31"].  Making either of these two delimiter
+// characters hard and the other soft would, in this example, yield the former
+// (shorter) sequence of tokens.  The details of how soft and hard delimiters
+// interact is illustrated in more detail in the following section (but also
+// see, later on, the section on "Comprehensive Detailed Parsing
+// Specification").
+//
+///The Input String to be Tokenized
+///--------------------------------
+// Each input string consists of an optional leading sequence of
+// soft-delimiter characters called the *leader*, followed by an alternating
+// sequence of tokens and delimiters (the final delimiter being optional):
+//..
+//  Input String:
+//  +--------+---------+-------------+---...---+---------+-------------+
+//  | leader | token_1 | delimiter_1 |         | token_N | delimiter_N |
+//  +--------+---------+-------------+---...---+---------+-------------+
+//  (optional)                                              (optional)
+//..
+// The tokenization of a string can also be expressed as pseodo-Posix regular
+// expression notation:
+//..
+//   delimiter = [[:soft:]]+ | [[:soft:]]* [[:hard:]] [[:soft:]]*
+//   token     = [^[:soft:][:hard:]]*
+//   string    = [[:soft:]]* (token delimiter)* token?
+//..
+// Parsing is from left to right and is *greedy* -- i.e., the longest sequence
+// satisfying the regular expression is the one that matches.  For example,
+// let 's' represent the start of a soft delimiter, 'd' the start of a hard
+// delimiter, '^" the start of a token, and '~' the continuation of that same
+// delimiter or token.  Using '.' as a soft delimiter and "/" as a hard one,
+// the string
+//..
+//         s~   h~  h~~  h~     s~   hh  s  h~h    h~~~        Delimiters
+//
+//        "..One/.if./.by./land,..two//if.by/./sea!./.."
+//
+//           ^~~  ^~   ^~  ^~~~   ^~~ ^^~ ^~  ^^~~             Tokens
+//                                    |       |
+//                                 (empty)  (empty)
+//..
+// yields the tokenization
+//..
+//     [One]  [if]   [by]  [land,]  [two] [] [if] [by]  [] [sea]       Tokens
+//
+//  (..)   (/.)  (./.)  (./)     (..)   (/)(/)  (.)  (/.)(/)   (./..)  Delims
+//..
+// Notice that in pair of hard delimiters "/./" before the token "sea", the
+// soft token character between the two hard ones binds to the earlier
+// delimiter.
+//
+///Iterating using a 'TokenizerIterator' object (ACCESS TO TOKENS ONLY)
+///--------------------------------------------------------------------
+// This component provides two separate mechanisms by which a user may iterate
+// over a sequence of tokens.  The first mechanism is as a *token* *range*,
+// exposed by the 'TokenizerIterator' objects returned by the 'begin' and
+// 'end' methods on a 'Tokenizer' object.  A 'TokenizerIterator' supports the
+// concept of a standard *input* *iterator*, returning each successive token
+// as a 'bslstl::StringRef', making it suitable for generic use -- e.g., in a
+// range-based 'for' loop:
+//..
+//  void parse_1(bsl::ostream& output, const char *input)
+//      // Print, to the specified 'output' stream, each whitespace-delimited
+//      // token in the specified 'input; string on a separate line following
+//      // a vertical bar ('|') and a hard space (' ').
+//  {
+//      const char softDelimiters[] = " \t\n";  // whitespace
+//
+//      for (bslstl::StringRef token : bdlb_Tokenizer(input, softDelimiters) {
+//          bsl::cout << "| " << token << bsl::endl;
+//      }
+//  }
+//..
+// The 'parse_1' function above produces each (non-whitespace) token in the
+// supplied input string on a separate line.  So, were 'parse_1' to be given
+// a reference to 'bsl::cout' and the input string
+//..
+//  " Times  like \tthese\n  try \n \t men's\t \tsouls.\n"
+//..
+// we would expect
+//..
+//  | Times
+//  | like
+//  | these
+//  | try
+//  | men's
+//  | souls.
+//..
+// to be displayed on 'bsl::cout'.  Note that there is no way to access the
+// delimiters from a 'TokenizerIterator' directly, for that we will need to
+// use the 'tokenizer' as a non-standard "iterator" directly.
+//
+///Iterating using a 'Tokenizer' object (ACCESS TO TOKENS AND DELIMITERS)
+///---------------------------------------------------------------------=
+// The second mechanism, not intended for generic use, provides direct access
+// to the previous and current (trailing) delimiters as well as the current
+// token:
+//..
+//  void parse_2(bsl::outstream, const char *input)
+//      // Print, to the specified 'output' stream the leader of the specified
+//      // 'input', on a singly line, followed by subsequent current token and
+//      // (trailing) delimiter pairs on successive lines, each line beginning
+//      // with a vertical bar ('|') followed by a tab ('\t') character.
+//  {
+//      const char softDelimiters[] = " ";
+//      const char hardDelimiters[] = ":/"
+//
+//      bdlb_Tokenizer it(input, softDelimiters, hardDelimiters);
+//      bsl::cout << "| " << '"' << it.previousDelimiter() << '"' << bsl::endl;
+//
+//      for (; it; ++it) {
+//          bsl::cout << "|\t"
+//                    << '"' << it.token() << '"'
+//                    << "\t"
+//                    << '"' << it.delimiter() '"'
+//                    << bsl::endl;
+//      }
+//..
+// The parse_2 function above produces the *leader* on the first line,
+// followed by each *token* along with its current (trailing) delimiter on
+// successive lines.  So, were 'parse_2' to be given a reference to
+// 'bsl::cout' and the input string
+//..
+//  " I've :been: a : :bad:/ boy! / "
+//..
+// we would expect
+//..
+//  |       " "
+//  |       "I've"  " :"
+//  |       "been"  ": "
+//  |       "a :"   " : "
+//  |       ""      ":"
+//  |       "bad"   ":"
+//  |       ""      "/ "
+//  |       "boy!"  " / "
+//..
+// to be displayed on 'bsl::cout'.
+//
+///Token and Delimiter Lifetimes
+///-----------------------------
+// All tokens and delimiters are returned efficiently by value as
+// 'bslstl::StringRef' objects, which naturally remain valid so long as the
+// underlying input string remains unchanged -- irrespective of the validity
+// of the 'tokenizer' or any of its dispensed token iterators.  Note, however,
+// that all such token iterators are invalidated if the parent tokenizer object
+// is destroyed or reset.  Note also the previous delimiter field remains
+// accessible from a 'tokenizer' object even after it has reached the end of
+// its input.  Also note that the *leader* is accessible, using the
+// 'previousDelimiter', method prior to advancing the interation state of
+// state of the 'Tokenizer'.
+//
+///Comprehensive Detailed Parsing Specification
+///--------------------------------------------
+// This section provides a comprehensive (length-ordered) enumeration of how
+// the 'bdlb::tokanizer' performs, according to its three (non-null)
+// character types:
+//..
+//  '.' = any *soft* delimiter character
+//  '#' = any *hard* delimiter character
+//  'T' = any token character
+//..
+// Here's how iteration progresses for various input strings.  Note that input
+// strings having consecutive characters of the same category that naturally
+// coalesce (i.e., behave as if they were a single character of that category)
+// -- namely soft-delimiter or token characters -- are labeled with '(%)'.
+// For example, consider the input ".." at the top of the [length 2] section
+// below.  The table indicates, with a (%) in the first column, that the input
+// acts the same as if it were a single (soft-delimiter) character (i.e., ".").
+// There is only one line in this row of the table because, upon construction,
+// the iterator is immediately invalid (as indicated by the right-most column).
+// Now consider the "##" entry near the bottom of [length 2].  These
+// (hard-delimiter) tokens do notcoeless.  What's more, the iterator on
+// construction is valid and produces a empty leader and empty first token.
+// after advancing the tokenizer, the second line of that row shows the
+// current state of iteration with the previous delimiter being a '#' as well
+// as the current one.  The current token is again shown as empty.  After
+// advancing the tokenizer again, we now see that the iterater is invalid,
+// yet the previous delimiter (still accessible) is a '#').
+//..
+//  (%) = repeat   Previous   Current   Current   Iterator
+//  Input String   Delimiter   Token   Delimiter   Status
+//  ============   =========  =======  =========  ========  [length 0]
+//  ""             ""         na       na         invalid
+//
+//  ============   =========  =======  =========  ========  [length 1]
+//  "."            "."        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "#"            ""         ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "T"            ""         "T"      ""         valid
+//                 ""         na       na         invalid
+//
+//  ============   =========  =======  =========  ========  [length 2]
+//  ".."     (%)   ".."       na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".#"           "."        ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".T"           "."        "T"      ""         valid
+//                 ""         na       na         invalid
+//
+//  ------------   ---------  -------  ---------  --------
+//  "#."           ""         ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "##"           ""         ""       "#"        valid
+//                 "#"        ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "#T"           ""         ""       "#"        valid
+//                 "#"        "T"      ""         valid
+//                 ""         na       na         invalid
+//
+//  ------------   ---------  -------  ---------  --------
+//  "T."           ""         "T"      "."        valid
+//                 "."        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "T#"           ""         "T"      "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "TT"     (%)   ""         "TT"     ""         valid
+//                 ""         na       na         invalid
+//
+//  ============   =========  =======  =========  ========  [length 3]
+//  "..."    (%)   "..."      na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "..#"    (%)   ".."       ""       "#"        valid
+//                   "#"      na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "..T"    (%)   ".."       "T"      ""         valid
+//                 ".."       na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".#."          "."        ""       "#."       valid
+//                 "#."       na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".##"          "."        ""       "#"        valid
+//                 "#"        ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".#T"          "."        ""       "#"        valid
+//                 "#"        "T"      ""         valid
+//                 ""         na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".T."          "."        "T"      "."        valid
+//                 "."        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".T#"          "."        "T"      "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  ".TT"    (%)   "."        "TT"     ""         valid
+//                 ""         na       na         invalid
+//
+//  ------------   ---------  -------  ---------  --------
+//  "#.."    (%)   ""         ""       "#.."      invalid
+//                 "#.."      na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "#.#"          ""         ""       "#."       valid
+//                 "#."       ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "#.T"          ""         ""       "#."       valid
+//                 "#."       "T"      ""         valid
+//                 ""         na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "##."          ""         ""       "#"        valid
+//                 "#"        ""       "#."       valid
+//                 "#."       na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "###"          ""         ""       "#"        valid
+//                 "#"        ""       "#"        valid
+//                 "#"        ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "##T"          ""         ""       "#"        valid
+//                 "#"        ""       "#"        valid
+//                 "#"        "T"      ""         valid
+//                 ""         na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "#T."          ""         ""       "#"        valid
+//                 "#"        "T"      "."        valid
+//                 "."        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "#T#"          ""         ""       "#"        valid
+//                 "#"        "T"      "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "#TT"    (%)   ""         ""       "#"        valid
+//                 "#"        "TT"     ""         valid
+//                 ""         na       na         invalid
+//
+//  ------------   ---------  -------  ---------  --------
+//  "T.."    (%)   ""         "T"      ".."       valid
+//                 ".."       na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "T.#"          ""         "T"      ".#"       valid
+//                 ".#"       na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "T.T"          ""         "T"      "."        valid
+//                 "."        "T"      ""         valid
+//                 ""         na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "T#."          ""         "T"      "#."       valid
+//                 "#."       na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "T##"          ""         "T"      "#"        valid
+//                 "#"        ""       "#"        valid
+//                 "#"        ""       "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "T#T"          ""         "T"      "#"        valid
+//                 "#"        "T"      "#"        valid
+//                 ""         na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "TT."    (%)   ""         "TT"     "."        valid
+//                 "."        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "TT#"    (%)   ""         "TT"     "#"        valid
+//                 "#"        na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//  "TTT"    (%)   "#"        "TTT"    ""         valid
+//                 ""         na       na         invalid
+//  ------------   ---------  -------  ---------  --------
+//..
+/// Usage
+/// -----
+// This section illustrates intended use of this component.
+//
+/// Example 1: Iterating over tokens using just *soft* delimiters
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+/// Example 2: Iterating over tokens using just *hard* delimiters
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+/// Example 3: Iterating over tokens using both *hard* and *soft* delimiters
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+/// Example 4: Using the 'Tokenizer' to access delimiters as well as tokens
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+/// Example 5: Parsing layers of different tokens using nested 'for' loops
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+namespace BloombergLP {
+
+namespace bdlb {
+                        // ============================
+                        // private class Tokenizer_Data
+                        // ============================
+
+struct Tokenizer_Data {
+    // This component-private 'struct' is used to hold delimiter information.
+    // Each 'Tokenizer' object will have, as a private data member, an object
+    // of this 'struct',  and will pass the address of that member to the
+    // (private) constructor of each 'TockenIterator' object it issues:
+    //..
+    //  +--------------------------------------+
+    //  |   ,--------------.                   |
+    //  |  ( Tokenizer_Data )                  |
+    //  |   `--------------'\                  |
+    //  |          |         \                 |
+    //  |          |     ,----*------------.   |
+    //  |          |    ( TokenizerIterator )  |
+    //  |          |    /`-----------------'   |
+    //  |          |   /                       |
+    //  |     ,----*--o-.                      |
+    //  |    ( Tokenizer )                     |
+    //  |     `---------'                      |
+    //  +--------------------------------------+
+    //  bdlb_tokenizer
+    //..
+    // Note that, because it is purely an implementation detail confined to
+    // the component, all members of this 'struct' are intentionally left
+    // public.
+
+    enum {
+         k_MAX_CHARS = 256  // maximum # of unique values for an 8-bit 'char'
+    };
+
+    char d_charTypes[k_MAX_CHARS];  // table of SOFT / HARD / TOKEN characters
+
+    // CREATORS
+    Tokenizer_Data(const bslstl::StringRef& softDelimiters);
+    Tokenizer_Data(const bslstl::StringRef& softDelimiters,
+                   const bslstl::StringRef& hardDelimiters);
+        // Load the 'd_charTypes' data member such that it has the same value
+        // *as* *if* this (overly prescriptive) algorithm were used: (I)
+        // initialize each entry in 'd_charTypes' array to a value indicating
+        // that the character having that 'index' as its (e.g., ASCII)
+        // representation is a *token* character; (II) then, for each character
+        // in the specified 'softDeliters' sequence, overwrite the
+        // element at the corresponding index in 'd_charTypes' with a value
+        // that indicates that the character is a *soft* delimiter character;
+        // (III) finally, for each character in the 'hardDelimiters'
+        // sequence, overwrite the element at the corresonding index with a
+        // distinct value that indicates the character is a *hard* delimiter*
+        // character.  Note that duplicate delimiter characters in the
+        // respective inputs are naturally ignored, and that a character that
+        // appears in both sets would naturally be considered *hard*.  Also
+        // note that it is entirely reasonable to state, in any public
+        // interface, that the behavior is undefined unless the characters in
+        // the union of the two delimiter sequences are unique.
+
+    // ACCESSORS
+    bool isSoftDelimiter(const unsigned char ch) const;
+    bool isHardDelimiter(const unsigned char ch) const;
+    int  toInputType(const unsigned char ch) const;
+};
+                        // =======================
+                        // class TokenizerIterator
+                        // =======================
+
+class TokenizerIterator {
+    // This class provides a C++-standards-conforming input iterator over the
+    // tokens in the input string suppled at construction (along with the
+    // designation of *soft* and *hard* delimiter characters) to a 'Tokenizer'
+    // object.  Tokens are returned, using a 'bslstl::StrRef' -- by value --
+    // which means the iterated references remain valid until the underlying
+    // input string itself is modified or destroyed.  Note that all iterators
+    // are invalidated whenever the input string or the delimiters in the
+    // parent 'Tokenizer' change.
+
+    // DATA
+    const char           *d_cursor_p;      // pointer to tail of parsed data
+    const char           *d_token_p;       // pointer to current token
+    const char           *d_postDelim_p;   // pointer to post delimiter
+    const char           *d_end_p;         // pointer to one-past end of input
+
+    const Tokenizer_Data *d_tokenizerData_p; // pointer to the input mapper
+
+    bool                  d_isEnd;         // iterator end flag
+
+    // FRIENDS
+    friend class Tokenizer;
+
+    // PRIVATE CREATORS
+    TokenizerIterator();
+    TokenizerIterator(const char               *input,
+                      const char               *end,
+                      const Tokenizer_Data     *tokenizerData);
+
+    // ACCESSORS
+    bool isEos() const;
+    bool isEqual(const TokenizerIterator& other) const;
+
+  public:
+    // CREATORS
+    TokenizerIterator(const TokenizerIterator& other);
+
+    // MANIPULATORS
+    TokenizerIterator& operator=(const TokenizerIterator& rhs);
+    TokenizerIterator& operator++();
+
+    // ACCESSORS
+    bslstl::StringRef  operator*() const;
+
+    //FRIENDS
+    friend bool operator==(const TokenizerIterator& lhs,
+                    const TokenizerIterator& rhs);
+
+    friend bool operator!=(const TokenizerIterator& lhs,
+                           const TokenizerIterator& rhs);
+};
+
+// FREE OPERATORS
+bool operator==(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
+
+bool operator!=(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
+
+const TokenizerIterator operator++(TokenizerIterator& object, int);
+
+
+                            // ===============
+                            // class Tokenizer
+                            // ===============
+
+class Tokenizer {
+    // This class provides (read-only) sequential access to tokens delimited
+    // by two user-supplied character sets consisting, respectively, of
+    // *soft* and *hard* delimiters characters.  Access to the previous and
+    // current (trailing) delimiter, as well as to the current token itself,
+    // is provided efficiently via 'bslstl::StringRef'.
+
+    // DATA
+    const char     *d_input_p;       // pointer to the original input
+    const char     *d_cursor_p;      // pointer to tail of parsed input
+    const char     *d_prevDelim_p;   // pointer to previous delimiter
+    const char     *d_token_p;       // pointer to current token
+    const char     *d_postDelim_p;   // pointer to current (trailing) delimiter
+    const char     *d_end_p;         // pointer to the end of the string;
+                                     // null if working with const char *
+    bool           d_isEnd;          // tokenizer end flag
+
+    Tokenizer_Data  d_tokenizerData; // delimiter/token character categories
+
+
+    // Safe bool - related
+    typedef void (Tokenizer::*bool_type)() const;
+    void internal_not_comparable() const {}
+
+  private:
+    // NOT IMPLEMENTED
+    Tokenizer(const Tokenizer&);
+    Tokenizer& operator=(const Tokenizer&);
+
+    // ACCESSORS
+    bool isEos() const;
+
+    // MANIPULATORS
+    void resetImpl(const char* input, const char* end = NULL);
+
+  public:
+    // TYPES
+    typedef TokenizerIterator  iterator;
+
+    // CREATORS
+    Tokenizer(const char               *input, const bslstl::StringRef&  soft);
+    Tokenizer(const char               *input,
+              const bslstl::StringRef&  soft,
+              const bslstl::StringRef&  hard);
+
+    Tokenizer(const bslstl::StringRef&  input, const bslstl::StringRef&  soft);
+    Tokenizer(const bslstl::StringRef&  input,
+              const bslstl::StringRef&  soft,
+              const bslstl::StringRef&  hard);
+        // Create a 'Tokenizer' object bound to the specified sequence of
+        // 'input' characters having the specified set of (unique) 'soft'
+        // delimiter characters to be used to separate *tokens* (i.e., maximal
+        // sequence of non-delimiter characters) in 'input'.  Optionally
+        // specify a disjoint set of (unique) 'hard' delimiter characters to be
+        // used to explicitly terminate tokens.  Delimiters within 'input'
+        // consist of a maximal sequence of one or more delimiter characters,
+        // at most one of which may be *hard*; when there is a contiguous
+        // sequence of delimiter characters containing two or more *hard*
+        // delimiter characters in 'input', any intervening *soft* delimiter
+        // characters are associated with the previous (*hard*) delimiter.  Any
+        // leading soft delimiter characters -- i.e., those preceding the first
+        // *token* or *hard* delimiter character (a.k.a. the *leader*) -- are
+        // available immediately after construction via the 'previousDelimiter'
+        // method.  The behavior is undefined unless all supplied delimiter
+        // characters are unique.  Note that the behavior is also undefined if
+        // this object is used in any way (other than to reset or destroy it)
+        // after its underlying 'input' string is modified.  Also note that the
+        // current token and (trailing) delimiter may be accessed only while
+        // this object is in the valid state; however, the previous delimiter
+        // (or *leader*) is always accessible.  Finally note that all token and
+        // delimiter strings are returned as references into the underlying
+        // 'input' string, and hence remain valid so long as that string is not
+        // modified or destroyed -- irrespective of the state (or even the
+        // existence) of this object.
+
+    ~Tokenizer();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Tokenizer& operator++();
+        // Advance the iteration state of this object to refer to the next
+        // sequence of previous delimiter, current token, and current
+        // (trailing) delimiter in the underlying input sequence, and return a
+        // reference providing modifiable access to this object.  The current
+        // delimiter reference becomes the previous one.  If there is another
+        // token remaining in the input, the current token and delimiter are
+        // updated to refer to the respective new token and (trailing)
+        // delimiter values -- either of which (but not both) might be empty.
+        // The behavior is undefined unless the iteration state of this object
+        // is initially valid, or if the underlying input has been modified or
+        // destroyed since this object was most recently reset (or created).
+
+    void reset(const char *input);
+    void reset(const bslstl::StringRef& input);
+        // Rebind this object to refer to the specified sequence of 'input'
+        // characters.  The state of the iterator following this call is *as*
+        // *if* it had been constructed with 'input' and its current sets of
+        // *soft* and *hard* delimiter characters.  Note that the behavior is
+        // also undefined if this object is used in any way (other than to
+        // reset or destroy it) after its underlying 'input' string is
+        // modified.
+
+    // ACCESSORS
+    operator bool_type() const;
+        // Return 'true' (as an unspecified 'bool') if the iteration state of
+        // this object is valid, and 'false' otherwise.  Note that the behavior
+        // of advancing the iteration state as well as accessing the current
+        // token or (trailing) delimiter is undefined unless the current
+        // iteration state of this object is valid.
+
+    bslstl::StringRef delimiter() const;
+        // Return a reference to the non-modifiable current (trailing)
+        // delimiter (maximal sequence of one or more delimiter characters
+        // containing at most one *hard* delimiter character) in the input
+        // string.  The returned reference remains valid so long as the
+        // underlying input is not modified or destroyed -- irrespective of the
+        // state (or existence) of this object.  The behavior is undefined
+        // unless the iteration state of this object is initially valid, or if
+        // the underlying input has been modified or destroyed since this
+        // object was most recently reset (or created).
+
+    bool hasSoft() const;
+        // Return 'true' if the current (trailing) delimiter contains a
+        // *soft* delimiter character, and 'false' otherwise.  The behavior is
+        // undefined unless the iteration state of this object is initially
+        // valid, or if the underlying input has been modified or destroyed
+        // since this object was most recently reset (or created).
+
+    bool hasPreviousSoft() const;
+        // Return 'true' if the previous delimiter (or *leader*) contains a
+        // *soft* delimiter character, and 'false' otherwise.  The behavior is
+        // undefined unless the underlying input has been modified or
+        // destroyed since this object was most recently reset (or created).
+
+    bool isHard() const;
+        // Return 'true' if the current (trailing) delimiter contains a *hard*
+        // delimiter character, and 'false' otherwise.  The behavior is
+        // undefined unless the iteration state of this object is initially
+        // valid, or if the underlying input has been modified or destroyed
+        // since this object was most recently reset (or created).
+
+    bool isPreviousHard() const;
+        // Return 'true' if the previous delimiter contains a *hard-delimiter*
+        // character, and 'false' otherwise.  Note that this method will always
+        // return 'false' on a newly constructed (or reset) object.  The
+        // returned reference remains valid so long as the underlying input
+        // string is not modified or destroyed -- irrespective of the state (or
+        // existence) of this object.
+
+    bslstl::StringRef previousDelimiter() const;
+        // Return a reference to the non-modifiable previous delimiter (or
+        // *leader*) in the input string.  The behavior is undefined unless the
+        //  underlying input has been modified or destroyed since this object
+        // was most recently reset (or created).
+
+//JSL: Add this function to replace following internal-deprecated one.
+    bslstl::StringRef token() const;
+        // Return a reference to the non-modifiable current token (i.e.,
+        // maximal sequence of non-delimiter characters) in the input string.
+        // The returned reference remains valid so long as the underlying input
+        // is not modified or destroyed -- irrespective of the state (or
+        // existence) of this object.  The behavior is undefined unless the
+        // iteration state of this object is initially valid, or if the
+        // underlying input has been modified or destroyed since this object
+        // was most recently reset (or created).
+
+
+    // ITERATOR
+    iterator begin() const;
+    iterator end() const;
+};
+
+// FREE OPERATORS
+const Tokenizer operator++(Tokenizer& lhs, int unused);
+
+template <class T>
+bool  operator!=(const Tokenizer& lhs, const T& rhs);
+
+template <class T>
+bool  operator==(const Tokenizer& lhs, const T& rhs);
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // -----------------------------
+                        // class bdlb::TokenizerIterator
+                        // -----------------------------
+// ACCESSORS
+inline
+bool bdlb::TokenizerIterator::isEos() const
+{
+    return d_end_p ? (d_end_p == d_cursor_p) : (0 == *d_cursor_p);
+}
+
+inline
+bslstl::StringRef TokenizerIterator::operator*() const
+{
+    return bslstl::StringRef(d_token_p, d_postDelim_p);
+}
+
+
+                        // ---------------------
+                        // class bdlb::Tokenizer
+                        // ---------------------
+
+//MANIPULATORS
+
+// ACCESSORS
+inline
+bool bdlb::Tokenizer::isEos() const
+{
+    return d_end_p ? (d_end_p == d_cursor_p) : (0 == *d_cursor_p);
+}
+
+inline
+bdlb::Tokenizer::operator bool_type() const
+{
+    return (!d_isEnd) ? &Tokenizer::internal_not_comparable : 0;
+}
+
+inline
+bslstl::StringRef Tokenizer::delimiter() const
+{
+    return bslstl::StringRef(d_postDelim_p, d_cursor_p);
+}
+
+inline
+bslstl::StringRef Tokenizer::previousDelimiter() const
+{
+    return bslstl::StringRef(d_prevDelim_p, d_token_p);
+}
+
+inline
+bslstl::StringRef Tokenizer::token() const
+{
+    return bslstl::StringRef(d_token_p, d_postDelim_p);
+}
+
+}  // package namespace
+
+
+// FREE OPERATORS
+template <class T>
+inline
+bool  bdlb::operator!=(const bdlb::Tokenizer& lhs, const T& rhs)
+{
+    lhs.internal_not_comparable();
+    return false;
+}
+
+template <class T>
+inline
+bool  bdlb::operator==(const bdlb::Tokenizer& lhs, const T& rhs)
+{
+    lhs.internal_not_comparable();
+    return false;
+}
+
+}  // enterprise namespace
+
+#endif
+
