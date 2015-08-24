@@ -49,8 +49,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef PTHREAD_MUTEX_RECURSIVE
-#ifndef INCLUDED_BDLQQ_XXXATOMICTYPES
-#include <bdlqq_xxxatomictypes.h>  // for SpinLock
+#ifndef INCLUDED_BSLS_SPINLOCK
+#include <bsls_spinlock.h>
 #endif
 #endif
 
@@ -75,7 +75,7 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
     pthread_mutex_t d_lock;       // TBD doc
 
 #ifndef PTHREAD_MUTEX_RECURSIVE
-    bdlqq::SpinLock d_spin;       // spin lock controlling access to this
+    bsls::SpinLock  d_spin;       // spin lock controlling access to this
                                   // object
 
     pthread_t       d_owner;      // thread id of thread currently owning this

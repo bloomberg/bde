@@ -448,40 +448,39 @@ struct DataCase6 {
 
 void *testCase6(int threadNum, const MyTask& task)
 {
-     DataCase6 *data = reinterpret_cast<DataCase6 *> (task.arg());
+    DataCase6 *data = reinterpret_cast<DataCase6 *>(task.arg());
 
-     ASSERT(data != 0);
-     ASSERT(threadNum > 0);
+    ASSERT(data != 0);
+    ASSERT(threadNum > 0);
 
-     bsl::size_t i = 0;
+    bsl::size_t i = 0;
 
-     for (i=0; i < data->d_slots.size(); ++i) {
-         ASSERT(data->d_slots[i] == 0);
-     }
+    for (i = 0; i < data->d_slots.size(); ++i) {
+        ASSERT(data->d_slots[i] == 0);
+    }
 
-     task.barrier()->wait();
+    task.barrier()->wait();
 
-     {
+    {
         bdlqq::QLockGuard guard(data->d_qlock);
 
-        //sleep enough to allow other threads be enqueued
-        bdlqq::ThreadUtil::microSleep(1000*100);
+        // sleep enough to allow other threads be enqueued
+        bdlqq::ThreadUtil::microSleep(1000 * 250);
 
-        ASSERT (data->d_slots[threadNum-1] == 0);
-        data->d_slots[threadNum-1] = 1;
-     }
+        ASSERT(data->d_slots[threadNum - 1] == 0);
+        data->d_slots[threadNum - 1] = 1;
+    }
 
-     {
-         bdlqq::QLockGuard guard(data->d_qlock);
+    {
+        bdlqq::QLockGuard guard(data->d_qlock);
 
-         //bdlqq::ThreadUtil::microSleep(1000*250);
-
-         for (i=0; i < data->d_slots.size(); ++i) {
+        // check that all threads have had their turn
+        for (i = 0; i < data->d_slots.size(); ++i) {
             ASSERT(data->d_slots[i] != 0);
         }
-     }
+    }
 
-     return 0;
+    return 0;
 }
 
 // ----------------------------------------------------------------------------
