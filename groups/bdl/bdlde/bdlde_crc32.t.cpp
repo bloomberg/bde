@@ -9,6 +9,7 @@
 
 #include <bsl_algorithm.h>   // sort()
 #include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 #include <bsl_vector.h>
@@ -1199,8 +1200,8 @@ int main(int argc, char *argv[])
 
                 // create a concatenated version of MSG1 and MSG2
                 char msgAccum[20];
-                memcpy(msgAccum,      MSG1, LEN1);
-                memcpy(msgAccum+LEN1, MSG2, LEN2);
+                bsl::memcpy(msgAccum,      MSG1, LEN1);
+                bsl::memcpy(msgAccum+LEN1, MSG2, LEN2);
 
                 // initialize the second object
                 objAccum.update(msgAccum, LEN1+LEN2);
@@ -1334,8 +1335,8 @@ int main(int argc, char *argv[])
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     In in(OD, LOD);  In &testInStream = in;
@@ -1371,9 +1372,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
-                // Ensure that reading from an empty or invalid input
-                // stream leaves the stream invalid and the target object
-                // unchanged.
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
 
                 const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {

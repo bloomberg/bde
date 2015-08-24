@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: $")
 // Then, we do the translation to 'UTF-32':
 //..
 //  int retVal = bdlde::CharConvertUtf32::utf8ToUtf32(&v32,
-//                                                   utf8MultiLang);
+//                                                    utf8MultiLang);
 //
 //  assert(0 == retVal);        // verify success
 //  assert(0 == v32.back());    // verify null terminated
@@ -152,8 +152,8 @@ BSLS_IDENT("$Id: $")
 // Now, we do the reverse transform:
 //..
 //  retVal = bdlde::CharConvertUtf32::utf32ToUtf8(&s,
-//                                               v32.begin(),
-//                                               &utf8CharsWritten);
+//                                                v32.begin(),
+//                                                &utf8CharsWritten);
 //..
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
@@ -212,13 +212,13 @@ struct CharConvertUtf32 {
     static int utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                            const char                *srcString,
                            unsigned int               errorCharacter = '?',
-                           ByteOrder::Enum      byteOrder      =
-                                                      ByteOrder::e_HOST);
+                           ByteOrder::Enum            byteOrder      =
+                                                            ByteOrder::e_HOST);
     static int utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                            const bslstl::StringRef&   srcString,
                            unsigned int               errorCharacter = '?',
-                           ByteOrder::Enum      byteOrder      =
-                                                      ByteOrder::e_HOST);
+                           ByteOrder::Enum            byteOrder      =
+                                                            ByteOrder::e_HOST);
         // Load into the specified 'dstVector' the result of converting the
         // specified UTF-8 'srcString' to its UTF-32 equivalent.  Optionally
         // specify 'errorCharacter' to be substituted, if not 0, for invalid
@@ -249,15 +249,15 @@ struct CharConvertUtf32 {
                            const char               *srcString,
                            bsl::size_t              *numCharsWritten = 0,
                            unsigned int              errorCharacter  = '?',
-                           ByteOrder::Enum     byteOrder       =
-                                                      ByteOrder::e_HOST);
+                           ByteOrder::Enum           byteOrder       =
+                                                            ByteOrder::e_HOST);
     static int utf8ToUtf32(unsigned int             *dstBuffer,
                            bsl::size_t               dstCapacity,
                            const bslstl::StringRef&  srcString,
                            bsl::size_t              *numCharsWritten = 0,
                            unsigned int              errorCharacter  = '?',
-                           ByteOrder::Enum     byteOrder       =
-                                                      ByteOrder::e_HOST);
+                           ByteOrder::Enum           byteOrder       =
+                                                            ByteOrder::e_HOST);
         // Load into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified UTF-8 'srcString' to its
         // UTF-32 equivalent.  Optionally specify 'numCharsWritten' which (if
@@ -302,8 +302,8 @@ struct CharConvertUtf32 {
                            const unsigned int    *srcString,
                            bsl::size_t           *numCharsWritten = 0,
                            unsigned char          errorCharacter  = '?',
-                           ByteOrder::Enum  byteOrder       =
-                                                      ByteOrder::e_HOST);
+                           ByteOrder::Enum        byteOrder       =
+                                                            ByteOrder::e_HOST);
         // Load into the specified 'dstString' the result of converting the
         // specified null-terminated UTF-32 'srcString' to its UTF-8
         // equivalent.  Optionally specify 'numCharsWritten' which (if not 0)
@@ -331,8 +331,8 @@ struct CharConvertUtf32 {
                            const unsigned int    *srcString,
                            bsl::size_t           *numCharsWritten = 0,
                            unsigned char          errorCharacter  = '?',
-                           ByteOrder::Enum  byteOrder       =
-                                                      ByteOrder::e_HOST);
+                           ByteOrder::Enum        byteOrder       =
+                                                            ByteOrder::e_HOST);
         // Load into the specified 'dstVector' the result of converting the
         // specified null-terminated UTF-32 'srcString' to its UTF-8
         // equivalent.  Optionally specify 'numCharsWritten' which (if not 0)
@@ -362,8 +362,8 @@ struct CharConvertUtf32 {
                            bsl::size_t           *numCharsWritten = 0,
                            bsl::size_t           *numBytesWritten = 0,
                            unsigned char          errorCharacter  = '?',
-                           ByteOrder::Enum  byteOrder       =
-                                                      ByteOrder::e_HOST);
+                           ByteOrder::Enum        byteOrder       =
+                                                            ByteOrder::e_HOST);
         // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified null-terminated UTF-32
         // 'srcString' to its UTF-8 equivalent.  Optionally specify
@@ -406,8 +406,8 @@ struct CharConvertUtf32 {
         // 'dstCapacity > 0', then, after completion,
         // 'strlen(dstBuffer) + 1 == *numBytesWritten'.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

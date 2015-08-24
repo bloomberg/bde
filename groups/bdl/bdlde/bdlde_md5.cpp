@@ -49,23 +49,22 @@
 // Other than changing from a C-style comment to C++-style comments, the
 // following was taken verbatim from http://www.ietf.org/rfc/rfc1321.txt:
 //..
-// Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
-// rights reserved.
+// Copyright (C) 1991-2, RSA Data Security, Inc.  Created 1991.  All rights
+// reserved.
 //
-// License to copy and use this software is granted provided that it
-// is identified as the "RSA Data Security, Inc. MD5 Message-Digest
-// Algorithm" in all material mentioning or referencing this software
-// or this function.
+// License to copy and use this software is granted provided that it is
+// identified as the "RSA Data Security, Inc.  MD5 Message-Digest Algorithm" in
+// all material mentioning or referencing this software or this function.
 //
-// License is also granted to make and use derivative works provided
-// that such works are identified as "derived from the RSA Data
-// Security, Inc. MD5 Message-Digest Algorithm" in all material
-// mentioning or referencing the derived work.
+// License is also granted to make and use derivative works provided that such
+// works are identified as "derived from the RSA Data Security, Inc.  MD5
+// Message-Digest Algorithm" in all material mentioning or referencing the
+// derived work.
 //
-// RSA Data Security, Inc. makes no representations concerning either
-// the merchantability of this software or the suitability of this
-// software for any particular purpose. It is provided "as is"
-// without express or implied warranty of any kind.
+// RSA Data Security, Inc. makes no representations concerning either the
+// merchantability of this software or the suitability of this software for any
+// particular purpose.  It is provided "as is" without express or implied
+// warranty of any kind.
 //
 // These notices must be retained in any copies of any part of this
 // documentation and/or software.
@@ -128,7 +127,7 @@ BSLMF_ASSERT(sizeof(unsigned int) == 4);
 // Note that '@' is appended to each line in the macro that ends with '\' to
 // quell a diagnostic from gcc ("warning: multi-line comment").
 
-static const unsigned char BDEDE_MD5_PAD[] = {
+static const unsigned char u_md5Pad[] = {
     0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -141,29 +140,29 @@ static const unsigned char BDEDE_MD5_PAD[] = {
 
 // Constants used in MD5 algorithm specified by the RFC 1321 document.
 
-const int S11 = 7;
-const int S12 = 12;
-const int S13 = 17;
-const int S14 = 22;
-const int S21 = 5;
-const int S22 = 9;
-const int S23 = 14;
-const int S24 = 20;
-const int S31 = 4;
-const int S32 = 11;
-const int S33 = 16;
-const int S34 = 23;
-const int S41 = 6;
-const int S42 = 10;
-const int S43 = 15;
-const int S44 = 21;
+static const int S11 = 7;
+static const int S12 = 12;
+static const int S13 = 17;
+static const int S14 = 22;
+static const int S21 = 5;
+static const int S22 = 9;
+static const int S23 = 14;
+static const int S24 = 20;
+static const int S31 = 4;
+static const int S32 = 11;
+static const int S33 = 16;
+static const int S34 = 23;
+static const int S41 = 6;
+static const int S42 = 10;
+static const int S43 = 15;
+static const int S44 = 21;
 
-const int BITBLOCKSIZE = 512;                    // number of bits per block
-
-const int BYTEBLOCKSIZE = BITBLOCKSIZE / 8;      // number of bytes per block
-
-const int BYTELENGTHPADSIZE = 8;                 // number of bytes for padding
-                                                 // length
+static const int BITBLOCKSIZE = 512;                    // number of bits per
+                                                        // block
+static const int BYTEBLOCKSIZE = BITBLOCKSIZE / 8;      // number of bytes per
+                                                        // block
+static const int BYTELENGTHPADSIZE = 8;                 // number of bytes for
+                                                        // padding length
 
 static const char HEX[32] = "0123456789abcdef";  // array used for hex
                                                  // conversion
@@ -205,8 +204,12 @@ static unsigned int rotateLeft(unsigned int x, unsigned int n)
 }
 
 inline
-static unsigned int FF(unsigned int a, unsigned int b, unsigned int c,
-                       unsigned int d, unsigned int x, unsigned int s,
+static unsigned int FF(unsigned int a,
+                       unsigned int b,
+                       unsigned int c,
+                       unsigned int d,
+                       unsigned int x,
+                       unsigned int s,
                        unsigned int ac)
 {
     a += F(b, c, d);
@@ -216,8 +219,12 @@ static unsigned int FF(unsigned int a, unsigned int b, unsigned int c,
 }
 
 inline
-static unsigned int GG(unsigned int a, unsigned int b, unsigned int c,
-                       unsigned int d, unsigned int x, unsigned int s,
+static unsigned int GG(unsigned int a,
+                       unsigned int b,
+                       unsigned int c,
+                       unsigned int d,
+                       unsigned int x,
+                       unsigned int s,
                        unsigned int ac)
 {
     a += G(b, c, d);
@@ -227,8 +234,12 @@ static unsigned int GG(unsigned int a, unsigned int b, unsigned int c,
 }
 
 inline
-static unsigned int HH(unsigned int a, unsigned int b, unsigned int c,
-                       unsigned int d, unsigned int x, unsigned int s,
+static unsigned int HH(unsigned int a,
+                       unsigned int b,
+                       unsigned int c,
+                       unsigned int d,
+                       unsigned int x,
+                       unsigned int s,
                        unsigned int ac)
 {
     a += H(b, c, d);
@@ -238,8 +249,12 @@ static unsigned int HH(unsigned int a, unsigned int b, unsigned int c,
 }
 
 inline
-static unsigned int II(unsigned int a, unsigned int b, unsigned int c,
-                       unsigned int d, unsigned int x, unsigned int s,
+static unsigned int II(unsigned int a,
+                       unsigned int b,
+                       unsigned int c,
+                       unsigned int d,
+                       unsigned int x,
+                       unsigned int s,
                        unsigned int ac)
 {
     a += I(b, c, d);
@@ -268,9 +283,10 @@ static void append(unsigned int *state, const unsigned char *data)
     register unsigned int *const x = xArray;
 
     // Round 1
+    //
     // The last parameter is the integer part of '2 ^ 32 * abs(sin(i))', where
-    // 'i' starts from 1 in radians.  Furthermore, each 4-byte block is
-    // decoded separately for efficiency.
+    // 'i' starts from 1 in radians.  Furthermore, each 4-byte block is decoded
+    // separately for efficiency.
 
     x[0]  = Decode(data);
     data += 4;
@@ -396,13 +412,13 @@ static void padLengthToBuffer(unsigned int       *state,
     int start = 0;
     const int PADLENGTHINDEX = BYTEBLOCKSIZE - BYTELENGTHPADSIZE;
 
-    // The last 8 bytes are used for the length of the message.
-    // If we don't have enough space to fit the length of the message
-    // in, we should pad it with 'BDEDE_MD5_PAD' first.
+    // The last 8 bytes are used for the length of the message.  If we don't
+    // have enough space to fit the length of the message in, we should pad it
+    // with 'u_md5Pad' first.
 
     if (PADLENGTHINDEX <= inUse) {
         int fill = BYTEBLOCKSIZE - inUse;
-        bsl::memcpy(buffer + inUse, BDEDE_MD5_PAD, fill);
+        bsl::memcpy(buffer + inUse, u_md5Pad, fill);
         append(state, buffer);
         start += fill;
         inUse = 0;
@@ -411,7 +427,7 @@ static void padLengthToBuffer(unsigned int       *state,
     // Pad the remaining bytes.
 
     int copy = PADLENGTHINDEX - inUse;
-    bsl::memcpy(buffer + inUse, BDEDE_MD5_PAD + start, copy);
+    bsl::memcpy(buffer + inUse, u_md5Pad + start, copy);
 
     // Need bit length, so multiply by 8.
 
@@ -471,9 +487,10 @@ static void initStates(unsigned int (*state)[4])
 }
 
 namespace bdlde {
-                            // ---------------
-                            // class Md5
-                            // ---------------
+
+                                // ---------
+                                // class Md5
+                                // ---------
 
 // CREATORS
 Md5::Md5()

@@ -7,31 +7,35 @@ BSLS_IDENT_RCSID(bdlde_quotedprintabledecoder_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsl_cstring.h>
 
-namespace BloombergLP {
+namespace {
+
+typedef BloombergLP::bdlde::QuotedPrintableDecoder QuotedPrintableDecoder;
+
+}  // close unnamed namespace
 
                 // ======================
                 // FILE-SCOPE STATIC DATA
                 // ======================
 
 // Strict-mode equivalence class symbols
-const char RC_ = bdlde::QuotedPrintableDecoder::e_RC_;
-const char HX_ = bdlde::QuotedPrintableDecoder::e_HX_;
-const char EQ_ = bdlde::QuotedPrintableDecoder::e_EQ_;
-const char WS_ = bdlde::QuotedPrintableDecoder::e_WS_;
-const char CR_ = bdlde::QuotedPrintableDecoder::e_CR_;
-const char LC_ = bdlde::QuotedPrintableDecoder::e_LC_;
-const char LL_ = bdlde::QuotedPrintableDecoder::e_LL_;
-const char UC_ = bdlde::QuotedPrintableDecoder::e_UC_;
+static const char RC_ = QuotedPrintableDecoder::e_RC_;
+static const char HX_ = QuotedPrintableDecoder::e_HX_;
+static const char EQ_ = QuotedPrintableDecoder::e_EQ_;
+static const char WS_ = QuotedPrintableDecoder::e_WS_;
+static const char CR_ = QuotedPrintableDecoder::e_CR_;
+static const char LC_ = QuotedPrintableDecoder::e_LC_;
+static const char LL_ = QuotedPrintableDecoder::e_LL_;
+static const char UC_ = QuotedPrintableDecoder::e_UC_;
 
 // Relaxed-mode equivalence class symbols
-const char RC = bdlde::QuotedPrintableDecoder::e_RC;
-const char HX = bdlde::QuotedPrintableDecoder::e_HX;
-const char EQ = bdlde::QuotedPrintableDecoder::e_EQ;
-const char WS = bdlde::QuotedPrintableDecoder::e_WS;
-const char CR = bdlde::QuotedPrintableDecoder::e_CR;
-const char LC = bdlde::QuotedPrintableDecoder::e_LC;
-const char LL = bdlde::QuotedPrintableDecoder::e_LL;
-const char UC = bdlde::QuotedPrintableDecoder::e_UC;
+static const char RC = QuotedPrintableDecoder::e_RC;
+static const char HX = QuotedPrintableDecoder::e_HX;
+static const char EQ = QuotedPrintableDecoder::e_EQ;
+static const char WS = QuotedPrintableDecoder::e_WS;
+static const char CR = QuotedPrintableDecoder::e_CR;
+static const char LC = QuotedPrintableDecoder::e_LC;
+static const char LL = QuotedPrintableDecoder::e_LL;
+static const char UC = QuotedPrintableDecoder::e_UC;
 
 // The following table is a map of an 8-bit index value to the corresponding
 // equivalence class for operation in the strict error- reporting mode (i.e.,
@@ -39,7 +43,7 @@ const char UC = bdlde::QuotedPrintableDecoder::e_UC;
 // use/modify the map below for the relaxed error-reporting and CRLF line break
 // mode (i.e., EQUIVALENCE_CLASS_MAP_CRLF below).
 
-const char EQUIVALENCE_CLASS_MAP_STRICT[] = {
+static const char EQUIVALENCE_CLASS_MAP_STRICT[] = {
 //  0   1   2   3   4   5   6   7
     UC_, UC_, UC_, UC_, UC_, UC_, UC_, UC_,  // 000
     UC_, WS_, LC_, UC_, UC_, CR_, UC_, UC_,  // 010  '\t'_, '\n'_, '\r'
@@ -76,11 +80,11 @@ const char EQUIVALENCE_CLASS_MAP_STRICT[] = {
 };
 
 // The following table is a map of an 8-bit index value to the corresponding
-// equivalence class for operation in the relaxed error-reporting CRLF
-// line break mode (line breaks are decoded to "\r\n").  The LF line break mode
+// equivalence class for operation in the relaxed error-reporting CRLF line
+// break mode (line breaks are decoded to "\r\n").  The LF line break mode
 // requires only moving element ['\n'] to the LL class.
 
-const char EQUIVALENCE_CLASS_MAP_CRLF[] = {
+static const char EQUIVALENCE_CLASS_MAP_CRLF[] = {
 //  0   1   2   3   4   5   6   7
     RC, RC, RC, RC, RC, RC, RC, RC,  // 000
     RC, WS, LC, RC, RC, CR, RC, RC,  // 010  '\t', '\n', '\r'
@@ -123,10 +127,10 @@ const char EQUIVALENCE_CLASS_MAP_CRLF[] = {
 // intentionally set to 0 to ease the table construction.  This design choice
 // is correct only *if* the indexing character is first verified to be a
 // hexadecimal digit (which is done in the decoder anyway).  Without this
-// check, the real value of 0x00 in DEC cannot be distinguished from the null
-// values in the same table.
+// check, the real value of 0x00 in decondingMap cannot be distinguished from
+// the null values in the same table.
 
-const unsigned char DEC[] = {
+static const unsigned char decodingMap[] = {
 //  0     1     2     3     4     5     6     7
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // 000
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // 010
@@ -162,32 +166,39 @@ const unsigned char DEC[] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // 370
 };
 
-const char* bdlde::QuotedPrintableDecoder::s_lineBreakModeName[] = {
+namespace BloombergLP {
+namespace bdlde {
+
+const char* QuotedPrintableDecoder::s_lineBreakModeName[] = {
     "CRLF mode",
     "LF mode"
 };
 
-const char bdlde::QuotedPrintableDecoder::s_componentName[] =
-                                                "bdlde::QuotedPrintableDecoder";
-
-const bool
-bdlde::QuotedPrintableDecoder::s_defaultUnrecognizedIsErrorFlag = false;
-const char*bdlde::QuotedPrintableDecoder::s_defaultEquivClassStrict_p =
+const char QuotedPrintableDecoder::s_componentName[] =
+                                               "bdlde::QuotedPrintableDecoder";
+const bool QuotedPrintableDecoder::s_defaultUnrecognizedIsErrorFlag = false;
+const char *QuotedPrintableDecoder::s_defaultEquivClassStrict_p =
                                                   EQUIVALENCE_CLASS_MAP_STRICT;
-const char*bdlde::QuotedPrintableDecoder::s_defaultEquivClassCRLF_p =
+const char *QuotedPrintableDecoder::s_defaultEquivClassCRLF_p =
                                                     EQUIVALENCE_CLASS_MAP_CRLF;
-const unsigned char *const bdlde::QuotedPrintableDecoder::s_decodingMap_p = DEC;
-const int bdlde::QuotedPrintableDecoder::s_defaultMaxLineLength = 76;
+const unsigned char * const QuotedPrintableDecoder::s_decodingMap_p =
+                                                                   decodingMap;
+const int QuotedPrintableDecoder::s_defaultMaxLineLength = 76;
 
-namespace bdlde {
+                           // ----------------------
+                           // QuotedPrintableDecoder
+                           // ----------------------
+
 // CREATORS
 QuotedPrintableDecoder::~QuotedPrintableDecoder()
 {
     // Assert invariants:
+
     BSLS_ASSERT(e_ERROR_STATE <= d_state);
     BSLS_ASSERT(d_state <= e_DONE_STATE);
     BSLS_ASSERT(0 <= d_outputLength);
-    BSLS_ASSERT(e_CRLF_MODE == d_lineBreakMode || e_LF_MODE == d_lineBreakMode);
+    BSLS_ASSERT(e_CRLF_MODE == d_lineBreakMode ||
+                                                 e_LF_MODE == d_lineBreakMode);
     BSLS_ASSERT(d_lineBreakMode <= 1);
 
     if (d_equivClass_p != s_defaultEquivClassStrict_p &&
@@ -196,15 +207,13 @@ QuotedPrintableDecoder::~QuotedPrintableDecoder()
     }
 }
 
-
-
 // MANIPULATORS
 int QuotedPrintableDecoder::convert(char       *out,
-                                          int        *numOut,
-                                          int        *numIn,
-                                          const char *begin,
-                                          const char *end,
-                                          int         maxNumOut)
+                                    int        *numOut,
+                                    int        *numIn,
+                                    const char *begin,
+                                    const char *end,
+                                    int         maxNumOut)
 {
     BSLS_ASSERT(out);
     BSLS_ASSERT(numOut);
@@ -235,6 +244,7 @@ int QuotedPrintableDecoder::convert(char       *out,
         if ((e_INPUT_STATE == d_state || e_NEED_HEX_STATE == d_state) &&
                                                               d_bufferLength) {
             // flush buffer
+
             int i = 0;
             while (i < d_bufferLength && numEmitted != maxNumOut) {
                 *out++ = d_buffer[i++];
@@ -249,6 +259,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             }
             else if ('=' == *begin) {
                 // set state to indicate the equal sign
+
                 d_state = e_SAW_EQUAL_STATE;
                 ++begin;
             }
@@ -261,7 +272,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             }
         }
         else if (e_NEED_HEX_STATE == d_state) {
-            const unsigned char ch = DEC[(int)*begin];
+            const unsigned char ch = decodingMap[(int)*begin];
             if (ch == (unsigned char)0xFF) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
@@ -309,11 +320,12 @@ int QuotedPrintableDecoder::convert(char       *out,
         else if (e_SAW_EQUAL_STATE == d_state) {
             if ('\r' == *begin) {
                 // next character must be a '\n'
+
                 d_state = e_NEED_SOFT_LF_STATE;
                 ++begin;
             }
             else {
-                d_hexBuffer = (char)DEC[(int)*begin];
+                d_hexBuffer = (char)decodingMap[(int)*begin];
                 if (d_hexBuffer == (char)0xFF) {
                     *numOut = numEmitted;
                     d_outputLength += numEmitted;
@@ -329,6 +341,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             BSLS_ASSERT(e_INPUT_STATE == d_state);
             if ('=' == *begin) {
                 // set state to indicate the equal sign
+
                 d_state = e_SAW_EQUAL_STATE;
                 ++begin;
             }
@@ -343,6 +356,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             }
             else {
                 // forward the character
+
                 *out++ = *begin++;
                 ++numEmitted;
             }
@@ -357,8 +371,8 @@ int QuotedPrintableDecoder::convert(char       *out,
 }
 
 int QuotedPrintableDecoder::endConvert(char *out,
-                                             int  *numOut,
-                                             int  )
+                                       int  *numOut,
+                                       int  )
 {
     BSLS_ASSERT(out);
     BSLS_ASSERT(numOut);

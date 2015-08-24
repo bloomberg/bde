@@ -24,12 +24,11 @@ BSLS_IDENT_RCSID(bdlde_charconvertutf32_cpp,"$Id$ $CSID$")
 //     http://tools.ietf.org/html/rfc3629
 //..
 ////////////////////////// BEGIN VERBATIM RFC TEXT //////////////////////////
-// UTF-8 encodes UCS characters as a varying number of octets, where the
-// number of octets, and the value of each, depend on the integer value
-// assigned to the character in ISO/IEC 10646 (the character number,
-// a.k.a. code position, code point or Unicode scalar value).  This
-// encoding form has the following characteristics (all values are in
-// hexadecimal):
+// UTF-8 encodes UCS characters as a varying number of octets, where the number
+// of octets, and the value of each, depend on the integer value assigned to
+// the character in ISO/IEC 10646 (the character number, a.k.a. code position,
+// code point or Unicode scalar value).  This encoding form has the following
+// characteristics (all values are in hexadecimal):
 //
 // o  Character numbers from U+0000 to U+007F (US-ASCII repertoire)
 //    correspond to octets 00 to 7F (7 bit US-ASCII values).  A direct
@@ -68,30 +67,28 @@ BSLS_IDENT_RCSID(bdlde_charconvertutf32_cpp,"$Id$ $CSID$")
 // UTF-8 was devised in September 1992 by Ken Thompson, guided by design
 // criteria specified by Rob Pike, with the objective of defining a UCS
 // transformation format usable in the Plan9 operating system in a non-
-// disruptive manner.  Thompson's design was stewarded through
-// standardization by the X/Open Joint Internationalization Group XOJIG
-// (see [FSS_UTF]), bearing the names FSS-UTF (variant FSS/UTF), UTF-2
-// and finally UTF-8 along the way.
+// disruptive manner.  Thompson's design was stewarded through standardization
+// by the X/Open Joint Internationalization Group XOJIG (see [FSS_UTF]),
+// bearing the names FSS-UTF (variant FSS/UTF), UTF-2 and finally UTF-8 along
+// the way.
 //
 // ...
 //
 // UTF-8 is defined by the Unicode Standard [UNICODE].  Descriptions and
 // formulae can also be found in Annex D of ISO/IEC 10646-1 [ISO.10646]
 //
-// In UTF-8, characters from the U+0000..U+10FFFF range (the UTF-16
-// accessible range) are encoded using sequences of 1 to 4 octets.  The
-// only octet of a "sequence" of one has the higher-order bit set to 0,
-// the remaining 7 bits being used to encode the character number.  In a
-// sequence of n octets, n>1, the initial octet has the n higher-order
-// bits set to 1, followed by a bit set to 0.  The remaining bit(s) of
-// that octet contain bits from the number of the character to be
-// encoded.  The following octet(s) all have the higher-order bit set to
-// 1 and the following bit set to 0, leaving 6 bits in each to contain
-// bits from the character to be encoded.
+// In UTF-8, characters from the U+0000..U+10FFFF range (the UTF-16 accessible
+// range) are encoded using sequences of 1 to 4 octets.  The only octet of a
+// "sequence" of one has the higher-order bit set to 0, the remaining 7 bits
+// being used to encode the character number.  In a sequence of n octets, n>1,
+// the initial octet has the n higher-order bits set to 1, followed by a bit
+// set to 0.  The remaining bit(s) of that octet contain bits from the number
+// of the character to be encoded.  The following octet(s) all have the
+// higher-order bit set to 1 and the following bit set to 0, leaving 6 bits in
+// each to contain bits from the character to be encoded.
 //
-// The table below summarizes the format of these different octet types.
-// The letter x indicates bits available for encoding bits of the
-// character number.
+// The table below summarizes the format of these different octet types.  The
+// letter x indicates bits available for encoding bits of the character number.
 //
 // Char number range   |        UTF-8 octet sequence
 //    (hexadecimal)    |              (binary)
@@ -104,7 +101,7 @@ BSLS_IDENT_RCSID(bdlde_charconvertutf32_cpp,"$Id$ $CSID$")
 
 // UTF-32 encoding is straightforward -- one 'unsigned int' *word* of UTF-32
 // corresponds to one *character* of Unicode.  Values must be in the range
-// '[ 0 .. 0xd7ff ]' or in the range '[ 0xe000 .. 0x10ffff ]'.
+// '[0 .. 0xd7ff]' or in the range '[ 0xe000 .. 0x10ffff ]'.
 
 namespace {
 
@@ -121,9 +118,9 @@ BSLMF_ASSERT(sizeof(char) == sizeof(OctetType));
 
 enum {
     // The return values of all the public functions defined by this component
-    // return a bit-wise Or of these two flags.  When the output is to
-    // a container rather than a fixed-length buffer, the 'k_OUT_OF_SPACE_BIT'
-    // is never set.
+    // return a bit-wise Or of these two flags.  When the output is to a
+    // container rather than a fixed-length buffer, the 'k_OUT_OF_SPACE_BIT' is
+    // never set.
 
     k_INVALID_CHARS_BIT =
                     BloombergLP::bdlde::CharConvertStatus::k_INVALID_CHARS_BIT,
@@ -371,11 +368,10 @@ class Utf8PtrBasedEnd {
         // to 'd_end'.  The behavior is undefined unless 'octets <= d_end'.
 
     bool verifyContinuations(const OctetType *octets, int n) const;
-        // Return 'true' if there are at least the specified 'n'
-        // continuation bytes beginning at the specified 'octets' and prior
-        // to 'd_end', and 'false' otherwise.  The behavior is undefined if
-        // 'octets' is past the end.  The behavior is undefined unless
-        // 'octets <= d_end'.
+        // Return 'true' if there are at least the specified 'n' continuation
+        // bytes beginning at the specified 'octets' and prior to 'd_end', and
+        // 'false' otherwise.  The behavior is undefined if 'octets' is past
+        // the end.  The behavior is undefined unless 'octets <= d_end'.
 };
 
                             // ---------------------------
@@ -462,9 +458,9 @@ struct Utf8ZeroBasedEnd {
         // unless 'octets' is before or at the end of input.
 
     bool verifyContinuations(const OctetType *octets, int n) const;
-        // Return 'true' if there are at least the specified 'n'
-        // continuation bytes beginning at the specified 'octets' and
-        // 'false' otherwise.  The behavior is undefined unless 'n >= 1'.
+        // Return 'true' if there are at least the specified 'n' continuation
+        // bytes beginning at the specified 'octets' and 'false' otherwise.
+        // The behavior is undefined unless 'n >= 1'.
 };
 
                           // -----------------------------
@@ -483,10 +479,9 @@ const OctetType *Utf8ZeroBasedEnd::skipContinuations(
                                                  const OctetType *octets,
                                                  int              skipBy) const
 {
-    // This function is not called in the critical path.  It is called
-    // when it is known that there are not as many continuation octets
-    // after 'octets' as were expected.  Note that if '0 == *octets' the
-    // loop will stop.
+    // This function is not called in the critical path.  It is called when it
+    // is known that there are not as many continuation octets after 'octets'
+    // as were expected.  Note that if '0 == *octets' the loop will stop.
 
     const OctetType *end = octets + skipBy;
 
@@ -1344,20 +1339,19 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::translate(
 }  // close unnamed namespace
 
 namespace BloombergLP {
-
 namespace bdlde {
-                        // -----------------------------
-                        // struct CharConvertUtf32
-                        // -----------------------------
 
-                                // UTF8 to UTF32
+                            // -----------------------
+                            // struct CharConvertUtf32
+                            // -----------------------
+
+                                  // UTF8 to UTF32
 
 // CLASS METHODS
-int CharConvertUtf32::utf8ToUtf32(
-                                     bsl::vector<unsigned int> *dstVector,
-                                     const char                *srcString,
-                                     unsigned int               errorCharacter,
-                                     ByteOrder::Enum      byteOrder)
+int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
+                                  const char                *srcString,
+                                  unsigned int               errorCharacter,
+                                  ByteOrder::Enum            byteOrder)
 {
     BSLS_ASSERT(dstVector);
     BSLS_ASSERT(srcString);
@@ -1429,11 +1423,10 @@ int CharConvertUtf32::utf8ToUtf32(
     return ret;
 }
 
-int CharConvertUtf32::utf8ToUtf32(
-                                     bsl::vector<unsigned int> *dstVector,
-                                     const bslstl::StringRef&   srcString,
-                                     unsigned int               errorCharacter,
-                                     ByteOrder::Enum      byteOrder)
+int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
+                                  const bslstl::StringRef&   srcString,
+                                  unsigned int               errorCharacter,
+                                  ByteOrder::Enum            byteOrder)
 {
     BSLS_ASSERT(dstVector);
     BSLS_ASSERT(srcString.begin());
@@ -1499,11 +1492,11 @@ int CharConvertUtf32::utf8ToUtf32(
 }
 
 int CharConvertUtf32::utf8ToUtf32(unsigned int          *dstBuffer,
-                                        bsl::size_t            dstCapacity,
-                                        const char            *srcString,
-                                        bsl::size_t           *numCharsWritten,
-                                        unsigned int           errorCharacter,
-                                        ByteOrder::Enum  byteOrder)
+                                  bsl::size_t            dstCapacity,
+                                  const char            *srcString,
+                                  bsl::size_t           *numCharsWritten,
+                                  unsigned int           errorCharacter,
+                                  ByteOrder::Enum        byteOrder)
 {
     BSLS_ASSERT(dstBuffer);
     BSLS_ASSERT(srcString);
@@ -1540,13 +1533,12 @@ int CharConvertUtf32::utf8ToUtf32(unsigned int          *dstBuffer,
                                        errorCharacter);
 }
 
-int CharConvertUtf32::utf8ToUtf32(
-                                   unsigned int               *dstBuffer,
-                                   bsl::size_t                 dstCapacity,
-                                   const bslstl::StringRef&    srcString,
-                                   bsl::size_t                *numCharsWritten,
-                                   unsigned int                errorCharacter,
-                                   ByteOrder::Enum       byteOrder)
+int CharConvertUtf32::utf8ToUtf32(unsigned int               *dstBuffer,
+                                  bsl::size_t                 dstCapacity,
+                                  const bslstl::StringRef&    srcString,
+                                  bsl::size_t                *numCharsWritten,
+                                  unsigned int                errorCharacter,
+                                  ByteOrder::Enum             byteOrder)
 {
     BSLS_ASSERT(dstBuffer);
     BSLS_ASSERT(srcString.begin());
@@ -1587,11 +1579,10 @@ int CharConvertUtf32::utf8ToUtf32(
                                 // UTF32 to UTF8
 
 int CharConvertUtf32::utf32ToUtf8(bsl::string           *dstString,
-                                        const unsigned int    *srcString,
-                                        bsl::size_t           *numCharsWritten,
-                                        unsigned char          errorCharacter,
-                                        ByteOrder::Enum  byteOrder)
-
+                                  const unsigned int    *srcString,
+                                  bsl::size_t           *numCharsWritten,
+                                  unsigned char          errorCharacter,
+                                  ByteOrder::Enum        byteOrder)
 {
     BSLS_ASSERT(dstString);
     BSLS_ASSERT(srcString);
@@ -1646,11 +1637,11 @@ int CharConvertUtf32::utf32ToUtf8(bsl::string           *dstString,
     return ret;
 }
 
-int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>     *dstVector,
-                                        const unsigned int    *srcString,
-                                        bsl::size_t           *numCharsWritten,
-                                        unsigned char          errorCharacter,
-                                        ByteOrder::Enum  byteOrder)
+int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>        *dstVector,
+                                        const unsigned int *srcString,
+                                        bsl::size_t        *numCharsWritten,
+                                        unsigned char       errorCharacter,
+                                        ByteOrder::Enum     byteOrder)
 {
     BSLS_ASSERT(dstVector);
     BSLS_ASSERT(srcString);
@@ -1701,12 +1692,12 @@ int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>     *dstVector,
 }
 
 int CharConvertUtf32::utf32ToUtf8(char                  *dstBuffer,
-                                        bsl::size_t            dstCapacity,
-                                        const unsigned int    *srcString,
-                                        bsl::size_t           *numCharsWritten,
-                                        bsl::size_t           *numBytesWritten,
-                                        unsigned char          errorCharacter,
-                                        ByteOrder::Enum  byteOrder)
+                                  bsl::size_t            dstCapacity,
+                                  const unsigned int    *srcString,
+                                  bsl::size_t           *numCharsWritten,
+                                  bsl::size_t           *numBytesWritten,
+                                  unsigned char          errorCharacter,
+                                  ByteOrder::Enum        byteOrder)
 {
     BSLS_ASSERT(dstBuffer);
     BSLS_ASSERT(srcString);
@@ -1754,8 +1745,8 @@ int CharConvertUtf32::utf32ToUtf8(char                  *dstBuffer,
 
     return ret;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

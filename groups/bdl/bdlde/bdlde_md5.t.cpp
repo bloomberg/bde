@@ -16,7 +16,6 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
@@ -175,13 +174,12 @@ typedef bslx::TestOutStream Out;
 // The following snippets of code illustrate a typical use of the 'bdlde::Md5'
 // class.  Each function would typically execute in separate processes or
 // potentially on separate machines.  The 'senderExample' function below
-// demonstrates how a message sender can write a message and its MD5 digest
-// to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
+// demonstrates how a message sender can write a message and its MD5 digest to
+// a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
 // that implements the 'bslx::OutStream' protocol:
 //..
 void senderExample(Out& output)
-    // Write a message and its MD5 digest to the specified 'output'
-    // stream.
+    // Write a message and its MD5 digest to the specified 'output' stream.
 {
     // Prepare a message.
     bsl::string message = "This is a test message.";
@@ -272,7 +270,7 @@ void printHex(const char *str)
 //
 // LANGUAGE SPECIFICATION
 // ----------------------
-//
+//..
 // <SPEC>       ::= <EMPTY> | <DATA>
 //
 // <EMPTY>      ::=
@@ -297,6 +295,7 @@ void printHex(const char *str)
 // "abc~de"          Calls 'update("abc~de", 6)'.
 // "/01/02\xff"      Calls 'update("\x01\x02\xff", 3)'.
 // ----------------------------------------------------------------------------
+//..
 
 int ggg(Obj *object, const char *spec, int vF = 1)
     // Configure the specified 'object' according to the specified 'spec'
@@ -1034,8 +1033,8 @@ int main(int argc, char *argv[])
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     In in(OD, LOD);  In &testInStream = in;
@@ -1071,9 +1070,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
-                // Ensure that reading from an empty or invalid input
-                // stream leaves the stream invalid and the target object
-                // unchanged.
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
 
                 const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {

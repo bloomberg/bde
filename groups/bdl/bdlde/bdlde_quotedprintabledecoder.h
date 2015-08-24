@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide automata converting to and from Quoted-Printable encodings.
 //
 //@CLASSES:
-//  bdlde::QuotedPrintableDecoder: automata performing Quoted-Printable decoding
+//  bdlde::QuotedPrintableDecoder: automata for Quoted-Printable decoding
 //
 //@AUTHOR: Alex Fung (afung8)
 //
@@ -130,10 +130,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-
 namespace BloombergLP {
-
 namespace bdlde {
+
 class QuotedPrintableDecoder {
     // This class implements a mechanism capable of converting data of
     // arbitrary length from its corresponding Quoted-Printable representation.
@@ -150,16 +149,6 @@ class QuotedPrintableDecoder {
         e_NEED_SOFT_LF_STATE =  4, // need soft new line
         e_NEED_HARD_LF_STATE =  5, // need soft new line
         e_DONE_STATE         =  6  // any additional input is an error
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEDE_ERROR_STATE = e_ERROR_STATE
-      , BDEDE_INPUT_STATE = e_INPUT_STATE
-      , BDEDE_SAW_EQUAL_STATE = e_SAW_EQUAL_STATE
-      , BDEDE_SAW_WS_STATE = e_SAW_WS_STATE
-      , BDEDE_NEED_HEX_STATE = e_NEED_HEX_STATE
-      , BDEDE_NEED_SOFT_LF_STATE = e_NEED_SOFT_LF_STATE
-      , BDEDE_NEED_HARD_LF_STATE = e_NEED_HARD_LF_STATE
-      , BDEDE_DONE_STATE = e_DONE_STATE
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:
@@ -271,33 +260,32 @@ class QuotedPrintableDecoder {
                           // complete configuration.
 
   private:
-    // PRIVATE CREATORS -- NOT IMPLEMENTED
+    // NOT IMPLEMENTED
     QuotedPrintableDecoder(const QuotedPrintableDecoder&);
-
-    QuotedPrintableDecoder& operator=(
-                                          const QuotedPrintableDecoder&);
+    QuotedPrintableDecoder& operator=(const QuotedPrintableDecoder&);
 
   public:
     // CLASS METHODS
     static const char* lineBreakModeToAscii(LineBreakMode mode);
         // Return the ASCII string describing the specified 'mode' governing
         // the decoding of hard linebreaks ("\r\n").  The behavior is undefined
-        // unless 'mode' is either BDEDE_CRLF_MODE or BDEDE_LF_MODE.
+        // unless 'mode' is either e_CRLF_MODE or e_LF_MODE.
 
     // CREATORS
+    explicit
     QuotedPrintableDecoder(
-        bool                                        detectError,
+        bool                                  detectError,
         QuotedPrintableDecoder::LineBreakMode lineBreakMode =
-                                      QuotedPrintableDecoder::e_CRLF_MODE);
+                                          QuotedPrintableDecoder::e_CRLF_MODE);
         // Create a Quoted-Printable decoder in the initial state, set to the
         // strict or relaxed error-reporting mode according to whether the
         // specified 'detectError' flag is 'true' or 'false', respectively, and
         // also configured to the specified 'lineBreakMode'.  The behavior is
-        // undefined unless 'lineBreakMode' is either BDEDE_CRLF_MODE or
-        // BDEDE_LF_MODE.  Note that the decoder reports errors in the strict
+        // undefined unless 'lineBreakMode' is either e_CRLF_MODE or
+        // e_LF_MODE.  Note that the decoder reports errors in the strict
         // mode and output offending characters in the relaxed mode.  Hard line
-        // breaks ("\r\n") are decoded to "\r\n" in BDEDE_CRLF_MODE (default)
-        // and to '\n' in BDEDE_LF_MODE.
+        // breaks ("\r\n") are decoded to "\r\n" in e_CRLF_MODE (default)
+        // and to '\n' in e_LF_MODE.
 
     ~QuotedPrintableDecoder();
         // Destroy this object.
@@ -417,8 +405,8 @@ const char* QuotedPrintableDecoder::lineBreakModeToAscii(
 // CREATORS
 inline
 QuotedPrintableDecoder::QuotedPrintableDecoder(
-           bool                                        unrecognizedIsErrorFlag,
-           QuotedPrintableDecoder::LineBreakMode lineBreakMode)
+                 bool                                  unrecognizedIsErrorFlag,
+                 QuotedPrintableDecoder::LineBreakMode lineBreakMode)
 : d_unrecognizedIsErrorFlag(unrecognizedIsErrorFlag)
 , d_lineBreakMode(lineBreakMode)
 , d_state(e_INPUT_STATE)
@@ -435,7 +423,7 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
         }
         else {
             // First copy the map of equivalence classes for the
-            // BDEDE_CRLF_MODE to the strict error-report mode.
+            // e_CRLF_MODE to the strict error-report mode.
 
             int len = sizeof(*s_defaultEquivClassCRLF_p) * 256;
             d_equivClass_p = new char[len];
@@ -510,11 +498,9 @@ int QuotedPrintableDecoder::outputLength() const
 {
     return d_outputLength;
 }
+
 }  // close package namespace
-
 }  // close enterprise namespace
-
-
 
 #endif
 

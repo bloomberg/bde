@@ -106,9 +106,11 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -208,6 +210,7 @@ class StateAccessor {
     bdlde::QuotedPrintableEncoder *d_object_p;
 
   public:
+    explicit
     StateAccessor(bdlde::QuotedPrintableEncoder *object)
         // Construct an instance of 'StateAccessor' which sets and examine the
         // internal states of the specified 'object'.  Note that the 'object'
@@ -242,7 +245,8 @@ class StateAccessor {
         // probably will) be modified arbitrarily from its initial state in
         // order to distinguish similar states.
 
-    static int numState() {
+    static int numState()
+    {
         return NUM_STATES;
     }
 };
@@ -378,6 +382,7 @@ class EnabledGuard {
     bool d_state;
 
   public:
+    explicit
     EnabledGuard(bool flag)
         // Create a guard to control the activation of individual assertions
         // in the '::isState' test helper function using the specified
@@ -611,7 +616,7 @@ bool StateAccessor::isState(State state) const
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
 
-      }
+      } break;
       default: {
         ASSERT("Unknown State" && 0);
       } break;
@@ -720,7 +725,8 @@ class StateTransitionMatrix {
     , d_numInputTypes(numTypes)
     { }
 
-    bool Test() {
+    bool Test()
+    {
         for (int i = 0; i < d_numStates; ++i) {
             for (int j = 0; j < d_numInputTypes; ++j) {
                 const EquivalenceClass *type = d_inputTypes_p[j];
@@ -773,7 +779,11 @@ const EquivalenceClass& findEquivalenceClass(char ch)
                         // ==============
 
 template <class T>
-inline T myMin(const T& a, const T& b) { return a < b ? a : b; }
+inline
+T myMin(const T& a, const T& b)
+{
+    return a < b ? a : b;
+}
 
                         // ==============
                         // Function isHex
@@ -1028,8 +1038,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case STATE_ZERO: {
         bool a0 = 1 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1105,8 +1114,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
             && c0 && c6 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case SAW_RETURN: {
         bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1149,8 +1157,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c3 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case SAW_WHITE: {
         bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1197,8 +1204,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c3 && d0 && d1 && d2 && d3 && d8 && d9;          // RETURN
-
-      }
+      } break;
       case DONE_STATE: {
         bool a0 = 1 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 1 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1226,8 +1232,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       case ERROR_STATE: {
         bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
@@ -1255,8 +1260,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
-
-      }
+      } break;
       default: {
         ASSERT("Unknown State" && 0);
       } break;
@@ -1301,6 +1305,7 @@ class InputIterator {
 
   public:
     // CREATORS
+    explicit
     InputIterator(const char *source);
         // Create an iterator referring the specified 'source' character.
 
@@ -1346,23 +1351,28 @@ InputIterator::InputIterator(const InputIterator& original)
 {
 }
 
-InputIterator& InputIterator::operator=(const InputIterator& rhs) {
+InputIterator& InputIterator::operator=(const InputIterator& rhs)
+{
     d_pointer_p = rhs.d_pointer_p; return *this;
 }
 
-void InputIterator::operator++() {
+void InputIterator::operator++()
+{
     ++d_pointer_p;
 }
 
-char InputIterator::operator*() const {
+char InputIterator::operator*() const
+{
     return *d_pointer_p;
 }
 
-bool operator==(const InputIterator& lhs, const InputIterator& rhs) {
+bool operator==(const InputIterator& lhs, const InputIterator& rhs)
+{
     return lhs.d_pointer_p == rhs.d_pointer_p;
 }
 
-bool operator!=(const InputIterator& lhs, const InputIterator& rhs) {
+bool operator!=(const InputIterator& lhs, const InputIterator& rhs)
+{
     return !(lhs == rhs);
 }
 
@@ -1382,6 +1392,7 @@ class OutputIterator {
 
   public:
     // CREATORS
+    explicit
     OutputIterator(char *source);
         // Create an iterator referring the specified 'source' character.
 
@@ -1427,23 +1438,28 @@ OutputIterator::OutputIterator(const OutputIterator& original)
 {
 }
 
-OutputIterator& OutputIterator::operator=(const OutputIterator& rhs) {
+OutputIterator& OutputIterator::operator=(const OutputIterator& rhs)
+{
     d_pointer_p = rhs.d_pointer_p; return *this;
 }
 
-void OutputIterator::operator++() {
+void OutputIterator::operator++()
+{
     ++d_pointer_p;
 }
 
-char& OutputIterator::operator*() const {
+char& OutputIterator::operator*() const
+{
     return *d_pointer_p;
 }
 
-bool operator==(const OutputIterator& lhs, const OutputIterator& rhs) {
+bool operator==(const OutputIterator& lhs, const OutputIterator& rhs)
+{
     return lhs.d_pointer_p == rhs.d_pointer_p;
 }
 
-bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs) {
+bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs)
+{
     return !(lhs == rhs);
 }
 
