@@ -310,28 +310,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                 STANDARD BDE VARIADIC ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
-
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
@@ -526,7 +504,7 @@ int main(int argc, char *argv[])
             // Round up the number of microseconds.
             bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                  ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0);
-            bdlqq::ThreadUtil::microSleep(uS);
+            bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
         }
     }
 //..
@@ -621,7 +599,8 @@ int main(int argc, char *argv[])
                                             Ti(0,5000));
 
             // Calculate the deviation in percentage.
-            double maxNegDev = -((double)CAPACITY * 100) / DATA_SIZE;
+            double maxNegDev = -static_cast<double>(CAPACITY * 100)
+                             / static_cast<double>(DATA_SIZE);
 
             double dev = 100 *
                 (EXP_DURATION.totalSecondsAsDouble() -
@@ -916,7 +895,7 @@ int main(int argc, char *argv[])
             Ti     d_expectedUpdate;
         } DATA[] = {
 
-//  LINE RATE CAP    SUB  RSRV TCREATE   TCHECK    EXP_WAIT     EXP_U EXP_UPD_T
+//  LINE RATE CAP    SUB  RSRV CREATE    CHECK     EXP_WAIT     EXP_U EXP_UPD_T
 //  ---- ---- ----  ----- ---- -------   ------   -----------   ----- ---------
   // C-3
   { L_, 1000, 1000,    0,  0, Ti(  0),  Ti(0.5),  Ti(       0),    0, Ti(  0)},
@@ -1191,22 +1170,22 @@ int main(int argc, char *argv[])
             Uint64 d_units;
             Ti     d_resetTime;
         } DATA[] = {
-          //  LINE   CTIME    UNITS     TRESET
-          //  ----  ------- ----------- ------
-            {  L_,  Ti( 0),          0, Ti( 0) },
-            {  L_,  Ti( 0),       1000, Ti( 0) },
-            {  L_,  Ti( 0),       2000, Ti( 0) },
-            {  L_,  Ti(50),          0, Ti(60) },
-            {  L_,  Ti(50),       1000, Ti(60) },
-            {  L_,  Ti(50),          0, Ti( 0) },
-            {  L_,  Ti(50),       1000, Ti( 0) },
+          //  LINE  CREATION TIME    UNITS    RESET TIME
+          //  ----  -------------  ---------  ----------
+            {  L_,         Ti( 0),         0,     Ti( 0) },
+            {  L_,         Ti( 0),      1000,     Ti( 0) },
+            {  L_,         Ti( 0),      2000,     Ti( 0) },
+            {  L_,         Ti(50),         0,     Ti(60) },
+            {  L_,         Ti(50),      1000,     Ti(60) },
+            {  L_,         Ti(50),         0,     Ti( 0) },
+            {  L_,         Ti(50),      1000,     Ti( 0) },
 
-            {  L_,  Ti( 0),  LLONG_MAX, Ti( 0) },
-            {  L_,  MAX_TI,       1000, Ti( 0) },
-            {  L_,  Ti( 0),       1000, MAX_TI },
-            {  L_,  MIN_TI,       1000, Ti( 0) },
-            {  L_,  Ti( 0),       1000, MIN_TI },
-            {  L_,  MIN_TI,       1000, MAX_TI },
+            {  L_,         Ti( 0), LLONG_MAX,     Ti( 0) },
+            {  L_,         MAX_TI,      1000,     Ti( 0) },
+            {  L_,         Ti( 0),      1000,     MAX_TI },
+            {  L_,         MIN_TI,      1000,     Ti( 0) },
+            {  L_,         Ti( 0),      1000,     MIN_TI },
+            {  L_,         MIN_TI,      1000,     MAX_TI },
         };
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
@@ -1743,8 +1722,8 @@ int main(int argc, char *argv[])
                 Uint64 d_expectedFinalUnits;
             } DATA[] = {
 
-       //  LINE RATE1 CAPACITY   SUBMIT RSRV TCREATE  CHECK_INT  NSUBMT   EXP_U
-       //  ---- ----- --------   ------ ---- -------  ---------- ------  ------
+       //  LINE RATE1 CAPACITY   SUBMIT RSRV TCREATE  CHECK_INT  # SUBMIT EXP_U
+       //  ---- ----- --------   ------ ---- -------  ---------- -------- -----
           {L_, 1000,    500,      100,  50, Ti(0),   Ti(   0),     5,     500},
           {L_, 1000,   1000,      300, 150, Ti(0),   Ti( 0.1),     5,    1000},
           {L_,   10,     10,        1,   0, Ti(10),  Ti(0.01),     11,     10}
@@ -1883,7 +1862,7 @@ int main(int argc, char *argv[])
                 Ti     d_expectedUpdate;
             } DATA[] = {
 
-// LINE RATE  CAP   SUBMIT RSRV TCREATE  TCHECK   CHK_RES EXP_U EXP_UPD
+// LINE RATE  CAP   SUBMIT RSRV CREATE   CHECK    CHK_RES EXP_U EXP_UPD
 // ---- ----- ----- ------ ---- -------  ------   ------- ----- -------
    {L_, 1000, 1000,    0,   0,  Ti(0),   Ti(  0),  false,    0, Ti(  0)},
    {L_, 1000, 1000, 1000, 500,  Ti(0),   Ti(  0),   true, 1000, Ti(  0)},
@@ -2043,8 +2022,8 @@ int main(int argc, char *argv[])
                 int    d_NumOfDrains;
                 Uint64 d_expectedUnits;
             } DATA[] = {
-      // LINE  RATE     SUB      RSRV  TCREATE  DRAIN_INT   NDRAIN EXP_UNITS
-      // ----  -------- -------  ----  -------  ----------  ------ ---------
+      // LINE  RATE     SUB      RSRV  TCREATE  DRAIN_INT    DRAIN EXP_UNITS
+      // ----  -------- -------  ----  -------  ----------   ----- ---------
         {L_,     1000,      1000,    0,  Ti( 0),  Ti(  0.01),   10,    900},
         {L_,     1000,      1500,    0,  Ti( 0),  Ti(   0.5),    5,      0},
         {L_,       10,        10,    0,  Ti(10),  Ti(  0.16),    1,      9},
@@ -2370,8 +2349,8 @@ int main(int argc, char *argv[])
             unsigned d_numOfSubmits;
             Uint64   d_expectedUnits;
         } DATA[] = {
-            // LINE     UNITS    NSUBMITS    EXPECTED_UNITS
-            // ----  ----------  --------  --------------------
+            // LINE     UNITS    SUBMITS    EXPECTED_UNITS
+            // ----  ----------  -------  --------------------
               {L_,       1000,     1,                   1000},
               {L_,        250,     4,                   1000},
               {L_,          1,     4,                      4},

@@ -76,7 +76,7 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ 3] All accessor methods are declared 'const'.
 // [ *] All creator/manipulator ptr./ref. parameters are 'const'.
 // ============================================================================
@@ -217,13 +217,11 @@ int main(int argc, char *argv[])
 {
     int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
-    //bool     veryVerbose = argc > 3;
-    //bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -450,15 +448,15 @@ int main(int argc, char *argv[])
             Uint64 d_units;
             Ti     d_resetTime;
         } DATA[] = {
-            //LINE  CTIME   UNITS TRESET
-            //----  ------- ----- ------
-            {  L_,  Ti( 0),    0, Ti( 0) },
-            {  L_,  Ti( 0), 1000, Ti( 0) },
-            {  L_,  Ti( 0), 2000, Ti( 0) },
-            {  L_,  Ti(50),    0, Ti(60) },
-            {  L_,  Ti(50), 1000, Ti(60) },
-            {  L_,  Ti(50),    0, Ti( 0) },
-            {  L_,  Ti(50), 1000, Ti( 0) }
+            //LINE  CREATION TIME  UNITS  RESET TIME
+            //----  -------------  -----  ----------
+            {  L_,         Ti( 0),     0,     Ti( 0) },
+            {  L_,         Ti( 0),  1000,     Ti( 0) },
+            {  L_,         Ti( 0),  2000,     Ti( 0) },
+            {  L_,         Ti(50),     0,     Ti(60) },
+            {  L_,         Ti(50),  1000,     Ti(60) },
+            {  L_,         Ti(50),     0,     Ti( 0) },
+            {  L_,         Ti(50),  1000,     Ti( 0) }
         };
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
@@ -1133,12 +1131,12 @@ int main(int argc, char *argv[])
             Ti     d_submitInterval;
         } DATA[] = {
 
- //  LINE S_RATE   S_WND  P_RATE   P_WND    TCREATE  NSUBMITS UNITS  INTERVAL
- //  ---- ------- ------- ------- --------- -------- -------- ------ --------
-     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   500,     10,  Ti( 0.1)},
-     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   50,     100,  Ti( 0.1)},
-     {L_,   100,   Ti(10),  1000,  Ti(0.5),   Ti(0),   10,     100,  Ti(   1)},
-     {L_,   100,   Ti(10),  1000,  Ti(0.1),   Ti(0),   10,     100,  Ti(0.01)}
+ //  LINE S_RATE   S_WND  P_RATE   P_WND    TCREATE  SUBMITS UNITS  INTERVAL
+ //  ---- ------- ------- ------- --------- -------- ------- ------ --------
+     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   500,    10,  Ti( 0.1)},
+     {L_,   100,   Ti(10),  1000,  Ti(  1),   Ti(0),   50,    100,  Ti( 0.1)},
+     {L_,   100,   Ti(10),  1000,  Ti(0.5),   Ti(0),   10,    100,  Ti(   1)},
+     {L_,   100,   Ti(10),  1000,  Ti(0.1),   Ti(0),   10,    100,  Ti(0.01)}
 
         };
 

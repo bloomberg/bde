@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // which the resource is drained.  The capacity, measured in 'units', is the
 // maximum amount of the resource that the leaky bucket can hold before it
 // overflows.  'unit' is a generic unit of measurement (e.g., bytes, number of
-// messages, packets, liters, clock cycles, etc.). Note that the drain rate
+// messages, packets, liters, clock cycles).  Note that the drain rate
 // determines average rate of resource consumption, while the capacity
 // restricts the time period over which the average actual rate of resource
 // consumption approaches the drain rate.
@@ -309,7 +309,7 @@ BSLS_IDENT("$Id: $")
 //          // Round up the number of microseconds.
 //          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                               ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0);
-//          bdlqq::ThreadUtil::microSleep(uS);
+//          bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
 //      }
 //  }
 //..

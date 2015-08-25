@@ -24,12 +24,12 @@ namespace {
 
 template <class IOVEC>
 void genericAppendToBlob(btlb::Blob  *blob,
-                         const IOVEC *vecs,
-                         int          numVecs,
+                         const IOVEC *vectors,
+                         int          numVectors,
                          int          offset)
 {
     BSLS_ASSERT(0 <= offset);
-    BSLS_ASSERT(0 <  numVecs);
+    BSLS_ASSERT(0 <  numVectors);
 
     // Set up loop invariant stated below.  Note that if blobLength is 0, or if
     // last data buffer is complete, the call 'blob->setLength(...)' below will
@@ -47,17 +47,17 @@ void genericAppendToBlob(btlb::Blob  *blob,
         currentBufOffset = 0;
     }
 
-    // Skip to 'offset' in 'vecs'.
+    // Skip to 'offset' in 'vectors'.
 
     int currentVecIndex = 0;
-    int currentVecAvailable = vecs[currentVecIndex].length();
+    int currentVecAvailable = vectors[currentVecIndex].length();
     BSLS_ASSERT(0 < currentVecAvailable);
 
     int prefixLength = 0;
     while (prefixLength + currentVecAvailable <= offset) {
         prefixLength += currentVecAvailable;
         ++currentVecIndex;
-        currentVecAvailable = vecs[currentVecIndex].length();
+        currentVecAvailable = vectors[currentVecIndex].length();
         BSLS_ASSERT(0 < currentVecAvailable);
     }
     int currentVecOffset = offset - prefixLength;
@@ -70,12 +70,12 @@ void genericAppendToBlob(btlb::Blob  *blob,
     // reset it and use it for that computation.
 
     prefixLength = currentVecAvailable;
-    for (int i = currentVecIndex+1; i < numVecs; ++i) {
-        prefixLength += vecs[i].length();
+    for (int i = currentVecIndex+1; i < numVectors; ++i) {
+        prefixLength += vectors[i].length();
     }
     blob->setLength(blob->length() + prefixLength);
 
-    // Compute number of bytes available to read or write in current vec or
+    // Compute number of bytes available to read or write in current vector or
     // buffer.  This must be done *after* setting the blob length.
 
     int currentBufAvailable = blob->buffer(currentBufIndex).size();
@@ -87,8 +87,8 @@ void genericAppendToBlob(btlb::Blob  *blob,
 
     while (1) {
         // Invariants:
-        //: 1.  0 <= currentVec < numVecs
-        //: 2.  0 <= currentVecOffset < vecs[currentVec].length()
+        //: 1.  0 <= currentVec < numVectors
+        //: 2.  0 <= currentVecOffset < vectors[currentVec].length()
         //: 3.  0 <  currentVecAvailable
         //: 4.  0 <= currentBuf < blobs.numDataBuffers()
         //: 5.  0 <= currentBufOffset < blob->buffer(currentBuf).size()
@@ -98,8 +98,9 @@ void genericAppendToBlob(btlb::Blob  *blob,
                                       currentBufAvailable);
 
         bsl::memcpy(blob->buffer(currentBufIndex).data() + currentBufOffset,
-                    static_cast<const char *>(vecs[currentVecIndex].buffer())
-                             + currentVecOffset,
+                    static_cast<const char *>(
+                                             vectors[currentVecIndex].buffer())
+                                                            + currentVecOffset,
                     numBytesCopied);
 
         currentBufOffset += numBytesCopied;
@@ -107,10 +108,10 @@ void genericAppendToBlob(btlb::Blob  *blob,
 
         if (currentVecAvailable == numBytesCopied) {
             currentVecOffset = 0;
-            if (++currentVecIndex == numVecs) {
+            if (++currentVecIndex == numVectors) {
                 return;                                               // RETURN
             }
-            currentVecAvailable = vecs[currentVecIndex].length();
+            currentVecAvailable = vectors[currentVecIndex].length();
         } else {
             currentVecAvailable -= numBytesCopied;
         }
@@ -175,13 +176,13 @@ int genericLength(const IOVEC *buffers, int numBuffers)
 }
 
 template <class IOVEC>
-void genericPivot(int         *bufferIdx,
+void genericPivot(int         *bufferIndex,
                   int         *offset,
                   const IOVEC *buffers,
                   int          numBuffers,
                   int          position)
 {
-    BSLS_ASSERT(bufferIdx);
+    BSLS_ASSERT(bufferIndex);
     BSLS_ASSERT(offset);
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 <= numBuffers);
@@ -189,14 +190,14 @@ void genericPivot(int         *bufferIdx,
 
     for (int i = 0; i < numBuffers; ++i) {
         if (position < buffers[i].length()) {
-            *bufferIdx = i;
+            *bufferIndex = i;
             *offset    = position;
             return;                                                   // RETURN
         }
         position -= buffers[i].length();
     }
 
-    *bufferIdx = numBuffers;
+    *bufferIndex = numBuffers;
     return;
 }
 

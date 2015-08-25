@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                             buffer[k] == (blob->buffer(k / m)).data()[k % m]);
                     }
 
-                    // Verify vecs contents after offset have been appended.
+                    // Verify vectors contents after offset have been appended.
                     for (int k = offset, l = j; k < dataSize; ++k, ++l) {
                         LOOP5_ASSERT(m, i, j, offset, k,
                              buffer[k] == (blob->buffer(l / m)).data()[l % m]);
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
                             buffer[k] == (blob->buffer(k / m)).data()[k % m]);
                     }
 
-                    // Verify vecs contents after offset have been appended.
+                    // Verify vectors contents after offset have been appended.
                     for (int k = offset, l = j; k < dataSize; ++k, ++l) {
                         LOOP5_ASSERT(m, i, j, offset, k,
                              buffer[k] == (blob->buffer(l / m)).data()[l % m]);

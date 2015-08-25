@@ -103,6 +103,7 @@ static int TestWSASend(SOCKET                             s,
 // UNIX like systems - writev scatter/gather write function
 ssize_t writev(int fildes, const struct iovec *iov, int iovcnt)
 {
+    (void)fildes;
     if (globalVerbose) P(iovcnt);
     int i;
     for (i = 0; i < iovcnt; ++i) {
@@ -140,8 +141,9 @@ int main(int argc, char *argv[]) {
         // have identical internal structure.
         //
         // Testing:
-        // btls::Iovec::Iovec(const Iovec&) btls::Ovec::Ovec(const Ovec&)
-        // btls::Ovec::Ovec(const Iovec&)
+        //   btls::Iovec::Iovec(const Iovec&)
+        //   btls::Ovec::Ovec(const Ovec&)
+        //   btls::Ovec::Ovec(const Iovec&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING COPY CONTRUCTOR" <<
