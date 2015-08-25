@@ -11,6 +11,8 @@
 
 using namespace BloombergLP;
 
+static bool verbose = false;
+static bool veryVerbose = false;
 
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO

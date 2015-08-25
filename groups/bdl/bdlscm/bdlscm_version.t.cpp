@@ -9,20 +9,21 @@
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 
-#include <bdls_testutil.h>
-
 using namespace BloombergLP;
 using namespace bsl;
 
 //=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
+//                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
+static bool verbose = false;
+static bool veryVerbose = false;
 
-static void aSsErT(bool b, const char *s, int i)
-{
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+static void aSsErT(int c, const char *s, int i) {
+    if (c) {
+        bsl::fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }

@@ -144,7 +144,6 @@ int main(int argc, char *argv[])
 
     balm::MetricSample sample(allocator);
 //
-    sample.setElapsedTime(bsls::TimeInterval(5));
     sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
     sample.appendGroup(records.data(), records.size(),
                        bsls::TimeInterval(5, 0));

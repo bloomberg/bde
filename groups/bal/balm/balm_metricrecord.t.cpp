@@ -175,38 +175,6 @@ typedef balm::MetricDescription Desc;
         }
 
         // ...
-//..
-// We can create an instance of this 'RequestProcessor' class and use it to
-// process a couple of requests:
-//..
-    RequestProcessor requestProcessor;
-  
-    requestProcessor.processRequest("123");
-    requestProcessor.processRequest("12345");
-//..
-// Now we create a 'balm::MetricRecord' to hold the aggregated metrics values.
-// Note that we create a 'balm::MetricId' object by hand, but in practice
-// an id should be obtained from a 'balm::MetricRegistry' object (such as the
-// one owned by a 'balm::MetricsManager').
-//..
-    balm::Category           myCategory("MyCategory");
-    balm::MetricDescription  description(&myCategory, "RequestSize");
-    balm::MetricId           requestSizeId(&description);
-  
-    // In practice, get 'requestSizeId' from a 'balm::MetricRegistry' object.
-    balm::MetricRecord requestSize(requestSizeId);
-//..
-// Finally we retrieve the information about the request sizes of the
-// requests processed by 'requestProcessor'.  Note that the count of requests
-// should be 2, the total size of the requests should be 8 (3 + 5), the
-// minimum size should be 3, and the maximum size should be 5.
-//..
-    requestProcessor.loadRequestSizeInformation(&requestSize);
-        assert(2 == requestSize.count());
-        assert(8 == requestSize.total());
-        assert(3 == requestSize.min());
-        assert(5 == requestSize.max());
-//..
     };
 
 //=============================================================================
