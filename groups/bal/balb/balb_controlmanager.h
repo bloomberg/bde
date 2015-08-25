@@ -104,7 +104,7 @@ namespace BloombergLP {
 
 
 namespace balb {
-    
+
 class ControlManager_Entry;
 
                             // ====================

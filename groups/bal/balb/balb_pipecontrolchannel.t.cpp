@@ -161,6 +161,10 @@ class ControlServer {
         }
     }
 
+    // UNIMPLEMENTED
+    ControlServer(const ControlServer&);             // = deleted
+    ControlServer& operator=(const ControlServer&);  // = deleted
+
   public:
     // CREATORS
     explicit ControlServer(bslma::Allocator *basicAllocator = 0)

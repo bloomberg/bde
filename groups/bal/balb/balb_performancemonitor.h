@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 #endif
 
-#ifndef INCLUDED_BDLS_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -413,8 +413,8 @@ typedef bsls::Platform::OsHpUx OsType;
             // Print the specified 'measure' to the specified 'os' stream.
 
         void print(bsl::ostream& os, const char *measureIdentifier) const;
-            // Print the specified 'measureDescription' to the specified 'os'
-            // stream.  The value of measureIdentifier should be a string
+            // Print the specified 'measureIdentifier' to the specified 'os'
+            // stream.  The value of 'measureIdentifier' should be a string
             // literal corresponding to the desired measure enumerator, e.g.,
             // 'e_CPU_TIME'.
     };
@@ -534,8 +534,8 @@ typedef bsls::Platform::OsHpUx OsType;
         // Register the specified process 'pid' having the specified
         // user-defined 'description' with this performance monitor.  After
         // registration, performance statistics will be collected for the
-        // 'pid' upon invocation of the 'collect' function.  Note that a pid
-        // value of zero is interpreted as the pid of the current process.
+        // 'pid' upon invocation of the 'collect' function.  Note that a 'pid'
+        // value of zero is interpreted as the 'pid' of the current process.
         // Return 0 on success or a non-zero value otherwise.
 
     int unregisterPid(int pid);
