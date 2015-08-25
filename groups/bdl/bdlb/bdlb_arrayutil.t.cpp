@@ -1,6 +1,7 @@
 // bdlb_arrayutil.t.cpp                                               -*-C++-*-
 
 #include <bdlb_arrayutil.h>
+#include <bdls_testutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
@@ -11,20 +12,20 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST - covering the small functionality there is
-// [ 2] BEHAVIOR TEST - verify the methods yield the expected results
-// [ 3] USAGE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] BEHAVIOR TEST
+// [ 3] USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -36,57 +37,30 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
 //                       GLOBAL TYPEDEFS/CONSTANTS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 struct UserDefined
 {
 };
 
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 namespace BDLB_ARRAYUTIL_USAGE_EXAMPLE {
 
 void usePrimes(bool verbose);
@@ -262,9 +236,9 @@ void getAndCheckData(bool verbose);
 //..
 }  // close namespace BDLB_ARRAYUTIL_USAGE_EXAMPLE
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -292,8 +266,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" << "USAGE" << "\n"
-                                  << "=====" << "\n";
+        if (verbose) cout << "\n" "USAGE EXAMPLE" "\n"
+                                  "=============" "\n";
 
         BDLB_ARRAYUTIL_USAGE_EXAMPLE::usePrimes(verbose);
         BDLB_ARRAYUTIL_USAGE_EXAMPLE::getAndCheckData(verbose);
@@ -316,6 +290,7 @@ int main(int argc, char *argv[])
         //: 4 Use different array sizes for the various types.
         //
         // Testing:
+        //   BEHAVIOR TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" << "BEHAVIOR TEST" << "\n"
@@ -409,6 +384,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 1: {
+        // --------------------------------------------------------------------
         // BREATHING TEST
         //   Verify all function templates are callable.
         //
