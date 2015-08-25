@@ -41,16 +41,20 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 
 namespace {
 
-const char LOG_CATEGORY[] = "BAEA.PIPECONTROLCHANNEL";
+const char LOG_CATEGORY[] = "BALB.PIPECONTROLCHANNEL";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 bsl::string describeWin32Error(DWORD lastError)
 {
     enum {ERROR_BUFFER_SIZE=128};
     char errorBuffer[ERROR_BUFFER_SIZE];
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0,
-        lastError, LANG_SYSTEM_DEFAULT,
-        errorBuffer, ERROR_BUFFER_SIZE, 0);
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+                  0,
+                  lastError,
+                  LANG_SYSTEM_DEFAULT,
+                  errorBuffer,
+                  ERROR_BUFFER_SIZE,
+                  0);
     errorBuffer[bsl::strlen(errorBuffer) - 1] = 0;
     return bsl::string(errorBuffer);
 }
@@ -93,9 +97,7 @@ int PipeControlChannel::readNamedPipe()
                        << BALL_LOG_END;
 
         DWORD lastError = GetLastError();
-        if (lastError != ERROR_PIPE_CONNECTED
-         && lastError != ERROR_NO_DATA)
-        {
+        if (lastError != ERROR_PIPE_CONNECTED && lastError != ERROR_NO_DATA) {
             BALL_LOG_TRACE << "Failed to connect to named pipe '" << d_pipeName
                            << "'"
                            << BALL_LOG_END;
@@ -109,7 +111,9 @@ int PipeControlChannel::readNamedPipe()
 
         if (ReadFile(d_impl.d_windows.d_handle,
                      buffer,
-                     MAX_PIPE_BUFFER_LEN, &bytesRead, NULL))
+                     MAX_PIPE_BUFFER_LEN,
+                     &bytesRead,
+                     NULL))
         {
            if (bytesRead > 0) {
                if (buffer[bytesRead - 1] == '\n') {
@@ -417,9 +421,8 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 namespace balb {
 // CREATORS
 
-PipeControlChannel::PipeControlChannel(
-        const ControlCallback&  callback,
-        bslma::Allocator       *basicAllocator)
+PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
+                                       bslma::Allocator       *basicAllocator)
 : d_callback(callback, bslma::Default::allocator(basicAllocator))
 , d_pipeName(bslma::Default::allocator(basicAllocator))
 , d_buffer(bslma::Default::allocator(basicAllocator))
@@ -487,9 +490,8 @@ int PipeControlChannel::start(const bsl::string& pipeName)
     d_isRunningFlag = d_isPipeOpen = true;
 
     int rc = bdlqq::ThreadUtil::create(
-                         &d_thread, bdlf::BindUtil::bind(
-                                &PipeControlChannel::backgroundProcessor,
-                                this));
+         &d_thread,
+         bdlf::BindUtil::bind(&PipeControlChannel::backgroundProcessor, this));
     if (rc != 0) {
         BALL_LOG_ERROR << "Cannot create processing thread, rc = " << rc
                        << BALL_LOG_END;
@@ -532,7 +534,7 @@ void PipeControlChannel::shutdown()
 }
 
 void PipeControlChannel::dispatchMessageUpTo(
-                                     const bsl::vector<char>::iterator& iter)
+                                       const bsl::vector<char>::iterator& iter)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
