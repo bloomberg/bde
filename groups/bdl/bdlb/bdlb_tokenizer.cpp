@@ -6,14 +6,14 @@ BSLS_IDENT_RCSID(bdlb_tokenizer_cpp,"$Id$ $CSID$")
 
 namespace {
 // The character inputs break down into the following types:
+// Note that end-of-line is not an input type and handled separately
 
 enum InputType {
     TOK = 0,  // token
     SFT = 1,  // soft delimiter
     HRD = 2,  // hard delimiter
-    EOS = 3   // end of string
 };
-const int NUM_INPUTS = 4;
+const int NUM_INPUTS = 3;
 
 // The following defines the set of similar actions to be performed:
 enum Action {
@@ -36,21 +36,21 @@ enum State {
 const int NUM_STATES = 4;
 
 const State nextStateTable[NUM_STATES][NUM_INPUTS] = {
-    // TOK     SFT     HRD     EOS
-    // -----   -----   -----   -----
-    {  TOKEN,  START,  HARDD,  START  },  // START
-    {  START,  SOFTD,  HARDD,  START  },  // SOFTD
-    {  START,  HARDD,  START,  START  },  // HARDD
-    {  TOKEN,  SOFTD,  HARDD,  START  },  // TOKEN
+    // TOK     SFT     HRD
+    // -----   -----   -----
+    {  TOKEN,  START,  HARDD },  // START
+    {  START,  SOFTD,  HARDD },  // SOFTD
+    {  START,  HARDD,  START },  // HARDD
+    {  TOKEN,  SOFTD,  HARDD },  // TOKEN
 };
 
 const Action actionTable[NUM_STATES][NUM_INPUTS] = {
-    // TOK     SFT     HRD     EOS
-    // ------  ------  ------  ------
-    {  ACT_AT, ACT_ER, ACT_AD, ACT_ER },  // START
-    {  ACT_RT, ACT_AD, ACT_AD, ACT_RT },  // SOFTD
-    {  ACT_RT, ACT_AD, ACT_RT, ACT_RT },  // HARDD
-    {  ACT_AT, ACT_AD, ACT_AD, ACT_RT },  // TOKEN
+    // TOK     SFT     HRD
+    // ------  ------  ------
+    {  ACT_AT, ACT_ER, ACT_AD },  // START
+    {  ACT_RT, ACT_AD, ACT_AD },  // SOFTD
+    {  ACT_RT, ACT_AD, ACT_RT },  // HARDD
+    {  ACT_AT, ACT_AD, ACT_AD },  // TOKEN
 };
 
 }  // close unnamed namespace
@@ -67,15 +67,13 @@ Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters)
 {
     bsl::memset(d_charTypes, TOK, k_MAX_CHARS);
 
-    if (!softDelimiters.isEmpty()) {
-        for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
+    for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
             it != softDelimiters.end();
             ++it) {
-            // DUPLICATION TEST
-            // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
-            // END OF DUPLICATION TEST
-            d_charTypes[(unsigned char)*it] = SFT;
-        }
+        // DUPLICATION TEST
+        // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
+        // END OF DUPLICATION TEST
+        d_charTypes[(unsigned char)*it] = SFT;
     }
 }
 
@@ -84,45 +82,23 @@ Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters,
 {
     bsl::memset(d_charTypes, TOK, k_MAX_CHARS);
 
-    if (!softDelimiters.isEmpty()) {
-        for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
+    for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
             it != softDelimiters.end();
             ++it) {
-            // DUPLICATION TEST
-            // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
-            // END OF DUPLICATION TEST
-            d_charTypes[(unsigned char)*it] = SFT;
-        }
+        // DUPLICATION TEST
+        // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
+        // END OF DUPLICATION TEST
+        d_charTypes[(unsigned char)*it] = SFT;
     }
 
-    if (!hardDelimiters.isEmpty()) {
-        for(bslstl::StringRef::const_iterator it = hardDelimiters.begin();
+    for(bslstl::StringRef::const_iterator it = hardDelimiters.begin();
             it != hardDelimiters.end();
             ++it) {
-            // DUPLICATION TEST
-            // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
-            // END OF DUPLICATION TEST
-            d_charTypes[(unsigned char)*it] = HRD;
-        }
+        // DUPLICATION TEST
+        // ASSERT(d_charTypes[(unsigned char)*it] != TOK);
+        // END OF DUPLICATION TEST
+        d_charTypes[(unsigned char)*it] = HRD;
     }
-}
-
-inline
-bool Tokenizer_Data::isSoftDelimiter(const unsigned char ch) const
-{
-    return SFT == d_charTypes[ch];
-}
-
-inline
-bool Tokenizer_Data::isHardDelimiter(const unsigned char ch) const
-{
-    return HRD == d_charTypes[ch];
-}
-
-inline
-int Tokenizer_Data::toInputType(const unsigned char ch) const
-{
-    return static_cast<int>(d_charTypes[ch]);
 }
 
                         // -----------------------
@@ -135,8 +111,8 @@ TokenizerIterator::TokenizerIterator()
 , d_token_p(0)
 , d_postDelim_p(0)
 , d_end_p(0)
-, d_tokenizerData_p(0)
 , d_isEnd(true)
+, d_tokenizerData_p(0)
 {
     // Constructor for end iterator
 }
@@ -148,28 +124,17 @@ TokenizerIterator::TokenizerIterator(const char           *input,
 , d_token_p(input)
 , d_postDelim_p(input)
 , d_end_p(end)
-, d_tokenizerData_p(tokenizerData)
 , d_isEnd(false)
+, d_tokenizerData_p(tokenizerData)
 {
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(tokenizerData);
-
-    if (d_cursor_p) {   // skip optional leader
-        while (!isEos()
-               && d_tokenizerData_p->isSoftDelimiter(
-                                                   (unsigned char)*d_cursor_p))
-        {
-            ++d_cursor_p;
-        }
-
-        if (isEos()) {
-            d_isEnd = true;     // no token found after the leader
-        } else {
-            ++*this;            // find first token
-        }
-    } else {
-        d_isEnd = true;
+    // skip optional leader
+    while (!isEos()
+          && SFT == d_tokenizerData_p->d_charTypes[(unsigned char)*d_cursor_p])
+    {
+        ++d_cursor_p;
     }
+
+    ++*this;            // find first token
 }
 
 TokenizerIterator::TokenizerIterator(const TokenizerIterator&  other)
@@ -177,21 +142,14 @@ TokenizerIterator::TokenizerIterator(const TokenizerIterator&  other)
 , d_token_p(other.d_token_p)
 , d_postDelim_p(other.d_postDelim_p)
 , d_end_p(other.d_end_p)
-, d_tokenizerData_p(other.d_tokenizerData_p)
 , d_isEnd(other.d_isEnd)
+, d_tokenizerData_p(other.d_tokenizerData_p)
 {
 }
 
 // MANIPULATORS
 TokenizerIterator& TokenizerIterator::operator++()
 {
-    BSLS_ASSERT(d_cursor_p);
-    BSLS_ASSERT(d_tokenizerData_p);
-
-    if ( d_isEnd ) {
-        return *this;                                                 // RETURN
-    }
-
     // This function does not use slow isEos() for performance reasons
     if (d_end_p) {
         d_token_p     = d_cursor_p;
@@ -203,11 +161,15 @@ TokenizerIterator& TokenizerIterator::operator++()
         }
 
         int currentState = START;
+        int inputType;
+
         do {
-            int inputType = (d_end_p == d_cursor_p)
-                            ? EOS
-                            : d_tokenizerData_p->toInputType(
-                                                   (unsigned char)*d_cursor_p);
+            if (d_end_p == d_cursor_p) {
+                return *this;                                         // RETURN
+            }
+
+            inputType = d_tokenizerData_p->d_charTypes[
+                                      static_cast<unsigned char>(*d_cursor_p)];
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
@@ -237,11 +199,15 @@ TokenizerIterator& TokenizerIterator::operator++()
         }
 
         int currentState = START;
+        int inputType;
+
         do {
-            int inputType = (0 == *d_cursor_p)
-                            ? EOS
-                            : d_tokenizerData_p->toInputType(
-                                                   (unsigned char)*d_cursor_p);
+            if (0 == *d_cursor_p) {
+                return *this;                                         // RETURN
+            }
+
+            inputType = d_tokenizerData_p->d_charTypes[
+                                      static_cast<unsigned char>(*d_cursor_p)];
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
@@ -265,26 +231,6 @@ TokenizerIterator& TokenizerIterator::operator++()
     BSLS_ASSERT(0);
 }
 
-inline
-bool TokenizerIterator::isEqual(const TokenizerIterator& other) const
-{
-    // Must be both ether at the end or not to continue; fast path decision
-    if (d_isEnd != other.d_isEnd) {
-        return false;                                                 // RETURN
-    }
-
-    // Comparing with end iterators
-    if ( d_isEnd && other.d_isEnd ) {
-           return true;                                               // RETURN
-    }
-
-
-    return (    (d_cursor_p        == other.d_cursor_p)
-             && (d_token_p         == other.d_token_p)
-             && (d_postDelim_p     == other.d_postDelim_p)
-             && (d_tokenizerData_p == other.d_tokenizerData_p)
-             && (d_end_p           == other.d_end_p) );
-}
 
                         // ---------------
                         // class Tokenizer
@@ -328,17 +274,12 @@ Tokenizer::~Tokenizer()
 
 Tokenizer& Tokenizer::operator++()
 {
-    BSLS_ASSERT(d_cursor_p);
-
-    if (d_isEnd) {
-        return *this;
-    }
-
     // This function does not use slow isEos() for performance reasons
     if (d_end_p) {
+
         d_prevDelim_p = d_postDelim_p;  // current delimiter becomes previous
-        d_postDelim_p = d_cursor_p;
         d_token_p     = d_cursor_p;
+        d_postDelim_p = d_cursor_p;
 
         if ( d_end_p == d_cursor_p ) {
             d_isEnd = true;            // invalidate tokenizer iterator
@@ -346,11 +287,15 @@ Tokenizer& Tokenizer::operator++()
         }
 
         int currentState = START;
+        int inputType;
+
         do {
-            int inputType = (d_end_p == d_cursor_p)
-                            ? EOS
-                            : d_tokenizerData.toInputType(
-                                                   (unsigned char)*d_cursor_p);
+            if (d_end_p == d_cursor_p) {
+                return *this;                                         // RETURN
+            }
+
+            inputType = d_tokenizerData.d_charTypes[
+                                      static_cast<unsigned char>(*d_cursor_p)];
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
@@ -370,10 +315,12 @@ Tokenizer& Tokenizer::operator++()
             currentState = nextStateTable[currentState][inputType];
             ++d_cursor_p;
         } while (true);
+
     } else {
+
         d_prevDelim_p = d_postDelim_p;  // current delimiter becomes previous
-        d_postDelim_p = d_cursor_p;
         d_token_p     = d_cursor_p;
+        d_postDelim_p = d_cursor_p;
 
         if ( 0 == *d_cursor_p ) {
             d_isEnd = true;       // invalidate tokenizer iterator
@@ -381,11 +328,15 @@ Tokenizer& Tokenizer::operator++()
         }
 
         int currentState = START;
+        int inputType;
+
         do {
-            int inputType = (0 == *d_cursor_p)
-                            ? EOS
-                            : d_tokenizerData.toInputType(
-                                                   (unsigned char)*d_cursor_p);
+            if (0 == *d_cursor_p) {
+                return *this;                                         // RETURN
+            }
+
+            inputType = d_tokenizerData.d_charTypes[
+                                      static_cast<unsigned char>(*d_cursor_p)];
 
             switch (actionTable[currentState][inputType]) {
               case ACT_AT: {  // accumulate token
@@ -405,6 +356,7 @@ Tokenizer& Tokenizer::operator++()
             currentState = nextStateTable[currentState][inputType];
             ++d_cursor_p;
         } while (true);
+
     }
     BSLS_ASSERT(0);
 }
@@ -420,21 +372,14 @@ void Tokenizer::resetImpl(const char  *input,
     d_end_p       = end;
     d_isEnd       = false;
 
-    if (d_cursor_p) {                // accumulate leader in previous delimiter
-        while (!isEos()
-                && d_tokenizerData.isSoftDelimiter((unsigned char)*d_cursor_p))
-        {
-            ++d_cursor_p;
-        }
-
-        if (isEos()) {
-            d_isEnd = true;
-        } else {
-            ++*this;                 // find first token
-        }
-    } else {
-        d_isEnd = true;
+    while (!isEos()
+            && SFT == d_tokenizerData.d_charTypes[
+                                      static_cast<unsigned char>(*d_cursor_p)])
+    {
+        ++d_cursor_p;
     }
+
+    ++*this;                 // find first token
 }
 
 void Tokenizer::reset(const char *input)
@@ -450,9 +395,6 @@ void Tokenizer::reset(const bslstl::StringRef& input)
 
 bool Tokenizer::hasSoft() const
 {
-    BSLS_ASSERT(d_postDelim_p);
-    BSLS_ASSERT(d_cursor_p);
-
     if (d_isEnd) {
         return false;                                                 // RETURN
     }
@@ -460,7 +402,8 @@ bool Tokenizer::hasSoft() const
     const char *p = d_postDelim_p;
 
     while (p != d_cursor_p) {
-        if (d_tokenizerData.isSoftDelimiter(static_cast<unsigned char>(*p))) {
+        if (SFT == d_tokenizerData.d_charTypes[
+                                             static_cast<unsigned char>(*p)]) {
             return true;                                              // RETURN
         }
         ++p;
@@ -470,13 +413,11 @@ bool Tokenizer::hasSoft() const
 
 bool Tokenizer::hasPreviousSoft() const
 {
-    BSLS_ASSERT(d_prevDelim_p);
-    BSLS_ASSERT(d_token_p);
-
     const char *p = d_prevDelim_p;
 
     while (p != d_token_p) {
-        if (d_tokenizerData.isSoftDelimiter(static_cast<unsigned char>(*p))) {
+        if (SFT == d_tokenizerData.d_charTypes[
+                                             static_cast<unsigned char>(*p)]) {
             return true;                                              // RETURN
         }
         ++p;
@@ -486,9 +427,6 @@ bool Tokenizer::hasPreviousSoft() const
 
 bool Tokenizer::isHard() const
 {
-    BSLS_ASSERT(d_postDelim_p);
-    BSLS_ASSERT(d_cursor_p);
-
     if (d_isEnd) {
         return false;                                                 // RETURN
     }
@@ -496,7 +434,8 @@ bool Tokenizer::isHard() const
     const char *p = d_postDelim_p;
 
     while (p != d_cursor_p) {
-        if (d_tokenizerData.isHardDelimiter(static_cast<unsigned char>(*p))) {
+        if (HRD == d_tokenizerData.d_charTypes[
+                                             static_cast<unsigned char>(*p)]) {
             return true;                                              // RETURN
         }
         ++p;
@@ -506,13 +445,11 @@ bool Tokenizer::isHard() const
 
 bool Tokenizer::isPreviousHard() const
 {
-    BSLS_ASSERT(d_prevDelim_p);
-    BSLS_ASSERT(d_token_p);
-
     const char *p = d_prevDelim_p;
 
     while (p != d_token_p) {
-        if (d_tokenizerData.isHardDelimiter(static_cast<unsigned char>(*p))) {
+        if (HRD == d_tokenizerData.d_charTypes[
+                                             static_cast<unsigned char>(*p)]) {
             return true;                                              // RETURN
         }
         ++p;
@@ -532,22 +469,6 @@ Tokenizer::iterator Tokenizer::end() const
 // MANIPULATORS
 
 }  // close package namespace
-
-
-
-// FREE OPERATORS
-bool bdlb::operator==(const TokenizerIterator& lhs,
-                      const TokenizerIterator& rhs)
-{
-    return lhs.isEqual(rhs);
-}
-
-bool bdlb::operator!=(const TokenizerIterator& lhs,
-                      const TokenizerIterator& rhs)
-{
-    return !lhs.isEqual(rhs);
-}
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

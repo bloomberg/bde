@@ -501,11 +501,13 @@ class TokenizerIterator {
     const char           *d_cursor_p;      // pointer to tail of parsed data
     const char           *d_token_p;       // pointer to current token
     const char           *d_postDelim_p;   // pointer to post delimiter
-    const char           *d_end_p;         // pointer to one-past end of input
+    const char           *d_end_p;         // pointer to the end of input
+                                           // null if working with const char *
+
+    bool                  d_isEnd;         // iterator end flag
 
     const Tokenizer_Data *d_tokenizerData_p; // pointer to the input mapper
 
-    bool                  d_isEnd;         // iterator end flag
 
     // FRIENDS
     friend class Tokenizer;
@@ -533,7 +535,7 @@ class TokenizerIterator {
 
     //FRIENDS
     friend bool operator==(const TokenizerIterator& lhs,
-                    const TokenizerIterator& rhs);
+                           const TokenizerIterator& rhs);
 
     friend bool operator!=(const TokenizerIterator& lhs,
                            const TokenizerIterator& rhs);
@@ -559,14 +561,15 @@ class Tokenizer {
     // is provided efficiently via 'bslstl::StringRef'.
 
     // DATA
-    const char     *d_input_p;       // pointer to the original input
     const char     *d_cursor_p;      // pointer to tail of parsed input
     const char     *d_prevDelim_p;   // pointer to previous delimiter
     const char     *d_token_p;       // pointer to current token
     const char     *d_postDelim_p;   // pointer to current (trailing) delimiter
     const char     *d_end_p;         // pointer to the end of the string;
                                      // null if working with const char *
-    bool           d_isEnd;          // tokenizer end flag
+    const char     *d_input_p;       // pointer to the original input
+
+    bool            d_isEnd;         // tokenizer end flag
 
     Tokenizer_Data  d_tokenizerData; // delimiter/token character categories
 
@@ -747,6 +750,26 @@ bool bdlb::TokenizerIterator::isEos() const
 }
 
 inline
+bool TokenizerIterator::isEqual(const TokenizerIterator& other) const
+{
+    // Fast path decision
+    if (d_isEnd != other.d_isEnd) {
+        return false;                                                 // RETURN
+    }
+
+    // Comparing end iterators
+    if ( d_isEnd && other.d_isEnd ) {
+           return true;                                               // RETURN
+    }
+
+    return (    (d_cursor_p        == other.d_cursor_p)
+             && (d_token_p         == other.d_token_p)
+             && (d_postDelim_p     == other.d_postDelim_p)
+             && (d_tokenizerData_p == other.d_tokenizerData_p)
+             && (d_end_p           == other.d_end_p) );
+}
+
+inline
 bslstl::StringRef TokenizerIterator::operator*() const
 {
     return bslstl::StringRef(d_token_p, d_postDelim_p);
@@ -794,6 +817,21 @@ bslstl::StringRef Tokenizer::token() const
 
 
 // FREE OPERATORS
+// FREE OPERATORS
+inline
+bool bdlb::operator==(const bdlb::TokenizerIterator& lhs,
+                      const bdlb::TokenizerIterator& rhs)
+{
+    return lhs.isEqual(rhs);
+}
+
+inline
+bool bdlb::operator!=(const bdlb::TokenizerIterator& lhs,
+                      const bdlb::TokenizerIterator& rhs)
+{
+    return !lhs.isEqual(rhs);
+}
+
 template <class T>
 inline
 bool  bdlb::operator!=(const bdlb::Tokenizer& lhs, const T& rhs)

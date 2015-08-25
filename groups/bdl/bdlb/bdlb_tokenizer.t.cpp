@@ -115,6 +115,318 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlb::Tokenizer    Obj;
 typedef bslstl::StringRef  StringRef;
 
+const char INPUT[] = {  "aaaaaaaaaaaaaaaaaaaaaaaaaaaa "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+                        "bbbbbbbbbbbbbbbbbbbbbbbbbbbb "
+};
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -280,8 +592,6 @@ int main(int argc, char **argv)
             ASSERT(t1 == t2);
             ++t1; ++t2;
             ASSERT(t1 == t2);
-            ++t1;
-            ASSERT(t1 == t2);
         }
 
 
@@ -301,53 +611,15 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\n'bdlb::TokenizerIterator' test." << endl;
         {
-            const char input[] = { "a aa aaa aaaa aaaaa aaaaaa aaaaaaa "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-            };
-
-            for (int i = 0; i < 3000000; ++i) {
-                for (Obj      it(input, StringRef(" "));
-                              it;
-                              ++it) {
-                     it.token();
+            Obj      tokenizer(INPUT, StringRef(" "));
+            for (int i = 0; i < 1000000; ++i) {
+                Obj::iterator end = tokenizer.end();
+                for (Obj::iterator it = tokenizer.begin();
+                                   it != end;
+                                   ++it) {
+                     *it;
                 }
             }
-
-#if 0
-            for (int i = 0; i < 1000000; ++i)
-                for (bdlb::StrTokenRefIter it(input, " ");
-                                   it;
-                                   ++it) {
-                     it();
-            }
-#endif
         }
       } break;
       case -2: {
@@ -362,40 +634,56 @@ int main(int argc, char **argv)
                           << "================" << endl;
 
 
+        if (verbose) cout << "\n'bdlb::Tokenizer' test." << endl;
+        {
+            for (int i = 0; i < 1000000; ++i) {
+                for (Obj it(INPUT, StringRef(" "));
+                         it;
+                         ++it) {
+                     it.token();
+                }
+            }
+        }
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE TEST
+        // Testing:
+        //   PERFORMANCE TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PERFORMANCE TEST" << endl
+                          << "================" << endl;
+
+
+        if (verbose) cout << "\n'bdlb::Tokenizer' test." << endl;
+        {
+            for (int i = 0; i < 1000000; ++i) {
+                for (Obj it(StringRef(INPUT), StringRef(" "));
+                         it;
+                         ++it) {
+                     it.token();
+                }
+            }
+        }
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE TEST
+        // Testing:
+        //   PERFORMANCE TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PERFORMANCE TEST" << endl
+                          << "================" << endl;
+
+
         if (verbose) cout << "\n'bdlb::StrTokenRefIter' test." << endl;
         {
-            const char input[] = { "a aa aaa aaaa aaaaa aaaaaa aaaaaaa "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-                                   "b bb bbb bbbb bbbbb bbbbbb bbbbbbb "
-                                   "c cc ccc cccc ccccc cccccc ccccccc "
-                                   "d dd ddd dddd ddddd dddddd ddddddd "
-                                   "e ee eee eeee eeeee eeeeee eeeeeee "
-                                   "f ff fff ffff fffff ffffff fffffff "
-                                   "g gg ggg gggg ggggg gggggg ggggggg "
-                                   "h hh hhh hhhh hhhhh hhhhhh hhhhhhh "
-            };
-            for (int i = 0; i < 3000000; ++i) {
-                for (bdlb::StrTokenRefIter it(input, " ");
+            for (int i = 0; i < 1000000; ++i) {
+                for (bdlb::StrTokenRefIter it(StringRef(INPUT), " ");
                                    it;
                                    ++it) {
                      it();
