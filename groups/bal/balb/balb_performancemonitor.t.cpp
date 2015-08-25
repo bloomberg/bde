@@ -151,6 +151,10 @@ class MmapAllocator : public bslma::Allocator {
     MapType           d_map;
     bslma::Allocator *d_allocator_p;
 
+    // UNIMPLEMENTED
+    MmapAllocator(const MmapAllocator &);             // = deleted
+    MmapAllocator& operator=(const MmapAllocator &);  // = deleted
+
   public:
     MmapAllocator(bslma::Allocator *basicAllocator = 0)
     : d_map(basicAllocator)

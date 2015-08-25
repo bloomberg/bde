@@ -4,31 +4,36 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 
+#include <ball_log.h>
+
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
-#include <bslma_allocator.h>
-#include <bsls_assert.h>
-#include <bsls_platform.h>
-#include <bsls_types.h>
-#include <bdlt_datetime.h>
-#include <bsls_timeinterval.h>
-#include <bdlt_epochutil.h>
-#include <bdlt_currenttime.h>
 
 #include <bdlqq_writelockguard.h>
 
-#include <ball_log.h>
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
+#include <bdlt_epochutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
 #include <bsl_fstream.h>
-#include <bsl_iterator.h>
-#include <bsl_iostream.h>
 #include <bsl_iomanip.h>
+#include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
+#include <bsl_utility.h>
 #include <bsl_vector.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
+#include <bsls_assert.h>
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <unistd.h>
@@ -227,9 +232,13 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     };
 
     int readProcStat(ProcStatistics *stats, int pid);
-        // Load into the specified 'stats' result the fields present in the
-        // '/proc/<pid>/stat' virtual file for the specified 'pid'.  Return 0
-        // on success or a non-zero value otherwise.
+        // Load into the specified 'stats' result the fields present for the
+        // specified 'pid' in the '/proc/<pid>/stat' virtual file.  Return 0 on
+        // success or a non-zero value otherwise.
+
+    // UNIMPLEMENTED
+    Collector(const Collector &);             // = deleted
+    Collector& operator=(const Collector &);  // = deleted
 
   public:
     // CREATORS
@@ -1646,8 +1655,8 @@ void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os) const
     }
 }
 
-void balb::PerformanceMonitor::Statistics::print(bsl::ostream&   os,
-                                                 Measure measure) const
+void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os,
+                                                 Measure       measure) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
 
@@ -1701,9 +1710,8 @@ void balb::PerformanceMonitor::Statistics::print(bsl::ostream&   os,
 }
 
 void balb::PerformanceMonitor::Statistics::print(
-                                              bsl::ostream& os,
-                                              const char    *measureIdentifier)
-                                              const
+                                        bsl::ostream&  os,
+                                        const char    *measureIdentifier) const
 {
     for (int measure = 0; measure < e_NUM_MEASURES; ++measure) {
         if (0 == bsl::strcmp(measureIdentifier, s_measureData[measure].tag)) {
