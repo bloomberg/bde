@@ -7,7 +7,7 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
-#include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_c_stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -79,15 +79,13 @@ void aSsErT(bool condition, const char *message, int line)
 int globalVerbose = 0;
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
-static int TestWSASend(
-  SOCKET s,
-  LPWSABUF lpBuffers,
-  DWORD dwBufferCount,
-  LPDWORD lpNumberOfBytesSent,
-  DWORD dwFlags,
-  LPWSAOVERLAPPED lpOverlapped,
-  LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-)
+static int TestWSASend(SOCKET                             s,
+                       LPWSABUF                           lpBuffers,
+                       DWORD                              dwBufferCount,
+                       LPDWORD                            lpNumberOfBytesSent,
+                       DWORD                              dwFlags,
+                       LPWSAOVERLAPPED                    lpOverlapped,
+                       LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine )
 {
     if (globalVerbose) P(dwBufferCount);
     DWORD i;
@@ -142,8 +140,7 @@ int main(int argc, char *argv[]) {
         // have identical internal structure.
         //
         // Testing:
-        // btls::Iovec::Iovec(const Iovec&)
-        // btls::Ovec::Ovec(const Ovec&)
+        // btls::Iovec::Iovec(const Iovec&) btls::Ovec::Ovec(const Ovec&)
         // btls::Ovec::Ovec(const Iovec&)
         // --------------------------------------------------------------------
 

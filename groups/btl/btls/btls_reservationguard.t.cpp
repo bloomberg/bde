@@ -126,7 +126,6 @@ class my_Reserve {
     // This class provides a mock rate controllering mechanism which conforms
     // to the interface required by 'btls::ReservationGuard'.
 
-
     // DATA
     bsls::Types::Uint64 d_unitsSubmitted;
     bsls::Types::Uint64 d_unitsReserved;
@@ -142,8 +141,8 @@ public:
         // Add the specified 'numUnits' to the 'unitsReserved' counter.
 
     void submitReserved(bsls::Types::Uint64 numUnits);
-        // Subtract the specified 'numUnits' from 'unitsReserved' and add it
-        // to 'unitsSubmitted', if 'numUnits' is less than 'unitsReserved'.
+        // Subtract the specified 'numUnits' from 'unitsReserved' and add it to
+        // 'unitsSubmitted', if 'numUnits' is less than 'unitsReserved'.
         // Otherwise, add 'unitsReserved' to 'unitsSubmitted' and set
         // 'unitsReserved' to 0.
 
@@ -220,7 +219,6 @@ bsls::Types::Uint64 my_Reserve::unitsSubmitted() const
     return d_unitsSubmitted;
 }
 
-
 typedef btls::ReservationGuard<my_Reserve> Obj;
 typedef bsls::TimeInterval                 Ti;
 typedef bsls::Types::Uint64               Uint64;
@@ -257,7 +255,6 @@ static bsls::Types::Uint64 sendData(size_t dataSize)
 // Notice that the 'mySendData' function may throw an exception; therefore, we
 // should wait until 'mySendData' returns before indicating the amount of data
 // sent to the leaky bucket.
-
 
 // ============================================================================
 //                               MAIN PROGRAM

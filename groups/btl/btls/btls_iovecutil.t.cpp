@@ -11,13 +11,11 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
-
 
 //=============================================================================
 //                             TEST PLAN

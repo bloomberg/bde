@@ -15,14 +15,12 @@ BSLS_IDENT_RCSID(btls_iovecutil_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 
 namespace BloombergLP {
-
 namespace btls {
-
 namespace {
 
-                          // ------------------------
-                          // local function templates
-                          // ------------------------
+                         // ------------------------
+                         // local function templates
+                         // ------------------------
 
 template <class IOVEC>
 void genericAppendToBlob(btlb::Blob  *blob,
@@ -67,7 +65,7 @@ void genericAppendToBlob(btlb::Blob  *blob,
     BSLS_ASSERT(0 <= currentVecOffset);
     BSLS_ASSERT(0 < currentVecAvailable);
 
-    // For simplicity,  finish computing the iovec lengths, and reserve blob's
+    // For simplicity, finish computing the iovec lengths, and reserve blob's
     // length in a single setLength call.  Since prefixLength isn't used, we
     // reset it and use it for that computation.
 
@@ -89,12 +87,12 @@ void genericAppendToBlob(btlb::Blob  *blob,
 
     while (1) {
         // Invariants:
-        // 1.  0 <= currentVec < numVecs
-        // 2.  0 <= currentVecOffset < vecs[currentVec].length()
-        // 3.  0 <  currentVecAvailable
-        // 4.  0 <= currentBuf < blobs.numDataBuffers()
-        // 5.  0 <= currentBufOffset < blob->buffer(currentBuf).size()
-        // 6.  0 <  currentBufAvailable
+        //: 1.  0 <= currentVec < numVecs
+        //: 2.  0 <= currentVecOffset < vecs[currentVec].length()
+        //: 3.  0 <  currentVecAvailable
+        //: 4.  0 <= currentBuf < blobs.numDataBuffers()
+        //: 5.  0 <= currentBufOffset < blob->buffer(currentBuf).size()
+        //: 6.  0 <  currentBufAvailable
 
         int numBytesCopied = bsl::min(currentVecAvailable,
                                       currentBufAvailable);
@@ -240,9 +238,9 @@ int genericScatter(const IOVEC *buffers,
 
 }  // close unnamed namespace
 
-                              // ---------------
-                              // class IovecUtil
-                              // ---------------
+                             // ---------------
+                             // class IovecUtil
+                             // ---------------
 
 void IovecUtil::appendToBlob(btlb::Blob  *blob,
                              const Iovec *buffers,

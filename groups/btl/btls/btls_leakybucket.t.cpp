@@ -25,8 +25,8 @@ using namespace bsl;
 //                              --------
 // The component under test implements a mechanism.
 //
-// This class provides a value constructor capable of creating an object
-// having any parameters.
+// This class provides a value constructor capable of creating an object having
+// any parameters.
 //
 // Primary Manipulators:
 //: o Value constructor
@@ -342,7 +342,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -352,13 +351,12 @@ typedef bsls::Types::Uint64 Uint64;
 typedef unsigned int        Uint;
 
 template<class T>
-static Ti testLB(
-          T&        object,
-          Uint64    rate,
-          Uint64    capacity,
-          Uint64    dataSize,
-          Uint64    chunkSize,
-          const Ti& minQueryInterval)
+static Ti testLB(T&        object,
+                 Uint64    rate,
+                 Uint64    capacity,
+                 Uint64    dataSize,
+                 Uint64    chunkSize,
+                 const Ti& minQueryInterval)
     // Simulate load generation on specified rate controlling 'object', having
     // the specified 'rate' and 'capacity', by modeling sending the specified
     // 'dataSize' divided on the chunks of the specified 'chunkSize', keeping
@@ -441,8 +439,8 @@ bool sendData(const char *buffer, size_t dataSize)
     (void) buffer;
     (void) dataSize;
 //..
-// In our example we don`t deal with actual data sending, so we assume that
-// the function sends data successfully and return true.
+// In our example we don`t deal with actual data sending, so we assume that the
+// function sends data successfully and return true.
 //..
     return true;
 }
@@ -790,8 +788,8 @@ int main(int argc, char *argv[])
         const Uint64 MAX_R = ULLONG_MAX;
         const Uint64 G     = 1000000000;
 
-        // Numbers of units to be consumed during different intervals
-        // at maximum rate.
+        // Numbers of units to be consumed during different intervals at
+        // maximum rate.
         const Uint64 U_NS  = MAX_R / G;
 
         struct {
@@ -1397,7 +1395,6 @@ int main(int argc, char *argv[])
         Uint64 usedUnits   = 0;
         Uint64 unusedUnits = 0;
 
-
         const Uint64 MAX_R = ULLONG_MAX;
         const Uint64 G     = 1000000000;
 
@@ -1771,7 +1768,6 @@ int main(int argc, char *argv[])
                 const Uint64 EXPECTED_FINAL_UNITS
                                              = DATA[ti].d_expectedFinalUnits;
 
-
                 Obj x(RATE, CAPACITY, CREATION_TIME);
                 Ti  currentCheck(CREATION_TIME);
                 unsigned int i = 0;
@@ -2028,8 +2024,8 @@ int main(int argc, char *argv[])
         const Ti     MAX_TI   = bsls::TimeInterval(LLONG_MAX, 999999999);
         const Uint64 G        = 1000000000;
 
-        // Number of units remaining in bucket with maximum allowed drain
-        // rate, after 3 updates with 1ns interval.
+        // Number of units remaining in bucket with maximum allowed drain rate,
+        // after 3 updates with 1ns interval.
         const Uint64 MR_EXP = MAX_RATE -
                                       (MAX_RATE / 1000000000) * 3 -
                                       (MAX_RATE % 1000000000) * 3 / 1000000000;

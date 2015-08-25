@@ -156,7 +156,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
-
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -266,9 +265,9 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
 // First, we create a 'btls::RateLimiter' object having a sustained rate of
-// 1024 bytes/s, a sustained-rate time-window of 0.5s
-// (512 bytes / 1024 bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate
-// time-window of 0.0625s (128 bytes / 2048 bytes/s):
+// 1024 bytes/s, a sustained-rate time-window of 0.5s (512 bytes / 1024
+// bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate time-window of
+// 0.0625s (128 bytes / 2048 bytes/s):
 //..
    bsls::Types::Uint64 sustainedRateLimit = 1024;
    bsls::TimeInterval   sustainedRateWindow(0.5);

@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // The following snippets of code illustrate how to use 'btls::Iovec' with
 // platform dependent scatter/gather operations.  Typically, an array of
-// structures is created with each element containing a pointer to a buffer.
-// A pointer to the array of 'btls::Ovec' or 'btls::Iovec' is passed to the IO
+// structures is created with each element containing a pointer to a buffer.  A
+// pointer to the array of 'btls::Ovec' or 'btls::Iovec' is passed to the IO
 // operation.  In this example an array of 3 buffer pointers is created.
 //..
 // char buf1[10];
@@ -96,9 +96,9 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
-                                // ===========
-                                // class Iovec
-                                // ===========
+                               // ===========
+                               // class Iovec
+                               // ===========
 
 namespace BloombergLP {
 namespace btls {
@@ -167,9 +167,9 @@ class Iovec {
         // Return the length of the writable buffer.
 };
 
-                                 // ==========
-                                 // class Ovec
-                                 // ==========
+                                // ==========
+                                // class Ovec
+                                // ==========
 
 class Ovec {
     // This class provides a platform-independent data structure for
@@ -226,12 +226,12 @@ class Ovec {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                                // -----------
-                                // class Iovec
-                                // -----------
+                               // -----------
+                               // class Iovec
+                               // -----------
 
 // CREATORS
 inline
@@ -313,9 +313,9 @@ int Iovec::length() const
 #endif
 }
 
-                                 // ----------
-                                 // class Ovec
-                                 // ----------
+                                // ----------
+                                // class Ovec
+                                // ----------
 
 // CREATORS
 inline

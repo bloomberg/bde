@@ -228,9 +228,9 @@ BSLS_IDENT("$Id: $")
 //      // 'true' if data was sent successfully and 'false' otherwise.
 //..
 // First, we create a 'btls::RateLimiter' object having a sustained rate of
-// 1024 bytes/s, a sustained-rate time-window of 0.5s
-// (512 bytes / 1024 bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate
-// time-window of 0.0625s (128 bytes / 2048 bytes/s):
+// 1024 bytes/s, a sustained-rate time-window of 0.5s (512 bytes / 1024
+// bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate time-window of
+// 0.0625s (128 bytes / 2048 bytes/s):
 //..
 //  bsls::Types::Uint64 sustainedRateLimit = 1024;
 //  bsls::TimeInterval   sustainedRateWindow(0.5);
@@ -317,11 +317,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btls {
-                             // =================
-                             // class RateLimiter
-                             // =================
+
+                            // =================
+                            // class RateLimiter
+                            // =================
 
 class RateLimiter {
     // This mechanism implements a rate limiter that allows clients to monitor
@@ -492,7 +492,7 @@ class RateLimiter {
         // Load, into the specified 'submittedUnits' and the specified
         // 'unusedUnits' respectively, the numbers of submitted units and the
         // number of unused units for this rate limiter from the
-        // 'statisticsCollectionStartTime' to the 'lastUpdateTime.  The number
+        // 'statisticsCollectionStartTime' to the 'lastUpdateTime'.  The number
         // of unused units is the difference between the number of units that
         // could have been consumed at the sustained rate and the number of
         // units actually submitted for the time period.
@@ -503,12 +503,12 @@ class RateLimiter {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                             // -----------------
-                             // class RateLimiter
-                             // -----------------
+                            // -----------------
+                            // class RateLimiter
+                            // -----------------
 
 // MANIPULATORS
 inline
@@ -596,7 +596,7 @@ void RateLimiter::reset(const bsls::TimeInterval& currentTime)
 // ACCESSORS
 inline
 void RateLimiter::getStatistics(bsls::Types::Uint64* submittedUnits,
-                                     bsls::Types::Uint64* unusedUnits) const
+                                bsls::Types::Uint64* unusedUnits) const
 {
     BSLS_ASSERT_SAFE(0 != submittedUnits);
     BSLS_ASSERT_SAFE(0 != unusedUnits);

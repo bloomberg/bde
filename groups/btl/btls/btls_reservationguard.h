@@ -136,9 +136,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace btls {
-                           // ======================
-                           // class ReservationGuard
-                           // ======================
+
+                          // ======================
+                          // class ReservationGuard
+                          // ======================
 
 template<class TYPE>
 class ReservationGuard {
@@ -198,12 +199,12 @@ class ReservationGuard {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                           // ----------------------
-                           // class ReservationGuard
-                           // ----------------------
+                          // ----------------------
+                          // class ReservationGuard
+                          // ----------------------
 
 // CREATORS
 template <class TYPE>

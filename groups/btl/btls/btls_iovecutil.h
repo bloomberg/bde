@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 // their arguments in different threads.  It is safe to access a 'btlb::Blob'
 // object within different methods of this utility from different threads if no
 // method modifies the contents of that object.  It is not safe to access or
-// modify a 'btlb::Blob' object from any method of this utility while a
-// method modifies the content of this object.
+// modify a 'btlb::Blob' object from any method of this utility while a method
+// modifies the content of this object.
 //
 ///Performance
 ///-----------
@@ -51,17 +51,14 @@ BSLS_IDENT("$Id: $")
 #include <btls_iovec.h>
 #endif
 
-                           // =====================
-                           // class btls::IovecUtil
-                           // =====================
+                          // =====================
+                          // class btls::IovecUtil
+                          // =====================
 
 namespace BloombergLP {
-
 namespace bslma  { class Allocator; }
-
 namespace btlb { class Blob; }
 namespace btlb { class BlobBufferFactory; }
-
 namespace btls {
 
 struct IovecUtil {
@@ -166,12 +163,12 @@ struct IovecUtil {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
-                              // ---------------
-                              // class IovecUtil
-                              // ---------------
+                             // ---------------
+                             // class IovecUtil
+                             // ---------------
 
 inline
 btlb::Blob *IovecUtil::blob(const Iovec             *buffers,
