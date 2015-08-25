@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Supply local-independent version of <ctype.h> functionality.
+//@PURPOSE: Supply local-independent version of '<ctype.h>' functionality.
 //
 //@CLASSES:
 //   bdlb::CharType: namespace for pure (read-only) procedures on characters
@@ -17,9 +17,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlb_string
 //
 //@DESCRIPTION: This component provides an efficient, local-independent
-// alternative for the standard functionality found in <ctype.h>.  The
-// following character categories are supported (note that, IDENT, ALUND, ALL,
-// and NONE are new):
+// alternative for the standard functionality found in '<ctype.h>'.  The
+// following character categories are supported (note that, 'IDENT', 'ALUND',
+// 'ALL', and 'NONE' are new):
 //..
 //    ============================================================
 //                          Category   Description
@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //    ============================================================
 //..
 // Supported functionality includes determining whether a character is
-// a member of a given CharType and also providing a null-terminated,
+// a member of a given 'bdlb::CharType' and also providing a null-terminated,
 // contiguous sequence (and character count) for each character category.
 // Additionally, the standard conversion methods 'toUpper' and 'toLower'
 // are also provided.
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //
 ///ASCII Character Set
 ///-------------------
-// The following table provides a reference for the ASCII character set.
+// The following table provides a reference for the ASCII character set:
 //..
 //      Decimal      Hexadecimal    Key        Meaning
 //      -------      -----------    ---        -------
@@ -127,6 +127,7 @@ BSLS_IDENT("$Id: $")
 //      126          0x7E           ~
 //      127          0x75          ^?          Delete (Rubout)
 //..
+//
 ///Category Definitions
 ///--------------------
 // The following table defines the members of each category:
@@ -278,8 +279,13 @@ BSLS_IDENT("$Id: $")
 //    126    7E    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ~
 //    127    7F    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^?
 //..
-///Usage Example
-///-------------
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Validating C-Style Identifiers
+///- - - - - - - - - - - - - - - - - - - - -
 // The character category extensions 'IDENT' and 'ALUND' are particularly
 // useful for parsing C-style identifier names as described by the following
 // regular expression:
@@ -296,14 +302,12 @@ BSLS_IDENT("$Id: $")
 //      assert(token);
 //
 //      if (!bdlb::CharType::isAlund(*token)) {
-//          return false; // bad required first character
+//          return false; // bad required first character             // RETURN
 //      }
 //
 //      for (const char *p = token + 1; *p; ++p) {
 //          if (!bdlb::CharType::isIdent(*p)) {
-//              return false; // bad optional subsequent character
-//          }
-//      }
+//              return false; // bad optional subsequent character    // RETURN
 //
 //      return true;
 //  }
@@ -391,8 +395,8 @@ struct CharType {
 
   private:
     // CLASS DATA
-    static const char *const s_upperString_p;  // char array indexed by [char]
-    static const char *const s_lowerString_p;
+    static const char *const s_upperString_p;      // 'char' array indexed by
+    static const char *const s_lowerString_p;      // '[char]'
     static const char *const s_alphaString_p;
     static const char *const s_digitString_p;
     static const char *const s_xdigitString_p;
@@ -409,12 +413,14 @@ struct CharType {
     static const char *const s_noneString_p;
 
     static const char *const *const s_categoryString_p;
-                                               // indexed by [category, char]
+                                                 // indexed by
+                                                 // '[category, char]'
 
-    static const char *const *const s_categoryName_p; // enum to string map
-                                                      // indexed by [category]
+    static const char *const *const s_categoryName_p;
+                                                 // 'enum' to string map
+                                                 // indexed by '[category]'
 
-    static const short int s_upperCount;       // int category counts
+    static const short int s_upperCount;         // 'int' category counts
     static const short int s_lowerCount;
     static const short int s_alphaCount;
     static const short int s_digitCount;
@@ -431,10 +437,11 @@ struct CharType {
     static const short int s_allCount;
     static const short int s_noneCount;
 
-    static const short int *s_categoryCount_p; // counts indexed by [category]
+    static const short int *s_categoryCount_p;   // counts indexed by
+                                                 // '[category]'
 
-    static const bool *const s_upperArray_p;   // bool arrays indexed by [char]
-    static const bool *const s_lowerArray_p;
+    static const bool *const s_upperArray_p;     // 'bool' arrays indexed by
+    static const bool *const s_lowerArray_p;     // '[char]'
     static const bool *const s_alphaArray_p;
     static const bool *const s_digitArray_p;
     static const bool *const s_xdigitArray_p;
@@ -450,10 +457,11 @@ struct CharType {
     static const bool *const s_allArray_p;
     static const bool *const s_noneArray_p;
 
-    static const bool **s_categoryArray_p;     // indexed by [category, char]
+    static const bool **s_categoryArray_p;       // indexed by
+                                                 // '[category, char]'
 
-    static const char *const s_toUpper_p;      // char arrays index by [char]
-    static const char *const s_toLower_p;
+    static const char *const s_toUpper_p;        // 'char' arrays index by
+    static const char *const s_toLower_p;        // '[char]'
 
   public:
     // CLASS METHODS
@@ -462,31 +470,31 @@ struct CharType {
 
     static bool isUpper(char character);
         // Return 'true' if the specified 'character' is in the 'UPPER'
-        // category (i.e., [A-Z]), and 'false' otherwise.
+        // category (i.e., '[A-Z]'), and 'false' otherwise.
 
     static bool isLower(char character);
         // Return 'true' if the specified 'character' is in the 'LOWER'
-        // category (i.e., [a-z]), and 'false' otherwise.
+        // category (i.e., '[a-z]'), and 'false' otherwise.
 
     static bool isAlpha(char character);
         // Return 'true' if the specified 'character' is in the 'ALPHA'
-        // category (i.e., [A-Za-z]), and 'false' otherwise.
+        // category (i.e., '[A-Za-z]'), and 'false' otherwise.
 
     static bool isDigit(char character);
         // Return 'true' if the specified 'character' is in the 'DIGIT'
-        // category (i.e., [0-9]), and 'false' otherwise.
+        // category (i.e., '[0-9]'), and 'false' otherwise.
 
     static bool isXdigit(char character);
         // Return 'true' if the specified 'character' is in the 'XDIGIT'
-        // category (i.e., [0-9A-Fa-f]), and 'false' otherwise.
+        // category (i.e., '[0-9A-Fa-f]'), and 'false' otherwise.
 
     static bool isAlnum(char character);
         // Return 'true' if the specified 'character' is in the 'ALNUM'
-        // category (i.e., [0-9A-Za-Z]), and 'false' otherwise.
+        // category (i.e., '[0-9A-Za-Z]'), and 'false' otherwise.
 
     static bool isSpace(char character);
         // Return 'true' if the specified 'character' is in the 'SPACE'
-        // category (i.e., [space|tab|CR|NL|VT|FF]), and 'false' otherwise.
+        // category (i.e., '[space|tab|CR|NL|VT|FF]'), and 'false' otherwise.
 
     static bool isPrint(char character);
         // Return 'true' if the specified 'character' is in the 'PRINT'
@@ -495,7 +503,7 @@ struct CharType {
 
     static bool isGraph(char character);
         // Return 'true' if the specified 'character' is in the 'GRAPH'
-        // category (i.e, any printable character except 'SPACE'), and
+        // category (i.e., any printable character except 'SPACE'), and
         // 'false' otherwise.
 
     static bool isPunct(char character);
@@ -505,29 +513,29 @@ struct CharType {
 
     static bool isCntrl(char character);
         // Return 'true' if the specified 'character' is in the 'CNTRL'
-        // category (i.e., [\1-\37] and \177), and 'false' otherwise.
+        // category (i.e., '[\1-\37]' and '\177'), and 'false' otherwise.
 
     static bool isAscii(char character);
         // Return 'true' if the specified 'character' is in the 'ASCII'
-        // category (i.e, [\0-\177]), and 'false' otherwise.
+        // category (i.e., '[\0-\177]'), and 'false' otherwise.
 
     static bool isIdent(char character);
         // Return 'true' if the specified 'character' is in the 'IDENT'
-        // category (i.e., [ALNUM|_]), and 'false' otherwise.
+        // category (i.e., '[ALNUM|_]'), and 'false' otherwise.
 
     static bool isAlund(char character);
         // Return 'true' if the specified 'character' is in the 'ALUND'
-        // category (i.e, [ALPHA|_]), and 'false' otherwise.
+        // category (i.e., '[ALPHA|_]'), and 'false' otherwise.
 
     static bool isAll(char character);
         // Return 'true' if the specified 'character' is in the 'ALL'
-        // category (i.e., [\0-\377]), and 'false' otherwise.  Note that
+        // category (i.e., '[\0-\377]'), and 'false' otherwise.  Note that
         // this function always returns 'true', but is provide for
         // completeness.
 
     static bool isNone(char character);
         // Return 'true' if the specified 'character' is in the 'NONE'
-        // category (i.e., []), and 'false' otherwise.  Note that this
+        // category (i.e., '[]'), and 'false' otherwise.  Note that this
         // function always returns 'false', but is provided for completeness.
 
     static bool isCategory(char character, CharType::Category category);
@@ -538,37 +546,37 @@ struct CharType {
 
     static const char *stringUpper();
         // Return a null-terminated string consisting of all characters in the
-        // category 'UPPER' (i.e., [A-Z]), ordered by increasing character
+        // category 'UPPER' (i.e., '[A-Z]'), ordered by increasing character
         // codes.
 
     static const char *stringLower();
         // Return a null-terminated string consisting of all characters in the
-        // category 'LOWER' (i.e., [a-z]), ordered by increasing character
+        // category 'LOWER' (i.e., '[a-z]'), ordered by increasing character
         // codes.
 
     static const char *stringAlpha();
         // Return a null-terminated string consisting of all characters in the
-        // category 'ALPHA' (i.e., [A-Za-z]), ordered by increasing character
+        // category 'ALPHA' (i.e., '[A-Za-z]'), ordered by increasing character
         // codes.
 
     static const char *stringDigit();
         // Return a null-terminated string consisting of all characters in the
-        // category 'DIGIT' (i.e., [0-9]), ordered by increasing character
+        // category 'DIGIT' (i.e., '[0-9]'), ordered by increasing character
         // codes.
 
     static const char *stringXdigit();
         // Return a null-terminated string consisting of all characters in the
-        // category 'XDIGIT' (i.e., [0-9A-Fa-f]), ordered by increasing
+        // category 'XDIGIT' (i.e., '[0-9A-Fa-f]'), ordered by increasing
         // character codes.
 
     static const char *stringAlnum();
         // Return a null-terminated string consisting of all characters in the
-        // category 'ALNUM' (i.e., [0-9A-Za-Z]), ordered by increasing
+        // category 'ALNUM' (i.e., '[0-9A-Za-Z]'), ordered by increasing
         // character codes.
 
     static const char *stringSpace();
         // Return a null-terminated string consisting of all characters in the
-        // category 'SPACE' (i.e., [space|tab|CR|NL|VT|FF]), ordered by
+        // category 'SPACE' (i.e., '[space|tab|CR|NL|VT|FF]'), ordered by
         // increasing character codes.
 
     static const char *stringPrint();
@@ -578,7 +586,7 @@ struct CharType {
 
     static const char *stringGraph();
         // Return a null-terminated string consisting of all characters in the
-        // category 'GRAPH (i.e, any printable character except 'SPACE'),
+        // category 'GRAPH' (i.e., any printable character except 'SPACE'),
         // ordered by increasing character codes.
 
     static const char *stringPunct();
@@ -588,31 +596,31 @@ struct CharType {
 
     static const char *stringCntrl();
         // Return a null-terminated string consisting of all characters in the
-        // category 'CNTRL' (i.e., [\0-\37] and \177), ordered by increasing
+        // category 'CNTRL' (i.e., '[\0-\37]' and '\177'), ordered by increasing
         // character codes.  Note that this string, if printed, may appear to
         // be of length 0 because the 'NULL' character is part of the set and
         // appears first.
 
     static const char *stringAscii();
         // Return a null-terminated string consisting of all characters in the
-        // category 'ASCII' (i.e, [\0-\177]), ordered by increasing character
+        // category 'ASCII' (i.e., '[\0-\177]'), ordered by increasing character
         // codes.  Note that this string, if printed, may appear to be of
         // length 0 because the 'NULL' character is part of the set and appears
         // first.
 
     static const char *stringIdent();
         // Return a null-terminated string consisting of all characters in the
-        // category 'IDENT' (i.e., [ALNUM|_]), ordered by increasing character
+        // category 'IDENT' (i.e., '[ALNUM|_]'), ordered by increasing character
         // codes.
 
     static const char *stringAlund();
         // Return a null-terminated string consisting of all characters in the
-        // category 'ALUND' (i.e, [ALPHA|_]), ordered by increasing character
+        // category 'ALUND' (i.e., '[ALPHA|_]'), ordered by increasing character
         // codes.
 
     static const char *stringAll();
         // Return a null-terminated string consisting of all characters in the
-        // category 'ALL' (i.e., [\0-\377]), ordered by increasing character
+        // category 'ALL' (i.e., '[\0-\377]'), ordered by increasing character
         // codes.  Note that this string, if printed, may appear to be of
         // length 0 because the 'NULL' character is part of the set and appears
         // first.
@@ -632,38 +640,38 @@ struct CharType {
 
     static int numUpper();
         // Return the number of characters in the category 'UPPER' (i.e.,
-        // [A-Z]).
+        // '[A-Z]').
 
     static int numLower();
         // Return the number of characters in the category 'LOWER' (i.e.,
-        // [a-z]).
+        // '[a-z]').
 
     static int numAlpha();
         // Return the number of characters in the category 'ALPHA' (i.e.,
-        // [A-Za-z]).
+        // '[A-Za-z]').
 
     static int numDigit();
         // Return the number of characters in the category 'DIGIT' (i.e.,
-        // [0-9]).
+        // '[0-9]').
 
     static int numXdigit();
         // Return the number of characters in the category 'XDIGIT' (i.e.,
-        // [0-9A-Fa-f]).
+        // '[0-9A-Fa-f]').
 
     static int numAlnum();
         // Return the number of characters in the category 'ALNUM' (i.e.,
-        // [0-9A-Za-Z]).
+        // '[0-9A-Za-Z]').
 
     static int numSpace();
         // Return the number of characters in the category 'SPACE' (i.e.,
-        // [space|tab|CR|NL|VT|FF]).
+        // '[space|tab|CR|NL|VT|FF]').
 
     static int numPrint();
         // Return the number of characters in the category 'PRINT' (i.e.,
         // any printable character including 'SPACE').
 
     static int numGraph();
-        // Return the number of characters in the category 'GRAPH (i.e,
+        // Return the number of characters in the category 'GRAPH (i.e.,
         // any printable character except 'SPACE'), and 'false' otherwise.
 
     static int numPunct();
@@ -672,19 +680,19 @@ struct CharType {
 
     static int numCntrl();
         // Return the number of characters in the category 'CNTRL' (i.e.,
-        // [\1-\37] and \177).
+        // '[\1-\37]' and '\177').
 
     static int numAscii();
-        // Return the number of characters in the category 'ASCII' (i.e,
-        // [\0-\177]).
+        // Return the number of characters in the category 'ASCII' (i.e.,
+        // '[\0-\177]').
 
     static int numIdent();
         // Return the number of characters in the category 'IDENT' (i.e.,
-        // [ALNUM|_]).
+        // '[ALNUM|_]').
 
     static int numAlund();
-        // Return the number of characters in the category 'ALUND' (i.e,
-        // [ALPHA|_]).
+        // Return the number of characters in the category 'ALUND' (i.e.,
+        // '[ALPHA|_]').
 
     static int numAll();
         // Return the number of characters in the category 'ALL'.  Note that
