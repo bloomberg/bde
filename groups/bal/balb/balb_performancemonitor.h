@@ -10,18 +10,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mechanism to collect process performance measures.
 //
 //@CLASSES:
-//                  balb::PerformanceMonitor: monitor process performance
-//      balb::PerformanceMonitor::Statistics: performance stats
+//   balb::PerformanceMonitor: monitor process performance
+//   balb::PerformanceMonitor::Statistics: performance stats
 //   balb::PerformanceMonitor::ConstIterator: stats iteration
 //
 //@AUTHOR: Matthew Millett (mmillett2)
 //
 //@DESCRIPTION: This component provides an application developer the means to
 // collect and report performance statistics for an arbitrary number of
-// processes running on the local machine.  The following table describes the
-// measures collecting by this component.  Note that all the collected measures
-// are specific to the monitored process and do not refer to any system-wide
-// measurement.
+// processes running on the local machine.  The 'balb::PerformanceMonitor'
+// provides the mechanism for doing so, the
+// 'balb::PerformanceMonitor::Statistics' class holds the data and the
+// 'balb::PerformanceMonitor::ConstIterator' class is used to iterate over the
+// data.  The following table describes the measures collecting by this
+// component.  Note that all the collected measures are specific to the
+// monitored process and do not refer to any system-wide measurement.
 //..
 // Measure           Identifier           Description
 // -------           ----------           -----------
@@ -138,7 +141,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BDLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -253,20 +256,22 @@ typedef bsls::Platform::OsHpUx OsType;
         // implementation.
 
     // DATA
-    PidMap                            d_pidMap;      // map of pid stats
+    PidMap                              d_pidMap;       // map of pid stats
 
-    double                            d_interval;    // collection interval
+    double                              d_interval;     // collection interval
 
-    bdlmt::TimerEventScheduler         *d_scheduler_p; // scheduler of collection
-                                                     // events (held)
+    bdlmt::TimerEventScheduler         *d_scheduler_p;  // scheduler of
+                                                        // collection events
+                                                        // (held)
 
-    bdlmt::TimerEventScheduler::Handle  d_clock;       // handle to collection
-                                                     // timer
+    bdlmt::TimerEventScheduler::Handle  d_clock;        // handle to collection
+                                                        // timer
 
-    mutable bdlqq::RWMutex             d_mapGuard;    // serializes write access
-                                                     // to 'd_pidMap'
+    mutable bdlqq::RWMutex              d_mapGuard;     // serializes write
+                                                        // access to 'd_pidMap'
 
-    bslma::Allocator                 *d_allocator_p; // supplies memory (held)
+    bslma::Allocator                   *d_allocator_p;  // supplies memory
+                                                        // (held)
 
   private:
     // NOT IMPLEMENTED
@@ -328,27 +333,27 @@ typedef bsls::Platform::OsHpUx OsType;
             // for the current platform.
 
         // DATA
-        int              d_pid;                   // process identifier
-        bsl::string      d_description;           // process description
+        int                d_pid;                      // process identifier
+        bsl::string        d_description;              // process description
 
-        bdlt::Datetime    d_startTimeUtc;          // process start time, in
-                                                  // UTC time
+        bdlt::Datetime     d_startTimeUtc;             // process start time,
+                                                       // in UTC time
 
-        bsls::TimeInterval d_startTime;            // process start time, since
-                                                  // the system epoch
+        bsls::TimeInterval d_startTime;                // process start time,
+                                                       // since the system
+                                                       // epoch
 
-        double           d_elapsedTime;           // time elapsed since process
-                                                  // startup
+        double             d_elapsedTime;              // time elapsed since
+                                                       // process startup
 
-        bsls::AtomicInt   d_numSamples;            // num samples taken
+        bsls::AtomicInt    d_numSamples;               // num samples taken
 
-        double           d_lstData[e_NUM_MEASURES]; // latest collected data
-        double           d_minData[e_NUM_MEASURES]; // min
-        double           d_maxData[e_NUM_MEASURES]; // max
-        double           d_totData[e_NUM_MEASURES]; // cumulative
+        double             d_lstData[e_NUM_MEASURES];  // latest collected data
+        double             d_minData[e_NUM_MEASURES];  // min
+        double             d_maxData[e_NUM_MEASURES];  // max
+        double             d_totData[e_NUM_MEASURES];  // cumulative
 
-        mutable bdlqq::RWMutex
-                         d_guard;                 // serialize write access
+        mutable bdlqq::RWMutex d_guard;  // serialize write access
 
     private:
         // NOT IMPLEMENTED
@@ -420,17 +425,17 @@ typedef bsls::Platform::OsHpUx OsType;
 
         // FRIENDS
 
-        friend class PerformanceMonitor;  // grant access to the
-                                               // private constructor
+        friend class PerformanceMonitor;  // grant access to the private
+                                          // constructor
 
         // INSTANCE DATA
 
         PidMap::const_iterator  d_it;          // wrapped iterator
-        bdlqq::RWMutex          *d_mapGuard_p;  // serialize access to the map
+        bdlqq::RWMutex         *d_mapGuard_p;  // serialize access to the map
 
         // PRIVATE CREATORS
         explicit ConstIterator(PidMap::const_iterator  it,
-                               bdlqq::RWMutex          *mapGuard);
+                               bdlqq::RWMutex         *mapGuard);
             // Create an instance of this class that wraps the specified 'it'
             // iterator protected by the specified 'mapGuard'.
 
@@ -465,13 +470,13 @@ typedef bsls::Platform::OsHpUx OsType;
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return a reference to the
             // modifiable value type of this iterator.  The behavior of this
-            // function is undefined unless this iterator is dereferencible.
+            // function is undefined unless this iterator is dereferenceable.
 
         ConstIterator operator++(int);
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return the iterator pointing
             // to the previous modifiable value type.  The behavior of this
-            // function is undefined unless this iterator is dereferencible.
+            // function is undefined unless this iterator is dereferenceable.
 
         // ACCESSORS
         reference operator*() const;
@@ -510,8 +515,8 @@ typedef bsls::Platform::OsHpUx OsType;
         // the currently installed default allocator is used.
 
     PerformanceMonitor(bdlmt::TimerEventScheduler *scheduler,
-                            double                    interval,
-                            bslma::Allocator         *basicAllocator = 0);
+                       double                      interval,
+                       bslma::Allocator           *basicAllocator = 0);
         // Create an instance of this class that uses the specified 'scheduler'
         // to automatically collect performance statistics every specified
         // 'interval' (specified in seconds).  Optionally specify a
@@ -536,19 +541,19 @@ typedef bsls::Platform::OsHpUx OsType;
     int unregisterPid(int pid);
         // Unregister the specified process 'pid' from the performance monitor.
         // After unregistration, to statistics for the 'pid' will be no longer
-        // be available unless the pid is re-registered with the performance
-        // monitor through calling 'registerPid'.  Note that a pid value of
-        // zero is interpreted as the pid of the current process.  Return
+        // be available unless the 'pid' is re-registered with the performance
+        // monitor through calling 'registerPid'.  Note that a 'pid' value of
+        // zero is interpreted as the 'pid' of the current process.  Return
         // 0 on success or a non-zero value otherwise.
 
     void setCollectionInterval(double interval);
         // Set the specified time 'interval', in seconds, after which
-        // statistics for each registered pid are automatically collected.
-        // The behavior is undefined unless a scheduler was supplied at
-        // the construction of this performance monitor.  Note that a
-        // non-positive 'interval' value indicates that performance statistics
-        // should not be automatically collected--in this case the user is
-        // responsible for manually calling the 'collect' function.
+        // statistics for each registered pid are automatically collected.  The
+        // behavior is undefined unless a scheduler was supplied at the
+        // construction of this performance monitor.  Note that a non-positive
+        // 'interval' value indicates that performance statistics should not be
+        // automatically collected--in this case the user is responsible for
+        // manually calling the 'collect' function.
 
     void collect();
         // Collect performance statistics for each registered pid.
@@ -563,14 +568,14 @@ typedef bsls::Platform::OsHpUx OsType;
         // performance statistics.
 
     ConstIterator end() const;
-        // Return an iterator that represents the end of the sequence of
-        // sets of collected performance statistics.
+        // Return an iterator that represents the end of the sequence of sets
+        // of collected performance statistics.
 
     ConstIterator find(int pid) const;
         // Return the iterator pointing to the set of collected performance
-        // statistics for the specified 'pid' if the specified 'pid' has been
-        // registered with this performance monitor through the 'registerPid'
-        // function, otherwise return 'end()'.
+        // statistics for the specified 'pid' if 'pid' has been registered with
+        // this performance monitor through the 'registerPid' function,
+        // otherwise return 'end()'.
 
     int numRegisteredPids() const;
         // Return the number of processes registered for statistics collection.
@@ -578,7 +583,7 @@ typedef bsls::Platform::OsHpUx OsType;
 }  // close package namespace
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                // ---------------------------------------------
@@ -638,14 +643,14 @@ balb::PerformanceMonitor::ConstIterator::operator++(int)
 // ACCESSORS
 inline
 bool balb::PerformanceMonitor::ConstIterator::operator==(
-                       const balb::PerformanceMonitor::ConstIterator& rhs) const
+                                                const ConstIterator& rhs) const
 {
     return d_it == rhs.d_it;
 }
 
 inline
 bool balb::PerformanceMonitor::ConstIterator::operator!=(
-                       const balb::PerformanceMonitor::ConstIterator& rhs) const
+                                                const ConstIterator& rhs) const
 {
     return d_it != rhs.d_it;
 }

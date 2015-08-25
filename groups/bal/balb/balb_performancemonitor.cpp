@@ -188,7 +188,7 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
         LdType        d_cstime;          // num jiffies, kernel mode, children
         LdType        d_priority;        // standard nice value, plus fifteen
         LdType        d_nice;            // nice value
-        LdType        d_numThreads;     // number of threads (since Linux 2.6)
+        LdType        d_numThreads;      // number of threads (since Linux 2.6)
         LdType        d_itrealvalue;     // num jiffies before next SIGALRM
         LluType       d_starttime;       // time in jiffies since system boot
         LuType        d_vsize;           // virtual memory size, in bytes
@@ -241,8 +241,8 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     // METHODS
 
     int initialize(PerformanceMonitor::Statistics *stats,
-                   int                                  pid,
-                   const bsl::string&                   description);
+                   int                             pid,
+                   const bsl::string&              description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
@@ -254,9 +254,8 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
 };
 }  // close package namespace
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::readProcStat(
-                                                         ProcStatistics *stats,
-                                                         int             pid)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+::readProcStat(ProcStatistics *stats, int pid)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -298,15 +297,13 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::readProcStat(
     return 0;
 }
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::Collector(
-                                                            bslma::Allocator *)
+balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+::Collector(bslma::Allocator *)
 {
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::initialize(
-                              balb::PerformanceMonitor::Statistics *stats,
-                              int                                  pid,
-                              const bsl::string&                   description)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+::initialize(Statistics *stats, int pid, const bsl::string& description)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -369,8 +366,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::initialize(
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::collect(
-                                    balb::PerformanceMonitor::Statistics *stats)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+::collect(Statistics *stats)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -549,24 +546,20 @@ class PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd> {
 
     // METHODS
 
-    int initialize(PerformanceMonitor::Statistics *stats,
-                   int                                  pid,
-                   const bsl::string&                   description);
+    int initialize(Statistics *stats, int pid, const bsl::string &description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
 
-    int collect(PerformanceMonitor::Statistics *stats);
+    int collect(Statistics *stats);
         // Load into the specified 'stats' the performance statistics collected
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
 }  // close package namespace
 
-int
-balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::readProcStat(
-                                                         ProcStatistics *stats,
-                                                         int             pid)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+::readProcStat(ProcStatistics *stats, int pid)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -605,15 +598,13 @@ balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::readProcStat(
     return 0;
 }
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::Collector(
-                                                            bslma::Allocator *)
+balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+::Collector(bslma::Allocator *)
 {
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::initialize(
-                              balb::PerformanceMonitor::Statistics *stats,
-                              int                                  pid,
-                              const bsl::string&                   description)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+::initialize(Statistics *stats, int pid, const bsl::string& description)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -632,7 +623,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::initialize(
     }
 
     //  bsls::TimeInterval startTime(procStats.d_processStartSecs,
-    //                              procStats.d_processStartMSecs * 1000);
+    //                               procStats.d_processStartMSecs * 1000);
 
     stats->d_startTime = bsls::TimeInterval(procStats.d_processStartSecs, 0);
     stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
@@ -646,8 +637,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::initialize(
 
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::collect(
-                                    balb::PerformanceMonitor::Statistics *stats)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+::collect(Statistics *stats)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -745,14 +736,12 @@ class PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
         // the currently installed default allocator is used.
 
     // MANIPULATORS
-    int initialize(PerformanceMonitor::Statistics *stats,
-                   int                                  pid,
-                   const bsl::string&                   description);
+    int initialize(Statistics *stats, int pid, const bsl::string &description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
 
-    int collect(PerformanceMonitor::Statistics *stats);
+    int collect(Statistics *stats);
         // Load into the specified 'stats' the performance statistics collected
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
@@ -760,16 +749,14 @@ class PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
 }  // close package namespace
 
 // CREATORS
-balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::Collector(
-                                                            bslma::Allocator *)
+balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
+::Collector(bslma::Allocator *)
 {
 }
 
 // MANIPULATORS
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::initialize(
-                              balb::PerformanceMonitor::Statistics *stats,
-                              int                                  pid,
-                              const bsl::string&                   description)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
+::initialize(Statistics *stats, int pid, const bsl::string &description)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -791,7 +778,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::initialize(
     }
 
     stats->d_startTime = bsls::TimeInterval(bi.pbi_start_tvsec,
-                                           bi.pbi_start_tvusec * 1000);
+                                            bi.pbi_start_tvusec * 1000);
 
     stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
     stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
@@ -805,8 +792,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::initialize(
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::collect(
-                                    balb::PerformanceMonitor::Statistics *stats)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
+::collect(Statistics *stats)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -906,29 +893,25 @@ class PerformanceMonitor::Collector<bsls::Platform::OsUnix> {
 
     // METHODS
 
-    int initialize(PerformanceMonitor::Statistics *stats,
-                   int                                  pid,
-                   const bsl::string&                   description);
+    int initialize(Statistics *stats, int pid, const bsl::string &description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
 
-    int collect(PerformanceMonitor::Statistics *stats);
+    int collect(Statistics *stats);
         // Load into the specified 'stats' the performance statistics collected
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
 }  // close package namespace
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::Collector(
-                                                            bslma::Allocator *)
+balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
+::Collector(bslma::Allocator *)
 {
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::initialize(
-                              balb::PerformanceMonitor::Statistics *stats,
-                              int                                  pid,
-                              const bsl::string&                   description)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
+::initialize(Statistics *stats, int pid, const bsl::string &description)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -957,7 +940,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::initialize(
     }
 
     stats->d_startTime = bsls::TimeInterval(info.pr_start.tv_sec,
-                                           info.pr_start.tv_nsec);
+                                            info.pr_start.tv_nsec);
 
     close(fd);
 #else
@@ -973,8 +956,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::initialize(
     }
 
     // TBD only seconds on HPUX??
-    stats->d_startTime = bsls::TimeInterval(status.pst_start,
-                                           0);
+    stats->d_startTime = bsls::TimeInterval(status.pst_start, 0);
 #endif
 
     stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
@@ -987,8 +969,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::initialize(
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
-                                    balb::PerformanceMonitor::Statistics *stats)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
+::collect(Statistics *stats)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -1286,23 +1268,20 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
 
     // METHODS
 
-    int initialize(PerformanceMonitor::Statistics *stats,
-                   int                                  pid,
-                   const bsl::string&                   description);
+    int initialize(Statistics *stats, int pid, const bsl::string &description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
 
-    int collect(PerformanceMonitor::Statistics *stats);
+    int collect(Statistics *stats);
         // Load into the specified 'stats' the performance statistics collected
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
 }  // close package namespace
 
-bsl::string
-balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::findModuleName(
-                                                                       int pid)
+bsl::string balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::findModuleName(int pid)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -1310,9 +1289,7 @@ balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::findModuleName(
                        | PROCESS_QUERY_INFORMATION
                        | PROCESS_VM_READ;
 
-    HANDLE process = OpenProcess(accessRights,
-                                 FALSE,
-                                 pid);
+    HANDLE process = OpenProcess(accessRights, FALSE, pid);
 
     if (0 == process) {
         BALL_LOG_ERROR << "Failed to open process handle to pid " << pid
@@ -1332,11 +1309,10 @@ balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::findModuleName(
     return bsl::string((const char*)moduleExeName, extension);
 }
 
-int
-balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::
-findInstanceIndexFromPid(PDH_HQUERY         query,
-                         const bsl::string& moduleName,
-                         int                pid)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::findInstanceIndexFromPid(PDH_HQUERY         query,
+                           const bsl::string& moduleName,
+                           int                pid)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -1400,12 +1376,11 @@ findInstanceIndexFromPid(PDH_HQUERY         query,
     return -1;
 }
 
-int
-balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::rebindCounters(
-                                      bsl::vector<PDH_HCOUNTER> *counters,
-                                      PDH_HQUERY                 query,
-                                      const char                *name,
-                                      int                        instanceIndex)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::rebindCounters(bsl::vector<PDH_HCOUNTER> *counters,
+                 PDH_HQUERY                 query,
+                 const char                *name,
+                 int                        instanceIndex)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     BALL_LOG_DEBUG << "Rebinding counters for new instance index "
@@ -1459,8 +1434,8 @@ balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::rebindCounters(
     return 0;
 }
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::Collector(
-                                              bslma::Allocator *basicAllocator)
+balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::Collector(bslma::Allocator *basicAllocator)
 : d_instanceQuery(0)
 , d_measureQuery(0)
 , d_instanceIndex(bsl::numeric_limits<int>::max())
@@ -1487,10 +1462,8 @@ balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::~Collector()
     PdhCloseQuery(d_instanceQuery);
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::initialize(
-                              balb::PerformanceMonitor::Statistics *stats,
-                              int                                  pid,
-                              const bsl::string&                   description)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::initialize(Statistics *stats, int pid, const bsl::string &description)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -1508,12 +1481,12 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::initialize(
     FileTimeToSystemTime(&creationFileTime, &creationSystemTime);
 
     stats->d_startTimeUtc = bdlt::Datetime(creationSystemTime.wYear,
-                                          creationSystemTime.wMonth,
-                                          creationSystemTime.wDay,
-                                          creationSystemTime.wHour,
-                                          creationSystemTime.wMinute,
-                                          creationSystemTime.wSecond,
-                                          creationSystemTime.wMilliseconds);
+                                           creationSystemTime.wMonth,
+                                           creationSystemTime.wDay,
+                                           creationSystemTime.wHour,
+                                           creationSystemTime.wMinute,
+                                           creationSystemTime.wSecond,
+                                           creationSystemTime.wMilliseconds);
 
     bdlt::Datetime epoch(1970, 1, 1, 0, 0, 0, 0);
 
@@ -1527,8 +1500,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::initialize(
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::collect(
-                                    balb::PerformanceMonitor::Statistics *stats)
+int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+::collect(Statistics *stats)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -1566,11 +1539,10 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::collect(
 
     PDH_FMT_COUNTERVALUE values[COUNTER_MAX];
     for (int i = 0; i < COUNTER_MAX; ++i) {
-        if (ERROR_SUCCESS != (rc = PdhGetFormattedCounterValue(
-                                  d_counters[i],
-                                  PDH_FMT_DOUBLE,
-                                  0,
-                                  &values[i])))
+        if (ERROR_SUCCESS != (rc = PdhGetFormattedCounterValue(d_counters[i],
+                                                               PDH_FMT_DOUBLE,
+                                                               0,
+                                                               &values[i])))
         {
             BALL_LOG_DEBUG << "Failed to collect performance measures"
                            << BALL_LOG_END;
@@ -1655,7 +1627,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::collect(
 
 // CREATORS
 balb::PerformanceMonitor::Statistics::Statistics(
-        bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_pid(0)
 , d_description(basicAllocator)
 , d_startTimeUtc()
@@ -1674,8 +1646,8 @@ void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os) const
     }
 }
 
-void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os,
-                                                Measure measure) const
+void balb::PerformanceMonitor::Statistics::print(bsl::ostream&   os,
+                                                 Measure measure) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
 
@@ -1765,8 +1737,7 @@ void balb::PerformanceMonitor::Statistics::reset()
 }
 
 namespace balb {
-PerformanceMonitor::PerformanceMonitor(
-        bslma::Allocator *basicAllocator)
+PerformanceMonitor::PerformanceMonitor(bslma::Allocator *basicAllocator)
 : d_pidMap(basicAllocator)
 , d_interval(0)
 , d_scheduler_p(0)
@@ -1777,9 +1748,9 @@ PerformanceMonitor::PerformanceMonitor(
 }
 
 PerformanceMonitor::PerformanceMonitor(
-        bdlmt::TimerEventScheduler *scheduler,
-        double                    interval,
-        bslma::Allocator         *basicAllocator)
+                                    bdlmt::TimerEventScheduler *scheduler,
+                                    double                      interval,
+                                    bslma::Allocator           *basicAllocator)
 : d_pidMap(basicAllocator)
 , d_interval(interval)
 , d_scheduler_p(scheduler)
@@ -1791,11 +1762,9 @@ PerformanceMonitor::PerformanceMonitor(
         BSLS_ASSERT(d_scheduler_p);
 
         d_clock = d_scheduler_p->startClock(
-                         bsls::TimeInterval(interval),
-                         bdlf::BindUtil::bind(&PerformanceMonitor::collect,
-                                             this),
-                         bdlt::CurrentTime::now() +
-                         bsls::TimeInterval(interval));
+                      bsls::TimeInterval(interval),
+                      bdlf::BindUtil::bind(&PerformanceMonitor::collect, this),
+                      bdlt::CurrentTime::now() + bsls::TimeInterval(interval));
     }
 }
 
@@ -1820,8 +1789,7 @@ PerformanceMonitor::~PerformanceMonitor()
 
 // MANIPULATORS
 
-int PerformanceMonitor::registerPid(int                pid,
-                                         const bsl::string& description)
+int PerformanceMonitor::registerPid(int pid, const bsl::string &description)
 {
     if (pid == 0) {
         pid = currentProcessPid();
@@ -1838,8 +1806,7 @@ int PerformanceMonitor::registerPid(int                pid,
     }
 
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
-    d_pidMap.insert(bsl::make_pair(pid,
-                                   bsl::make_pair(stats, collector)));
+    d_pidMap.insert(bsl::make_pair(pid, bsl::make_pair(stats, collector)));
 
     return 0;
 }
@@ -1872,11 +1839,9 @@ void PerformanceMonitor::setCollectionInterval(double interval)
         }
 
         d_clock = d_scheduler_p->startClock(
-                         bsls::TimeInterval(interval),
-                         bdlf::BindUtil::bind(&PerformanceMonitor::collect,
-                                             this),
-                         bdlt::CurrentTime::now() +
-                         bsls::TimeInterval(interval));
+                      bsls::TimeInterval(interval),
+                      bdlf::BindUtil::bind(&PerformanceMonitor::collect, this),
+                      bdlt::CurrentTime::now() + bsls::TimeInterval(interval));
     }
 
     d_interval = interval;
