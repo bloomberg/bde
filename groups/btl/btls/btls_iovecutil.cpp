@@ -297,22 +297,22 @@ int IovecUtil::length(const Ovec *buffers, int numBuffers)
     return genericLength(buffers, numBuffers);
 }
 
-void IovecUtil::pivot(int         *bufferIdx,
+void IovecUtil::pivot(int         *bufferIndex,
                       int         *offset,
                       const Iovec *buffers,
                       int          numBuffers,
                       int          position)
 {
-    genericPivot(bufferIdx, offset, buffers, numBuffers, position);
+    genericPivot(bufferIndex, offset, buffers, numBuffers, position);
 }
 
-void IovecUtil::pivot(int        *bufferIdx,
+void IovecUtil::pivot(int        *bufferIndex,
                       int        *offset,
                       const Ovec *buffers,
                       int         numBuffers,
                       int         position)
 {
-    genericPivot(bufferIdx, offset, buffers, numBuffers, position);
+    genericPivot(bufferIndex, offset, buffers, numBuffers, position);
 }
 
 int IovecUtil::scatter(const Iovec *buffers,

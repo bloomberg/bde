@@ -90,9 +90,9 @@ BSLS_IDENT("$Id: $")
     #define INCLUDED_UNISTD
     #endif
 
-    #ifndef INCLUDED_SYS_UIO
+    #ifndef INCLUDED_UIO_H
     #include <sys/uio.h>
-    #define INCLUDED_SYS_UIO
+    #define INCLUDED_UIO_H
     #endif
 #endif
 

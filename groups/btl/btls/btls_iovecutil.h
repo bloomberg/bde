@@ -130,23 +130,24 @@ struct IovecUtil {
         // sequence of 'buffers' of the specified 'numBuffers' length.  The
         // behavior is undefined unless '0 <= numBuffers'.
 
-    static void pivot(int         *bufferIdx,
+    static void pivot(int         *bufferIndex,
                       int         *offset,
                       const Iovec *buffers,
                       int          numBuffers,
                       int          position);
-    static void pivot(int         *bufferIdx,
+    static void pivot(int         *bufferIndex,
                       int         *offset,
                       const Ovec  *buffers,
                       int          numBuffers,
                       int          position);
-        // Load into the specified 'bufferIdx' the index of the buffer and into
-        // the specified 'offset' the offset within that buffer of the byte
-        // corresponding to the specified 'position' in the specified sequence
-        // of 'buffers' of the specified 'numBuffers' length.  The behavior is
-        // undefined unless '0 <= numBuffers' and '0 <= position'.  Note that
-        // if 'position' is greater than the total length of the 'buffers',
-        // 'bufferIdx' is set to 'numBuffers', and 'offset' is not changed.
+        // Load into the specified 'bufferIndex' the index of the buffer and
+        // into the specified 'offset' the offset within that buffer of the
+        // byte corresponding to the specified 'position' in the specified
+        // sequence of 'buffers' of the specified 'numBuffers' length.  The
+        // behavior is undefined unless '0 <= numBuffers' and '0 <= position'.
+        // Note that if 'position' is greater than the total length of the
+        // 'buffers', 'bufferIndex' is set to 'numBuffers', and 'offset' is not
+        // changed.
 
     static int scatter(const Iovec *buffers,
                        int          numBuffers,
