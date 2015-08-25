@@ -47,7 +47,9 @@
 
 #include <bslx_byteoutstream.h>
 #include <bslx_byteinstream.h>
+#include <bslx_instreamfunctions.h>
 #include <bslx_marshallingutil.h>
+#include <bslx_outstreamfunctions.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -7830,9 +7832,11 @@ const int versionSelector = 20140601;
 static void
 generateMessage(btlb::Blob& msg, bslma::Allocator *basicAllocator = 0)
 {
+    using bslx::OutStreamFunctions::bdexStreamOut;
+
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     bslx::ByteOutStream stream(versionSelector, basicAllocator);
-    bdex_OutStreamFunctions::streamOut(stream, now, 1);
+    bdexStreamOut(stream, now, 1);
     int streamedLength = stream.length();
     msg.setLength(sizeof(int) + streamedLength);
     btlb::BlobUtil::append(&msg, stream.data(), sizeof(int), streamedLength);
@@ -8104,6 +8108,8 @@ void *usageExampleMinusOne(void *arg)
 
     int numConnections = NUM_CONNECTIONS * NUM_ITERS;
     while (numConnections) {
+        using bslx::InStreamFunctions::bdexStreamIn;
+
         BlobTypeWithId msg = incoming.popFront();
 
         // Process message here
@@ -8113,7 +8119,7 @@ void *usageExampleMinusOne(void *arg)
         bslx::ByteInStream stream(msgData, msg.second.length()
                                      - sizeof(int));
         bsls::TimeInterval initialTime;
-        bdex_InStreamFunctions::streamIn(stream, initialTime, 1);
+        bdexStreamIn(stream, initialTime, 1);
         now -= initialTime;
         int channelId = msg.first;
         if (veryVerbose) {
