@@ -223,9 +223,15 @@ BSLS_IDENT("$Id: $")
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:
 //..
-//  bool sendData(size_t dataSize);
+//  bool sendData(size_t dataSize)
 //      // Send a specified 'dataSize' amount of data over the network.  Return
 //      // 'true' if data was sent successfully and 'false' otherwise.
+//  {
+//      (void)(dataSize);
+//      // For simplicity, 'sendData' will not actually send any data and will
+//      // always return 'true'.
+//      return true;
+//  }
 //..
 // First, we create a 'btls::RateLimiter' object having a sustained rate of
 // 1024 bytes/s, a sustained-rate time-window of 0.5s (512 bytes / 1024
@@ -233,16 +239,16 @@ BSLS_IDENT("$Id: $")
 // 0.0625s (128 bytes / 2048 bytes/s):
 //..
 //  bsls::Types::Uint64 sustainedRateLimit = 1024;
-//  bsls::TimeInterval   sustainedRateWindow(0.5);
+//  bsls::TimeInterval  sustainedRateWindow(0.5);
 //  bsls::Types::Uint64 peakRateLimit = 2048;
-//  bsls::TimeInterval   peakRateWindow(0.0625);
-//  bsls::TimeInterval   now = bdlt::CurrentTime::now();
+//  bsls::TimeInterval  peakRateWindow(0.0625);
+//  bsls::TimeInterval  now = bdlt::CurrentTime::now();
 //
 //  btls::RateLimiter  rateLimiter(sustainedRateLimit,
-//                                sustainedRateWindow,
-//                                peakRateLimit,
-//                                peakRateWindow,
-//                                now);
+//                                 sustainedRateWindow,
+//                                 peakRateLimit,
+//                                 peakRateWindow,
+//                                 now);
 //..
 // Note that the rate limiter does not prevent the rate at any instant from
 // exceeding either the peak-rate or the sustained rate; instead, it prevents

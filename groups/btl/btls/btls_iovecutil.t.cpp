@@ -101,6 +101,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
+///Usage
+///-----
+//..
+//..
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -118,38 +122,39 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         enum {
-            BUFFER_MAX_SIZE = 5,
-            VECTOR_SIZE     = 100,
-            VECTOR_NB       = 14   // must be big enough to contain BUFFER_SIZE
+            k_BUFFER_MAX_SIZE = 5,
+            k_VECTOR_SIZE     = 100,
+            k_VECTOR_NB       = 14 // must be big enough to contain BUFFER_SIZE
         };
 
         // Generate seemingly random buffer.
         if (verbose) cout << "\tGenerating buffer...\n";
 
-        char buffer[VECTOR_SIZE];
-        for (int i = 0; i < VECTOR_SIZE; ++i) {
+        char buffer[k_VECTOR_SIZE];
+        for (int i = 0; i < k_VECTOR_SIZE; ++i) {
             buffer[i] = (char)(67 + i * (i+13));
             if (veryVerbose) { int c = buffer[i]; P_(c); }
         }
-        if (veryVerbose) { P_(BUFFER_MAX_SIZE); P(VECTOR_SIZE); }
+        if (veryVerbose) { P_(k_BUFFER_MAX_SIZE); P(k_VECTOR_SIZE); }
 
         if (verbose) cout << "\n\tWith 'btls::Iovec'.";
 
         // Try several buffer sizes for the 'factory'.
-        for (int m = 1; m < BUFFER_MAX_SIZE; ++m) {
+        for (int m = 1; m < k_BUFFER_MAX_SIZE; ++m) {
             btlb::PooledBlobBufferFactory factory(m, &testAllocator);
 
             if (verbose)
                 cout << "\tTrying factory of buffers of size " << m << ".\n";
 
         //--^
-        // Try any number of vectors, containing up to VECTOR_SIZE characters.
+        // Try any number of vectors, containing up to k_VECTOR_SIZE
+        // characters.
         for (int i = 1;
-             i < VECTOR_SIZE && (i * (i+1) / 2) < VECTOR_SIZE; ++i) {
-            btls::Iovec                    vecs[VECTOR_NB];
+             i < k_VECTOR_SIZE && (i * (i+1) / 2) < k_VECTOR_SIZE; ++i) {
+            btls::Iovec                    vecs[k_VECTOR_NB];
             int                           numVecs = 0;
 
-            // Generate up to VECTOR_NB vectors with vec[j].length() == j+1.
+            // Generate up to k_VECTOR_NB vectors with vec[j].length() == j+1.
             // The data is contiguously taken from the buffer.
             if (veryVerbose) cout << "\tGenerating vectors..." << m << "\n";
 
@@ -159,8 +164,8 @@ int main(int argc, char *argv[])
                 ++numVecs;
                 dataSize += j;
             }
-            ASSERT(numVecs <= VECTOR_NB);
-            ASSERT(dataSize <= VECTOR_SIZE);
+            ASSERT(numVecs <= k_VECTOR_NB);
+            ASSERT(dataSize <= k_VECTOR_SIZE);
             if (verbose) { T_; P_(numVecs); P(dataSize); }
 
             // Create a blob with 0 or more initial characters, append the
@@ -209,20 +214,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n\tWith 'btls::Iovec'.";
 
         // Try several buffer sizes for the 'factory'.
-        for (int m = 1; m < BUFFER_MAX_SIZE; ++m) {
+        for (int m = 1; m < k_BUFFER_MAX_SIZE; ++m) {
             btlb::PooledBlobBufferFactory factory(m, &testAllocator);
 
             if (verbose)
                 cout << "\tTrying factory of buffers of size " << m << ".\n";
 
         //--^
-        // Try any number of vectors, containing up to VECTOR_SIZE characters.
+        // Try any number of vectors, containing up to k_VECTOR_SIZE
+        // characters.
         for (int i = 1;
-             i < VECTOR_SIZE && (i * (i+1) / 2) < VECTOR_SIZE; ++i) {
-            btls::Ovec vecs[VECTOR_NB];
+             i < k_VECTOR_SIZE && (i * (i+1) / 2) < k_VECTOR_SIZE; ++i) {
+            btls::Ovec vecs[k_VECTOR_NB];
             int       numVecs = 0;
 
-            // Generate up to VECTOR_NB vectors with vec[j].length() == j+1.
+            // Generate up to k_VECTOR_NB vectors with vec[j].length() == j+1.
             // The data is contiguously taken from the buffer.
             if (veryVerbose) cout << "\tGenerating vectors..." << m << "\n";
 
@@ -232,8 +238,8 @@ int main(int argc, char *argv[])
                 ++numVecs;
                 dataSize += j;
             }
-            ASSERT(numVecs <= VECTOR_NB);
-            ASSERT(dataSize <= VECTOR_SIZE);
+            ASSERT(numVecs <= k_VECTOR_NB);
+            ASSERT(dataSize <= k_VECTOR_SIZE);
             if (verbose) { T_; P_(numVecs); P(dataSize); }
 
             // Create a blob with 0 or more initial characters, append the

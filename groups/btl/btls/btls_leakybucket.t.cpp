@@ -431,19 +431,18 @@ static Ti testLB(T&        object,
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified data buffer over that network interface:
 //..
-bool sendData(const char *buffer, size_t dataSize)
-    // Send the specified 'buffer' of the specified size 'dataSize' through
-    // the network interface.  Return 'true' if data was sent successfully,
-    // and 'false' otherwise.
-{
-    (void) buffer;
-    (void) dataSize;
-//..
-// In our example we don`t deal with actual data sending, so we assume that the
-// function sends data successfully and return true.
-//..
-    return true;
-}
+    bool sendData(const char *buffer, size_t dataSize)
+        // Send the specified 'buffer' of the specified size 'dataSize' through
+        // the network interface.  Return 'true' if data was sent successfully,
+        // and 'false' otherwise.
+    {
+        (void) buffer;
+        (void) dataSize;
+
+        // In our example we don`t deal with actual data sending, so we assume
+        // that the function sends data successfully and return true.
+        return true;
+    }
 //..
 
 // ============================================================================
@@ -452,10 +451,8 @@ bool sendData(const char *buffer, size_t dataSize)
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-//  bool     veryVerbose = argc > 3;
-//  bool veryVeryVerbose = argc > 4;
+    int     test = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -483,21 +480,20 @@ int main(int argc, char *argv[])
 // interval from unix epoch).  Note that 'unit', the unit of measurement for
 // leaky bucket, corresponds to 'byte' in this example:
 //..
-  bsls::Types::Uint64 rate     = 512;  // bytes/second
-  bsls::Types::Uint64 capacity = 2560; // bytes
-  bsls::TimeInterval   now      = bdlt::CurrentTime::now();
-  btls::LeakyBucket    bucket(rate, capacity, now);
+    bsls::Types::Uint64 rate     = 512;  // bytes/second
+    bsls::Types::Uint64 capacity = 2560; // bytes
+    bsls::TimeInterval  now      = bdlt::CurrentTime::now();
+    btls::LeakyBucket   bucket(rate, capacity, now);
 //..
 // Then, we define a data buffer to be sent, the size of each data chunk, and
 // the total size of the data to transmit:
 //..
-  char                buffer[5120];
-  unsigned int        chunkSize  = 256;             // in bytes
-  bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
-  bsls::Types::Uint64 dataSent   = 0;               // in bytes
-//
-//  // Load 'buffer'.
-//  // ...
+    char                buffer[5120];
+    unsigned int        chunkSize  = 256;             // in bytes
+    bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
+    bsls::Types::Uint64 dataSent   = 0;               // in bytes
+
+    // Load 'buffer'...
 //..
 // Notice that, for the sake of brevity, we elide the loading of 'buffer' with
 // the data to be sent.
@@ -508,30 +504,31 @@ int main(int argc, char *argv[])
 // sent to the leaky bucket.  Note that 'submit' is invoked only after the data
 // has been sent.
 //..
-  char *data = buffer;
-  while (dataSent < totalSize) {
-      now = bdlt::CurrentTime::now();
-      if (!bucket.wouldOverflow(now)) {
-          if (true == sendData(data, chunkSize)) {
-              data += chunkSize;
-              bucket.submit(chunkSize);
-              dataSent += chunkSize;
-          }
-      }
+    char *data = buffer;
+    while (dataSent < totalSize) {
+        now = bdlt::CurrentTime::now();
+        if (!bucket.wouldOverflow(now)) {
+            if (true == sendData(data, chunkSize)) {
+                data += chunkSize;
+                bucket.submit(chunkSize);
+                dataSent += chunkSize;
+            }
+        }
 //..
 // Finally, if submitting another byte will cause the leaky bucket to overflow,
 // then we wait until the submission will be allowed by waiting for an amount
 // time returned by the 'calculateTimeToSubmit' method:
 //..
-      else {
-          bsls::TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
+        else {
+            bsls::TimeInterval timeToSubmit =
+                                             bucket.calculateTimeToSubmit(now);
 
-          // Round up the number of microseconds.
-          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+            // Round up the number of microseconds.
+            bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                  ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0);
-          bdlqq::ThreadUtil::microSleep(uS);
-      }
-  }
+            bdlqq::ThreadUtil::microSleep(uS);
+        }
+    }
 //..
 // Notice that we wait by putting the thread into a sleep state instead of
 // using busy-waiting to better optimize for multi-threaded applications.

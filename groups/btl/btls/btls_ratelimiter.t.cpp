@@ -212,9 +212,10 @@ typedef unsigned int        uint;
 // that the usage curve to allowed to achieve.  In the example above:
 //
 //  o The area above the sustained rate 'Rs' (e.g., 'A1' or 'A2+B') should
-//    contain no more than 512 bytes.
+//    contain no more than 512 bytes (Rs * Ws).
 //
-//  o The area above the peak rate 'Rp' should contain no more than 128 bytes.
+//  o The area above the peak rate 'Rp' should contain no more than 128 bytes
+//    (Rp * Wp).
 //
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified amount of data over that network:
@@ -224,10 +225,8 @@ typedef unsigned int        uint;
         // 'true' if data was sent successfully and 'false' otherwise.
     {
         (void)(dataSize);
-//..
-// For simplicity, 'sendData' will not actually send any data and will always
-// return 'true'.
-//..
+        // For simplicity, 'sendData' will not actually send any data and will
+        // always return 'true'.
         return true;
     }
 //..
@@ -269,17 +268,17 @@ int main(int argc, char *argv[])
 // bytes/s), a peak-rate of 2048 bytes/s, and a peak-rate time-window of
 // 0.0625s (128 bytes / 2048 bytes/s):
 //..
-   bsls::Types::Uint64 sustainedRateLimit = 1024;
-   bsls::TimeInterval   sustainedRateWindow(0.5);
-   bsls::Types::Uint64 peakRateLimit = 2048;
-   bsls::TimeInterval   peakRateWindow(0.0625);
-   bsls::TimeInterval   now = bdlt::CurrentTime::now();
+    bsls::Types::Uint64 sustainedRateLimit = 1024;
+    bsls::TimeInterval  sustainedRateWindow(0.5);
+    bsls::Types::Uint64 peakRateLimit = 2048;
+    bsls::TimeInterval  peakRateWindow(0.0625);
+    bsls::TimeInterval  now = bdlt::CurrentTime::now();
 
-   btls::RateLimiter  rateLimiter(sustainedRateLimit,
-                                 sustainedRateWindow,
-                                 peakRateLimit,
-                                 peakRateWindow,
-                                 now);
+    btls::RateLimiter  rateLimiter(sustainedRateLimit,
+                                   sustainedRateWindow,
+                                   peakRateLimit,
+                                   peakRateWindow,
+                                   now);
 //..
 // Note that the rate limiter does not prevent the rate at any instant from
 // exceeding either the peak-rate or the sustained rate; instead, it prevents
@@ -290,15 +289,15 @@ int main(int argc, char *argv[])
 // Then, we define the size of data to be send, the size of each data chunk,
 // and a counter of data actually sent:
 //..
-   bsls::Types::Uint64 sizeOfData = 10 * 1024; // in bytes
-   bsls::Types::Uint64 chunkSize  = 64;        // in bytes
-   bsls::Types::Uint64 bytesSent  = 0;
+    bsls::Types::Uint64 sizeOfData = 10 * 1024; // in bytes
+    bsls::Types::Uint64 chunkSize  = 64;        // in bytes
+    bsls::Types::Uint64 bytesSent  = 0;
 //..
-// Now, we send the chunks of data using a loop.  For each iteration, we
-// checked whether submitting another byte would exceed the rate limiter's
-// bandwidth limits.  If not, we send an additional chunk of data and submit
-// the number of bytes sent to the leaky bucket.  Note that 'submit' is invoked
-// only after the data has been sent.
+// Now, we send the chunks of data using a loop.  For each iteration, we check
+// whether submitting another byte would exceed the rate limiter's bandwidth
+// limits.  If not, we send an additional chunk of data and submit the number
+// of bytes sent to the leaky bucket.  Note that 'submit' is invoked only after
+// the data has been sent.
 //..
     while (bytesSent < sizeOfData) {
         now = bdlt::CurrentTime::now();

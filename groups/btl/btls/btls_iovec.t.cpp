@@ -294,27 +294,46 @@ int main(int argc, char *argv[]) {
         // Testing
         // USAGE
         // --------------------------------------------------------------------
-        char buf1[10];
-        char buf2[4];
-        char buf3[7];
-        btls::Ovec vector[3];
-        vector[0].setBuffer(buf1, 10);
-        vector[1].setBuffer(buf2, 4);
-        vector[2].setBuffer(buf3, 7);
 
-#ifndef BSLS_PLATFORM_CMP_MSVC
+///Usage
+///-----
+// The following snippets of code illustrate how to use 'btls::Iovec' with
+// platform dependent scatter/gather operations.  Typically, an array of
+// structures is created with each element containing a pointer to a buffer.  A
+// pointer to the array of 'btls::Ovec' or 'btls::Iovec' is passed to the IO
+// operation.  In this example an array of 3 buffer pointers is created.
+//..
+    char buf1[10];
+    char buf2[4];
+    char buf3[7];
+    btls::Ovec vector[3];
+    vector[0].setBuffer(buf1, 10);
+    vector[1].setBuffer(buf2, 4);
+    vector[2].setBuffer(buf3, 7);
+//..
+// On UNIX-like systems the internal structure of 'btls::Iovec' and
+// 'btls::Ovec' use the 'iovec' 'struct'.  This structure is used for the
+// 'writev' and 'readv' scatter/gather read/write operations or within the
+// 'msgbuf' 'struct' used by 'sendmsg' and 'readmsg' socket operations.
+//
+// On Windows the internal structure of 'btls::Iovec' and 'btls::Ovec' use the
+// 'WSABUF' 'struct'.  This structure is used for the 'WSARecv' and 'WSASend'
+// scatter/gather send/receive socket operations or within the 'WSAMSG'
+// 'struct' used by 'WSARecvMsg' and 'WSASendMsg' socket operations.
+//..
+    #ifndef BSLS_PLATFORM_CMP_MSVC
         // Verify values for UNIX like systems
         int socket = 0;
         ::writev(socket, (struct iovec *) vector, 3);
-#else
+    #else
         // Verify values for Windows
         DWORD writeCount = 0;
         SOCKET socket = (SOCKET) 0;
         int ret =
                TestWSASend(socket, (WSABUF *) vector, 3, &writeCount, 0, 0, 0);
-#endif
+    #endif
+//..
       } break;
-
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

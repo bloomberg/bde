@@ -245,10 +245,18 @@ BSLS_IDENT("$Id: $")
 // Further suppose that we have a function, 'sendData', that transmits a
 // specified data buffer over that network interface:
 //..
-//  bool sendData(const char *buffer, size_t dataSize);
+//  bool sendData(const char *buffer, size_t dataSize)
 //      // Send the specified 'buffer' of the specified size 'dataSize' through
 //      // the network interface.  Return 'true' if data was sent successfully,
 //      // and 'false' otherwise.
+//  {
+//      (void) buffer;
+//      (void) dataSize;
+//
+//      // In our example we don`t deal with actual data sending, so we assume
+//      // that the function sends data successfully and return true.
+//      return true;
+//  }
 //..
 // First, we create a leaky bucket having a drain rate of 512 bytes/s, a
 // capacity of 2560 bytes, and a time origin set to the current time (as an
@@ -257,8 +265,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsls::Types::Uint64 rate     = 512;  // bytes/second
 //  bsls::Types::Uint64 capacity = 2560; // bytes
-//  bsls::TimeInterval  now       = bdlt::CurrentTime::now();
-//
+//  bsls::TimeInterval  now      = bdlt::CurrentTime::now();
 //  btls::LeakyBucket   bucket(rate, capacity, now);
 //..
 // Then, we define a data buffer to be sent, the size of each data chunk, and
@@ -269,8 +276,7 @@ BSLS_IDENT("$Id: $")
 //  bsls::Types::Uint64 totalSize  = 20 * chunkSize;  // in bytes
 //  bsls::Types::Uint64 dataSent   = 0;               // in bytes
 //
-//  // Load 'buffer'.
-//  // ...
+//  // Load 'buffer'...
 //..
 // Notice that, for the sake of brevity, we elide the loading of 'buffer' with
 // the data to be sent.
