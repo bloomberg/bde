@@ -8,8 +8,8 @@ BSLS_IDENT_RCSID(btlb_blobstreambuf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <bsl_algorithm.h>  // min
-#include <bsl_cstdio.h>  // EOF
+#include <bsl_algorithm.h>
+#include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_string.h>
 
@@ -19,10 +19,11 @@ BSLS_IDENT_RCSID(btlb_blobstreambuf_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-namespace btlb {                        // ===========================
+namespace btlb {
 
-                        // class InBlobStreamBuf
-                        // ===========================
+                          // =====================
+                          // class InBlobStreamBuf
+                          // =====================
 
 // PRIVATE MANIPULATORS
 void InBlobStreamBuf::setGetPosition(bsl::size_t position)
@@ -130,8 +131,9 @@ InBlobStreamBuf::pbackfail(InBlobStreamBuf::int_type c)
 
     if (gptr() == eback()) {
         if (0 == d_getBufferIndex) {
-            return traits_type::eof(); // No put-back position available
-                                                                      // RETURN
+             // No put-back position available.
+
+            return traits_type::eof();                                // RETURN
         }
         else {
             d_getBufferIndex--;

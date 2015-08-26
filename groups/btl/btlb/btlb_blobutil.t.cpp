@@ -11,12 +11,15 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_strstream.h>
 
 using namespace BloombergLP;
@@ -81,10 +84,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                   STANDARD BDEMA EXCEPTION TEST MACROS
-// ----------------------------------------------------------------------------
-
-// ============================================================================
 //                            CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -98,6 +97,10 @@ class BlobBufferFactory : public btlb::BlobBufferFactory {
     // PRIVATE DATA MEMBERS
     int               d_size;
     bslma::Allocator *d_allocator_p;
+
+  private:
+    // Not implemented:
+    BlobBufferFactory(const BlobBufferFactory&);
 
   public:
     // CREATORS
@@ -311,7 +314,7 @@ static bool bad_jk(int j, int k, btlb::Blob& blob)
 int main(int argc, char *argv[]) {
 
     bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
-    // The line above will not be needed once bsls is updated.
+    // The line above will not be needed once 'bsls' is updated.
 
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
@@ -1289,9 +1292,7 @@ int main(int argc, char *argv[]) {
         //     (e) 33 buffers.  Verify correctness.
         //
         // Testing:
-        // static bsl::ostream& hexDump(bsl::ostream&     stream,
-        //                              const btlb::Blob& source);
-        //
+        //   static bsl::ostream& hexDump(stream, source);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'hexdump' Function"

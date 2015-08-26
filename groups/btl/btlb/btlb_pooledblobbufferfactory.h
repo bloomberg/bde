@@ -79,7 +79,7 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
 };
 
 // ============================================================================
-//                INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                       // -----------------------------
@@ -92,8 +92,8 @@ int PooledBlobBufferFactory::bufferSize() const
 {
     return d_bufferSize;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -7,6 +7,7 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_cstring.h>     // 'memcpy', 'memset'
@@ -63,9 +64,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  STANDARD BDEMA EXCEPTION TEST MACROS
-//-----------------------------------------------------------------------------
 //=============================================================================
 //                               GLOBAL TYPEDEF
 //-----------------------------------------------------------------------------

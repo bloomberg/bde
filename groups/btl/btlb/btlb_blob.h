@@ -64,9 +64,9 @@ BSLS_IDENT("$Id: $")
 // flexibility of 'btlb::Blob' is the possibility for buffers in the sequence
 // to have different sizes (as opposed to a uniform fixed size for
 // 'btlb::PooledBufferChain').  When choosing whether to use a 'btlb::Blob' vs.
-// a 'btlb::PooledBufferChain', one must consider the added flexibility vs. the
-// added cost of shared ownership for each individual buffer and random access
-// to the buffer.
+// a 'btlb::PooledBufferChain', one must consider the added flexibility versus
+// the added cost of shared ownership for each individual buffer and random
+// access to the buffer.
 //
 ///Thread-Safety
 ///-------------
@@ -213,10 +213,10 @@ BSLS_IDENT("$Id: $")
 //                     const bsl::string&  prolog,
 //                     bslma::Allocator   *allocator = 0);
 //      // Prepend the specified 'prolog' to the specified 'blob', using the
-//      // specified 'allocator' to supply any memory (or the currently
-//      // installed default allocator if 'allocator' is 0).  The behavior is
-//      // undefined unless 'blob' points to an initialized 'btlb::Blob'
-//      // instance.
+//      // optionally specified 'allocator' to supply any memory (or the
+//      // currently installed default allocator if 'allocator' is 0).  The
+//      // behavior is undefined unless 'blob' points to an initialized
+//      // 'btlb::Blob' instance.
 //
 //  template <class DELETER>
 //  void composeMessage(btlb::Blob         *blob,
@@ -230,21 +230,23 @@ BSLS_IDENT("$Id: $")
 //      // 'prolog' and of the payload in the 'numVectors' buffers pointed to
 //      // by the specified 'vectors' of the respective 'vectorSizes'.
 //      // Ownership of the vectors is transferred to the 'blob' which will use
-//      // the specified 'deleter' to destroy them.  Use the specified
-//      // 'allocator' to supply memory, or the currently installed default
-//      // allocator if 'allocator' is 0.  Note that any buffer belonging to
-//      // 'blob' prior to composing the message is not longer in 'blob' after
-//      // composing the message.  Note also that 'blob' need not have been
-//      // created with a blob buffer factory.  The behavior is undefined
-//      // unless 'blob' points to an initialized 'btlb::Blob' instance.
+//      // the specified 'deleter' to destroy them.  Use the optionally
+//      // specified 'allocator' to supply memory, or the currently installed
+//      // default allocator if 'allocator' is 0.  Note that any buffer
+//      // belonging to 'blob' prior to composing the message is not longer in
+//      // 'blob' after composing the message.  Note also that 'blob' need not
+//      // have been created with a blob buffer factory.  The behavior is
+//      // undefined unless 'blob' points to an initialized 'btlb::Blob'
+//      // instance.
 //
 //  int timestampMessage(btlb::Blob *blob, bslma::Allocator *allocator = 0);
 //      // Insert a timestamp data buffer immediately after the prolog buffer
 //      // and prior to any payload buffer.  Return the number of bytes
-//      // inserted.  Use the specified 'allocator' to supply memory, or the
-//      // currently installed default allocator if 'allocator' is 0.  The
-//      // behavior is undefined unless 'blob' points to an initialized
-//      // 'btlb::Blob' instance with at least one data buffer.
+//      // inserted.  Use the optionally specified 'allocator' to supply
+//      // memory, or the currently installed default allocator if 'allocator'
+//      // is 0.  The behavior is undefined unless the specified 'blob' points
+//      // to an initialized 'btlb::Blob' instance with at least one data
+//      // buffer.
 //..
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
@@ -406,10 +408,10 @@ namespace btlb {
 
 class BlobBuffer {
     // 'BlobBuffer' is a simple in-core representation of a shared buffer.
-    // This class is exception-neutral with no guarantee of rollback:
-    // if an exception is thrown during the invocation of a method on a
-    // pre-existing instance, the container is left in a valid state, but its
-    // value is undefined.  In no event is memory leaked.
+    // This class is exception-neutral with no guarantee of rollback: if an
+    // exception is thrown during the invocation of a method on a pre-existing
+    // instance, the container is left in a valid state, but its value is
+    // undefined.  In no event is memory leaked.
 
     // DATA
     bsl::shared_ptr<char> d_buffer;  // shared buffer
@@ -476,8 +478,9 @@ class BlobBuffer {
                         int           spacesPerLevel = 4) const;
         // Format this object as a hexadecimal dump on the specified 'stream',
         // and return a reference to the modifiable 'stream'.  Note that the
-        // specified 'level' and 'spacesPerLevel' arguments are specified for
-        // interface compatibility only and are effectively ignored.
+        // optionally specified 'level' and 'spacesPerLevel' arguments are
+        // specified for interface compatibility only and are effectively
+        // ignored.
 };
 }  // close package namespace
 
@@ -505,9 +508,9 @@ bool operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs);
     // the same value, and 'false' otherwise.  Two blob buffers do not have the
     // same value if they do not represent the same buffer of the same size.
 
-bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& rhs);
-    // Format the specified 'rhs' blob buffer to the specified output 'stream',
-    // and return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& buffer);
+    // Format the specified blob 'buffer' to the specified output 'stream', and
+    // return a reference to the modifiable 'stream'.
 
                          // =======================
                          // class BlobBufferFactory
@@ -625,7 +628,7 @@ class Blob {
 
     void appendBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last buffer of this blob.
-        // The length of this blob is uneffected.  Note that this operation is
+        // The length of this blob is unaffected.  Note that this operation is
         // equivalent to 'insert(numBuffers(), buffer)', but is more efficient.
 
     void appendDataBuffer(const BlobBuffer& buffer);
@@ -797,7 +800,7 @@ BlobBuffer::BlobBuffer()
 
 inline
 BlobBuffer::BlobBuffer(const bsl::shared_ptr<char>& buffer,
-                                   int                          size)
+                       int                          size)
 : d_buffer(buffer)
 , d_size(size)
 {

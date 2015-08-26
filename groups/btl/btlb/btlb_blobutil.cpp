@@ -572,8 +572,9 @@ int BlobUtil::compare(const Blob& a, const Blob& b)
             rhsBufSize = nextLhsBufSize;
             rhsPtr     = nextLhsBlobBuffer.data();
 
-            bsl::swap(lhsBlob,   rhsBlob);
-            bsl::swap(lhsBufIdx, rhsBufIdx);
+            using bsl::swap;
+            swap(lhsBlob,   rhsBlob);
+            swap(lhsBufIdx, rhsBufIdx);
         }
     }
 

@@ -5,6 +5,9 @@
 
 #include <bdls_testutil.h>
 
+#include <bdlt_datetime.h>
+
+#include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -15,6 +18,7 @@
 #include <bsl_cstring.h>     // 'memset'/memcmp()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -117,10 +121,11 @@ class testBlobBufferFactory : public btlb::BlobBufferFactory
     bool growFlag() const;
 };
 
-testBlobBufferFactory::testBlobBufferFactory(bslma::Allocator *allocator,
-                                             bsl::size_t       currentBufSize)
+testBlobBufferFactory::testBlobBufferFactory(
+                                           bslma::Allocator *allocator,
+                                           bsl::size_t       currentBufferSize)
 : d_allocator_p(allocator)
-, d_currentBufferSize(currentBufSize)
+, d_currentBufferSize(currentBufferSize)
 , d_growFlag(true)
 {
 }

@@ -3,11 +3,13 @@
 
 #include <bdls_testutil.h>
 
+#include <bdlt_datetime.h>                      // for testing only
 #include <bdlt_datetimeutil.h>                  // for testing only
 #include <bdlt_currenttime.h>                   // for testing only
 #include <bslx_byteoutstream.h>                 // for testing only
 #include <bslx_marshallingutil.h>               // for testing only
 
+#include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -20,6 +22,7 @@
 #include <bsl_vector.h>
 
 #include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
 
@@ -225,7 +228,7 @@ void loadBlob(btlb::Blob *blob, bsl::string& dataString)
     }
 }
 
-void blobToStr(bsl::string * str, const btlb::Blob& blob) {
+void blobToStr(bsl::string *string, const btlb::Blob& blob) {
     const int NUM_PRE_DATA_BUFFERS = blob.numDataBuffers() - 1;
     const int DATA_LENGTH          = blob.length();
 
@@ -233,19 +236,19 @@ void blobToStr(bsl::string * str, const btlb::Blob& blob) {
         return;                                                       // RETURN
     }
 
-    str->reserve(DATA_LENGTH);
+    string->reserve(DATA_LENGTH);
 
     int bufferIdx = 0;
 
     for ( ; bufferIdx < NUM_PRE_DATA_BUFFERS; ++bufferIdx) {
         const btlb::BlobBuffer& buffer = blob.buffer(bufferIdx);
-        str->append(buffer.data(), buffer.size());
+        string->append(buffer.data(), buffer.size());
     }
 
     const btlb::BlobBuffer& buffer = blob.buffer(bufferIdx);
-    int toAppend = DATA_LENGTH - str->length();
+    int toAppend = DATA_LENGTH - string->length();
     ASSERT(toAppend <= buffer.size());
-    str->append(buffer.data(), toAppend);
+    string->append(buffer.data(), toAppend);
 }
 
 bool checkBlob(const btlb::Blob& blob, const bsl::string& dataString)
@@ -303,18 +306,18 @@ bool compareBlobBufferData(const btlb::BlobBuffer& blobBuffer, char value)
 bool compareBuffersData(const btlb::Blob& blob,
                         int               numBuffers,
                         char              value,
-                        int               exceptIdx = -1)
+                        int               exceptIndex = -1)
     // Return 'true' if the specified 'numBuffers' in the specified 'blob' all
     // contain the specified 'value' and 'false' otherwise.  Optionally,
-    // specify 'exceptIdx' of the a blob buffer to skip from comparison.
+    // specify 'exceptIndex' of the a blob buffer to skip from comparison.
 {
-    ASSERT(-1 <= exceptIdx && exceptIdx < numBuffers);
+    ASSERT(-1 <= exceptIndex && exceptIndex < numBuffers);
 
     if (0 == numBuffers) {
         return false;                                                 // RETURN
     }
     for (int i = 0; i < numBuffers; ++i) {
-        if (i == exceptIdx) {
+        if (i == exceptIndex) {
             continue;
         }
         if (!compareBlobBufferData(blob.buffer(i), value)) {
@@ -358,11 +361,12 @@ class TestBlobBufferFactory : public btlb::BlobBufferFactory
     bool growFlag() const;
 };
 
-TestBlobBufferFactory::TestBlobBufferFactory(bslma::Allocator *allocator,
-                                             bsl::size_t       currentBufSize,
-                                             bool              growFlag)
+TestBlobBufferFactory::TestBlobBufferFactory(
+                                           bslma::Allocator *allocator,
+                                           bsl::size_t       currentBufferSize,
+                                           bool              growFlag)
 : d_allocator_p(allocator)
-, d_currentBufferSize(currentBufSize)
+, d_currentBufferSize(currentBufferSize)
 , d_growFlag(growFlag)
 {
 }
@@ -484,10 +488,10 @@ class NullDeleter {
                        const bsl::string&  prolog,
                        bslma::Allocator   *allocator = 0);
         // Prepend the specified 'prolog' to the specified 'blob', using the
-        // specified 'allocator' to supply any memory (or the currently
-        // installed default allocator if 'allocator' is 0).  The behavior is
-        // undefined unless 'blob' points to an initialized 'btlb::Blob'
-        // instance.
+        // optionally specified 'allocator' to supply any memory (or the
+        // currently installed default allocator if 'allocator' is 0).  The
+        // behavior is undefined unless 'blob' points to an initialized
+        // 'btlb::Blob' instance.
 
     template <class DELETER>
     void composeMessage(btlb::Blob         *blob,
@@ -501,21 +505,23 @@ class NullDeleter {
         // 'prolog' and of the payload in the 'numVectors' buffers pointed to
         // by the specified 'vectors' of the respective 'vectorSizes'.
         // Ownership of the vectors is transferred to the 'blob' which will use
-        // the specified 'deleter' to destroy them.  Use the specified
-        // 'allocator' to supply memory, or the currently installed default
-        // allocator if 'allocator' is 0.  Note that any buffer belonging to
-        // 'blob' prior to composing the message is not longer in 'blob' after
-        // composing the message.  Note also that 'blob' need not have been
-        // created with a blob buffer factory.  The behavior is undefined
-        // unless 'blob' points to an initialized 'btlb::Blob' instance.
+        // the specified 'deleter' to destroy them.  Use the optionally
+        // specified 'allocator' to supply memory, or the currently installed
+        // default allocator if 'allocator' is 0.  Note that any buffer
+        // belonging to 'blob' prior to composing the message is not longer in
+        // 'blob' after composing the message.  Note also that 'blob' need not
+        // have been created with a blob buffer factory.  The behavior is
+        // undefined unless 'blob' points to an initialized 'btlb::Blob'
+        // instance.
 
     int timestampMessage(btlb::Blob *blob, bslma::Allocator *allocator = 0);
         // Insert a timestamp data buffer immediately after the prolog buffer
         // and prior to any payload buffer.  Return the number of bytes
-        // inserted.  Use the specified 'allocator' to supply memory, or the
-        // currently installed default allocator if 'allocator' is 0.  The
-        // behavior is undefined unless 'blob' points to an initialized
-        // 'btlb::Blob' instance with at least one data buffer.
+        // inserted.  Use the optionally specified 'allocator' to supply
+        // memory, or the currently installed default allocator if 'allocator'
+        // is 0.  The behavior is undefined unless the specified 'blob' points
+        // to an initialized 'btlb::Blob' instance with at least one data
+        // buffer.
 //..
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
