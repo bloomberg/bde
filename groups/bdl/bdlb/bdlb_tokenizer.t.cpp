@@ -1,6 +1,8 @@
 // bdlb_tokenizer.t.cpp                                               -*-C++-*-
 #include <bdlb_tokenizer.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bdls_testutil.h>
 
 #include <bdlb_strtokenrefiter.h>         // for performance compare only
@@ -465,7 +467,256 @@ int main(int argc, char **argv)
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS
+        //   Ensure that constructor with two parameters is "wired-up" and
+        //   defaults properly.
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   Tokenizer(const char *, const bslstl::StringRef&);
+        //   Tokenizer(const bslstl::StringRef&, const bslstl::StringRef&);
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "PRIMARY MANIPULATORS" << endl
+                          << "====================" << endl;
+
+        static const struct {
+                int         d_line;     // line number
+                const char *d_input;  // character to output
+                const char *d_soft;  // character to output
+                const char *d_hard;  // character to output
+                const char *d_token;
+                const char *d_delim;
+                const char *d_prevDelim;
+                bool        d_isValid;
+                bool        d_hasSoft;
+                bool        d_hasPrevSoft;
+                bool        d_isHard;
+                bool        d_isPrevHard;
+        } DATA[] = {
+            //LINE  INPUT  SOFT   HARD   TOKEN  DELIM  PREV   VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
+            //                                         DELIM          SOFT    SOFT               HARD
+            //----  -----  ----   ----   -----  -----  -----  -----   -----   --------  -------  -------
+            // { L_,   0,     0,     0,     "",    "",    "",    false,  false,  false,    false,   false   },
+            // { L_,   0,     0,     "",    "",    "",    "",    false,  false,  false,    false,   false   },
+            // { L_,   0,     "",    0,     "",    "",    "",    false,  false,  false,    false,   false   },
+            // { L_,   0,     "",    "",    "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   "",    0,     0,     "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   "",    0,     "",    "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   "",    "",    0,     "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   "",    "",    "",    "",    "",    "",    false,  false,  false,    false,   false   },
+            // { L_,   0,     ".",   "",    "",    "",    "",    false,  false,  false,    false,   false   },
+            // { L_,   0,     "",    "#",   "",    "",    "",    false,  false,  false,    false,   false   },
+            // { L_,   0,     ".",   "#",   "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   "",    "",    "#",   "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   "",    ".",   "",    "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   "",    ".",   "#",   "",    "",    "",    false,  false,  false,    false,   false   },
+            { L_,   ".",   ".",   "",    "",    "",    ".",   false,  false,  true,     false,   false   }, // should we add 0 as a hard delim?
+            { L_,   ".",   ".",   "#",   "",    "",    ".",   false,  false,  true,     false,   false   },
+            { L_,   "#",   "",    "#",   "",    "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "#",   ".",   "#",   "",    "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "T",   "",    "",    "T",   "",    "",    true,   false,  false,    false,   false   },
+            { L_,   "T",   "",    "#",   "T",   "",    "",    true,   false,  false,    false,   false   },
+            { L_,   "T",   ".",   "",    "T",   "",    "",    true,   false,  false,    false,   false   },
+            { L_,   "T",   ".",   "#",   "T",   "",    "",    true,   false,  false,    false,   false   },
+            { L_,   "..",  ".",   "#",   "",    "",    "..",  false,  false,  true,     false,   false   },
+            { L_,   "##",  "",    "#",   "",    "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "##",  ".",   "#",   "",    "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   ".#",  ".",   "#",   "",    "#",   ".",   true,   false,  true,     true,    false   },
+            { L_,   "#.",  ".",   "#",   "",    "#.",  "",    true,   true,   false,    true,    false   },
+            { L_,   ".T",  ".",   "",    "T",   "",    ".",   true,   false,  true,     false,   false   },
+            { L_,   ".T",  ".",   "#",   "T",   "",    ".",   true,   false,  true,     false,   false   },
+            { L_,   "#T",  "",    "#",   "",    "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "#T",  ".",   "#",   "",    "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "T.",  ".",   "",    "T",   ".",   "",    true,   true,   false,    false,   false   },
+            { L_,   "T.",  ".",   "#",   "T",   ".",   "",    true,   true,   false,    false,   false   },
+            { L_,   "T#",  "",    "#",   "T",   "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "T#",  ".",   "#",   "T",   "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "TT",  "",    "",    "TT",  "",    "",    true,   false,  false,    false,   false   },
+            { L_,   "TT",  "",    "#",   "TT",  "",    "",    true,   false,  false,    false,   false   },
+            { L_,   "TT",  ".",   "",    "TT",  "",    "",    true,   false,  false,    false,   false   },
+            { L_,   "TT",  ".",   "#",   "TT",  "",    "",    true,   false,  false,    false,   false   },
+            //LINE  INPUT  SOFT   HARD   TOKEN  DELIM  PREV   VALID   HAS     HAS_PREV  IS_HARD  IS_PREV
+            //                                         DELIM          SOFT    SOFT               HARD
+            //----  -----  ----   ----   -----  -----  -----  -----   -----   --------  -------  -------
+            { L_,   "...", ".",   "#",   "",    "",    "...", false,  false,  true,     false,   false   },
+            { L_,   "..#", ".",   "#",   "",    "#",   "..",  true,   false,  true,     true,    false   },
+            { L_,   "..T", ".",   "#",   "T",   "",    "..",  true,   false,  true,     false,   false   },
+            { L_,   ".#.", ".",   "#",   "",    "#.",  ".",   true,   true,   true,     true,    false   },
+            { L_,   ".##", ".",   "#",   "",    "#",   ".",   true,   false,  true,     true,    false   },
+            { L_,   ".#T", ".",   "#",   "",    "#",   ".",   true,   false,  true,     true,    false   },
+            { L_,   "#..", ".",   "#",   "",    "#..", "",    true,   true,   false,    true,    false   },
+            { L_,   "#.#", ".",   "#",   "",    "#.",  "",    true,   true,   false,    true,    false   },
+            { L_,   "#.T", ".",   "#",   "",    "#.",  "",    true,   true,   false,    true,    false   },
+            { L_,   "T..", ".",   "#",   "T",   "..",  "",    true,   true,   false,    false,   false   },
+            { L_,   "T.#", ".",   "#",   "T",   ".#",  "",    true,   true,   false,    true,    false   },
+            { L_,   "T.T", ".",   "#",   "T",   ".",   "",    true,   true,   false,    false,   false   },
+            { L_,   "T#.", ".",   "#",   "T",   "#.",  "",    true,   true,   false,    true,    false   },
+            { L_,   "T##", ".",   "#",   "T",   "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "T#T", ".",   "#",   "T",   "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "TT.", ".",   "#",   "TT",  ".",   "",    true,   true,   false,    false,   false   },
+            { L_,   "TT#", ".",   "#",   "TT",  "#",   "",    true,   false,  false,    true,    false   },
+            { L_,   "TTT", ".",   "#",   "TTT", "",    "",    true,   false,  false,    false,   false   },
+
+        };   // end table DATA
+        enum { DATA_LEN = sizeof DATA / sizeof *DATA };
+
+        if (veryVerbose) cout <<
+          "\tTesting 'bdlb::Tokenizer(const char*, const bslstl::StringRef&)'."
+                              << endl;
+        for (int i = 0; i < DATA_LEN; ++i) {
+            const int   LINE               = DATA[i].d_line;
+            const char *INPUT              = DATA[i].d_input;
+            const StringRef  SOFT          = DATA[i].d_soft
+                                                    ? StringRef(DATA[i].d_soft)
+                                                    : StringRef();
+            const StringRef  HARD          = DATA[i].d_hard
+                                                    ? StringRef(DATA[i].d_hard)
+                                                    : StringRef();
+            const char      *TOKEN         = DATA[i].d_token;
+            const char      *DELIM         = DATA[i].d_delim;
+            const char      *PREV_DELIM    = DATA[i].d_prevDelim;
+            bool             VALID         = DATA[i].d_isValid;
+            bool             HAS_SOFT      = DATA[i].d_hasSoft;
+            bool             HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
+            bool             IS_HARD       = DATA[i].d_isHard;
+            bool             IS_PREV_HARD  = DATA[i].d_isPrevHard;
+
+            if (0 == INPUT) {
+                continue;
+            }
+
+            Obj        mT(INPUT, StringRef(SOFT), StringRef(HARD));
+            const Obj& T = mT;
+
+            ASSERTV(LINE, T, VALID      == (!!T));
+            ASSERTV(LINE, DELIM         == T.delimiter());
+            ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
+            ASSERTV(LINE, TOKEN         == T.token());
+            ASSERTV(LINE, HAS_SOFT      == T.hasSoft());
+            ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
+            ASSERTV(LINE, IS_HARD       == T.isHard());
+            ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
+        }
+
+        if (veryVerbose) cout << "\tTesting 'bdlb::Tokenizer("
+                              <<                  "const bslstl::StringRef&, "
+                              <<                  "const bslstl::StringRef&)'."
+                              << endl;
+        for (int i = 0; i < DATA_LEN; ++i) {
+            const int        LINE          = DATA[i].d_line;
+            const StringRef  INPUT         = DATA[i].d_input
+                                                   ? StringRef(DATA[i].d_input)
+                                                   : StringRef();
+            const StringRef  SOFT          = DATA[i].d_soft
+                                                    ? StringRef(DATA[i].d_soft)
+                                                    : StringRef();
+            const StringRef  HARD          = DATA[i].d_hard
+                                                    ? StringRef(DATA[i].d_hard)
+                                                    : StringRef();
+            const char      *TOKEN         = DATA[i].d_token;
+            const char      *DELIM         = DATA[i].d_delim;
+            const char      *PREV_DELIM    = DATA[i].d_prevDelim;
+            bool             VALID         = DATA[i].d_isValid;
+            bool             HAS_SOFT      = DATA[i].d_hasSoft;
+            bool             HAS_PREV_SOFT = DATA[i].d_hasPrevSoft;
+            bool             IS_HARD       = DATA[i].d_isHard;
+            bool             IS_PREV_HARD  = DATA[i].d_isPrevHard;
+
+            Obj        mT(INPUT, SOFT, HARD);
+            const Obj& T = mT;
+
+            ASSERTV(LINE, T, VALID      == (!!T));
+            ASSERTV(LINE, DELIM         == T.delimiter());
+            ASSERTV(LINE, PREV_DELIM    == T.previousDelimiter());
+            ASSERTV(LINE, TOKEN         == T.token());
+            ASSERTV(LINE, HAS_SOFT      == T.hasSoft());
+            ASSERTV(LINE, HAS_PREV_SOFT == T.hasPreviousSoft());
+            ASSERTV(LINE, IS_HARD       == T.isHard());
+            ASSERTV(LINE, IS_PREV_HARD  == T.isPreviousHard());
+        }
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_FAIL(Obj(static_cast<const char*>(0), "", ""));
+            // ASSERT_SAFE_FAIL(Obj(StringRef(), "", ""));
+            ASSERT_SAFE_PASS(Obj("", "", ""));
+            ASSERT_SAFE_PASS(Obj(StringRef(""), StringRef(), StringRef()));
+        }
+
+        if (verbose) cout << "\nDelimiter parameters testing." << endl;
+        {
+            if (verbose) cout << "\tSingle delimiter." << endl;
+            {
+                for (int i = 0; i < 256; ++i) {
+                    char delim;
+                    delim = i;
+
+                    char input[256];
+                    int j = 0;
+                    for( int k = 0; k<256; ++k) {
+                        if (k != i) {
+                            input[j++] = k;
+                        }
+                    }
+
+                    Obj mT1(StringRef(input, 255),
+                            StringRef(&delim, 1),
+                            StringRef());
+
+                    ASSERT(""                    == mT1.previousDelimiter());
+                    ASSERT(""                    == mT1.delimiter());
+                    ASSERT(StringRef(input, 255) == mT1.token());
+
+                    Obj mT2(StringRef(input, 255),
+                            StringRef(),
+                            StringRef(&delim, 1));
+
+                    ASSERT(""                    == mT2.previousDelimiter());
+                    ASSERT(""                    == mT2.delimiter());
+                    ASSERT(StringRef(input, 255) == mT2.token());
+                }
+            }
+
+            if (verbose) cout << "\tMultiple delimiter." << endl;
+            {
+                char input[256];
+                char delim[256];
+                for (int i = 1; i < 255; ++i) {
+                    for (int j = 0; j < i; ++j) {
+                        input[j] = j;
+                    }
+                    for (int j = i; j < 255; ++j) {
+                        delim[j - i] = j;
+                    }
+
+                    Obj mT1(StringRef(input, i),
+                            StringRef(delim, 255-i),
+                            StringRef());
+
+                    ASSERT(""                  == mT1.previousDelimiter());
+                    ASSERT(""                  == mT1.delimiter());
+                    ASSERT(StringRef(input, i) == mT1.token());
+
+                    Obj mT2(StringRef(input, i),
+                            StringRef(),
+                            StringRef(delim, 255-i));
+
+                    ASSERT(""                  == mT2.previousDelimiter());
+                    ASSERT(""                  == mT2.delimiter());
+                    ASSERT(StringRef(input, i) == mT2.token());
+                }
+            }
+        }
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
