@@ -12,7 +12,7 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 
-#include <bdlb_bitstringutil.h>
+#include <bdlb_bitutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>   // for 'CHAR_BIT'
@@ -37,10 +37,8 @@ int numBitsRequired(int value)
     // Calculate the smallest number of bits required to represent the
     // specified 'value'.
 
-    return bdlb::BitStringUtil::find1AtMaxIndex(
-                                     reinterpret_cast<bsl::uint64_t *>(&value),
-                                     CHAR_BIT * sizeof value)
-        + 1;
+    return (sizeof(value) * CHAR_BIT) - bdlb::BitUtil::numLeadingUnsetBits(
+                                            static_cast<bsl::uint32_t>(value));
 }
 
 }  // close unnamed namespace
