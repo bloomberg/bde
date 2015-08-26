@@ -23,5 +23,3 @@ bdlb_string
 bdlb_strtokenrefiter
 bdlb_variant
 bdlb_xxxbitutil
-bdlb_xxxstringref
-bdlb_xxxstrtokeniter
