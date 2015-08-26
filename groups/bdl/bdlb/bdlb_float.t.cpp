@@ -58,8 +58,9 @@ using namespace BloombergLP;
 // [3] USAGE EXAMPLE
 
 // ============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//              STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -75,27 +76,15 @@ static void aSsErT(int c, const char *s, int i) {
     if (!(X)) { bsl::printf("%s: %x\n", #I, I);                               \
                 aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::printf("%s: %x\t%s: %x\n", #I, I, #J, J);                \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { bsl::printf("%s: %x\t%s: %x\t%s: %x\n", #I, I, #J, J, #K, K); \
-               aSsErT(1, #X, __LINE__); } }
-
 #define LOOP4_ASSERT(I,J,K,L,X) { \
     if (!(X)) { bsl::printf("%s: %x\t%s: %x\t%s: %x\t%s: %x\n", #I, I, #J, J, \
                                                                #K, K, #L, L); \
                aSsErT(1, #X, __LINE__); } }
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { bsl::printf("%s: %x\t%s: %x\t%s: %x\t%s: %x\t%s: %x\n",       \
-                                          #I, I, #J, J, #K, K, #L, L, #M, M); \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { bsl::printf("%s: %x\t%s: %x\t%s: %x\t%s: %x\t%s: %x\t%s: %x\n"\
-                                   ,#I, I, #J, J, #K, K, #L, L, #M, M, #N, N);\
+#define LOOP4_ASSERT_D(I,J,K,L,X) { \
+    if (!(X)) { bsl::printf("%s: %x\t%s: %llx\t%s: %x\t%s: %x\n", \
+                                                               #I, I, #J, J, \
+                                                               #K, K, #L, L); \
                aSsErT(1, #X, __LINE__); } }
 
 // Allow compilation of individual test-cases (for test drivers that take a
@@ -106,13 +95,18 @@ static void aSsErT(int c, const char *s, int i) {
 // ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
-#define Pf(X)  bsl::printf("%s = (%f)\n",  #X, X);
-#define Pd(X)  bsl::printf("%s = (%ld)\n", #X, X);
-#define Px(X)  bsl::printf("%s = (%x)\n",  #X, X);
-#define Q(X)   bsl::printf("<| %s |>\n",   #X);
-#define Pf_(X) bsl::printf("%s = (%f)",    #X, X);
-#define Pd_(X) bsl::printf("%s = (%ld)",   #X, X);
-#define Px_(X) bsl::printf("%s = (%x)",    #X, X);
+#define Pf(X)  bsl::printf("%s = (%f)\n",   #X, X);
+#define PF(X)  bsl::printf("%s = (%lf)\n",  #X, X);
+#define Pd(X)  bsl::printf("%s = (%ld)\n",  #X, X);
+#define Px(X)  bsl::printf("%s = (%x)\n",   #X, X);
+#define PX(X)  bsl::printf("%s = (%llx)\n", #X, X);
+#define Pf_(X) bsl::printf("%s = (%f)",     #X, X);
+#define PF_(X) bsl::printf("%s = (%lf)",    #X, X);
+#define Pd_(X) bsl::printf("%s = (%ld)",    #X, X);
+#define Px_(X) bsl::printf("%s = (%x)",     #X, X);
+#define PX_(X) bsl::printf("%s = (%llx)",   #X, X);
+
+#define Q(X)   bsl::printf("<| %s |>\n",    #X);
 #define L_     __LINE__                                // current Line number
 #define T_     bsl::printf("\t");
 
@@ -160,7 +154,7 @@ const bool hasDSNan = true;
 #endif
 
 unsigned int floatToRep(float x)
-    // Convert 'x' to its integer representation.
+    // Convert the specified 'x' to its integer representation.
 {
     unsigned int v;
     bsl::memcpy(&v, &x, sizeof(x));
@@ -168,7 +162,7 @@ unsigned int floatToRep(float x)
 }
 
 unsigned long long doubleToRep(double x)
-    // Convert 'x' to its integer representation.
+    // Convert the specified 'x' to its integer representation.
 {
     unsigned long long v;
     bsl::memcpy(&v, &x, sizeof(x));
@@ -176,7 +170,7 @@ unsigned long long doubleToRep(double x)
 }
 
 float repToFloat(unsigned int x)
-    // Convert 'x' to a 'float' from its integer representation.
+    // Convert the specified 'x' to a 'float' from its integer representation.
 {
     float v;
     bsl::memcpy(&v, &x, sizeof(x));
@@ -184,7 +178,7 @@ float repToFloat(unsigned int x)
 }
 
 double repToDouble(unsigned long long x)
-    // Convert 'x' to a 'double' from its integer representation.
+    // Convert the specified 'x' to a 'double' from its integer representation.
 {
     double v;
     bsl::memcpy(&v, &x, sizeof(x));
@@ -192,14 +186,14 @@ double repToDouble(unsigned long long x)
 }
 
 
-// Functions for zero: avoid warnings on some compilers when
-// deliberately dividing by a zero constant.
+// Functions for zero: avoid warnings on some compilers when deliberately
+// dividing by a zero constant.
 float  fnzero() { return -0.0F; }
 double dnzero() { return -0.0;  }
-float  fzero() { return 0.0F; }
-double dzero() { return 0.0;  }
+float  fzero()  { return  0.0F; }
+double dzero()  { return  0.0;  }
 
-// Functions for min and max: Avoids constant-folding bug in xlC 8:
+// Functions for 'min' and 'max': Avoids constant-folding bug in 'xlC 8':
 float  fmin() { return FLT_MIN; }
 float  fmax() { return FLT_MAX; }
 double dmin() { return DBL_MIN; }
@@ -337,7 +331,6 @@ int main(int argc, char *argv[])
 // the return value of 'classify' will have only one bit set at a time.
 
       } break;
-
       case 2: {
         // -------------------------------------------------------------------
         // CLASSIFICATION TEST
@@ -406,14 +399,21 @@ int main(int argc, char *argv[])
 // of one of the class functions in 'bdlb::Float'.  We assume that there is a
 // local variable, 'input' holding the argument to the function and a local
 // variable, 'f' holding the expected result of the function call.  If the 'f'
-// variable is less than zero, then the result is considered unpredicatable
-// and will not be tested.  This corresponds to a value of 'X' in the test
-// vectors.
+// variable is less than zero, then the result is considered unpredictable and
+// will not be tested.  This corresponds to a value of 'X' in the test vectors.
 #define FUNCTION_TEST(f) do { if (f >= 0) { \
     if (veryVeryVerbose) { Pd_(input); Pd(Obj::f(input)) } \
     int expected = (int) f; \
     int result = Obj::f(input); \
     LOOP4_ASSERT(LINE, input, expected, Obj::f(input), expected == result); \
+} } while (0)
+
+#define FUNCTION_TEST_F(f) do { if (f >= 0) { \
+    if (veryVeryVerbose) { Px_(floatToRep(input)); Pd((long)Obj::f(input)) } \
+    int expected = (int) f; \
+    int result = Obj::f(input); \
+    LOOP4_ASSERT(LINE, floatToRep(input), expected, Obj::f(input), \
+                (long)(expected == result)); \
 } } while (0)
 
         static const struct {
@@ -478,8 +478,8 @@ int main(int argc, char *argv[])
 
         static const int NUM_FDATA = sizeof FDATA / sizeof FDATA[0];
 
-        for (int i = 0; i < NUM_FDATA; ++i) {
-            int   LINE           = FDATA[i].d_line;
+        for (int ti = 0; ti < NUM_FDATA; ++ti) {
+            int   LINE           = FDATA[ti].d_line;
 
 #if ( defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86) ) \
     && defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
@@ -492,44 +492,58 @@ int main(int argc, char *argv[])
 
             volatile
 #endif
-            float input          = FDATA[i].d_input;
-            int   isZero         = FDATA[i].d_isZero;
-            int   isNormal       = FDATA[i].d_isNormal;
-            int   isSubnormal    = FDATA[i].d_isSubnormal;
-            int   isInfinite     = FDATA[i].d_isInfinite;
-            int   isNan          = FDATA[i].d_isNan;
-            int   signBit        = FDATA[i].d_signBit;
-            int   isFinite       = FDATA[i].d_isFinite;
-            int   isQuietNan     = FDATA[i].d_isQNan;
-            int   isSignalingNan = FDATA[i].d_isSNan;
-            int   classifyFine   = FDATA[i].d_classification;
+            float input          = FDATA[ti].d_input;
+            int   isZero         = FDATA[ti].d_isZero;
+            int   isNormal       = FDATA[ti].d_isNormal;
+            int   isSubnormal    = FDATA[ti].d_isSubnormal;
+            int   isInfinite     = FDATA[ti].d_isInfinite;
+            int   isNan          = FDATA[ti].d_isNan;
+            int   signBit        = FDATA[ti].d_signBit;
+            int   isFinite       = FDATA[ti].d_isFinite;
+            int   isQuietNan     = FDATA[ti].d_isQNan;
+            int   isSignalingNan = FDATA[ti].d_isSNan;
+            int   classifyFine   = FDATA[ti].d_classification;
 
-            if (veryVeryVerbose) Pd(LINE);
+            if (veryVeryVerbose) Pd((long)LINE);
 
             if (! hasFSNan) {
                 // If signaling NaN not supported, convert SNaN results to
                 // equivalent QNaN results.
-                isQuietNan |= isSignalingNan;
-                isSignalingNan = 0;
-                classifyFine &= ~Obj::k_SIGNALING;
+                isQuietNan     |= isSignalingNan;
+                isSignalingNan  = 0;
+                classifyFine   &= ~Obj::k_SIGNALING;
             }
 
             int classify = classifyFine & ~(NEGATIVE | SIGNALING);
 
-            FUNCTION_TEST(isZero        );
-            FUNCTION_TEST(isNormal      );
-            FUNCTION_TEST(isSubnormal   );
-            FUNCTION_TEST(isInfinite    );
-            FUNCTION_TEST(isNan         );
-            FUNCTION_TEST(signBit       );
-            FUNCTION_TEST(isFinite      );
-            FUNCTION_TEST(isQuietNan    );
-            FUNCTION_TEST(isSignalingNan);
-            FUNCTION_TEST(classify      );
-            FUNCTION_TEST(classifyFine  );
+            FUNCTION_TEST_F(isZero        );
+            FUNCTION_TEST_F(isNormal      );
+            FUNCTION_TEST_F(isSubnormal   );
+            FUNCTION_TEST_F(isInfinite    );
+            FUNCTION_TEST_F(isNan         );
+            FUNCTION_TEST_F(signBit       );
+            FUNCTION_TEST_F(isFinite      );
+            FUNCTION_TEST_F(isQuietNan    );
+            FUNCTION_TEST_F(isSignalingNan);
+            FUNCTION_TEST_F(classify      );
+            FUNCTION_TEST_F(classifyFine  );
         }
 
         if (veryVerbose) bsl::printf("Testing 'double'\n");
+
+// This macro tests a function 'bdlb::Float::f(input)', where 'f' is the name
+// of one of the class functions in 'bdlb::Float'.  We assume that there is a
+// local variable, 'input' holding the argument to the function and a local
+// variable, 'f' holding the expected result of the function call.  If the 'f'
+// variable is less than zero, then the result is considered unpredictable and
+// will not be tested.  This corresponds to a value of 'X' in the test vectors.
+#define FUNCTION_TEST_D(f) do { if (f >= 0) { \
+    if (veryVeryVerbose) { PX_(doubleToRep(input)); Pd((long)Obj::f(input)) } \
+    int expected = (int) f; \
+    int result = Obj::f(input); \
+    LOOP4_ASSERT_D(LINE, doubleToRep(input), expected, Obj::f(input), \
+                   (long)(expected == result)); \
+} } while (0)
 
         static const struct {
             int    d_line;
@@ -593,8 +607,8 @@ int main(int argc, char *argv[])
 
         static const int NUM_DDATA = sizeof DDATA / sizeof DDATA[0];
 
-        for (int i = 0; i < NUM_DDATA; ++i) {
-            int    LINE           = DDATA[i].d_line;
+        for (int ti = 0; ti < NUM_DDATA; ++ti) {
+            int    LINE           = DDATA[ti].d_line;
 
 #if ( defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86) ) \
     && defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
@@ -606,44 +620,43 @@ int main(int argc, char *argv[])
 
             volatile
 #endif
-            double input          = DDATA[i].d_input;
-            int    isZero         = DDATA[i].d_isZero;
-            int    isNormal       = DDATA[i].d_isNormal;
-            int    isSubnormal    = DDATA[i].d_isSubnormal;
-            int    isInfinite     = DDATA[i].d_isInfinite;
-            int    isNan          = DDATA[i].d_isNan;
-            int    signBit        = DDATA[i].d_signBit;
-            int    isFinite       = DDATA[i].d_isFinite;
-            int    isQuietNan     = DDATA[i].d_isQNan;
-            int    isSignalingNan = DDATA[i].d_isSNan;
-            int    classifyFine   = DDATA[i].d_classification;
+            double input          = DDATA[ti].d_input;
+            int    isZero         = DDATA[ti].d_isZero;
+            int    isNormal       = DDATA[ti].d_isNormal;
+            int    isSubnormal    = DDATA[ti].d_isSubnormal;
+            int    isInfinite     = DDATA[ti].d_isInfinite;
+            int    isNan          = DDATA[ti].d_isNan;
+            int    signBit        = DDATA[ti].d_signBit;
+            int    isFinite       = DDATA[ti].d_isFinite;
+            int    isQuietNan     = DDATA[ti].d_isQNan;
+            int    isSignalingNan = DDATA[ti].d_isSNan;
+            int    classifyFine   = DDATA[ti].d_classification;
 
-            if (veryVeryVerbose) Pd(LINE);
+            if (veryVeryVerbose) Pd((long)LINE);
 
             if (! hasDSNan) {
                 // If signaling NaN not supported, convert SNaN results to
                 // equivalent QNaN results.
-                isQuietNan |= isSignalingNan;
-                isSignalingNan = 0;
-                classifyFine &= ~Obj::k_SIGNALING;
+                isQuietNan     |= isSignalingNan;
+                isSignalingNan  = 0;
+                classifyFine    &= ~Obj::k_SIGNALING;
             }
 
             int classify = classifyFine & ~(NEGATIVE | SIGNALING);
 
-            FUNCTION_TEST(isZero        );
-            FUNCTION_TEST(isNormal      );
-            FUNCTION_TEST(isSubnormal   );
-            FUNCTION_TEST(isInfinite    );
-            FUNCTION_TEST(isNan         );
-            FUNCTION_TEST(signBit       );
-            FUNCTION_TEST(isFinite      );
-            FUNCTION_TEST(isQuietNan    );
-            FUNCTION_TEST(isSignalingNan);
-            FUNCTION_TEST(classify      );
-            FUNCTION_TEST(classifyFine  );
+            FUNCTION_TEST_D(isZero        );
+            FUNCTION_TEST_D(isNormal      );
+            FUNCTION_TEST_D(isSubnormal   );
+            FUNCTION_TEST_D(isInfinite    );
+            FUNCTION_TEST_D(isNan         );
+            FUNCTION_TEST_D(signBit       );
+            FUNCTION_TEST_D(isFinite      );
+            FUNCTION_TEST_D(isQuietNan    );
+            FUNCTION_TEST_D(isSignalingNan);
+            FUNCTION_TEST_D(classify      );
+            FUNCTION_TEST_D(classifyFine  );
         }
       } break;
-
       case 1: {
         // -------------------------------------------------------------------
         // BREATHING TEST
@@ -695,8 +708,8 @@ int main(int argc, char *argv[])
         const float  fnan  = finf * fzero(); // infinity * zero yields NaN
         const double dnan  = dinf * dzero(); // infinity * zero yields NaN
 
-        // Construct signaling NaNs from infinity by tampering with the
-        // binary representation.
+        // Construct signaling NaNs from infinity by tampering with the binary
+        // representation.
         const unsigned int       fsnan_rep = floatToRep(finf) | 1;
         const unsigned long long dsnan_rep = doubleToRep(dinf) | 1;
         const float              fsnan     = repToFloat(fsnan_rep);
@@ -798,32 +811,32 @@ int main(int argc, char *argv[])
 #endif
 
         if (veryVerbose) {
-            Pd(hasFSNan);
-            Pd(hasDSNan);
+            Pd((long)hasFSNan);
+            Pd((long)hasDSNan);
 
             Pf(finf);
-            Pd(dinf);
+            PF(dinf);
             Pf(fnan);
-            Pd(dnan);
+            PF(dnan);
             Pf(fsnan);
-            Pd(dsnan);
+            PF(dsnan);
             Pf(f);
-            Pd(d);
+            PF(d);
 
-            Px(floatToRep(finf));
-            Px(doubleToRep(dinf));
-            Px(floatToRep(fnan));
-            Px(doubleToRep(dnan));
-            Px(floatToRep(fsnan));
-            Px(doubleToRep(dsnan));
-            Px(floatToRep(f));
-            Px(doubleToRep(d));
+            Px( floatToRep(finf));
+            PX(doubleToRep(dinf));
+            Px( floatToRep(fnan));
+            PX(doubleToRep(dnan));
+            Px( floatToRep(fsnan));
+            PX(doubleToRep(dsnan));
+            Px( floatToRep(f));
+            PX(doubleToRep(d));
         }
       } break;
       default: {
         bsl::printf("WARNING: CASE '%d' NOT FOUND.\n", test);
         testStatus = -1;
-      }
+      } break;
     }
 
     if (testStatus > 0) {

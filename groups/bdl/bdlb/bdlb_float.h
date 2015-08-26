@@ -166,9 +166,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlb {
 
-                        // ============
-                        // struct Float
-                        // ============
+                                // ============
+                                // struct Float
+                                // ============
 
 struct Float {
     // Namespace for floating-point classification types and functions.
@@ -324,7 +324,7 @@ struct Float {
 }  // close enterprise namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 
