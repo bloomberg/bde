@@ -1,6 +1,7 @@
 // bdlb_float.t.cpp                                                   -*-C++-*-
 
 #include <bdlb_float.h>
+
 #include <bsls_platform.h>
 
 #include <bsl_cstdio.h>
@@ -16,20 +17,20 @@
 
 using namespace BloombergLP;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
-// WARNING: 'bsl::printf' is used in place of 'bsl::cout' because using
-//          'bsl::cout' is causing signaling nan to quiet nan conversion for
-//          'float' to fail in AIX optimized builds, for some odd reason.
-//
+// ----------------------------------------------------------------------------
+//                             Overview
+// ----------------------------------------------------------------------------
 // These functions in this component can be tested easily by supplying values
 // and testing the results.  Exhaustive test is impossible, but a reasonable
 // sample will give sufficient confidence in the correctness of the
 // implementation.
-//-----------------------------------------------------------------------------
-//                             TESTS
 //
+// WARNING: 'bsl::printf' is used in place of 'bsl::cout' because using
+//          'bsl::cout' is causing signaling NaN to quiet NaN conversion for
+//          'float' to fail in AIX optimized builds, for some odd reason.
+// ----------------------------------------------------------------------------
 // [2] static Classification classify(float number);
 // [2] static Classification classify(double number);
 // [2] static FineClassification classifyFine(float number);
@@ -52,16 +53,13 @@ using namespace BloombergLP;
 // [2] static bool isQuietNan(double number);
 // [2] static bool isSignalingNan(float number);
 // [2] static bool isSignalingNan(double number);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [3] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -72,7 +70,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::printf("%s: %x\n", #I, I);                               \
                 aSsErT(1, #X, __LINE__); } }
@@ -105,32 +103,30 @@ static void aSsErT(int c, const char *s, int i) {
 // only the '<testcase>' test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Pf(X) bsl::printf("%s = (%f)\n", #X, X);
-#define Pd(X) bsl::printf("%s = (%ld)\n", #X, X);
-#define Px(X) bsl::printf("%s = (%x)\n", #X, X);
-#define Q(X) bsl::printf("<| %s |>\n", #X);
-#define Pf_(X) bsl::printf("%s = (%f)", #X, X);
-#define Pd_(X) bsl::printf("%s = (%ld)", #X, X);
-#define Px_(X) bsl::printf("%s = (%x)", #X, X);
-#define L_ __LINE__                                // current Line number
-#define T_  bsl::printf("\t");
+// ----------------------------------------------------------------------------
+#define Pf(X)  bsl::printf("%s = (%f)\n",  #X, X);
+#define Pd(X)  bsl::printf("%s = (%ld)\n", #X, X);
+#define Px(X)  bsl::printf("%s = (%x)\n",  #X, X);
+#define Q(X)   bsl::printf("<| %s |>\n",   #X);
+#define Pf_(X) bsl::printf("%s = (%f)",    #X, X);
+#define Pd_(X) bsl::printf("%s = (%ld)",   #X, X);
+#define Px_(X) bsl::printf("%s = (%x)",    #X, X);
+#define L_     __LINE__                                // current Line number
+#define T_     bsl::printf("\t");
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
+static bool         verbose = 0;
+static bool     veryVerbose = 0;
+static bool veryVeryVerbose = 0;
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-
-//=============================================================================
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef bdlb::Float Obj;
 
@@ -223,42 +219,52 @@ static const double DSNAN1 = repToDouble(0x7ff0000000000001ULL);
 static const double DSNAN2 = repToDouble(0x7ff5123456781234ULL);
 static const double DSNAN3 = repToDouble(0x7ff7ffffffffffffULL);
 
-//=============================================================================
+// ============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+            verbose = argc > 2;
+        veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
     bsl::printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
-        // -------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
-        // Concern: That the usage example shown in the header file compiles
-        //     and runs as expected.
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
-        // Plan: Copy the usage example verbatim, changing 'assert' to
-        //     'ASSERT'.
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //     USAGE EXAMPLE
-        // -------------------------------------------------------------------
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
 
         if (verbose) bsl::printf("\nUSAGE EXAMPLE"
                                  "\n=============\n");
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // On platforms that the implement IEEE 754 standard for floating-point
 // arithmetic, dividing a positive number by zero yields positive infinity and
 // dividing a negative number by zero yields negative infinity.  The result of
@@ -266,22 +272,22 @@ int main(int argc, char *argv[])
 // method and classified as infinity by the 'classify' and 'classifyFine'
 // methods in this component:
 //..
-    double zero = 0.0;
-    double a = 2.3 / zero;
-    double b = -0.55 / zero;
-    ASSERT(true == bdlb::Float::isZero(zero));
-    ASSERT(true == bdlb::Float::isInfinite(a));
-    ASSERT(true == bdlb::Float::isInfinite(b));
-    ASSERT(bdlb::Float::k_ZERO     == bdlb::Float::classify(zero));
-    ASSERT(bdlb::Float::k_INFINITE == bdlb::Float::classify(a));
-    ASSERT(bdlb::Float::k_INFINITE == bdlb::Float::classify(b));
+    double zero =  0.0;
+    double a    =  2.3  / zero;
+    double b    = -0.55 / zero;
+    ASSERT(true                             == bdlb::Float::isZero(zero));
+    ASSERT(true                             == bdlb::Float::isInfinite(a));
+    ASSERT(true                             == bdlb::Float::isInfinite(b));
+    ASSERT(bdlb::Float::k_ZERO              == bdlb::Float::classify(zero));
+    ASSERT(bdlb::Float::k_INFINITE          == bdlb::Float::classify(a));
+    ASSERT(bdlb::Float::k_INFINITE          == bdlb::Float::classify(b));
     ASSERT(bdlb::Float::k_POSITIVE_INFINITY == bdlb::Float::classifyFine(a));
     ASSERT(bdlb::Float::k_NEGATIVE_INFINITY == bdlb::Float::classifyFine(b));
 //..
 // Note that the sign rules apply as usual:
 //..
     double nzero = -0.0;
-    double bn = -0.55 / nzero;
+    double bn    = -0.55 / nzero;
     ASSERT(bdlb::Float::k_POSITIVE_INFINITY == bdlb::Float::classifyFine(bn));
 //..
 // The result of multiplying infinity by infinity is also infinity, but the
@@ -306,12 +312,12 @@ int main(int argc, char *argv[])
 // We can also detect whether a value has full precision (normal) or is so
 // small (close to zero) that precision has been lost (subnormal):
 //..
-    double e = -10.0 / 11.0; // Full precision
-    double f = e / DBL_MAX; // Lost precision
-    ASSERT(true  == bdlb::Float::isNormal(e));
-    ASSERT(false == bdlb::Float::isSubnormal(e));
-    ASSERT(false == bdlb::Float::isNormal(f));
-    ASSERT(true  == bdlb::Float::isSubnormal(f));
+    double e = -10.0 / 11.0;    // Full precision
+    double f = e     / DBL_MAX; // Lost precision
+    ASSERT(true                     == bdlb::Float::isNormal(e));
+    ASSERT(false                    == bdlb::Float::isSubnormal(e));
+    ASSERT(false                    == bdlb::Float::isNormal(f));
+    ASSERT(true                     == bdlb::Float::isSubnormal(f));
     ASSERT(bdlb::Float::k_NORMAL    == bdlb::Float::classify(e));
     ASSERT(bdlb::Float::k_SUBNORMAL == bdlb::Float::classify(f));
 //..
@@ -337,18 +343,18 @@ int main(int argc, char *argv[])
         // CLASSIFICATION TEST
         //
         // Concerns:
-        //   - Each classification function returns the correct values for a
-        //     wide range of inputs.
-        //   - Each classification function works for both 'float' and 'double'
-        //     values.
+        //: 1 Each classification function returns the correct values for a
+        //:   wide range of inputs.
+        //: 2 Each classification function works for both 'float' and 'double'
+        //:   values.
         //
         // Plan:
-        //   - Choose a set of values spanning the range of each fine-grained
-        //     classification.  Choose values near the boundaries and use
-        //     expressions that generate values with known classifications.
-        //   - For each value, call each classification function.
-        //   - Compare the result of each call to the expected value.
-        //   - Perform the test for 'float' and 'double' values.
+        //: 1 Choose a set of values spanning the range of each fine-grained
+        //:   classification.  Choose values near the boundaries and use
+        //:   expressions that generate values with known classifications.
+        //: 2 For each value, call each classification function.
+        //: 3 Compare the result of each call to the expected value.
+        //: 4 Perform the test for 'float' and 'double' values.
         //
         // Testing:
         //     static Classification classify(float number);
@@ -424,6 +430,7 @@ int main(int argc, char *argv[])
             int   d_isSNan;
             int   d_classification;
         } FDATA[] = {
+//--------------------^
 //                                          Z N S     S   Q S
 //                                          e o u I N i F N N
 //                                          r r b n a g i a a
@@ -467,6 +474,7 @@ int main(int argc, char *argv[])
 { L_, FSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 #endif
         };
+//--------------------v
 
         static const int NUM_FDATA = sizeof FDATA / sizeof FDATA[0];
 
@@ -521,7 +529,6 @@ int main(int argc, char *argv[])
             FUNCTION_TEST(classifyFine  );
         }
 
-        /////////////////////////////////////////////////////////////////////
         if (veryVerbose) bsl::printf("Testing 'double'\n");
 
         static const struct {
@@ -538,6 +545,7 @@ int main(int argc, char *argv[])
             int    d_isSNan;
             int    d_classification;
         } DDATA[] = {
+//--------------------^
 //                                          Z N S     S   Q S
 //                                          e o u I N i F N N
 //                                          r r b n a g i a a
@@ -581,6 +589,7 @@ int main(int argc, char *argv[])
 { L_, DSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 #endif
         };
+//--------------------v
 
         static const int NUM_DDATA = sizeof DDATA / sizeof DDATA[0];
 
@@ -638,15 +647,19 @@ int main(int argc, char *argv[])
       case 1: {
         // -------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
-        // Concerns: That each function compiles and runs.
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
-        // Plan: Call each method using ad-hoc values and verify that the
-        //     return value is as expected.
+        // Plan:
+        //: 1 Call each method using ad-hoc values and verify that the return
+        //:   value is as expected.
         //
         // Testing:
-        //     BREATHING TEST
-        // -------------------------------------------------------------------
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
 
         if (verbose) bsl::printf("\nBREATHING TEST"
                                  "\n==============\n");
@@ -689,7 +702,7 @@ int main(int argc, char *argv[])
         const float              fsnan     = repToFloat(fsnan_rep);
         const double             dsnan     = repToDouble(dsnan_rep);
 
-        float  f = 3.0;
+        float  f =   3.0;
         double d = -34;
 
         ASSERT(  Obj::isInfinite(finf));
