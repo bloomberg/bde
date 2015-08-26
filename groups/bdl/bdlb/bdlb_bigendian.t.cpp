@@ -1,17 +1,19 @@
 // bdlb_bigendian.t.cpp                                               -*-C++-*-
 #include <bdlb_bigendian.h>
 
+#include <bdls_testutil.h>
+#include <bsls_asserttest.h>
+
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <arpa/inet.h> // not a component
 #else
-#include <winsock2.h> // not a component
+#include <winsock2.h>  // not a component
 #endif
 
-#include <bdlxxxx_instreamfunctions.h>             // for testing only
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
+#include <bslx_instreamfunctions.h>
+#include <bslx_outstreamfunctions.h>
+#include <bslx_testinstream.h>
+#include <bslx_testoutstream.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -21,29 +23,28 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bsl_vector.h>
 
 #include <bsl_cctype.h>      // isdigit() isupper() islower()
 #include <bsl_cstdlib.h>     // atoi()
 
 using namespace BloombergLP;
-using bsl::cerr;
-using bsl::cout;
-using bsl::endl;
-using bsl::flush;
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // All classes in this component are a value-semantic types that represent
-// big-endian integer types.  They have the same value if they have the
-// same in-core big endian representation.
-//-----------------------------------------------------------------------------
+// big-endian integer types.  They have the same value if they have the same
+// in-core big endian representation.
+// ----------------------------------------------------------------------------
 //
 // CLASS METHODS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedBdexVersion();
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+// [10] static int maxSupportedBdexVersion(int);
 // [ 2] static bdlb::BigEndianInt16::make(short);
 // [ 2] static bdlb::BigEndianUint16::make(unsigned short);
 // [ 2] static bdlb::BigEndianInt32::make(int);
@@ -78,95 +79,114 @@ using bsl::flush;
 // [ 6] bool operator!=(const bdlb::BigEndianInt64& lhs, rhs);
 // [ 6] bool operator==(const bdlb::BigEndianUint64& lhs, rhs);
 // [ 6] bool operator!=(const bdlb::BigEndianUint64& lhs, rhs);
-// [10] operator>>(bdlxxxx::InStream&, Obj&);
-// [10] operator<<(bdlxxxx::OutStream&, const Obj&);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
+
+// ============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bslx::TestInStream  In;
+typedef bslx::TestOutStream Out;
+
+#define VERSION_SELECTOR 20140601
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;
+namespace {
 
 bool isInCoreValueCorrect(short value, const bdlb::BigEndianInt16& obj)
 {
-   short temp = htons(value);
-   return obj == *reinterpret_cast<bdlb::BigEndianInt16*>(&temp);
+    short temp = htons(value);
+    return obj == *reinterpret_cast<bdlb::BigEndianInt16*>(&temp);
 }
 
 bool isInCoreValueCorrect(unsigned short               value,
                           const bdlb::BigEndianUint16& obj)
 {
-   unsigned short temp = htons(value);
-   return obj == *reinterpret_cast<bdlb::BigEndianUint16*>(&temp);
+    unsigned short temp = htons(value);
+    return obj == *reinterpret_cast<bdlb::BigEndianUint16*>(&temp);
 }
 
 bool isInCoreValueCorrect(int value, const bdlb::BigEndianInt32& obj)
 {
-   int temp = htonl(value);
-   return obj == *reinterpret_cast<bdlb::BigEndianInt32*>(&temp);
+    int temp = htonl(value);
+    return obj == *reinterpret_cast<bdlb::BigEndianInt32*>(&temp);
 }
 
 bool isInCoreValueCorrect(unsigned int value, const bdlb::BigEndianUint32& obj)
 {
-   unsigned int temp = htonl(value);
-   return obj == *reinterpret_cast<bdlb::BigEndianUint32*>(&temp);
+    unsigned int temp = htonl(value);
+    return obj == *reinterpret_cast<bdlb::BigEndianUint32*>(&temp);
 }
 
-// __bswap_64 exists on Linux, we will use to ensure consistency.  Note
-// that reusing the same function ensures the correctness of swap64 o swap64
-// only.
+// __bswap_64 exists on Linux, we will use to ensure consistency.  Note that
+// reusing the same function ensures the correctness of swap64 o swap64 only.
 
 #ifndef __bswap_64
 bsls::Types::Uint64 swap64(bsls::Types::Uint64 value) {
@@ -193,7 +213,7 @@ bsls::Types::Uint64 swap64(bsls::Types::Uint64 value) {
 }
 #endif
 
-bool isInCoreValueCorrect(bsls::Types::Int64 value,
+bool isInCoreValueCorrect(bsls::Types::Int64          value,
                           const bdlb::BigEndianInt64& obj)
 {
     bsls::Types::Int64 temp = swap64(value);
@@ -207,15 +227,105 @@ bool isInCoreValueCorrect(bsls::Types::Uint64          value,
     return obj == *reinterpret_cast<bdlb::BigEndianUint64*>(&temp);
 }
 
+}  // close unnamed namespace
+
+
+// Global Data for testing
+//
+
+// ============================================================================
+//                                 TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianInt16>::value);
+BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianInt16>::value);
+
+BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianUint16>::value);
+BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianUint16>::value);
+
+BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianInt32>::value);
+BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianInt32>::value);
+
+BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianUint32>::value);
+BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianUint32>::value);
+
+BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianInt64>::value);
+BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianInt64>::value);
+
+BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianUint64>::value);
+BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianUint64>::value);
+
+// ============================================================================
+//                             GLOBAL TEST DATA
+// ----------------------------------------------------------------------------
+const short VALUES_SHORT[] = {0,
+                              1,
+                              -1,
+                              123,
+                              -123,
+                              SHRT_MAX,
+                              SHRT_MIN};
+
+const unsigned short VALUES_USHORT[] = {0,
+                                        1,
+                                        123,
+                                        0xC3,
+                                        0xC300,
+                                        USHRT_MAX};
+
+const int VALUES_INT[] = {0,
+                          1,
+                          -1,
+                          123,
+                          -123,
+                          SHRT_MAX,
+                          SHRT_MIN,
+                          INT_MAX,
+                          INT_MIN};
+
+const unsigned int VALUES_UINT[] = {0,
+                                    1,
+                                    0xC33C,
+                                    0xC3C3,
+                                    0xC33C0000,
+                                    USHRT_MAX,
+                                    UINT_MAX};
+
+
+const bsls::Types::Int64 VALUES_INT64[] = {0,
+                                           1,
+                                           -1,
+                                           123,
+                                           -123,
+                                           0xC33C,
+                                           0xC3C3,
+                                           0xC33C0000,
+                                           SHRT_MAX,
+                                           SHRT_MIN,
+                                           INT_MAX,
+                                           INT_MIN,
+                                           LLONG_MAX,
+                                           LLONG_MIN};
+
+const bsls::Types::Uint64 VALUES_UINT64[] = {0,
+                                             1,
+                                             123,
+                                             0xC33C,
+                                             0xC3C3,
+                                             0xC33C0000,
+                                             USHRT_MAX,
+                                             UINT_MAX,
+                                             ULLONG_MAX};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int            test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
@@ -238,71 +348,59 @@ int main(int argc, char *argv[])
         //   'bdlb::TypeTraitHasPrintMethod'.
         //
         // Testing:
-        //   bslalg::TypeTraitBitwiseCopyable
-        //   bdlb::TypeTraitHasPrintMethod
+        //   bsl::is_trivially_copyable
+        //   bdlb::HasPrintMethod
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Traits"
                           << "\n==============" << endl;
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt16." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt16." << endl;
         {
             typedef bdlb::BigEndianInt16 Obj;
 
-            ASSERT((1 ==
-              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
-            ASSERT((1 ==
-                bslalg::HasTrait<Obj, bdlb::TypeTraitHasPrintMethod>::VALUE));
+            ASSERT((bsl::is_trivially_copyable<Obj>::value));
+            ASSERT((bdlb::HasPrintMethod<Obj>::value));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint16." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint16." << endl;
         {
             typedef bdlb::BigEndianUint16 Obj;
 
-            ASSERT((1 ==
-              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
-            ASSERT((1 ==
-                bslalg::HasTrait<Obj, bdlb::TypeTraitHasPrintMethod>::VALUE));
+            ASSERT((bsl::is_trivially_copyable<Obj>::value));
+            ASSERT((bdlb::HasPrintMethod<Obj>::value));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt32." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt32." << endl;
         {
             typedef bdlb::BigEndianInt32 Obj;
 
-            ASSERT((1 ==
-              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
-            ASSERT((1 ==
-                bslalg::HasTrait<Obj, bdlb::TypeTraitHasPrintMethod>::VALUE));
+            ASSERT((bsl::is_trivially_copyable<Obj>::value));
+            ASSERT((bdlb::HasPrintMethod<Obj>::value));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint32." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint32." << endl;
         {
             typedef bdlb::BigEndianUint32 Obj;
 
-            ASSERT((1 ==
-              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
-            ASSERT((1 ==
-                bslalg::HasTrait<Obj, bdlb::TypeTraitHasPrintMethod>::VALUE));
+            ASSERT((bsl::is_trivially_copyable<Obj>::value));
+            ASSERT((bdlb::HasPrintMethod<Obj>::value));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt64." << endl;
         {
             typedef bdlb::BigEndianInt64 Obj;
 
-            ASSERT((1 ==
-              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
-            ASSERT((1 ==
-                bslalg::HasTrait<Obj, bdlb::TypeTraitHasPrintMethod>::VALUE));
+            ASSERT((bsl::is_trivially_copyable<Obj>::value));
+            ASSERT((bdlb::HasPrintMethod<Obj>::value));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint64." << endl;
         {
             typedef bdlb::BigEndianUint64 Obj;
 
-            ASSERT((1 ==
-              bslalg::HasTrait<Obj, bslalg::TypeTraitBitwiseCopyable>::VALUE));
-            ASSERT((1 ==
-                bslalg::HasTrait<Obj, bdlb::TypeTraitHasPrintMethod>::VALUE));
+            ASSERT((bsl::is_trivially_copyable<Obj>::value));
+            ASSERT((bdlb::HasPrintMethod<Obj>::value));
         }
 
       } break;
@@ -362,46 +460,62 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   static int maxSupportedBdexVersion() const;
+        //   static int maxSupportedBdexVersion(int) const;
         //   STREAM& bdexStreamIn(STREAM&, Obj&);
         //   STREAM& bdexStreamOut(STREAM&, const Obj&) const;
-        //   operator>>(bdlxxxx::InStream&, Obj&);
-        //   operator<<(bdlxxxx::OutStream&, const Obj&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "Testing Streaming Functionality" << endl
                           << "===============================" << endl;
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt16." << endl;
+        using bslx::OutStreamFunctions::bdexStreamOut;
+        using bslx::InStreamFunctions::bdexStreamIn;
+
+        const int VERSION = 1;
+
+        if (verbose) cout << "\nTesting BigEndianInt16." << endl;
         {
             typedef bdlb::BigEndianInt16 Obj;
 
+            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+                              << endl;
+            {
+                Obj mX = Obj::make(1); const Obj& X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+                ASSERT(VERSION ==
+                               Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
                               << endl;
             {
-                if (verbose) cout << "\tusing object syntax:" << endl;
-                const Obj X = Obj::make(1);
-                ASSERT(1 == X.maxSupportedBdexVersion());
-                if (verbose) cout << "\tusing class method syntax:" << endl;
-                ASSERT(1 == Obj::maxSupportedBdexVersion());
+                Obj mX = Obj::make(1); const Obj& X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion());
+                ASSERT(VERSION == Obj::maxSupportedBdexVersion());
             }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
             if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
                               << "and (valid) 'bdexStreamIn' functionality."
                               << endl;
 
             {
-                const int version = 1;
-                Obj mX = Obj::make(123);
-                const Obj& X = mX;
+                Obj mX = Obj::make(123); const Obj& X  = mX;
+
                 if (veryVerbose) {
                     cout << "\t   Value being streamed: "; P(X);
                 }
 
-                bdlxxxx::TestOutStream out; X.bdexStreamOut(out, version);
+                Out out(VERSION_SELECTOR);
+
+                X.bdexStreamOut(out, VERSION);
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
                 if (verbose) cout << "\nDirect test that the value is streamed"
                                   << " in big endian order, byte by byte"
@@ -413,7 +527,7 @@ int main(int argc, char *argv[])
                 // big endian representation of the value being tested
                 const char TD[]  = {0,123};
 
-                // bdlxxxx::TestOutStream fills one byte more with type info
+                // bslx::TestOutStream fills one byte more with type info
                 // plus four bytes for the size.
                 if (veryVeryVerbose) cout << "\n\tsizeof(TD) " << sizeof(TD)
                                           << " sizeof(OD) "    << LOD
@@ -427,20 +541,21 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) {
                     cout << "\n\t  OD:\t  TD:" << endl;
-                    for(int i = 5; i < LOD; ++i) {
-                        cout << "\t  [" << (int)OD[i]   << "]"
-                             << "\t  [" << (int)TD[i-5] << "]"
+                    for(bsl::size_t i = 5; i < LOD; ++i) {
+                        cout << "\t  [" << static_cast<int>(OD[i])   << "]"
+                             << "\t  [" << static_cast<int>(TD[i-5]) << "]"
                              << endl;
                     }
                 }
 
-                for(int i = 5; i < LOD; ++i) {
-                    LOOP_ASSERT(i, OD[i] == TD[i-5]);
+                for(bsl::size_t i = 5; i < LOD; ++i) {
+                    ASSERTV(i, OD[i] == TD[i-5]);
                 }
 
-                bdlxxxx::TestInStream in(OD, LOD); ASSERT(in);
+                In in(OD, LOD);
+
+                ASSERT(in);
                 ASSERT(!in.isEmpty());
-                in.setSuppressVersionCheck(1);
 
                 Obj t = Obj::make(-123);
 
@@ -449,7 +564,7 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(X != t);
 
-                t.bdexStreamIn(in, version);
+                t.bdexStreamIn(in, VERSION);
                 ASSERT(in);
                 ASSERT(in.isEmpty());
 
@@ -460,8 +575,8 @@ int main(int argc, char *argv[])
 
             }
 
-            const short VALUES[] = {1, SHRT_MAX, SHRT_MIN, -1, 0, 123, -123};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const short *VALUES = VALUES_SHORT;
+            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -469,80 +584,86 @@ int main(int argc, char *argv[])
                     const Obj UU = Obj::make(VALUES[ui]);
 
                     for (int vi = 0; vi < NUM_VALUES; ++vi) {
-                        Obj mU = Obj::make(VALUES[ui]);
-                        const Obj& U = mU;
-                        bdlxxxx::TestOutStream out;
+                        Obj mU = Obj::make(VALUES[ui]); const Obj& U = mU;
 
-                        // Testing stream-out operator here.
-                        bdex_OutStreamFunctions::streamOut(out, U, 1);
+                        Out out(VERSION_SELECTOR);
 
-                        const char *const OD  = out.data();
-                        const int         LOD = out.length();
+                        bdexStreamOut(out, U, VERSION);
 
-                        bdlxxxx::TestInStream testInStream(OD, LOD);
-                        LOOP_ASSERT(ui, testInStream);
-                        LOOP_ASSERT(ui, !testInStream.isEmpty());
-                        testInStream.setSuppressVersionCheck(1);
+                        In in(out.data(), out.length());
+
+                        ASSERTV(ui, in);
+                        ASSERTV(ui, !in.isEmpty());
 
                         const Obj VV = Obj::make(VALUES[vi]);
 
                         Obj mV; const Obj& V = mV;
-                        testInStream.reset();
-                        LOOP2_ASSERT(ui, vi, testInStream);
-                        LOOP2_ASSERT(ui, vi, !testInStream.isEmpty());
+
+                        in.reset();
+                        ASSERTV(ui, vi, in);
+                        ASSERTV(ui, vi, !in.isEmpty());
                         mV = VALUES[vi];
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, VV == V);
-                        LOOP2_ASSERT(ui, vi, (ui == vi) == (U == V));
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, VV == V);
+                        ASSERTV(ui, vi, (ui == vi) == (U == V));
 
-                        // Testing stream-in operator here.
-                        bdex_InStreamFunctions::streamIn(testInStream, mV, 1);
+                        bdexStreamIn(in, mV, VERSION);
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, UU == V);
-                        LOOP2_ASSERT(ui, vi,  U == V);
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, UU == V);
+                        ASSERTV(ui, vi,  U == V);
                     }
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint16." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint16." << endl;
         {
             typedef bdlb::BigEndianUint16 Obj;
 
+            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+                              << endl;
+            {
+                Obj mX = Obj::make(1); const Obj& X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+                ASSERT(VERSION ==
+                               Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
                               << endl;
             {
-                if (verbose) cout << "\tusing object syntax:" << endl;
-                const Obj X = Obj::make(1);
-                ASSERT(1 == X.maxSupportedBdexVersion());
-                if (verbose) cout << "\tusing class method syntax:" << endl;
-                ASSERT(1 == Obj::maxSupportedBdexVersion());
+                Obj mX = Obj::make(1); const Obj& X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion());
+                ASSERT(VERSION == Obj::maxSupportedBdexVersion());
             }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
             if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
                               << "and (valid) 'bdexStreamIn' functionality."
                               << endl;
 
             {
-                const int version = 1;
-                Obj mX = Obj::make(123);
-                const Obj& X = mX;
+                Obj mX = Obj::make(123); const Obj& X = mX;
+
+                Out out(VERSION_SELECTOR);
+
                 if (veryVerbose) {
                     cout << "\t   Value being streamed: "; P(X);
                 }
 
-                bdlxxxx::TestOutStream out;  X.bdexStreamOut(out, version);
+                X.bdexStreamOut(out, VERSION);
 
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
+                In in(out.data(), out.length());
 
-                bdlxxxx::TestInStream in(OD, LOD); ASSERT(in);
+                ASSERT(in);
                 ASSERT(!in.isEmpty());
-                in.setSuppressVersionCheck(1);
 
                 Obj t = Obj::make(-123);
 
@@ -551,7 +672,9 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(X != t);
 
-                t.bdexStreamIn(in, version);     ASSERT(in);
+                t.bdexStreamIn(in, VERSION);
+
+                ASSERT(in);
                 ASSERT(in.isEmpty());
 
                 if (veryVerbose) {
@@ -560,8 +683,9 @@ int main(int argc, char *argv[])
                 ASSERT(X == t);
             }
 
-            const unsigned short VALUES[] = {1, USHRT_MAX, 0, 0x48, 0x4800};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const unsigned short *VALUES = VALUES_USHORT;
+            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
+                                sizeof(*VALUES_USHORT) };
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -569,75 +693,86 @@ int main(int argc, char *argv[])
                     const Obj UU = Obj::make(VALUES[ui]);
 
                     for (int vi = 0; vi < NUM_VALUES; ++vi) {
-                        Obj mU = Obj::make(VALUES[ui]);
-                        const Obj& U = mU;
-                        bdlxxxx::TestOutStream out;
+                        Obj mU = Obj::make(VALUES[ui]); const Obj& U = mU;
 
-                        // Testing stream-out operator here.
-                        bdex_OutStreamFunctions::streamOut(out, U, 1);
+                        Out out(VERSION_SELECTOR);
 
-                        const char *const OD  = out.data();
-                        const int         LOD = out.length();
+                        bdexStreamOut(out, U, VERSION);
 
-                        bdlxxxx::TestInStream testInStream(OD, LOD);
-                        LOOP_ASSERT(ui, testInStream);
-                        LOOP_ASSERT(ui, !testInStream.isEmpty());
-                        testInStream.setSuppressVersionCheck(1);
+                        In in(out.data(), out.length());
+
+                        ASSERTV(ui, in);
+                        ASSERTV(ui, !in.isEmpty());
 
                         const Obj VV = Obj::make(VALUES[vi]);
 
                         Obj mV; const Obj& V = mV;
-                        testInStream.reset();
-                        LOOP2_ASSERT(ui, vi, testInStream);
-                        LOOP2_ASSERT(ui, vi, !testInStream.isEmpty());
+
+                        in.reset();
+
+                        ASSERTV(ui, vi, in);
+                        ASSERTV(ui, vi, !in.isEmpty());
+
                         mV = VALUES[vi];
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, VV == V);
-                        LOOP2_ASSERT(ui, vi, (ui == vi) == (U == V));
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, VV == V);
+                        ASSERTV(ui, vi, (ui == vi) == (U == V));
 
-                        bdex_InStreamFunctions::streamIn(testInStream, mV, 1);
+                        bdexStreamIn(in, mV, VERSION);
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, UU == V);
-                        LOOP2_ASSERT(ui, vi,  U == V);
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, UU == V);
+                        ASSERTV(ui, vi,  U == V);
                     }
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt32." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt32." << endl;
         {
             typedef bdlb::BigEndianInt32 Obj;
 
+            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+                              << endl;
+            {
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+                ASSERT(VERSION ==
+                               Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
                               << endl;
             {
-                if (verbose) cout << "\tusing object syntax:" << endl;
-                const Obj X = Obj::make(1);
-                ASSERT(1 == X.maxSupportedBdexVersion());
-                if (verbose) cout << "\tusing class method syntax:" << endl;
-                ASSERT(1 == Obj::maxSupportedBdexVersion());
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion());
+                ASSERT(VERSION == Obj::maxSupportedBdexVersion());
             }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
             if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
                               << "and (valid) 'bdexStreamIn' functionality."
                               << endl;
 
             {
-                const int version = 1;
-                Obj mX = Obj::make(123);
-                const Obj& X = mX;
+                Obj mX = Obj::make(123); const Obj& X = mX;
+
+                Out out(VERSION_SELECTOR);
+
                 if (veryVerbose) {
                     cout << "\t   Value being streamed: "; P(X);
                 }
 
-                bdlxxxx::TestOutStream out;  X.bdexStreamOut(out, version);
+                X.bdexStreamOut(out, VERSION);
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
                 if (verbose) cout << "\nDirect test that the value is streamed"
                                   << " in big endian order, byte by byte"
@@ -649,7 +784,7 @@ int main(int argc, char *argv[])
                 // big endian representation of the value being tested
                 const char TD[]  = {0,0,0,123};
 
-                // bdlxxxx::TestOutStream fills one byte more with type info
+                // bslx::TestOutStream fills one byte more with type info
                 // plus four bytes for the size.
                 if (veryVeryVerbose) cout << "\n\tsizeof(TD) " << sizeof(TD)
                                           << " sizeof(OD) "    << LOD
@@ -663,20 +798,20 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) {
                     cout << "\n\t  OD:\t  TD:" << endl;
-                    for(int i = 5; i < LOD; ++i) {
-                        cout << "\t  [" << (int)OD[i]   << "]"
-                             << "\t  [" << (int)TD[i-5] << "]"
+                    for(bsl::size_t i = 5; i < LOD; ++i) {
+                        cout << "\t  [" << static_cast<int>(OD[i])   << "]"
+                             << "\t  [" << static_cast<int>(TD[i-5]) << "]"
                              << endl;
                     }
                 }
 
-                for(int i = 5; i < LOD; ++i) {
-                    LOOP_ASSERT(i, OD[i] == TD[i-5]);
+                for(bsl::size_t i = 5; i < LOD; ++i) {
+                    ASSERTV(i, OD[i] == TD[i-5]);
                 }
 
-                bdlxxxx::TestInStream in(OD, LOD); ASSERT(in);
+                In in(OD, LOD);
+                ASSERT(in);
                 ASSERT(!in.isEmpty());
-                in.setSuppressVersionCheck(1);
 
                 Obj t = Obj::make(-123);
 
@@ -685,7 +820,8 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(X != t);
 
-                t.bdexStreamIn(in, version);
+                t.bdexStreamIn(in, VERSION);
+
                 ASSERT(in);
                 ASSERT(in.isEmpty());
 
@@ -696,9 +832,8 @@ int main(int argc, char *argv[])
 
            }
 
-            const int VALUES[] = {1, INT_MAX, INT_MIN, -1, 0, 123, -123,
-                                    SHRT_MAX, SHRT_MIN};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const int *VALUES = VALUES_INT;
+            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -706,79 +841,85 @@ int main(int argc, char *argv[])
                     const Obj UU = Obj::make(VALUES[ui]);
 
                     for (int vi = 0; vi < NUM_VALUES; ++vi) {
-                        Obj mU = Obj::make(VALUES[ui]);
-                        const Obj& U = mU;
-                        bdlxxxx::TestOutStream out;
+                        Obj mU = Obj::make(VALUES[ui]); const Obj& U = mU;
 
-                        // Testing stream-out operator here.
-                        bdex_OutStreamFunctions::streamOut(out, U, 1);
+                        Out out(VERSION_SELECTOR);
 
-                        const char *const OD  = out.data();
-                        const int         LOD = out.length();
+                        bdexStreamOut(out, U, VERSION);
 
-                        bdlxxxx::TestInStream testInStream(OD, LOD);
-                        LOOP_ASSERT(ui, testInStream);
-                        LOOP_ASSERT(ui, !testInStream.isEmpty());
-                        testInStream.setSuppressVersionCheck(1);
+                        In in(out.data(), out.length());
+
+                        ASSERTV(ui, in);
+                        ASSERTV(ui, !in.isEmpty());
 
                         const Obj VV = Obj::make(VALUES[vi]);
 
                         Obj mV; const Obj& V = mV;
-                        testInStream.reset();
-                        LOOP2_ASSERT(ui, vi, testInStream);
-                        LOOP2_ASSERT(ui, vi, !testInStream.isEmpty());
+
+                        in.reset();
+                        ASSERTV(ui, vi, in);
+                        ASSERTV(ui, vi, !in.isEmpty());
                         mV = VALUES[vi];
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, VV == V);
-                        LOOP2_ASSERT(ui, vi, (ui == vi) == (U == V));
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, VV == V);
+                        ASSERTV(ui, vi, (ui == vi) == (U == V));
 
-                        bdex_InStreamFunctions::streamIn(testInStream, mV, 1);
+                        bdexStreamIn(in, mV, VERSION);
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, UU == V);
-                        LOOP2_ASSERT(ui, vi,  U == V);
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, UU == V);
+                        ASSERTV(ui, vi,  U == V);
                     }
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint32." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint32." << endl;
         {
             typedef bdlb::BigEndianUint32 Obj;
 
+            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+                              << endl;
+            {
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+                ASSERT(VERSION ==
+                               Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
                               << endl;
             {
-                if (verbose) cout << "\tusing object syntax:" << endl;
-                const Obj X = Obj::make(1);
-                ASSERT(1 == X.maxSupportedBdexVersion());
-                if (verbose) cout << "\tusing class method syntax:" << endl;
-                ASSERT(1 == Obj::maxSupportedBdexVersion());
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion());
+                ASSERT(VERSION == Obj::maxSupportedBdexVersion());
             }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
             if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
                               << "and (valid) 'bdexStreamIn' functionality."
                               << endl;
 
             {
-                const int version = 1;
-                Obj mX = Obj::make(123);
-                const Obj& X = mX;
+                Obj mX = Obj::make(123); const Obj& X = mX;
+
+                Out out(VERSION_SELECTOR);
+
                 if (veryVerbose) {
                     cout << "\t   Value being streamed: "; P(X);
                 }
 
-                bdlxxxx::TestOutStream out;  X.bdexStreamOut(out, version);
+                X.bdexStreamOut(out, VERSION);
 
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                bdlxxxx::TestInStream in(OD, LOD); ASSERT(in);
+                In in(out.data(), out.length());
+                ASSERT(in);
                 ASSERT(!in.isEmpty());
-                in.setSuppressVersionCheck(1);
 
                 Obj t = Obj::make(-123);
 
@@ -787,7 +928,9 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(X != t);
 
-                t.bdexStreamIn(in, version);     ASSERT(in);
+                t.bdexStreamIn(in, VERSION);
+
+                ASSERT(in);
                 ASSERT(in.isEmpty());
 
                 if (veryVerbose) {
@@ -796,9 +939,8 @@ int main(int argc, char *argv[])
                 ASSERT(X == t);
             }
 
-            const unsigned int VALUES[] = {1, USHRT_MAX, 0, UINT_MAX,
-                                             0xC33C, 0xC33C0000};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const unsigned int *VALUES = VALUES_UINT;
+            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -806,75 +948,83 @@ int main(int argc, char *argv[])
                     const Obj UU = Obj::make(VALUES[ui]);
 
                     for (int vi = 0; vi < NUM_VALUES; ++vi) {
-                        Obj mU = Obj::make(VALUES[ui]);
-                        const Obj& U = mU;
-                        bdlxxxx::TestOutStream out;
+                        Obj mU = Obj::make(VALUES[ui]); const Obj& U = mU;
 
-                        // Testing stream-out operator here.
-                        bdex_OutStreamFunctions::streamOut(out, U, 1);
+                        Out out(VERSION_SELECTOR);
 
-                        const char *const OD  = out.data();
-                        const int         LOD = out.length();
+                        bdexStreamOut(out, U, VERSION);
 
-                        bdlxxxx::TestInStream testInStream(OD, LOD);
-                        LOOP_ASSERT(ui, testInStream);
-                        LOOP_ASSERT(ui, !testInStream.isEmpty());
-                        testInStream.setSuppressVersionCheck(1);
+                        In in(out.data(), out.length());
+                        ASSERTV(ui, in);
+                        ASSERTV(ui, !in.isEmpty());
 
                         const Obj VV = Obj::make(VALUES[vi]);
 
                         Obj mV; const Obj& V = mV;
-                        testInStream.reset();
-                        LOOP2_ASSERT(ui, vi, testInStream);
-                        LOOP2_ASSERT(ui, vi, !testInStream.isEmpty());
+
+                        in.reset();
+                        ASSERTV(ui, vi, in);
+                        ASSERTV(ui, vi, !in.isEmpty());
                         mV = VALUES[vi];
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, VV == V);
-                        LOOP2_ASSERT(ui, vi, (ui == vi) == (U == V));
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, VV == V);
+                        ASSERTV(ui, vi, (ui == vi) == (U == V));
 
-                        bdex_InStreamFunctions::streamIn(testInStream, mV, 1);
+                        bdexStreamIn(in, mV, VERSION);
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, UU == V);
-                        LOOP2_ASSERT(ui, vi,  U == V);
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, UU == V);
+                        ASSERTV(ui, vi,  U == V);
                     }
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt64." << endl;
         {
             typedef bdlb::BigEndianInt64 Obj;
 
+            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+                              << endl;
+            {
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+                ASSERT(VERSION ==
+                               Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
                               << endl;
             {
-                if (verbose) cout << "\tusing object syntax:" << endl;
-                const Obj X = Obj::make(1);
-                ASSERT(1 == X.maxSupportedBdexVersion());
-                if (verbose) cout << "\tusing class method syntax:" << endl;
-                ASSERT(1 == Obj::maxSupportedBdexVersion());
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion());
+                ASSERT(VERSION == Obj::maxSupportedBdexVersion());
             }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
             if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
                               << "and (valid) 'bdexStreamIn' functionality."
                               << endl;
 
             {
-                const int version = 1;
-                Obj mX = Obj::make(123);
-                const Obj& X = mX;
+                Obj mX = Obj::make(123); const Obj& X = mX;
+
+                Out out(VERSION_SELECTOR);
+
                 if (veryVerbose) {
                     cout << "\t   Value being streamed: "; P(X);
                 }
 
-                bdlxxxx::TestOutStream out;  X.bdexStreamOut(out, version);
+                X.bdexStreamOut(out, VERSION);
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
                 if (verbose) cout << "\nDirect test that the value is streamed"
                                   << " in big endian order, byte by byte"
                                   << endl;
@@ -885,8 +1035,8 @@ int main(int argc, char *argv[])
                 // big endian representation of the value being tested
                 const char TD[]  = {0,0,0,0,0,0,0,123};
 
-                // bdlxxxx::TestOutStream fills one byte more with type info
-                // plus four bytes for the size.
+                // bslx::TestOutStream fills one byte more with type info plus
+                // four bytes for the size.
                 if (veryVeryVerbose) cout << "\n\tsizeof(TD) " << sizeof(TD)
                                           << " sizeof(OD) "    << LOD
                                           << endl;
@@ -899,20 +1049,20 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) {
                     cout << "\n\t  OD:\t  TD:" << endl;
-                    for(int i = 5; i < LOD; ++i) {
-                        cout << "\t  [" << (int)OD[i]   << "]"
-                             << "\t  [" << (int)TD[i-5] << "]"
+                    for(bsl::size_t i = 5; i < LOD; ++i) {
+                        cout << "\t  [" << static_cast<int>(OD[i])   << "]"
+                             << "\t  [" << static_cast<int>(TD[i-5]) << "]"
                              << endl;
                     }
                 }
 
-                for(int i = 5; i < LOD; ++i) {
-                    LOOP_ASSERT(i, OD[i] == TD[i-5]);
+                for(bsl::size_t i = 5; i < LOD; ++i) {
+                    ASSERTV(i, OD[i] == TD[i-5]);
                 }
 
-                bdlxxxx::TestInStream in(OD, LOD); ASSERT(in);
+                In in(OD, LOD);
+                ASSERT(in);
                 ASSERT(!in.isEmpty());
-                in.setSuppressVersionCheck(1);
 
                 Obj t = Obj::make(-123);
 
@@ -921,7 +1071,7 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(X != t);
 
-                t.bdexStreamIn(in, version);
+                t.bdexStreamIn(in, VERSION);
                 ASSERT(in);
                 ASSERT(in.isEmpty());
 
@@ -932,12 +1082,8 @@ int main(int argc, char *argv[])
 
             }
 
-            const bsls::Types::Int64 VALUES[] = {1,
-                                                0x7fffffffffffffffull,
-                                                0x8000000000000000ull, -1, 0,
-                                                123, -123, SHRT_MAX, SHRT_MIN,
-                                                INT_MAX, INT_MIN};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const bsls::Types::Int64 *VALUES = VALUES_INT64;
+            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -945,79 +1091,84 @@ int main(int argc, char *argv[])
                     const Obj UU = Obj::make(VALUES[ui]);
 
                     for (int vi = 0; vi < NUM_VALUES; ++vi) {
-                        Obj mU = Obj::make(VALUES[ui]);
-                        const Obj& U = mU;
-                        bdlxxxx::TestOutStream out;
+                        Obj mU = Obj::make(VALUES[ui]); const Obj& U = mU;
 
-                        // Testing stream-out operator here.
-                        bdex_OutStreamFunctions::streamOut(out, U, 1);
+                        Out out(VERSION_SELECTOR);
 
-                        const char *const OD  = out.data();
-                        const int         LOD = out.length();
+                        bdexStreamOut(out, U, VERSION);
 
-                        bdlxxxx::TestInStream testInStream(OD, LOD);
-                        LOOP_ASSERT(ui, testInStream);
-                        LOOP_ASSERT(ui, !testInStream.isEmpty());
-                        testInStream.setSuppressVersionCheck(1);
+                        In in(out.data(), out.length());
+                        ASSERTV(ui, in);
+                        ASSERTV(ui, !in.isEmpty());
 
                         const Obj VV = Obj::make(VALUES[vi]);
 
                         Obj mV; const Obj& V = mV;
-                        testInStream.reset();
-                        LOOP2_ASSERT(ui, vi, testInStream);
-                        LOOP2_ASSERT(ui, vi, !testInStream.isEmpty());
+
+                        in.reset();
+                        ASSERTV(ui, vi, in);
+                        ASSERTV(ui, vi, !in.isEmpty());
                         mV = VALUES[vi];
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, VV == V);
-                        LOOP2_ASSERT(ui, vi, (ui == vi) == (U == V));
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, VV == V);
+                        ASSERTV(ui, vi, (ui == vi) == (U == V));
 
-                        bdex_InStreamFunctions::streamIn(testInStream, mV, 1);
+                        bdexStreamIn(in, mV, VERSION);
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, UU == V);
-                        LOOP2_ASSERT(ui, vi,  U == V);
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, UU == V);
+                        ASSERTV(ui, vi,  U == V);
                     }
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint64." << endl;
         {
             typedef bdlb::BigEndianUint64 Obj;
 
+            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+                              << endl;
+            {
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+                ASSERT(VERSION ==
+                               Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
                               << endl;
             {
-                if (verbose) cout << "\tusing object syntax:" << endl;
-                const Obj X = Obj::make(1);
-                ASSERT(1 == X.maxSupportedBdexVersion());
-                if (verbose) cout << "\tusing class method syntax:" << endl;
-                ASSERT(1 == Obj::maxSupportedBdexVersion());
+                Obj mX = Obj::make(1); const Obj X = mX;
+
+                ASSERT(VERSION == X.maxSupportedBdexVersion());
+                ASSERT(VERSION == Obj::maxSupportedBdexVersion());
             }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
             if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
                               << "and (valid) 'bdexStreamIn' functionality."
                               << endl;
 
             {
-                const int version = 1;
-                Obj mX = Obj::make(123);
-                const Obj& X = mX;
+                Obj mX = Obj::make(123); const Obj& X = mX;
+
+                Out out(VERSION_SELECTOR);
+
                 if (veryVerbose) {
                     cout << "\t   Value being streamed: "; P(X);
                 }
 
-                bdlxxxx::TestOutStream out;  X.bdexStreamOut(out, version);
+                X.bdexStreamOut(out, VERSION);
 
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                bdlxxxx::TestInStream in(OD, LOD); ASSERT(in);
+                In in(out.data(), out.length());
+                ASSERT(in);
                 ASSERT(!in.isEmpty());
-                in.setSuppressVersionCheck(1);
 
                 Obj t = Obj::make(-123);
 
@@ -1026,7 +1177,8 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(X != t);
 
-                t.bdexStreamIn(in, version);     ASSERT(in);
+                t.bdexStreamIn(in, VERSION);
+                ASSERT(in);
                 ASSERT(in.isEmpty());
 
                 if (veryVerbose) {
@@ -1035,12 +1187,9 @@ int main(int argc, char *argv[])
                 ASSERT(X == t);
             }
 
-            const bsls::Types::Uint64 VALUES[] = {1,
-                                                0x7fffffffffffffffull,
-                                                0xffffffffffffffffull,
-                                                0x8000000000000000ull, 0, 123,
-                                                SHRT_MAX, INT_MAX, UINT_MAX};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
+            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
+                                sizeof(*VALUES_UINT64) };
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -1048,47 +1197,43 @@ int main(int argc, char *argv[])
                     const Obj UU = Obj::make(VALUES[ui]);
 
                     for (int vi = 0; vi < NUM_VALUES; ++vi) {
-                        Obj mU = Obj::make(VALUES[ui]);
-                        const Obj& U = mU;
-                        bdlxxxx::TestOutStream out;
+                        Obj mU = Obj::make(VALUES[ui]); const Obj& U = mU;
 
-                        // Testing stream-out operator here.
-                        bdex_OutStreamFunctions::streamOut(out, U, 1);
+                        Out out(VERSION_SELECTOR);
 
-                        const char *const OD  = out.data();
-                        const int         LOD = out.length();
+                        bdexStreamOut(out, U, VERSION);
 
-                        bdlxxxx::TestInStream testInStream(OD, LOD);
-                        LOOP_ASSERT(ui, testInStream);
-                        LOOP_ASSERT(ui, !testInStream.isEmpty());
-                        testInStream.setSuppressVersionCheck(1);
+                        In in(out.data(), out.length());
+
+                        ASSERTV(ui, in);
+                        ASSERTV(ui, !in.isEmpty());
 
                         const Obj VV = Obj::make(VALUES[vi]);
 
                         Obj mV; const Obj& V = mV;
-                        testInStream.reset();
-                        LOOP2_ASSERT(ui, vi, testInStream);
-                        LOOP2_ASSERT(ui, vi, !testInStream.isEmpty());
+
+                        in.reset();
+                        ASSERTV(ui, vi, in);
+                        ASSERTV(ui, vi, !in.isEmpty());
                         mV = VALUES[vi];
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, VV == V);
-                        LOOP2_ASSERT(ui, vi, (ui == vi) == (U == V));
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, VV == V);
+                        ASSERTV(ui, vi, (ui == vi) == (U == V));
 
-                        bdex_InStreamFunctions::streamIn(testInStream, mV, 1);
+                        bdexStreamIn(in, mV, VERSION);
 
-                        LOOP2_ASSERT(ui, vi, UU == U);
-                        LOOP2_ASSERT(ui, vi, UU == V);
-                        LOOP2_ASSERT(ui, vi,  U == V);
+                        ASSERTV(ui, vi, UU == U);
+                        ASSERTV(ui, vi, UU == V);
+                        ASSERTV(ui, vi,  U == V);
                     }
                 }
             }
         }
-
-// TO BE FINISHED XXX TBD
       } break;
+
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR:
@@ -1097,6 +1242,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
       } break;
+
       case 8: {
         // --------------------------------------------------------------------
         // TESTING GENERATOR FUNCTION, g:
@@ -1105,6 +1251,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
       } break;
+
       case 7: {
         // --------------------------------------------------------------------
         // TESTING COPY CONSTRUCTOR:
@@ -1115,6 +1262,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
       } break;
+
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS: '==' and '!='
@@ -1147,142 +1295,136 @@ int main(int argc, char *argv[])
                           << "Testing 'operator==' and 'operator!='." << endl
                           << "======================================" << endl;
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt16." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt16." << endl;
         {
             typedef bdlb::BigEndianInt16 Obj;
-            const short VALUES[] = {
-                1, SHRT_MAX, SHRT_MIN, -1, 0, 123, -123
-            };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const short *VALUES = VALUES_SHORT;
+            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
+                ASSERTV(i, X == VALUES[i]);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP_ASSERT(j, Y == VALUES[j]);
+                    ASSERTV(j, Y == VALUES[j]);
 
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
-                    LOOP2_ASSERT(i, j, (i != j) == (X != Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i != j) == (X != Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint16." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint16." << endl;
         {
             typedef bdlb::BigEndianUint16 Obj;
-            const unsigned short VALUES[] = {
-                1, USHRT_MAX, 0, 0x48, 0x4800
-            };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const unsigned short *VALUES = VALUES_USHORT;
+            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
+                                sizeof(*VALUES_USHORT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
+                ASSERTV(i, X == VALUES[i]);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP_ASSERT(j, Y == VALUES[j]);
+                    ASSERTV(j, Y == VALUES[j]);
 
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
-                    LOOP2_ASSERT(i, j, (i != j) == (X != Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i != j) == (X != Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt32." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt32." << endl;
         {
             typedef bdlb::BigEndianInt32 Obj;
-            const int VALUES[] = {
-                1, INT_MAX, INT_MIN, -1, 0, 123, -123, SHRT_MAX, SHRT_MIN
-            };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const int *VALUES = VALUES_INT;
+            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
+                ASSERTV(i, X == VALUES[i]);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP_ASSERT(j, Y == VALUES[j]);
+                    ASSERTV(j, Y == VALUES[j]);
 
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
-                    LOOP2_ASSERT(i, j, (i != j) == (X != Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i != j) == (X != Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint32." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint32." << endl;
         {
             typedef bdlb::BigEndianUint32 Obj;
-            const unsigned int VALUES[] = {
-                1, USHRT_MAX, 0, UINT_MAX, 0xC33C, 0xC33C0000
-            };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const unsigned int *VALUES = VALUES_UINT;
+            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
+                ASSERTV(i, X == VALUES[i]);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP_ASSERT(j, Y == VALUES[j]);
+                    ASSERTV(j, Y == VALUES[j]);
 
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
-                    LOOP2_ASSERT(i, j, (i != j) == (X != Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i != j) == (X != Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt64." << endl;
         {
             typedef bdlb::BigEndianInt64 Obj;
-            const bsls::Types::Int64 VALUES[] = {
-                1, 0x7fffffffffffffffull, 0x8000000000000000ull, -1, 0,
-                123, -123, SHRT_MAX, SHRT_MIN, INT_MAX, INT_MIN
-            };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const bsls::Types::Int64 *VALUES = VALUES_INT64;
+            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
+                ASSERTV(i, X == VALUES[i]);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP_ASSERT(j, Y == VALUES[j]);
+                    ASSERTV(j, Y == VALUES[j]);
 
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
-                    LOOP2_ASSERT(i, j, (i != j) == (X != Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i != j) == (X != Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint64." << endl;
         {
             typedef bdlb::BigEndianUint64 Obj;
-            const bsls::Types::Uint64 VALUES[] = {
-                1, 0x7fffffffffffffffull, 0xffffffffffffffffull,
-                0x8000000000000000ull, 0, 123, SHRT_MAX, INT_MAX, UINT_MAX
-            };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
+            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
+                                sizeof(*VALUES_UINT64) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
+                ASSERTV(i, X == VALUES[i]);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP_ASSERT(j, Y == VALUES[j]);
+                    ASSERTV(j, Y == VALUES[j]);
 
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
-                    LOOP2_ASSERT(i, j, (i != j) == (X != Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i != j) == (X != Y));
                 }
             }
         }
@@ -1331,17 +1473,18 @@ int main(int argc, char *argv[])
             {1,     2,             },
             {1,    -2,             },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
 
         if (verbose) cout << endl
                           << "Testing 'print' and 'operator<<'." << endl
                           << "=================================" << endl;
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt16." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt16." << endl;
         {
             typedef bdlb::BigEndianInt16 Obj;
-            const short VALUES[] = {1, SHRT_MAX, SHRT_MIN, -1, 0, 123, -123};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const short *VALUES = VALUES_SHORT;
+            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1366,21 +1509,23 @@ int main(int argc, char *argv[])
                         if (SPACES >= 0) {
                             ss2 << '\n';
                         }
-                        LOOP2_ASSERT(i, j, ss2.str() == ss.str());
+                        ASSERTV(i, j, ss2.str() == ss.str());
                     }
 
                 }
                 bsl::stringstream ss;
                 ss << X;
-                LOOP_ASSERT(i, ss.str() == streamValue.str());
+                ASSERTV(i, ss.str() == streamValue.str());
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint16." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint16." << endl;
         {
             typedef bdlb::BigEndianUint16 Obj;
-            const unsigned short VALUES[] = {1, USHRT_MAX, 0, 0x48, 0x4800};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const unsigned short *VALUES = VALUES_USHORT;
+            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
+                                sizeof(*VALUES_USHORT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1405,22 +1550,22 @@ int main(int argc, char *argv[])
                         if (SPACES >= 0) {
                             ss2 << '\n';
                         }
-                        LOOP2_ASSERT(i, j, ss2.str() == ss.str());
+                        ASSERTV(i, j, ss2.str() == ss.str());
                     }
 
                 }
                 bsl::stringstream ss;
                 ss << X;
-                LOOP_ASSERT(i, ss.str() == streamValue.str());
+                ASSERTV(i, ss.str() == streamValue.str());
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt32." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt32." << endl;
         {
             typedef bdlb::BigEndianInt32 Obj;
-            const int VALUES[] = {1, INT_MAX, INT_MIN, -1, 0, 123, -123,
-                                  SHRT_MAX, SHRT_MIN};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const int *VALUES = VALUES_INT;
+            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1445,22 +1590,22 @@ int main(int argc, char *argv[])
                         if (SPACES >= 0) {
                             ss2 << '\n';
                         }
-                        LOOP2_ASSERT(i, j, ss2.str() == ss.str());
+                        ASSERTV(i, j, ss2.str() == ss.str());
                     }
 
                 }
                 bsl::stringstream ss;
                 ss << X;
-                LOOP_ASSERT(i, ss.str() == streamValue.str());
+                ASSERTV(i, ss.str() == streamValue.str());
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint32." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint32." << endl;
         {
             typedef bdlb::BigEndianUint32 Obj;
-            const unsigned int VALUES[] = {1, USHRT_MAX, 0, UINT_MAX,
-                                             0xC33C, 0xC33C0000};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const unsigned int *VALUES = VALUES_UINT;
+            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1485,25 +1630,22 @@ int main(int argc, char *argv[])
                         if (SPACES >= 0) {
                             ss2 << '\n';
                         }
-                        LOOP2_ASSERT(i, j, ss2.str() == ss.str());
+                        ASSERTV(i, j, ss2.str() == ss.str());
                     }
 
                 }
                 bsl::stringstream ss;
                 ss << X;
-                LOOP_ASSERT(i, ss.str() == streamValue.str());
+                ASSERTV(i, ss.str() == streamValue.str());
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt64." << endl;
         {
             typedef bdlb::BigEndianInt64 Obj;
-            const bsls::Types::Int64 VALUES[] = {1,
-                                                0x7fffffffffffffffull,
-                                                0x8000000000000000ull, -1, 0,
-                                                123, -123, SHRT_MAX, SHRT_MIN,
-                                                INT_MAX, INT_MIN};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const bsls::Types::Int64 *VALUES = VALUES_INT64;
+            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1528,25 +1670,23 @@ int main(int argc, char *argv[])
                         if (SPACES >= 0) {
                             ss2 << '\n';
                         }
-                        LOOP2_ASSERT(i, j, ss2.str() == ss.str());
+                        ASSERTV(i, j, ss2.str() == ss.str());
                     }
 
                 }
                 bsl::stringstream ss;
                 ss << X;
-                LOOP_ASSERT(i, ss.str() == streamValue.str());
+                ASSERTV(i, ss.str() == streamValue.str());
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint64." << endl;
         {
             typedef bdlb::BigEndianUint64 Obj;
-            const bsls::Types::Uint64 VALUES[] = {1,
-                                                0x7fffffffffffffffull,
-                                                0xffffffffffffffffull,
-                                                0x8000000000000000ull, 0, 123,
-                                                SHRT_MAX, INT_MAX, UINT_MAX};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
+            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
+                                sizeof(*VALUES_UINT64) };
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1571,13 +1711,13 @@ int main(int argc, char *argv[])
                         if (SPACES >= 0) {
                             ss2 << '\n';
                         }
-                        LOOP2_ASSERT(i, j, ss2.str() == ss.str());
+                        ASSERTV(i, j, ss2.str() == ss.str());
                     }
 
                 }
                 bsl::stringstream ss;
                 ss << X;
-                LOOP_ASSERT(i, ss.str() == streamValue.str());
+                ASSERTV(i, ss.str() == streamValue.str());
             }
         }
       } break;
@@ -1615,11 +1755,12 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == short(X));
+                ASSERT(0 == static_cast<short>(X));
             }
-            for (int i = 1; i < sizeof(short) * 8; ++i) {
-                const Obj X = Obj::make(1 << (i - 1));
-                LOOP_ASSERT(i, (1 << (i - 1)) == short(X));
+            for (bsl::size_t i = 0; i < sizeof(short) * 8; ++i) {
+                const Obj X = Obj::make(static_cast<short>(1 << i));
+                ASSERTV(i,
+                          static_cast<short>(1 << i) == static_cast<short>(X));
             }
         }
 
@@ -1629,11 +1770,11 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == (unsigned short)(X));
+                ASSERT(0 == static_cast<unsigned short>(X));
             }
-            for (int i = 1; i < sizeof(short) * 8; ++i) {
-                const Obj X = Obj::make(1 << (i - 1));
-                LOOP_ASSERT(i, (1 << (i - 1)) == (unsigned short)(X));
+            for (bsl::size_t i = 0; i < sizeof(short) * 8; ++i) {
+                const Obj X = Obj::make(static_cast<unsigned short>(1 << i));
+                ASSERTV(i, (1 << i) == static_cast<unsigned short>(X));
             }
         }
 
@@ -1643,11 +1784,11 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == int(X));
+                ASSERT(0 == static_cast<int>(X));
             }
-            for (int i = 1; i < sizeof(int) * 8; ++i) {
-                const Obj X = Obj::make(1 << (i - 1));
-                LOOP_ASSERT(i, (1 << (i - 1)) == int(X));
+            for (bsl::size_t i = 0; i <= sizeof(int) * 8; ++i) {
+                const Obj X = Obj::make(1 << i);
+                ASSERTV(i, (1 << i) == static_cast<int>(X));
             }
         }
 
@@ -1657,11 +1798,11 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == (unsigned int)(X));
+                ASSERT(0 == static_cast<unsigned int>(X));
             }
-            for (int i = 1; i < sizeof(int) * 8; ++i) {
-                const Obj X = Obj::make(1 << (i - 1));
-                LOOP_ASSERT(i, (1 << (i - 1)) == (unsigned int)(X));
+            for (bsl::size_t i = 0; i <= sizeof(int) * 8; ++i) {
+                const Obj X = Obj::make(1U << i);
+                ASSERTV(i, (1U << i) == static_cast<unsigned int>(X));
             }
         }
 
@@ -1671,11 +1812,11 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == bsls::Types::Int64(X));
+                ASSERT(0 == static_cast<bsls::Types::Int64>(X));
             }
-            for (int i = 1; i < sizeof(bsls::Types::Int64) * 8; ++i) {
-                const Obj X = Obj::make(1LL << (i - 1));
-                LOOP_ASSERT(i, (1LL << (i - 1)) == bsls::Types::Int64(X));
+            for (bsl::size_t i = 0; i <= sizeof(bsls::Types::Int64) * 8; ++i) {
+                const Obj X = Obj::make(1LL << i);
+                ASSERTV(i, (1LL << i) == static_cast<bsls::Types::Int64>(X));
             }
         }
 
@@ -1685,14 +1826,16 @@ int main(int argc, char *argv[])
 
             {
                 const Obj X = Obj::make(0);
-                ASSERT(0 == bsls::Types::Uint64(X));
+                ASSERT(0 == static_cast<bsls::Types::Uint64>(X));
             }
-            for (int i = 1; i < sizeof(bsls::Types::Uint64) * 8; ++i) {
-                const Obj X = Obj::make(1LL << (i - 1));
-                LOOP_ASSERT(i, (1LL << (i - 1)) == bsls::Types::Uint64(X));
+            for (bsl::size_t i = 0; i <= sizeof(bsls::Types::Uint64) * 8; ++i)
+            {
+                const Obj X = Obj::make(1ULL << i);
+                ASSERTV(i, (1ULL << i) == static_cast<bsls::Types::Uint64>(X));
             }
         }
       } break;
+
       case 3: {
         // --------------------------------------------------------------------
         // TESTING GENERATOR FUNCTIONS
@@ -1701,6 +1844,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
       } break;
+
       case 2: {
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS
@@ -1742,154 +1886,159 @@ int main(int argc, char *argv[])
                           << "TESTING PRIMARY MANIPULATORS" << endl
                           << "============================" << endl;
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt16." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt16." << endl;
         {
             typedef bdlb::BigEndianInt16 Obj;
-            const short VALUES[] = {1, SHRT_MAX, SHRT_MIN, -1, 0, 123, -123};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const short *VALUES = VALUES_SHORT;
+            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int previousTotal = testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 previousTotal =
+                                                testAllocator.numBlocksTotal();
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
-                LOOP_ASSERT(i, isInCoreValueCorrect(VALUES[i], X));
+                ASSERTV(i, X == VALUES[i]);
+                ASSERTV(i, isInCoreValueCorrect(VALUES[i], X));
 
                 ASSERT(testAllocator.numBlocksTotal() == previousTotal);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint16." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint16." << endl;
         {
             typedef bdlb::BigEndianUint16 Obj;
-            const unsigned short VALUES[] = {1, USHRT_MAX, 0, 0x48, 0x4800};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const unsigned short *VALUES = VALUES_USHORT;
+            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
+                                sizeof(*VALUES_USHORT) };
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int previousTotal = testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 previousTotal =
+                                                testAllocator.numBlocksTotal();
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
-                LOOP_ASSERT(i, isInCoreValueCorrect(VALUES[i], X));
+                ASSERTV(i, X == VALUES[i]);
+                ASSERTV(i, isInCoreValueCorrect(VALUES[i], X));
 
                 ASSERT(testAllocator.numBlocksTotal() == previousTotal);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt32." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt32." << endl;
         {
             typedef bdlb::BigEndianInt32 Obj;
-            const int VALUES[] = {1, INT_MAX, INT_MIN, -1, 0, 123, -123,
-                                  SHRT_MAX, SHRT_MIN};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const int *VALUES = VALUES_INT;
+            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int previousTotal = testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 previousTotal =
+                                                testAllocator.numBlocksTotal();
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
-                LOOP_ASSERT(i, isInCoreValueCorrect(VALUES[i], X));
+                ASSERTV(i, X == VALUES[i]);
+                ASSERTV(i, isInCoreValueCorrect(VALUES[i], X));
 
                 ASSERT(testAllocator.numBlocksTotal() == previousTotal);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint32." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint32." << endl;
         {
             typedef bdlb::BigEndianUint32 Obj;
-            const unsigned int VALUES[] = {1, USHRT_MAX, 0, UINT_MAX,
-                                             0xC33C, 0xC33C0000};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const unsigned int *VALUES = VALUES_UINT;
+            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int previousTotal = testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 previousTotal =
+                                                testAllocator.numBlocksTotal();
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
-                LOOP_ASSERT(i, isInCoreValueCorrect(VALUES[i], X));
+                ASSERTV(i, X == VALUES[i]);
+                ASSERTV(i, isInCoreValueCorrect(VALUES[i], X));
 
                 ASSERT(testAllocator.numBlocksTotal() == previousTotal);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt64." << endl;
         {
             typedef bdlb::BigEndianInt64 Obj;
-            const bsls::Types::Int64 VALUES[] = {1,
-                                                0x7fffffffffffffffull,
-                                                0x8000000000000000ull, -1, 0,
-                                                123, -123, SHRT_MAX, SHRT_MIN,
-                                                INT_MAX, INT_MIN};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const bsls::Types::Int64 *VALUES = VALUES_INT64;
+            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int previousTotal = testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 previousTotal =
+                                                testAllocator.numBlocksTotal();
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
-                LOOP_ASSERT(i, isInCoreValueCorrect(VALUES[i], X));
+                ASSERTV(i, X == VALUES[i]);
+                ASSERTV(i, isInCoreValueCorrect(VALUES[i], X));
 
                 ASSERT(testAllocator.numBlocksTotal() == previousTotal);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint64." << endl;
         {
             typedef bdlb::BigEndianUint64 Obj;
-            const bsls::Types::Uint64 VALUES[] = {1,
-                                                0x7fffffffffffffffull,
-                                                0xffffffffffffffffull,
-                                                0x8000000000000000ull, 0, 123,
-                                                SHRT_MAX, INT_MAX, UINT_MAX};
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
+            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
+                                sizeof(*VALUES_UINT64) };
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int previousTotal = testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 previousTotal =
+                                                testAllocator.numBlocksTotal();
 
                 const Obj X = Obj::make(VALUES[i]);
-                LOOP_ASSERT(i, X == VALUES[i]);
-                LOOP_ASSERT(i, isInCoreValueCorrect(VALUES[i], X));
+                ASSERTV(i, X == VALUES[i]);
+                ASSERTV(i, isInCoreValueCorrect(VALUES[i], X));
 
                 ASSERT(testAllocator.numBlocksTotal() == previousTotal);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     const Obj Y = Obj::make(VALUES[j]);
-                    LOOP2_ASSERT(i, j, (i == j) == (X == Y));
+                    ASSERTV(i, j, (i == j) == (X == Y));
                 }
             }
         }
       } break;
+
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:
@@ -1943,7 +2092,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt16." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt16." << endl;
         {
             const short VA = 123;
             const short VB = SHRT_MAX;
@@ -1960,7 +2109,7 @@ int main(int argc, char *argv[])
             Obj        mX1 = Obj::make(VA);
             const Obj& X1 = mX1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -1978,7 +2127,7 @@ int main(int argc, char *argv[])
 
             Obj mX2(X1);  const Obj& X2 = mX2;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2003,7 +2152,7 @@ int main(int argc, char *argv[])
 
             mX1 = VB;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2029,7 +2178,7 @@ int main(int argc, char *argv[])
             Obj mX3;  const Obj& X3 = mX3;
             mX3 = 0;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2055,7 +2204,7 @@ int main(int argc, char *argv[])
 
             Obj mX4(X3);  const Obj& X4 = mX4;
             if (veryVerbose) {
-                T_();  P(X4);
+                T_ P(X4);
             }
 
             if (verbose) {
@@ -2082,7 +2231,7 @@ int main(int argc, char *argv[])
 
             mX3 = VC;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2109,7 +2258,7 @@ int main(int argc, char *argv[])
 
             mX2 = X1;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2136,7 +2285,7 @@ int main(int argc, char *argv[])
 
             mX2 = X3;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2163,7 +2312,7 @@ int main(int argc, char *argv[])
 
             mX1 = X1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2182,7 +2331,7 @@ int main(int argc, char *argv[])
             ASSERT(false == (X1 == X4));    ASSERT(true  == (X1 != X4));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint16." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint16." << endl;
         {
             const unsigned short VA = 0x48;
             const unsigned short VB = USHRT_MAX;
@@ -2199,7 +2348,7 @@ int main(int argc, char *argv[])
             Obj        mX1 = Obj::make(VA);
             const Obj& X1 = mX1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2217,7 +2366,7 @@ int main(int argc, char *argv[])
 
             Obj mX2(X1);  const Obj& X2 = mX2;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2242,7 +2391,7 @@ int main(int argc, char *argv[])
 
             mX1 = VB;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2268,7 +2417,7 @@ int main(int argc, char *argv[])
             Obj mX3;  const Obj& X3 = mX3;
             mX3 = 1;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2294,7 +2443,7 @@ int main(int argc, char *argv[])
 
             Obj mX4(X3);  const Obj& X4 = mX4;
             if (veryVerbose) {
-                T_();  P(X4);
+                T_ P(X4);
             }
             mX4 = 1;
 
@@ -2322,7 +2471,7 @@ int main(int argc, char *argv[])
 
             mX3 = VC;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2349,7 +2498,7 @@ int main(int argc, char *argv[])
 
             mX2 = X1;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2376,7 +2525,7 @@ int main(int argc, char *argv[])
 
             mX2 = X3;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2403,7 +2552,7 @@ int main(int argc, char *argv[])
 
             mX1 = X1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2422,7 +2571,7 @@ int main(int argc, char *argv[])
             ASSERT(false == (X1 == X4));    ASSERT(true  == (X1 != X4));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt32." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt32." << endl;
         {
             const int VA = 123;
             const int VB = INT_MAX;
@@ -2439,7 +2588,7 @@ int main(int argc, char *argv[])
             Obj        mX1 = Obj::make(VA);
             const Obj& X1 = mX1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2457,7 +2606,7 @@ int main(int argc, char *argv[])
 
             Obj mX2(X1);  const Obj& X2 = mX2;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2482,7 +2631,7 @@ int main(int argc, char *argv[])
 
             mX1 = VB;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2508,7 +2657,7 @@ int main(int argc, char *argv[])
             Obj mX3;  const Obj& X3 = mX3;
             mX3 = 0;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2534,7 +2683,7 @@ int main(int argc, char *argv[])
 
             Obj mX4(X3);  const Obj& X4 = mX4;
             if (veryVerbose) {
-                T_();  P(X4);
+                T_ P(X4);
             }
 
             if (verbose) {
@@ -2561,7 +2710,7 @@ int main(int argc, char *argv[])
 
             mX3 = VC;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2588,7 +2737,7 @@ int main(int argc, char *argv[])
 
             mX2 = X1;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2615,7 +2764,7 @@ int main(int argc, char *argv[])
 
             mX2 = X3;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2642,7 +2791,7 @@ int main(int argc, char *argv[])
 
             mX1 = X1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2661,7 +2810,7 @@ int main(int argc, char *argv[])
             ASSERT(false == (X1 == X4));    ASSERT(true  == (X1 != X4));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint32." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint32." << endl;
         {
             const unsigned int VA = 0xC33C;
             const unsigned int VB = UINT_MAX;
@@ -2678,7 +2827,7 @@ int main(int argc, char *argv[])
             Obj        mX1 = Obj::make(VA);
             const Obj& X1 = mX1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2696,7 +2845,7 @@ int main(int argc, char *argv[])
 
             Obj mX2(X1);  const Obj& X2 = mX2;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2721,7 +2870,7 @@ int main(int argc, char *argv[])
 
             mX1 = VB;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2747,7 +2896,7 @@ int main(int argc, char *argv[])
             Obj mX3;  const Obj& X3 = mX3;
             mX3 = 1;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2773,7 +2922,7 @@ int main(int argc, char *argv[])
 
             Obj mX4(X3);  const Obj& X4 = mX4;
             if (veryVerbose) {
-                T_();  P(X4);
+                T_ P(X4);
             }
             mX4 = 1;
 
@@ -2801,7 +2950,7 @@ int main(int argc, char *argv[])
 
             mX3 = VC;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -2828,7 +2977,7 @@ int main(int argc, char *argv[])
 
             mX2 = X1;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2855,7 +3004,7 @@ int main(int argc, char *argv[])
 
             mX2 = X3;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2882,7 +3031,7 @@ int main(int argc, char *argv[])
 
             mX1 = X1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2901,7 +3050,7 @@ int main(int argc, char *argv[])
             ASSERT(false == (X1 == X4));    ASSERT(true  == (X1 != X4));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianInt64." << endl;
+        if (verbose) cout << "\nTesting BigEndianInt64." << endl;
         {
             const bsls::Types::Int64 VA = 123;
             const bsls::Types::Int64 VB = 0x7fffffffffffffffull;
@@ -2918,7 +3067,7 @@ int main(int argc, char *argv[])
             Obj        mX1 = Obj::make(VA);
             const Obj& X1 = mX1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2936,7 +3085,7 @@ int main(int argc, char *argv[])
 
             Obj mX2(X1);  const Obj& X2 = mX2;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -2961,7 +3110,7 @@ int main(int argc, char *argv[])
 
             mX1 = VB;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -2987,7 +3136,7 @@ int main(int argc, char *argv[])
             Obj mX3;  const Obj& X3 = mX3;
             mX3 = 0;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -3013,7 +3162,7 @@ int main(int argc, char *argv[])
 
             Obj mX4(X3);  const Obj& X4 = mX4;
             if (veryVerbose) {
-                T_();  P(X4);
+                T_ P(X4);
             }
 
             if (verbose) {
@@ -3040,7 +3189,7 @@ int main(int argc, char *argv[])
 
             mX3 = VC;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -3067,7 +3216,7 @@ int main(int argc, char *argv[])
 
             mX2 = X1;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -3094,7 +3243,7 @@ int main(int argc, char *argv[])
 
             mX2 = X3;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -3121,7 +3270,7 @@ int main(int argc, char *argv[])
 
             mX1 = X1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -3140,7 +3289,7 @@ int main(int argc, char *argv[])
             ASSERT(false == (X1 == X4));    ASSERT(true  == (X1 != X4));
         }
 
-        if (verbose) cout << "\nTesting bdeut_BigEndianUint64." << endl;
+        if (verbose) cout << "\nTesting BigEndianUint64." << endl;
         {
             const bsls::Types::Uint64 VA = 0;
             const bsls::Types::Uint64 VB = 0x7fffffffffffffffull;
@@ -3157,7 +3306,7 @@ int main(int argc, char *argv[])
             Obj        mX1 = Obj::make(VA);
             const Obj& X1 = mX1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -3175,7 +3324,7 @@ int main(int argc, char *argv[])
 
             Obj mX2(X1);  const Obj& X2 = mX2;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -3200,7 +3349,7 @@ int main(int argc, char *argv[])
 
             mX1 = VB;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
@@ -3226,7 +3375,7 @@ int main(int argc, char *argv[])
             Obj mX3;  const Obj& X3 = mX3;
             mX3 = 1;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -3252,7 +3401,7 @@ int main(int argc, char *argv[])
 
             Obj mX4(X3);  const Obj& X4 = mX4;
             if (veryVerbose) {
-                T_();  P(X4);
+                T_ P(X4);
             }
 
             if (verbose) {
@@ -3279,7 +3428,7 @@ int main(int argc, char *argv[])
 
             mX3 = VC;
             if (veryVerbose) {
-                T_();  P(X3);
+                T_ P(X3);
             }
 
             if (verbose) {
@@ -3306,7 +3455,7 @@ int main(int argc, char *argv[])
 
             mX2 = X1;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -3333,7 +3482,7 @@ int main(int argc, char *argv[])
 
             mX2 = X3;
             if (veryVerbose) {
-                T_();  P(X2);
+                T_ P(X2);
             }
 
             if (verbose) {
@@ -3360,7 +3509,7 @@ int main(int argc, char *argv[])
 
             mX1 = X1;
             if (veryVerbose) {
-                T_();  P(X1);
+                T_ P(X1);
             }
 
             if (verbose) {
