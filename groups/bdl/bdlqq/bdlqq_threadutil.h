@@ -311,8 +311,12 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDPTR
-#include <bslma_managedptr.h>
+#ifndef INCLUDED_BSLMA_RAWDELETERGUARD
+#include <bslma_rawdeleterguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_RAWDELETERPROCTOR
+#include <bslma_rawdeleterproctor.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -716,10 +720,11 @@ void* bdlqq::ThreadUtil::invokerFunction(void *threadArgRaw)
 {
     ThreadArgument<INVOKABLE> *threadArg =
         (ThreadArgument<INVOKABLE>*)threadArgRaw;
-    bslma::ManagedPtr<ThreadArgument<INVOKABLE> > threadArgGuard(
+    bslma::RawDeleterGuard<ThreadArgument<INVOKABLE>,
+                           bslma::Allocator> threadArgGuard(
                                                         threadArg,
                                                         threadArg->allocator());
-    (*threadArgGuard->object())();
+    (*threadArg->object())();
     return 0;
 }
 
@@ -752,13 +757,16 @@ int bdlqq::ThreadUtil::create(Handle                  *handle,
     allocator = bslma::Default::globalAllocator(allocator);
     bcemt_ThreadFunction threadEntry =
         (bcemt_ThreadFunction)(&invokerFunction<INVOKABLE>);
+
+    ThreadArgument<INVOKABLE> *threadData =
+        new (*allocator) ThreadArgument<INVOKABLE>(function, allocator);
     
-    bslma::ManagedPtr<ThreadArgument<INVOKABLE> > threadData(
-        new (*allocator) ThreadArgument<INVOKABLE>(function, allocator),
-        allocator);
-    int rc = create(handle, attributes, threadEntry, threadData.ptr());
+    bslma::RawDeleterProctor<ThreadArgument<INVOKABLE>,
+                             bslma::Allocator> threadDataProctor(threadData,
+                                                                 allocator);
+    int rc = create(handle, attributes, threadEntry, threadData);
     if (0 == rc) {
-        threadData.release();
+        threadDataProctor.release();
     }
     return rc;
 }
@@ -771,13 +779,16 @@ static int bdlqq::ThreadUtil::create(Handle           *handle,
     allocator = bslma::Default::globalAllocator(allocator);
     bcemt_ThreadFunction threadEntry =
         (bcemt_ThreadFunction)(&invokerFunction<INVOKABLE>);
+
+    ThreadArgument<INVOKABLE> *threadData =
+        new (*allocator) ThreadArgument<INVOKABLE>(function, allocator);
     
-    bslma::ManagedPtr<ThreadArgument<INVOKABLE> > threadData(
-        new (*allocator) ThreadArgument<INVOKABLE>(function, allocator),
-        allocator);
-    int rc = create(handle, threadEntry, threadData.ptr());
+    bslma::RawDeleterProctor<ThreadArgument<INVOKABLE>,
+                             bslma::Allocator> threadDataProctor(threadData,
+                                                                 allocator);
+    int rc = create(handle, threadEntry, threadData);
     if (0 == rc) {
-        threadData.release();
+        threadDataProctor.release();
     }
     return rc;
 }
