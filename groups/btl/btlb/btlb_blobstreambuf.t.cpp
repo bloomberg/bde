@@ -8,9 +8,9 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 
 #include <bsl_algorithm.h>
-#include <bsl_cctype.h>      // isdigit() isupper() islower()
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // memset()/memcmp()
+#include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memset'/memcmp()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
@@ -27,8 +27,8 @@ using bsl::cerr;
 //                              Overview
 //                              --------
 // All classes in this component are a value-semantic types that represent
-// big-endian integer types.  They have the same value if they have the
-// same in-core big endian representation.
+// big-endian integer types.  They have the same value if they have the same
+// in-core big endian representation.
 //
 //-----------------------------------------------------------------------------
 //
@@ -882,8 +882,8 @@ int main(int argc, char *argv[])
                     ostream.seekp(0);
                     istream.seekg(0);
 
-                    // Since we cannot truncate the streambuf, we must write
-                    // at least as many bytes as already exist in the buffer.
+                    // Since we cannot truncate the streambuf, we must write at
+                    // least as many bytes as already exist in the buffer.
 
                     int length = bsl::max(3 * (int)BUFFER_SIZE, blob.length());
                     const bsl::string HASHMARKS(length, '#');

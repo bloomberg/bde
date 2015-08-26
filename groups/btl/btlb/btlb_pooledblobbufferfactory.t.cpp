@@ -5,9 +5,9 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
-#include <bsl_cstring.h>     // memcpy(), memset()
+#include <bsl_cstring.h>     // 'memcpy', 'memset'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -70,7 +70,10 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-void checkBlob(int LINE, int bufferSize, int length, int maxLength,
+void checkBlob(int         LINE,
+               int         bufferSize,
+               int         length,
+               int         maxLength,
                btlb::Blob& mX)
 {
     const int NUM_BUFFERS = (0 < maxLength) ? 1+(maxLength-1)/bufferSize : 0;
@@ -118,7 +121,6 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
-
 
         if (verbose) cout << "\nTesting bcema_PooledBlobBufferFactory."
                           << "\n--------------------------------------\n";

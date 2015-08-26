@@ -10,8 +10,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // memcpy()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
@@ -19,7 +19,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                                  TEST PLAN
@@ -102,9 +101,9 @@ void aSsErT(int c, const char *s, int i) {
 //                            CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-                          // =======================
-                          // class BlobBufferFactory
-                          // =======================
+                         // =======================
+                         // class BlobBufferFactory
+                         // =======================
 
 class BlobBufferFactory : public btlb::BlobBufferFactory {
     // TBD: doc
@@ -115,8 +114,7 @@ class BlobBufferFactory : public btlb::BlobBufferFactory {
 
   public:
     // CREATORS
-    BlobBufferFactory(int               initialSize,
-                      bslma::Allocator *basicAllocator = 0)
+    BlobBufferFactory(int initialSize, bslma::Allocator *basicAllocator = 0)
     : d_size(initialSize)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
@@ -492,11 +490,9 @@ int main(int argc, char *argv[]) {
             buffers[i].buffer() = bufferp;
             buffers[i].setSize(BIG - fuzz - i - 1);
         }
-        // Now we have four buffers, in four different sizes.
-        // The first is empty
-        // The second is aligned to 16 bytes, size 16
-        // The third is misaligned by 1, size 15
-        // The fourth is misaligned by 2, size 14
+        // Now we have four buffers, in four different sizes.  The first is
+        // empty The second is aligned to 16 bytes, size 16 The third is
+        // misaligned by 1, size 15 The fourth is misaligned by 2, size 14
 
         int NUMDATA = sizeof(DATA)/sizeof(*DATA);
         for (int i = 0; i < NUMDATA; ++i) {
@@ -1463,7 +1459,7 @@ int main(int argc, char *argv[]) {
             const char *d_rhs;
             const int   d_retValue;
         } DATA[] = {
-            // Line   LHS         RHS          retValue
+            // Line LHS RHS retValue
             // ----   ---         ---          --------
             {   L_,   "",         "",                 0 },
 

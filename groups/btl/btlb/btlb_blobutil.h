@@ -88,11 +88,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlb {
-                              // ===============
-                              // struct BlobUtil
-                              // ===============
+
+                             // ===============
+                             // struct BlobUtil
+                             // ===============
 
 struct BlobUtil {
     // TBD: doc
@@ -120,9 +120,9 @@ struct BlobUtil {
                        int         length);
         // Append the specified 'length' bytes starting from the specified
         // 'offset' from the specified 'source' address to the specified
-        // 'dest'.  The behavior of this function is undefined unless the
-        // range [source + offset, source + offset + length) represents a
-        // readable sequence of memory.
+        // 'dest'.  The behavior of this function is undefined unless the range
+        // [source + offset, source + offset + length) represents a readable
+        // sequence of memory.
 
     static void append(Blob *dest,
                        const char *source,
@@ -162,15 +162,14 @@ struct BlobUtil {
     static bsl::pair<int,int> findBufferIndexAndOffset(
                                                    const Blob& blob,
                                                    int               position);
-        // Return a value, designated here as 'p', such that for the
-        // specified 'blob', 'blob.buffer(p.first)' is the buffer that
-        // contains the byte at the specified 'position' in 'blob', and
-        // 'p.second' is the offset corresponding to 'position' within
-        // said buffer.  The behavior of this function is undefined unless
-        // '0 <= position', '0 < blob.totalSize()', and
-        // 'position < blob.totalSize()'.  Note that (1) subsequent
-        // changes to 'blob' may invalidate the result of this function,
-        // and (2) 'p.first' never indicates a zero-size buffer.
+        // Return a value, designated here as 'p', such that for the specified
+        // 'blob', 'blob.buffer(p.first)' is the buffer that contains the byte
+        // at the specified 'position' in 'blob', and 'p.second' is the offset
+        // corresponding to 'position' within said buffer.  The behavior of
+        // this function is undefined unless '0 <= position',
+        // '0 < blob.totalSize()', and 'position < blob.totalSize()'.  Note
+        // that (1) subsequent changes to 'blob' may invalidate the result of
+        // this function, and (2) 'p.first' never indicates a zero-size buffer.
 
     static void copy(char              *dstBuffer,
                      const Blob&  srcBlob,
@@ -193,25 +192,25 @@ struct BlobUtil {
         // specified 'alignment' and the specified 'length' bytes are stored
         // contiguously; otherwise, *copy* 'length' bytes to the specified
         // buffer 'dstBuffer', and return 'dstBuffer'.  If alignment is not
-        // specified, none is enforced.  (An address is aligned to A if,
-        // when converted to an integral value 'a', 'a & (A - 1)' is zero.)
-        // The behavior of this function is undefined unless '0 < length',
+        // specified, none is enforced.  (An address is aligned to A if, when
+        // converted to an integral value 'a', 'a & (A - 1)' is zero.)  The
+        // behavior of this function is undefined unless '0 < length',
         // '0 <= position', 'alignment' is a power of two, 'dstBuffer' is
-        // aligned as required, 'dstBuffer' has room for 'length' bytes,
-        // and 'position <= srcBlob.totalSize() - length'.
+        // aligned as required, 'dstBuffer' has room for 'length' bytes, and
+        // 'position <= srcBlob.totalSize() - length'.
 
     static char *getContiguousDataBuffer(Blob              *blob,
                                          int                      addLength,
                                          BlobBufferFactory *factory);
         // Obtain contiguous storage for at least the specified 'addLength'
-        // bytes in the specified 'blob' at position 'blob->length()', and
-        // then grow 'blob->length()' by 'addLength'.  If, upon entry, such
-        // storage does not exist in 'blob', first trim the final data buffer,
-        // if any, and insert a new buffer obtained from the specified
-        // 'factory'.  Return a pointer to the beginning of the storage
-        // obtained.  The behavior of this function is undefined unless
-        // '0 < addLength', and 'factory->allocate()', if called, yields
-        // a block of memory of a size at least as large as 'addLength'.
+        // bytes in the specified 'blob' at position 'blob->length()', and then
+        // grow 'blob->length()' by 'addLength'.  If, upon entry, such storage
+        // does not exist in 'blob', first trim the final data buffer, if any,
+        // and insert a new buffer obtained from the specified 'factory'.
+        // Return a pointer to the beginning of the storage obtained.  The
+        // behavior of this function is undefined unless '0 < addLength', and
+        // 'factory->allocate()', if called, yields a block of memory of a size
+        // at least as large as 'addLength'.
 
     static bsl::ostream& asciiDump(bsl::ostream&     stream,
                                    const Blob& source);
@@ -247,11 +246,11 @@ struct BlobUtil {
                      const Blob& source,
                      int               sourcePosition,
                      int               numBytes);
-        // Write to the specified 'stream' the specified 'numBytes'
-        // starting at the specified 'sourcePosition' in the specified 'source'
-        // blob.  Return 0 on success or a non-zero value otherwise.  Note that
-        // this function will fail (immediately) if the length of 'source' is
-        // less than 'numBytes'; or if there is any error writing to 'stream'.
+        // Write to the specified 'stream' the specified 'numBytes' starting at
+        // the specified 'sourcePosition' in the specified 'source' blob.
+        // Return 0 on success or a non-zero value otherwise.  Note that this
+        // function will fail (immediately) if the length of 'source' is less
+        // than 'numBytes'; or if there is any error writing to 'stream'.
 
     static int compare(const Blob& a, const Blob& b);
         // Compare, lexicographically, the data (data length and character data
@@ -280,9 +279,9 @@ struct BlobUtil {
                        bslma::Allocator  *);
 };
 
-                         // ==========================
-                         // struct BlobUtilAsciiDumper
-                         // ==========================
+                        // ==========================
+                        // struct BlobUtilAsciiDumper
+                        // ==========================
 
 struct BlobUtilAsciiDumper {
     // Utility for ascii dumping a blob to standard output streams.  This class
@@ -303,9 +302,9 @@ bsl::ostream& operator<<(bsl::ostream&                    stream,
     // Ascii-dump the blob referenced by the specified 'rhs' to the specified
     // 'stream', and return a reference to the modifiable 'stream'.
 
-                          // ========================
-                          // struct BlobUtilHexDumper
-                          // ========================
+                         // ========================
+                         // struct BlobUtilHexDumper
+                         // ========================
 
 struct BlobUtilHexDumper {
     // Utility for hex dumping a blob to standard output streams.  This class
@@ -333,18 +332,16 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
     // 'stream', and return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                              // ---------------
-                              // struct BlobUtil
-                              // ---------------
+                             // ---------------
+                             // struct BlobUtil
+                             // ---------------
 
 // CLASS METHODS
 inline
-void BlobUtil::append(Blob        *dest,
-                            const Blob&  source,
-                            int                offset)
+void BlobUtil::append(Blob *dest, const Blob& source, int offset)
 {
     append(dest, source, offset, source.length() - offset);
 }
@@ -356,36 +353,32 @@ void BlobUtil::append(Blob *dest, const Blob& source)
 }
 
 inline
-void BlobUtil::append(Blob        *dest,
-                            const Blob&  source,
-                            int                offset,
-                            int                length,
-                            bslma::Allocator  *)
+void BlobUtil::append(Blob             *dest,
+                      const Blob&       source,
+                      int               offset,
+                      int               length,
+                      bslma::Allocator *)
 {
     return append(dest, source, offset, length);
 }
 
 inline
-void BlobUtil::append(Blob        *dest,
-                            const Blob&  source,
-                            int                offset,
-                            bslma::Allocator  *)
+void BlobUtil::append(Blob             *dest,
+                      const Blob&       source,
+                      int               offset,
+                      bslma::Allocator *)
 {
     return append(dest, source, offset);
 }
 
 inline
-void BlobUtil::append(Blob        *dest,
-                            const Blob&  source,
-                            bslma::Allocator  *)
+void BlobUtil::append(Blob *dest, const Blob& source, bslma::Allocator *)
 {
     return append(dest, source);
 }
 
 inline
-void BlobUtil::append(Blob *dest,
-                            const char *source,
-                            int         length)
+void BlobUtil::append(Blob *dest, const char *source, int length)
 {
     BSLS_ASSERT(0 != dest);
     BSLS_ASSERT(0 != source || 0 == length);
@@ -406,9 +399,9 @@ void BlobUtil::append(Blob *dest,
 
 inline
 void BlobUtil::insert(Blob        *dest,
-                            int                destOffset,
-                            const Blob&  source,
-                            int                sourceOffset)
+                      int          destOffset,
+                      const Blob&  source,
+                      int          sourceOffset)
 {
     insert(dest,
            destOffset,
@@ -418,16 +411,13 @@ void BlobUtil::insert(Blob        *dest,
 }
 
 inline
-void BlobUtil::insert(Blob        *dest,
-                            int                destOffset,
-                            const Blob&  source)
+void BlobUtil::insert(Blob *dest, int destOffset, const Blob& source)
 {
     insert(dest, destOffset, source, 0, source.length());
 }
 
 inline
-bsl::ostream& BlobUtil::hexDump(bsl::ostream&     stream,
-                                      const Blob& source)
+bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream, const Blob& source)
 {
     return hexDump(stream, source, 0, source.length());
 }
@@ -479,10 +469,10 @@ STREAM& BlobUtil::write(STREAM& stream, const Blob& source)
 }
 
 template <class STREAM>
-int BlobUtil::write(STREAM&           stream,
-                          const Blob& source,
-                          int               sourcePosition,
-                          int               numBytes)
+int BlobUtil::write(STREAM&     stream,
+                    const Blob& source,
+                    int         sourcePosition,
+                    int         numBytes)
 {
     BSLS_ASSERT(0 <= sourcePosition);
     BSLS_ASSERT(0 <= numBytes);
@@ -529,9 +519,9 @@ int BlobUtil::write(STREAM&           stream,
     return 0;
 }
 
-                         // --------------------------
-                         // struct BlobUtilAsciiDumper
-                         // --------------------------
+                        // --------------------------
+                        // struct BlobUtilAsciiDumper
+                        // --------------------------
 
 // CREATORS
 inline
@@ -550,9 +540,10 @@ bsl::ostream& btlb::operator<<(bsl::ostream&                    stream,
 }
 
 namespace btlb {
-                          // ------------------------
-                          // struct BlobUtilHexDumper
-                          // ------------------------
+
+                         // ------------------------
+                         // struct BlobUtilHexDumper
+                         // ------------------------
 
 // CREATORS
 inline

@@ -55,13 +55,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlb { class Blob; }
-
 namespace btlb {
-                           // =====================
-                           // class InBlobStreamBuf
-                           // =====================
+
+                          // =====================
+                          // class InBlobStreamBuf
+                          // =====================
 
 class InBlobStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
@@ -73,8 +72,8 @@ class InBlobStreamBuf : public bsl::streambuf {
     // DATA
     const btlb::Blob *d_blob_p;                 // "streamed" blob (held)
     int               d_getBufferIndex;         // index of current buffer
-    int               d_previousBuffersLength;  // length of buffers before
-                                                // the current one
+    int               d_previousBuffersLength;  // length of buffers before the
+                                                // current one
 
     // NOT IMPLEMENTED
     InBlobStreamBuf(const InBlobStreamBuf&);
@@ -94,18 +93,17 @@ class InBlobStreamBuf : public bsl::streambuf {
     virtual int_type overflow(int_type c = bsl::streambuf::traits_type::eof());
         // Return 'traits_type::eof()' unconditionally.
 
-    virtual int_type pbackfail(int_type c =
-                                           bsl::streambuf::traits_type::eof());
+    virtual int_type pbackfail(
+                              int_type c = bsl::streambuf::traits_type::eof());
         // Adjust the underlying blob and put the specified character 'c' at
         // the newly valid 'gptr()'.  Return 'c' (or '~traits_type::eof' if 'c
         // == traits_type::eof') on success, and 'traits_type::eof()'
         // otherwise.
 
     virtual pos_type seekoff(
-                           off_type                offset,
-                           bsl::ios_base::seekdir  fixedPosition,
-                           bsl::ios_base::openmode which = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+       off_type                offset,
+       bsl::ios_base::seekdir  fixedPosition,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Set the location from which the next I/O operation indicated by the
         // specified 'which' mode will occur to the specified 'offset' position
         // from the location indicated by the specified 'fixedPosition'.
@@ -114,17 +112,16 @@ class InBlobStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::out' is set.
 
     virtual pos_type seekpos(
-                           pos_type                position,
-                           bsl::ios_base::openmode which = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+       pos_type                position,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Set the location from which the next I/O operation indicated by the
         // specified 'which' mode will occur to the specified 'position'.
         // Return 'position' on success, and 'off_type(-1)' otherwise.  Note
         // that this method will fail if 'bsl::ios_base::out' is set.
 
     virtual bsl::streamsize showmanyc();
-        // Return the number of characters currently available for reading
-        // from this stream buffer, or 0 if there are none.
+        // Return the number of characters currently available for reading from
+        // this stream buffer, or 0 if there are none.
 
     virtual int sync();
         // Return 0 unconditionally.
@@ -171,9 +168,9 @@ class InBlobStreamBuf : public bsl::streambuf {
         // "streamed" blob has at least one buffer.
 };
 
-                           // ======================
-                           // class OutBlobStreamBuf
-                           // ======================
+                          // ======================
+                          // class OutBlobStreamBuf
+                          // ======================
 
 class OutBlobStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
@@ -206,15 +203,14 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Append the optionally specified character 'c' to this streambuf, and
         // return 'c'.  By default, 'traits_type::eof()' is appended.
 
-    virtual int_type pbackfail(int_type c =
-                                           bsl::streambuf::traits_type::eof());
+    virtual int_type pbackfail(
+                              int_type c = bsl::streambuf::traits_type::eof());
         // Return 'traits_type::eof()' unconditionally.
 
     virtual pos_type seekoff(
-                           off_type                offset,
-                           bsl::ios_base::seekdir  fixedPosition,
-                           bsl::ios_base::openmode which = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+       off_type                offset,
+       bsl::ios_base::seekdir  fixedPosition,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Set the location from which the next I/O operation indicated by the
         // specified 'which' mode will occur to the specified 'offset' position
         // from the location indicated by the specified 'fixedPosition'.
@@ -223,9 +219,8 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // 'bsl::ios_base::in' is set.
 
     virtual pos_type seekpos(
-                           pos_type                position,
-                           bsl::ios_base::openmode which = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+       pos_type                position,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Set the location from which the next I/O operation indicated by the
         // specified 'which' mode will occur to the specified 'position'.
         // Return 'position' on success, and 'off_type(-1)' otherwise.  Note
@@ -235,8 +230,8 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Return 0 unconditionally.
 
     virtual int sync();
-        // Synchronize the put position in the blob of this stream
-        // buffer.  Return 0 unconditionally.
+        // Synchronize the put position in the blob of this stream buffer.
+        // Return 0 unconditionally.
 
     virtual int_type underflow();
         // Return 'traits_type::eof()' unconditionally.
@@ -254,8 +249,8 @@ class OutBlobStreamBuf : public bsl::streambuf {
   public:
     // CREATORS
     explicit OutBlobStreamBuf(btlb::Blob *blob);
-        // Create a 'OutBlobStreamBuf' using the specified 'blob', and
-        // set the location at which the next write operation will occur to
+        // Create a 'OutBlobStreamBuf' using the specified 'blob', and set the
+        // location at which the next write operation will occur to
         // 'blob->length()'.
 
     ~OutBlobStreamBuf();
@@ -284,12 +279,12 @@ class OutBlobStreamBuf : public bsl::streambuf {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                           // =====================
-                           // class InBlobStreamBuf
-                           // =====================
+                          // =====================
+                          // class InBlobStreamBuf
+                          // =====================
 
 // MANIPULATORS
 inline
@@ -327,9 +322,9 @@ int InBlobStreamBuf::previousBuffersLength() const
     return d_previousBuffersLength;
 }
 
-                           // ======================
-                           // class OutBlobStreamBuf
-                           // ======================
+                          // ======================
+                          // class OutBlobStreamBuf
+                          // ======================
 
 // MANIPULATORS
 inline

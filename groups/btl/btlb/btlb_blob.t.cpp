@@ -17,8 +17,8 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#include <bsl_cctype.h>      // isdigit() isupper() islower()
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
 
 using namespace BloombergLP;
@@ -334,9 +334,9 @@ bool compareBuffersData(const btlb::Blob& blob,
     return true;
 }
 
-                        // ===========================
-                        // class TestBlobBufferFactory
-                        // ===========================
+                       // ===========================
+                       // class TestBlobBufferFactory
+                       // ===========================
 
 class TestBlobBufferFactory : public btlb::BlobBufferFactory
 {
@@ -409,9 +409,9 @@ bool TestBlobBufferFactory::growFlag() const
     return d_growFlag;
 }
 
-                             // =================
-                             // class NullDeleter
-                             // =================
+                            // =================
+                            // class NullDeleter
+                            // =================
 
 class NullDeleter {
     public:
@@ -422,9 +422,9 @@ class NullDeleter {
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-                       // =============================
-                       // class SimpleBlobBufferFactory
-                       // =============================
+                      // =============================
+                      // class SimpleBlobBufferFactory
+                      // =============================
 
 class SimpleBlobBufferFactory : public btlb::BlobBufferFactory
 {
@@ -550,50 +550,48 @@ void  usageExample() {
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
 //..
-void prependProlog(btlb::Blob          *blob,
-                   const bsl::string&   prolog,
-                   bslma::Allocator    *allocator = 0);
+void prependProlog(btlb::Blob         *blob,
+                   const bsl::string&  prolog,
+                   bslma::Allocator   *allocator = 0);
     // Prepend the specified 'prolog' to the specified 'blob', using the
-    // specified 'allocator' to supply any memory (or the currently
-    // installed default allocator if 'allocator' is 0).  The behavior is
-    // undefined unless 'blob' points to an initialized 'btlb::Blob'
-    // instance.
+    // specified 'allocator' to supply any memory (or the currently installed
+    // default allocator if 'allocator' is 0).  The behavior is undefined
+    // unless 'blob' points to an initialized 'btlb::Blob' instance.
 
 template <class DELETER>
-void composeMessage(btlb::Blob          *blob,
-                    const bsl::string&   prolog,
-                    char * const        *vectors,
-                    const int           *vectorSizes,
-                    int                  numVectors,
-                    const DELETER&       deleter,
-                    bslma::Allocator    *allocator = 0);
+void composeMessage(btlb::Blob         *blob,
+                    const bsl::string&  prolog,
+                    char * const       *vectors,
+                    const int          *vectorSizes,
+                    int                 numVectors,
+                    const DELETER&      deleter,
+                    bslma::Allocator   *allocator = 0);
     // Load into the specified 'blob' the data composed of the specified
     // 'prolog' and of the payload in the 'numVectors' buffers pointed to by
-    // the specified 'vectors' of the respective 'vectorSizes'.  Ownership
-    // of the vectors is transferred to the 'blob' which will use the
-    // specified 'deleter' to destroy them.  Use the specified 'allocator'
-    // to supply memory, or the currently installed default allocator if
-    // 'allocator' is 0.  Note that any buffer belonging to 'blob' prior to
-    // composing the message is not longer in 'blob' after composing the
-    // message.  Note also that 'blob' need not have been created with a
-    // blob buffer factory.  The behavior is undefined unless 'blob' points
-    // to an initialized 'btlb::Blob' instance.
-
-int timestampMessage(btlb::Blob          *blob,
-                     bslma::Allocator    *allocator = 0);
-    // Insert a timestamp data buffer immediately after the prolog buffer
-    // and prior to any payload buffer.  Return the number of bytes
-    // inserted.  Use the specified 'allocator' to supply memory, or the
-    // currently installed default allocator if 'allocator' is 0.  The
+    // the specified 'vectors' of the respective 'vectorSizes'.  Ownership of
+    // the vectors is transferred to the 'blob' which will use the specified
+    // 'deleter' to destroy them.  Use the specified 'allocator' to supply
+    // memory, or the currently installed default allocator if 'allocator' is
+    // 0.  Note that any buffer belonging to 'blob' prior to composing the
+    // message is not longer in 'blob' after composing the message.  Note also
+    // that 'blob' need not have been created with a blob buffer factory.  The
     // behavior is undefined unless 'blob' points to an initialized
-    // 'btlb::Blob' instance with at least one data buffer.
+    // 'btlb::Blob' instance.
+
+int timestampMessage(btlb::Blob *blob, bslma::Allocator *allocator = 0);
+    // Insert a timestamp data buffer immediately after the prolog buffer and
+    // prior to any payload buffer.  Return the number of bytes inserted.  Use
+    // the specified 'allocator' to supply memory, or the currently installed
+    // default allocator if 'allocator' is 0.  The behavior is undefined unless
+    // 'blob' points to an initialized 'btlb::Blob' instance with at least one
+    // data buffer.
 //..
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
 //..
-void prependProlog(btlb::Blob          *blob,
-                   const bsl::string&   prolog,
-                   bslma::Allocator    *)
+void prependProlog(btlb::Blob         *blob,
+                   const bsl::string&  prolog,
+                   bslma::Allocator   *)
 {
     ASSERT(blob);
 
@@ -659,8 +657,7 @@ void composeMessage(btlb::Blob         *blob,
 // that in usual messages, timestamps would be part of the prolog itself, so
 // this is a somewhat constrained example for exposition only.
 //..
-int timestampMessage(btlb::Blob          *blob,
-                     bslma::Allocator    *allocator)
+int timestampMessage(btlb::Blob *blob, bslma::Allocator *allocator)
 {
     ASSERT(blob);
     ASSERT(0 < blob->numDataBuffers());

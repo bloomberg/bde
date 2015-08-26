@@ -19,8 +19,8 @@ BSLS_IDENT_RCSID(btlb_blobstreambuf_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
 namespace btlb {                        // ===========================
+
                         // class InBlobStreamBuf
                         // ===========================
 
@@ -156,16 +156,15 @@ InBlobStreamBuf::pbackfail(InBlobStreamBuf::int_type c)
 }
 
 InBlobStreamBuf::pos_type
-InBlobStreamBuf::seekpos(pos_type                position,
-                               bsl::ios_base::openmode which)
+InBlobStreamBuf::seekpos(pos_type position, bsl::ios_base::openmode which)
 {
     return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
 InBlobStreamBuf::pos_type
 InBlobStreamBuf::seekoff(off_type                offset,
-                               bsl::ios_base::seekdir  fixedPosition,
-                               bsl::ios_base::openmode which)
+                         bsl::ios_base::seekdir  fixedPosition,
+                         bsl::ios_base::openmode which)
 {
     BSLS_ASSERT(0 == checkInvariant());
 
@@ -241,8 +240,8 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
         curOffset = 0; // start of the buffer.
     }
     else {
-        // This is our offset in this buffer.  The point is that the length
-        // of the underlying blob could have grown.
+        // This is our offset in this buffer.  The point is that the length of
+        // the underlying blob could have grown.
 
         curOffset = egptr() - eback();
     }
@@ -250,9 +249,9 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
     char *gbuf = d_blob_p->buffer(d_getBufferIndex).data();
     bsl::size_t glen =  d_blob_p->buffer(d_getBufferIndex).size();
 
-    // We need to figure out where to stop in that buffer.  If this is
-    // the last buffer, we may have to stop before the end of the memory
-    // since it may not be full at that time.
+    // We need to figure out where to stop in that buffer.  If this is the last
+    // buffer, we may have to stop before the end of the memory since it may
+    // not be full at that time.
 
     bsl::size_t endOffset = bsl::min(totalSize - d_previousBuffersLength,
                                      (int)glen);
@@ -265,7 +264,7 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
 }
 
 bsl::streamsize InBlobStreamBuf::xsgetn(char_type       *destination,
-                                            bsl::streamsize  numChars)
+                                        bsl::streamsize  numChars)
 {
     bsl::streamsize numLeft   = numChars;
     bsl::streamsize numCopied = 0;
@@ -287,8 +286,7 @@ bsl::streamsize InBlobStreamBuf::xsgetn(char_type       *destination,
     return numCopied;
 }
 
-bsl::streamsize InBlobStreamBuf::xsputn(const char_type *,
-                                              bsl::streamsize)
+bsl::streamsize InBlobStreamBuf::xsputn(const char_type *, bsl::streamsize)
 {
     return 0;
 }
@@ -307,9 +305,9 @@ InBlobStreamBuf::~InBlobStreamBuf()
     BSLS_ASSERT(0 == checkInvariant());
 }
 
-                           // ======================
-                           // class OutBlobStreamBuf
-                           // ======================
+                          // ======================
+                          // class OutBlobStreamBuf
+                          // ======================
 
 // PRIVATE MANIPULATORS
 void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
@@ -372,17 +370,16 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
         } while (left > 0);
     }
 
-    // The only case where position > d_previousBuffersLength happens
-    // during a first call to this method (from the constructor) for
-    // a non-empty blob which does not start at the beginning of a buffer.
+    // The only case where position > d_previousBuffersLength happens during a
+    // first call to this method (from the constructor) for a non-empty blob
+    // which does not start at the beginning of a buffer.
 
     BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
 
-    // The only case where
-    // (position - d_previousBuffersLength) ==
+    // The only case where (position - d_previousBuffersLength) ==
     //                                d_blob_p->buffer(d_putBufferIndex).size()
-    // happens during a first call to this method (from the constructor) for
-    // a non-empty blob which finishes on a buffer boundary.
+    // happens during a first call to this method (from the constructor) for a
+    // non-empty blob which finishes on a buffer boundary.
 
     BSLS_ASSERT(position - d_previousBuffersLength <=
                           (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
@@ -458,16 +455,15 @@ OutBlobStreamBuf::pbackfail(OutBlobStreamBuf::int_type)
 }
 
 OutBlobStreamBuf::pos_type
-OutBlobStreamBuf::seekpos(pos_type                position,
-                                bsl::ios_base::openmode which)
+OutBlobStreamBuf::seekpos(pos_type position, bsl::ios_base::openmode which)
 {
     return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
 OutBlobStreamBuf::pos_type
 OutBlobStreamBuf::seekoff(off_type                offset,
-                                bsl::ios_base::seekdir  fixedPosition,
-                                bsl::ios_base::openmode which)
+                          bsl::ios_base::seekdir  fixedPosition,
+                          bsl::ios_base::openmode which)
 {
     BSLS_ASSERT(0 == checkInvariant());
 
@@ -532,14 +528,13 @@ OutBlobStreamBuf::int_type OutBlobStreamBuf::underflow()
     return traits_type::eof();
 }
 
-bsl::streamsize OutBlobStreamBuf::xsgetn(char_type       *,
-                                               bsl::streamsize  )
+bsl::streamsize OutBlobStreamBuf::xsgetn(char_type *, bsl::streamsize)
 {
     return 0;
 }
 
 bsl::streamsize OutBlobStreamBuf::xsputn(const char_type *source,
-                                               bsl::streamsize  numChars)
+                                         bsl::streamsize  numChars)
 {
     bsl::streamsize numLeft   = numChars;
     bsl::streamsize numCopied = 0;

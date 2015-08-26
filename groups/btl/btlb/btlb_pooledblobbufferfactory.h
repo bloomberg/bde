@@ -7,7 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a concrete implementation of 'btlb::BlobBufferFactory'.
 //
 //@CLASSES:
@@ -44,16 +43,16 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlb {
-                       // =============================
-                       // class PooledBlobBufferFactory
-                       // =============================
+
+                      // =============================
+                      // class PooledBlobBufferFactory
+                      // =============================
 
 class PooledBlobBufferFactory: public BlobBufferFactory {
-    // This class implements the 'BlobBufferFactory' protocol and
-    // provides a mechanism for allocating 'BlobBuffer' objects of a
-    // fixed size passed at construction.
+    // This class implements the 'BlobBufferFactory' protocol and provides a
+    // mechanism for allocating 'BlobBuffer' objects of a fixed size passed at
+    // construction.
 
     // DATA
     int                 d_bufferSize;  // size of allocated blob buffers
@@ -63,11 +62,11 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
   public:
     // CREATORS
     PooledBlobBufferFactory(int               bufferSize,
-                                  bslma::Allocator *basicAllocator=0);
-        // Create a pooled factory for allocating 'BlobBuffer' objects of
-        // the specified 'bufferSize'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+                            bslma::Allocator *basicAllocator=0);
+        // Create a pooled factory for allocating 'BlobBuffer' objects of the
+        // specified 'bufferSize'.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     ~PooledBlobBufferFactory();
         // Destroy this factory.
@@ -83,12 +82,12 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
 };
 
 // ============================================================================
-//               INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
-                       // -----------------------------
-                       // class PooledBlobBufferFactory
-                       // -----------------------------
+                      // -----------------------------
+                      // class PooledBlobBufferFactory
+                      // -----------------------------
 
 // ACCESSORS
 inline
