@@ -16,13 +16,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlc_hashtable2, bdeimp_inthash, bdeimp_strhash, bdlde_crc32
 //
-//@DESCRIPTION:  This component provides two hash functions, 'hash1' and
-// 'hash2' that have a good funneling property, which can be formalized as
-// documented below.  In short, these hashes have the property that even if
-// two inputs differ in only a few bits, they have a negligible probability of
-// producing collisions.  In addition, these two hash functions produce full
-// 32-bit results and allow hash table sizes to be a power of two.  They are
-// fast and reliable.  They should work equally well on all types of keys.
+//@DESCRIPTION: This component defines a utility 'struct', 'bdlb::HashUtil',
+// that provides two hash functions, 'hash1' and 'hash2'.  These hash functions
+// have a good funneling property, which can be formalized as documented below
+// (see {Definitions and Formal Statement of No-Funneling Property}).  In
+// short, these hashes have the property that even if two inputs differ in only
+// a few bits, they have a negligible probability of producing collisions.  In
+// addition, these two hash functions produce full 32-bit results and allow
+// hash table sizes to be a power of two.  They are fast and reliable.  They
+// should work equally well on all types of keys.
 //
 // The two hash functions 'hash1' and 'hash2' have similar characteristics.
 // 'hash2' is a bit faster than 'hash1', especially for longer keys; it also
@@ -53,7 +55,7 @@ BSLS_IDENT("$Id: $")
 //  bdlb::HashUtil::hash1((const char *)&key, sizeof(key));  // not recommended
 //  bdlb::HashUtil::hash2((const char *)&key, sizeof(key));  // not recommended
 //..
-// return values which differ on big- and little-endian platforms if the key
+// return values that differ on big- and little-endian platforms if the key
 // size is more than one byte.  Instead, the recommended way to hash this 'key'
 // is simply to:
 //..
@@ -111,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //                                  int                          size)
 //  {
 //      return (bdlb::HashUtil::hash1(object.d_cusip, CUSIP_LENGTH) +
-//                                bdlb::HashUtil::hash1(object.d_value)) % size;
+//                               bdlb::HashUtil::hash1(object.d_value)) % size;
 //  }
 //..
 // Note that more intricate combinations of the individual hashes in the
@@ -134,10 +136,10 @@ BSLS_IDENT("$Id: $")
 // has 'v' bits) if two keys differing only at that input bit will differ at
 // the given output bit about half the time.  We define a hash to be a
 // funneling hash if there is some subset of size 't' of all the input bits
-// which can affect only a subset of size 'u' of bits in the output, and 't >
-// u' and 'v > u', and we say that the hash function has a funnel of those 't'
-// input bits into those 'u' bits.  In that case, then 'u' of those 't' bits
-// can cancel out the effects of the other 't - u', and so the set of keys
+// that can affect only a subset of size 'u' of bits in the output, and
+// 't > u' and 'v > u', and we say that the hash function has a funnel of those
+// 't' input bits into those 'u' bits.  In that case, then 'u' of those 't'
+// bits can cancel out the effects of the other 't - u', and so the set of keys
 // differing only in the input bits of the funnel can produce no more than half
 // that number of hash values.  (Those '2^t' keys can produce no more than
 // '2^u' out of '2^v' hash values.)  Differing in only a few bits is a common
@@ -146,9 +148,9 @@ BSLS_IDENT("$Id: $")
 // This component offers a hash function ('hash1') that has no funnels, except
 // for a funnel of 32 bits into 31 bits, which is a negligible vulnerability.
 // The 'hash2' does not have known no-funneling properties, but operates on the
-// same principle and is just as good (and faster) in experiments with
-// chaining as in the usage below.  In addition, these two hash functions
-// produce full 32-bit results and allow hash table sizes to be a power of two.
+// same principle and is just as good (and faster) in experiments with chaining
+// as in the usage below.  In addition, these two hash functions produce full
+// 32-bit results and allow hash table sizes to be a power of two.
 //
 // For further details and references, the interested reader is invited to
 // consult 'http://burtleburtle.net/bob/hash/evahash.html'.
@@ -185,15 +187,18 @@ BSLS_IDENT("$Id: $")
 //  generator.next();                    // advance to next value
 //..
 //
-///Using chaining
-/// - - - - - - -
+///Example 1: Using Chaining
+///- - - - - - - - - - - - -
 // The following code will check the number of collisions for a chaining-based
 // hash table given a certain distribution of keys:
 //..
 //  template <class GENERATOR>
 //  ExperimentalResult
-//  computeChainingCollisions(int numElements, int size, GENERATOR input,
-//                            int veryVerbose, int veryVeryVerbose)
+//  computeChainingCollisions(int       numElements,
+//                            int       size,
+//                            GENERATOR input,
+//                            int       veryVerbose,
+//                            int       veryVeryVerbose)
 //      // Simulate insertion of the specified 'numElements' generated by the
 //      // specified 'input' generator into a hash table of the specified
 //      // 'size' using chaining as the mechanism to resolve collisions.
@@ -219,22 +224,26 @@ BSLS_IDENT("$Id: $")
 //          sigmaLength += table[k] * table[k];
 //          maxLength    = bsl::max(maxLength, table[k]);
 //      }
-//      avgLength /= size;
-//      sigmaLength = sqrt( sigmaLength / size - avgLength * avgLength );
+//      avgLength   /= size;
+//      sigmaLength  = sqrt(sigmaLength / size - avgLength * avgLength);
 //
 //      return ExperimentalResult(maxLength, avgLength, sigmaLength);
 //  }
 //..
-///Using double-hashing
-/// - - - - - - - - - -
+//
+///Example 2: Using Double-Hashing
+///- - - - - - - - - - - - - - - -
 // The following code will check the number of collisions for a double-hashing
 // based hash table (such as 'bdlc_hashtable2') given a certain distribution
 // of keys:
 //..
 //  template <class GENERATOR>
 //  ExperimentalResult
-//  computeDoubleHashingCollisions(int numElements, int size, GENERATOR input,
-//                                 int veryVerbose, int veryVeryVerbose)
+//  computeDoubleHashingCollisions(int       numElements,
+//                                 int       size,
+//                                 GENERATOR input,
+//                                 int       veryVerbose,
+//                                 int       veryVeryVerbose)
 //      // Simulate insertion of the specified 'numElements' generated by the
 //      // specified 'input' generator into a hash table of the specified
 //      // 'size' using double hashing as the mechanism to resolve collisions.
@@ -255,7 +264,7 @@ BSLS_IDENT("$Id: $")
 //                                                    input.length());
 //
 //          int chainLength = 0;
-//          int bucket = hash1 % size;
+//          int bucket      = hash1 % size;
 //          if (ResultType() == table[bucket]) {
 //              table[bucket] = input.current();
 //          } else {
@@ -280,20 +289,22 @@ BSLS_IDENT("$Id: $")
 //              sigmaLength = bsl::numeric_limits<double>::infinity();
 //              maxLength   = bsl::numeric_limits<double>::infinity();
 //              return ExperimentalResult(maxLength, avgLength, sigmaLength);
+//                                                                    // RETURN
 //          }
 //
 //          avgLength   += chainLength;
 //          sigmaLength += chainLength * chainLength;
 //          maxLength    = bsl::max(maxLength, chainLength);
 //      }
-//      avgLength /= numElements;
-//      sigmaLength = sqrt(sigmaLength / numElements - avgLength * avgLength);
+//      avgLength   /= numElements;
+//      sigmaLength  = sqrt(sigmaLength / numElements - avgLength * avgLength);
 //
 //      return ExperimentalResult(maxLength, avgLength, sigmaLength);
 //  }
 //..
-///Sequential integers generator
-///- - - - - - - - - - - - - - -
+//
+///Example 3: Creating a Generator of Sequential Integers
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Here is a simple generator that returns a sequence of integers.  This
 // generator has a period of 'INT_MAX / gcd(increment, INT_MAX+1)'.
 //..
@@ -339,8 +350,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-///Character strings generator
-///- - - - - - - - - - - - - -
+//
+///Example 4: Creating a Character String Generator
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // Here is a simple generator that returns a sequence of strings that are a
 // permutation of an initial string.  This generator has a period of
 // 'factorial(initial.length())' where 'factorial(N)' returns the number of
@@ -365,7 +377,7 @@ BSLS_IDENT("$Id: $")
 //          : d_length(initial.length()), d_current(initial)
 //      {
 //          bsl::sort(d_current.begin(), d_current.end());
-//          ASSERT(bsl::unique(d_current.begin(), d_current.end()) ==
+//          assert(bsl::unique(d_current.begin(), d_current.end()) ==
 //                                                            d_current.end());
 //      }
 //
@@ -388,7 +400,6 @@ BSLS_IDENT("$Id: $")
 //      {
 //          return d_current.data();
 //      }
-//
 //      int length() const
 //          // Return length of result type (in bytes).
 //      {
@@ -396,8 +407,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-///Multiple-field keys generator
-///- - - - - - - - - - - - - - -
+//
+///Example 5: Creating a Multiple-Field Keys Generator
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // It is not uncommon for keys to consist of concatenated keys in multiple
 // combinations.  We simulate this by a character string in which each
 // character loops through a specified number of values.  The period of this
@@ -457,8 +469,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-///Experimental Results
-///- - - - - - - - - -
+//
+///Example 6: Experimental Results
+///- - - - - - - - - - - - - - - -
 // Checking the above distributions is done in a straightforward manner.  We do
 // this at various load factors (the load factor is the percentage of the table
 // that actually holds data; it is defined as 'N / SIZE' where 'N' is the
@@ -466,65 +479,84 @@ BSLS_IDENT("$Id: $")
 // chaining accommodates arbitrary load factors, while double hashing requires
 // that the load factor be strictly less than 1.
 //..
-//  int main() {
-//      const int SIZE = 10007;
+//  int usageExample(int verbose, int veryVerbose, int veryVeryVerbose) {
+//      const int SIZE = 10000;
 //      const int INC  = SIZE / 5; // load factors for every 20% percentile
 //      const int COLS = (4*SIZE)/INC;
 //
-//      // Using chaining.
 //      {
 //          ExperimentalResult results[3][COLS];
 //          bsls::Stopwatch timer;
 //
+//          if (verbose) cout << "\nUsing chaining"
+//                            << "\n--------------" << endl;
+//
+//          if (verbose) cout << "Sequential Integers\n";
 //          timer.start();
 //          for (int n = INC, i = 0; n < 4*SIZE; n += INC, ++i) {
+//              if (veryVerbose)
+//                  cout << "\tWith load factor " << (double)n / SIZE << "\n";
+//
 //              results[0][i] = computeChainingCollisions(n, SIZE,
 //                                               SequentialIntegers(),
 //                                               veryVerbose, veryVeryVerbose);
 //              assert(results[0][i].d_average < 1.5 * n / SIZE);
 //          }
+//          if (verbose) cout << "\t... in " << timer.elapsedTime() << "\n";
 //          timer.reset();
 //
+//          if (verbose) cout << "Sequential Strings\n";
 //          timer.start();
 //          for (int n = INC, i = 0; n < 4*SIZE; n += INC, ++i) {
+//              if (veryVerbose)
+//                  cout << "\tWith load factor " << (double)n / SIZE << "\n";
+//
 //              bsl::string initial("abcdefghij"); // period = 10! = 3628800
 //              results[1][i] = computeChainingCollisions(n, SIZE,
 //                                               SequentialStrings(initial),
 //                                               veryVerbose, veryVeryVerbose);
 //              assert(results[1][i].d_average < 1.5 * n / SIZE);
 //          }
+//          if (verbose) cout << "\t... in " << timer.elapsedTime() << "\n";
 //          timer.reset();
 //
+//          if (verbose) cout << "Sequential Vector\n";
 //          timer.start();
 //          for (int n = INC, i = 0; n < 4*SIZE; n += INC, ++i) {
+//              if (veryVerbose)
+//                  cout << "\tWith load factor " << (double)n / SIZE << "\n";
+//
 //              bsl::vector<char> ranges(6, (char)4); // period = 4^6 = 4096
 //              results[2][i] = computeChainingCollisions(n, SIZE,
-//                                               SequentialVector(ranges),
-//                                               veryVerbose, veryVeryVerbose);
+//                                        SequentialVector(ranges),
+//                                        veryVerbose, veryVeryVerbose);
 //              assert(results[2][i].d_average < 1.5 * n / SIZE);
 //          }
+//          if (verbose) cout << "\t... in " << timer.elapsedTime() << "\n";
 //          timer.reset();
 //
-//          cout << "\nDisplaying average (max) for chaining:";
-//          cout << "\n--------------------------------------n";
-//          const char *ROW_LABELS[] = {
-//              "\nIntegers   :",
-//              "\nStrings    :",
-//              "\nMultifield :",
-//              "\nLoad factor:",
-//          };
-//          const int NUM_ROWS = sizeof ROW_LABELS / sizeof *ROW_LABELS -1;
-//          cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
-//          for (int n = INC; n < 4*SIZE; n += INC) {
-//              cout << "\t" << (double)n / SIZE;
-//          }
-//          for (int j = 0; j < NUM_ROWS; ++j) {
-//              cout << ROW_LABELS[j];
-//              for (int i = 0; i < COLS; ++i) {
-//                  cout << "\t" << results[j][i].d_average;
-//                  cout << "(" << results[j][i].d_max << ")";
+//          if (verbose) {
+//              cout << "\nDisplaying average (max) for chaining:";
+//              cout << "\n--------------------------------------n";
+//              const char *ROW_LABELS[] = {
+//                  "\nIntegers:",
+//                  "\nStrings :",
+//                  "\nVector  :",
+//                  "\nLoad factor:",
+//              };
+//              const int NUM_ROWS = sizeof ROW_LABELS / sizeof *ROW_LABELS -1;
+//              cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
+//              for (int n = INC; n < 4*SIZE; n += INC) {
+//                  cout << "\t" << (double)n / SIZE;
 //              }
-//              cout << "\n";
+//              for (int j = 0; j < NUM_ROWS; ++j) {
+//                  cout << ROW_LABELS[j];
+//                  for (int i = 0; i < COLS; ++i) {
+//                      cout << "\t" << results[j][i].d_average;
+//                      cout << "(" << results[j][i].d_max << ")";
+//                  }
+//                  cout << "\n";
+//              }
 //          }
 //      }
 //..
@@ -533,13 +565,24 @@ BSLS_IDENT("$Id: $")
 // slightly increased to 2.5 times the load factor, when the load factor is
 // high.
 //..
-//      // Using double hashing.
 //      {
+//          // const int SIZE = 1000003;   // must be a prime number
+//          const int SIZE = 10007;     // must be a prime number
+//          const int INC  = SIZE / 5; // load factors for every 20% percentile
+//          const int COLS = SIZE/INC;
+//
 //          ExperimentalResult results[3][COLS];
 //          bsls::Stopwatch timer;
 //
+//          if (verbose) cout << "\nUsing double hashing"
+//                            << "\n--------------------" << endl;
+//
+//          if (verbose) cout << "Sequential Integers\n";
 //          timer.start();
 //          for (int n = INC/2, i = 0; n < SIZE; n += INC, ++i) {
+//              if (veryVerbose)
+//                  cout << "\tWith load factor " << (double)n / SIZE << "\n";
+//
 //              results[0][i] = computeDoubleHashingCollisions(n, SIZE,
 //                                               SequentialIntegers(),
 //                                               veryVerbose, veryVeryVerbose);
@@ -548,86 +591,92 @@ BSLS_IDENT("$Id: $")
 //          if (verbose) cout << "\t... in " << timer.elapsedTime() << "\n";
 //          timer.reset();
 //
+//          if (verbose) cout << "Sequential Strings\n";
 //          timer.start();
 //          for (int n = INC/2, i = 0; n < SIZE; n += INC, ++i) {
+//              if (veryVerbose)
+//                  cout << "\tWith load factor " << (double)n / SIZE << "\n";
+//
 //              bsl::string initial("abcdefghij"); // period = 10! = 3628800
 //              results[1][i] = computeDoubleHashingCollisions(n, SIZE,
 //                                               SequentialStrings(initial),
 //                                               veryVerbose, veryVeryVerbose);
 //              assert(results[1][i].d_average < 2.5 * n / SIZE);
 //          }
+//          if (verbose) cout << "\t... in " << timer.elapsedTime() << "\n";
 //          timer.reset();
 //
+//          if (verbose) cout << "Sequential Vector\n";
 //          timer.start();
 //          for (int n = INC/2, i = 0; n < SIZE; n += INC, ++i) {
+//              if (veryVerbose)
+//                  cout << "\tWith load factor " << (double)n / SIZE << "\n";
+//
 //              bsl::vector<char> ranges(7, (char)8); // period = 8^7 = 2097152
 //              results[2][i] = computeDoubleHashingCollisions(n, SIZE,
 //                                               SequentialVector(ranges),
 //                                               veryVerbose, veryVeryVerbose);
 //              assert(results[2][i].d_average < 2.5 * n / SIZE);
 //          }
+//          if (verbose) cout << "\t... in " << timer.elapsedTime() << "\n";
 //          timer.reset();
 //
-//          cout << "\nDisplaying average (max) for double-hashing:";
-//          cout << "\n--------------------------------------------\n";
-//          const char *ROW_LABELS[] = {
-//              "\nIntegers   :",
-//              "\nStrings    :",
-//              "\nMultifield :",
-//              "\nLoad factor:",
-//          };
-//          const int NUM_ROWS = sizeof ROW_LABELS / sizeof *ROW_LABELS -1;
-//          cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
-//          for (int n = INC/2; n < SIZE; n += INC) {
-//              cout << "\t" << (double)n / SIZE;
-//          }
-//          for (int j = 0; j < NUM_ROWS; ++j) {
-//              cout << ROW_LABELS[j];
-//              for (int i = 0; i < COLS; ++i) {
-//                  cout << "\t" << results[j][i].d_average;
-//                  cout << "(" << results[j][i].d_max << ")";
+//          if (verbose) {
+//              cout << "\nDisplaying average (max) for double-hashing:";
+//              cout << "\n--------------------------------------------\n";
+//              const char *ROW_LABELS[] = {
+//                  "\nIntegers:",
+//                  "\nStrings :",
+//                  "\nVector  :",
+//                  "\nLoad factor:",
+//              };
+//              const int NUM_ROWS = sizeof ROW_LABELS / sizeof *ROW_LABELS -1;
+//              cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
+//              for (int n = INC/2; n < SIZE; n += INC) {
+//                  cout << "\t" << (double)n / SIZE;
 //              }
-//              cout << "\n";
+//              for (int j = 0; j < NUM_ROWS; ++j) {
+//                  cout << ROW_LABELS[j];
+//                  for (int i = 0; i < COLS; ++i) {
+//                      cout << "\t" << results[j][i].d_average;
+//                      cout << "(" << results[j][i].d_max << ")";
+//                  }
+//                  cout << "\n";
+//              }
 //          }
 //      }
 //
 //      return 0;
 //  }
 //..
-// The above code produces the following results, slightly reformatted for
-// breaking long lines.  The results for chaining are identical for 'hash1'
-// (used in the code above) or 'hash2' (code identical except 'hash2' is used
-// in place of 'hash1' in 'computeChainingCollisions').
+// The above code produces the following results.  The results for chaining are
+// identical for 'hash1' (used in the code above) or 'hash2' (code identical
+// except 'hash2' is used in place of 'hash1' in 'computeChainingCollisions').
 //..
-// Displaying average(max) for chaining:
-// -------------------------------------
-// Load factor:       0.2     0.4     0.6     0.8     1       1.2     1.4
-// Integers   :       0.2(3)  0.4(5)  0.6(6)  0.8(6)  1(7)    1.2(7)  1.4(8)
-// Strings    :       0.2(4)  0.4(4)  0.6(5)  0.8(7)  1(7)    1.2(7)  1.4(7)
-// Multifield :       0.2(5)  0.4(5)  0.6(10) 0.8(10) 1(15)   1.2(15) 1.4(20)
+//  Displaying average(max) for chaining:
+//  ---------------------------------------------------------------------------
+//  Load factor:    0.2     0.4     0.6     0.8     1       1.2     1.4
+//  Integers:       0.2(3)  0.4(5)  0.6(6)  0.8(6)  1(7)    1.2(7)  1.4(8)
+//  Strings :       0.2(4)  0.4(4)  0.6(5)  0.8(7)  1(7)    1.2(7)  1.4(7)
+//  Vector  :       0.2(5)  0.4(5)  0.6(10) 0.8(10) 1(15)   1.2(15) 1.4(20)
 //
-// Load factor:       1.6     1.8     2       2.2     2.4     2.6     2.8
-// Integers   :       1.6(9)  1.8(9)  2(10)   2.2(10) 2.4(10) 2.6(10) 2.8(11)
-// Strings    :       1.6(7)  1.8(8)  2(9)    2.2(11) 2.4(11) 2.6(11) 2.8(11)
-// Multifield :       1.6(20) 1.8(24) 2(25)   2.2(29) 2.4(30) 2.6(34) 2.8(35)
+//  Load factor:    1.6     1.8     2       2.2     2.4     2.6     2.8
+//  Integers:       1.6(9)  1.8(9)  2(10)   2.2(10) 2.4(10) 2.6(10) 2.8(11)
+//  Strings :       1.6(7)  1.8(8)  2(9)    2.2(11) 2.4(11) 2.6(11) 2.8(11)
+//  Vector  :       1.6(20) 1.8(24) 2(25)   2.2(29) 2.4(30) 2.6(34) 2.8(35)
 //
-// Load factor:       3       3.2     3.4     3.6     3.8
-// Integers   :       3(11)   3.2(11) 3.4(12) 3.6(12) 3.8(13)
-// Strings    :       3(12)   3.2(12) 3.4(13) 3.6(13) 3.8(13)
-// Multifield :       3(39)   3.2(40) 3.4(42) 3.6(45) 3.8(46)
+//  Load factor:    3       3.2     3.4     3.6     3.8
+//  Integers:       3(11)   3.2(11) 3.4(12) 3.6(12) 3.8(13)
+//  Strings :       3(12)   3.2(12) 3.4(13) 3.6(13) 3.8(13)
+//  Vector  :       3(39)   3.2(40) 3.4(42) 3.6(45) 3.8(46)
 //
-// Displaying average(max) for double-hashing:
-// -------------------------------------------
-// Load factor:       0.1      0.3     0.5      0.7      0.9
-// Integers   :       0.046(2) 0.20(4) 0.37(10) 0.71(15) 1.6(59)
-// Strings    :       0.064(2) 0.20(6) 0.40(12) 0.75(18) 1.6(50)
-// Multifield :       0.05(2)  0.19(5) 0.58(9)  1.20(15) 2.4(64)
+//  Displaying average(max) for double-hashing:
+//  ---------------------------------------------------------------------------
+//  Load factor:    0.1      0.3     0.5      0.7      0.9
+//  Integers:       0.046(2) 0.20(4) 0.37(10) 0.71(15) 1.6(59)
+//  Strings :       0.064(2) 0.20(6) 0.40(12) 0.75(18) 1.6(50)
+//  Vector  :       0.05(2)  0.19(5) 0.58(9)  1.20(15) 2.4(64)
 //..
-// Note that the hashes provide near-identical results for all types of data
-// distributions, as they should, and that chaining achieves a remarkable
-// uniformity on average chain length.  The only difference is that the maximum
-// chain and average double-hashing lengths are a bit longer for multiple-field
-// keys.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -641,39 +690,36 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-
-
 namespace BloombergLP {
-
 namespace bdlb {
-                            // ====================
-                            // struct HashUtil
-                            // ====================
+                              // ===============
+                              // struct HashUtil
+                              // ===============
 
 struct HashUtil {
     // This 'struct' provides a namespace for hash functions.
 
     // CLASS METHODS
-    static unsigned int hash0(char key, int modulus);
-    static unsigned int hash0(signed char key, int modulus);
-    static unsigned int hash0(unsigned char key, int modulus);
-    static unsigned int hash0(short key, int modulus);
-    static unsigned int hash0(unsigned short key, int modulus);
-    static unsigned int hash0(int key, int modulus);
-    static unsigned int hash0(unsigned int key, int modulus);
-    static unsigned int hash0(long key, int modulus);
-    static unsigned int hash0(unsigned long key, int modulus);
-    static unsigned int hash0(bsls::Types::Int64 key, int modulus);
-    static unsigned int hash0(bsls::Types::Uint64 key, int modulus);
-    static unsigned int hash0(float key, int modulus);
-    static unsigned int hash0(double key, int modulus);
-    static unsigned int hash0(const void *key, int modulus);
-        // Return an unsigned integer in the range from zero to one less than
-        // the specified 'modulus' corresponding to the specified 'key'.  The
-        // behavior is undefined unless '0 < modulus < 2^31'.  Note that
-        // 'modulus' is expected to be a prime not close to an integral power
-        // of 2.  Also note that specifying a 'modulus' of 1 will cause 0 to be
-        // returned for every 'value'.
+    static unsigned int hash0(char                 key, int modulus);
+    static unsigned int hash0(signed char          key, int modulus);
+    static unsigned int hash0(unsigned char        key, int modulus);
+    static unsigned int hash0(short                key, int modulus);
+    static unsigned int hash0(unsigned short       key, int modulus);
+    static unsigned int hash0(int                  key, int modulus);
+    static unsigned int hash0(unsigned int         key, int modulus);
+    static unsigned int hash0(long                 key, int modulus);
+    static unsigned int hash0(unsigned long        key, int modulus);
+    static unsigned int hash0(bsls::Types::Int64   key, int modulus);
+    static unsigned int hash0(bsls::Types::Uint64  key, int modulus);
+    static unsigned int hash0(float                key, int modulus);
+    static unsigned int hash0(double               key, int modulus);
+    static unsigned int hash0(const void          *key, int modulus);
+        // Return an unsigned integer hash value in the range from zero to one
+        // less than the specified 'modulus' corresponding to the specified
+        // 'key'.  The behavior is undefined unless '0 < modulus < 2^31'.  Note
+        // that 'modulus' is expected to be a prime not close to an integral
+        // power of 2.  Also note that specifying a 'modulus' of 1 will cause 0
+        // to be returned for every 'value'.
 
     static unsigned int hash0(const char *string, int modulus);
         // Return a pseudo-random unsigned integer in the range from zero to
@@ -709,20 +755,20 @@ struct HashUtil {
         // between the results of the two hash functions given the same input
         // data).
 
-    static unsigned int hash1(char key);
-    static unsigned int hash1(signed char key);
-    static unsigned int hash1(unsigned char key);
-    static unsigned int hash1(short key);
-    static unsigned int hash1(unsigned short key);
-    static unsigned int hash1(int key);
-    static unsigned int hash1(unsigned int key);
-    static unsigned int hash1(long key);
-    static unsigned int hash1(unsigned long key);
-    static unsigned int hash1(bsls::Types::Int64 key);
-    static unsigned int hash1(bsls::Types::Uint64 key);
-    static unsigned int hash1(float key);
-    static unsigned int hash1(double key);
-    static unsigned int hash1(const void *key);
+    static unsigned int hash1(char                 key);
+    static unsigned int hash1(signed char          key);
+    static unsigned int hash1(unsigned char        key);
+    static unsigned int hash1(short                key);
+    static unsigned int hash1(unsigned short       key);
+    static unsigned int hash1(int                  key);
+    static unsigned int hash1(unsigned int         key);
+    static unsigned int hash1(long                 key);
+    static unsigned int hash1(unsigned long        key);
+    static unsigned int hash1(bsls::Types::Int64   key);
+    static unsigned int hash1(bsls::Types::Uint64  key);
+    static unsigned int hash1(float                key);
+    static unsigned int hash1(double               key);
+    static unsigned int hash1(const void          *key);
         // Return an unsigned integer hash value corresponding to the specified
         // 'key'.  Note that the return value is seemingly random (i.e., the
         // hash is good) but identical on all platforms (irrespective of
@@ -731,20 +777,20 @@ struct HashUtil {
         // known correlations between the results of both hash functions given
         // the same input data).
 
-    static unsigned int hash2(char key);
-    static unsigned int hash2(signed char key);
-    static unsigned int hash2(unsigned char key);
-    static unsigned int hash2(short key);
-    static unsigned int hash2(unsigned short key);
-    static unsigned int hash2(int key);
-    static unsigned int hash2(unsigned int key);
-    static unsigned int hash2(long key);
-    static unsigned int hash2(unsigned long key);
-    static unsigned int hash2(bsls::Types::Int64 key);
-    static unsigned int hash2(bsls::Types::Uint64 key);
-    static unsigned int hash2(float key);
-    static unsigned int hash2(double key);
-    static unsigned int hash2(const void *key);
+    static unsigned int hash2(char                 key);
+    static unsigned int hash2(signed char          key);
+    static unsigned int hash2(unsigned char        key);
+    static unsigned int hash2(short                key);
+    static unsigned int hash2(unsigned short       key);
+    static unsigned int hash2(int                  key);
+    static unsigned int hash2(unsigned int         key);
+    static unsigned int hash2(long                 key);
+    static unsigned int hash2(unsigned long        key);
+    static unsigned int hash2(bsls::Types::Int64   key);
+    static unsigned int hash2(bsls::Types::Uint64  key);
+    static unsigned int hash2(float                key);
+    static unsigned int hash2(double               key);
+    static unsigned int hash2(const void          *key);
         // Return an unsigned integer hash value corresponding to the specified
         // 'key'.  Note that the return value is seemingly random (i.e., the
         // hash is good) but identical on all platforms (irrespective of
@@ -755,12 +801,12 @@ struct HashUtil {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                        INLINE DEFINITIONS
 // ============================================================================
 
-                            // --------------------
-                            // struct HashUtil
-                            // --------------------
+                              // ---------------
+                              // struct HashUtil
+                              // ---------------
 
 // CLASS METHODS
 inline
@@ -769,11 +815,12 @@ unsigned int HashUtil::hash0(int key, int modulus)
     BSLS_ASSERT_SAFE(0 < modulus);
 
     if (4 == sizeof(int)) {
-        return (unsigned int)key % (unsigned int)modulus;             // RETURN
+        return static_cast<unsigned int>(key)
+             % static_cast<unsigned int>(modulus);                    // RETURN
     }
     else {
-        return ((unsigned int)key & 0xFFFFFFFF) % (unsigned int)modulus;
-                                                                      // RETURN
+        return (static_cast<unsigned int>(key) & 0xFFFFFFFF)
+              % static_cast<unsigned int>(modulus);                   // RETURN
     }
 }
 
@@ -782,9 +829,10 @@ unsigned int HashUtil::hash0(bsls::Types::Int64 key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return (((unsigned int)((key >> 32) & 0xFFFFFFFF) % (unsigned int)modulus)
-           ^ (unsigned int)( key        & 0xFFFFFFFF))
-           % (unsigned int)  modulus;
+    return ((static_cast<unsigned int>((key >> 32) & 0xFFFFFFFF)
+           % static_cast<unsigned int>(modulus))
+           ^ static_cast<unsigned int>(key         & 0xFFFFFFFF))
+           % static_cast<unsigned int>(modulus);
 }
 
 inline
@@ -792,7 +840,8 @@ unsigned int HashUtil::hash0(char key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((int)(unsigned char)key, modulus);
+    return HashUtil::hash0(static_cast<int>(static_cast<unsigned char>(key)),
+                           modulus);
 }
 
 inline
@@ -800,7 +849,8 @@ unsigned int HashUtil::hash0(signed char key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((int)(unsigned char)key, modulus);
+    return HashUtil::hash0(static_cast<int>(static_cast<unsigned char>(key)),
+                           modulus);
 }
 
 inline
@@ -808,7 +858,7 @@ unsigned int HashUtil::hash0(unsigned char key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((int)key, modulus);
+    return HashUtil::hash0(static_cast<int>(key), modulus);
 }
 
 inline
@@ -816,7 +866,8 @@ unsigned int HashUtil::hash0(short key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((int)(unsigned short)key, modulus);
+    return HashUtil::hash0(static_cast<int>(static_cast<unsigned short>(key)),
+                           modulus);
 }
 
 inline
@@ -824,7 +875,7 @@ unsigned int HashUtil::hash0(unsigned short key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((int)key, modulus);
+    return HashUtil::hash0(static_cast<int>(key), modulus);
 }
 
 inline
@@ -832,7 +883,7 @@ unsigned int HashUtil::hash0(unsigned int key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((int)key, modulus);
+    return HashUtil::hash0(static_cast<int>(key), modulus);
 }
 
 inline
@@ -841,11 +892,14 @@ unsigned int HashUtil::hash0(long key, int modulus)
     BSLS_ASSERT_SAFE(0 < modulus);
 
     if (4 == sizeof(long)) {
-        return HashUtil::hash0((int)(unsigned long)key, modulus);     // RETURN
+        return HashUtil::hash0(
+                             static_cast<int>(static_cast<unsigned long>(key)),
+                             modulus);                                // RETURN
     }
     else {
-        return HashUtil::hash0((bsls::Types::Int64)(unsigned long)key,
-                                    modulus);                         // RETURN
+        return HashUtil::hash0(
+              static_cast<bsls::Types::Int64>(static_cast<unsigned long>(key)),
+              modulus);                                               // RETURN
     }
 }
 
@@ -855,10 +909,11 @@ unsigned int HashUtil::hash0(unsigned long key, int modulus)
     BSLS_ASSERT_SAFE(0 < modulus);
 
     if (4 == sizeof(unsigned long)) {
-        return HashUtil::hash0((int)key, modulus);                    // RETURN
+        return HashUtil::hash0(static_cast<int>(key), modulus);       // RETURN
     }
     else {
-        return HashUtil::hash0((bsls::Types::Int64)key, modulus);     // RETURN
+        return HashUtil::hash0(static_cast<bsls::Types::Int64>(key), modulus);
+                                                                      // RETURN
     }
 }
 
@@ -867,7 +922,7 @@ unsigned int HashUtil::hash0(bsls::Types::Uint64 key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((bsls::Types::Int64)key, modulus);
+    return HashUtil::hash0(static_cast<bsls::Types::Int64>(key), modulus);
 }
 
 inline
@@ -875,7 +930,7 @@ unsigned int HashUtil::hash0(double key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    bsls::Types::Int64 *v = (bsls::Types::Int64 *)&key;
+    bsls::Types::Int64 *v = reinterpret_cast<bsls::Types::Int64 *>(&key);
     return HashUtil::hash0(*v, modulus);
 }
 
@@ -884,7 +939,7 @@ unsigned int HashUtil::hash0(float key, int modulus)
 {
     BSLS_ASSERT_SAFE(0 < modulus);
 
-    return HashUtil::hash0((double)key, modulus);
+    return HashUtil::hash0(static_cast<double>(key), modulus);
 }
 
 inline
@@ -893,17 +948,17 @@ unsigned int HashUtil::hash0(const void *key, int modulus)
     BSLS_ASSERT_SAFE(0 < modulus);
 
     if (4 == sizeof(void *)) {
-        const int *v = (const int *)&key;
+        const int *v = reinterpret_cast<const int *>(&key);
         return HashUtil::hash0(*v, modulus);                          // RETURN
     }
     else {
-        const bsls::Types::Int64 *v =
-                                (const bsls::Types::Int64 *)(const void *)&key;
+        const bsls::Types::Int64 *v = static_cast<const bsls::Types::Int64 *>(
+                                              static_cast<const void *>(&key));
         return HashUtil::hash0(*v, modulus);                          // RETURN
     }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
@@ -911,15 +966,15 @@ unsigned int HashUtil::hash0(const void *key, int modulus)
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

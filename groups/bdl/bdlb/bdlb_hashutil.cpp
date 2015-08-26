@@ -7,18 +7,18 @@ BSLS_IDENT_RCSID(bdlb_hashutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-// IMPLEMENTATION NOTES: See http://burtleburtle.net/bob/hash/evahash.html
+// IMPLEMENTATION NOTES: See 'http://burtleburtle.net/bob/hash/evahash.html'.
 // In particular this hash function has the NoFunnel property, defined in that
 // reference as follows:
 //..
-//  Define h to be a funneling hash if there is some subset t of the input bits
-//  which can only affect bits u in the internal state, and |t| > |u| and v >
-//  |u|.  h has a funnel of those t input bits into those u bits of the
-//  internal state.  If a hash has a funnel of t bits into u, then u of those t
-//  bits can cancel out the effects of the other |t|-|u|.  The set of keys
-//  differing only in the input bits of the funnel can produce no more than
-//  half that number of hash values.  (Those 2^|t| keys can produce no more
-//  than 2^|u| out of 2^v hash values.)
+//  Define 'h' to be a funneling hash if there is some subset 't' of the input
+//  bits which can only affect bits 'u' in the internal state, and '|t| > |u|'
+//  and 'v > |u|'.  'h' has a funnel of those 't' input bits into those 'u'
+//  bits of the internal state.  If a hash has a funnel of 't' bits into 'u',
+//  then 'u' of those 't' bits can cancel out the effects of the other
+//  '|t|-|u|'.  The set of keys differing only in the input bits of the funnel
+//  can produce no more than half that number of hash values.  (Those '2^|t|'
+//  keys can produce no more than '2^|u|' out of '2^v' hash values.)
 //..
 // Differing in only a few bits is a common pattern in human and computer keys,
 // so a funneling hash is seriously flawed.  In that reference, it is claimed
@@ -34,9 +34,9 @@ BSLS_IDENT_RCSID(bdlb_hashutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // CONSTANTS
-const unsigned int ADDEND       = 1013904223;
-const unsigned int MULTIPLICAND =    1664525;
-const unsigned int MASK         = 4294967295U;
+const unsigned int k_ADDEND       = 1013904223;
+const unsigned int k_MULTIPLICAND =    1664525;
+const unsigned int k_MASK         = 4294967295U;
 
 // STATIC HELPER FUNCTIONS
 static inline
@@ -74,9 +74,17 @@ unsigned int reverse_hash1(const char *data, int length)
     // Handle most of the data.
 
     while (len >= 12) {
-        a += k[ 0] + ((Ub4)k[-1]<<8) + ((Ub4)k[ -2]<<16) + ((Ub4)k[ -3]<<24);
-        b += k[-4] + ((Ub4)k[-5]<<8) + ((Ub4)k[ -6]<<16) + ((Ub4)k[ -7]<<24);
-        c += k[-8] + ((Ub4)k[-9]<<8) + ((Ub4)k[-10]<<16) + ((Ub4)k[-11]<<24);
+        a += k[ 0] + static_cast<Ub4>(k[ -1]<< 8)
+                   + static_cast<Ub4>(k[ -2]<<16)
+                   + static_cast<Ub4>(k[ -3]<<24);
+
+        b += k[-4] + static_cast<Ub4>(k[ -5]<< 8)
+                   + static_cast<Ub4>(k[ -6]<<16)
+                   + static_cast<Ub4>(k[ -7]<<24);
+
+        c += k[-8] + static_cast<Ub4>(k[ -9]<< 8)
+                   + static_cast<Ub4>(k[-10]<<16)
+                   + static_cast<Ub4>(k[-11]<<24);
         mix1(a, b ,c);
         k -= 12;  len -= 12;
     }
@@ -86,18 +94,18 @@ unsigned int reverse_hash1(const char *data, int length)
     c += length;
 
     switch (len) {         // All of the case statements FALL THROUGH.
-      case 11: c += ((Ub4)k[-10] << 24);
-      case 10: c += ((Ub4)k[ -9] << 16);
-      case 9 : c += ((Ub4)k[ -8] <<  8);
+      case 11: c += static_cast<Ub4>(k[-10] << 24);
+      case 10: c += static_cast<Ub4>(k[ -9] << 16);
+      case  9: c += static_cast<Ub4>(k[ -8] <<  8);
                            // The first byte of 'c' is reserved for the length.
-      case 8 : b += ((Ub4)k[ -7] << 24);
-      case 7 : b += ((Ub4)k[ -6] << 16);
-      case 6 : b += ((Ub4)k[ -5] <<  8);
-      case 5 : b += k[-4];
-      case 4 : a += ((Ub4)k[ -3] << 24);
-      case 3 : a += ((Ub4)k[ -2] << 16);
-      case 2 : a += ((Ub4)k[ -1] <<  8);
-      case 1 : a += k[0];
+      case  8: b += static_cast<Ub4>(k[ -7] << 24);
+      case  7: b += static_cast<Ub4>(k[ -6] << 16);
+      case  6: b += static_cast<Ub4>(k[ -5] <<  8);
+      case  5: b += k[-4];
+      case  4: a += static_cast<Ub4>(k[ -3] << 24);
+      case  3: a += static_cast<Ub4>(k[ -2] << 16);
+      case  2: a += static_cast<Ub4>(k[ -1] <<  8);
+      case  1: a += k[0];
                            // case 0: nothing left to add
       default: break;
     }
@@ -136,9 +144,9 @@ unsigned int reverse_hash2(const char *data, int length)
 #endif
 
 namespace bdlb {
-                            // --------------------
+                            // ---------------
                             // struct HashUtil
-                            // --------------------
+                            // ---------------
 
 // CLASS METHODS
 unsigned int HashUtil::hash1(const char *data, int length)
@@ -160,9 +168,17 @@ unsigned int HashUtil::hash1(const char *data, int length)
     // Handle most of the data.
 
     while (len >= 12) {
-        a += k[0] + ((Ub4)k[1]<<8) + ((Ub4)k[ 2]<<16) + ((Ub4)k[ 3]<<24);
-        b += k[4] + ((Ub4)k[5]<<8) + ((Ub4)k[ 6]<<16) + ((Ub4)k[ 7]<<24);
-        c += k[8] + ((Ub4)k[9]<<8) + ((Ub4)k[10]<<16) + ((Ub4)k[11]<<24);
+        a += k[0] + static_cast<Ub4>(k[ 1]<< 8)
+                  + static_cast<Ub4>(k[ 2]<<16)
+                  + static_cast<Ub4>(k[ 3]<<24);
+
+        b += k[4] + static_cast<Ub4>(k[ 5]<< 8)
+                  + static_cast<Ub4>(k[ 6]<<16)
+                  + static_cast<Ub4>(k[ 7]<<24);
+
+        c += k[8] + static_cast<Ub4>(k[ 9]<< 8)
+                  + static_cast<Ub4>(k[10]<<16)
+                  + static_cast<Ub4>(k[11]<<24);
         mix1(a, b, c);
         k += 12;  len -= 12;
     }
@@ -172,18 +188,18 @@ unsigned int HashUtil::hash1(const char *data, int length)
     c += length;
 
     switch (len) {         // All the case statements FALL THROUGH.
-      case 11: c += ((Ub4)k[10] << 24);
-      case 10: c += ((Ub4)k[ 9] << 16);
-      case 9 : c += ((Ub4)k[ 8] <<  8);
+      case 11: c += static_cast<Ub4>(k[10] << 24);
+      case 10: c += static_cast<Ub4>(k[ 9] << 16);
+      case  9: c += static_cast<Ub4>(k[ 8] <<  8);
                            // The first byte of 'c' is reserved for the length.
-      case 8 : b += ((Ub4)k[ 7] << 24);
-      case 7 : b += ((Ub4)k[ 6] << 16);
-      case 6 : b += ((Ub4)k[ 5] <<  8);
-      case 5 : b += k[4];
-      case 4 : a += ((Ub4)k[ 3] << 24);
-      case 3 : a += ((Ub4)k[ 2] << 16);
-      case 2 : a += ((Ub4)k[ 1] <<  8);
-      case 1 : a += k[0];
+      case  8: b += static_cast<Ub4>(k[ 7] << 24);
+      case  7: b += static_cast<Ub4>(k[ 6] << 16);
+      case  6: b += static_cast<Ub4>(k[ 5] <<  8);
+      case  5: b += k[4];
+      case  4: a += static_cast<Ub4>(k[ 3] << 24);
+      case  3: a += static_cast<Ub4>(k[ 2] << 16);
+      case  2: a += static_cast<Ub4>(k[ 1] <<  8);
+      case  1: a += k[0];
                            // case 0: nothing left to add
       default: break;
     }
@@ -229,6 +245,7 @@ unsigned int HashUtil::hash2(const char *data, int length)
 #endif
 
 namespace bdlb {
+
 unsigned int HashUtil::hash1(char key)
 {
     return HASH1(key);
@@ -348,6 +365,7 @@ unsigned int HashUtil::hash2(const void *key)
 #undef HASH2
 
 namespace bdlb {
+
 unsigned int HashUtil::hash0(const char *string, int modulus)
 {
     BSLS_ASSERT(string);
@@ -358,47 +376,47 @@ unsigned int HashUtil::hash0(const char *string, int modulus)
     if (4 == sizeof(int)) {
         while (*string) {
             r ^= *string++;
-            r = r * MULTIPLICAND + ADDEND;
+            r  = r * k_MULTIPLICAND + k_ADDEND;
         }
     }
     else {
         while (*string) {
             r ^= *string++;
-            r = (r * MULTIPLICAND + ADDEND) & MASK;
+            r  = (r * k_MULTIPLICAND + k_ADDEND) & k_MASK;
         }
     }
 
-    return r % (unsigned int)modulus;
+    return r % static_cast<unsigned int>(modulus);
 }
 
 unsigned int HashUtil::hash0(const char *string,
-                                  int         stringLength,
-                                  int         modulus)
+                             int         stringLength,
+                             int         modulus)
 {
     BSLS_ASSERT(0 <= stringLength);
     BSLS_ASSERT(string || 0 == stringLength);
     BSLS_ASSERT(0 < modulus);
 
-    const char *end = string + stringLength;
-    unsigned int r  = 0;
+    const char   *end = string + stringLength;
+    unsigned int  r   = 0;
 
     if (4 == sizeof(int)) {
         while (string != end) {
             r ^= *string++;
-            r = r * MULTIPLICAND + ADDEND;
+            r  = r * k_MULTIPLICAND + k_ADDEND;
         }
     }
     else {
         while (string != end) {
             r ^= *string++;
-            r = (r * MULTIPLICAND + ADDEND) & MASK;
+            r  = (r * k_MULTIPLICAND + k_ADDEND) & k_MASK;
         }
     }
 
-    return r % (unsigned int)modulus;
+    return r % static_cast<unsigned int>(modulus);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
