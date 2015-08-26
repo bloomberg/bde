@@ -55,10 +55,11 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
     // construction.
 
     // DATA
-    int                 d_bufferSize;  // size of allocated blob buffers
+    int                 d_bufferSize;         // size of allocated blob buffers
 
-    bdlma::ConcurrentPoolAllocator d_spPool;      // pool used to allocate shared pointers
-                                       // and buffers contiguously
+    bdlma::ConcurrentPoolAllocator d_spPool;  // pool used to allocate shared
+                                              // pointers and buffers
+                                              // contiguously
   public:
     // CREATORS
     PooledBlobBufferFactory(int               bufferSize,

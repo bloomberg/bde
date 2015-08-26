@@ -392,19 +392,19 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
     }
 
     enum {
-        NUM_STATIC_BUFFERS = 32
+        k_NUM_STATIC_BUFFERS = 32
     };
 
     typedef bsl::pair<const char*, int> BufferInfo;
 
-    BufferInfo  staticBuffers[NUM_STATIC_BUFFERS];
+    BufferInfo  staticBuffers[k_NUM_STATIC_BUFFERS];
     BufferInfo *buffers = staticBuffers;
     int         numBufferInfo = 0;
 
     bslma::DeallocatorProctor<bslma::Allocator> deallocationGuard(
                                         0, bslma::Default::defaultAllocator());
 
-    if (source.numDataBuffers() > NUM_STATIC_BUFFERS) {
+    if (source.numDataBuffers() > k_NUM_STATIC_BUFFERS) {
         // This works because we do not need to call the constructor on a pair
         // of two built-in types.
 

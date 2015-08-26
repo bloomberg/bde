@@ -172,13 +172,13 @@ int ggg(bsl::string *result, int length)
                         "abcdefghijklmnopqrstuvwxyz"
                         "abcdefghijklmnopqrstuvwxyz"
                         "abcdefghijklmnopqrstuvwxyz";
-    enum { DATA_SIZE = sizeof DATA - 1 };
+    enum { k_DATA_SIZE = sizeof DATA - 1 };
 
     int capacity = length;
     result->clear();
     result->reserve(capacity);
     do {
-        int nbytes = (capacity >= DATA_SIZE) ? DATA_SIZE : capacity;
+        int nbytes = (capacity >= k_DATA_SIZE) ? k_DATA_SIZE : capacity;
         result->append(DATA, nbytes);
         capacity -= nbytes;
     } while (capacity > 0);
@@ -209,8 +209,8 @@ bsl::string g(int length)
 
 void copyStringToBlob(btlb::Blob *dest, const bsl::string& str)
 {
-    dest->setLength(str.length());
-    int numBytesRemaining = str.length();
+    dest->setLength(static_cast<int>(str.length()));
+    int numBytesRemaining = static_cast<int>(str.length());
     const char *data = str.data();
     int bufferIndex = 0;
     while (numBytesRemaining) {
@@ -488,7 +488,7 @@ int main(int argc, char *argv[]) {
             bsl::shared_ptr<char> bufferp;
             bufferp.loadAlias(buffer.buffer(), aligned + i - 1);
             buffers[i].buffer() = bufferp;
-            buffers[i].setSize(BIG - fuzz - i - 1);
+            buffers[i].setSize(static_cast<int>(BIG - fuzz - i - 1));
         }
         // Now we have four buffers, in four different sizes.  The first is
         // empty The second is aligned to 16 bytes, size 16 The third is
@@ -1168,7 +1168,7 @@ int main(int argc, char *argv[]) {
                           << "\n=========================" << endl;
 
         const bsl::string STR      = "HelloWorld";
-        const int         BUF_SIZE = STR.size();
+        const int         BUF_SIZE = static_cast<int>(STR.size());
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
             BlobBufferFactory factory(bufferSize);
 
@@ -1219,30 +1219,30 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         enum {
-            DYNAMIC_ALLOCATION_THRESHOLD = 32,
+            k_DYNAMIC_ALLOCATION_THRESHOLD = 32,
 
-            MIN_BUFFER_SIZE = 1,
-            MAX_BUFFER_SIZE = 4,
-            INC_BUFFER_SIZE = 1,
+            k_MIN_BUFFER_SIZE = 1,
+            k_MAX_BUFFER_SIZE = 4,
+            k_INC_BUFFER_SIZE = 1,
 
-            MIN_NUM_BUFFERS = DYNAMIC_ALLOCATION_THRESHOLD - 4,
-            MAX_NUM_BUFFERS = DYNAMIC_ALLOCATION_THRESHOLD + 4,
-            INC_NUM_BUFFERS = 1
+            k_MIN_NUM_BUFFERS = k_DYNAMIC_ALLOCATION_THRESHOLD - 4,
+            k_MAX_NUM_BUFFERS = k_DYNAMIC_ALLOCATION_THRESHOLD + 4,
+            k_INC_NUM_BUFFERS = 1
         };
 
         bslma::TestAllocator allocator;
         bslma::Default::setDefaultAllocatorRaw(&allocator);
         ASSERT(&allocator == bslma::Default::defaultAllocator());
 
-        for (int bufferSize =  MIN_BUFFER_SIZE;
-                 bufferSize <= MAX_BUFFER_SIZE;
-                 bufferSize += INC_BUFFER_SIZE)
+        for (int bufferSize =  k_MIN_BUFFER_SIZE;
+                 bufferSize <= k_MAX_BUFFER_SIZE;
+                 bufferSize += k_INC_BUFFER_SIZE)
         {
             BlobBufferFactory factory(bufferSize);
 
-            for (int numBuffers =  MIN_NUM_BUFFERS;
-                     numBuffers <= MAX_NUM_BUFFERS;
-                     numBuffers += INC_NUM_BUFFERS)
+            for (int numBuffers =  k_MIN_NUM_BUFFERS;
+                     numBuffers <= k_MAX_NUM_BUFFERS;
+                     numBuffers += k_INC_NUM_BUFFERS)
             {
                 if (verbose) {
                     bsl::cout << "[bufferSize = " << bufferSize << ", "
@@ -1265,7 +1265,9 @@ int main(int argc, char *argv[]) {
                         }
 
                         bsl::stringstream os;
-                        ASSERT(&os == &btlb::BlobUtil::hexDump(os, blob, offset,
+                        ASSERT(&os == &btlb::BlobUtil::hexDump(os,
+                                                               blob,
+                                                               offset,
                                                                length));
 
                         if (veryVeryVerbose) {
@@ -1310,7 +1312,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'hexdump' Function"
                           << "\n==========================" << endl;
 
-        enum { BUF_SIZE = 2048 };
+        enum { k_BUF_SIZE = 2048 };
 
         {
             if (verbose) cout << "(a) 0 buffers" << endl;
@@ -1319,7 +1321,7 @@ int main(int argc, char *argv[]) {
 
             ASSERT(0 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[0].c_str(),
                                 expectedOutCase3[0].size()));
@@ -1347,7 +1349,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(1 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[1].c_str(),
                                 expectedOutCase3[1].size()));
@@ -1373,7 +1375,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(31 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[2].c_str(),
                                 expectedOutCase3[2].size()));
@@ -1399,7 +1401,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(32 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[3].c_str(),
                                 expectedOutCase3[3].size()));
@@ -1426,7 +1428,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(33 == myBlob.numDataBuffers() );
 
-            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
+            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[4].c_str(),
                                 expectedOutCase3[4].size()));
@@ -1578,9 +1580,9 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE = DATA[i].d_line;
             const char *LHS  = DATA[i].d_lhs;
-            const int   LLEN = bsl::strlen(LHS);
+            const int   LLEN = static_cast<int>(bsl::strlen(LHS));
             const char *RHS  = DATA[i].d_rhs;
-            const int   RLEN = bsl::strlen(RHS);
+            const int   RLEN = static_cast<int>(bsl::strlen(RHS));
             const int   RV   = DATA[i].d_retValue;
 
             for (int size1 = 1; size1 < 10; ++size1) {
@@ -1634,8 +1636,8 @@ int main(int argc, char *argv[]) {
                 btlb::Blob b1(&factory);
                 btlb::Blob b2(&factory2);
 
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1647,8 +1649,8 @@ int main(int argc, char *argv[]) {
                              0 == btlb::BlobUtil::compare(b2, b1));
 
                 // Test first char diff
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR2));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR2)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR2);
@@ -1659,8 +1661,8 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 > btlb::BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR2));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR2)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR2);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1672,8 +1674,8 @@ int main(int argc, char *argv[]) {
                              0 < btlb::BlobUtil::compare(b2, b1));
 
                 // Test last char diff
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR3));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR3)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR3);
@@ -1684,8 +1686,8 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 > btlb::BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR3));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR3)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR3);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1697,8 +1699,8 @@ int main(int argc, char *argv[]) {
                              0 < btlb::BlobUtil::compare(b2, b1));
 
                 // Test 1 char diff in length
-                b1.setLength(strlen(TEST_STR));
-                b2.setLength(strlen(TEST_STR4));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR4)));
 
                 copyStringToBlob(&b1, TEST_STR);
                 copyStringToBlob(&b2, TEST_STR4);
@@ -1709,8 +1711,8 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(bufferSize2, bufferSize,
                              0 < btlb::BlobUtil::compare(b2, b1));
 
-                b1.setLength(strlen(TEST_STR4));
-                b2.setLength(strlen(TEST_STR));
+                b1.setLength(static_cast<int>(strlen(TEST_STR4)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
                 copyStringToBlob(&b1, TEST_STR4);
                 copyStringToBlob(&b2, TEST_STR);
@@ -1759,9 +1761,9 @@ int main(int argc, char *argv[]) {
         {
             // create a non-empty blob
             size_t size = 10;
-            BlobBufferFactory blobFactory(size);
+            BlobBufferFactory blobFactory(static_cast<int>(size));
             btlb::Blob nonemptyBlob(&blobFactory);
-            nonemptyBlob.setLength(size);
+            nonemptyBlob.setLength(static_cast<int>(size));
 
             // write blob
             bdlxxxx::TestOutStream blobStream;
@@ -1841,7 +1843,7 @@ int main(int argc, char *argv[]) {
                 copyStringToBlob(&dest1,  DEST);
                 copyStringToBlob(&dest2,  DEST);
                 copyStringToBlob(&dest4,  DEST);
-                dest3.sputn(DEST, bsl::strlen(DEST));
+                dest3.sputn(DEST, static_cast<int>(bsl::strlen(DEST)));
                 copyStringToBlob(&source, SOURCE);
 
                 if (veryVeryVerbose) {

@@ -236,14 +236,14 @@ int main(int argc, char *argv[])
                 { L_,   3,           9,         },
                 { L_,   37,          101,       },
             };
-            enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
+            enum { k_DATA_SIZE = sizeof DATA / sizeof *DATA };
 
             const bsl::ios_base::seekdir  CUR     = bsl::ios_base::cur;
             const bsl::ios_base::openmode OUT1    = bsl::ios_base::out;
             const bsl::ios_base::openmode IN1     = bsl::ios_base::in;
             const int EOF_VAL = btlb::InBlobStreamBuf::traits_type::eof();
 
-            for (int i = 0; i < DATA_SIZE; ++i) {
+            for (int i = 0; i < k_DATA_SIZE; ++i) {
                 const int LINE        = DATA[i].d_line;
                 const int BUFFER_SIZE = DATA[i].d_bufferSize;
                 const int DATA_LENGTH = DATA[i].d_dataLength;
@@ -287,35 +287,35 @@ int main(int argc, char *argv[])
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             enum {
-                BUFFER_SIZE = 8,
-                DATA_LENGTH = 12
+                k_BUFFER_SIZE = 8,
+                k_DATA_LENGTH = 12
             };
-            ASSERT(DATA_LENGTH > BUFFER_SIZE);
-            ASSERT(DATA_LENGTH < BUFFER_SIZE * 2);
+            ASSERT(k_DATA_LENGTH > k_BUFFER_SIZE);
+            ASSERT(k_DATA_LENGTH < k_BUFFER_SIZE * 2);
 
-            testBlobBufferFactory fa(&ta, BUFFER_SIZE);
+            testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
             fa.setGrowFlag(false);
 
-            char data[DATA_LENGTH];
-            char result[DATA_LENGTH];
-            bsl::memset(data, '*', DATA_LENGTH);
+            char data[k_DATA_LENGTH];
+            char result[k_DATA_LENGTH];
+            bsl::memset(data, '*', k_DATA_LENGTH);
 
-            for (int i = 0; i < DATA_LENGTH; ++i) {
+            for (int i = 0; i < k_DATA_LENGTH; ++i) {
                 btlb::Blob blob(&fa, &ta);
                 {
                     btlb::InBlobStreamBuf  in(&blob);
                     btlb::OutBlobStreamBuf out(&blob);
                     data[i] = EOF_VAL;
-                    LOOP_ASSERT(i, DATA_LENGTH ==
-                                                 out.sputn(data, DATA_LENGTH));
-                    LOOP_ASSERT(i, DATA_LENGTH ==
+                    LOOP_ASSERT(i, k_DATA_LENGTH ==
+                                               out.sputn(data, k_DATA_LENGTH));
+                    LOOP_ASSERT(i, k_DATA_LENGTH ==
                                                  out.pubseekoff(0, CUR, OUT1));
-                    LOOP_ASSERT(i, DATA_LENGTH == blob.length());
-                    LOOP_ASSERT(i, DATA_LENGTH == in.sgetn(result,
-                                                           DATA_LENGTH));
+                    LOOP_ASSERT(i, k_DATA_LENGTH == blob.length());
+                    LOOP_ASSERT(i, k_DATA_LENGTH == in.sgetn(result,
+                                                           k_DATA_LENGTH));
                     LOOP_ASSERT(i, 0 == bsl::memcmp(data,
                                                     result,
-                                                    DATA_LENGTH));
+                                                    k_DATA_LENGTH));
                     data[i] = '*';
                 }
             }
@@ -379,48 +379,48 @@ int main(int argc, char *argv[])
                 { L_,   3,           9,         },
                 { L_,   37,          101,       },
             };
-            enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
+            enum { k_DATA_SIZE = sizeof DATA / sizeof *DATA };
 
             const bsl::ios_base::seekdir  CUR  = bsl::ios_base::cur;
             const bsl::ios_base::openmode OUT1 = bsl::ios_base::out;
             const bsl::ios_base::openmode IN1  = bsl::ios_base::in;
 
-            for (int i = 0; i < DATA_SIZE; ++i) {
+            for (int i = 0; i < k_DATA_SIZE; ++i) {
                 const int LINE        = DATA[i].d_line;
-                const int BUFFER_SIZE = DATA[i].d_bufferSize;
-                const int DATA_LENGTH = DATA[i].d_dataLength;
+                const int k_BUFFER_SIZE = DATA[i].d_bufferSize;
+                const int k_DATA_LENGTH = DATA[i].d_dataLength;
 
                 if (verbose) {
                     P_(i); P_(LINE);
-                    P_(BUFFER_SIZE); P(DATA_LENGTH);
+                    P_(k_BUFFER_SIZE); P(k_DATA_LENGTH);
                 }
 
-                testBlobBufferFactory fa(&ta, BUFFER_SIZE);
+                testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
                 fa.setGrowFlag(false);
 
                 btlb::Blob blob(&fa, &ta);
                 {
                     btlb::InBlobStreamBuf  in(&blob);
                     btlb::OutBlobStreamBuf out(&blob);
-                    char *HASHMARKS = (char *)ta.allocate(DATA_LENGTH);
-                    bsl::memset(HASHMARKS, '#', DATA_LENGTH);
+                    char *HASHMARKS = (char *)ta.allocate(k_DATA_LENGTH);
+                    bsl::memset(HASHMARKS, '#', k_DATA_LENGTH);
 
                     // Write out data.
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
-                                            out.sputn(HASHMARKS, DATA_LENGTH));
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
+                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
+                                          out.sputn(HASHMARKS, k_DATA_LENGTH));
+                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
                                                  out.pubseekoff(0, CUR, OUT1));
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH == blob.length());
+                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH == blob.length());
 
                     // Read in data.
-                    char *result = (char *)ta.allocate(DATA_LENGTH);
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
-                                                in.sgetn(result, DATA_LENGTH));
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
+                    char *result = (char *)ta.allocate(k_DATA_LENGTH);
+                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
+                                              in.sgetn(result, k_DATA_LENGTH));
+                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
                                                    in.pubseekoff(0, CUR, IN1));
                     LOOP2_ASSERT(i, LINE, 0 == bsl::memcmp(HASHMARKS,
                                                            result,
-                                                           DATA_LENGTH));
+                                                           k_DATA_LENGTH));
                     ta.deallocate(HASHMARKS);
                     ta.deallocate(result);
                 }
@@ -466,19 +466,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
         {
             enum {
-                BUFFER_SIZE_A = 16,    // buffer size for factory "A"
-                BUFFER_SIZE_B = 32,    // buffer size for factory "B"
-                SEEK_OFFSET   = 37,    // arbitrary offset
-                DATA_LENGTH   = 64     // amount of data to write to stream
+                k_BUFFER_SIZE_A = 16,    // buffer size for factory "A"
+                k_BUFFER_SIZE_B = 32,    // buffer size for factory "B"
+                k_SEEK_OFFSET   = 37,    // arbitrary offset
+                k_DATA_LENGTH   = 64     // amount of data to write to stream
             };
 
-            testBlobBufferFactory factoryA(&ta, BUFFER_SIZE_A);
+            testBlobBufferFactory factoryA(&ta, k_BUFFER_SIZE_A);
             factoryA.setGrowFlag(false);
             btlb::Blob mCaI(&factoryA, &ta); btlb::Blob* mCa = &mCaI;
             ASSERT(0 == mCa->length());
             ASSERT(0 == mCa->numBuffers());
 
-            testBlobBufferFactory factoryB(&ta, BUFFER_SIZE_B);
+            testBlobBufferFactory factoryB(&ta, k_BUFFER_SIZE_B);
             factoryB.setGrowFlag(false);
             btlb::Blob mCbI(&factoryB, &ta); btlb::Blob* mCb = &mCbI;
             ASSERT(0 == mCb->length());
@@ -494,13 +494,13 @@ int main(int argc, char *argv[])
                 ASSERT(X.data() != mCb);
                 ASSERT(0 == mX.pubseekoff(0, CUR, OUT1));
 
-                const bsl::string HASHMARKS(DATA_LENGTH, '#');
+                const bsl::string HASHMARKS(k_DATA_LENGTH, '#');
                 bsl::ostream      out(&mX);
 
                 out << HASHMARKS << flush;
 
-                ASSERT(DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
-                ASSERT(DATA_LENGTH == mCa->length());
+                ASSERT(k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(k_DATA_LENGTH == mCa->length());
                 ASSERT(4 == mCa->numBuffers());
                 ASSERT(0 == mCb->length());
                 ASSERT(0 == mCb->numBuffers());
@@ -508,15 +508,15 @@ int main(int argc, char *argv[])
                 mX.reset();
                 ASSERT(X.data() == mCa);
                 ASSERT(X.data() != mCb);
-                ASSERT(DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
-                ASSERT(DATA_LENGTH == mCa->length());
+                ASSERT(k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(k_DATA_LENGTH == mCa->length());
                 ASSERT(4 == mCa->numBuffers());
                 ASSERT(0 == mCb->length());
                 ASSERT(0 == mCb->numBuffers());
 
                 out << HASHMARKS << flush;
 
-                ASSERT(2 * DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(2 * k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
                 ASSERT(8 == mCa->numBuffers());
                 ASSERT(0 == mCb->length());
                 ASSERT(0 == mCb->numBuffers());
@@ -525,17 +525,17 @@ int main(int argc, char *argv[])
                 ASSERT(X.data() != mCa);
                 ASSERT(X.data() == mCb);
                 ASSERT(0 == mX.pubseekoff(0, CUR, OUT1));
-                ASSERT(2 * DATA_LENGTH == mCa->length());
+                ASSERT(2 * k_DATA_LENGTH == mCa->length());
                 ASSERT(8 == mCa->numBuffers());;
                 ASSERT(0 == mCb->length());
                 ASSERT(0 == mCb->numBuffers());
 
                 out << HASHMARKS << flush;
 
-                ASSERT(DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
-                ASSERT(2 * DATA_LENGTH == mCa->length());
+                ASSERT(k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
+                ASSERT(2 * k_DATA_LENGTH == mCa->length());
                 ASSERT(8 == mCa->numBuffers());;
-                ASSERT(DATA_LENGTH == mCb->length());
+                ASSERT(k_DATA_LENGTH == mCb->length());
                 ASSERT(2 == mCb->numBuffers());
             }
         }
@@ -543,18 +543,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
         {
             enum {
-                BUFFER_SIZE_A = 16,    // buffer size for factory "A"
-                BUFFER_SIZE_B = 32,    // buffer size for factory "B"
-                SEEK_OFFSET   = 5     // arbitrary offset
+                k_BUFFER_SIZE_A = 16,    // buffer size for factory "A"
+                k_BUFFER_SIZE_B = 32,    // buffer size for factory "B"
+                k_SEEK_OFFSET   = 5     // arbitrary offset
             };
 
-            testBlobBufferFactory factoryA(&ta, BUFFER_SIZE_A);
+            testBlobBufferFactory factoryA(&ta, k_BUFFER_SIZE_A);
             factoryA.setGrowFlag(false);
             btlb::Blob mCaI(&factoryA, &ta); btlb::Blob* mCa = &mCaI;
             ASSERT(0 == mCa->length());
             ASSERT(0 == mCa->numBuffers());
 
-            testBlobBufferFactory factoryB(&ta, BUFFER_SIZE_B);
+            testBlobBufferFactory factoryB(&ta, k_BUFFER_SIZE_B);
             factoryB.setGrowFlag(false);
             btlb::Blob mCbI(&factoryB, &ta); btlb::Blob* mCb = &mCbI;
             ASSERT(0 == mCb->length());
@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
 
                 bsl::istream      in(&mX);
 
-                ASSERT(SEEK_OFFSET == mX.pubseekpos(SEEK_OFFSET, IN1));
+                ASSERT(k_SEEK_OFFSET == mX.pubseekpos(k_SEEK_OFFSET, IN1));
                 char read;
                 in >> read;
                 ASSERT(1 == read);
@@ -596,8 +596,8 @@ int main(int argc, char *argv[])
                 in >> read;
                 ASSERT(2 == read);
 
-                ASSERT(SEEK_OFFSET == mX.pubseekpos(SEEK_OFFSET, IN1));
-                ASSERT(SEEK_OFFSET == mX.pubseekoff(0, CUR, IN1));
+                ASSERT(k_SEEK_OFFSET == mX.pubseekpos(k_SEEK_OFFSET, IN1));
+                ASSERT(k_SEEK_OFFSET == mX.pubseekoff(0, CUR, IN1));
             }
         }
         ASSERT(0 <  ta.numAllocations());
@@ -660,29 +660,29 @@ int main(int argc, char *argv[])
                 { L_,   1024,      },
                 { L_,   4096,      },
             };
-            enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
+            enum { k_DATA_SIZE = sizeof DATA / sizeof *DATA };
 
-            for (int i = 0; i < DATA_SIZE; ++i) {
+            for (int i = 0; i < k_DATA_SIZE; ++i) {
                 const int LINE        = DATA[i].d_line;
-                const int BUFFER_SIZE = DATA[i].d_bufferSize;
+                const int k_BUFFER_SIZE = DATA[i].d_bufferSize;
 
-                testBlobBufferFactory fa(&ta, BUFFER_SIZE);
+                testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
                 fa.setGrowFlag(false);
 
                 btlb::Blob blob(&fa, &ta);
                 btlb::OutBlobStreamBuf mX(&blob);
                 const btlb::OutBlobStreamBuf&         X = mX;
-                const bsl::string  HASHMARKS(BUFFER_SIZE, '#');
+                const bsl::string  HASHMARKS(k_BUFFER_SIZE, '#');
 
                 if (verbose) {
-                    P_(i); P_(LINE); P(BUFFER_SIZE);
+                    P_(i); P_(LINE); P(k_BUFFER_SIZE);
                 }
 
-                enum { NUM_ITERATIONS = 3 };
-                for (int j = 0; j < NUM_ITERATIONS; ++j) {
-                    const int PRE_PUT_LENGTH   = j * BUFFER_SIZE;
+                enum { k_NUM_ITERATIONS = 3 };
+                for (int j = 0; j < k_NUM_ITERATIONS; ++j) {
+                    const int PRE_PUT_LENGTH   = j * k_BUFFER_SIZE;
                     const int POST_PUT_LENGTH  = PRE_PUT_LENGTH + 1;
-                    const int POST_SYNC_LENGTH = (j + 1) * BUFFER_SIZE;
+                    const int POST_SYNC_LENGTH = (j + 1) * k_BUFFER_SIZE;
 
                     LOOP3_ASSERT(i, LINE, j,
                                  PRE_PUT_LENGTH == X.data()->length());
@@ -730,11 +730,11 @@ int main(int argc, char *argv[])
         {
             typedef btlb::InBlobStreamBuf Obj;
 
-            enum { MAX_BUFFER_SIZE = 20 };
-            for(int i = 0; i < MAX_BUFFER_SIZE; ++i) {
-                const bsl::size_t  BUFFER_SIZE = i + 1;
+            enum { k_MAX_k_BUFFER_SIZE = 20 };
+            for(int i = 0; i < k_MAX_k_BUFFER_SIZE; ++i) {
+                const bsl::size_t  k_BUFFER_SIZE = i + 1;
 
-                testBlobBufferFactory fa(&ta, BUFFER_SIZE);
+                testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
                 //fa.setGrowFlag(false);
 
                 btlb::Blob blob(&fa, &ta);
@@ -744,7 +744,7 @@ int main(int argc, char *argv[])
                     ASSERT(stream.rdbuf() == &mX);
 
                     if (verbose) {
-                        P_(i); P(BUFFER_SIZE);
+                        P_(i); P(k_BUFFER_SIZE);
                     }
 
                     {
@@ -757,8 +757,8 @@ int main(int argc, char *argv[])
                     {
                         int posInBuf = 0;
                         int currentBuf = 0;
-                        blob.setLength(MAX_BUFFER_SIZE);
-                        for (int j = 0; j < MAX_BUFFER_SIZE; ++j) {
+                        blob.setLength(k_MAX_k_BUFFER_SIZE);
+                        for (int j = 0; j < k_MAX_k_BUFFER_SIZE; ++j) {
                             if (posInBuf == blob.buffer(currentBuf).size()) {
                                 ++currentBuf;
                                 posInBuf = 0;
@@ -799,14 +799,14 @@ int main(int argc, char *argv[])
                             ++j;
 
                         }
-                        ASSERT(MAX_BUFFER_SIZE == j);
+                        ASSERT(k_MAX_k_BUFFER_SIZE == j);
                     }
 
                     ASSERT(!stream);
                     stream.clear();
                     stream.seekg(0);
-                    for (int j = 0; j < MAX_BUFFER_SIZE; ++j) {
-                        for (int k = 0; k < MAX_BUFFER_SIZE; ++k) {
+                    for (int j = 0; j < k_MAX_k_BUFFER_SIZE; ++j) {
+                        for (int k = 0; k < k_MAX_k_BUFFER_SIZE; ++k) {
                             char c;
                             stream.seekg(j);
                             ASSERT(stream >> c);
@@ -822,20 +822,20 @@ int main(int argc, char *argv[])
                     stream.clear();
                     stream.seekg(0);
                     ASSERT(stream >> str);
-                    ASSERT(MAX_BUFFER_SIZE == str.length());
+                    ASSERT(k_MAX_k_BUFFER_SIZE == str.length());
                     ASSERT('A' == str[0]);
-                    ASSERT('A' + MAX_BUFFER_SIZE - 1 ==
-                                                     str[MAX_BUFFER_SIZE - 1]);
+                    ASSERT('A' + k_MAX_k_BUFFER_SIZE - 1 ==
+                                                 str[k_MAX_k_BUFFER_SIZE - 1]);
                 }
             }
         }
         if (verbose) cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
         {
-            enum { MAX_BUFFER_SIZE = 20 };
-            for(int i = 0; i < MAX_BUFFER_SIZE; ++i) {
-                const bsl::size_t  BUFFER_SIZE = i + 1;
+            enum { k_MAX_k_BUFFER_SIZE = 20 };
+            for(int i = 0; i < k_MAX_k_BUFFER_SIZE; ++i) {
+                const bsl::size_t  k_BUFFER_SIZE = i + 1;
 
-                testBlobBufferFactory fa(&ta, BUFFER_SIZE);
+                testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
                 //fa.setGrowFlag(false);
 
                 btlb::Blob blob(&fa, &ta);
@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
                     bsl::istream istream(&inbuf);
 
                     if (verbose) {
-                        P_(i); P(BUFFER_SIZE);
+                        P_(i); P(k_BUFFER_SIZE);
                     }
 
                     ostream << 12345;
@@ -885,7 +885,8 @@ int main(int argc, char *argv[])
                     // Since we cannot truncate the streambuf, we must write at
                     // least as many bytes as already exist in the buffer.
 
-                    int length = bsl::max(3 * (int)BUFFER_SIZE, blob.length());
+                    int length = bsl::max(3 * (int)k_BUFFER_SIZE,
+                                          blob.length());
                     const bsl::string HASHMARKS(length, '#');
                     bsl::string       result;
                     ostream << HASHMARKS << bsl::flush;

@@ -257,7 +257,7 @@ BSLS_IDENT("$Id: $")
 //      btlb::BlobBuffer prologBuffer;
 //      fa.allocate(&prologBuffer);
 //
-//      bdlxxxx::ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
+//      bslx::ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
 //      bsl::memcpy(prologBuffer.data() + sizeof(int),
 //                  prolog.c_str(),
 //                  prologLength);
