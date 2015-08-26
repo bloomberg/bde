@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // types have the same value, or both are null.
 //
 // In addition to the standard homogeneous, value-semantic, operations such as
-// copy construction, copy assignment, equality comparison, and 'bdex'
+// copy construction, copy assignment, equality comparison, and BDEX
 // streaming, 'bdlb::NullableValue' also supports conversion between augmented
 // types for which the underlying types are convertible, i.e., for
 // heterogeneous copy construction, copy assignment, and equality comparison,
@@ -59,16 +59,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include <bslx_instreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
+#ifndef INCLUDED_BSLX_VERSIONFUNCTIONS
+#include <bslx_versionfunctions.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
@@ -98,30 +98,6 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
-
-#ifdef BSLS_PLATFORM_CMP_IBM
-// This is a temporary workaround for a bug that occurs when using AIX xlC
-// compiler.  When compiling a CPP file that uses a nullable value, AIX xlC
-// compiler incorrectly gives an error that 'bdlxxxx::ByteInStreamFormatter' and
-// 'bdlxxxx::ByteOutStreamFormatter' are not defined, even though the file
-// correctly includes 'bdlxxxx_byteinstreamformatter.h' and
-// 'bdlxxxx_byteoutstreamformatter.h'.  (Basically, it is the bug where the
-// compiler processes an expression that depends on a template parameter,
-// before the template has been instantiated).  The temporary workaround is to
-// ensure that 'bdlxxxx::ByteInStreamFormatter' and 'bdlxxxx::ByteOutStreamFormatter'
-// are defined before 'bdlb::NullableAllocatedValue' in the translation unit,
-// so these files get included here (even though 'bdlb_nullableallocatedvalue'
-// does not really depend on the two 'bdex' components).
-
-#ifndef INCLUDED_BDLXXXX_BYTEINSTREAMFORMATTER
-#include <bdlxxxx_byteinstreamformatter.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_BYTEOUTSTREAMFORMATTER
-#include <bdlxxxx_byteoutstreamformatter.h>
-#endif
-
-#endif  // BSLS_PLATFORM_CMP_IBM
 
 #ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
@@ -318,16 +294,16 @@ class NullableValue {
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this nullable object the value read from the specified
-        // input 'stream' using the specified 'version' format, and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid, but this object is unaltered.  Note that no version is
-        // read from 'stream'.  (See the 'bdex' package-level documentation
-        // for more information on 'bdex' streaming of value-semantic types
-        // and containers.)
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     void reset();
         // Make this nullable object null.  Note that attempts to refer to
@@ -341,22 +317,36 @@ class NullableValue {
     // ACCESSORS
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this nullable object to the specified output
-        // 'stream' using the specified 'version' format, and return a
-        // reference to the modifiable 'stream'.  If 'version' is not
-        // supported, 'stream' is unmodified.  Note that 'version' is not
-        // written to 'stream'.  (See the 'bdex' package-level documentation
-        // for more information on 'bdex' streaming of value-semantic types
-        // and containers.)
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     bool isNull() const;
         // Return 'true' if this object is null, and 'false' otherwise.
 
+    int maxSupportedBdexVersion(int versionSelector) const;
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     int maxSupportedBdexVersion() const;
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  (See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.)
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
@@ -791,6 +781,8 @@ template <class TYPE>
 template <class STREAM>
 STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 {
+    using bslx::InStreamFunctions::bdexStreamIn;
+
     char isNull;
 
     stream.getInt8(isNull);
@@ -799,7 +791,7 @@ STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
         if (!isNull) {
             d_imp.makeValue();
 
-            bdex_InStreamFunctions::streamIn(stream, d_imp.value(), version);
+            bdexStreamIn(stream, d_imp.value(), version);
         }
         else {
             d_imp.reset();
@@ -829,12 +821,14 @@ template <class STREAM>
 STREAM& NullableValue<TYPE>::bdexStreamOut(STREAM& stream,
                                                  int     version) const
 {
+    using bslx::OutStreamFunctions::bdexStreamOut;
+
     const bool isNull = d_imp.isNull();
 
     stream.putInt8(isNull ? 1 : 0);
 
     if (!isNull) {
-        bdex_OutStreamFunctions::streamOut(stream, d_imp.value(), version);
+        bdexStreamOut(stream, d_imp.value(), version);
     }
 
     return stream;
@@ -849,10 +843,25 @@ bool NullableValue<TYPE>::isNull() const
 
 template <class TYPE>
 inline
+int NullableValue<TYPE>::maxSupportedBdexVersion(int versionSelector) const
+{
+    using bslx::VersionFunctions::maxSupportedBdexVersion;
+
+    // We need to call the 'bslx::VersionFunctions' helper function, because we
+    // cannot guarantee that 'TYPE' implements 'maxSupportedBdexVersion' as a
+    // class method.
+
+    return maxSupportedBdexVersion(&d_imp.d_buffer.object(), versionSelector);
+}
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+template <class TYPE>
+inline
 int NullableValue<TYPE>::maxSupportedBdexVersion() const
 {
-    return bdex_VersionFunctions::maxSupportedVersion(d_imp.d_buffer.object());
+    return maxSupportedBdexVersion(0);
 }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class TYPE>
 bsl::ostream& NullableValue<TYPE>::print(

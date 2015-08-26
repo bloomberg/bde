@@ -1807,7 +1807,7 @@ STREAM& CustomizedA::bdexStreamOut(STREAM& stream, int version) const
 inline
 int CustomizedA::maxSupportedBdexVersion() const
 {
-    return bdex_VersionFunctions::maxSupportedVersion(d_value);
+    return bslx::VersionFunctions::maxSupportedBdexVersion(&d_value, 0);
 }
 
 inline
@@ -2123,7 +2123,7 @@ STREAM& CustomizedB::bdexStreamOut(STREAM& stream, int version) const
 inline
 int CustomizedB::maxSupportedBdexVersion() const
 {
-    return bdex_VersionFunctions::maxSupportedVersion(d_value);
+    return bslx::VersionFunctions::maxSupportedBdexVersion(&d_value, 0);
 }
 
 inline

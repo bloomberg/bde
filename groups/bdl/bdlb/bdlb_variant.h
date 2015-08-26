@@ -112,41 +112,7 @@ BSLS_IDENT("$Id: $")
 //
 ///'bdex' Streamability
 ///--------------------
-// The 'bdlb::Variant' class can be streamed using the 'bdexStreamIn' and
-// 'bdexStreamOut' methods.  That is, if the version number with which the
-// variant type is streamed is known by both parties, there will be no problem.
-//
-// Note that this version number must be known by the reader independently of
-// the actual value of the object streamed.  An "adaptive" version number such
-// as: 1 if the variant is a 'T1', 2 if it is a 'T2', etc., will make the
-// 'bdlb::Variant' out-streamable, but *not* in-streamable since the reader has
-// no idea of the value (or its type) before beginning streaming.  In general,
-// a common version number accepted by all types (e.g., 1) will work.
-//
-// There is, however, one important restriction: 'bdex' streaming will
-// generally *not* work correctly as a *top*-*level* object.  That is, one
-// cannot apply a stream 'operator>>' to stream in a value.  To see why,
-// consider that such operators must be implemented in terms of:
-//..
-//  'bdex_InStreamFunctions::streamInVersionAndObject'
-//..
-// But 'streamInVersionAndObject' is in a quandary, since it must determine
-// whether a version number is streamed or not, and this depends on the actual
-// streamed value (which is at that time not yet known).
-//
-// There are two situations in which a variant type with 'N' explicit type
-// arguments, 'bdeut::VariantN<T1, ..., TN>', is streamable as a top-level
-// object:
-//..
-//  1) If *none* of the types 'T1', ..., 'TN' use a version number, or
-//
-//  2) If *all* of the types 'T1', ..., 'TN' use a version number, and the
-//     current value of the variant is set (i.e., its type index is not 0).
-//..
-// In either case, the current maximum supported version number of the variant
-// will be either positive (indicating that a version number must be streamed),
-// or not (indicating that no version number is streamed), which will be
-// compatible with the value that is subsequently streamed in.
+// Just Don't Do It (tm).
 //
 ///Usage
 ///-----
@@ -634,18 +600,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -725,14 +679,8 @@ namespace bdlb {struct Variant_DefaultConstructVisitor;
 struct Variant_CopyConstructVisitor;
 struct Variant_DestructorVisitor;
 struct Variant_AssignVisitor;
-struct Variant_MaxSupportedBdexVersionVisitor;
 struct Variant_PrintVisitor;
 struct Variant_EqualityTestVisitor;
-
-template <class STREAM>
-struct Variant_BdexStreamInVisitor;
-template <class STREAM>
-struct Variant_BdexStreamOutVisitor;
 
 template <class TYPES>
 class VariantImp;
@@ -1183,29 +1131,25 @@ class Variant_RawVisitorHelper {
 
 template <class TYPES>
 class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
-    // This class provides the implementation of 'Variant' (except for
-    // the creators) given a parameterized list of 'TYPES'.
+    // This class provides the implementation of 'Variant' (except for the
+    // creators) given a parameterized list of 'TYPES'.
     //
     // More generally, if each of the types in the list of 'TYPES' is
     // value-semantic, then this class also supports a complete set of *value*
     // *semantic* operations, including copy construction, assignment, equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  A precise
-    // operational definition of when two instances have the same value can be
-    // found in the description of 'operator==' for the class.  This class is
-    // *exception* *neutral* with no guarantee of rollback: if an exception is
-    // thrown during the invocation of a method on a pre-existing instance, the
-    // object is left in a valid state, but its value is undefined.  In no
-    // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
-    // an object as both source and destination) is supported in all cases.
+    // comparison, and 'ostream' printing.  A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of 'operator==' for the class.  This class is *exception* *neutral* with
+    // no guarantee of rollback: if an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
     //
     // If any of the types in the list of 'TYPES' does not support
     // 'operator==', or any of the value-semantic operations mentioned above,
     // then this variant also does not support that operation and attempts to
     // invoke it will trigger a compilation error.
-    //
-    // Finally, note the limitations on top-level 'bdex' serialization
-    // mentioned in the "'bdex' Streamability" section of the component-level
-    // documentation.
 
     // PRIVATE TYPES
     typedef VariantImp_Traits<TYPES>                           Traits;
@@ -1683,18 +1627,6 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // Note the order of the template arguments, chosen so that 'TYPE' must
         // always be specified.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
-
     template <class TYPE>
     void createInPlace();
     template <class TYPE, class A1>
@@ -2079,26 +2011,6 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // and return the value returned by the 'visitor' object's 'operator()'
         // of templatized 'RET_TYPE'.  The behavior is undefined if the current
         // state of the variant is unset.
-
-    int maxSupportedBdexVersion() const;
-        // Return the maximum supported version number of the type *currently*
-        // held in this variant.  Note that this method is usually a *CLASS*
-        // *METHOD*, but here it is an (instance) method, since the return
-        // value depends on the actual type held in this instance.  See the
-        // 'bdex' package-level documentation for more information on 'bdex'
-        // streaming of value-semantic types and containers, and the
-        // "'bdex' Streamability" section of the component-level documentation.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  Note that 'version' is *not* used for the 'Variant'
-        // object, but for the contained object, and thus has a different
-        // meaning (and different value) depending on the variant type.  See
-        // the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers, and the
-        // "'bdex' Streamability" section of the component-level documentation.
 
     template <class TYPE>
     bool is() const;
@@ -5266,118 +5178,6 @@ struct Variant_SwapVisitor {
     }
 };
 
-           // ===================================================
-           // struct Variant_MaxSupportedBdexVersionVisitor
-           // ===================================================
-
-struct Variant_MaxSupportedBdexVersionVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some parameterized 'TYPE', will compute the maximal
-    // supported 'bdex' version of the same 'TYPE' in its publically accessible
-    // member 'd_maxSupportedBdexVersion'.
-
-    // PUBLIC DATA
-    int d_maxSupportedBdexVersion;
-
-    // CREATORS
-    Variant_MaxSupportedBdexVersionVisitor()
-    : d_maxSupportedBdexVersion(bdex_VersionFunctions::BDEX_NO_VERSION_NUMBER)
-    {
-    }
-
-    // ACCESSORS
-    template <class TYPE>
-    inline
-    void operator() (const TYPE& object)
-    {
-        d_maxSupportedBdexVersion =
-                            bdex_VersionFunctions::maxSupportedVersion(object);
-    }
-
-    inline
-    void operator() (bslmf::Nil)
-    {
-        d_maxSupportedBdexVersion =
-                                 bdex_VersionFunctions::BDEX_NO_VERSION_NUMBER;
-    }
-};
-
-                 // ========================================
-                 // struct Variant_BdexStreamInVisitor
-                 // ========================================
-
-template <class STREAM>
-struct Variant_BdexStreamInVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // initialized instance of some parameterized 'TYPE', will stream in
-    // a value of the same 'TYPE' into that instance from a stream specified at
-    // construction of this visitor,  using a version also specified at
-    // construction of this visitor.
-
-    // PUBLIC DATA
-    STREAM& d_stream;   // held, not owned
-    int     d_version;  // 'bdex' version
-
-    // CREATORS
-    Variant_BdexStreamInVisitor(STREAM& stream, int version)
-    : d_stream(stream)
-    , d_version(version)
-    {
-    }
-
-    // ACCESSORS
-    template <class VALUETYPE>
-    inline
-    void operator() (VALUETYPE& object) const
-    {
-        bdex_InStreamFunctions::streamIn(d_stream, object, d_version);
-    }
-
-    inline
-    void operator() (bslmf::Nil) const
-    {
-        // no op
-    }
-};
-
-                // =========================================
-                // struct Variant_BdexStreamOutVisitor
-                // =========================================
-
-template <class STREAM>
-struct Variant_BdexStreamOutVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // initialized instance of some parameterized 'TYPE', will stream out the
-    // value of that instance into a stream specified at construction of this
-    // visitor, using a version also specified at construction of this
-    // visitor.
-
-    // PUBLIC DATA
-    STREAM& d_stream;   // held, not owned
-    int     d_version;  // 'bdex' version
-
-    // CREATORS
-    Variant_BdexStreamOutVisitor(STREAM& stream, int version)
-    : d_stream(stream)
-    , d_version(version)
-    {
-    }
-
-    // ACCESSORS
-    template <class VALUETYPE>
-    inline
-    void operator() (const VALUETYPE& object) const
-    {
-        bdex_OutStreamFunctions::streamOut(d_stream, object, d_version);
-    }
-
-    inline
-    void operator() (bslmf::Nil) const
-    {
-        // no op
-    }
-};
-
                     // =================================
                     // struct Variant_PrintVisitor
                     // =================================
@@ -6392,38 +6192,6 @@ VariantImp<TYPES>& VariantImp<TYPES>::assignTo(
 }
 
 template <class TYPES>
-template <class STREAM>
-STREAM& VariantImp<TYPES>::bdexStreamIn(STREAM& stream, int version)
-{
-    int type;
-    bdex_InStreamFunctions::streamIn(stream, type, 0);
-
-    if (!stream || type < 0 || 20 < type) {
-        stream.invalidate();
-        return stream;                                                // RETURN
-    }
-
-    if (type != this->d_type) {
-        reset();
-
-        if (type) {
-            Variant_DefaultConstructVisitor defaultConstructor(
-                                                         this->getAllocator());
-            doApply(defaultConstructor, type);
-        }
-
-        this->d_type = type;
-    }
-
-    if (type) {
-        Variant_BdexStreamInVisitor<STREAM> streamer(stream, version);
-        doApply(streamer, type);
-    }
-
-    return stream;
-}
-
-template <class TYPES>
 template <class TYPE>
 inline
 void VariantImp<TYPES>::createInPlace()
@@ -6738,20 +6506,6 @@ TYPE& VariantImp<TYPES>::the()
 
 // ACCESSORS
 template <class TYPES>
-inline
-int VariantImp<TYPES>::maxSupportedBdexVersion() const
-{
-    if (this->d_type) {
-        Variant_MaxSupportedBdexVersionVisitor visitor;
-        doApply<Variant_MaxSupportedBdexVersionVisitor&>(visitor,
-                                                           this->d_type);
-        return visitor.d_maxSupportedBdexVersion;                     // RETURN
-    }
-
-    return bdex_VersionFunctions::BDEX_NO_VERSION_NUMBER;
-}
-
-template <class TYPES>
 template <class RET_TYPE, class VISITOR>
 inline
 RET_TYPE VariantImp<TYPES>::apply(VISITOR& visitor) const
@@ -6831,22 +6585,6 @@ RET_TYPE VariantImp<TYPES>::applyRaw(const VISITOR& visitor) const
     return doApplyR<const Helper&, RET_TYPE>(Helper(&visitor),
                                              this->d_type);
 
-}
-
-template <class TYPES>
-template <class STREAM>
-STREAM& VariantImp<TYPES>::bdexStreamOut(STREAM& stream,
-                                               int     version) const
-{
-    bdex_OutStreamFunctions::streamOut(stream, this->d_type, 0);
-
-    if (this->d_type) {
-        typedef Variant_BdexStreamOutVisitor<STREAM> Streamer;
-
-        Streamer streamer(stream, version);
-        doApply<Streamer&>(streamer, this->d_type);
-    }
-    return stream;
 }
 
 template <class TYPES>

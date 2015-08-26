@@ -3,9 +3,10 @@
 #include <bdlb_nullableallocatedvalue.h>
 
 #include <bslma_testallocator.h>
-#include <bdlxxxx_testinstream.h>
-#include <bdlxxxx_testoutstream.h>
+#include <bslx_testinstream.h>
+#include <bslx_testoutstream.h>
 
+#include <bsl_cstdlib.h>    // atoi()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -314,8 +315,9 @@ int main(int argc, char *argv[])
         }
       } break;
       case 8: {
-        typedef bdlxxxx::TestInStream  In;
-        typedef bdlxxxx::TestOutStream Out;
+        typedef bslx::TestInStream  In;
+        typedef bslx::TestOutStream Out;
+        const int VERSION_SELECTOR = 20140601;
 
         {
             typedef int                                     ValueType;
@@ -323,7 +325,47 @@ int main(int argc, char *argv[])
 
             const Obj X(123);
 
-            Out       out;
+            Out       out(VERSION_SELECTOR);
+            const int VERSION = X.maxSupportedBdexVersion(VERSION_SELECTOR);
+
+            X.bdexStreamOut(out, VERSION);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+            In                in(OD, LOD);              ASSERT(in);
+                                                        ASSERT(!in.isEmpty());
+            Obj               t;                        ASSERT(X != t);
+
+            t.bdexStreamIn(in, VERSION);                ASSERT(X == t);
+            ASSERT(in);                                 ASSERT(in.isEmpty());
+        }
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            const Obj X;
+            Out       out(VERSION_SELECTOR);
+            const int VERSION = X.maxSupportedBdexVersion(VERSION_SELECTOR);
+
+            X.bdexStreamOut(out, VERSION);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+            In                in(OD, LOD);              ASSERT(in);
+                                                        ASSERT(!in.isEmpty());
+            Obj               t(123);                   ASSERT(X != t);
+
+            t.bdexStreamIn(in, VERSION);                ASSERT(X == t);
+            ASSERT(in);                                 ASSERT(in.isEmpty());
+        }
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        {
+            typedef int                                     ValueType;
+            typedef bdlb::NullableAllocatedValue<ValueType> Obj;
+
+            const Obj X(123);
+
+            Out       out(VERSION_SELECTOR);
             const int VERSION = X.maxSupportedBdexVersion();
 
             X.bdexStreamOut(out, VERSION);
@@ -334,7 +376,6 @@ int main(int argc, char *argv[])
                                                         ASSERT(!in.isEmpty());
             Obj               t;                        ASSERT(X != t);
 
-            in.setSuppressVersionCheck(1);  // needed for direct method test
             t.bdexStreamIn(in, VERSION);                ASSERT(X == t);
             ASSERT(in);                                 ASSERT(in.isEmpty());
         }
@@ -343,7 +384,7 @@ int main(int argc, char *argv[])
             typedef bdlb::NullableAllocatedValue<ValueType> Obj;
 
             const Obj X;
-            Out       out;
+            Out       out(VERSION_SELECTOR);
             const int VERSION = X.maxSupportedBdexVersion();
 
             X.bdexStreamOut(out, VERSION);
@@ -354,10 +395,10 @@ int main(int argc, char *argv[])
                                                         ASSERT(!in.isEmpty());
             Obj               t(123);                   ASSERT(X != t);
 
-            in.setSuppressVersionCheck(1);  // needed for direct method test
             t.bdexStreamIn(in, VERSION);                ASSERT(X == t);
             ASSERT(in);                                 ASSERT(in.isEmpty());
         }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
 
       case 7: {

@@ -2207,7 +2207,7 @@ STREAM& MyCustomizedType::bdexStreamOut(STREAM& stream, int version) const
 inline
 int MyCustomizedType::maxSupportedBdexVersion() const
 {
-    return bdex_VersionFunctions::maxSupportedVersion(d_value);
+    return bslx::VersionFunctions::maxSupportedBdexVersion(&d_value, 0);
 }
 
 inline
