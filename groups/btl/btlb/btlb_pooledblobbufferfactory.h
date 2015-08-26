@@ -25,10 +25,6 @@ BSLS_IDENT("$Id: $")
 // general-purpose memory allocator.  In order to gain further efficiency, this
 // factory allocates the shared pointer representation together with the buffer
 // (contiguously).
-//
-///Usage
-///-----
-// TBD
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>

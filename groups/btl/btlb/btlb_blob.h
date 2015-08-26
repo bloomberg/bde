@@ -76,22 +76,26 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///A Simple Blob Buffer Factory
-/// - - - - - - - - - - - - - -
+//
+///Example 1: A Simple Blob Buffer Factory
+///- - - - - - - - - - - - - - - - - - - -
 // Classes that implement the 'btlb::BlobBufferFactory' protocol are used to
 // allocate 'btlb::BlobBuffer' objects.  A simple implementation follows:
 //..
 //  class SimpleBlobBufferFactory : public btlb::BlobBufferFactory {
+//      // This factory creates blob buffers of a fixed size specified at
+//      // construction.
+//
 //      // DATA
 //      bsl::size_t       d_bufferSize;
 //      bslma::Allocator *d_allocator_p;
 //
-//      private:
-//      // NOT IMPLEMENTED
+//    private:
+//      // Not implemented:
 //      SimpleBlobBufferFactory(const SimpleBlobBufferFactory&);
 //      SimpleBlobBufferFactory& operator=(const SimpleBlobBufferFactory&);
 //
-//      public:
+//    public:
 //      // CREATORS
 //      explicit SimpleBlobBufferFactory(int               bufferSize = 1024,
 //                                       bslma::Allocator *basicAllocator = 0);
@@ -132,7 +136,6 @@ BSLS_IDENT("$Id: $")
 // allocate the 'btlb::BlobBuffer'.  The following simple program illustrates
 // how.
 //..
-//  int main()
 //  {
 //      SimpleBlobBufferFactory myFactory(1024);
 //
@@ -148,10 +151,10 @@ BSLS_IDENT("$Id: $")
 //..
 //      char data[] = "12345678901234567890"; // 20 bytes
 //      assert(0 != blob.numBuffers());
-//      assert(sizeof data <= blob.buffer(0).size());
-//      bsl::memcpy(blob.buffer(0).data(), data, sizeof data);
+//      assert(static_cast<int>(sizeof(data)) <= blob.buffer(0).size());
+//      bsl::memcpy(blob.buffer(0).data(), data, sizeof(data));
 //
-//      blob.setLength(sizeof data);
+//      blob.setLength(sizeof(data));
 //      assert(sizeof data == blob.length());
 //      assert(       1024 == blob.totalSize());
 //..
@@ -195,10 +198,10 @@ BSLS_IDENT("$Id: $")
 //      dest.appendBuffer(partialBuffer);
 //          // The last buffer of 'dest' contains only bytes 11-16 from
 //          // 'blob.buffer(0)'.
-//   }
+//  }
 //..
-///Data-Oriented Manipulation of a Blob
-/// - - - - - - - - - - - - - - - - - -
+///Example 2: Data-Oriented Manipulation of a Blob
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // There are several typical ways of manipulating a blob: the simplest lets the
 // blob automatically manage the length, by using only 'prependBuffer',
 // 'appendBuffer', and 'insertBuffer'.  Consider the following typical
@@ -252,12 +255,14 @@ BSLS_IDENT("$Id: $")
 //  {
 //      BSLS_ASSERT(blob);
 //
+//      (void)allocator;
+//
 //      int prologLength = prolog.length();
 //      SimpleBlobBufferFactory fa(prologLength + sizeof(int));
 //      btlb::BlobBuffer prologBuffer;
 //      fa.allocate(&prologBuffer);
 //
-//      bslx::ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
+//      bslx::MarshallingUtil::putInt32(prologBuffer.data(), prologLength);
 //      bsl::memcpy(prologBuffer.data() + sizeof(int),
 //                  prolog.c_str(),
 //                  prologLength);
@@ -326,9 +331,13 @@ BSLS_IDENT("$Id: $")
 //      btlb::BlobBuffer timestampBuffer;
 //      fa.allocate(&timestampBuffer);
 //
-//      bdlxxxx::ByteOutStreamRaw bdexStream(timestampBuffer.data(), 128);
+//      bslx::ByteOutStream bdexStream(20150826);
 //      now.bdexStreamOut(bdexStream, 1);
-//      BSLS_ASSERT(bdexStream);  // is valid, i.e., did not overflow 128 bytes
+//      BSLS_ASSERT(bdexStream);
+//      BSLS_ASSERT(bdexStream.length() < 128);
+//      bsl::memcpy(timestampBuffer.data(),
+//                  bdexStream.data(),
+//                  bdexStream.length());
 //      timestampBuffer.setSize(bdexStream.length());
 //..
 // Now that we have fabricated the buffer holding the current data and time, we
