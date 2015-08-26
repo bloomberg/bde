@@ -23,9 +23,9 @@ namespace bdlc {
 int PackedIntArrayImp_Signed::
                             requiredBytesPerElement(EightByteStorageType value)
 {
-    if (value >= bsl::numeric_limits<int8_t>::min()) {
-        if (value > bsl::numeric_limits<int16_t>::max()) {
-            if (value > bsl::numeric_limits<int32_t>::max()) {
+    if (value >= bsl::numeric_limits<bsl::int8_t>::min()) {
+        if (value > bsl::numeric_limits<bsl::int16_t>::max()) {
+            if (value > bsl::numeric_limits<bsl::int32_t>::max()) {
                 return 8;                                             // RETURN
             }
             else {
@@ -33,7 +33,7 @@ int PackedIntArrayImp_Signed::
             }
         }
         else {
-            if (value > bsl::numeric_limits<int8_t>::max()) {
+            if (value > bsl::numeric_limits<bsl::int8_t>::max()) {
                 return 2;                                             // RETURN
             }
             else {
@@ -42,10 +42,10 @@ int PackedIntArrayImp_Signed::
         }
     }
     else {
-        if (value >= bsl::numeric_limits<int16_t>::min()) {
+        if (value >= bsl::numeric_limits<bsl::int16_t>::min()) {
             return 2;                                                 // RETURN
         }
-        else if (value >= bsl::numeric_limits<int32_t>::min()) {
+        else if (value >= bsl::numeric_limits<bsl::int32_t>::min()) {
             return 4;                                                 // RETURN
         }
     }
@@ -59,15 +59,15 @@ int PackedIntArrayImp_Signed::
 int PackedIntArrayImp_Unsigned::
                             requiredBytesPerElement(EightByteStorageType value)
 {
-    if (value > bsl::numeric_limits<uint16_t>::max()) {
-        if (value > bsl::numeric_limits<uint32_t>::max()) {
+    if (value > bsl::numeric_limits<bsl::uint16_t>::max()) {
+        if (value > bsl::numeric_limits<bsl::uint32_t>::max()) {
             return 8;                                                 // RETURN
         }
         else {
             return 4;                                                 // RETURN
         }
     }
-    else if (value > bsl::numeric_limits<uint8_t>::max()) {
+    else if (value > bsl::numeric_limits<bsl::uint8_t>::max()) {
         return 2;                                                     // RETURN
     }
     return 1;                                                         // RETURN
