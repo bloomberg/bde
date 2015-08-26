@@ -1,6 +1,7 @@
 // bdlb_hashutil.t.cpp                                                -*-C++-*-
 
 #include <bdlb_hashutil.h>
+#include <bdls_testutil.h>
 
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -18,9 +19,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The component under test provides two hash functions.  We test them on a
@@ -28,15 +29,14 @@ using namespace bsl;  // automatically added by script
 // the breathing test.  Together with the usage example which performs various
 // experiments to be reported on in the component-level documentation, this is
 // appropriate testing.  There are no other concerns about this component.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] HASHING FUNDAMENTAL TYPES
 // [ 3] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -48,50 +48,49 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t";   \
-               cout << #J << ": " << J << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t";   \
-               cout << #J << ": " << J << "\t";   \
-               cout << #K << ": " << K << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-const int LENGTH = 1257;  // not a power of two
+typedef bdlb::HashUtil Util;
+
+const int k_LENGTH = 1257;  // not a power of two
 
 void time_hash1(const char   *key,
                 int           length)
 {
-    enum { ITERATIONS = 1000000 }; // 1M
+    enum { k_ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
     bsls::Stopwatch timer;
     timer.start();
-    for (int i = 0; i < ITERATIONS; ++i) {
-        value += bdlb::HashUtil::hash1(key, length) % LENGTH;
+    for (int i = 0; i < k_ITERATIONS; ++i) {
+        value += Util::hash1(key, length) % k_LENGTH;
     }
     timer.stop();
     cout << "Hashing 1M values (in seconds): " << timer.elapsedTime()
@@ -104,12 +103,12 @@ template <class TYPE>
 void time_hash1(const TYPE&   key,
                 const char   *TYPEID)
 {
-    enum { ITERATIONS = 1000000 }; // 1M
+    enum { k_ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
     bsls::Stopwatch timer;
     timer.start();
-    for (int i = 0; i < ITERATIONS; ++i) {
-        value += bdlb::HashUtil::hash1(key) % LENGTH;
+    for (int i = 0; i < k_ITERATIONS; ++i) {
+        value += Util::hash1(key) % k_LENGTH;
     }
     timer.stop();
     cout << "Hashing 1M values (in seconds): " << timer.elapsedTime()
@@ -120,12 +119,12 @@ void time_hash1(const TYPE&   key,
 void time_hash2(const char   *key,
                 int           length)
 {
-    enum { ITERATIONS = 1000000 }; // 1M
+    enum { k_ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
     bsls::Stopwatch timer;
     timer.start();
-    for (int i = 0; i < ITERATIONS; ++i) {
-        value += bdlb::HashUtil::hash2(key, length) % LENGTH;
+    for (int i = 0; i < k_ITERATIONS; ++i) {
+        value += Util::hash2(key, length) % k_LENGTH;
     }
     timer.stop();
     cout << "Hashing 1M values (in seconds): " << timer.elapsedTime()
@@ -138,12 +137,12 @@ template <class TYPE>
 void time_hash2(const TYPE&   key,
                 const char   *TYPEID)
 {
-    enum { ITERATIONS = 1000000 }; // 1M
+    enum { k_ITERATIONS = 1000000 }; // 1M
     unsigned int value = 0;
     bsls::Stopwatch timer;
     timer.start();
-    for (int i = 0; i < ITERATIONS; ++i) {
-        value += bdlb::HashUtil::hash2(key) % LENGTH;
+    for (int i = 0; i < k_ITERATIONS; ++i) {
+        value += Util::hash2(key) % k_LENGTH;
     }
     timer.stop();
     cout << "Hashing 1M values (in seconds): " << timer.elapsedTime()
@@ -151,9 +150,9 @@ void time_hash2(const TYPE&   key,
     (void)value;
 }
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 
 ///Usage
@@ -211,7 +210,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
         bsl::vector<int> table(size);   // all counters are init'ed to 0
 
         for (int i = 0; i < numElements; ++i, input.next()) {
-            unsigned int hash = bdlb::HashUtil::hash1(input.data(),
+            unsigned int hash = Util::hash1(input.data(),
                                                      input.length());
             ++table[hash % size];
         }
@@ -261,7 +260,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
         int    maxLength    = 0; // maximum length of a chain
 
         for (int i = 0; i < numElements; ++i, input.next()) {
-            unsigned int hash1 = bdlb::HashUtil::hash1(input.data(),
+            unsigned int hash1 = Util::hash1(input.data(),
                                                       input.length());
 
             int chainLength = 0;
@@ -269,7 +268,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             if (ResultType() == table[bucket]) {
                 table[bucket] = input.current();
             } else {
-                unsigned int hash2 = bdlb::HashUtil::hash2(input.data(),
+                unsigned int hash2 = Util::hash2(input.data(),
                                                           input.length());
                 hash2 = 1 + hash2 % (size - 1);
 
@@ -680,16 +679,16 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 //..
 
 }  // close namespace BDEU_HASHUTIL_USAGE_EXAMPLE
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     (void) veryVerbose;
     (void) veryVeryVerbose;
@@ -711,8 +710,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nUSAGE EXAMPLE"
-                          << "\n=============" << endl;
+        if (verbose) cout << "\n" "USAGE EXAMPLE" "\n"
+                                  "=============" "\n";
 
         using namespace BDEU_HASHUTIL_USAGE_EXAMPLE;
         usageExample(verbose, veryVerbose, veryVeryVerbose);
@@ -723,13 +722,13 @@ int main(int argc, char *argv[])
         // TESTING HASH0 FUNCTIONS
         //
         // Concerns:
-        //   That the hash return value is constant across all platforms for a
-        //   given input.
+        //: 1 The hash return value is constant across all platforms for a
+        //:   given input.
         //
         // Plan:
-        //   1. Using the table-driven technique, specifying a set of test
-        //      vectors with the input and expected value, then verify the
-        //      return value from the hash function.
+        //: 1 Using the table-driven technique, specifying a set of test
+        //:   vectors with the input and expected value, then verify the return
+        //:   value from the hash function.
         //
         // Testing:
         //   bdlb::HashUtil::hash0(char, int);
@@ -750,8 +749,8 @@ int main(int argc, char *argv[])
         //   bdlb::HashUtil::hash0(const char *, int, int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING HASH0 FUNCTIONS"
-                          << endl << "=======================" << endl;
+        if (verbose) cout << "\n" "TESTING HASH0 FUNCTIONS" "\n"
+                                  "=======================" "\n";
 
         if (verbose) cout << "\nTesting 'char' hash" << endl;
         {
@@ -761,7 +760,7 @@ int main(int argc, char *argv[])
                 int  d_size;        // size of target hash table
                 int  d_exp;         // expected return value
             } DATA[] = {
-                //line  value          size    exp
+                //LINE  VALUE          SIZE    EXP
                 //----  -------------  ------  ------
                 { L_,              0,     23,      0 },
                 { L_,             10,     23,     10 },
@@ -786,9 +785,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     P_(VALUE) P_(SIZE) P_(EXP)
-                    P(bdlb::HashUtil::hash0(VALUE, SIZE))
+                    P(Util::hash0(VALUE, SIZE))
                 }
-                LOOP_ASSERT(LINE, EXP == bdlb::HashUtil::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
             }
         }
 
@@ -800,7 +799,7 @@ int main(int argc, char *argv[])
                 int   d_size;        // size of target hash table
                 int   d_exp;         // expected return value
             } DATA[] = {
-                //line  value          size    exp
+                //LINE  VALUE          SIZE    EXP
                 //----  -------------  ------  ------
                 { L_,              0,     23,      0 },
                 { L_,             -1,     23,      8 },
@@ -827,9 +826,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     P_(VALUE) P_(SIZE) P(EXP)
-                    P(bdlb::HashUtil::hash0(VALUE, SIZE))
+                    P(Util::hash0(VALUE, SIZE))
                 }
-                LOOP_ASSERT(LINE, EXP == bdlb::HashUtil::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
             }
         }
 
@@ -841,7 +840,7 @@ int main(int argc, char *argv[])
                 int d_size;        // size of target hash table
                 int d_exp;         // expected return value
             } DATA[] = {
-                //line  value          size    exp
+                //LINE  VALUE          SIZE    EXP
                 //----  -------------  ------  ------
                 { L_,              0,    257,      0 },
                 { L_,             -1,    257,      0 },
@@ -862,9 +861,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     P_(VALUE) P_(SIZE) P_(EXP);
-                    P(bdlb::HashUtil::hash0(VALUE, SIZE));
+                    P(Util::hash0(VALUE, SIZE));
                 }
-                LOOP_ASSERT(LINE, EXP == bdlb::HashUtil::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
             }
         }
 
@@ -877,7 +876,7 @@ int main(int argc, char *argv[])
                 int d_size;     // size of hash table
                 int d_exp;      // expected return value
             } DATA[] = {
-                //line  valueA             valueB              size    exp
+                //LINE  VALUE_A            VALUE_B            SIZE    EXP
                 //----  -----------------  -----------------  ------  ------
                 { L_,                  0,                 0,    257,      0 },
                 { L_,                 -1,                -1,    257,      0 },
@@ -897,20 +896,20 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
-                const int                      LINE  = DATA[ti].d_lineNum;
-                const int                      VA    = DATA[ti].d_valueA;
-                const int                      VB    = DATA[ti].d_valueB;
-                const int                      SIZE  = DATA[ti].d_size;
-                const int                      EXP   = DATA[ti].d_exp;
+                const int                LINE    = DATA[ti].d_lineNum;
+                const int                VALUE_A = DATA[ti].d_valueA;
+                const int                VALUE_B = DATA[ti].d_valueB;
+                const int                SIZE    = DATA[ti].d_size;
+                const int                EXP     = DATA[ti].d_exp;
                 const bsls::Types::Int64 VALUE =
-                                     (bsls::Types::Int64(VA) << 32) |
-                                     (VB & 0xFFFFFFFF);
+                                     (bsls::Types::Int64(VALUE_A) << 32) |
+                                     (VALUE_B & 0xFFFFFFFF);
 
                 if (veryVerbose) {
                     P_(VALUE) P_(SIZE) P(EXP)
-                    P(bdlb::HashUtil::hash0(VALUE, SIZE))
+                    P(Util::hash0(VALUE, SIZE))
                 }
-                LOOP_ASSERT(LINE, EXP == bdlb::HashUtil::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
             }
         }
 
@@ -922,34 +921,34 @@ int main(int argc, char *argv[])
                 int   d_size;        // size of target hash table
                 int   d_exp;         // expected return value
             } DATA[] = {
-                //line value                 size   exp
-                //---- --------------------- ------ -----
-                { L_,  0.0                 ,   257,     0 },
-                { L_,  1.0                 ,   257,   177 },
-                { L_,  2.0                 ,   257,   193 },
-                { L_,  4.0                 ,   257,   209 },
-                { L_,  0.5                 ,   257,   161 },
-                { L_,  0.25                ,   257,   145 },
-                { L_,  -1.0                ,   257,    49 },
-                { L_,  -2.0                ,   257,    65 },
-                { L_,  -4.0                ,   257,    81 },
-                { L_,  -0.5                ,   257,    33 },
-                { L_,  -0.25               ,   257,    17 },
-                { L_,  1.1F                ,   257,    18 },
-                { L_,  -1.1F               ,   257,   147 },
-                { L_,  0.0                 , 65537,     0 },
-                { L_,  1.0                 , 65537, 49169 },
-                { L_,  2.0                 , 65537, 49153 },
-                { L_,  4.0                 , 65537, 49137 },
-                { L_,  0.5                 , 65537, 49185 },
-                { L_,  0.25                , 65537, 49201 },
-                { L_,  -1.0                , 65537, 16401 },
-                { L_,  -2.0                , 65537, 16385 },
-                { L_,  -4.0                , 65537, 16369 },
-                { L_,  -0.5                , 65537, 16417 },
-                { L_,  -0.25               , 65537, 16433 },
-                { L_,  1.1F                , 65537, 47529 },
-                { L_,  -1.1F               , 65537, 14761 },
+                //LINE VALUE  SIZE   EXP
+                //---- -----  -----  -----
+                { L_,   0.00,   257,     0 },
+                { L_,   1.00,   257,   177 },
+                { L_,   2.00,   257,   193 },
+                { L_,   4.00,   257,   209 },
+                { L_,   0.50,   257,   161 },
+                { L_,   0.25,   257,   145 },
+                { L_,  -1.00,   257,    49 },
+                { L_,  -2.00,   257,    65 },
+                { L_,  -4.00,   257,    81 },
+                { L_,  -0.50,   257,    33 },
+                { L_,  -0.25,   257,    17 },
+                { L_,   1.1F,   257,    18 },
+                { L_,  -1.1F,   257,   147 },
+                { L_,   0.00, 65537,     0 },
+                { L_,   1.00, 65537, 49169 },
+                { L_,   2.00, 65537, 49153 },
+                { L_,   4.00, 65537, 49137 },
+                { L_,   0.50, 65537, 49185 },
+                { L_,   0.25, 65537, 49201 },
+                { L_,  -1.00, 65537, 16401 },
+                { L_,  -2.00, 65537, 16385 },
+                { L_,  -4.00, 65537, 16369 },
+                { L_,  -0.50, 65537, 16417 },
+                { L_,  -0.25, 65537, 16433 },
+                { L_,   1.1F, 65537, 47529 },
+                { L_,  -1.1F, 65537, 14761 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -961,9 +960,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     P_(VALUE) P_(SIZE) P(EXP)
-                    P(bdlb::HashUtil::hash0(VALUE, SIZE))
+                    P(Util::hash0(VALUE, SIZE))
                 }
-                LOOP_ASSERT(LINE, EXP == bdlb::HashUtil::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
             }
         }
 
@@ -975,34 +974,34 @@ int main(int argc, char *argv[])
                 int    d_size;        // size of target hash table
                 int    d_exp;         // expected return value
             } DATA[] = {
-                //line value                 size   exp
-                //---- --------------------- ------ -----
-                { L_,  0.0                 ,   257,     0 },
-                { L_,  1.0                 ,   257,   177 },
-                { L_,  2.0                 ,   257,   193 },
-                { L_,  4.0                 ,   257,   209 },
-                { L_,  0.5                 ,   257,   161 },
-                { L_,  0.25                ,   257,   145 },
-                { L_,  -1.0                ,   257,    49 },
-                { L_,  -2.0                ,   257,    65 },
-                { L_,  -4.0                ,   257,    81 },
-                { L_,  -0.5                ,   257,    33 },
-                { L_,  -0.25               ,   257,    17 },
-                { L_,  1.1                 ,   257,   144 },
-                { L_,  -1.1                ,   257,    15 },
-                { L_,  0.0                 , 65537,     0 },
-                { L_,  1.0                 , 65537, 49169 },
-                { L_,  2.0                 , 65537, 49153 },
-                { L_,  4.0                 , 65537, 49137 },
-                { L_,  0.5                 , 65537, 49185 },
-                { L_,  0.25                , 65537, 49201 },
-                { L_,  -1.0                , 65537, 16401 },
-                { L_,  -2.0                , 65537, 16385 },
-                { L_,  -4.0                , 65537, 16369 },
-                { L_,  -0.5                , 65537, 16417 },
-                { L_,  -0.25               , 65537, 16433 },
-                { L_,  1.1                 , 65537,  9881 },
-                { L_,  -1.1                , 65537, 42651 },
+                //LINE VALUE  SIZE   EXP
+                //---- ------ ------ -----
+                { L_,   0.00,   257,     0 },
+                { L_,   1.00,   257,   177 },
+                { L_,   2.00,   257,   193 },
+                { L_,   4.00,   257,   209 },
+                { L_,   0.50,   257,   161 },
+                { L_,   0.25,   257,   145 },
+                { L_,  -1.00,   257,    49 },
+                { L_,  -2.00,   257,    65 },
+                { L_,  -4.00,   257,    81 },
+                { L_,  -0.50,   257,    33 },
+                { L_,  -0.25,   257,    17 },
+                { L_,   1.10,   257,   144 },
+                { L_,  -1.10,   257,    15 },
+                { L_,   0.00, 65537,     0 },
+                { L_,   1.00, 65537, 49169 },
+                { L_,   2.00, 65537, 49153 },
+                { L_,   4.00, 65537, 49137 },
+                { L_,   0.50, 65537, 49185 },
+                { L_,   0.25, 65537, 49201 },
+                { L_,  -1.00, 65537, 16401 },
+                { L_,  -2.00, 65537, 16385 },
+                { L_,  -4.00, 65537, 16369 },
+                { L_,  -0.50, 65537, 16417 },
+                { L_,  -0.25, 65537, 16433 },
+                { L_,   1.10, 65537,  9881 },
+                { L_,  -1.10, 65537, 42651 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1014,9 +1013,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     P_(VALUE) P_(SIZE) P(EXP)
-                    P(bdlb::HashUtil::hash0(VALUE, SIZE))
+                    P(Util::hash0(VALUE, SIZE))
                 }
-                LOOP_ASSERT(LINE, EXP == bdlb::HashUtil::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
             }
         }
 
@@ -1028,14 +1027,14 @@ int main(int argc, char *argv[])
                 int   d_size;        // size of target hash table
                 int   d_exp;         // expected return value
             } DATA[] = {
-                //line  value          size    exp
+                //LINE  VALUE          SIZE    EXP
                 //----  -------------  ------  ------
-                { L_,       (void *)0,     23,      0 },
-                { L_,      (void *)10,     23,     10 },
-                { L_,       (void *)0,    257,      0 },
-                { L_,      (void *)10,    257,     10 },
-                { L_,      (void *)46,    257,     46 },
-                { L_,     (void *)127,    257,    127 },
+                { L_,   (void *)    0,     23,      0 },
+                { L_,   (void *)   10,     23,     10 },
+                { L_,   (void *)    0,    257,      0 },
+                { L_,   (void *)   10,    257,     10 },
+                { L_,   (void *)   46,    257,     46 },
+                { L_,   (void *)  127,    257,    127 },
                 { L_,   (void *)32767,    257,    128 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1048,9 +1047,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) {
                     P_(VALUE) P_(SIZE) P(EXP)
-                    P(bdlb::HashUtil::hash0(VALUE, SIZE))
+                    P(Util::hash0(VALUE, SIZE))
                 }
-                LOOP_ASSERT(LINE, EXP == bdlb::HashUtil::hash0(VALUE,SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE,SIZE));
             }
         }
 
@@ -1062,42 +1061,42 @@ int main(int argc, char *argv[])
                 int         d_size;     // size of hash table
                 int         d_hash;     // expected output
             } DATA[] = {
-                // line  string                size    exp
-                // ----  ----------            ------  -----
-                {  L_,   ""                  ,   256,      0  },
-                {  L_,   "a"                 ,   256,     76  },
-                {  L_,   "aa"                ,   256,    168  },
-                {  L_,   "aaa"               ,   256,    148  },
-                {  L_,   "aaaa"              ,   256,    208  },
-                {  L_,   "aaaaa"             ,   256,     92  },
-                {  L_,   "aaaaaa"            ,   256,    120  },
-                {  L_,   "aaaaaaa"           ,   256,    164  },
-                {  L_,   "aaaaaaaa"          ,   256,     96  },
-                {  L_,   "b"                 ,   256,     89  },
-                {  L_,   "bb"                ,   256,     94  },
-                {  L_,   "bbb"               ,   256,    107  },
-                {  L_,   "bbbb"              ,   256,    212  },
-                {  L_,   "bbbbb"             ,   256,    157  },
-                {  L_,   "bbbbbb"            ,   256,     82  },
-                {  L_,   "bbbbbbb"           ,   256,    207  },
-                {  L_,   "bbbbbbbb"          ,   256,     40  },
-                {  L_,   ""                  , 65536,      0  },
-                {  L_,   "a"                 , 65536,  40524  },
-                {  L_,   "aa"                , 65536,  59816  },
-                {  L_,   "aaa"               , 65536,  59540  },
-                {  L_,   "aaaa"              , 65536,  26064  },
-                {  L_,   "aaaaa"             , 65536,  41820  },
-                {  L_,   "aaaaaa"            , 65536,  35704  },
-                {  L_,   "aaaaaaa"           , 65536,  63908  },
-                {  L_,   "aaaaaaaa"          , 65536,   8288  },
-                {  L_,   "b"                 , 65536,   1113  },
-                {  L_,   "bb"                , 65536,  44126  },
-                {  L_,   "bbb"               , 65536,  39531  },
-                {  L_,   "bbbb"              , 65536,  23508  },
-                {  L_,   "bbbbb"             , 65536,   8093  },
-                {  L_,   "bbbbbb"            , 65536,  11602  },
-                {  L_,   "bbbbbbb"           , 65536,  24271  },
-                {  L_,   "bbbbbbbb"          , 65536,  45096  },
+                // LINE  STRING      SIZE    EXP
+                // ----  ----------  ------  -----
+                {  L_,   ""        ,   256,      0  },
+                {  L_,   "a"       ,   256,     76  },
+                {  L_,   "aa"      ,   256,    168  },
+                {  L_,   "aaa"     ,   256,    148  },
+                {  L_,   "aaaa"    ,   256,    208  },
+                {  L_,   "aaaaa"   ,   256,     92  },
+                {  L_,   "aaaaaa"  ,   256,    120  },
+                {  L_,   "aaaaaaa" ,   256,    164  },
+                {  L_,   "aaaaaaaa",   256,     96  },
+                {  L_,   "b"       ,   256,     89  },
+                {  L_,   "bb"      ,   256,     94  },
+                {  L_,   "bbb"     ,   256,    107  },
+                {  L_,   "bbbb"    ,   256,    212  },
+                {  L_,   "bbbbb"   ,   256,    157  },
+                {  L_,   "bbbbbb"  ,   256,     82  },
+                {  L_,   "bbbbbbb" ,   256,    207  },
+                {  L_,   "bbbbbbbb",   256,     40  },
+                {  L_,   ""        , 65536,      0  },
+                {  L_,   "a"       , 65536,  40524  },
+                {  L_,   "aa"      , 65536,  59816  },
+                {  L_,   "aaa"     , 65536,  59540  },
+                {  L_,   "aaaa"    , 65536,  26064  },
+                {  L_,   "aaaaa"   , 65536,  41820  },
+                {  L_,   "aaaaaa"  , 65536,  35704  },
+                {  L_,   "aaaaaaa" , 65536,  63908  },
+                {  L_,   "aaaaaaaa", 65536,   8288  },
+                {  L_,   "b"       , 65536,   1113  },
+                {  L_,   "bb"      , 65536,  44126  },
+                {  L_,   "bbb"     , 65536,  39531  },
+                {  L_,   "bbbb"    , 65536,  23508  },
+                {  L_,   "bbbbb"   , 65536,   8093  },
+                {  L_,   "bbbbbb"  , 65536,  11602  },
+                {  L_,   "bbbbbbb" , 65536,  24271  },
+                {  L_,   "bbbbbbbb", 65536,  45096  },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1111,7 +1110,7 @@ int main(int argc, char *argv[])
                     const int   SIZE = DATA[ti].d_size;
                     const int   HASH = DATA[ti].d_hash;
 
-                    const int hash = bdlb::HashUtil::hash0(SPEC, SIZE);
+                    const int hash = Util::hash0(SPEC, SIZE);
 
                     if (veryVeryVerbose)
                         cout << SPEC << ", " << SIZE << " ---> " << hash
@@ -1132,9 +1131,9 @@ int main(int argc, char *argv[])
                     const int   SIZE = DATA[ti].d_size;
                     const int   HASH = DATA[ti].d_hash;
 
-                    const int hash = bdlb::HashUtil::hash0(SPEC,
-                                                          bsl::strlen(SPEC),
-                                                          SIZE);
+                    const int hash = Util::hash0(SPEC,
+                                                 bsl::strlen(SPEC),
+                                                 SIZE);
 
                     if (veryVeryVerbose)
                         cout << SPEC << ", " << SIZE << " ---> " << hash
@@ -1151,12 +1150,12 @@ int main(int argc, char *argv[])
         // TESTING HASHING FUNDAMENTAL TYPES
         //
         // Concerns:
-        //   The hash should output a reasonable value, which does not depend
-        //   on the endianness of the platform.
+        //: 1 The hash should output a reasonable value, which does not depend
+        //:   on the endianness of the platform.
         //
         // Plan:
-        //   Compare return value to expected values computed on a given
-        //   platform.
+        //: 1 Compare return value to expected values computed on a given
+        //:   platform.
         //
         // Testing:
         //    bdlb::HashUtil::hash1(char);
@@ -1189,120 +1188,124 @@ int main(int argc, char *argv[])
         //    bdlb::HashUtil::hash2(void*);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nHASHING FUNDAMENTAL TYPES"
-                          << "\n=========================" << endl;
+        if (verbose) cout << "\n" "HASHING FUNDAMENTAL TYPES" "\n"
+                                  "=========================" "\n";
 
-        ASSERT(703514648U == bdlb::HashUtil::hash1((char)'a'));
-        ASSERT(703514648U == bdlb::HashUtil::hash1((signed char)'a'));
-        ASSERT(703514648U == bdlb::HashUtil::hash1((unsigned char)'a'));
-        ASSERT(614942571U == bdlb::HashUtil::hash1((short)12355));
-        ASSERT(614942571U == bdlb::HashUtil::hash1((unsigned short)12355));
-        ASSERT(1553323673U == bdlb::HashUtil::hash1((int)0x12345678));
-        ASSERT(1553323673U == bdlb::HashUtil::hash1((unsigned int)0x12345678));
-        if(sizeof(long) == 8) {
-            ASSERT(338172012U == bdlb::HashUtil::hash1((long)0x12345678));
-            ASSERT(338172012U ==
-                              bdlb::HashUtil::hash1((unsigned long)0x12345678));
-        }
-        else if (sizeof(long) == 4) {
-            ASSERT(1553323673U == bdlb::HashUtil::hash1((long)0x12345678));
-            ASSERT(1553323673U ==
-                              bdlb::HashUtil::hash1((unsigned long)0x12345678));
-        }
-        else {
+        ASSERT(703514648U  == Util::hash1(         (char)'a'));
+        ASSERT(703514648U  == Util::hash1(  (signed char)'a'));
+        ASSERT(703514648U  == Util::hash1((unsigned char)'a'));
+
+        ASSERT(614942571U  == Util::hash1(         (short)12355));
+        ASSERT(614942571U  == Util::hash1((unsigned short)12355));
+
+        ASSERT(1553323673U == Util::hash1(         (int)0x12345678));
+        ASSERT(1553323673U == Util::hash1((unsigned int)0x12345678));
+        switch (sizeof(long)) {
+          case 8: 
+            ASSERT(338172012U == Util::hash1(         (long)0x12345678));
+            ASSERT(338172012U == Util::hash1((unsigned long)0x12345678));
+            break;
+          case 4:
+            ASSERT(1553323673U == Util::hash1(         (long)0x12345678));
+            ASSERT(1553323673U == Util::hash1((unsigned long)0x12345678));
+            break;
+          default:
             ASSERT(0);
+            break;
         }
-        ASSERT(338172012U ==
-                   bdlb::HashUtil::hash1((bsls::Types::Int64)0x12345678));
-        ASSERT(338172012U ==
-                  bdlb::HashUtil::hash1((bsls::Types::Uint64)0x12345678));
-        ASSERT(3552274171U == bdlb::HashUtil::hash1((float)3.1415926536));
-        ASSERT(1503624784U ==
-                         bdlb::HashUtil::hash1((double)3.14159265358979323844));
-        ASSERT(3552274171U == bdlb::HashUtil::hash1((float)3.1415926536));
-        ASSERT(1503624784U ==
-                         bdlb::HashUtil::hash1((double)3.14159265358979323844));
+        ASSERT(338172012U  == Util::hash1( (bsls::Types::Int64)0x12345678));
+        ASSERT(338172012U  == Util::hash1((bsls::Types::Uint64)0x12345678));
+
+        ASSERT(3552274171U == Util::hash1( (float)3.1415926536          ));
+        ASSERT(1503624784U == Util::hash1((double)3.14159265358979323844));
+        ASSERT(3552274171U == Util::hash1( (float)3.1415926536          ));
+        ASSERT(1503624784U == Util::hash1((double)3.14159265358979323844));
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        ASSERT(2283516099U ==
-                            bdlb::HashUtil::hash1((void*)0xffab13f1324e5473LL));
+        ASSERT(2283516099U == Util::hash1((void *)0xffab13f1324e5473LL));
 #else
-        ASSERT(1741718275U == bdlb::HashUtil::hash1((void*)0xffab13f1));
+        ASSERT(1741718275U == Util::hash1((void *)0xffab13f1          ));
 #endif
 
-        ASSERT(3392050242U == bdlb::HashUtil::hash2((char)'a'));
-        ASSERT(3392050242U == bdlb::HashUtil::hash2((signed char)'a'));
-        ASSERT(3392050242U == bdlb::HashUtil::hash2((unsigned char)'a'));
-        ASSERT(3111500981U == bdlb::HashUtil::hash2((short)12355));
-        ASSERT(3111500981U == bdlb::HashUtil::hash2((unsigned short)12355));
-        ASSERT(2509914878U == bdlb::HashUtil::hash2((int)0x12345678));
-        ASSERT(2509914878U == bdlb::HashUtil::hash2((unsigned int)0x12345678));
-        ASSERT(2509914878U == bdlb::HashUtil::hash2((long)0x12345678));
-        ASSERT(2509914878U == bdlb::HashUtil::hash2((unsigned long)0x12345678));
-        ASSERT(2509914878U ==
-                   bdlb::HashUtil::hash2((bsls::Types::Int64)0x12345678));
-        ASSERT(2509914878U ==
-                  bdlb::HashUtil::hash2((bsls::Types::Uint64)0x12345678));
-        ASSERT(2343743579U == bdlb::HashUtil::hash2((float)3.1415926536));
-        ASSERT(3721749206U ==
-                         bdlb::HashUtil::hash2((double)3.14159265358979323844));
+        ASSERT(3392050242U == Util::hash2(         (char)'a'));
+        ASSERT(3392050242U == Util::hash2(  (signed char)'a'));
+        ASSERT(3392050242U == Util::hash2((unsigned char)'a'));
+
+        ASSERT(3111500981U == Util::hash2(         (short)12355));
+        ASSERT(3111500981U == Util::hash2((unsigned short)12355));
+
+        ASSERT(2509914878U == Util::hash2(         (int)0x12345678));
+        ASSERT(2509914878U == Util::hash2((unsigned int)0x12345678));
+
+        ASSERT(2509914878U == Util::hash2(         (long)0x12345678));
+        ASSERT(2509914878U == Util::hash2((unsigned long)0x12345678));
+
+        ASSERT(2509914878U == Util::hash2( (bsls::Types::Int64)0x12345678));
+        ASSERT(2509914878U == Util::hash2((bsls::Types::Uint64)0x12345678));
+
+        ASSERT(2343743579U == Util::hash2( (float)3.1415926536          ));
+        ASSERT(3721749206U == Util::hash2((double)3.14159265358979323844));
+
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        ASSERT(2631003531U ==
-                            bdlb::HashUtil::hash2((void*)0xffab13f1324e5473LL));
+        ASSERT(2631003531U == Util::hash2((void *)0xffab13f1324e5473LL));
 #else
-        ASSERT(1747622670U == bdlb::HashUtil::hash2((void*)0xffab13f1));
+        ASSERT(1747622670U == Util::hash2((void *)0xffab13f1          ));
 #endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
-        //   This test exercises basic functionality, but tests nothing.
-        //
+        // BREATHING TEST                                                       
+        //   This case exercises (but does not fully test) basic functionality. 
+        //                                                                      
         // Concerns:
-        //   The hash should output a reasonable value.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //   Hash a selection of different types and print the output.
+        //: 1 Hash a selection of different types, print the output, and check
+        //:   that result is a reasonble value.
         //
         // Testing:
-        //   This test case exercises basic value-semantic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nBREATHING TEST"
-                          << "\n==============" << endl;
+        if (verbose) cout << "\n" "BREATHING TEST" "\n"
+                                  "==============" "\n";
 
         struct {
             const int   d_line;
             const char *d_string;
         } STRING_DATA[] = {
-            { L_, "" },
-            { L_, "this" },
-            { L_, "is" },
-            { L_, "a" },
-            { L_, "random" },
-            { L_, "collection" },
-            { L_, "of" },
-            { L_, "strings" },
+            //LINE  STRING
+            //----  ------------
+            { L_,   ""           },
+            { L_,   "this"       },
+            { L_,   "is"         },
+            { L_,   "a"          },
+            { L_,   "random"     },
+            { L_,   "collection" },
+            { L_,   "of"         },
+            { L_,   "strings"    },
         };
         const int NUM_STRING_DATA = sizeof STRING_DATA / sizeof *STRING_DATA;
 
-        for (int i = 0; i < NUM_STRING_DATA; ++i) {
-            const int   LINE   = STRING_DATA[i].d_line;
-            const char *STRING = STRING_DATA[i].d_string;
+        for (int ti = 0; ti < NUM_STRING_DATA; ++ti) {
+            const int   LINE   = STRING_DATA[ti].d_line;
+            const char *STRING = STRING_DATA[ti].d_string;
             const int   LENGTH = bsl::strlen(STRING);
 
             int sum = 0;
             if (verbose) {
                 P(LINE);
-                cout << "H1: " << bdlb::HashUtil::hash1(STRING, LENGTH) << endl;
-                cout << "H2: " << bdlb::HashUtil::hash2(STRING, LENGTH) << endl;
+                cout << "H1: " << Util::hash1(STRING, LENGTH) << "\n";
+                cout << "H2: " << Util::hash2(STRING, LENGTH) << "\n";
             } else {
                 // Prevent code to be optimized away in optimized mode.
-                // It's highly unlikely that 'sum' would be zero, and anyway
+                // It is highly unlikely that 'sum' would be zero, and anyway
                 // this is a deterministic test so data can be adjusted if that
                 // should ever be the case.
-                sum += bdlb::HashUtil::hash1(STRING, LENGTH);
-                LOOP_ASSERT(i, 0 != sum);
+                sum += Util::hash1(STRING, LENGTH);
+                LOOP_ASSERT(ti, 0 != sum);
             }
         }
 
@@ -1310,53 +1313,53 @@ int main(int argc, char *argv[])
             const int d_line;
             const int d_int;
         } INT_DATA[] = {
-            { L_, (int)0x00000000  },
-            { L_, (int)0x00000001  },
-            { L_, (int)0x00000002  },
-            { L_, (int)0x0000000f  },
-            { L_, (int)0x000000f0  },
-            { L_, (int)0x00000f00  },
-            { L_, (int)0x0000f000  },
-            { L_, (int)0x000f0000  },
-            { L_, (int)0x00f00000  },
-            { L_, (int)0x0f000000  },
-            { L_, (int)0xf0000000  },
-            { L_, (int)0xffffffff  },
-            { L_,      INT_MAX     },
+            //LINE  INT
+            //----  ---------------
+            { L_,   (int)0x00000000 },
+            { L_,   (int)0x00000001 },
+            { L_,   (int)0x00000002 },
+            { L_,   (int)0x0000000f },
+            { L_,   (int)0x000000f0 },
+            { L_,   (int)0x00000f00 },
+            { L_,   (int)0x0000f000 },
+            { L_,   (int)0x000f0000 },
+            { L_,   (int)0x00f00000 },
+            { L_,   (int)0x0f000000 },
+            { L_,   (int)0xf0000000 },
+            { L_,   (int)0xffffffff },
+            { L_,        INT_MAX    },
         };
         const int NUM_INT_DATA = sizeof INT_DATA / sizeof *INT_DATA;
 
-        for (int i = 0; i < NUM_INT_DATA; ++i) {
-            const int   LINE   = INT_DATA[i].d_line;
+        for (int ti = 0; ti < NUM_INT_DATA; ++ti) {
+            const int   LINE   = INT_DATA[ti].d_line;
             const char *INT    = reinterpret_cast<const char*>
-                                                          (&INT_DATA[i].d_int);
+                                                         (&INT_DATA[ti].d_int);
             const int   LENGTH = sizeof(int);
 
             int sum = 0;
             if (verbose) {
                 P(LINE);
-                cout << "H1: " << bdlb::HashUtil::hash1(INT, LENGTH) << endl;
-                cout << "H2: " << bdlb::HashUtil::hash2(INT, LENGTH) << endl;
+                cout << "H1: " << Util::hash1(INT, LENGTH) << endl;
+                cout << "H2: " << Util::hash2(INT, LENGTH) << endl;
             } else {
                 // Prevent code to be optimized away in optimized mode.
-                sum += bdlb::HashUtil::hash1(INT, LENGTH);
-                LOOP_ASSERT(i, 0 != sum);
+                sum += Util::hash1(INT, LENGTH);
+                LOOP_ASSERT(ti, 0 != sum);
             }
         }
-
-        if (verbose) cout << "\nEnd of test." << endl;
       } break;
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE MEASUREMENTS
         //
         // Concerns:
-        //   The hash are fairly thorough but are they fast?  Let's evaluate
-        //   performance here.
+        //: 1 The hash are fairly thorough but are they fast?  Let us evaluate
+        //:   performance here.
         //
         // Plan:
-        //   Perform the test of case 2 inside a loop and report the timing
-        //   using 'bsls_stopwatch'.
+        //: 1 Perform the test of case 2 inside a loop and report the timing
+        //:   using 'bsls_stopwatch'.
         //
         // Testing:
         //    bdlb::HashUtil::hash1(char);
@@ -1389,8 +1392,8 @@ int main(int argc, char *argv[])
         //    bdlb::HashUtil::hash2(void*);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nHASHING FUNDAMENTAL TYPES"
-                          << "\n=========================" << endl;
+        if (verbose) cout << "\n" "HASHING FUNDAMENTAL TYPES" "\n"
+                                  "=========================" "\n";
 
         const char TEXT[] = "Now is the time for all good men to come to "
                             "the aid of their country";
@@ -1399,55 +1402,61 @@ int main(int argc, char *argv[])
         for (int length = 2; length < LENGTH; length *= 2) {
             time_hash1(TEXT, length);
         }
-        time_hash1((char)'a', "char");
-        time_hash1((signed char)'a', "signed char");
+        time_hash1(         (char)'a', "char"         );
+        time_hash1(  (signed char)'a', "signed char"  );
         time_hash1((unsigned char)'a', "unsigned char");
-        time_hash1((short)12355, "short");
+
+        time_hash1(         (short)12355, "short"         );
         time_hash1((unsigned short)12355, "unsigned short");
-        time_hash1( (int)0x12345678, "int");
-        time_hash1( (unsigned int)0x12345678, "unsigned int");
+
+        time_hash1(           (int)0x12345678, "int"         );
+        time_hash1(  (unsigned int)0x12345678, "unsigned int");
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        time_hash1((long)0x12345678, "long");
+        time_hash1(         (long)0x12345678, "long"         );
         time_hash1((unsigned long)0x12345678, "unsigned long");
 #else
-        time_hash1((long)0x12345678, "long");
+        time_hash1(         (long)0x12345678, "long"         );
         time_hash1((unsigned long)0x12345678, "unsigned long");
 #endif
-        time_hash1((bsls::Types::Int64)0x12345678,
-                    "bsls::Types::Int64");
-        time_hash1((bsls::Types::Uint64)0x12345678,
-                    "bsls::Types::Uint64");
-        time_hash1((float)3.1415926536, "float");
+        time_hash1( (bsls::Types::Int64)0x12345678, "bsls::Types::Int64" );
+        time_hash1((bsls::Types::Uint64)0x12345678, "bsls::Types::Uint64");
+
+        time_hash1( (float)3.1415926536,           "float" );
         time_hash1((double)3.14159265358979323844, "double");
-        time_hash1((float)3.1415926536, "float");
+        time_hash1( (float)3.1415926536,           "float" );
         time_hash1((double)3.14159265358979323844, "double");
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        time_hash1((void*)0xffab13f1324e5473LL, "void*");
+        time_hash1((void *)0xffab13f1324e5473LL, "void*");
 #else
-        time_hash1((void*)0xffab13f1, "void*");
+        time_hash1((void *)0xffab13f1,           "void*");
 #endif
 
         for (int length = 2; length < LENGTH; length *= 2) {
             time_hash2(TEXT, length);
         }
-        time_hash2((char)'a', "char");
-        time_hash2((signed char)'a', "signed char");
+        time_hash2(         (char)'a', "char"         );
+        time_hash2(  (signed char)'a', "signed char"  );
         time_hash2((unsigned char)'a', "unsigned char");
-        time_hash2((short)12355, "short");
+
+        time_hash2(         (short)12355, "short"         );
         time_hash2((unsigned short)12355, "unsigned short");
-        time_hash2((int)0x12345678, "int");
+
+        time_hash2(         (int)0x12345678, "int"         );
         time_hash2((unsigned int)0x12345678, "unsigned int");
-        time_hash2((long)0x12345678, "long");
+
+        time_hash2(         (long)0x12345678, "long"         );
         time_hash2((unsigned long)0x12345678, "unsigned long");
-        time_hash2((bsls::Types::Int64)0x12345678, "bsls::Types::Int64");
+
+        time_hash2( (bsls::Types::Int64)0x12345678, "bsls::Types::Int64" );
         time_hash2((bsls::Types::Uint64)0x12345678, "bsls::Types::Uint64");
-        time_hash2((float)3.1415926536, "float");
+
+        time_hash2( (float)3.1415926536,           "float" );
         time_hash2((double)3.14159265358979323844, "double");
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-        time_hash2((void*)0xffab13f1324e5473LL, "void*");
+        time_hash2((void *)0xffab13f1324e5473LL, "void *");
 #else
-        time_hash2((void*)0xffab13f1, "void*");
+        time_hash2((void *)0xffab13f1,           "void *");
 #endif
       } break;
       default: {

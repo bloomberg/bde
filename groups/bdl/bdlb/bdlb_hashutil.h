@@ -136,10 +136,10 @@ BSLS_IDENT("$Id: $")
 // has 'v' bits) if two keys differing only at that input bit will differ at
 // the given output bit about half the time.  We define a hash to be a
 // funneling hash if there is some subset of size 't' of all the input bits
-// that can affect only a subset of size 'u' of bits in the output, and
-// 't > u' and 'v > u', and we say that the hash function has a funnel of those
-// 't' input bits into those 'u' bits.  In that case, then 'u' of those 't'
-// bits can cancel out the effects of the other 't - u', and so the set of keys
+// that can affect only a subset of size 'u' of bits in the output, and 't > u'
+// and 'v > u', and we say that the hash function has a funnel of those 't'
+// input bits into those 'u' bits.  In that case, then 'u' of those 't' bits
+// can cancel out the effects of the other 't - u', and so the set of keys
 // differing only in the input bits of the funnel can produce no more than half
 // that number of hash values.  (Those '2^t' keys can produce no more than
 // '2^u' out of '2^v' hash values.)  Differing in only a few bits is a common
@@ -234,8 +234,8 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Using Double-Hashing
 ///- - - - - - - - - - - - - - - -
 // The following code will check the number of collisions for a double-hashing
-// based hash table (such as 'bdlc_hashtable2') given a certain distribution
-// of keys:
+// based hash table (such as 'bdlc_hashtable2') given a certain distribution of
+// keys:
 //..
 //  template <class GENERATOR>
 //  ExperimentalResult
