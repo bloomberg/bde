@@ -27,8 +27,8 @@ namespace bdlb {
 
 // ACCESSORS
 bsl::ostream& BigEndianInt16::print(bsl::ostream& stream,
-                                          int           level,
-                                          int           spacesPerLevel) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -55,8 +55,8 @@ bsl::ostream& BigEndianInt16::print(bsl::ostream& stream,
 
 // ACCESSORS
 bsl::ostream& BigEndianUint16::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+                                     int           level,
+                                     int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -80,8 +80,8 @@ bsl::ostream& BigEndianUint16::print(bsl::ostream& stream,
 
 // ACCESSORS
 bsl::ostream& BigEndianInt32::print(bsl::ostream& stream,
-                                          int           level,
-                                          int           spacesPerLevel) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -108,8 +108,8 @@ bsl::ostream& BigEndianInt32::print(bsl::ostream& stream,
 
 // ACCESSORS
 bsl::ostream& BigEndianUint32::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+                                     int           level,
+                                     int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -133,8 +133,8 @@ bsl::ostream& BigEndianUint32::print(bsl::ostream& stream,
 
 // ACCESSORS
 bsl::ostream& BigEndianInt64::print(bsl::ostream& stream,
-                                          int           level,
-                                          int           spacesPerLevel) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -162,8 +162,8 @@ bsl::ostream& BigEndianInt64::print(bsl::ostream& stream,
 
 // ACCESSORS
 bsl::ostream& BigEndianUint64::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+                                     int           level,
+                                     int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -180,8 +180,8 @@ bsl::ostream& BigEndianUint64::print(bsl::ostream& stream,
     }
     return stream;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

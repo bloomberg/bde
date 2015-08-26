@@ -6,8 +6,8 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-#include <bdlxxxx_byteoutstreamformatter.h>
-#include <bdlxxxx_testoutstream.h>
+#include <bslx_genericoutstream.h>
+#include <bslx_testoutstream.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -1730,7 +1730,7 @@ int main(int argc, char *argv[]) {
         // writing zero bytes from an empty blob
         {
             btlb::Blob emptyBlob;
-            bdlxxxx::TestOutStream blobStream;
+            bslx::TestOutStream blobStream(20150825);
             ASSERT(btlb::BlobUtil::write(blobStream, emptyBlob, 0, 0) == 0);
             ASSERT(blobStream.length() == 0);
         }
@@ -1738,7 +1738,7 @@ int main(int argc, char *argv[]) {
         // writing non-zero bytes from an empty blob
         {
             btlb::Blob emptyBlob;
-            bdlxxxx::TestOutStream blobStream;
+            bslx::TestOutStream blobStream(20150825);
             ASSERT(btlb::BlobUtil::write(blobStream, emptyBlob, 0, 1) != 0);
             ASSERT(blobStream.length() == 0);
         }
@@ -1752,7 +1752,7 @@ int main(int argc, char *argv[]) {
             nonemptyBlob.setLength(static_cast<int>(size));
 
             // write blob
-            bdlxxxx::TestOutStream blobStream;
+            bslx::TestOutStream blobStream(20150825);
             ASSERT(btlb::BlobUtil::write(blobStream, nonemptyBlob, 0, 0) == 0);
             ASSERT(blobStream.length() == 0);
         }
@@ -1847,9 +1847,9 @@ int main(int argc, char *argv[]) {
                 }
 
                 {
-                bdlxxxx::ByteOutStreamFormatter bosf(&dest3);
-                Util::write(bosf, source, OFFSET, LENGTH);
-                bosf.flush();
+                bslx::GenericOutStream<bsl::stringbuf> gos(&dest3, 20150825);
+                Util::write(gos, source, OFFSET, LENGTH);
+                gos.flush();
                 }
 
                 if (veryVeryVerbose) {

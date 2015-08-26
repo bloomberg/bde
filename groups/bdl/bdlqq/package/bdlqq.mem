@@ -37,5 +37,3 @@ bdlqq_timedsemaphoreimpl_pthread
 bdlqq_timedsemaphoreimpl_win32
 bdlqq_turnstile
 bdlqq_writelockguard
-bdlqq_xxxatomicutil
-bdlqq_xxxthread

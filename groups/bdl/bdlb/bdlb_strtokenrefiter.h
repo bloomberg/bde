@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlb::StrTokenRefIter: token iterator for a non-modifiable string
 //
-//@SEE_ALSO: bsl_string, bdlb_xxxstrtokeniter
+//@SEE_ALSO: bsl_string
 //
 //@AUTHOR: John Lakos (jlakos)
 //
@@ -28,11 +28,7 @@ BSLS_IDENT("$Id: $")
 // string references (i.e., instances of 'bslstl::StringRef') that are returned
 // by the 'bdlb::StrTokenRefIter' accessors 'operator()', 'delimiter', and
 // 'previousDelimiter' remain valid for as long as the input string supplied to
-// the iterator upon construction (or 'reset') remains valid.  Contrast this
-// behavior with that of the tokenizing iterator supplied by
-// 'bdlb_xxxstrtokeniter' (namely 'bdlb::StrTokenIter') which expressly
-// overwrites the contents of token and delimiter "buffers" each time an
-// instance of that token iterator is advanced (via 'operator++').
+// the iterator upon construction (or 'reset') remains valid.
 //
 ///Definitions
 ///-----------

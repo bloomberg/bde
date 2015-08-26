@@ -2,13 +2,6 @@
 
 #include <bdlb_chartype.h>
 
-#include <bdlxxxx_testinstream.h>
-#include <bdlxxxx_testinstreamexception.h>
-#include <bdlxxxx_testoutstream.h>
-
-#include <bdlxxxx_outstreamfunctions.h>
-#include <bdlxxxx_instreamfunctions.h>
-
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
