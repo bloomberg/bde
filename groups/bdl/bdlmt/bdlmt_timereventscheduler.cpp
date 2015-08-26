@@ -37,9 +37,10 @@ int numBitsRequired(int value)
     // Calculate the smallest number of bits required to represent the
     // specified 'value'.
 
-    return bdlb::BitstringUtil::find1AtLargestIndex(&value,
-                                                    CHAR_BIT * sizeof value)
-         + 1;
+    return bdlb::BitStringUtil::find1AtMaxIndex(
+                                     reinterpret_cast<bsl::uint64_t *>(&value),
+                                     CHAR_BIT * sizeof value)
+        + 1;
 }
 
 }  // close unnamed namespace

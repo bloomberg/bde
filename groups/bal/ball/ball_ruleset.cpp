@@ -23,8 +23,8 @@ void RuleSet::printMask(bsl::ostream& stream,
                              int           level,
                              int           spacesPerLevel)
 {
-    bdlb::BitstringUtil::print(stream,
-                              (int *)&mask,
+    bdlb::BitStringUtil::print(stream,
+                              reinterpret_cast<bsl::uint64_t *>(&mask),
                               sizeof(MaskType) * 8,
                               level,
                               spacesPerLevel);

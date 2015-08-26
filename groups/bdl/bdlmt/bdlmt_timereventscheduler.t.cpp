@@ -1046,9 +1046,9 @@ int numBitsRequired(int maxValue)
 {
     ASSERT(0 <= maxValue);
 
-    return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
-                                                   &maxValue,
-                                                   CHAR_BIT * sizeof maxValue);
+    return 1 + bdlb::BitStringUtil::find1AtMaxIndex(
+                                       reinterpret_cast<bsl::uint64_t *>(&maxValue),
+                                       CHAR_BIT * sizeof maxValue);
 }
 
 // Calculate the largest integer identifiable using the specified 'numBits'.
@@ -2651,10 +2651,10 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             const int VALUE = ARRAY[i];
-        //  const int ret0 = bdlb::BitUtil::find1AtLargestIndex(VALUE);
-            const int ret1 = bdlb::BitstringUtil::find1AtLargestIndex(
-                                                      &VALUE,
-                                                      CHAR_BIT * sizeof VALUE);
+        //  const int ret0 = bdlb::BitUtil::find1AtMaxIndex(VALUE);
+            const int ret1 = bdlb::BitStringUtil::find1AtMaxIndex(
+                               reinterpret_cast<const bsl::uint64_t *>(&VALUE),
+                               CHAR_BIT * sizeof VALUE);
 
             P_(VALUE)
             //P_(ret0)

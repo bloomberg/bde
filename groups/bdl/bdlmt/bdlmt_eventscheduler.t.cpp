@@ -1029,9 +1029,9 @@ int numBitsRequired(int maxValue)
 {
     ASSERT(0 <= maxValue);
 
-    return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
-                                                   &maxValue,
-                                                   CHAR_BIT * sizeof maxValue);
+    return 1 + bdlb::BitStringUtil::find1AtMaxIndex(
+                                  reinterpret_cast<bsl::uint64_t *>(&maxValue),
+                                  CHAR_BIT * sizeof maxValue);
 }
 
 // Calculate the largest integer identifiable using the specified 'numBits'.
