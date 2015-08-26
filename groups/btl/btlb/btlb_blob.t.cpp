@@ -3,8 +3,9 @@
 
 #include <bdlt_datetimeutil.h>                     // for testing only
 #include <bdlt_currenttime.h>                   // for testing only
-#include <bdlxxxx_byteoutstreamraw.h>              // for testing only
-#include <bdlxxxx_bytestreamimputil.h>             // for testing only
+#include <bslx_marshallingutil.h>
+#include <bslx_genericoutstream.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
@@ -602,7 +603,7 @@ void prependProlog(btlb::Blob          *blob,
     btlb::BlobBuffer prologBuffer;
     fa.allocate(&prologBuffer);
 
-    bdlxxxx::ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
+    bslx::MarshallingUtil::putInt32(prologBuffer.data(), prologLength);
     bsl::memcpy(prologBuffer.data() + sizeof(int),
                 prolog.c_str(),
                 prologLength);
@@ -672,10 +673,11 @@ int timestampMessage(btlb::Blob          *blob,
     btlb::BlobBuffer timestampBuffer;
     fa.allocate(&timestampBuffer);
 
-    bdlxxxx::ByteOutStreamRaw bdexStream(timestampBuffer.data(), 128);
+    bdlsb::FixedMemOutStreamBuf sb(timestampBuffer.data(), 128);
+    bslx::GenericOutStream<bdlsb::FixedMemOutStreamBuf> bdexStream(&sb, 20150825);
     now.bdexStreamOut(bdexStream, 1);
     ASSERT(bdexStream); // is valid (i.e., did not overflow 128 bytes)
-    timestampBuffer.setSize(bdexStream.length());
+    timestampBuffer.setSize(sb.length());
 //..
 // Now that we have fabricated the buffer holding the current data and time, we
 // must insert it into the blob after the first buffer (i.e., before the
@@ -690,7 +692,7 @@ int timestampMessage(btlb::Blob          *blob,
         blob->appendDataBuffer(timestampBuffer);
     }
 
-    return bdexStream.length();
+    return sb.length();
 }
 //..
 // Note that the call to 'appendDataBuffer' takes also care of the possibility
