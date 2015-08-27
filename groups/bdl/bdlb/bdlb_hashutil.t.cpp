@@ -26,13 +26,59 @@ using namespace bsl;  // automatically added by script
 //                                  --------
 // The component under test provides two hash functions.  We test them on a
 // two kinds of buffers (fixed-length - integer, and variable-length) during
-// the breathing test.  Together with the usage example which performs various
+// the breathing test.  Together with the usage example that performs various
 // experiments to be reported on in the component-level documentation, this is
 // appropriate testing.  There are no other concerns about this component.
 // ----------------------------------------------------------------------------
+// [ 3] hash0(char                 key, int mod);
+// [ 3] hash0(signed char          key, int mod);
+// [ 3] hash0(unsigned char        key, int mod);
+// [ 3] hash0(short                key, int mod);
+// [ 3] hash0(unsigned short       key, int mod);
+// [ 3] hash0(int                  key, int mod);
+// [ 3] hash0(unsigned int         key, int mod);
+// [ 3] hash0(long                 key, int mod);
+// [ 3] hash0(unsigned long        key, int mod);
+// [ 3] hash0(bsls::Types::Int64   key, int mod);
+// [ 3] hash0(bsls::Types::Uint64  key, int mod);
+// [ 3] hash0(float                key, int mod);
+// [ 3] hash0(double               key, int mod);
+// [ 3] hash0(const void          *key, int mod);
+// [ 3] hash0(const char *string, int mod);
+// [ 3] hash0(const char *string, int len, int mod);
+// [ 2] hash1(const char *data, int len);
+// [ 2] hash2(const char *data, int len);
+// [ 2] hash1(char                 key);
+// [ 2] hash1(signed char          key);
+// [ 2] hash1(unsigned char        key);
+// [ 2] hash1(short                key);
+// [ 2] hash1(unsigned short       key);
+// [ 2] hash1(int                  key);
+// [ 2] hash1(unsigned int         key);
+// [ 2] hash1(long                 key);
+// [ 2] hash1(unsigned long        key);
+// [ 2] hash1(bsls::Types::Int64   key);
+// [ 2] hash1(bsls::Types::Uint64  key);
+// [ 2] hash1(float                key);
+// [ 2] hash1(double               key);
+// [ 2] hash1(const void          *key);
+// [ 2] hash2(char                 key);
+// [ 2] hash2(signed char          key);
+// [ 2] hash2(unsigned char        key);
+// [ 2] hash2(short                key);
+// [ 2] hash2(unsigned short       key);
+// [ 2] hash2(int                  key);
+// [ 2] hash2(unsigned int         key);
+// [ 2] hash2(long                 key);
+// [ 2] hash2(unsigned long        key);
+// [ 2] hash2(bsls::Types::Int64   key);
+// [ 2] hash2(bsls::Types::Uint64  key);
+// [ 2] hash2(float                key);
+// [ 2] hash2(double               key);
+// [ 2] hash2(const void          *key);
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] HASHING FUNDAMENTAL TYPES
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -86,7 +132,7 @@ void time_hash1(const char   *key,
                 int           length)
 {
     enum { k_ITERATIONS = 1000000 }; // 1M
-    unsigned int value = 0;
+    unsigned int    value = 0;
     bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < k_ITERATIONS; ++i) {
@@ -100,11 +146,11 @@ void time_hash1(const char   *key,
 }
 
 template <class TYPE>
-void time_hash1(const TYPE&   key,
-                const char   *TYPEID)
+void time_hash1(const TYPE&  key,
+                const char  *TYPEID)
 {
     enum { k_ITERATIONS = 1000000 }; // 1M
-    unsigned int value = 0;
+    unsigned int    value = 0;
     bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < k_ITERATIONS; ++i) {
@@ -116,11 +162,11 @@ void time_hash1(const TYPE&   key,
     (void)value;
 }
 
-void time_hash2(const char   *key,
-                int           length)
+void time_hash2(const char *key,
+                int         length)
 {
     enum { k_ITERATIONS = 1000000 }; // 1M
-    unsigned int value = 0;
+    unsigned int    value = 0;
     bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < k_ITERATIONS; ++i) {
@@ -134,11 +180,11 @@ void time_hash2(const char   *key,
 }
 
 template <class TYPE>
-void time_hash2(const TYPE&   key,
-                const char   *TYPEID)
+void time_hash2(const TYPE&  key,
+                const char  *TYPEID)
 {
     enum { k_ITERATIONS = 1000000 }; // 1M
-    unsigned int value = 0;
+    unsigned int    value = 0;
     bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < k_ITERATIONS; ++i) {
@@ -169,8 +215,8 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
         // CREATORS
         explicit
         ExperimentalResult(int max = 0, double avg = 0, double sigma = 0)
-            // Create an experimental result reporting the specified 'max',
-            // 'avg', and 'sigma' values.
+            // Create an experimental result reporting the optionally specified
+            // 'max', 'avg', and 'sigma' values.
         : d_max(max), d_average(avg), d_sigma(sigma)
         {}
     };
@@ -313,9 +359,10 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             // Type returned by this generator.
 
         // CREATORS
-        SequentialIntegers(int first = 1, int increment = 1)
+        explicit SequentialIntegers(int first = 1, int increment = 1)
             // Create a generator returning integers in a sequence starting at
-            // the specified 'first' integer, with the specified 'increment'.
+            // the optionally specified 'first' integer, with the optionally
+            // specified 'increment'.
             : d_current(first), d_inc(increment) {}
 
         // MANIPULATORS
@@ -363,7 +410,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             // Type returned by this generator.
 
         // CREATORS
-        SequentialStrings(bsl::string const& initial)
+        explicit SequentialStrings(bsl::string const& initial)
             // Create a generator returning strings in a sequence starting at
             // the specified 'initial' string (sorted by characters) and
             // looping through all permutations of 'str'.  The behavior is
@@ -421,13 +468,14 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             // Type returned by this generator.
 
         // CREATORS
-        SequentialVector(bsl::vector<char> const& ranges)
-            // Create a generator returning strings of length 'ranges.size()'
-            // in a sequence starting at the string with all null characters
-            // and looping through all the strings with each character at
-            // position 'i' in the specified range from 0 until 'ranges[i]'
-            // (excluded).  The behavior is undefined unless 'ranges' does not
-            // contain zero entries.
+        explicit SequentialVector(bsl::vector<char> const& ranges)
+            // Create a generator returning strings having the same length as
+            // the specified 'ranges' (i.e., 'ranges.size()') in a sequence
+            // starting at the string with all null characters and looping
+            // through all the strings with each character at position 'i' in
+            // the specified range from 0 until 'ranges[i]' (excluded).  The
+            // behavior is undefined unless 'ranges' does not contain zero
+            // entries.
             : d_ranges(ranges)
             , d_length(ranges.size())
             , d_current(d_length, (char)0)
@@ -481,7 +529,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 
         {
             ExperimentalResult results[3][COLS];
-            bsls::Stopwatch timer;
+            bsls::Stopwatch    timer;
 
             if (verbose) cout << "\nUsing chaining"
                               << "\n--------------" << endl;
@@ -536,13 +584,14 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             if (verbose) {
                 cout << "\nDisplaying average (max) for chaining:";
                 cout << "\n--------------------------------------n";
-                const char *ROW_LABELS[] = {
-                    "\nIntegers:",
-                    "\nStrings :",
-                    "\nVector  :",
-                    "\nLoad factor:",
+                const char *ROW_LABELS[] = { "\nIntegers:",
+                                             "\nStrings :",
+                                             "\nVector  :",
+                                             "\nLoad factor:",
                 };
-                const int NUM_ROWS = sizeof ROW_LABELS / sizeof *ROW_LABELS -1;
+                const int   NUM_ROWS     = sizeof  ROW_LABELS
+                                         / sizeof *ROW_LABELS - 1;
+
                 cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
                 for (int n = INC; n < 4*SIZE; n += INC) {
                     cout << "\t" << (double)n / SIZE;
@@ -570,7 +619,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             const int COLS = SIZE/INC;
 
             ExperimentalResult results[3][COLS];
-            bsls::Stopwatch timer;
+            bsls::Stopwatch    timer;
 
             if (verbose) cout << "\nUsing double hashing"
                               << "\n--------------------" << endl;
@@ -625,13 +674,14 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             if (verbose) {
                 cout << "\nDisplaying average (max) for double-hashing:";
                 cout << "\n--------------------------------------------\n";
-                const char *ROW_LABELS[] = {
-                    "\nIntegers:",
-                    "\nStrings :",
-                    "\nVector  :",
-                    "\nLoad factor:",
+                const char *ROW_LABELS[] = { "\nIntegers:",
+                                             "\nStrings :",
+                                             "\nVector  :",
+                                             "\nLoad factor:",
                 };
-                const int NUM_ROWS = sizeof ROW_LABELS / sizeof *ROW_LABELS -1;
+                const int   NUM_ROWS     = sizeof  ROW_LABELS
+                                         / sizeof *ROW_LABELS -1;
+
                 cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
                 for (int n = INC/2; n < SIZE; n += INC) {
                     cout << "\t" << (double)n / SIZE;
@@ -655,7 +705,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // except 'hash2' is used in place of 'hash1' in 'computeChainingCollisions').
 //..
 //  Displaying average(max) for chaining:
-//  ----------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 //  Load factor:    0.2     0.4     0.6     0.8     1       1.2     1.4
 //  Integers:       0.2(3)  0.4(5)  0.6(6)  0.8(6)  1(7)    1.2(7)  1.4(8)
 //  Strings :       0.2(4)  0.4(4)  0.6(5)  0.8(7)  1(7)    1.2(7)  1.4(7)
@@ -672,7 +722,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 //  Vector  :       3(39)   3.2(40) 3.4(42) 3.6(45) 3.8(46)
 //
 //  Displaying average(max) for double-hashing:
-//  ----------------------------------------------------------------------------
+//  ---------------------------------------------------------------------------
 //  Load factor:    0.1      0.3     0.5      0.7      0.9
 //  Integers:       0.046(2) 0.20(4) 0.37(10) 0.71(15) 1.6(59)
 //  Strings :       0.064(2) 0.20(6) 0.40(12) 0.75(18) 1.6(50)
@@ -700,12 +750,16 @@ int main(int argc, char *argv[])
         case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   This test is at the same time a usage example and a set of
-        //   measurement experiments.
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Verify that the code compiles and output the results of
-        //   the experiments.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -720,7 +774,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING HASH0 FUNCTIONS
+        // HASH0 FUNCTIONS
         //
         // Concerns:
         //: 1 The hash return value is constant across all platforms for a
@@ -732,26 +786,26 @@ int main(int argc, char *argv[])
         //:   value from the hash function.
         //
         // Testing:
-        //   bdlb::HashUtil::hash0(char, int);
-        //   bdlb::HashUtil::hash0(signed char, int);
-        //   bdlb::HashUtil::hash0(unsigned char, int);
-        //   bdlb::HashUtil::hash0(short, int);
-        //   bdlb::HashUtil::hash0(unsigned short, int);
-        //   bdlb::HashUtil::hash0(int, int);
-        //   bdlb::HashUtil::hash0(unsigned int, int);
-        //   bdlb::HashUtil::hash0(long, int);
-        //   bdlb::HashUtil::hash0(unsigned long, int);
-        //   bdlb::HashUtil::hash0(bsls::Types::Int64, int);
-        //   bdlb::HashUtil::hash0(bsls::Types::Uint64, int);
-        //   bdlb::HashUtil::hash0(float, int);
-        //   bdlb::HashUtil::hash0(double, int);
-        //   bdlb::HashUtil::hash0(void *, int);
-        //   bdlb::HashUtil::hash0(const char *, int);
-        //   bdlb::HashUtil::hash0(const char *, int, int);
+        //   hash0(char                 key, int mod);
+        //   hash0(signed char          key, int mod); // missing
+        //   hash0(unsigned char        key, int mod); // missing
+        //   hash0(short                key, int mod);
+        //   hash0(unsigned short       key, int mod); // missing
+        //   hash0(int                  key, int mod);
+        //   hash0(unsigned int         key, int mod); // missing
+        //   hash0(long                 key, int mod); // missing
+        //   hash0(unsigned long        key, int mod); // missing
+        //   hash0(bsls::Types::Int64   key, int mod);
+        //   hash0(bsls::Types::Uint64  key, int mod); // missing
+        //   hash0(float                key, int mod);
+        //   hash0(double               key, int mod);
+        //   hash0(const void          *key, int mod);
+        //   hash0(const char *string, int mod);
+        //   hash0(const char *string, int len, int mod);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING HASH0 FUNCTIONS" "\n"
-                                  "=======================" "\n";
+        if (verbose) cout << "\n" "HASH0 FUNCTIONS" "\n"
+                                  "===============" "\n";
 
         if (verbose) cout << "\nTesting 'char' hash" << endl;
         {
@@ -1102,7 +1156,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (veryVerbose)
-                cout << "\tTesting 'hash(const char *value, int size)'."
+                cout << "\tTesting 'hash0(const char *value, int size)'."
                      << endl;
             {
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1123,7 +1177,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose)
                 cout << "\tTesting "
-                        "'hash(const char *value, int length, int size)'."
+                        "'hash0(const char *value, int length, int size)'."
                      << endl;
             {
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1148,7 +1202,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING HASHING FUNDAMENTAL TYPES
+        // HASHING FUNDAMENTAL TYPES
         //
         // Concerns:
         //: 1 The hash should output a reasonable value, which does not depend
@@ -1159,34 +1213,36 @@ int main(int argc, char *argv[])
         //:   platform.
         //
         // Testing:
-        //    bdlb::HashUtil::hash1(char);
-        //    bdlb::HashUtil::hash1(signed char);
-        //    bdlb::HashUtil::hash1(unsigned char);
-        //    bdlb::HashUtil::hash1(short);
-        //    bdlb::HashUtil::hash1(unsigned short);
-        //    bdlb::HashUtil::hash1(int);
-        //    bdlb::HashUtil::hash1(unsigned int);
-        //    bdlb::HashUtil::hash1(long);
-        //    bdlb::HashUtil::hash1(unsigned long);
-        //    bdlb::HashUtil::hash1(bsls::Types::Int64);
-        //    bdlb::HashUtil::hash1(bsls::Types::Uint64);
-        //    bdlb::HashUtil::hash1(float);
-        //    bdlb::HashUtil::hash1(double);
-        //    bdlb::HashUtil::hash1(void*);
-        //    bdlb::HashUtil::hash2(char);
-        //    bdlb::HashUtil::hash2(signed char);
-        //    bdlb::HashUtil::hash2(unsigned char);
-        //    bdlb::HashUtil::hash2(short);
-        //    bdlb::HashUtil::hash2(unsigned short);
-        //    bdlb::HashUtil::hash2(int);
-        //    bdlb::HashUtil::hash2(unsigned int);
-        //    bdlb::HashUtil::hash2(long);
-        //    bdlb::HashUtil::hash2(unsigned long);
-        //    bdlb::HashUtil::hash2(bsls::Types::Int64);
-        //    bdlb::HashUtil::hash2(bsls::Types::Uint64);
-        //    bdlb::HashUtil::hash2(float);
-        //    bdlb::HashUtil::hash2(double);
-        //    bdlb::HashUtil::hash2(void*);
+        //   hash1(const char *data, int len);
+        //   hash2(const char *data, int len);
+        //   hash1(char                 key);
+        //   hash1(signed char          key);
+        //   hash1(unsigned char        key);
+        //   hash1(short                key);
+        //   hash1(unsigned short       key);
+        //   hash1(int                  key);
+        //   hash1(unsigned int         key);
+        //   hash1(long                 key);
+        //   hash1(unsigned long        key);
+        //   hash1(bsls::Types::Int64   key);
+        //   hash1(bsls::Types::Uint64  key);
+        //   hash1(float                key);
+        //   hash1(double               key);
+        //   hash1(const void          *key);
+        //   hash2(char                 key);
+        //   hash2(signed char          key);
+        //   hash2(unsigned char        key);
+        //   hash2(short                key);
+        //   hash2(unsigned short       key);
+        //   hash2(int                  key);
+        //   hash2(unsigned int         key);
+        //   hash2(long                 key);
+        //   hash2(unsigned long        key);
+        //   hash2(bsls::Types::Int64   key);
+        //   hash2(bsls::Types::Uint64  key);
+        //   hash2(float                key);
+        //   hash2(double               key);
+        //   hash2(const void          *key);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" "HASHING FUNDAMENTAL TYPES" "\n"
@@ -1202,7 +1258,7 @@ int main(int argc, char *argv[])
         ASSERT(1553323673U == Util::hash1(         (int)0x12345678));
         ASSERT(1553323673U == Util::hash1((unsigned int)0x12345678));
         switch (sizeof(long)) {
-          case 8: 
+          case 8:
             ASSERT(338172012U == Util::hash1(         (long)0x12345678));
             ASSERT(338172012U == Util::hash1((unsigned long)0x12345678));
             break;
@@ -1255,16 +1311,16 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST                                                       
-        //   This case exercises (but does not fully test) basic functionality. 
-        //                                                                      
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
         // Concerns:
         //: 1 The class is sufficiently functional to enable comprehensive
         //:   testing in subsequent test cases.
         //
         // Plan:
         //: 1 Hash a selection of different types, print the output, and check
-        //:   that result is a reasonble value.
+        //:   that result is a reasonable value.
         //
         // Testing:
         //   BREATHING TEST
@@ -1296,15 +1352,15 @@ int main(int argc, char *argv[])
             const int   LENGTH = bsl::strlen(STRING);
 
             int sum = 0;
-            if (verbose) {
+            if (veryVerbose) {
                 P(LINE);
                 cout << "H1: " << Util::hash1(STRING, LENGTH) << "\n";
                 cout << "H2: " << Util::hash2(STRING, LENGTH) << "\n";
             } else {
-                // Prevent code to be optimized away in optimized mode.
-                // It is highly unlikely that 'sum' would be zero, and anyway
-                // this is a deterministic test so data can be adjusted if that
-                // should ever be the case.
+                // Prevent code to be optimized away in optimized mode.  It is
+                // highly unlikely that 'sum' would be zero, and anyway this is
+                // a deterministic test so data can be adjusted if that should
+                // ever be the case.
                 sum += Util::hash1(STRING, LENGTH);
                 LOOP_ASSERT(ti, 0 != sum);
             }
@@ -1339,7 +1395,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = sizeof(int);
 
             int sum = 0;
-            if (verbose) {
+            if (veryVerbose) {
                 P(LINE);
                 cout << "H1: " << Util::hash1(INT, LENGTH) << endl;
                 cout << "H2: " << Util::hash2(INT, LENGTH) << endl;
@@ -1393,12 +1449,12 @@ int main(int argc, char *argv[])
         //    bdlb::HashUtil::hash2(void*);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "HASHING FUNDAMENTAL TYPES" "\n"
-                                  "=========================" "\n";
+        if (verbose) cout << "\n" "PERFORMANCE MEASUREMENTS" "\n"
+                                  "========================" "\n";
 
         const char TEXT[] = "Now is the time for all good men to come to "
                             "the aid of their country";
-        const int LENGTH = sizeof TEXT;
+        const int  LENGTH = sizeof TEXT;
 
         for (int length = 2; length < LENGTH; length *= 2) {
             time_hash1(TEXT, length);
