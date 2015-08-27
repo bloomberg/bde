@@ -3,6 +3,7 @@
 #include <bdlb_hashutil.h>
 #include <bdls_testutil.h>
 
+#include <bslmf_assert.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -124,12 +125,18 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+BSLMF_ASSERT(sizeof(int)                == sizeof(long)
+          || sizeof(bsls::Types::Int64) == sizeof(long));
+
+BSLMF_ASSERT(INT_MAX   == LONG_MAX
+          || LLONG_MAX == LONG_MAX);
+
 typedef bdlb::HashUtil Util;
 
 const int k_LENGTH = 1257;  // not a power of two
 
-void time_hash1(const char   *key,
-                int           length)
+void time_hash1(const char *key,
+                int         length)
 {
     enum { k_ITERATIONS = 1000000 }; // 1M
     unsigned int    value = 0;
@@ -208,10 +215,12 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // returning the results of an experiment, we will use the following structure:
 //..
     struct ExperimentalResult {
+
         // DATA MEMBERS
         int    d_max;     // maximum length of a chain
         double d_average; // average length of a chain
         double d_sigma;   // standard deviation
+
         // CREATORS
         explicit
         ExperimentalResult(int max = 0, double avg = 0, double sigma = 0)
@@ -228,9 +237,12 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // 'GeneratorConcept'.  In those requirements, 'generator' is an instance of
 // 'GENERATOR'.
 //..
-//  const char *data = generator.data(); // address of storage of current value
-//  int length = generator.length();     // length of storage of current value
-//  generator.next();                    // advance to next value
+//  const char *data   = generator.data();   // address of storage of current
+//                                           // value  
+//  int         length = generator.length(); // length of storage of current
+//                                           // value
+//                                          
+//  generator.next();                        // advance to next value
 //..
 //
 ///Example 1: Using Chaining
@@ -538,7 +550,8 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             timer.start();
             for (int n = INC, i = 0; n < 4*SIZE; n += INC, ++i) {
                 if (veryVerbose)
-                    cout << "\tWith load factor " << (double)n / SIZE << "\n";
+                    cout << "\tWith load factor " <<
+                                         static_cast<double>(n) / SIZE << "\n";
 
                 results[0][i] = computeChainingCollisions(
                                                          n,
@@ -553,7 +566,8 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             timer.start();
             for (int n = INC, i = 0; n < 4*SIZE; n += INC, ++i) {
                 if (veryVerbose)
-                    cout << "\tWith load factor " << (double)n / SIZE << "\n";
+                    cout << "\tWith load factor " <<
+                                         static_cast<double>(n) / SIZE << "\n";
 
                 bsl::string initial("abcdefghij"); // period = 10! = 3628800
                 results[1][i] = computeChainingCollisions(
@@ -569,9 +583,11 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             timer.start();
             for (int n = INC, i = 0; n < 4*SIZE; n += INC, ++i) {
                 if (veryVerbose)
-                    cout << "\tWith load factor " << (double)n / SIZE << "\n";
+                    cout << "\tWith load factor " <<
+                                         static_cast<double>(n) / SIZE << "\n";
 
-                bsl::vector<char> ranges(6, (char)4); // period = 4^6 = 4096
+                bsl::vector<char> ranges(6, static_cast<char>(4));
+                                                         // period = 4^6 = 4096
                 results[2][i] = computeChainingCollisions(
                                                      n,
                                                      SIZE,
@@ -594,7 +610,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 
                 cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
                 for (int n = INC; n < 4*SIZE; n += INC) {
-                    cout << "\t" << (double)n / SIZE;
+                    cout << "\t" << static_cast<double>(n) / SIZE;
                 }
                 for (int j = 0; j < NUM_ROWS; ++j) {
                     cout << ROW_LABELS[j];
@@ -628,7 +644,8 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             timer.start();
             for (int n = INC/2, i = 0; n < SIZE; n += INC, ++i) {
                 if (veryVerbose)
-                    cout << "\tWith load factor " << (double)n / SIZE << "\n";
+                    cout << "\tWith load factor " <<
+                                         static_cast<double>(n) / SIZE << "\n";
 
                 results[0][i] = computeDoubleHashingCollisions(
                                                          n,
@@ -643,7 +660,8 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             timer.start();
             for (int n = INC/2, i = 0; n < SIZE; n += INC, ++i) {
                 if (veryVerbose)
-                    cout << "\tWith load factor " << (double)n / SIZE << "\n";
+                    cout << "\tWith load factor " <<
+                                         static_cast<double>(n) / SIZE << "\n";
 
                 bsl::string initial("abcdefghij"); // period = 10! = 3628800
                 results[1][i] = computeDoubleHashingCollisions(
@@ -659,9 +677,11 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
             timer.start();
             for (int n = INC/2, i = 0; n < SIZE; n += INC, ++i) {
                 if (veryVerbose)
-                    cout << "\tWith load factor " << (double)n / SIZE << "\n";
+                    cout << "\tWith load factor " <<
+                                         static_cast<double>(n) / SIZE << "\n";
 
-                bsl::vector<char> ranges(7, (char)8); // period = 8^7 = 2097152
+                bsl::vector<char> ranges(7, static_cast<char>(8));
+                                                      // period = 8^7 = 2097152
                 results[2][i] = computeDoubleHashingCollisions(
                                                      n,
                                                      SIZE,
@@ -684,7 +704,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 
                 cout << ROW_LABELS[NUM_ROWS] << bsl::setprecision(2);
                 for (int n = INC/2; n < SIZE; n += INC) {
-                    cout << "\t" << (double)n / SIZE;
+                    cout << "\t" << static_cast<double>(n) / SIZE;
                 }
                 for (int j = 0; j < NUM_ROWS; ++j) {
                     cout << ROW_LABELS[j];
@@ -747,7 +767,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-        case 4: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -931,6 +951,13 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, EXP == Util::hash0(
                                               static_cast<unsigned int>(VALUE),
                                               SIZE));
+#if INT_MAX == LONG_MAX
+                LOOP_ASSERT(LINE, EXP == Util::hash0(static_cast<long>(VALUE),
+                                                     SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(
+                                             static_cast<unsigned long>(VALUE),
+                                             SIZE));
+#endif
             }
         }
 
@@ -980,6 +1007,13 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, EXP == Util::hash0(
                                        static_cast<bsls::Types::Uint64>(VALUE),
                                        SIZE));
+#if LLONG_MAX == LONG_MAX
+                LOOP_ASSERT(LINE, EXP == Util::hash0(static_cast<long>(VALUE),
+                                                     SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(
+                                             static_cast<unsigned long>(VALUE),
+                                             SIZE));
+#endif
             }
         }
 
