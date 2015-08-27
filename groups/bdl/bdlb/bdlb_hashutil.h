@@ -185,10 +185,10 @@ BSLS_IDENT("$Id: $")
 // 'GENERATOR'.
 //..
 //  const char *data   = generator.data();   // address of storage of current
-//                                           // value  
+//                                           // value
 //  int         length = generator.length(); // length of storage of current
 //                                           // value
-//                                          
+//
 //  generator.next();                        // advance to next value
 //..
 //
@@ -819,7 +819,7 @@ struct HashUtil {
 };
 
 // ============================================================================
-//                        INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                               // ---------------

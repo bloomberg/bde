@@ -238,10 +238,10 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // 'GENERATOR'.
 //..
 //  const char *data   = generator.data();   // address of storage of current
-//                                           // value  
+//                                           // value
 //  int         length = generator.length(); // length of storage of current
 //                                           // value
-//                                          
+//
 //  generator.next();                        // advance to next value
 //..
 //
