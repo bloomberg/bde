@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlso_socketoptions
 //
 //@DESCRIPTION: This component provides a single, simply constrained
-// (value-semantic) attribute class, 'btlso::LingerOptions', that is used
-// to describe the linger options of a stream-based socket.  Linger options
+// (value-semantic) attribute class, 'btlso::LingerOptions', that is used to
+// describe the linger options of a stream-based socket.  Linger options
 // describe how a stream-based socket behaves when it is being closed.  Note
 // that linger options is designed to be used in conjunction with the
 // 'btlso_socketoptions' component to configure a stream-based socket.
@@ -45,9 +45,9 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component is designed to be used at a higher level to set the linger
 // options for a stream-based socket.  This example shows how to create a
-// function that takes 'btlso::LingerOptions' as an argument and sets the linger
-// options of a socket.  We will assume Berkeley socket API is available to
-// configure the socket.
+// function that takes 'btlso::LingerOptions' as an argument and sets the
+// linger options of a socket.  We will assume Berkeley socket API is available
+// to configure the socket.
 //
 // First, we define a cross-platform compatible typedef for a socket handle:
 //..
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // Then, we declare the function, 'setLingerOptions', that takes a 'Handle' and
 // a 'btlso::LingerOptions' object, and sets the linger options for 'Handle':
 //..
-//  int setLingerOptions(Handle                     handle,
+//  int setLingerOptions(Handle                      handle,
 //                       const btlso::LingerOptions& lingerOptions)
 //  {
 //..
@@ -117,8 +117,16 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -128,9 +136,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlso {
-                       // =========================
+
+                       // ===================
                        // class LingerOptions
-                       // =========================
+                       // ===================
 
 class LingerOptions {
     // This simply constrained (value-semantic) attribute class describes
@@ -157,8 +166,7 @@ class LingerOptions {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(LingerOptions,
-                                 bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(LingerOptions, bslmf::IsBitwiseMoveable)
 
     // CREATORS
     LingerOptions();
@@ -170,9 +178,9 @@ class LingerOptions {
         //..
 
     LingerOptions(int timeout, bool lingerFlag);
-        // Create a 'LingerOptions' object having the specified
-        // 'timeout', and 'lingerFlag' attribute values.  The behavior is
-        // undefined unless '0 <= timeout'.
+        // Create a 'LingerOptions' object having the specified 'timeout', and
+        // 'lingerFlag' attribute values.  The behavior is undefined unless
+        // '0 <= timeout'.
 
     //! LingerOptions(const LingerOptions& original) = default;
         // Create a 'LingerOptions' object having the same value as the
@@ -182,8 +190,7 @@ class LingerOptions {
         // Destroy this object.
 
     // MANIPULATORS
-    //! LingerOptions& operator=(const LingerOptions& rhs) =
-    //!                                                                default;
+    //! LingerOptions& operator=(const LingerOptions& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -223,38 +230,35 @@ class LingerOptions {
 
 // FREE OPERATORS
 inline
-bool operator==(const LingerOptions& lhs,
-                const LingerOptions& rhs);
+bool operator==(const LingerOptions& lhs, const LingerOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'LingerOptions' objects have
-    // the same value if all of the corresponding values of their 'timeout',
-    // and 'lingerFlag' attributes are the same.
+    // value, and 'false' otherwise.  Two 'LingerOptions' objects have the same
+    // value if all of the corresponding values of their 'timeout', and
+    // 'lingerFlag' attributes are the same.
 
 inline
-bool operator!=(const LingerOptions& lhs,
-                const LingerOptions& rhs);
+bool operator!=(const LingerOptions& lhs, const LingerOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'LingerOptions' objects do
-    // not have the same value if any of the corresponding values of their
+    // same value, and 'false' otherwise.  Two 'LingerOptions' objects do not
+    // have the same value if any of the corresponding values of their
     // 'timeout', and 'lingerFlag' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const LingerOptions& object);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.  Note that this human-readable
-    // format is not fully specified and can change without notice.  Also note
-    // that this method has the same behavior as 'object.print(stream, 0, -1)',
-    // but with the attribute names elided.
+bsl::ostream& operator<<(bsl::ostream& stream, const LingerOptions& object);
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as 'object.print(stream, 0, -1)', but with
+    // the attribute names elided.
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                       // -------------------------
+                       // -------------------
                        // class LingerOptions
-                       // -------------------------
+                       // -------------------
 
 // CREATORS
 inline
@@ -303,26 +307,26 @@ bool LingerOptions::lingerFlag() const
 {
     return d_lingerFlag;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 inline
-bool btlso::operator==(const LingerOptions& lhs,
-                const LingerOptions& rhs)
+bool btlso::operator==(const LingerOptions& lhs, const LingerOptions& rhs)
 {
     return  lhs.lingerFlag() == rhs.lingerFlag()
          && lhs.timeout()    == rhs.timeout();
 }
 
 inline
-bool btlso::operator!=(const LingerOptions& lhs,
-                const LingerOptions& rhs)
+bool btlso::operator!=(const LingerOptions& lhs, const LingerOptions& rhs)
 {
     return  lhs.lingerFlag() != rhs.lingerFlag()
          || lhs.timeout()    != rhs.timeout();
 }
 
 }  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------

@@ -10,7 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide protocol for a factory producing stream sockets.
 //
 //@CLASSES:
-// btlso::StreamSocketFactory: protocol for factory of stream socket objects
+//  btlso::StreamSocketFactory: protocol for factory of stream socket objects
+//  btlso::StreamSocketFactoryAutoDeallocateGuard: socket deallocate guard
+//  btlso::StreamSocketFactoryDeleter: stream socket deleter
 //
 //@SEE_ALSO: btlso_streamsocket
 //
@@ -30,29 +32,28 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Allocating Stream Sockets using a Stream Socket Factory
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code demonstrate how to use a socket factory for
-// allocating sockets of IPv4 address type.  We assume that there is a
-// function 'f' that needs to use IPv4 sockets.  This function will get an
-// address of the stream socket factory for the IPv4 address type and allocate
-// sockets from it:
+// allocating sockets of IPv4 address type.  We assume that there is a function
+// 'f' that needs to use IPv4 sockets.  This function will get an address of
+// the stream socket factory for the IPv4 address type and allocate sockets
+// from it:
 //..
 //  int f(btlso::StreamSocketFactory<btlso::IPv4Address> *factory) {
 //..
 //
 // Now, allocate a stream socket:
 //..
-//      btlso::StreamSocket<btlso::IPv4Address> *connection =
-//          factory->allocate();
-//      if (!connection) {
+//      btlso::StreamSocket<btlso::IPv4Address> *conn = factory->allocate();
+//      if (!conn) {
 //          bsl::cout << "Socket cannot be allocated." << bsl::endl;
 //          return -1;
 //      }
 //..
-// At this point, the allocated 'connection' can be used for communication.
-// The stream socket is returned to the factory when we're done:
+// At this point, the allocated 'conn' can be used for communication.  The
+// stream socket is returned to the factory when we're done:
 //..
 //      // ...
 //
-//      factory->deallocate(connection);
+//      factory->deallocate(conn);
 //      return 0;
 //  }
 //..
@@ -75,9 +76,9 @@ BSLS_IDENT("$Id: $")
 //  typedef btlso::StreamSocketFactoryDeleter Deleter;
 //
 //  bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-//                     saManagedPtr(sa,
-//                                  factory,
-//                                  &Deleter::deleteObject<btlso::IPv4Address>);
+//                    saManagedPtr(sa,
+//                                 factory,
+//                                 &Deleter::deleteObject<btlso::IPv4Address>);
 //..
 // See 'btlso_streamsocket' for more in-depth usage examples.
 
@@ -87,19 +88,19 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace btlso {
 
-namespace btlso {template <class ADDRESS> class StreamSocket;
+template <class ADDRESS> class StreamSocket;
 
-                        // ===============================
+                        // =========================
                         // class StreamSocketFactory
-                        // ===============================
+                        // =========================
 
 template <class ADDRESS>
 class StreamSocketFactory {
-    // This class represents a family of protocols  for a stream-based socket
-    // factories.  The template parameter identifies of the address type
-    // (e.g., 'IPv4Address' for IPv4 addresses) with no assumptions on
-    // operations.
+    // This class represents a family of protocols for a stream-based socket
+    // factories.  The template parameter identifies of the address type (e.g.,
+    // 'IPv4Address' for IPv4 addresses) with no assumptions on operations.
 
   public:
     // CREATORS
@@ -108,20 +109,20 @@ class StreamSocketFactory {
 
     // MANIPULATORS
     virtual StreamSocket<ADDRESS> *allocate() = 0;
-        // Create a stream-based socket; return its address on success,
-        // and 0 otherwise.
+        // Create a stream-based socket; return its address on success, and 0
+        // otherwise.
 
     virtual void deallocate(StreamSocket<ADDRESS> *streamSocket) = 0;
         // Deallocate the specified 'streamSocket', terminating all operations
-        // on the underlying system socket.   The behavior is undefined unless
+        // on the underlying system socket.  The behavior is undefined unless
         // 'streamSocket' was allocated using this factory (or created through
         // an 'accept' operation on a stream socket allocated using this
         // factory) and has not since been deallocated.
 };
 
-             // ==================================================
+             // ============================================
              // class StreamSocketFactoryAutoDeallocateGuard
-             // ==================================================
+             // ============================================
 
 template <class ADDRESS>
 class StreamSocketFactoryAutoDeallocateGuard {
@@ -131,11 +132,12 @@ class StreamSocketFactoryAutoDeallocateGuard {
 
     // DATA
     union {
-        StreamSocket<ADDRESS>          *d_socket_p;
-        StreamSocket<ADDRESS>         **d_socketPtr_p;
+        StreamSocket<ADDRESS>     *d_socket_p;
+        StreamSocket<ADDRESS>    **d_socketPtr_p;
     } d_arena;
-    StreamSocketFactory<ADDRESS>       *d_deleter_p;
-    bool                                      d_resetFlag;
+
+    StreamSocketFactory<ADDRESS>  *d_deleter_p;
+    bool                           d_resetFlag;
 
     // PRIVATE ACCESSORS
     StreamSocket<ADDRESS>* socket() const;
@@ -144,14 +146,14 @@ class StreamSocketFactoryAutoDeallocateGuard {
   public:
     // CREATORS
     StreamSocketFactoryAutoDeallocateGuard(
-                                  StreamSocket<ADDRESS>        *socket,
-                                  StreamSocketFactory<ADDRESS> *factory);
+                                        StreamSocket<ADDRESS>        *socket,
+                                        StreamSocketFactory<ADDRESS> *factory);
         // Create a proctor for the specified 'socket', using the specified
         // 'factory' for deallocating upon destruction.
 
     StreamSocketFactoryAutoDeallocateGuard(
-                                StreamSocket<ADDRESS>        **socketPtr,
-                                StreamSocketFactory<ADDRESS>  *factory);
+                                      StreamSocket<ADDRESS>        **socketPtr,
+                                      StreamSocketFactory<ADDRESS>  *factory);
         // Create a proctor for the indirectly specified 'socketPtr', using the
         // specified 'factory' for deallocating upon destruction.  In addition,
         // upon destruction, the pointer '*socketPtr' is reset to 0.
@@ -165,9 +167,9 @@ class StreamSocketFactoryAutoDeallocateGuard {
         // Release the proctored socket from management by this proctor.
 };
 
-             // ======================================
+             // ================================
              // class StreamSocketFactoryDeleter
-             // ======================================
+             // ================================
 
 struct StreamSocketFactoryDeleter {
     // This 'struct' implements a 'deleter' function, 'deleteObject', for
@@ -190,22 +192,21 @@ struct StreamSocketFactoryDeleter {
 //                         INLINE FUNCTIONS DEFINITIONS
 // ============================================================================
 
-                        // -------------------------------
+                        // -------------------------
                         // class StreamSocketFactory
-                        // -------------------------------
+                        // -------------------------
 
 // CREATORS
 template <class ADDRESS>
 inline
 StreamSocketFactory<ADDRESS>::~StreamSocketFactory()
 {
+    // Implementation note: destructor is inlined to avoid template repository.
 }
-// Implementation note: destructor is inlined to avoid template repository.
 
-
-             // --------------------------------------------------
+             // --------------------------------------------
              // class StreamSocketFactoryAutoDeallocateGuard
-             // --------------------------------------------------
+             // --------------------------------------------
 
 // PRIVATE ACCESSORS
 template <class ADDRESS>
@@ -219,14 +220,12 @@ StreamSocketFactoryAutoDeallocateGuard<ADDRESS>::socket() const
     return d_arena.d_socket_p;
 }
 
-
 // CREATORS
 template <class ADDRESS>
 inline
 StreamSocketFactoryAutoDeallocateGuard<ADDRESS>::
-StreamSocketFactoryAutoDeallocateGuard(
-                                   StreamSocket<ADDRESS>        *socket,
-                                   StreamSocketFactory<ADDRESS> *factory)
+StreamSocketFactoryAutoDeallocateGuard(StreamSocket<ADDRESS>        *socket,
+                                       StreamSocketFactory<ADDRESS> *factory)
 : d_deleter_p(factory)
 , d_resetFlag(false)
 {
@@ -236,13 +235,12 @@ StreamSocketFactoryAutoDeallocateGuard(
 template <class ADDRESS>
 inline
 StreamSocketFactoryAutoDeallocateGuard<ADDRESS>::
-StreamSocketFactoryAutoDeallocateGuard(
-                                StreamSocket<ADDRESS>        **socketPtr,
-                                StreamSocketFactory<ADDRESS>  *factory)
+StreamSocketFactoryAutoDeallocateGuard(StreamSocket<ADDRESS>        **socket,
+                                       StreamSocketFactory<ADDRESS>  *factory)
 : d_deleter_p(factory)
 , d_resetFlag(true)
 {
-    d_arena.d_socketPtr_p = socketPtr;
+    d_arena.d_socketPtr_p = socket;
 }
 
 template <class ADDRESS>
@@ -267,13 +265,12 @@ void StreamSocketFactoryAutoDeallocateGuard<ADDRESS>::release()
     d_resetFlag = false;
 }
 
-                        // --------------------------------------
+                        // --------------------------------
                         // class StreamSocketFactoryDeleter
-                        // --------------------------------------
+                        // --------------------------------
 
 template <class ADDRESS>
-void StreamSocketFactoryDeleter::deleteObject(void *socket,
-                                                    void *factory)
+void StreamSocketFactoryDeleter::deleteObject(void *socket, void *factory)
 {
     typedef btlso::StreamSocket<ADDRESS>        StreamSocket;
     typedef btlso::StreamSocketFactory<ADDRESS> StreamSocketFactory;
@@ -284,6 +281,7 @@ void StreamSocketFactoryDeleter::deleteObject(void *socket,
 
     socketFactoryPtr->deallocate(streamSocketPtr);
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

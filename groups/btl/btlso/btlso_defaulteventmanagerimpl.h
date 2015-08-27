@@ -28,6 +28,26 @@ BSLS_IDENT("$Id: $")
 //     |              \    \     |      /        /           |
 //     |              btlso_defaulteventmanagerimpl          |
 //..
+//
+///Usage
+///-----
+// In the following usage example we show how to create an default instance of
+// a default event manager.  First, we need to include this file (shown here
+// for completeness):
+//..
+//  #include <btlso_defaulteventmanagerimpl.h>
+//..
+// Second, create a 'btlso::TimeMetrics' to give to the event manager:
+//..
+//  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+//                             btlso::TimeMetrics::e_CPU_BOUND);
+//..
+// Now, create a default event manager that uses this 'metrics':
+//..
+//  btlso::DefaultEventManager<> eventManager(&metrics);
+//..
+// Note that the time metrics is optional.
+//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
@@ -41,12 +61,8 @@ BSLS_IDENT("$Id: $")
 #include <btlso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -62,10 +78,11 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-// forward declaration
+namespace btlso {
 
-namespace btlso {template <class POLLING_MECHANISM = Platform::DEFAULT_POLLING_MECHANISM>
+template <class POLLING_MECHANISM = Platform::DEFAULT_POLLING_MECHANISM>
 class DefaultEventManager;
+
 }  // close package namespace
 
 }  // close enterprise namespace
@@ -74,16 +91,22 @@ class DefaultEventManager;
 
 // Ascribe 'HANDLE' with 'bsl::is_trivially_copyable' trait to use it in
 // 'bsl::vector' efficiently.
+
 namespace bsl {
+
 template <> struct is_trivially_copyable<HANDLE> : true_type {};
+
 }
 
 #else
 
 // Ascribe 'pollfd' with 'bsl::is_trivially_copyable' trait to use it in
 // 'bsl::vector' efficiently.
+
 namespace bsl {
+
 template <> struct is_trivially_copyable<pollfd> : true_type {};
+
 }  // close namespace bsl
 
 #endif // BSLS_PLATFORM_OS_WINDOWS

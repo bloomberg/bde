@@ -105,11 +105,11 @@ BSLS_IDENT("$Id: $")
 ///-----
 // 'btlso::SocketOptions' can be used to specify whether local addresses should
 // be reused.  The following snippets of code illustrate how to set the
-// 'BTESO_REUSEADDRESS' flag on a socket.  Note that we assume that a socket
-// of type 'SOCK_STREAM' has already been created and that it can be accessed
+// 'BTESO_REUSEADDRESS' flag on a socket.  Note that we assume that a socket of
+// type 'SOCK_STREAM' has already been created and that it can be accessed
 // using 'socketHandle':
 //..
-//  bool                reuseLocalAddr = true;
+//  bool                 reuseLocalAddr = true;
 //  btlso::SocketOptions options;
 //  options.reuseAddress().makeValue(reuseLocalAddr);
 //
@@ -141,8 +141,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_nullablevalue.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -152,9 +156,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlso {
-                       // =========================
+
+                       // ===================
                        // class SocketOptions
-                       // =========================
+                       // ===================
 
 class SocketOptions {
     // This class provides an value-semantic object that contains the various
@@ -174,60 +179,66 @@ class SocketOptions {
     // cases.
 
     // DATA
-    bdlb::NullableValue<LingerOptions>
-                               d_linger; // should lingering be used
+    bdlb::NullableValue<LingerOptions> d_linger;  // should lingering be used
 
-    bdlb::NullableValue<int>   d_sendBufferSize;
-                                         // send buffer size
+    bdlb::NullableValue<int>           d_sendBufferSize;
+                                                  // send buffer size
 
-    bdlb::NullableValue<int>   d_receiveBufferSize;
-                                         // receive buffer size
+    bdlb::NullableValue<int>           d_receiveBufferSize;
+                                                  // receive buffer size
 
-    bdlb::NullableValue<int>   d_minimumSendBufferSize;
-                                         // minimum number of output bytes
+    bdlb::NullableValue<int>           d_minimumSendBufferSize;
+                                                  // minimum number of output
+                                                  // bytes
 
-    bdlb::NullableValue<int>   d_minimumReceiveBufferSize;
-                                         // minimum number of input bytes
+    bdlb::NullableValue<int>           d_minimumReceiveBufferSize;
+                                                  // minimum number of input
+                                                  // bytes
 
-    bdlb::NullableValue<int>   d_sendTimeout;
-                                         // timeout (in seconds) for sending
-                                         // messages
+    bdlb::NullableValue<int>           d_sendTimeout;
+                                                  // timeout (in seconds) for
+                                                  // sending messages
 
-    bdlb::NullableValue<int>   d_receiveTimeout;
-                                         // timeout (in seconds) for receiving
-                                         // messages
+    bdlb::NullableValue<int>           d_receiveTimeout;
+                                                  // timeout (in seconds) for
+                                                  // receiving messages
 
-    bdlb::NullableValue<bool>  d_debugFlag;
-                                         // should debug information be
-                                         // recorded
+    bdlb::NullableValue<bool>          d_debugFlag;
+                                                  // should debug information
+                                                  // be recorded
 
-    bdlb::NullableValue<bool>  d_allowBroadcasting;
-                                         // can broadcast messages be sent
+    bdlb::NullableValue<bool>          d_allowBroadcasting;
+                                                  // can broadcast messages be
+                                                  // sent
 
-    bdlb::NullableValue<bool>  d_reuseAddress;
-                                         // can local addresses be reused
+    bdlb::NullableValue<bool>          d_reuseAddress;
+                                                  // can local addresses be
+                                                  // reused
 
-    bdlb::NullableValue<bool>  d_keepAlive;
-                                         // should connections be kept alive
-                                         // by enabling periodic transmission
-                                         // of messages.
+    bdlb::NullableValue<bool>          d_keepAlive;
+                                                  // should connections be
+                                                  // kept alive by enabling
+                                                  // periodic transmission of
+                                                  // messages
 
-    bdlb::NullableValue<bool>  d_bypassNormalRouting;
-                                         // should out-going messages bypass
-                                         // normal message routing facilities
+    bdlb::NullableValue<bool>          d_bypassNormalRouting;
+                                                  // should out-going messages
+                                                  // bypass normal message
+                                                  // routing facilities
 
-    bdlb::NullableValue<bool>  d_leaveOutOfBandDataInline;
-                                         // should out-of-band data (data
-                                         // marked urgent) be left inline
+    bdlb::NullableValue<bool>          d_leaveOutOfBandDataInline;
+                                                  // should out-of-band data
+                                                  // (data marked urgent) be
+                                                  // left inline
 
-    bdlb::NullableValue<bool>  d_tcpNoDelay;
-                                         // disable the Nagle algorithm for
-                                         // send coalescing
+    bdlb::NullableValue<bool>          d_tcpNoDelay;
+                                                  // disable the Nagle
+                                                  // algorithm for send
+                                                  // coalescing
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(SocketOptions,
-                                 bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(SocketOptions, bslmf::IsBitwiseMoveable)
 
     // CREATORS
     SocketOptions();
@@ -371,15 +382,13 @@ class SocketOptions {
 
 // FREE OPERATORS
 inline
-bool operator==(const SocketOptions& lhs,
-                const SocketOptions& rhs);
+bool operator==(const SocketOptions& lhs, const SocketOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const SocketOptions& lhs,
-                const SocketOptions& rhs);
+bool operator!=(const SocketOptions& lhs, const SocketOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
@@ -394,9 +403,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const SocketOptions& rhs);
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                       // -------------------------
+                       // -------------------
                        // class SocketOptions
-                       // -------------------------
+                       // -------------------
 
 // MANIPULATORS
 inline
@@ -572,45 +581,43 @@ const bdlb::NullableValue<bool>& SocketOptions::tcpNoDelay() const
 {
     return d_tcpNoDelay;
 }
+
 }  // close package namespace
 
 // FREE FUNCTIONS
 inline
-bool btlso::operator==(const SocketOptions& lhs,
-                const SocketOptions& rhs)
+bool btlso::operator==(const SocketOptions& lhs, const SocketOptions& rhs)
 {
-    return  lhs.debugFlag() == rhs.debugFlag()
-         && lhs.allowBroadcasting() == rhs.allowBroadcasting()
-         && lhs.reuseAddress() == rhs.reuseAddress()
-         && lhs.keepAlive() == rhs.keepAlive()
-         && lhs.bypassNormalRouting() == rhs.bypassNormalRouting()
-         && lhs.linger() == rhs.linger()
+    return  lhs.debugFlag()                == rhs.debugFlag()
+         && lhs.allowBroadcasting()        == rhs.allowBroadcasting()
+         && lhs.reuseAddress()             == rhs.reuseAddress()
+         && lhs.keepAlive()                == rhs.keepAlive()
+         && lhs.bypassNormalRouting()      == rhs.bypassNormalRouting()
+         && lhs.linger()                   == rhs.linger()
          && lhs.leaveOutOfBandDataInline() == rhs.leaveOutOfBandDataInline()
-         && lhs.sendBufferSize() == rhs.sendBufferSize()
-         && lhs.receiveBufferSize() == rhs.receiveBufferSize()
-         && lhs.minimumSendBufferSize() == rhs.minimumSendBufferSize()
+         && lhs.sendBufferSize()           == rhs.sendBufferSize()
+         && lhs.receiveBufferSize()        == rhs.receiveBufferSize()
+         && lhs.minimumSendBufferSize()    == rhs.minimumSendBufferSize()
          && lhs.minimumReceiveBufferSize() == rhs.minimumReceiveBufferSize()
-         && lhs.sendTimeout() == rhs.sendTimeout()
-         && lhs.receiveTimeout() == rhs.receiveTimeout()
-         && lhs.tcpNoDelay() == rhs.tcpNoDelay();
+         && lhs.sendTimeout()              == rhs.sendTimeout()
+         && lhs.receiveTimeout()           == rhs.receiveTimeout()
+         && lhs.tcpNoDelay()               == rhs.tcpNoDelay();
 }
 
 inline
-bool btlso::operator!=(const SocketOptions& lhs,
-                const SocketOptions& rhs)
+bool btlso::operator!=(const SocketOptions& lhs, const SocketOptions& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& btlso::operator<<(
-        bsl::ostream& stream,
-        const SocketOptions& rhs)
+bsl::ostream& btlso::operator<<(bsl::ostream& stream, const SocketOptions& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------

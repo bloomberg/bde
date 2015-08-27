@@ -164,8 +164,7 @@ namespace btlso {class TimeMetrics;
             // =======================================================
 
 template <>
-class DefaultEventManager<Platform::SELECT>
-                                                  : public EventManager {
+class DefaultEventManager<Platform::SELECT> : public EventManager {
     // This class implements the 'EventManager' protocol to provide an
     // event manager that uses the 'select' system call.
 

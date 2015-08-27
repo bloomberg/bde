@@ -14,10 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  btlso::TcpTimerEventManager: socket-event and timer multiplexer
 //
-//@SEE_ALSO: btlso_eventmanager, btlso_sockethandle,
-//           bteso_eventmanagerimp_poll, bteso_eventmanagerimp_select,
-//           bteso_eventmanagerimp_wfmo, bteso_eventmanagerimp_devpoll,
-//           btlso_socketimputil
+//@SEE_ALSO: btlso_eventmanager, btlso_timereventmanager
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'btlso_timereventmanager' protocol for socket handles.  An interested party
@@ -261,6 +258,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace btlso {
+
                    // ================================
                    // class TcpTimerEventManager
                    // ================================

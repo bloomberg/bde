@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Define a protocol for socket-event multiplexer.
 //
 //@CLASSES:
-//   btlso::EventManager: socket-event multiplexer protocol
+//  btlso::EventManager: socket-event multiplexer protocol
 //
 //@SEE_ALSO: btlso_defaulteventmanager, btlso_tcptimereventmanager,
 //           bteso_eventmanagertest
@@ -42,15 +42,14 @@ BSLS_IDENT("$Id: $")
 // 'btlso::EventManager' in the following way:
 //..
 //  int monitorSet(btlso::SocketHandle::Handle      *sockets,
-//                 int                              numSockets,
+//                 int                               numSockets,
 //                 void (*function)(btlso::SocketHandle::Handle),
 //                 btlso::EventManager              *manager)
-//      // Invoke the specified 'function' when incoming data is detected on
-//      // a subset of the specified 'sockets' of the specified 'numSockets'
-//      // length.  Use the specified 'manager' for monitoring.
-//      // Return a positive number of callbacks invoked on success and a
-//      // non-positive value otherwise.  The behavior is undefined unless
-//      // 0 < numSockets.
+//      // Invoke the specified 'function' when incoming data is detected on a
+//      // subset of the specified 'sockets' of the specified 'numSockets'
+//      // length.  Use the specified 'manager' for monitoring.  Return a
+//      // positive number of callbacks invoked on success and a non-positive
+//      // value otherwise.  The behavior is undefined unless '0 < numSockets'.
 //  {
 //      assert(sockets);
 //      assert(manager);
@@ -59,19 +58,26 @@ BSLS_IDENT("$Id: $")
 //      // Create a callback associated with 'function' for each socket and
 //      // register this callback to be invoked when associated socket is
 //      // ready for reading.
-//      for (int i = 0; i < numSockets; ++i) {
-//          bdlf::Function<void (*)()> callback(
-//              bdlf::BindUtil::bind(function, sockets[i]));
 //
-//          if (manager->registerSocketEvent(sockets[i],
-//                                           btlso::EventType::e_READ,
-//                                           callback))
-//          {
+//      for (int i = 0; i < numSockets; ++i) {
+//          bdlf::Function<void (*)()> callback(bdlf::BindUtil::bind(
+//                                                                function,
+//                                                                sockets[i]));
+//
+//          const int rc = manager->registerSocketEvent(
+//                                                    sockets[i],
+//                                                    btlso::EventType::e_READ,
+//                                                    callback);
+//
+//          if (rc) {
+//
 //              // For cleanliness, when a registration fails, we will cancel
 //              // all previous registrations.
+//
 //              while(--i >= 0) {
 //                  manager->deregisterSocket(sockets[i]);
 //              }
+//
 //              return -1;
 //          }
 //      }
@@ -97,17 +103,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
+namespace bsls { class TimeInterval; }
 
 namespace btlso {
+
+                   // ==================
+                   // class EventManager
+                   // ==================
+
 class EventManager {
     // This class defines a protocol for a socket-event multiplexer.  The
     // callback are registered permanently (i.e., invoked repeatedly as events
@@ -140,9 +143,9 @@ class EventManager {
         // automatically restart (i.e., reissue the identical system call).
         // Note that the order of invocation, relative to the order of
         // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also
-        // note that the behavior of this method may be undefined if the number
-        // of registered sockets is 0.
+        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also note
+        // that the behavior of this method may be undefined if the number of
+        // registered sockets is 0.
 
     virtual int dispatch(const bsls::TimeInterval& timeout, int flags = 0) = 0;
         // For each socket event pending on this event manager, invoke the
@@ -150,19 +153,19 @@ class EventManager {
         // event is pending, wait until either (1) at least one event occurs
         // (in which case the corresponding callback(s) is invoked), (2) the
         // specified relative 'timeout' interval is exceeded, or (3) provided
-        // that the specified 'flags' contains
-        // 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call is
-        // interrupted by a signal.  Return the number of dispatched callbacks
-        // on success, 0 on timeout, and a negative value otherwise; -1 is
-        // reserved to indicate that an underlying system call was interrupted.
-        // When such an interruption occurs this method will return -1 if
-        // 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise
-        // will automatically restart (i.e., reissue the identical system
-        // call).  Note that the order of invocation, relative to the order of
-        // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also
-        // note that the behavior of this method may be undefined if the number
-        // of registered sockets is 0.
+        // that the specified 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT',
+        // an underlying system call is interrupted by a signal.  Return the
+        // number of dispatched callbacks on success, 0 on timeout, and a
+        // negative value otherwise; -1 is reserved to indicate that an
+        // underlying system call was interrupted.  When such an interruption
+        // occurs this method will return -1 if 'flags' contains
+        // 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise will automatically
+        // restart (i.e., reissue the identical system call).  Note that the
+        // order of invocation, relative to the order of registration, is
+        // unspecified and that -1 is never returned if 'flags' does not
+        // contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also note that the
+        // behavior of this method may be undefined if the number of registered
+        // sockets is 0.
 
     virtual int registerSocketEvent(
                              const SocketHandle::Handle&   handle,
@@ -182,17 +185,15 @@ class EventManager {
         // that is already registered, the callback associated with this event
         // will be overwritten with the new one.
 
-    virtual void deregisterSocketEvent(
-                                  const SocketHandle::Handle& handle,
-                                  EventType::Type             event) = 0;
+    virtual void deregisterSocketEvent(const SocketHandle::Handle& handle,
+                                       EventType::Type             event) = 0;
         // Deregister from this event manager the callback associated with the
         // specified 'event' on the specified 'handle' so that said callback
         // will not be invoked should 'event' occur.  The behavior is undefined
         // unless there is a callback registered for 'event' on the socket
         // 'handle'.
 
-    virtual int deregisterSocket(
-                 const SocketHandle::Handle& handle) = 0;
+    virtual int deregisterSocket(const SocketHandle::Handle& handle) = 0;
         // Deregister from this event manager all events associated with the
         // specified socket 'handle'.  Return the number of deregistered
         // callbacks.
@@ -207,8 +208,7 @@ class EventManager {
         // and 'false' otherwise.
 
     virtual int isRegistered(const SocketHandle::Handle& handle,
-                             const EventType::Type       event)
-                                                                     const = 0;
+                             const EventType::Type       event) const = 0;
         // Return 1 if the specified 'event' is registered with this event
         // manager for the specified socket 'handle' and 0 otherwise.
 
@@ -216,11 +216,11 @@ class EventManager {
         // Return the total number of all socket events currently registered
         // with this event manager.
 
-    virtual int numSocketEvents(const SocketHandle::Handle& handle)
-                                                                     const = 0;
+    virtual int numSocketEvents(const SocketHandle::Handle& handle) const = 0;
         // Return the number of socket events currently registered with this
         // event manager for the specified 'handle'.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

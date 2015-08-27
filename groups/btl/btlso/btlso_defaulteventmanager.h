@@ -13,10 +13,7 @@ BSLS_IDENT("$Id: $")
 //  btlso::DefaultEventManager<TYPE>: event manager interface
 //  btlso::EventMgr: namespace for the default event manager type
 //
-//@SEE_ALSO: btlso_eventmanager, btlso_defaulteventmanager, btlso_timemetrics,
-//           btlso_defaulteventmanager_poll,  btlso_defaulteventmanager_select,
-//           btlso_defaulteventmanager_devpoll, bteso_defaulteventmanager_wfmo,
-//           btlso_tcptimereventmanager,  bteso_eventmanagertest
+//@SEE_ALSO: btlso_eventmanager, btlso_timereventmanager
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -30,26 +27,24 @@ BSLS_IDENT("$Id: $")
 // for shortness, we will omit 'btlso::DefaultEventManager' in the
 // specialization column):
 //..
-//  +=======================================================================+
-//  |      SPECIALIZATION       |   SYSTEM MECHANISM    |     PLATFORM      |
-//  +-----------------------------------------------------------------------+
+//  +========================================================================+
+//  |      SPECIALIZATION        |   SYSTEM MECHANISM    |     PLATFORM      |
+//  +------------------------------------------------------------------------+
 //  | <btlso::Platform::SELECT>  |        select         | Windows, Solaris, |
-//  |                           |                       | AIX, Linux        |
-//  +-----------------------------------------------------------------------+
-//  | <btlso::Platform::WFMO>    | WaitForMultipleEvents |      Windows*     |
-//  +-----------------------------------------------------------------------+
+//  |                            |                       | AIX, Linux        |
+//  +------------------------------------------------------------------------+
 //  | <btlso::Platform::DEVPOLL> |        /dev/poll      |      Solaris*     |
-//  +-----------------------------------------------------------------------+
+//  +------------------------------------------------------------------------+
 //  | <btlso::Platform::EPOLL>   |         epoll         |       Linux*      |
-//  +-----------------------------------------------------------------------+
+//  +------------------------------------------------------------------------+
 //  | <btlso::Platform::POLL>    |          poll         | Solaris, AIX*,    |
-//  |                           |                       | Linux             |
-//  +=======================================================================+
+//  |                            |                       | Linux             |
+//  +========================================================================+
 //  * indicates the default specialization for a platform.
 //..
 //
-///USAGE EXAMPLE
-///-------------
+///Usage
+///-----
 // In the following usage example we show how to create an instance of a
 // default event manager.  First, we need to include this file (shown here for
 // completeness):
@@ -59,12 +54,12 @@ BSLS_IDENT("$Id: $")
 // Second, create a 'btlso::TimeMetrics' to give to the event manager:
 //..
 //  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-//                            btlso::TimeMetrics::e_CPU_BOUND);
+//                             btlso::TimeMetrics::e_CPU_BOUND);
 //..
-// Now, create a default event manager (using 'btlso::EventMgr') that uses this
-// 'metrics':
+// Now, create a default event manager that uses this 'metrics':
 //..
-//  btlso::EventMgr::TYPE eventManager(&metrics);
+//  typedef btlso::Platform::DEFAULT_POLLING_MECHANISM PollMechanism;
+//  btlso::DefaultEventManager<PollMechanism> eventManager(&metrics);
 //..
 // Note that the time metrics is optional.  Using the same component, we can
 // create an event manager that uses a particular mechanism (for example,
@@ -74,6 +69,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that '/dev/poll' is available only on Solaris and this instantiation
 // fails (at compile time) on other platforms.
+//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
@@ -99,10 +95,6 @@ BSLS_IDENT("$Id: $")
 #include <btlso_defaulteventmanager_select.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_EVENT
-#include <btlso_event.h>
-#endif
-
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
@@ -111,37 +103,23 @@ BSLS_IDENT("$Id: $")
 #include <btlso_eventtype.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_PLATFORM
-#include <btlso_platform.h>
-#endif
-
 #ifndef INCLUDED_BTLSO_SOCKETHANDLE
 #include <btlso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
+namespace bsls { class TimeInterval; }
 
 namespace btlso {
 
 class TimeMetrics;
 
-                     // ===============================
+                     // =========================
                      // class DefaultEventManager
-                     // ===============================
+                     // =========================
 
 template <class POLLING_MECHANISM>
 class DefaultEventManager : public EventManager {
@@ -156,8 +134,8 @@ class DefaultEventManager : public EventManager {
   public:
     // CREATORS
     explicit
-    DefaultEventManager(TimeMetrics *timeMetric     = 0,
-                              bslma::Allocator  *basicAllocator = 0);
+    DefaultEventManager(TimeMetrics      *timeMetric     = 0,
+                        bslma::Allocator *basicAllocator = 0);
         // Create a 'poll'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics
@@ -185,9 +163,9 @@ class DefaultEventManager : public EventManager {
         // automatically restart (i.e., reissue the identical system call).
         // Note that the order of invocation, relative to the order of
         // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also
-        // note that the behavior of this method may be undefined if the number
-        // of registered sockets is 0.
+        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also note
+        // that the behavior of this method may be undefined if the number of
+        // registered sockets is 0.
 
     int dispatch(const bsls::TimeInterval& timeout, int flags);
         // For each socket event pending on this event manager, invoke the
@@ -195,20 +173,19 @@ class DefaultEventManager : public EventManager {
         // event is pending, wait until either (1) at least one event occurs
         // (in which case the corresponding callback(s) are invoked), (2) the
         // specified absolute 'timeout' interval is reached, or (3) provided
-        // that the specified 'flags' contains
-        // 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call is
-        // interrupted by a signal.  Return the number of dispatched callbacks
-        // on success, 0 if 'timeout' is reached, and a negative value
-        // otherwise; -1 is reserved to indicate that an underlying system call
-        // was interrupted.  When such an interruption occurs this method will
-        // return -1 if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'
-        // and otherwise will automatically restart (i.e., reissue the
-        // identical system call).  Note that the order of invocation, relative
-        // to the order of registration, is unspecified and that -1 is never
-        // returned if 'flags' does not contain
-        // 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also note that the behavior of
-        // this method may be undefined if the number of registered sockets is
-        // 0.
+        // that the specified 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT',
+        // an underlying system call is interrupted by a signal.  Return the
+        // number of dispatched callbacks on success, 0 if 'timeout' is
+        // reached, and a negative value otherwise; -1 is reserved to indicate
+        // that an underlying system call was interrupted.  When such an
+        // interruption occurs this method will return -1 if 'flags' contains
+        // 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise will automatically
+        // restart (i.e., reissue the identical system call).  Note that the
+        // order of invocation, relative to the order of registration, is
+        // unspecified and that -1 is never returned if 'flags' does not
+        // contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also note that the
+        // behavior of this method may be undefined if the number of registered
+        // sockets is 0.
 
     int registerSocketEvent(const SocketHandle::Handle&   handle,
                             const EventType::Type         event,
@@ -219,13 +196,13 @@ class DefaultEventManager : public EventManager {
         // success and a non-zero value otherwise.  Socket event registrations
         // stay in effect until they are subsequently deregistered; the
         // callback is invoked each time the specified 'event' is seen.
-        // Typically, 'EventType::e_READ' and
-        // 'EventType::e_WRITE' are the only events that can be
-        // registered simultaneously for a socket.  Simultaneously registering
-        // for incompatible events for the same socket 'handle' may result in
-        // undefined behavior.  If a registration attempt is made for an event
-        // that is already registered, the callback associated with this event
-        // will be overwritten with the new one.
+        // Typically, 'EventType::e_READ' and 'EventType::e_WRITE' are the only
+        // events that can be registered simultaneously for a socket.
+        // Simultaneously registering for incompatible events for the same
+        // socket 'handle' may result in undefined behavior.  If a registration
+        // attempt is made for an event that is already registered, the
+        // callback associated with this event will be overwritten with the new
+        // one.
 
     void deregisterSocketEvent(const SocketHandle::Handle& handle,
                                EventType::Type             event);
@@ -260,6 +237,7 @@ class DefaultEventManager : public EventManager {
         // Return the number of socket events currently registered with this
         // event manager for the specified 'handle'.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

@@ -21,9 +21,10 @@ BSLS_IDENT_RCSID(btlso_socketoptions_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlso {
-                       // -------------------------
+
+                       // -------------------
                        // class SocketOptions
-                       // -------------------------
+                       // -------------------
 
 // CREATORS
 SocketOptions::SocketOptions()
@@ -71,20 +72,20 @@ SocketOptions&
 SocketOptions::operator=(const SocketOptions& rhs)
 {
     if (this != &rhs) {
-        d_debugFlag = rhs.d_debugFlag;
-        d_allowBroadcasting = rhs.d_allowBroadcasting;
-        d_reuseAddress = rhs.d_reuseAddress;
-        d_keepAlive = rhs.d_keepAlive;
-        d_bypassNormalRouting = rhs.d_bypassNormalRouting;
-        d_linger = rhs.d_linger;
+        d_debugFlag                = rhs.d_debugFlag;
+        d_allowBroadcasting        = rhs.d_allowBroadcasting;
+        d_reuseAddress             = rhs.d_reuseAddress;
+        d_keepAlive                = rhs.d_keepAlive;
+        d_bypassNormalRouting      = rhs.d_bypassNormalRouting;
+        d_linger                   = rhs.d_linger;
         d_leaveOutOfBandDataInline = rhs.d_leaveOutOfBandDataInline;
-        d_sendBufferSize = rhs.d_sendBufferSize;
-        d_receiveBufferSize = rhs.d_receiveBufferSize;
-        d_minimumSendBufferSize = rhs.d_minimumSendBufferSize;
+        d_sendBufferSize           = rhs.d_sendBufferSize;
+        d_receiveBufferSize        = rhs.d_receiveBufferSize;
+        d_minimumSendBufferSize    = rhs.d_minimumSendBufferSize;
         d_minimumReceiveBufferSize = rhs.d_minimumReceiveBufferSize;
-        d_sendTimeout = rhs.d_sendTimeout;
-        d_receiveTimeout = rhs.d_receiveTimeout;
-        d_tcpNoDelay = rhs.d_tcpNoDelay;
+        d_sendTimeout              = rhs.d_sendTimeout;
+        d_receiveTimeout           = rhs.d_receiveTimeout;
+        d_tcpNoDelay               = rhs.d_tcpNoDelay;
     }
     return *this;
 }
@@ -108,10 +109,9 @@ void SocketOptions::reset()
 }
 
 // ACCESSORS
-bsl::ostream& SocketOptions::print(
-    bsl::ostream& stream,
-    int           level,
-    int           spacesPerLevel) const
+bsl::ostream& SocketOptions::print(bsl::ostream& stream,
+                                   int           level,
+                                   int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -280,6 +280,7 @@ bsl::ostream& SocketOptions::print(
 
     return stream;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

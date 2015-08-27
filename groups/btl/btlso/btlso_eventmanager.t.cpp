@@ -29,15 +29,16 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
 //-----------------------------------------------------------------------------
 
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
-// We are testing a pure protocol class.  We need to verify that a
-// concrete derived class compiles and links and that the example compiles
-// and works as advertised.
+// We are testing a pure protocol class.  We need to verify that a concrete
+// derived class compiles and links and that the example compiles and works as
+// advertised.
 //
 // Note that some types in the Test Plan below are abbreviations for types
 // qualified by 'btlso::SocketHandle::'.
@@ -58,20 +59,26 @@ static void aSsErT(int c, const char *s, int i)
 // [ 2] USAGE TEST - Make sure usage example compiles and works as advertised.
 //=============================================================================
 
+// ============================================================================
+//                        GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef btlso::SocketHandle::Handle Handle;
+typedef btlso::EventType::Type      EventType;
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 int monitorSet(btlso::SocketHandle::Handle      *sockets,
-               int                              numSockets,
+               int                               numSockets,
                void (*function)(btlso::SocketHandle::Handle),
                btlso::EventManager              *manager)
-    // Invoke the specified 'function' when incoming data is detected on
-    // a subset of the specified 'sockets' of the specified 'numSockets'
-    // length.  Use the specified 'manager' for monitoring.
-    // Return a positive number of callbacks invoked on success and a
-    // non-positive value otherwise.  The behavior is undefined unless
-    // 0 < numSockets.
+    // Invoke the specified 'function' when incoming data is detected on a
+    // subset of the specified 'sockets' of the specified 'numSockets' length.
+    // Use the specified 'manager' for monitoring.  Return a positive number of
+    // callbacks invoked on success and a non-positive value otherwise.  The
+    // behavior is undefined unless 0 < numSockets.
 {
     ASSERT(sockets);
     ASSERT(manager);
@@ -80,18 +87,24 @@ int monitorSet(btlso::SocketHandle::Handle      *sockets,
     // Create a callback associated with 'function' for each socket and
     // register this callback to be invoked when associated socket is
     // ready for reading.
+
     for (int i = 0; i < numSockets; ++i) {
-        bdlf::Function<void (*)()> callback(
-                bdlf::BindUtil::bind(function, sockets[i]));
-        if (manager->registerSocketEvent(sockets[i],
-                                         btlso::EventType::e_READ,
-                                         callback))
-        {
+        bdlf::Function<void (*)()> callback(bdlf::BindUtil::bind(function,
+                                                                 sockets[i]));
+
+        const int rc = manager->registerSocketEvent(sockets[i],
+                                                    btlso::EventType::e_READ,
+                                                    callback);
+
+        if (rc) {
+
             // For cleanliness, when a registration fails, we will all
             // previous registrations
+
             while(--i >= 0) {
                 manager->deregisterSocket(sockets[i]);
             }
+
             return -1;                                                // RETURN
         }
     }
@@ -108,7 +121,7 @@ static void dummyFunction(btlso::SocketHandle::Handle handle)
 //-----------------------------------------------------------------------------
 
 class my_EventManager : public btlso::EventManager {
-  // Test class used to verify protocol.
+    // Test class used to verify protocol.
 
     int *d_fun; // For storing code for last called function:
                 //  1: ~my_EventManager()
@@ -128,39 +141,33 @@ class my_EventManager : public btlso::EventManager {
     ~my_EventManager()
         { *d_fun = 1; }
 
-    virtual int dispatch(const bsls::TimeInterval& timeout,
-                         int flags)
+    virtual int dispatch(const bsls::TimeInterval& timeout, int flags)
         { *d_fun = 2; return -1; }
 
     virtual int dispatch(int flags)
         { *d_fun = 3; return -1; }
 
-    virtual int registerSocketEvent(
-                const btlso::SocketHandle::Handle&   handle,
-                const btlso::EventType::Type         event,
-                const btlso::EventManager::Callback& callback)
+    virtual int registerSocketEvent(const Handle&                 handle,
+                                    const EventType               event,
+                                    const EventManager::Callback& callback)
         { *d_fun = 4; return -1; }
 
-    virtual void  deregisterSocketEvent(
-                      const btlso::SocketHandle::Handle& handle,
-                      btlso::EventType::Type             event)
+    virtual void deregisterSocketEvent(const Handle& handle, EventType event)
         { *d_fun = 5; }
 
-    virtual int deregisterSocket(const btlso::SocketHandle::Handle& handle)
+    virtual int deregisterSocket(const Handle& handle)
         { *d_fun = 6; return 0; }
 
     virtual void deregisterAll()
         { *d_fun = 7; }
 
-    virtual int numSocketEvents(const btlso::SocketHandle::Handle& handle) const
+    virtual int numSocketEvents(const Handle& handle) const
         { *d_fun = 8; return 0; }
 
     virtual int numEvents() const
         { *d_fun = 9; return 0; }
 
-    virtual int isRegistered(
-            const btlso::SocketHandle::Handle& handle,
-            const btlso::EventType::Type       event) const
+    virtual int isRegistered(const Handle& handle, const EventType event) const
         { *d_fun = 10; return 0; }
 
     virtual bool hasLimitedSocketCapacity() const
@@ -181,23 +188,35 @@ int main(int argc, char *argv[]) {
 
     switch (test) { case 0:
       case 2: {
-        // -----------------------------------------------------------------
-        // USAGE TEST:
-        //   This test is really just to make sure the syntax is correct.
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, replace 'assert' with
+        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+        //:   operations.  (C-1)
+        //
         // Testing:
-        //   USAGE TEST - Make sure usage example compiles and works as
-        //   advertised.
-        // -----------------------------------------------------------------
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "USAGE TEST" << endl
                                   << "==========" << endl;
         enum { NUM_SOCKETS = 3 };
+
         btlso::SocketHandle::Handle sockets[NUM_SOCKETS];
+
         int function = -1;
+
         my_EventManager mEm(&function);
+
         btlso::EventManager& mX = mEm;
-        ASSERT(-1 == monitorSet(sockets, NUM_SOCKETS, dummyFunction,
-                                &mX));
+        ASSERT(-1 == monitorSet(sockets, NUM_SOCKETS, dummyFunction, &mX));
 
       } break;
       case 1: {
@@ -206,18 +225,13 @@ int main(int argc, char *argv[]) {
         //   We need to make sure that a subclass of the
         //   'btlso::EventManager' class compiles and links when
         //   all virtual functions are defined.
+        //
         // Testing:
         //   ~btlso::EventManager()
-        //   int dispatch(const bsls::TimeInterval& timeout,
-        //                btlso::EventManager::InterruptOpt opt);
-        //   int dispatch(btlso::EventManager::InterruptOpt opt);
-        //   void registerSocketEvent(
-        //                const btlso::SocketHandle::Handle& handle,
-        //                const btlso::EventType::Type       event,
-        //                const Callback&                   callback);
-        //   void deregisterSocketEvent(
-        //                const btlso::SocketHandle::Handle& handle,
-        //                btlso::EventType::Type             event);
+        //   int dispatch(const bsls::TimeInterval& timeout, int flags = 0);
+        //   int dispatch(int flags = 0);
+        //   void registerSocketEvent(const Handle&, const Type, callback);
+        //   void deregisterSocketEvent(handle, event);
         //   void deregisterSocket(const btlso::SocketHandle::Handle& handle);
         //   void deregisterAll();
         //   bool hasLimitedSocketCapacity() const;
@@ -229,15 +243,15 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        int                           function = -1;
+        int function = -1;
 
         {
             my_EventManager               mEm(&function);
-            btlso::EventManager           &m = mEm;
-            btlso::SocketHandle::Handle    h;
-            btlso::EventType::Type         e = btlso::EventType::Type(1);
-            btlso::EventManager::Callback  cb;
-            bsls::TimeInterval             ti;
+            btlso::EventManager&          m = mEm;
+            btlso::SocketHandle::Handle   h;
+            btlso::EventType::Type        e = btlso::EventType::Type(1);
+            btlso::EventManager::Callback cb;
+            bsls::TimeInterval            ti;
 
             if (verbose) cout << "\nTesting dispatch function." << endl;
 

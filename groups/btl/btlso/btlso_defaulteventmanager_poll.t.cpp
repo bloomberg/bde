@@ -1195,7 +1195,8 @@ int main(int argc, char *argv[]) {
         {
             Obj mX(&timeMetric, &testAllocator);
 
-            int fails = btlso::EventManagerTester::testRegisterSocketEvent(&mX,
+            int fails = EventManagerTester::testRegisterSocketEvent(
+                                                                  &mX,
                                                                   controlFlag);
             ASSERT(0 == fails);
 
@@ -1203,7 +1204,7 @@ int main(int argc, char *argv[]) {
                 P(timeMetric.percentage(btlso::TimeMetrics::e_CPU_BOUND));
             }
             ASSERT(100 == timeMetric.percentage(
-                                          btlso::TimeMetrics::e_CPU_BOUND));
+                                             btlso::TimeMetrics::e_CPU_BOUND));
         }
 
         if (verbose)
@@ -1233,17 +1234,17 @@ int main(int argc, char *argv[]) {
 
                 btlso::EventManagerTestPair socketPairs[4];
 
-                const int NUM_PAIR =
-                               sizeof socketPairs / sizeof socketPairs[0];
+                const int NUM_PAIR = sizeof socketPairs /sizeof socketPairs[0];
 
                 for (int j = 0; j < NUM_PAIR; j++) {
                     socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
                     socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
                 }
 
-                int fails = btlso::EventManagerTester::gg(&mX, socketPairs,
-                                                         SCRIPTS[i].d_script,
-                                                         controlFlag);
+                int fails = btlso::EventManagerTester::gg(&mX,
+                                                          socketPairs,
+                                                          SCRIPTS[i].d_script,
+                                                          controlFlag);
 
                 LOOP_ASSERT(LINE, SCRIPTS[i].d_fails == fails);
 
@@ -1255,7 +1256,7 @@ int main(int argc, char *argv[]) {
                 P(timeMetric.percentage(btlso::TimeMetrics::e_CPU_BOUND));
             }
             ASSERT(100 == timeMetric.percentage(
-                                          btlso::TimeMetrics::e_CPU_BOUND));
+                                             btlso::TimeMetrics::e_CPU_BOUND));
         }
       } break;
       case 2: {
@@ -1287,8 +1288,7 @@ int main(int argc, char *argv[]) {
 
             Obj mX((btlso::TimeMetrics*)0, &testAllocator);
 
-            int fails = btlso::EventManagerTester::testAccessors(&mX,
-                                                                controlFlag);
+            int fails = EventManagerTester::testAccessors(&mX, controlFlag);
             ASSERT(0 == fails);
         }
         if (verbose) cout << "\tOn a metered object" << endl;
@@ -1296,14 +1296,13 @@ int main(int argc, char *argv[]) {
 
             Obj mX(&timeMetric, &testAllocator);
 
-            int fails = btlso::EventManagerTester::testAccessors(&mX,
-                                                                controlFlag);
+            int fails = EventManagerTester::testAccessors(&mX, controlFlag);
             ASSERT(0 == fails);
             if (verbose) {
                 P(timeMetric.percentage(btlso::TimeMetrics::e_CPU_BOUND));
             }
             ASSERT(100 == timeMetric.percentage(
-                                          btlso::TimeMetrics::e_CPU_BOUND));
+                                             btlso::TimeMetrics::e_CPU_BOUND));
         }
       } break;
 
@@ -1355,9 +1354,10 @@ int main(int argc, char *argv[]) {
                     socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
                 }
 
-                int fails = btlso::EventManagerTester::gg(&mX, socketPairs,
-                                                         SCRIPTS[i].d_script,
-                                                         controlFlag);
+                int fails = btlso::EventManagerTester::gg(&mX,
+                                                          socketPairs,
+                                                          SCRIPTS[i].d_script,
+                                                          controlFlag);
 
                 LOOP_ASSERT(LINE, SCRIPTS[i].d_fails == fails);
 
@@ -1394,8 +1394,9 @@ int main(int argc, char *argv[]) {
 
         {
             Obj mX(&timeMetric, &testAllocator);
-            btlso::EventManagerTester::testDispatchPerformance(&mX, "poll",
-                                                                  controlFlag);
+            btlso::EventManagerTester::testDispatchPerformance(&mX,
+                                                               "poll",
+                                                               controlFlag);
         }
       } break;
       case -2: {
@@ -1451,9 +1452,10 @@ int main(int argc, char *argv[]) {
                     socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
                 }
 
-                int fails = btlso::EventManagerTester::gg(&mX, socketPairs,
-                                                         script,
-                                                         controlFlag);
+                int fails = btlso::EventManagerTester::gg(&mX,
+                                                          socketPairs,
+                                                          script,
+                                                          controlFlag);
                 if (fails) {
                     break;
                 }

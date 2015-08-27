@@ -5,9 +5,6 @@ BSLS_IDENT_RCSID(bteso_socketoptions_t_cpp,"$Id$ $CSID$")
 
 #include <btlso_socketoptions.h>
 
-// #include <btlso_socketoptutil.h>
-// #include <btlso_socketimputil.h>
-
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -74,7 +71,6 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
 
 static int verbose = 0;
 static int veryVerbose = 0;

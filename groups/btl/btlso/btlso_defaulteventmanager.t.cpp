@@ -19,18 +19,21 @@ using namespace bsl;  // automatically added by script
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
-//  We just need to verify that the typedefs are properly hooked up and
-// an instance of default event manager can be created.  We also need to
-// verify that an instance of specialized event manager can be created.
+//                              --------
+//
+// This component provides an interface that is implemented by all the concrete
+// event managers.  However, this component itself does not implement any of
+// the methods.  So we just verify that the typedefs are properly hooked up and
+// an instance of default event manager can be created.  We also verify that an
+// instance of specialized event manager can be created.
 //-----------------------------------------------------------------------------
-// CREATORS
-// [ 1] btlso::EventMgr::TYPE
-//-----------------------------------------------------------------------------
-// [ 1] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
+
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 static int testStatus = 0;
 void aSsErT(int c, const char *s, int i)
 {
@@ -84,6 +87,55 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, replace 'assert' with
+        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+        //:   operations.  (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
+
+///Usage
+///-----
+// In the following usage example we show how to create an instance of a
+// default event manager.  First, we need to include this file (shown here for
+// completeness):
+//..
+//  #include <btlso_defaulteventmanager.h>
+//..
+// Second, create a 'btlso::TimeMetrics' to give to the event manager:
+//..
+    btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                               btlso::TimeMetrics::e_CPU_BOUND);
+//..
+// Now, create a default event manager that uses this 'metrics':
+//..
+    typedef btlso::Platform::DEFAULT_POLLING_MECHANISM PollMechanism;
+    btlso::DefaultEventManager<PollMechanism> eventManager(&metrics);
+//..
+// Note that the time metrics is optional.  Using the same component, we can
+// create an event manager that uses a particular mechanism (for example,
+// '/dev/poll') as follows:
+//..
+//  btlso::DefaultEventManager<btlso::Platform::DEVPOLL> fastEventManager;
+//..
+// Note that '/dev/poll' is available only on Solaris and this instantiation
+// fails (at compile time) on other platforms.
+//..
+      } break;
       case 1: {
         // -----------------------------------------------------------------
         // BREATHING TEST
@@ -100,39 +152,39 @@ int main(int argc, char *argv[]) {
 
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-        if (veryVerbose) cout << "\tCreating another dflt instance." << endl;
-        {
-            btlso::TimeMetrics metrics(
-                                   btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-                                   btlso::TimeMetrics::e_CPU_BOUND,
-                                   &testAllocator);
-            btlso::DefaultEventManager<> mX(&metrics, &testAllocator);
-        }
-
         if (veryVerbose) cout << "\tCreating a default instance." << endl;
         {
             btlso::TimeMetrics metrics(
-                                   btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-                                   btlso::TimeMetrics::e_CPU_BOUND,
-                                   &testAllocator);
-            btlso::EventMgr::TYPE mX(&metrics, &testAllocator);
+                                      btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                      btlso::TimeMetrics::e_CPU_BOUND,
+                                      &testAllocator);
+            btlso::DefaultEventManager<> mX(&metrics, &testAllocator);
+            btlso::DefaultEventManager<> mY(&metrics);
+            btlso::DefaultEventManager<> mZ;
         }
 
-        if (veryVerbose) cout << "\tYet another dflt instance." << endl;
+        if (veryVerbose) cout << "\tCreating another instance." << endl;
         {
             btlso::TimeMetrics metrics(
                                    btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
                                    btlso::TimeMetrics::e_CPU_BOUND,
                                    &testAllocator);
+
             typedef btlso::Platform::DEFAULT_POLLING_MECHANISM PollMech;
+
             btlso::DefaultEventManager<PollMech> mX(&metrics, &testAllocator);
+            btlso::DefaultEventManager<PollMech> mY(&metrics);
+            btlso::DefaultEventManager<PollMech> mZ;
         }
 
         if (veryVerbose) cout << "\tCreating an instance explicitly."
                               << endl;
         {
             btlso::DefaultEventManager<btlso::Platform::SELECT>
-                                     mX((btlso::TimeMetrics*)0, &testAllocator);
+                                    mX((btlso::TimeMetrics*)0, &testAllocator);
+            btlso::DefaultEventManager<btlso::Platform::SELECT>
+                                                    mY((btlso::TimeMetrics*)0);
+            btlso::DefaultEventManager<btlso::Platform::SELECT> mZ;
         }
       } break;
 

@@ -6,10 +6,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
-#include <btlso_eventmanagertester.h>           // for testing only
 #include <btlso_flag.h>
-#include <btlso_socketimputil.h>                // for testing only
-#include <btlso_socketoptutil.h>                // for testing only
 #include <btlso_timemetrics.h>
 
 #include <bsls_timeinterval.h>
@@ -27,17 +24,21 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace btlso {
+
 namespace {
 
-int sleep(int                     *resultErrno,
-          const bsls::TimeInterval& timeout,
-          int                      flags,
+int sleep(int                       *resultErrno,
+          const bsls::TimeInterval&  timeout,
+          int                        flags,
           btlso::TimeMetrics        *metrics)
 {
     bsls::TimeInterval now(bdlt::CurrentTime::now());
+
     while (timeout > now) {
         bsls::TimeInterval currTimeout(timeout - now);
-        struct timespec ts;
+        struct timespec    ts;
+
         ts.tv_sec  = static_cast<time_t>(currTimeout.seconds());
         ts.tv_nsec = static_cast<long>(  currTimeout.nanoseconds());
 
@@ -74,39 +75,45 @@ int sleep(int                     *resultErrno,
 int translateEventToMask(btlso::EventType::Type event)
 {
     switch (event) {
-      case btlso::EventType::e_ACCEPT:
-      case btlso::EventType::e_READ:
+      case btlso::EventType::e_ACCEPT:                          // FALL THROUGH
+      case btlso::EventType::e_READ: {
         return EPOLLIN;                                               // RETURN
-      case btlso::EventType::e_CONNECT:
-      case btlso::EventType::e_WRITE:
+      } break;
+      case btlso::EventType::e_CONNECT:                         // FALL THROUGH
+      case btlso::EventType::e_WRITE: {
         return EPOLLOUT;                                              // RETURN
-      default:
+      } break;
+      default: {
         BSLS_ASSERT("Invalid event (must be unreachable)" && 0);
+
         return -1;                                                    // RETURN
+      } break;
     }
 }
 
 }  // close unnamed namespace
 
-           // ------------------------------------------------------
+           // --------------------------------------------------------
            // class btlso::DefaultEventManager<btlso::Platform::EPOLL>
-           // ------------------------------------------------------
+           // --------------------------------------------------------
 
 typedef btlso::DefaultEventManager<btlso::Platform::EPOLL> EventManagerName;
     // Alias for brevity.
 
 // PRIVATE MANIPULATORS
 int EventManagerName::dispatchCallbacks(
-                             const bsl::vector<struct ::epoll_event>& signaled,
-                             int                                      numReady)
+                             const bsl::vector<struct ::epoll_event>& signaled)
 {
     int numCallbacks = 0;
 
     // Letting people know that we're executing user-callbacks.
 
+    const int numReady = signaled.size();
+
     d_isInvokingCb = (0 != numReady);
     for (int i = 0; i < numReady; ++i) {
         const struct ::epoll_event *curEvent = &signaled[i];
+
         BSLS_ASSERT(curEvent);
         BSLS_ASSERT(curEvent->events);
 
@@ -156,7 +163,8 @@ int EventManagerName::dispatchCallbacks(
 
     bsl::vector<EventMap::iterator>::const_iterator it;
     for (it = d_entriesBeingRemoved.begin();
-                                    d_entriesBeingRemoved.end() != it; ++it) {
+         d_entriesBeingRemoved.end() != it;
+         ++it) {
         if ((*it)->second.d_isValid) {
             // Item was first removed, then registered again.  We do not have
             // anything to do.
@@ -169,7 +177,7 @@ int EventManagerName::dispatchCallbacks(
     return numCallbacks;
 }
 
-int EventManagerName::dispatchImp(int                      flags,
+int EventManagerName::dispatchImp(int                       flags,
                                   const bsls::TimeInterval *timeout)
 {
     bsls::TimeInterval now;
@@ -178,7 +186,7 @@ int EventManagerName::dispatchImp(int                      flags,
     }
     int numCallbacks = 0;                    // number of callbacks dispatched
     const bool allowAsyncInterrupts =
-                            (0 != (btlso::Flag::k_ASYNC_INTERRUPT & flags));
+                               (0 != (btlso::Flag::k_ASYNC_INTERRUPT & flags));
     do {
         int numReady;                    // number of returned sockets
         int savedErrno = 0;          // saved errno value set by poll
@@ -187,6 +195,7 @@ int EventManagerName::dispatchImp(int                      flags,
             if (timeout) {
                 if (*timeout < now) {
                     // The epoll_wait should return immediately.
+
                     epollTimeout = 0;
                 }
                 else {
@@ -209,7 +218,6 @@ int EventManagerName::dispatchImp(int                      flags,
 
                 if (!timeout || 0 == epollTimeout) {
                     numReady = 0;
-                    // XXX not sure if we should return -2 here.
                     break;
                 }
                 numReady = sleep(&savedErrno, *timeout, flags, d_timeMetric_p);
@@ -276,7 +284,7 @@ EventManagerName::isSupported()
 
 // CREATORS
 EventManagerName::DefaultEventManager(btlso::TimeMetrics *timeMetric,
-                                            bslma::Allocator  *basicAllocator)
+                                      bslma::Allocator   *basicAllocator)
 : d_epollFd(-1)
 , d_signaled(basicAllocator)
 , d_isInvokingCb(false)
@@ -304,7 +312,8 @@ void EventManagerName::deregisterAll()
     d_numEvents = 0;
     d_entriesBeingRemoved.reserve(d_events.size());
     for (EventMap::iterator it = d_events.begin();
-                                                  d_events.end() != it; ++it) {
+         d_events.end() != it;
+         ++it) {
         if (!it->second.d_isValid) {
             continue;
         }
@@ -334,21 +343,10 @@ void EventManagerName::deregisterAll()
 }
 
 void EventManagerName::deregisterSocketEvent(
-                                      const btlso::SocketHandle::Handle& handle,
-                                      btlso::EventType::Type             event)
+                                     const btlso::SocketHandle::Handle& handle,
+                                     btlso::EventType::Type             event)
 {
     EventMap::iterator it = d_events.find(handle);
-
-    // TBD
-    // The asserts commented below should be there but right now it is
-    // difficult to use this manager through btlmt::TcpTimerEventManager if you
-    // do not keep the socket state very carefully.  Indeed, when you call
-    // registerSocketEvent on btlmt::TcpTimerEventManager, you never know if it
-    // succeeded so you might try to deregister the event later.  For this
-    // reason, we relaxed 3 asserts.  They should be re-enabled when the
-    // btlmt::TcpTimerEventManager is fixed.
-    //
-    //BSLS_ASSERT(d_events.end() != it);
 
     if (d_events.end() == it || !it->second.d_isValid) {
         // Should really be an assert.
@@ -361,19 +359,14 @@ void EventManagerName::deregisterSocketEvent(
 
     if (btlso::EventType::e_READ == event
      || btlso::EventType::e_ACCEPT == event) {
-        //BSLS_ASSERT(regEvents->d_readCallback
-        //            && event == regEvents->d_readEventType);
 
         if (!(regEvents->d_readCallback
-              && event == regEvents->d_readEventType)) {
+         && event == regEvents->d_readEventType)) {
             return ;                                                  // RETURN
         }
         regEvents->d_readCallback = btlso::EventManager::Callback();
     }
     else {
-        //BSLS_ASSERT(regEvents->d_writeCallback
-        //            && event == regEvents->d_writeEventType);
-
         if (!(regEvents->d_writeCallback
               && event == regEvents->d_writeEventType)) {
             return;                                                   // RETURN
@@ -430,7 +423,7 @@ void EventManagerName::deregisterSocketEvent(
 }
 
 int EventManagerName::deregisterSocket(
-                                      const btlso::SocketHandle::Handle& handle)
+                                     const btlso::SocketHandle::Handle& handle)
 {
     EventMap::iterator it = d_events.find(handle);
     if (d_events.end() == it || !it->second.d_isValid) {
@@ -471,7 +464,7 @@ int EventManagerName::deregisterSocket(
 }
 
 int EventManagerName::dispatch(const bsls::TimeInterval& timeout,
-                               int                      flags)
+                               int                       flags)
 {
     if (0 == numEvents()) {
         int dummy;
@@ -489,9 +482,9 @@ int EventManagerName::dispatch(int flags)
 }
 
 int EventManagerName::registerSocketEvent(
-                                  const btlso::SocketHandle::Handle&   handle,
-                                  const btlso::EventType::Type         event,
-                                  const btlso::EventManager::Callback& callback)
+                                 const btlso::SocketHandle::Handle&   handle,
+                                 const btlso::EventType::Type         event,
+                                 const btlso::EventManager::Callback& callback)
 {
     EventMap::iterator it = d_events.find(handle);
     if (d_events.end() == it) {
@@ -513,16 +506,16 @@ int EventManagerName::registerSocketEvent(
     if (btlso::EventType::e_READ == event
      || btlso::EventType::e_ACCEPT == event) {
         BSLS_ASSERT(!it->second.d_isValid
-                    || !regEvents->d_readCallback
-                    || event == regEvents->d_readEventType);
+                 || !regEvents->d_readCallback
+                 || event == regEvents->d_readEventType);
         regEvents->d_readCallback = callback;
         regEvents->d_readEventType = event;
         modifiedCallback = &regEvents->d_readCallback;
     }
     else {
         BSLS_ASSERT(!it->second.d_isValid
-                    || !regEvents->d_writeCallback
-                    || event == regEvents->d_writeEventType);
+                 || !regEvents->d_writeCallback
+                 || event == regEvents->d_writeEventType);
         regEvents->d_writeCallback = callback;
         regEvents->d_writeEventType = event;
         modifiedCallback = &regEvents->d_writeCallback;
@@ -559,6 +552,7 @@ int EventManagerName::registerSocketEvent(
     struct epoll_event epollEvent = {0,{0}};
     epollEvent.events = newMask;
     epollEvent.data.ptr = (void *) &*it;
+
     int epollCmd = EPOLL_CTL_MOD;
     if (0 == regEvents->d_mask) {
         // This socket handle is not registered with epoll.
@@ -567,8 +561,10 @@ int EventManagerName::registerSocketEvent(
     }
     const int oldMask = regEvents->d_mask;
     regEvents->d_mask = newMask;
+
     const int ret = epoll_ctl(d_epollFd, epollCmd, handle, &epollEvent);
     BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
+
     if (0 == ret) {
 
         if (wasRevalidated) {
@@ -594,6 +590,7 @@ int EventManagerName::registerSocketEvent(
     --d_numEvents;
     if (oldMask) {
         // There are other events registered at this point.  Leave the entry.
+
         return -1;                                                    // RETURN
     }
 
@@ -612,7 +609,7 @@ int EventManagerName::registerSocketEvent(
 
 // ACCESSORS
 int EventManagerName::numSocketEvents(
-                                const btlso::SocketHandle::Handle& handle) const
+                               const btlso::SocketHandle::Handle& handle) const
 {
     EventMap::const_iterator it = d_events.find(handle);
     if (d_events.end() == it || !it->second.d_isValid) {
@@ -628,8 +625,8 @@ int EventManagerName::numEvents() const
 }
 
 int EventManagerName::isRegistered(
-                                 const btlso::SocketHandle::Handle& handle,
-                                 const btlso::EventType::Type       event) const
+                                const btlso::SocketHandle::Handle& handle,
+                                const btlso::EventType::Type       event) const
 {
     EventMap::const_iterator it = d_events.find(handle);
     if (d_events.end() == it || !it->second.d_isValid) {
@@ -646,6 +643,8 @@ int EventManagerName::isRegistered(
     }
     return 0;
 }
+
+}  // close package namespace
 
 }  // close enterprise namespace
 

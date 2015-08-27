@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: btlso_eventmanager btlso_defaulteventmanager btlso_timemetrics
 //
-//@SEE_ALSO: btlso_tcptimereventmanager  bteso_eventmanagertest
-//
 //@AUTHOR: Cheenu Srinivasan (csriniva)
 //
 //@DESCRIPTION: This component provides an implementation of an event manager
@@ -105,13 +103,15 @@ BSLS_IDENT("$Id: $")
 // (locally-connected) socket pair:
 //..
 //  btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-//                               btlso::TimeMetrics::e_CPU_BOUND);
-//  btlso::DefaultEventManager<btlso::Platform::POLL> mX(&timeMetric);
+//                                btlso::TimeMetrics::e_CPU_BOUND);
+//
+//  btlso::DefaultEventManager<btlso::Platform::EPOLL> mX(&timeMetric);
 //
 //  btlso::SocketHandle::Handle socket[2];
 //
 //  int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-//                           socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
+//                                      socket,
+//                                      btlso::SocketImpUtil::k_SOCKET_STREAM);
 //
 //  assert(0 == rc);
 //..
@@ -122,22 +122,30 @@ BSLS_IDENT("$Id: $")
 //..
 //  int numBytes = 5;
 //  btlso::EventManager::Callback readCb(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_READ,
-//                              socket[0], numBytes, &mX));
+//                               bdlf::BindUtil::bind(&genericCb,
+//                                                    btlso::EventType::e_READ,
+//                                                    socket[0],
+//                                                    numBytes,
+//                                                    &mX));
 //  mX.registerSocketEvent(socket[0], btlso::EventType::e_READ, readCb);
 //
 //  numBytes = 25;
 //  btlso::EventManager::Callback writeCb1(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
-//                              socket[0], numBytes, &mX));
+//                              bdlf::BindUtil::bind(&genericCb,
+//                                                   btlso::EventType::e_WRITE,
+//                                                   socket[0],
+//                                                   numBytes,
+//                                                   &mX));
 //  mX.registerSocketEvent(socket[0], btlso::EventType::e_WRITE, writeCb1);
 //
 //  numBytes = 15;
 //  btlso::EventManager::Callback writeCb2(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
-//                              socket[1], numBytes, &mX));
+//                              bdlf::BindUtil::bind(&genericCb,
+//                                                   btlso::EventType::e_WRITE,
+//                                                   socket[1],
+//                                                   numBytes,
+//                                                   &mX));
 //  mX.registerSocketEvent(socket[1], btlso::EventType::e_WRITE, writeCb2);
-//
 //
 //  assert(3 == mX.numEvents());
 //  assert(2 == mX.numSocketEvents(socket[0]));
@@ -153,11 +161,11 @@ BSLS_IDENT("$Id: $")
 // have a timeout requirement, a different version of 'dispatch' (in which no
 // timeout is specified) can also be called.
 //..
-//  btlso::EventManager::InterruptOpt opt =
-//                                      btlso::EventManager::NON_INTERRUPTIBLE;
+//  int                flags = 0;
 //  bsls::TimeInterval deadline(bdlt::CurrentTime::now());
+//
 //  deadline += 5;    // timeout 5 seconds from now.
-//  rc = mX.dispatch(deadline, opt);   assert(2 == rc);
+//  rc = mX.dispatch(deadline, flags);   assert(2 == rc);
 //..
 // Now we try to remove the write request of 'socket[0]' from the event manager
 // by calling 'deregisterSocketEvent()' and verify the state:
@@ -197,9 +205,10 @@ BSLS_IDENT("$Id: $")
 //..
 // The following snippets of code show what a 'genericCb' may look like:
 //..
-//  static void
-//  genericCb(btlso::EventType::Type event, btlso::SocketHandle::Handle socket,
-//            int bytes, btlso::EventManager *mX)
+//  static void genericCb(btlso::EventType::Type       event,
+//                        btlso::SocketHandle::Handle  socket,
+//                        int                          bytes,
+//                        btlso::EventManager         *mX)
 //  {
 //      // User specified callback function that is invoked when a socket
 //      // event is detected.
