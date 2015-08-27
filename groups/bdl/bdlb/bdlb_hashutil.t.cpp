@@ -787,16 +787,16 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   hash0(char                 key, int mod);
-        //   hash0(signed char          key, int mod); // missing
-        //   hash0(unsigned char        key, int mod); // missing
+        //   hash0(signed char          key, int mod);
+        //   hash0(unsigned char        key, int mod);
         //   hash0(short                key, int mod);
-        //   hash0(unsigned short       key, int mod); // missing
+        //   hash0(unsigned short       key, int mod);
         //   hash0(int                  key, int mod);
-        //   hash0(unsigned int         key, int mod); // missing
-        //   hash0(long                 key, int mod); // missing
-        //   hash0(unsigned long        key, int mod); // missing
+        //   hash0(unsigned int         key, int mod);
+        //   hash0(long                 key, int mod);
+        //   hash0(unsigned long        key, int mod);
         //   hash0(bsls::Types::Int64   key, int mod);
-        //   hash0(bsls::Types::Uint64  key, int mod); // missing
+        //   hash0(bsls::Types::Uint64  key, int mod);
         //   hash0(float                key, int mod);
         //   hash0(double               key, int mod);
         //   hash0(const void          *key, int mod);
@@ -843,6 +843,12 @@ int main(int argc, char *argv[])
                     P(Util::hash0(VALUE, SIZE))
                 }
                 LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(
+                                               static_cast<signed char>(VALUE),
+                                               SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(
+                                             static_cast<unsigned char>(VALUE),
+                                             SIZE));
             }
         }
 
@@ -884,6 +890,9 @@ int main(int argc, char *argv[])
                     P(Util::hash0(VALUE, SIZE))
                 }
                 LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(
+                                            static_cast<unsigned short>(VALUE),
+                                            SIZE));
             }
         }
 
@@ -919,6 +928,9 @@ int main(int argc, char *argv[])
                     P(Util::hash0(VALUE, SIZE));
                 }
                 LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(
+                                              static_cast<unsigned int>(VALUE),
+                                              SIZE));
             }
         }
 
@@ -926,7 +938,7 @@ int main(int argc, char *argv[])
         {
             static const struct {
                 int          d_lineNum;  // source line number
-                int          d_valueA;   // first half of value to hash
+                int          d_valueA;   // first  half of value to hash
                 int          d_valueB;   // second half of value to hash
                 int          d_size;     // size of hash table
                 unsigned int d_exp;      // expected return value
@@ -965,6 +977,9 @@ int main(int argc, char *argv[])
                     P(Util::hash0(VALUE, SIZE))
                 }
                 LOOP_ASSERT(LINE, EXP == Util::hash0(VALUE, SIZE));
+                LOOP_ASSERT(LINE, EXP == Util::hash0(
+                                       static_cast<bsls::Types::Uint64>(VALUE),
+                                       SIZE));
             }
         }
 
