@@ -257,6 +257,7 @@ Tokenizer::Tokenizer(const bslstl::StringRef&  input,
                      const bslstl::StringRef&  soft)
 : d_tokenizerData(soft)
 {
+    BSLS_ASSERT(input.begin());
     reset(input);
 }
 
@@ -265,6 +266,7 @@ Tokenizer::Tokenizer(const bslstl::StringRef&  input,
                      const bslstl::StringRef&  hard)
 : d_tokenizerData(soft, hard)
 {
+    BSLS_ASSERT(input.begin());
     reset(input);
 }
 
@@ -390,6 +392,7 @@ void Tokenizer::reset(const char *input)
 
 void Tokenizer::reset(const bslstl::StringRef& input)
 {
+    BSLS_ASSERT(input.begin());
     return resetImpl(input.begin(), input.end());
 }
 

@@ -477,11 +477,6 @@ struct Tokenizer_Data {
         // note that it is entirely reasonable to state, in any public
         // interface, that the behavior is undefined unless the characters in
         // the union of the two delimiter sequences are unique.
-
-    // ACCESSORS
-    bool isSoftDelimiter(const unsigned char ch) const;
-    bool isHardDelimiter(const unsigned char ch) const;
-    int  toInputType(const unsigned char ch) const;
 };
                         // =======================
                         // class TokenizerIterator
@@ -817,7 +812,6 @@ bslstl::StringRef Tokenizer::token() const
 
 
 // FREE OPERATORS
-// FREE OPERATORS
 inline
 bool bdlb::operator==(const bdlb::TokenizerIterator& lhs,
                       const bdlb::TokenizerIterator& rhs)
@@ -830,6 +824,15 @@ bool bdlb::operator!=(const bdlb::TokenizerIterator& lhs,
                       const bdlb::TokenizerIterator& rhs)
 {
     return !lhs.isEqual(rhs);
+}
+
+inline
+const bdlb::TokenizerIterator bdlb::operator++(bdlb::TokenizerIterator& object,
+                                               int)
+{
+    bdlb::TokenizerIterator tmp(object);
+    ++object;
+    return tmp;
 }
 
 template <class T>
@@ -852,3 +855,18 @@ bool  bdlb::operator==(const bdlb::Tokenizer& lhs, const T& rhs)
 
 #endif
 
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
